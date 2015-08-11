@@ -10,7 +10,7 @@
 #include "mdkDebugConfig.h"
 #include "mdkDenseMatrix.h"
 #include "mdkImageInterpolation3D.h"
-#include "mdkImageInfo.h" // must be the last to include
+#include "mdkImageInfo3D.h" // must be the last to include
 
 namespace mdk
 {

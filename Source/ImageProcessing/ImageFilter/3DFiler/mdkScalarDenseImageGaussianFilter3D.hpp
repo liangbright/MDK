@@ -70,7 +70,7 @@ bool ScalarDenseImageGaussianFilter3D<InputPixelType, OutputPixelType, ScalarTyp
 		return false;
 	}
 
-	if (m_RotationMatrix.GetColNumber() != 3 || m_RotationMatrix.GetRowNumber() != 3)
+	if (m_RotationMatrix.GetColCount() != 3 || m_RotationMatrix.GetRowCount() != 3)
 	{
 		MDK_Error("RotationMatrix is invalid @ ScalarDenseImageGaussianFilter3D::CheckInput(...)")
 		return false;
@@ -107,8 +107,8 @@ void ScalarDenseImageGaussianFilter3D<InputPixelType, OutputPixelType, ScalarTyp
     // at each point of the grid, compute the mahalanobis distance to the center (0,0,0), i.e., sqrt(SquaredRatio)
     // add the points within the m_CutOffRatio to Mask
     
-	m_PointMask_3DPhysicalPosition.FastResize(0);
-	m_PointMask_3DPhysicalPosition.ReserveCapacity(3*8*MaxRadius_x*MaxRadius_y*MaxRadius_z);
+	m_PointMask_3DPosition_InputImage.FastResize(0);
+	m_PointMask_3DPosition_InputImage.ReserveCapacity(3 * 8 * MaxRadius_x*MaxRadius_y*MaxRadius_z);
 
 	m_ConvolutionCoefficient.FastResize(0);
 	m_ConvolutionCoefficient.ReserveCapacity(8*MaxRadius_x*MaxRadius_y*MaxRadius_z);
@@ -137,14 +137,14 @@ void ScalarDenseImageGaussianFilter3D<InputPixelType, OutputPixelType, ScalarTyp
                 if (tempRatio <= CutOffRatio_square)
                 {
 					auto tempValue = std::exp(-0.5*tempRatio);
-					m_PointMask_3DPhysicalPosition.AppendCol(Position);
+					m_PointMask_3DPosition_InputImage.AppendCol(Position);
 					m_ConvolutionCoefficient.Append(ScalarType(tempValue));
                 }
             }
         }
     }
 
-	m_PointMask_3DPhysicalPosition.ReleaseUnusedCapacity();
+	m_PointMask_3DPosition_InputImage.ReleaseUnusedCapacity();
 	m_ConvolutionCoefficient.ReleaseUnusedCapacity();
 
 	//normalize coefficient

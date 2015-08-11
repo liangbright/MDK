@@ -3,13 +3,13 @@
 
 #include <algorithm>
 
-#include "mdkDenseImageFilterWithSingleMask3D.h"
+#include "mdkDenseImageFilterWithSingleMaskInInputImage3D.h"
 
 namespace mdk
 {
 
 template<typename InputPixel_Type, typename OutputPixel_Type = InputPixel_Type, typename Scalar_Type = OutputPixel_Type>
-class ScalarDenseImageConvolutionFilter3D : public DenseImageFilterWithSingleMask3D<InputPixel_Type, OutputPixel_Type, Scalar_Type>
+class ScalarDenseImageConvolutionFilter3D : public DenseImageFilterWithSingleMaskInInputImage3D<InputPixel_Type, OutputPixel_Type, Scalar_Type>
 {
 public:
 	typedef InputPixel_Type  InputPixelType;
@@ -30,7 +30,7 @@ public:
 	void SetConvolutionCoefficient(DenseMatrix<ScalarType> Coef);
 	const DenseMatrix<ScalarType>& GetConvolutionCoefficient();
 
-	inline OutputPixelType EvaluateAt3DPhysicalPosition(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex);
+	inline OutputPixelType EvaluateAt3DPositionInInputImage(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex);
 
 protected:
 	virtual bool Preprocess();

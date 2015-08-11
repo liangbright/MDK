@@ -5,26 +5,36 @@ namespace mdk
 {
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
-OutputPixelType InterpolateImageAt3DContinuousIndex(const DenseImage3D<InputPixelType>& InputImage,
-                                                    ScalarType x, ScalarType y, ScalarType z, 
-													const Option_Of_Image3DInterpolation<InputPixelType>& Option)
+OutputPixelType InterpolateImageAt3DIndex(const DenseImage3D<InputPixelType>& InputImage,
+                                          ScalarType x, ScalarType y, ScalarType z, 
+										  const Option_Of_Image3DInterpolation<InputPixelType>& Option)
 {
 	switch (Option.MethodType)
     {
 	case MethodEnum_Of_Image3DInterpolation::Nearest:
-		return InterpolateImageAt3DContinuousIndex_Nearest<OutputPixelType>(InputImage, x, y, z, Option);
+		return InterpolateImageAt3DIndex_Nearest<OutputPixelType>(InputImage, x, y, z, Option);
 
 	case MethodEnum_Of_Image3DInterpolation::Linear:
-		return InterpolateImageAt3DContinuousIndex_Linear<OutputPixelType>(InputImage, x, y, z, Option);
+		return InterpolateImageAt3DIndex_Linear<OutputPixelType>(InputImage, x, y, z, Option);
 
     //case MethodEnum_Of_Image3DInterpolation::Cubic:
-
-    //    return InterpolateImageAt3DContinuousIndex_Cubic<OutputPixelType(InputImage, x, y, z, Option);
+    //    return InterpolateImageAt3DIndex_Cubic<OutputPixelType(InputImage, x, y, z, Option);
 
     default:
-        MDK_Error("InterpolationMethod is not supported @ mdkImageInterpolation3D InterpolateImageAtContinuousIndex(...)")
+        MDK_Error("InterpolationMethod is not supported @ mdkDenseImageImageInterpolation3D InterpolateImageAt3DIndex(...)")
 		return OutputPixelType(Option.Pixel_OutsideImage);
     }
+}
+
+
+template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
+inline
+OutputPixelType InterpolateImageAt3DPosition(const DenseImage3D<InputPixelType>& InputImage,
+ScalarType x, ScalarType y, ScalarType z,
+const Option_Of_Image3DInterpolation<InputPixelType>& Option)
+{
+	Index3D = InputImage.Transform3DPositionTo3DIndex(x, y, z);
+	return InterpolateImageAt3DIndex(InputImage, Index3D[0], Index3D[1], Index3D[2], Option);
 }
 
 
@@ -34,33 +44,20 @@ OutputPixelType InterpolateImageAt3DWorldPosition(const DenseImage3D<InputPixelT
                                                   ScalarType x, ScalarType y, ScalarType z, 
 											      const Option_Of_Image3DInterpolation<InputPixelType>& Option)
 {
-	switch (Option.MethodType)
-    {
-	case MethodEnum_Of_Image3DInterpolation::Nearest:
-		return InterpolateImageAt3DWorldPosition_Nearest<OutputPixelType>(InputImage, x, y, z, Option);
-
-	case MethodEnum_Of_Image3DInterpolation::Linear:
-		return InterpolateImageAt3DWorldPosition_Linear<OutputPixelType>(InputImage, x, y, z, Option);
-
-	//case MethodEnum_Of_Image3DInterpolation::Cubic:
-    //    return InterpolateImageAt3DWorldPosition_Cubic<OutputPixelType>(InputImage, x, y, z, Option);
-
-    default:
-        MDK_Error("InterpolationMethod is not supported @ mdkImageInterpolation3D InterpolateImageAt3DWorldPosition(...)")
-		return OutputPixelType(Option.Pixel_OutsideImage);
-    }	
+	Index3D = InputImage.Transform3DWorldPositionTo3DIndex(x, y, z);
+	return InterpolateImageAt3DIndex(InputImage, Index3D[0], Index3D[1], Index3D[2], Option);
 }
 
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
-OutputPixelType InterpolateImageAt3DContinuousIndex_Nearest(const DenseImage3D<InputPixelType>& InputImage,
-                                                            ScalarType x, ScalarType y, ScalarType z, 
-													        const Option_Of_Image3DInterpolation<InputPixelType>& Option)
+OutputPixelType InterpolateImageAt3DIndex_Nearest(const DenseImage3D<InputPixelType>& InputImage,
+                                                  ScalarType x, ScalarType y, ScalarType z, 
+												  const Option_Of_Image3DInterpolation<InputPixelType>& Option)
 {
     if (InputImage.IsEmpty() == true)
     {
-        MDK_Error("InputImage is empty @ mdkImageInterpolation3D InterpolateImageAt3DContinuousIndex_Nearest(...)")
+        MDK_Error("InputImage is empty @ mdkImageInterpolation3D InterpolateImageAt3DIndex_Nearest(...)")
         return OutputPixelType(Option.Pixel_OutsideImage);
     }
 
@@ -123,24 +120,13 @@ OutputPixelType InterpolateImageAt3DContinuousIndex_Nearest(const DenseImage3D<I
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
-OutputPixelType InterpolateImageAt3DWorldPosition_Nearest(const DenseImage3D<InputPixelType>& InputImage,
-                                                          ScalarType x, ScalarType y, ScalarType z, 
-													      const Option_Of_Image3DInterpolation<InputPixelType>& Option)
-{
-	auto Index3D = InputImage.Transform3DWorldPositionTo3DIndex(x, y, z);
-	return InterpolateImageAt3DContinuousIndex_Nearest<OutputPixelType>(InputImage, Index3D[0], Index3D[1], Index3D[2], Option);
-}
-
-
-template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
-inline
-OutputPixelType InterpolateImageAt3DContinuousIndex_Linear(const DenseImage3D<InputPixelType>& InputImage,
+OutputPixelType InterpolateImageAt3DIndex_Linear(const DenseImage3D<InputPixelType>& InputImage,
                                                            ScalarType x, ScalarType y, ScalarType z, 
 													       const Option_Of_Image3DInterpolation<InputPixelType>& Option)
 {
     if (InputImage.IsEmpty()  == true)
     {
-        MDK_Error("InputImage is empty @ mdkImageInterpolation3D InterpolateImageAtContinuousIndex_Linear(...)")
+        MDK_Error("InputImage is empty @ mdkImageInterpolation3D InterpolateImageAtIndex_Linear(...)")
         return OutputPixelType(Option.Pixel_OutsideImage);
     }
 
@@ -269,31 +255,10 @@ OutputPixelType InterpolateImageAt3DContinuousIndex_Linear(const DenseImage3D<In
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
-OutputPixelType InterpolateImageAt3DWorldPosition_Linear(const DenseImage3D<InputPixelType>& InputImage,
-                                                         ScalarType x, ScalarType y, ScalarType z, 
-													     const Option_Of_Image3DInterpolation<InputPixelType>& Option)
-{
-	auto Index3D = InputImage.Transform3DWorldPositionTo3DIndex(x, y, z);
-	return InterpolateImageAt3DContinuousIndex_Linear<OutputPixelType>(InputImage, Index3D[0], Index3D[1], Index3D[2], Option);
-}
-
-
-template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
-inline
-OutputPixelType InterpolateImageAt3DContinuousIndex_Cubic(const DenseImage3D<InputPixelType>& InputImage,
-                                                          ScalarType x, ScalarType y, ScalarType z, 
-													      const Option_Of_Image3DInterpolation<InputPixelType>& Option)
+OutputPixelType InterpolateImageAt3DIndex_Cubic(const DenseImage3D<InputPixelType>& InputImage,
+                                                ScalarType x, ScalarType y, ScalarType z, 
+												const Option_Of_Image3DInterpolation<InputPixelType>& Option)
 {   
-	MDK_Error("Not implemented yet")
-}
-
-
-template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
-inline
-OutputPixelType InterpolateImageAt3DWorldPosition_Cubic(const DenseImage3D<InputPixelType>& InputImage,
-                                                        ScalarType x, ScalarType y, ScalarType z, 
-													    const Option_Of_Image3DInterpolation<InputPixelType>& Option)
-{
 	MDK_Error("Not implemented yet")
 }
 

@@ -21,22 +21,26 @@ template<typename PixelType>
 inline
 void DenseImageData3D<PixelType>::Clear()
 {
-    m_Size[0] = 0;
-    m_Size[1] = 0;
-    m_Size[2] = 0;
+	m_Info.Size = { 0.0, 0.0, 0.0 };
     m_PixelCountPerZSlice = 0;
 
-	m_3DIndexSpace.Origin = { 0.0, 0.0, 0.0 };
-	m_3DIndexSpace.Spacing = { 1.0, 1.0, 1.0 };
-	m_3DIndexSpace.DirectionX = { 1.0, 0.0, 0.0 };
-	m_3DIndexSpace.DirectionX = { 0.0, 1.0, 0.0 };
-	m_3DIndexSpace.DirectionX = { 0.0, 0.0, 1.0 };
+	m_Info.Origin = { 0.0, 0.0, 0.0 };
+	m_Info.Spacing = { 1.0, 1.0, 1.0 };
 
-	m_TransformMatrix_3DIndexTo3DWorld.Resize(3, 3);
-	m_TransformMatrix_3DIndexTo3DWorld.FillDiagonal(1);
+	m_Info.Orientation = {{1.0, 0.0, 0.0},
+					      {0.0, 1.0, 0.0},
+	                      {0.0, 0.0, 1.0}};
+	m_Info.Orientation.FixSize();
 
-	m_TransformMatrix_3DWorldTo3DIndex.Resize(3, 3);
-	m_TransformMatrix_3DWorldTo3DIndex.FillDiagonal(1);
+	m_Info.TransformMatrix_3DIndexTo3DWorld= {{1.0, 0.0, 0.0},
+										      {0.0, 1.0, 0.0},
+										      {0.0, 0.0, 1.0}};
+	m_Info.TransformMatrix_3DIndexTo3DWorld.FixSize();
+
+	m_Info.TransformMatrix_3DWorldTo3DIndex = {{1.0, 0.0, 0.0},
+									  	       {0.0, 1.0, 0.0},
+										       {0.0, 0.0, 1.0}};
+	m_Info.TransformMatrix_3DWorldTo3DIndex.FixSize();
 
     m_PixelArray.Clear();
 
@@ -80,7 +84,7 @@ template<typename PixelType>
 inline
 PixelType& DenseImageData3D<PixelType>::operator()(int_max xIndex, int_max yIndex, int_max zIndex)
 {
-    auto LinearIndex = zIndex*m_PixelCountPerZSlice + yIndex*m_Size[0] + xIndex;
+    auto LinearIndex = zIndex*m_PixelCountPerZSlice + yIndex*m_Info.Size[0] + xIndex;
  
     return m_PixelArray[LinearIndex];
 }
@@ -90,7 +94,7 @@ template<typename PixelType>
 inline
 const PixelType& DenseImageData3D<PixelType>::operator()(int_max xIndex, int_max yIndex, int_max zIndex) const
 {
-    auto LinearIndex = zIndex*m_PixelCountPerZSlice + yIndex*m_Size[0] + xIndex;
+    auto LinearIndex = zIndex*m_PixelCountPerZSlice + yIndex*m_Info.Size[0] + xIndex;
 
     return m_PixelArray[LinearIndex];
 }
@@ -105,7 +109,7 @@ DenseVector<ScalarType, 3> DenseImageData3D<PixelType>::TransformLinearIndexTo3D
 
 	auto zIndex = divresult.quot; // z
             
-	divresult = std::div(divresult.rem, m_Size[0]);
+	divresult = std::div(divresult.rem, m_Info.Size[0]);
 
 	auto yIndex = divresult.quot; // y
 	auto xIndex = divresult.rem; // x
@@ -121,10 +125,10 @@ DenseVector<ScalarType, 3> DenseImageData3D<PixelType>::TransformLinearIndexTo3D
 template<typename PixelType>
 template<typename ScalarType>
 inline
-DenseVector<ScalarType, 3> DenseImageData3D<PixelType>::TransformLinearIndexTo3DPhysicalPosition(int_max LinearIndex) const
+DenseVector<ScalarType, 3> DenseImageData3D<PixelType>::TransformLinearIndexTo3DPosition(int_max LinearIndex) const
 {
 	auto Index3D = this->TransformLinearIndexTo3DIndex(LinearIndex);
-	auto Position = this->Transform3DIndexTo3DPhysicalPosition<ScalarType>(Index3D[0], Index3D[1], Index3D[2]);
+	auto Position = this->Transform3DIndexTo3DPosition<ScalarType>(Index3D[0], Index3D[1], Index3D[2]);
 	return Position;
 }
 
@@ -144,7 +148,7 @@ template<typename PixelType>
 inline
 int_max DenseImageData3D<PixelType>::Transform3DIndexToLinearIndex(int_max xIndex, int_max yIndex, int_max zIndex) const
 {
-	return zIndex*m_PixelCountPerZSlice + yIndex*m_Size[0] + xIndex;
+	return zIndex*m_PixelCountPerZSlice + yIndex*m_Info.Size[0] + xIndex;
 }
 
 
@@ -152,12 +156,12 @@ template<typename PixelType>
 template<typename ScalarType_Position, typename ScalarType_Index>
 inline
 DenseVector<ScalarType_Position, 3>
-DenseImageData3D<PixelType>::Transform3DIndexTo3DPhysicalPosition(ScalarType_Index xIndex, ScalarType_Index yIndex, ScalarType_Index zIndex) const
+DenseImageData3D<PixelType>::Transform3DIndexTo3DPosition(ScalarType_Index xIndex, ScalarType_Index yIndex, ScalarType_Index zIndex) const
 {
 	DenseVector<ScalarType_Position, 3> Position;
-	Position[0] = ScalarType_Position(double(xIndex)*m_3DIndexSpace.Spacing[0]);
-	Position[1] = ScalarType_Position(double(yIndex)*m_3DIndexSpace.Spacing[1]);
-	Position[2] = ScalarType_Position(double(zIndex)*m_3DIndexSpace.Spacing[2]);
+	Position[0] = ScalarType_Position(double(xIndex)*m_Info.Spacing[0]);
+	Position[1] = ScalarType_Position(double(yIndex)*m_Info.Spacing[1]);
+	Position[2] = ScalarType_Position(double(zIndex)*m_Info.Spacing[2]);
 	return Position;
 }
 
@@ -168,11 +172,11 @@ inline
 DenseVector<ScalarType_Position, 3> 
 DenseImageData3D<PixelType>::Transform3DIndexTo3DWorldPosition(ScalarType_Index xIndex, ScalarType_Index yIndex, ScalarType_Index zIndex) const
 {
-	auto M = m_TransformMatrix_3DIndexTo3DWorld.GetElementPointer();
+	auto M = m_Info.TransformMatrix_3DIndexTo3DWorld.GetElementPointer();
 	DenseVector<ScalarType_Position, 3> Position;
-	Position[0] = ScalarType_Position(m_3DIndexSpace.Origin[0] + double(xIndex)*M[0] + double(yIndex)*M[3] + double(zIndex)*M[6]);
-	Position[1] = ScalarType_Position(m_3DIndexSpace.Origin[1] + double(xIndex)*M[1] + double(yIndex)*M[4] + double(zIndex)*M[7]);
-	Position[2] = ScalarType_Position(m_3DIndexSpace.Origin[2] + double(xIndex)*M[2] + double(yIndex)*M[5] + double(zIndex)*M[8]);
+	Position[0] = ScalarType_Position(m_Info.Origin[0] + double(xIndex)*M[0] + double(yIndex)*M[3] + double(zIndex)*M[6]);
+	Position[1] = ScalarType_Position(m_Info.Origin[1] + double(xIndex)*M[1] + double(yIndex)*M[4] + double(zIndex)*M[7]);
+	Position[2] = ScalarType_Position(m_Info.Origin[2] + double(xIndex)*M[2] + double(yIndex)*M[5] + double(zIndex)*M[8]);
 	return Position;
 }
 
@@ -180,12 +184,12 @@ DenseImageData3D<PixelType>::Transform3DIndexTo3DWorldPosition(ScalarType_Index 
 template<typename PixelType>
 template<typename ScalarType>
 inline
-DenseVector<ScalarType, 3> DenseImageData3D<PixelType>::Transform3DPhysicalPositionTo3DIndex(ScalarType x, ScalarType y, ScalarType z) const
+DenseVector<ScalarType, 3> DenseImageData3D<PixelType>::Transform3DPositionTo3DIndex(ScalarType x, ScalarType y, ScalarType z) const
 {
 	DenseVector<ScalarType, 3> Index3D;
-	Index3D[0] = ScalarType(double(x)/m_3DIndexSpace.Spacing[0]);
-	Index3D[1] = ScalarType(double(y)/m_3DIndexSpace.Spacing[1]);
-	Index3D[2] = ScalarType(double(z)/m_3DIndexSpace.Spacing[2]);
+	Index3D[0] = ScalarType(double(x)/m_Info.Spacing[0]);
+	Index3D[1] = ScalarType(double(y)/m_Info.Spacing[1]);
+	Index3D[2] = ScalarType(double(z)/m_Info.Spacing[2]);
 	return Index3D;
 }
 
@@ -193,12 +197,13 @@ DenseVector<ScalarType, 3> DenseImageData3D<PixelType>::Transform3DPhysicalPosit
 template<typename PixelType>
 template<typename ScalarType>
 inline
-DenseVector<ScalarType, 3> DenseImageData3D<PixelType>::Transform3DPhysicalPositionTo3DWorldPosition(ScalarType x, ScalarType y, ScalarType z) const
+DenseVector<ScalarType, 3> DenseImageData3D<PixelType>::Transform3DPositionTo3DWorldPosition(ScalarType x, ScalarType y, ScalarType z) const
 {
+	auto M = m_Info.Orientation.GetElementPointer();
 	DenseVector<ScalarType, 3> Position;
-	Position[0] = ScalarType(m_3DIndexSpace.Origin[0] + double(x)*m_3DIndexSpace.DirectionX[0] + double(y)*m_3DIndexSpace.DirectionY[0] + double(z)*m_3DIndexSpace.DirectionZ[0]);
-	Position[1] = ScalarType(m_3DIndexSpace.Origin[1] + double(x)*m_3DIndexSpace.DirectionX[1] + double(y)*m_3DIndexSpace.DirectionY[1] + double(z)*m_3DIndexSpace.DirectionZ[1]);
-	Position[2] = ScalarType(m_3DIndexSpace.Origin[2] + double(x)*m_3DIndexSpace.DirectionX[2] + double(y)*m_3DIndexSpace.DirectionY[2] + double(z)*m_3DIndexSpace.DirectionZ[2]);
+	Position[0] = ScalarType(m_Info.Origin[0] + double(x)*M[0] + double(y)*M[3] + double(z)*M[6]);
+	Position[1] = ScalarType(m_Info.Origin[1] + double(x)*M[1] + double(y)*M[4] + double(z)*M[7]);
+	Position[2] = ScalarType(m_Info.Origin[2] + double(x)*M[2] + double(y)*M[5] + double(z)*M[8]);
 	return Position;
 }
 
@@ -208,16 +213,16 @@ template<typename ScalarType>
 inline 
 DenseVector<ScalarType, 3> DenseImageData3D<PixelType>::Transform3DWorldPositionTo3DIndex(ScalarType x, ScalarType y, ScalarType z) const
 {
-	auto temp_x = double(x) - m_3DIndexSpace.Origin[0];
-	auto temp_y = double(y) - m_3DIndexSpace.Origin[1];
-	auto temp_z = double(z) - m_3DIndexSpace.Origin[2];
+	auto temp_x = double(x) - m_Info.Origin[0];
+	auto temp_y = double(y) - m_Info.Origin[1];
+	auto temp_z = double(z) - m_Info.Origin[2];
 
-	auto M = m_TransformMatrix_3DWorldTo3DIndex.GetElementPointer();
+	auto M = m_Info.TransformMatrix_3DWorldTo3DIndex.GetElementPointer();
 
 	DenseVector<ScalarType, 3> Index3D;
-	Index3D[0] = ScalarType(m_3DIndexSpace.Origin[0] + double(temp_x)*M[0] + double(temp_y)*M[3] + double(temp_z)*M[6]);
-	Index3D[1] = ScalarType(m_3DIndexSpace.Origin[1] + double(temp_x)*M[1] + double(temp_y)*M[4] + double(temp_z)*M[7]);
-	Index3D[2] = ScalarType(m_3DIndexSpace.Origin[2] + double(temp_x)*M[2] + double(temp_y)*M[5] + double(temp_z)*M[8]);
+	Index3D[0] = ScalarType(double(temp_x)*M[0] + double(temp_y)*M[3] + double(temp_z)*M[6]);
+	Index3D[1] = ScalarType(double(temp_x)*M[1] + double(temp_y)*M[4] + double(temp_z)*M[7]);
+	Index3D[2] = ScalarType(double(temp_x)*M[2] + double(temp_y)*M[5] + double(temp_z)*M[8]);
 	return Index3D;
 }
 
@@ -225,16 +230,16 @@ DenseVector<ScalarType, 3> DenseImageData3D<PixelType>::Transform3DWorldPosition
 template<typename PixelType>
 template<typename ScalarType>
 inline
-DenseVector<ScalarType, 3> DenseImageData3D<PixelType>::Transform3DWorldPositionTo3DPhysicalPosition(ScalarType x, ScalarType y, ScalarType z) const
+DenseVector<ScalarType, 3> DenseImageData3D<PixelType>::Transform3DWorldPositionTo3DPosition(ScalarType x, ScalarType y, ScalarType z) const
 {
-	auto temp_x = double(x) - m_3DIndexSpace.Origin[0];
-	auto temp_y = double(y) - m_3DIndexSpace.Origin[1];
-	auto temp_z = double(z) - m_3DIndexSpace.Origin[2];
-
+	auto temp_x = double(x) - m_Info.Origin[0];
+	auto temp_y = double(y) - m_Info.Origin[1];
+	auto temp_z = double(z) - m_Info.Origin[2];
+	auto M = m_Info.Orientation.GetElementPointer();
 	DenseVector<ScalarType, 3> Position;
-	Position[0] = ScalarType(double(temp_x)*m_3DIndexSpace.DirectionX[0] + double(temp_y)*m_3DIndexSpace.DirectionX[1] + double(temp_z)*m_3DIndexSpace.DirectionX[2]);
-	Position[1] = ScalarType(double(temp_x)*m_3DIndexSpace.DirectionY[0] + double(temp_y)*m_3DIndexSpace.DirectionY[1] + double(temp_z)*m_3DIndexSpace.DirectionY[2]);
-	Position[2] = ScalarType(double(temp_x)*m_3DIndexSpace.DirectionZ[0] + double(temp_y)*m_3DIndexSpace.DirectionZ[1] + double(temp_z)*m_3DIndexSpace.DirectionZ[2]);
+	Position[0] = ScalarType(double(temp_x)*M[0] + double(temp_y)*M[1] + double(temp_z)*M[2]);
+	Position[1] = ScalarType(double(temp_x)*M[3] + double(temp_y)*M[4] + double(temp_z)*M[5]);
+	Position[2] = ScalarType(double(temp_x)*M[6] + double(temp_y)*M[7] + double(temp_z)*M[8]);
 	return Position;
 }
 
@@ -242,14 +247,12 @@ DenseVector<ScalarType, 3> DenseImageData3D<PixelType>::Transform3DWorldPosition
 template<typename PixelType>
 void DenseImageData3D<PixelType>::UpdateTransformMatrix_3DIndex_3DWorld()
 {
-	auto tempX = m_3DIndexSpace.Spacing[0] * m_3DIndexSpace.DirectionX;
-	auto tempY = m_3DIndexSpace.Spacing[1] * m_3DIndexSpace.DirectionY;
-	auto tempZ = m_3DIndexSpace.Spacing[2] * m_3DIndexSpace.DirectionZ;
-	m_TransformMatrix_3DIndexTo3DWorld.SetCol(0, tempX);
-	m_TransformMatrix_3DIndexTo3DWorld.SetCol(1, tempY);
-	m_TransformMatrix_3DIndexTo3DWorld.SetCol(2, tempZ);
-    // inverse transform
-	m_TransformMatrix_3DWorldTo3DIndex = m_TransformMatrix_3DIndexTo3DWorld.Inv();
+	auto M = m_Info.Orientation.GetElementPointer();
+	m_Info.TransformMatrix_3DIndexTo3DWorld.SetCol(0, {m_Info.Spacing[0]*M[0], m_Info.Spacing[0]*M[1], m_Info.Spacing[0]*M[2]});
+	m_Info.TransformMatrix_3DIndexTo3DWorld.SetCol(0, {m_Info.Spacing[1]*M[3], m_Info.Spacing[1]*M[4], m_Info.Spacing[1]*M[5]});
+    m_Info.TransformMatrix_3DIndexTo3DWorld.SetCol(0, {m_Info.Spacing[2]*M[6], m_Info.Spacing[2]*M[7], m_Info.Spacing[2]*M[8]});
+	// inverse transform
+	m_Info.TransformMatrix_3DWorldTo3DIndex = m_Info.TransformMatrix_3DIndexTo3DWorld.Inv();
 }
 
 //========================================================== DenseImage ========================================================================//
@@ -373,15 +376,13 @@ void DenseImage3D<PixelType>::Copy(DenseImage3D<PixelType>&& InputImage)
 		m_ImageData = std::make_shared<DenseImageData3D<PixelType>>();
 	}
 
-	m_ImageData->m_Size[0] = InputImage.m_ImageData->m_Size[0];
-	m_ImageData->m_Size[1] = InputImage.m_ImageData->m_Size[1];
-	m_ImageData->m_Size[2] = InputImage.m_ImageData->m_Size[2];
+	m_ImageData->m_Info.Size[0] = InputImage.m_ImageData->m_Info.Size[0];
+	m_ImageData->m_Info.Size[1] = InputImage.m_ImageData->m_Info.Size[1];
+	m_ImageData->m_Info.Size[2] = InputImage.m_ImageData->m_Info.Size[2];
 	m_ImageData->m_PixelCountPerZSlice = InputImage.m_ImageData->m_PixelCountPerZSlice;
-
-	m_ImageData->m_3DIndexSpace = InputImage.m_ImageData->m_3DIndexSpace;
-
-	m_ImageData->m_TransformMatrix_3DIndexTo3DWorld = InputImage.m_ImageData->m_TransformMatrix_3DIndexTo3DWorld;
-	m_ImageData->m_TransformMatrix_3DWorldTo3DIndex = InputImage.m_ImageData->m_TransformMatrix_3DWorldTo3DIndex;
+	m_ImageData->m_Info.Orientation = std::move(InputImage.m_ImageData->m_Info.Orientation);
+	m_ImageData->m_Info.TransformMatrix_3DIndexTo3DWorld = std::move(InputImage.m_ImageData->m_Info.TransformMatrix_3DIndexTo3DWorld);
+	m_ImageData->m_Info.TransformMatrix_3DWorldTo3DIndex = std::move(InputImage.m_ImageData->m_Info.TransformMatrix_3DWorldTo3DIndex);
 
 	m_ImageData->m_PixelArray = std::move(InputImage.m_ImageData->m_PixelArray);
 
@@ -437,9 +438,9 @@ void DenseImage3D<PixelType>::Share(PixelType* InputImage, const Image3DInfo& In
 	this->SetSpacing(InputImageInfo.Spacing);
 	this->SetOrientation(InputImageInfo.Orientation);
 	//this->SetSize(XXX); do not allocate memory for internal array
-	m_ImageData->m_Size[0] = InputImageInfo.Size[0];
-	m_ImageData->m_Size[1] = InputImageInfo.Size[1];
-	m_ImageData->m_Size[2] = InputImageInfo.Size[2];
+	m_ImageData->m_Info.Size[0] = InputImageInfo.Size[0];
+	m_ImageData->m_Info.Size[1] = InputImageInfo.Size[1];
+	m_ImageData->m_Info.Size[2] = InputImageInfo.Size[2];
 	m_ImageData->m_PixelCountPerZSlice = InputImageInfo.Size[0] * InputImageInfo.Size[1];
 	auto InputPixelCount = InputImageInfo.Size[0] * InputImageInfo.Size[1] * InputImageInfo.Size[2];
 	m_ImageData->m_PixelArray.Share(InputImage, InputPixelCount, true);
@@ -525,7 +526,7 @@ PixelType* DenseImage3D<PixelType>::GetPixelPointerOfZSlice(int_max ZSliceIndex)
 		return nullptr;
 	}
 
-	if (ZSliceIndex < 0 || ZSliceIndex >= m_ImageData->m_Size[2])
+	if (ZSliceIndex < 0 || ZSliceIndex >= m_ImageData->m_Info.Size[2])
 	{
 		return nullptr;
 	}
@@ -544,7 +545,7 @@ const PixelType* DenseImage3D<PixelType>::GetPixelPointerOfZSlice(int_max ZSlice
 		return nullptr;
 	}
 
-	if (ZSliceIndex < 0 || ZSliceIndex >= m_ImageData->m_Size[2])
+	if (ZSliceIndex < 0 || ZSliceIndex >= m_ImageData->m_Info.Size[2])
 	{
 		return nullptr;
 	}
@@ -606,21 +607,21 @@ const PixelType* DenseImage3D<PixelType>::end() const
 
 template<typename PixelType>
 inline 
-Image3DInfo DenseImage3D<PixelType>::GetInfo() const
+ImageInfo3D DenseImage3D<PixelType>::GetInfo() const
 {
-	Image3DInfo Info;
-	Info.Origin = this->GetOrigin();
-	Info.Spacing = this->GetSpacing();
-	Info.Size = this->GetSize();
-	Info.Orientation = this->GetOrientation();
-	Info.m_TransformMatrix_3DIndexTo3DWorld=
-	return Info;
+	if (this->IsPureEmpty() == false)
+	{
+		return m_ImageData->m_Info;
+	}
+
+	ImageInfo3D EmptyInfo;
+	return EmptyInfo;
 }
 
 
 template<typename PixelType>
 inline
-void DenseImage3D<PixelType>::SetInfo(const Image3DInfo& Info) const
+void DenseImage3D<PixelType>::SetInfo(const ImageInfo3D& Info) const
 {
 	this->SetOrigin(Info.Origin);
 	this->SetSpacing(Info.Spacing);	
@@ -635,7 +636,7 @@ DenseVector<int_max, 3> DenseImage3D<PixelType>::GetSize() const
 {
 	if (this->IsPureEmpty() == false)
 	{
-		return m_ImageData->m_Size;
+		return m_ImageData->m_Info.Size;
 	}
 	else
 	{
@@ -652,9 +653,9 @@ void DenseImage3D<PixelType>::GetSize(int_max& Lx, int_max& Ly, int_max& Lz) con
 {
 	if (this->IsPureEmpty() == false)
 	{
-		Lx = m_ImageData->m_Size[0];
-		Ly = m_ImageData->m_Size[1];
-		Lz = m_ImageData->m_Size[2];
+		Lx = m_ImageData->m_Info.Size[0];
+		Ly = m_ImageData->m_Info.Size[1];
+		Lz = m_ImageData->m_Info.Size[2];
 	}
 	else
 	{
@@ -688,7 +689,7 @@ void DenseImage3D<PixelType>::SetSize(int_max Lx, int_max Ly, int_max Lz)
 		m_ImageData = std::make_shared<DenseImageData3D<PixelType>>();
 	}
 
-	if (Lx == m_ImageData->m_Size[0] && Ly == m_ImageData->m_Size[1] && Lz == m_ImageData->m_Size[2])
+	if (Lx == m_ImageData->m_Info.Size[0] && Ly == m_ImageData->m_Info.Size[1] && Lz == m_ImageData->m_Info.Size[2])
 	{
 		return;
 	}
@@ -696,9 +697,9 @@ void DenseImage3D<PixelType>::SetSize(int_max Lx, int_max Ly, int_max Lz)
     if (Lx == 0 || Ly == 0 || Lz == 0)
     {
         m_ImageData->m_PixelArray.Clear();
-        m_ImageData->m_Size[0] = 0;
-        m_ImageData->m_Size[1] = 0;
-        m_ImageData->m_Size[2] = 0;
+        m_ImageData->m_Info.Size[0] = 0;
+        m_ImageData->m_Info.Size[1] = 0;
+        m_ImageData->m_Info.Size[2] = 0;
         m_ImageData->m_PixelCountPerZSlice = 0;
         return;
     }
@@ -706,9 +707,9 @@ void DenseImage3D<PixelType>::SetSize(int_max Lx, int_max Ly, int_max Lz)
 try
 {
     m_ImageData->m_PixelArray.Resize(Lx*Ly*Lz); 
-    m_ImageData->m_Size[0] = Lx;
-    m_ImageData->m_Size[1] = Ly;
-    m_ImageData->m_Size[2] = Lz;
+    m_ImageData->m_Info.Size[0] = Lx;
+    m_ImageData->m_Info.Size[1] = Ly;
+    m_ImageData->m_Info.Size[2] = Lz;
     m_ImageData->m_PixelCountPerZSlice = Ly*Lx;
 }
 catch (...)
@@ -725,12 +726,11 @@ DenseVector<double, 3> DenseImage3D<PixelType>::GetSpacing() const
 {
 	if (this->IsPureEmpty() == false)
 	{
-		return m_ImageData->m_3DIndexSpace.Spacing;
+		return m_ImageData->m_Info.Spacing;
 	}
 	else
 	{
-		DenseVector<double, 3> EmptySpacing;
-		EmptySpacing.Fill(0);
+		DenseVector<double, 3> EmptySpacing = { 1.0, 1.0, 1.0 };
 		return EmptySpacing;
 	}
 }
@@ -742,15 +742,15 @@ void DenseImage3D<PixelType>::GetSpacing(double& Spacing_x, double& Spacing_y, d
 {
 	if (this->IsPureEmpty() == false)
 	{
-		Spacing_x = m_ImageData->m_3DIndexSpace.Spacing[0];
-		Spacing_y = m_ImageData->m_3DIndexSpace.Spacing[1];
-		Spacing_z = m_ImageData->m_3DIndexSpace.Spacing[2];
+		Spacing_x = m_ImageData->m_Info.Spacing[0];
+		Spacing_y = m_ImageData->m_Info.Spacing[1];
+		Spacing_z = m_ImageData->m_Info.Spacing[2];
 	}
 	else
 	{
-		Spacing_x = 0;
-		Spacing_y = 0;
-		Spacing_z = 0;
+		Spacing_x = 1.0;
+		Spacing_y = 1.0;
+		Spacing_z = 1.0;
 	}
 }
 
@@ -778,9 +778,9 @@ void DenseImage3D<PixelType>::SetSpacing(double Spacing_x, double Spacing_y, dou
 	{
 		m_ImageData = std::make_shared<DenseImageData3D<PixelType>>();
 	}
-    m_ImageData->m_3DIndexSpace.Spacing[0] = Spacing_x;
-    m_ImageData->m_3DIndexSpace.Spacing[1] = Spacing_y;
-    m_ImageData->m_3DIndexSpace.Spacing[2] = Spacing_z;
+    m_ImageData->m_Info.Spacing[0] = Spacing_x;
+    m_ImageData->m_Info.Spacing[1] = Spacing_y;
+    m_ImageData->m_Info.Spacing[2] = Spacing_z;
 
 	m_ImageData->UpdateTransformMatrix_3DIndex_3DWorld();
 }
@@ -792,12 +792,11 @@ DenseVector<double, 3> DenseImage3D<PixelType>::GetOrigin() const
 {
 	if (this->IsPureEmpty() == false)
 	{
-		return m_ImageData->m_3DIndexSpace.Origin;
+		return m_ImageData->m_Info.Origin;
 	}
 	else
 	{
-		DenseVector<double, 3> EmptyOrigin;
-		EmptyOrigin.Fill(0);
+		DenseVector<double, 3> EmptyOrigin = { 0.0, 0.0, 0.0 };
 		return EmptyOrigin;
 	}
 }
@@ -809,9 +808,9 @@ void DenseImage3D<PixelType>::GetOrigin(double& Origin_x, double& Origin_y, doub
 {
 	if (this->IsPureEmpty() == false)
 	{
-		Origin_x = m_ImageData->m_3DIndexSpace.Origin[0];
-		Origin_y = m_ImageData->m_3DIndexSpace.Origin[1];
-		Origin_z = m_ImageData->m_3DIndexSpace.Origin[2];
+		Origin_x = m_ImageData->m_Info.Origin[0];
+		Origin_y = m_ImageData->m_Info.Origin[1];
+		Origin_z = m_ImageData->m_Info.Origin[2];
 	}
 	else
 	{
@@ -838,29 +837,27 @@ void DenseImage3D<PixelType>::SetOrigin(double Origin_x, double Origin_y, double
 	{
 		m_ImageData = std::make_shared<DenseImageData3D<PixelType>>();
 	}
-    m_ImageData->m_3DIndexSpace.Origin[0] = Origin_x;
-    m_ImageData->m_3DIndexSpace.Origin[1] = Origin_y;
-    m_ImageData->m_3DIndexSpace.Origin[2] = Origin_z;
+    m_ImageData->m_Info.Origin[0] = Origin_x;
+    m_ImageData->m_Info.Origin[1] = Origin_y;
+    m_ImageData->m_Info.Origin[2] = Origin_z;
 }
 
 
 template<typename PixelType>
 inline 
 DenseMatrix<double> DenseImage3D<PixelType>::GetOrientation() const
-{
-	DenseMatrix<double> Orientation(3, 3);
+{	
 	if (this->IsPureEmpty() == false)
 	{
-		Orientation.SetCol(0, m_ImageData->m_3DIndexSpace.DirectionX);
-		Orientation.SetCol(1, m_ImageData->m_3DIndexSpace.DirectionY);
-		Orientation.SetCol(2, m_ImageData->m_3DIndexSpace.DirectionZ);
+		return m_ImageData->m_Info.Orientation;
 	}
 	else
 	{
+		DenseMatrix<double> Orientation(3, 3);
 		Orientation.Fill(0.0);
 		Orientation.FillDiagonal(1);
+		return Orientation;
 	}
-	return Orientation;
 }
 
 
@@ -879,9 +876,7 @@ void DenseImage3D<PixelType>::SetOrientation(const DenseMatrix<double>& Orientat
 		m_ImageData = std::make_shared<DenseImageData3D<PixelType>>();
 	}
 
-	Orientation.GetCol(0, m_ImageData->m_3DIndexSpace.DirectionX);
-	Orientation.GetCol(1, m_ImageData->m_3DIndexSpace.DirectionY);
-	Orientation.GetCol(2, m_ImageData->m_3DIndexSpace.DirectionZ);
+	m_ImageData->m_Info.Orientation = Orientation;
 
 	m_ImageData->UpdateTransformMatrix_3DIndex_3DWorld();
 }
@@ -893,13 +888,13 @@ DenseMatrix<double> DenseImage3D<PixelType>::GetTransformMatrix_3DIndexTo3DWorld
 {
 	if (this->IsPureEmpty() == false)
 	{
-		return m_ImageData->m_TransformMatrix_3DIndexTo3DWorld;
+		return m_ImageData->m_Info.TransformMatrix_3DIndexTo3DWorld;
 	}
 	else
 	{
 		DenseMatrix<double> TransformMatrix(3, 3);
 		TransformMatrix.Fill(0.0);
-		TransformMatrix.FillDiagonal(1);
+		TransformMatrix.FillDiagonal(1.0);
 		return TransformMatrix;
 	}
 }
@@ -910,13 +905,13 @@ inline DenseMatrix<double> DenseImage3D<PixelType>::GetTransformMatrix_3DWorldTo
 {
 	if (this->IsPureEmpty() == false)
 	{
-		return m_ImageData->m_TransformMatrix_3DWorldTo3DIndex;
+		return m_ImageData->m_Info.TransformMatrix_3DWorldTo3DIndex;
 	}
 	else
 	{
 		DenseMatrix<double> TransformMatrix(3, 3);
 		TransformMatrix.Fill(0.0);
-		TransformMatrix.FillDiagonal(1);
+		TransformMatrix.FillDiagonal(1.0);
 		return TransformMatrix;
 	}
 }
@@ -929,9 +924,9 @@ DenseVector<double, 3> DenseImage3D<PixelType>::GetPhysicalSize() const
 	DenseVector<double, 3> Size;
 	if (this->IsPureEmpty() == false)
 	{
-		Size[0] = double(m_ImageData->m_Size[0]) * m_ImageData->m_3DIndexSpace.Spacing[0];
-		Size[1] = double(m_ImageData->m_Size[1]) * m_ImageData->m_3DIndexSpace.Spacing[1];
-		Size[2] = double(m_ImageData->m_Size[2]) * m_ImageData->m_3DIndexSpace.Spacing[2];
+		Size[0] = double(m_ImageData->m_Info.Size[0]) * m_ImageData->m_Info.Spacing[0];
+		Size[1] = double(m_ImageData->m_Info.Size[1]) * m_ImageData->m_Info.Spacing[1];
+		Size[2] = double(m_ImageData->m_Info.Size[2]) * m_ImageData->m_Info.Spacing[2];
 	}
 	else
 	{
@@ -949,9 +944,9 @@ void DenseImage3D<PixelType>::GetPhysicalSize(double& PhysicalSize_x, double& Ph
 {
 	if (this->IsPureEmpty() == false)
 	{
-		PhysicalSize_x = double(m_ImageData->m_Size[0]) * m_ImageData->m_3DIndexSpace.Spacing[0];
-		PhysicalSize_y = double(m_ImageData->m_Size[1]) * m_ImageData->m_3DIndexSpace.Spacing[1];
-		PhysicalSize_z = double(m_ImageData->m_Size[2]) * m_ImageData->m_3DIndexSpace.Spacing[2];
+		PhysicalSize_x = double(m_ImageData->m_Info.Size[0]) * m_ImageData->m_Info.Spacing[0];
+		PhysicalSize_y = double(m_ImageData->m_Info.Size[1]) * m_ImageData->m_Info.Spacing[1];
+		PhysicalSize_z = double(m_ImageData->m_Info.Size[2]) * m_ImageData->m_Info.Spacing[2];
 	}
 	else
 	{
@@ -968,7 +963,7 @@ int_max DenseImage3D<PixelType>::GetPixelCount() const
 {
 	if (this->IsPureEmpty() == false)
 	{
-		return m_ImageData->m_PixelCountPerZSlice * m_ImageData->m_Size[2];
+		return m_ImageData->m_PixelCountPerZSlice * m_ImageData->m_Info.Size[2];
 	}
 	else
 	{
@@ -983,6 +978,15 @@ inline
 DenseVector<ScalarType, 3> DenseImage3D<PixelType>::TransformLinearIndexTo3DIndex(int_max LinearIndex) const
 {
 	return m_ImageData->TransformLinearIndexTo3DIndex<ScalarType>(LinearIndex);
+}
+
+
+template<typename PixelType>
+template<typename ScalarType>
+inline
+DenseVector<ScalarType, 3> DenseImage3D<PixelType>::TransformLinearIndexTo3DPosition(int_max LinearIndex) const
+{
+	return m_ImageData->TransformLinearIndexTo3DPosition<ScalarType>(LinearIndex);
 }
 
 
@@ -1008,6 +1012,25 @@ inline
 int_max DenseImage3D<PixelType>::Transform3DIndexToLinearIndex(const DenseVector<int_max, 3>& Index3D) const
 {
 	return m_ImageData->Transform3DIndexToLinearIndex(Index3D[0], Index3D[1], Index3D[2]);
+}
+
+
+template<typename PixelType>
+template<typename ScalarType_Position, typename ScalarType_Index>
+inline
+DenseVector<ScalarType_Position, 3>
+DenseImage3D<PixelType>::Transform3DIndexTo3DPosition(ScalarType_Index xIndex, ScalarType_Index yIndex, ScalarType_Index zIndex) const
+{
+	return m_ImageData->Transform3DIndexTo3DPosition<ScalarType_Position>(xIndex, yIndex, zIndex);
+}
+
+
+template<typename PixelType>
+template<typename ScalarType_Position, typename ScalarType_Index>
+inline
+DenseVector<ScalarType_Position, 3> DenseImage3D<PixelType>::Transform3DIndexTo3DPosition(const DenseVector<ScalarType_Index, 3>& Index3D) const
+{
+	return m_ImageData->Transform3DIndexTo3DPosition<ScalarType_Position>(Index3D[0], Index3D[1], Index3D[2]);
 }
 
 
@@ -1045,6 +1068,24 @@ inline
 DenseVector<ScalarType, 3> DenseImage3D<PixelType>::Transform3DWorldPositionTo3DIndex(const DenseVector<ScalarType, 3>& Position) const
 {
 	return this->Transform3DWorldPositionTo3DIndex(Position[0], Position[1], Position[2]);
+}
+
+
+template<typename PixelType>
+template<typename ScalarType>
+inline
+DenseVector<ScalarType, 3> DenseImage3D<PixelType>::Transform3DWorldPositionTo3DPosition(ScalarType x, ScalarType y, ScalarType z) const
+{
+	return m_ImageData->Transform3DWorldPositionTo3DPosition(x, y, z);
+}
+
+
+template<typename PixelType>
+template<typename ScalarType>
+inline
+DenseVector<ScalarType, 3> DenseImage3D<PixelType>::Transform3DWorldPositionTo3DPosition(const DenseVector<ScalarType, 3>& Position) const
+{
+	return this->Transform3DWorldPositionTo3DPosition(Position[0], Position[1], Position[2]);
 }
 
 
@@ -1154,6 +1195,25 @@ inline
 bool DenseImage3D<PixelType>::CheckIf3DIndexIsInsideImage(const DenseVector<ScalarType, 3>& Index3D) const
 {
 	return this->CheckIf3DIndexIsInsideImage(Index3D[0], Index3D[1], Index3D[2]);
+}
+
+
+template<typename PixelType>
+template<typename ScalarType>
+inline
+bool DenseImage3D<PixelType>::CheckIf3DPositionIsInsideImage(ScalarType x, ScalarType y, ScalarType z) const
+{
+	auto Index3D = this->Transform3DPositionTo3DIndex(x, y, z);
+	return this->CheckIf3DIndexIsInsideImage(Index3D);
+}
+
+
+template<typename PixelType>
+template<typename ScalarType>
+inline
+bool DenseImage3D<PixelType>::CheckIf3DPositionIsInsideImage(const DenseVector<ScalarType, 3>& Position) const
+{
+	return this->CheckIf3DPositionIsInsideImage(Position[0], Position[1], Position[2]);
 }
 
 
@@ -1374,6 +1434,25 @@ const PixelType& DenseImage3D<PixelType>::GetPixelNearestTo3DIndex(const DenseVe
 template<typename PixelType>
 template<typename ScalarType>
 inline
+const PixelType& DenseImage3D<PixelType>::GetPixelNearestTo3DPosition(ScalarType x, ScalarType y, ScalarType z) const
+{
+	auto Index3D = this->Transform3DPositionTo3DIndex(x, y, z);
+	return this->GetPixelNearestTo3DIndex(Index3D[0], Index3D[1], Index3D[2]);
+}
+
+
+template<typename PixelType>
+template<typename ScalarType>
+inline
+const PixelType& DenseImage3D<PixelType>::GetPixelNearestTo3DPosition(const DenseVector<ScalarType, 3>& Position) const
+{
+	return this->GetPixelNearestTo3DPosition(Position[0], Position[1], Position[2]);
+}
+
+
+template<typename PixelType>
+template<typename ScalarType>
+inline
 const PixelType& DenseImage3D<PixelType>::GetPixelNearestTo3DWorldPosition(ScalarType x, ScalarType y, ScalarType z) const
 {
 	auto Index3D = this->Transform3DWorldPositionTo3DIndex(x, y, z);
@@ -1450,6 +1529,24 @@ PixelType DenseImage3D<PixelType>::
 GetPixelAt3DIndex(const DenseVector<long, 3>& Index3D, const InterpolationOptionType& Option) const
 {
 	return this->GetPixelAt3DIndex(int_max(Index3D[0]), int_max(Index3D[1]), int_max(Index3D[2]), Option);
+}
+
+
+template<typename PixelType>
+template<typename OutputPixelType, typename ScalarType>
+OutputPixelType DenseImage3D<PixelType>::
+GetPixelAt3DPosition(ScalarType x, ScalarType y, ScalarType z, const InterpolationOptionType& Option) const
+{
+	return InterpolateImageAt3DPosition<OutputPixelType>(*this, x, y, z, Option);
+}
+
+
+template<typename PixelType>
+template<typename OutputPixelType, typename ScalarType>
+OutputPixelType DenseImage3D<PixelType>::
+GetPixelAt3DPosition(const DenseVector<ScalarType, 3>& Position, const InterpolationOptionType& Option) const
+{
+	return InterpolateImageAt3DPosition<OutputPixelType>(*this, Position[0], Position[1], Position[2], Option);
 }
 
 
@@ -1629,6 +1726,44 @@ DenseMatrix<int_max> DenseImage3D<PixelType>::Get3DIndexListInRegion(const BoxRe
 
 
 template<typename PixelType>
+DenseMatrix<int_max> DenseImage3D<PixelType>::Get3DIndexListInRegion(const BoxRegionOf3DPositionInImage3D& RegionInfo) const
+{
+	if (this->IsEmpty() == true)
+	{
+		DenseMatrix<int_max> EmptyList;
+		return EmptyList;
+	}
+
+	auto Index3D_min = this->Transform3DPositionTo3DIndex(RegionInfo.x_min, RegionInfo.y_min, RegionInfo.z_min);
+	auto xIndex_s = int_max(Index3D_min[0]);
+	auto yIndex_s = int_max(Index3D_min[1]);
+	auto zIndex_s = int_max(Index3D_min[2]);
+	auto Index3D_max = this->Transform3DPositionTo3DIndex(RegionInfo.x_max, RegionInfo.y_max, RegionInfo.z_max);
+	auto xIndex_e = int_max(Index3D_max[0]);
+	auto yIndex_e = int_max(Index3D_max[1]);
+	auto zIndex_e = int_max(Index3D_max[2]);
+
+	auto Size = this->GetSize();
+
+	xIndex_s = (std::max)(xIndex_s, int_max(0)); xIndex_s = (std::min)(xIndex_s, Size[0] - 1);
+	yIndex_s = (std::max)(yIndex_s, int_max(0)); yIndex_s = (std::min)(yIndex_s, Size[1] - 1);
+	zIndex_s = (std::max)(zIndex_s, int_max(0)); zIndex_s = (std::min)(zIndex_s, Size[2] - 1);
+	xIndex_e = (std::max)(xIndex_e, int_max(0)); xIndex_e = (std::min)(xIndex_e, Size[0] - 1);
+	yIndex_e = (std::max)(yIndex_e, int_max(0)); yIndex_e = (std::min)(yIndex_e, Size[1] - 1);
+	zIndex_e = (std::max)(zIndex_e, int_max(0)); zIndex_e = (std::min)(zIndex_e, Size[2] - 1);
+
+	BoxRegionOf3DIndexInImage3D RegionOf3DIndex;
+	RegionOf3DIndex.x_min = xIndex_s;
+	RegionOf3DIndex.y_min = yIndex_s;
+	RegionOf3DIndex.z_min = zIndex_s;
+	RegionOf3DIndex.x_max = xIndex_e;
+	RegionOf3DIndex.y_max = yIndex_e;
+	RegionOf3DIndex.z_max = zIndex_e;
+	return this->Get3DIndexListInRegion(RegionOf3DIndex);
+}
+
+
+template<typename PixelType>
 DenseMatrix<int_max> DenseImage3D<PixelType>::Get3DIndexListInRegion(const BoxRegionOf3DWorldPositionInImage3D& RegionInfo) const
 {
 	if (this->IsEmpty() == true)
@@ -1645,13 +1780,6 @@ DenseMatrix<int_max> DenseImage3D<PixelType>::Get3DIndexListInRegion(const BoxRe
 	auto xIndex_e = int_max(Index3D_max[0]);
 	auto yIndex_e = int_max(Index3D_max[1]);
 	auto zIndex_e = int_max(Index3D_max[2]);
-
-	if (xIndex_e < xIndex_s || yIndex_e < yIndex_s || zIndex_e < zIndex_s)
-	{
-		MDK_Error("Invalid input @ DenseImage3D::Get3DIndexListInRegion(...)")
-		DenseMatrix<int_max> EmptyList;
-		return EmptyList;
-	}
 
 	auto Size = this->GetSize();
 
@@ -1745,6 +1873,45 @@ DenseImage3D<PixelType>::GetSubImage(const BoxRegionOf3DIndexInImage3D& RegionIn
 
 template<typename PixelType>
 DenseImage3D<PixelType>
+DenseImage3D<PixelType>::GetSubImage(const BoxRegionOf3DPositionInImage3D& RegionInfo) const
+{
+	if (this->IsEmpty() == true)
+	{
+		DenseImage3D<PixelType> EmptyImage;
+		return EmptyImage;
+	}
+
+	auto Index3D_min = this->Transform3DPositionTo3DIndex(RegionInfo.x_min, RegionInfo.y_min, RegionInfo.z_min);
+	auto xIndex_s = int_max(Index3D_min[0]);
+	auto yIndex_s = int_max(Index3D_min[1]);
+	auto zIndex_s = int_max(Index3D_min[2]);
+	auto Index3D_max = this->Transform3DPositionTo3DIndex(RegionInfo.x_max, RegionInfo.y_max, RegionInfo.z_max);
+	auto xIndex_e = int_max(Index3D_max[0]);
+	auto yIndex_e = int_max(Index3D_max[1]);
+	auto zIndex_e = int_max(Index3D_max[2]);
+
+	auto Size = this->GetSize();
+	
+	xIndex_s = (std::max)(xIndex_s, int_max(0)); xIndex_s = (std::min)(xIndex_s, Size[0] - 1);
+	yIndex_s = (std::max)(yIndex_s, int_max(0)); yIndex_s = (std::min)(yIndex_s, Size[1] - 1);
+	zIndex_s = (std::max)(zIndex_s, int_max(0)); zIndex_s = (std::min)(zIndex_s, Size[2] - 1);
+	xIndex_e = (std::max)(xIndex_e, int_max(0)); xIndex_e = (std::min)(xIndex_e, Size[0] - 1);
+	yIndex_e = (std::max)(yIndex_e, int_max(0)); yIndex_e = (std::min)(yIndex_e, Size[1] - 1);
+	zIndex_e = (std::max)(zIndex_e, int_max(0)); zIndex_e = (std::min)(zIndex_e, Size[2] - 1);
+	
+	BoxRegionOf3DIndexInImage3D RegionOf3DIndex;
+	RegionOf3DIndex.x_min = double(xIndex_s);
+	RegionOf3DIndex.y_min = double(yIndex_s);
+	RegionOf3DIndex.z_min = double(zIndex_s);
+	RegionOf3DIndex.x_max = double(xIndex_e);
+	RegionOf3DIndex.y_max = double(yIndex_e);
+	RegionOf3DIndex.z_max = double(zIndex_e);
+	return this->GetSubImage(RegionOf3DIndex);
+}
+
+
+template<typename PixelType>
+DenseImage3D<PixelType>
 DenseImage3D<PixelType>::GetSubImage(const BoxRegionOf3DWorldPositionInImage3D& RegionInfo) const
 {
 	if (this->IsEmpty() == true)
@@ -1762,22 +1929,15 @@ DenseImage3D<PixelType>::GetSubImage(const BoxRegionOf3DWorldPositionInImage3D& 
 	auto yIndex_e = int_max(Index3D_max[1]);
 	auto zIndex_e = int_max(Index3D_max[2]);
 
-	if (xIndex_e < xIndex_s || yIndex_e < yIndex_s || zIndex_e < zIndex_s)
-	{
-		MDK_Error("Invalid input @ DenseImage3D::GetSubImage(...)")
-		DenseImage3D<PixelType> EmptyImage;
-		return EmptyImage;
-	}
-
 	auto Size = this->GetSize();
-	
+
 	xIndex_s = (std::max)(xIndex_s, int_max(0)); xIndex_s = (std::min)(xIndex_s, Size[0] - 1);
 	yIndex_s = (std::max)(yIndex_s, int_max(0)); yIndex_s = (std::min)(yIndex_s, Size[1] - 1);
 	zIndex_s = (std::max)(zIndex_s, int_max(0)); zIndex_s = (std::min)(zIndex_s, Size[2] - 1);
 	xIndex_e = (std::max)(xIndex_e, int_max(0)); xIndex_e = (std::min)(xIndex_e, Size[0] - 1);
 	yIndex_e = (std::max)(yIndex_e, int_max(0)); yIndex_e = (std::min)(yIndex_e, Size[1] - 1);
 	zIndex_e = (std::max)(zIndex_e, int_max(0)); zIndex_e = (std::min)(zIndex_e, Size[2] - 1);
-	
+
 	BoxRegionOf3DIndexInImage3D RegionOf3DIndex;
 	RegionOf3DIndex.x_min = double(xIndex_s);
 	RegionOf3DIndex.y_min = double(yIndex_s);

@@ -11,7 +11,7 @@
 #include "mdkImageInterpolation3D.h"
 
 // must be the last to include
-#include "mdkImageInfo.h" 
+#include "mdkImageInfo3D.h" 
 #include "mdkLocalCoordinateSystem3D.h"
 
 namespace mdk
@@ -39,7 +39,7 @@ namespace mdk
 //
 //------------------- coordinate system -----------------------------------------------------
 // 3DIndex:            Pixel index in image space, example:				   (0,0,0),                         (1,1,1)
-// 3DPhysicalPosition: Pixel Physical Position in image space			   (0,0,0),                         (spacing_x,spacing_y,spacing_z) 
+// 3DPosition:         Pixel Physical Position in image space			   (0,0,0),                         (spacing_x,spacing_y,spacing_z) 
 // 3DWorldPosition:    Pixel physical position in world coordinate system  (Origin[0],Origin[1],Origin[2]), (x,y,z)
 // --------------------------------------------------------------------------------------------------------//
 
@@ -55,22 +55,7 @@ namespace mdk
 template<typename PixelType>
 struct DenseImageData3D
 {
-	DenseVector<int_max, 3> m_Size;    // {Lx, Ly, Lz} number of Pixels in each direction
-
-    int_max m_PixelCountPerZSlice;     // total number of Pixels in each z-slice  = m_Size[2]*m_Size[1], to speedup pixel access
-
-	LocalCoordinateSystem3D<double> m_3DIndexSpace;
-	// m_3DIndexSpace.Origin:   Origin of DICOM Image in world coordinate system (x,y,z) (unit: mm)
-	// m_3DIndexSpace.Spacing:  Spacing of DICOM Image in world coordinate system {Sx, Sy, Sz} (unit: mm)
-	// m_3DIndexSpace.DirectionX
-	// m_3DIndexSpace.DirectionY
-	// m_3DIndexSpace.DirectionZ
-
-	DenseMatrix<double> m_TransformMatrix_3DIndexTo3DWorld;
-	DenseMatrix<double> m_TransformMatrix_3DWorldTo3DIndex;
-	// X-direction: M[0], M[1], M[2]
-	// Y-direction: M[3], M[4], M[5]
-	// Z-direction: M[6], M[7], M[8]
+	ImageInfo3D m_Info;
 
 	ObjectArray<PixelType> m_PixelArray;
 
@@ -101,7 +86,7 @@ struct DenseImageData3D
 	inline DenseVector<ScalarType, 3> TransformLinearIndexTo3DIndex(int_max LinearIndex) const;
 
 	template<typename ScalarType>
-	inline DenseVector<ScalarType, 3> TransformLinearIndexTo3DPhysicalPosition(int_max LinearIndex) const;
+	inline DenseVector<ScalarType, 3> TransformLinearIndexTo3DPosition(int_max LinearIndex) const;
 
 	template<typename ScalarType>
 	inline DenseVector<ScalarType, 3> TransformLinearIndexTo3DWorldPosition(int_max LinearIndex) const;
@@ -111,19 +96,22 @@ struct DenseImageData3D
 
 	// 3DIndex may be continuous
 	template<typename ScalarType_Position, typename ScalarType_Index>
+	inline DenseVector<ScalarType_Position, 3> Transform3DIndexTo3DPosition(ScalarType_Index xIndex, ScalarType_Index yIndex, ScalarType_Index zIndex) const;
+
+	template<typename ScalarType_Position, typename ScalarType_Index>
 	inline DenseVector<ScalarType_Position, 3> Transform3DIndexTo3DWorldPosition(ScalarType_Index xIndex, ScalarType_Index yIndex, ScalarType_Index zIndex) const;
 
 	template<typename ScalarType>
-	inline DenseVector<ScalarType, 3> Transform3DPhysicalPositionTo3DIndex(ScalarType x, ScalarType y, ScalarType z) const;
+	inline DenseVector<ScalarType, 3> Transform3DPositionTo3DIndex(ScalarType x, ScalarType y, ScalarType z) const;
 
 	template<typename ScalarType>
-	inline DenseVector<ScalarType, 3> Transform3DPhysicalPositionTo3DWorldPosition(ScalarType x, ScalarType y, ScalarType z) const;
+	inline DenseVector<ScalarType, 3> Transform3DPositionTo3DWorldPosition(ScalarType x, ScalarType y, ScalarType z) const;
 
 	template<typename ScalarType>
 	inline DenseVector<ScalarType, 3> Transform3DWorldPositionTo3DIndex(ScalarType x, ScalarType y, ScalarType z) const;
 
 	template<typename ScalarType>
-	inline DenseVector<ScalarType, 3> Transform3DWorldPositionTo3DPhysicalPosition(ScalarType x, ScalarType y, ScalarType z) const;
+	inline DenseVector<ScalarType, 3> Transform3DWorldPositionTo3DPosition(ScalarType x, ScalarType y, ScalarType z) const;
 
 	void UpdateTransformMatrix_3DIndex_3DWorld();
 
@@ -182,8 +170,8 @@ public:
 	void ForceShare(const DenseImage3D& InputImage);
 	
 	//special share, after this, size can not be changed
-	void Share(PixelType* InputImage, const Image3DInfo& InputImageInfo);
-	void ForceShare(const PixelType* InputImage, const Image3DInfo& InputImageInfo);
+	void Share(PixelType* InputImage, const ImageInfo3D& InputImageInfo);
+	void ForceShare(const PixelType* InputImage, const ImageInfo3D& InputImageInfo);
 
     //-----------------------------------------------------------------//
 	// difficult to add Load / Save as member function
@@ -206,9 +194,9 @@ public:
 
     //--------------------------- Get/Set Info and Data ------------------------------//
 
-	inline Image3DInfo GetInfo() const;
+	inline ImageInfo3D GetInfo() const;
 
-	inline void SetInfo(const Image3DInfo& Info) const;
+	inline void SetInfo(const ImageInfo3D& Info) const;
 
 	inline DenseVector<int_max, 3> GetSize() const;
 
@@ -269,7 +257,7 @@ public:
 	inline DenseVector<ScalarType, 3> TransformLinearIndexTo3DIndex(int_max LinearIndex) const;
 
 	template<typename ScalarType = double>
-	inline DenseVector<ScalarType, 3> TransformLinearIndexTo3DPhysicalPosition(int_max LinearIndex) const;
+	inline DenseVector<ScalarType, 3> TransformLinearIndexTo3DPosition(int_max LinearIndex) const;
 
 	template<typename ScalarType = double>
 	inline DenseVector<ScalarType, 3> TransformLinearIndexTo3DWorldPosition(int_max LinearIndex) const;
@@ -279,10 +267,10 @@ public:
 	inline int_max Transform3DIndexToLinearIndex(const DenseVector<int_max, 3>& Index3D) const;
 
 	template<typename ScalarType_Position = double, typename ScalarType_Index>
-	inline DenseVector<ScalarType_Position, 3> Transform3DIndexTo3DPhysicalPosition(ScalarType_Index xIndex, ScalarType_Index yIndex, ScalarType_Index zIndex) const;
+	inline DenseVector<ScalarType_Position, 3> Transform3DIndexTo3DPosition(ScalarType_Index xIndex, ScalarType_Index yIndex, ScalarType_Index zIndex) const;
 
 	template<typename ScalarType_Position = double, typename ScalarType_Index>
-	inline DenseVector<ScalarType_Position, 3> Transform3DIndexTo3DPhysicalPosition(const DenseVector<ScalarType_Index, 3>& Index3D) const;
+	inline DenseVector<ScalarType_Position, 3> Transform3DIndexTo3DPosition(const DenseVector<ScalarType_Index, 3>& Index3D) const;
 
 	template<typename ScalarType_Position = double, typename ScalarType_Index>
 	inline DenseVector<ScalarType_Position, 3> Transform3DIndexTo3DWorldPosition(ScalarType_Index xIndex, ScalarType_Index yIndex, ScalarType_Index zIndex) const;
@@ -297,6 +285,12 @@ public:
 	inline DenseVector<ScalarType, 3> Transform3DWorldPositionTo3DIndex(const DenseVector<ScalarType, 3>& Position) const;
 
 	template<typename ScalarType>
+	inline DenseVector<ScalarType, 3> Transform3DWorldPositionTo3DPosition(ScalarType x, ScalarType y, ScalarType z) const;
+
+	template<typename ScalarType>
+	inline DenseVector<ScalarType, 3> Transform3DWorldPositionTo3DPosition(const DenseVector<ScalarType, 3>& Position) const;
+	
+	template<typename ScalarType>
 	inline DenseVector<int_max, 3> Transform3DWorldPositionToNearest3DDiscreteIndex(ScalarType x, ScalarType y, ScalarType z) const;
 
 	template<typename ScalarType>
@@ -307,7 +301,7 @@ public:
 
 	template<typename ScalarType>
 	inline DenseVector<int_max, 3> Transform3DWorldPositionToNearest3DDiscreteIndexInsideImage(const DenseVector<ScalarType, 3>& Position) const;
-
+	
 	//------------------- check if 3D Index is inside Image ---------------------//
 	template<typename ScalarType>
 	inline bool CheckIf3DIndexIsInsideImage(ScalarType xIndex, ScalarType yIndex, ScalarType zIndex) const;
@@ -315,7 +309,14 @@ public:
 	template<typename ScalarType>
 	inline bool CheckIf3DIndexIsInsideImage(const DenseVector<ScalarType, 3>& Index3D) const;
 
-	//------------------- check if 3DDWorldPosition is inside Image ---------------------//
+	//------------------- check if 3DPosition is inside Image ---------------------//
+	template<typename ScalarType>
+	inline bool CheckIf3DPositionIsInsideImage(ScalarType x, ScalarType y, ScalarType z) const;
+
+	template<typename ScalarType>
+	inline bool CheckIf3DPositionIsInsideImage(const DenseVector<ScalarType, 3>& Position) const;
+
+	//------------------- check if 3DWorldPosition is inside Image ---------------------//
 	template<typename ScalarType>
 	inline bool CheckIf3DWorldPositionIsInsideImage(ScalarType x, ScalarType y, ScalarType z) const;
 
@@ -359,6 +360,12 @@ public:
 	inline const PixelType& GetPixelNearestTo3DIndex(const DenseVector<ScalarType, 3>& Index3D) const;
 
 	template<typename ScalarType>
+	inline const PixelType& GetPixelNearestTo3DPosition(ScalarType x, ScalarType y, ScalarType z) const;
+
+	template<typename ScalarType>
+	inline const PixelType& GetPixelNearestTo3DPosition(const DenseVector<ScalarType, 3>& Position) const;
+
+	template<typename ScalarType>
 	inline const PixelType& GetPixelNearestTo3DWorldPosition(ScalarType x, ScalarType y, ScalarType z) const;
 
 	template<typename ScalarType>
@@ -381,6 +388,12 @@ public:
 	PixelType GetPixelAt3DIndex(const DenseVector<long, 3>& Index3D, const InterpolationOptionType& Option) const;
 
 	template<typename OutputPixelType = PixelType, typename ScalarType>
+	OutputPixelType GetPixelAt3DPosition(ScalarType x, ScalarType y, ScalarType z, const InterpolationOptionType& Option) const;
+
+	template<typename OutputPixelType = PixelType, typename ScalarType>
+	OutputPixelType GetPixelAt3DPosition(const DenseVector<ScalarType, 3>& Position, const InterpolationOptionType& Option) const;
+
+	template<typename OutputPixelType = PixelType, typename ScalarType>
 	OutputPixelType GetPixelAt3DWorldPosition(ScalarType x, ScalarType y, ScalarType z, const InterpolationOptionType& Option) const;
 
 	template<typename OutputPixelType = PixelType, typename ScalarType>
@@ -390,15 +403,21 @@ public:
     
 	DenseVector<int_max> GetLinearIndexListInRegion(const BoxRegionOf3DIndexInImage3D& RegionInfo) const;
 
+	DenseVector<int_max> GetLinearIndexListInRegion(const BoxRegionOf3DPositionInImage3D& RegionInfo) const;
+
 	DenseVector<int_max> GetLinearIndexListInRegion(const BoxRegionOf3DWorldPositionInImage3D& RegionInfo) const;
     
 	DenseMatrix<int_max> Get3DIndexListInRegion(const BoxRegionOf3DIndexInImage3D& RegionInfo) const;
+
+	DenseMatrix<int_max> Get3DIndexListInRegion(const BoxRegionOf3DPositionInImage3D& RegionInfo) const;
 
 	DenseMatrix<int_max> Get3DIndexListInRegion(const BoxRegionOf3DWorldPositionInImage3D& RegionInfo) const;
 
     //-------------------------- Get SubImage -------------------------------//
 
 	DenseImage3D GetSubImage(const BoxRegionOf3DIndexInImage3D& RegionInfo) const;
+
+	DenseImage3D GetSubImage(const BoxRegionOf3DPositionInImage3D& RegionInfo) const;
 
 	DenseImage3D GetSubImage(const BoxRegionOf3DWorldPositionInImage3D& RegionInfo) const;
 

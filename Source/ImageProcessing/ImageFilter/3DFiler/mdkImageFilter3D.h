@@ -34,11 +34,13 @@ protected:
 
 	ImageInterpolationOptionType m_ImageInterpolationOption;
 
-	// only one of them is used
-	const DenseMatrix<ScalarType>* m_PointList_3DPhysicalPosition;  // store at each nearest point on m_OutputImage if Output is image
-	const DenseMatrix<int_max>*    m_PointList_3DIndex_InputImage;  // store at each nearest point on m_OutputImage if Output is image
-	const DenseMatrix<int_max>*    m_PointList_3DIndex_OutputImage; // store at each point on m_OutputImage
-
+	// only one of these is used
+	const DenseMatrix<ScalarType>* m_PointList_3DWorldPosition;
+	const DenseMatrix<ScalarType>* m_PointList_3DPosition_InputImage;
+	const DenseMatrix<int_max>*    m_PointList_3DIndex_InputImage;
+	const DenseMatrix<ScalarType>* m_PointList_3DPosition_OutputImage;
+	const DenseMatrix<int_max>*    m_PointList_3DIndex_OutputImage;
+	
 	Image3DInfo m_OutputImageInfo;
 
 	int_max m_MaxThreadCount; // max number of threads
@@ -46,9 +48,9 @@ protected:
 	// -------------------- internal ----------------------------------------------------//
 	int_max m_OutputPixelCount;
 
-	bool m_Flag_ScanWholeImageGrid;
+	bool m_Flag_ScanOutputImageGrid;
 	// true: whole m_OutputImage
-	// false: point set determined by m_PointList_3DPhysicalPosition or m_PointList_3DIndex_InputImage or m_PointList_3DIndex_OutputImage
+	// false: only scan each point in m_PointList_XXX
 
 	bool m_Flag_EnableOutputImage;
 	bool m_Flag_EnableOutputPixelArray;
@@ -57,7 +59,7 @@ protected:
 	//------------------------- output ----------------------------------------------------//
 	OutputImageType m_OutputImage;
 	ObjectArray<OutputPixelType> m_OutputPixelArray;
-	// or other place
+	// or Other Place
 
 protected:
 	ImageFilter3D();
@@ -91,19 +93,21 @@ public:
 	void EnableOutputImage(bool On_Off = true);
 	void EnableOutputPixelArray(bool On_Off = true);
 
-	void InitializeOutputImage();
+	void InitializeOutputImage(); // call it if m_OutputImage is used before Update() is called
 
 	OutputImageType* GetOutputImage();
 
-	void InitializeOutputPixelArray();
+	void InitializeOutputPixelArray(); // call it if m_OutputPixelArray is used before Update() is called
 
 	ObjectArray<OutputPixelType>* GetOutputPixelArray();
 
+	void SetPointListOf3DWorldPosition(const DenseMatrix<ScalarType>* ListOf3DWorldPosition);
+
+	void SetPointListOf3DPositionInOutputImage(const DenseMatrix<ScalarType>* ListOf3DPosition);
+
+	void SetPointListOf3DIndexInOutputImage(const DenseMatrix<int_max>* ListOf3DIndex);
+
 	void SetPointListOf3DIndexInInputImage(const DenseMatrix<int_max>* ListOf3DIndex);
-
-	void SetPointListOf3DPhysicalPosition(const DenseMatrix<ScalarType>* ListOf3DPhysicalPosition);
-
-	void SetPointListOf3DIndexInOutputImage(DenseMatrix<int_max> ListOf3DIndex);
 
 	void SetImageInterpolationOption(const ImageInterpolationOptionType& InputOption);
 
@@ -125,26 +129,45 @@ protected:
 	// Evaluate at Point (x, y, z) with PointIndex
 	// PointIndex may be LinearIndex in m_OutputImage, or index in m_PointList_XXX
 	// PointIndex <=> (x,y,z) : from one we get the other, good for debug
-	inline virtual OutputPixelType EvaluateAt3DPhysicalPosition(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex) = 0;
+	inline virtual OutputPixelType EvaluateAt3DPositionInInputImage(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex) = 0;
 
 	// If we want to store pixel NOT in m_OutputPixelArray, but some other place (some data object in a derived class)
-	inline virtual void StoreOutputPixelInPixelArrayOfOtherFormat(OutputPixelType& OutputPixel, int_max PointIndex, int_max ThreadIndex) {}
+	inline virtual void StoreOutputPixelToOtherPlace(OutputPixelType& OutputPixel, int_max PointIndex, int_max ThreadIndex) {}
 
 	int_max GetOptimalThreadCount();
 	
-	//---------- if m_OutputImage is empty, use these three function to convert Index/Position --------------------------------//
+	//---------- use these three function to convert Index/Position --------------------------------//
 
+	template<typename IndexType>
+	DenseVector<ScalarType, 3> Transform3DPositionInInputImageTo3DPositionInOutputImage(const DenseVector<ScalarType, 3>& Position);
+
+	template<typename IndexType>
+	DenseVector<ScalarType, 3> Transform3DIndexInInputImageTo3DPositionInOutputImage(const DenseVector<IndexType, 3>& Index3D);
+
+	template<typename IndexType>
+	DenseVector<ScalarType, 3> Transform3DPositionInOutputImageTo3DPositionInInputImage(const DenseVector<ScalarType, 3>& Position);
+
+	template<typename IndexType>
+	DenseVector<ScalarType, 3> Transform3DIndexInOutputImageTo3DPositionInInputImage(const DenseVector<IndexType, 3>& Index3D);
+
+
+	//--------------------------------------------------------------------------------------------
 	DenseVector<int_max, 3> TransformLinearIndexTo3DIndexInOutputImage(int_max LinearIndex);
 
 	template<typename IndexType>
-	DenseVector<ScalarType, 3> Transform3DIndexInOutputImageTo3DPhysicalPosition(const DenseVector<IndexType, 3>& Index3D);
+	DenseVector<ScalarType, 3> Transform3DIndexTo3DPositionInOutputImage(const DenseVector<IndexType, 3>& Index3D);
 
 	template<typename IndexType>
-	DenseVector<ScalarType, 3> Transform3DIndexInOutputImageTo3DPhysicalPosition(IndexType x_Index, IndexType y_Index, IndexType z_Index);
+	DenseVector<ScalarType, 3> Transform3DIndexInOutputImageTo3DWorldPosition(const DenseVector<IndexType, 3>& Index3D);
 
-	DenseVector<ScalarType, 3> Transform3DPhysicalPositionTo3DIndexInOutputImage(const DenseVector<ScalarType, 3>& Position);
+	template<typename IndexType>
+	DenseVector<ScalarType, 3> Transform3DIndexInOutputImageTo3DWorldPosition(IndexType x_Index, IndexType y_Index, IndexType z_Index);
 
-	DenseVector<ScalarType, 3> Transform3DPhysicalPositionTo3DIndexInOutputImage(ScalarType x, ScalarType y, ScalarType z);
+	DenseVector<ScalarType, 3> Transform3DPositionInOutputImageTo3DWorldPosition(ScalarType x, ScalarType y, ScalarType z);
+
+	DenseVector<ScalarType, 3> Transform3DWorldPositionTo3DIndexInOutputImage(const DenseVector<ScalarType, 3>& Position);
+
+	DenseVector<ScalarType, 3> Transform3DWorldPositionTo3DIndexInOutputImage(ScalarType x, ScalarType y, ScalarType z);
 
 private:
 	ImageFilter3D(const ImageFilter3D&) = delete;

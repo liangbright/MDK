@@ -24,17 +24,20 @@ void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::Clear()
 	m_ImageInterpolationOption.BoundaryOption = ImageInterpolationBoundaryOptionEnum::Replicate;
 	m_ImageInterpolationOption.Pixel_OutsideImage = InputPixelType(0);
 	
-	m_PointList_3DPhysicalPosition = nullptr;
+	m_PointList_3DWorldPosition = nullptr;
+	m_PointList_3DPosition_OutputImage = nullptr;
 	m_PointList_3DIndex_InputImage = nullptr;
 	m_PointList_3DIndex_OutputImage = nullptr;
 	
-	m_Flag_ScanWholeImageGrid = false;
+	m_Flag_ScanOutputImageGrid = false;
 	m_OutputPixelCount = 0;
 	m_MaxThreadCount = 1;
 
 	m_Flag_EnableOutputImage = true;
 	m_Flag_EnableOutputPixelArray = false;
 	m_Flag_EnableOutputToOtherPlace = false;
+
+	m_Flag_Output_Input_Same_CoordinateSystem = false;
 
 	m_OutputImageInfo.Clear();
 	m_OutputImage.Clear();
@@ -195,17 +198,21 @@ void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::InitializeOutpu
 {
 	int_max PixelCountInArray = 0;
 
-	if (m_PointList_3DIndex_OutputImage.IsEmpty() == false)
+	if (m_PointList_3DWorldPosition != nullptr)
 	{
-		PixelCountInArray = m_PointList_3DIndex_OutputImage.GetColCount();
+		PixelCountInArray = m_PointList_3DWorldPosition->GetColCount();
+	}
+	else if (m_PointList_3DPosition_OutputImage != nullptr)
+	{
+		PixelCountInArray = m_PointList_3DPosition_OutputImage->GetColCount();
+	}
+	else if (m_PointList_3DIndex_OutputImage != nullptr)
+	{
+		PixelCountInArray = m_PointList_3DIndex_OutputImage->GetColCount();
 	}
 	else if (m_PointList_3DIndex_InputImage != nullptr)
 	{
 		PixelCountInArray = m_PointList_3DIndex_InputImage->GetColCount();
-	}
-	else if (m_PointList_3DPhysicalPosition != nullptr)
-	{
-		PixelCountInArray = m_PointList_3DPhysicalPosition->GetColCount();
 	}
 
 	m_OutputPixelArray.FastResize(PixelCountInArray);
@@ -220,9 +227,23 @@ ObjectArray<typename OutputImageType::PixelType>* ImageFilter3D<InputImageType, 
 
 
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
-void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::SetPointListOf3DPhysicalPosition(const DenseMatrix<ScalarType>* ListOf3DPhysicalPosition)
+void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::SetPointListOf3DWorldPosition(const DenseMatrix<ScalarType>* ListOf3DWorldPosition)
 {
-	m_PointList_3DPhysicalPosition = std::move(ListOf3DPhysicalPosition);
+	m_PointList_3DWorldPosition = ListOf3DWorldPosition;
+}
+
+
+template<typename InputImageType, typename OutputImageType, typename ScalarType>
+void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::SetPointListOf3DPositionInOutputImage(const DenseMatrix<ScalarType>* ListOf3DPosition)
+{
+	m_PointList_3DPosition_OutputImage = ListOf3DIndex;
+}
+
+
+template<typename InputImageType, typename OutputImageType, typename ScalarType>
+void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::SetPointListOf3DIndexInOutputImage(const DenseMatrix<int_max>* ListOf3DIndex)
+{
+	m_PointList_3DIndex_OutputImage = ListOf3DIndex;
 }
 
 
@@ -230,13 +251,6 @@ template<typename InputImageType, typename OutputImageType, typename ScalarType>
 void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::SetPointListOf3DIndexInInputImage(const DenseMatrix<int_max>* ListOf3DIndex)
 {
 	m_PointList_3DIndex_InputImage = ListOf3DIndex;
-}
-
-
-template<typename InputImageType, typename OutputImageType, typename ScalarType>
-void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::SetPointListOf3DIndexInOutputImage(DenseMatrix<int_max> ListOf3DIndex)
-{
-	m_PointList_3DIndex_OutputImage = std::move(ListOf3DIndex);
 }
 
 
@@ -349,30 +363,40 @@ bool ImageFilter3D<InputImageType, OutputImageType, ScalarType>::Preprocess()
 	auto OutputImageOrigin = m_OutputImageInfo.Origin;
 	auto PixelCountOfOutputImage = OutputImageSize[0] * OutputImageSize[1] * OutputImageSize[2];
 
-	if (m_PointList_3DIndex_OutputImage == nullptr && m_PointList_3DIndex_InputImage == nullptr && m_PointList_3DPhysicalPosition == nullptr)
+	if (m_PointList_3DWorldPosition == nullptr 
+		&& m_PointList_3DPosition_OutputImage == nullptr && m_PointList_3DIndex_OutputImage == nullptr && m_PointList_3DIndex_InputImage == nullptr)
 	{
 		m_OutputPixelCount = PixelCountOfOutputImage;
-		m_Flag_ScanWholeImageGrid = true;
+		m_Flag_ScanOutputImageGrid = true;
 	}
-	else if (m_PointList_3DIndex_OutputImage != nullptr && m_PointList_3DIndex_InputImage == nullptr && m_PointList_3DPhysicalPosition == nullptr)
+	else if (m_PointList_3DWorldPosition != nullptr 
+		&& m_PointList_3DPosition_OutputImage == nullptr && m_PointList_3DIndex_OutputImage == nullptr && m_PointList_3DIndex_InputImage == nullptr)
+	{
+		m_OutputPixelCount = m_PointList_3DWorldPosition->GetColCount();
+		m_Flag_ScanOutputImageGrid = false;
+	}
+	else if (m_PointList_3DWorldPosition == nullptr
+		&& m_PointList_3DPosition_OutputImage != nullptr && m_PointList_3DIndex_OutputImage == nullptr && m_PointList_3DIndex_InputImage == nullptr)
+	{
+		m_OutputPixelCount = m_PointList_3DPosition_OutputImage->GetColCount();
+		m_Flag_ScanOutputImageGrid = false;
+	}
+	else if (m_PointList_3DWorldPosition == nullptr
+		&& m_PointList_3DPosition_OutputImage == nullptr && m_PointList_3DIndex_OutputImage != nullptr && m_PointList_3DIndex_InputImage != nullptr)
 	{
 		m_OutputPixelCount = m_PointList_3DIndex_OutputImage->GetColCount();
-		m_Flag_ScanWholeImageGrid = false;
+		m_Flag_ScanOutputImageGrid = false;
 	}
-	else if (m_PointList_3DIndex_OutputImage == nullptr && m_PointList_3DIndex_InputImage != nullptr && m_PointList_3DPhysicalPosition == nullptr)
+	else if (m_PointList_3DWorldPosition == nullptr
+		&& m_PointList_3DPosition_OutputImage == nullptr && m_PointList_3DIndex_OutputImage == nullptr && m_PointList_3DIndex_InputImage != nullptr)
 	{
 		m_OutputPixelCount = m_PointList_3DIndex_InputImage->GetColCount();
-		m_Flag_ScanWholeImageGrid = false;
-	}
-	else if (m_PointList_3DIndex_OutputImage == nullptr && m_PointList_3DIndex_InputImage == nullptr && m_PointList_3DPhysicalPosition != nullptr)
-	{
-		m_OutputPixelCount = m_PointList_3DPhysicalPosition->GetColCount();
-		m_Flag_ScanWholeImageGrid = false;
+		m_Flag_ScanOutputImageGrid = false;
 	}
 	else
 	{
 		MDK_Error("Something is wrong @ ImageFilter3D::Preprocess()")
-		return false;
+	    return false;
 	}
 
 	if (m_Flag_EnableOutputImage == true)
@@ -406,16 +430,16 @@ template<typename InputImageType, typename OutputImageType, typename ScalarType>
 void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
 Evaluate_in_a_thread(int_max PointIndex_start, int_max PointIndex_end, int_max ThreadIndex)
 {
-	if (m_Flag_ScanWholeImageGrid == true)
+	if (m_Flag_ScanOutputImageGrid == true)
 	{
 		for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
 		{
-			auto Index3D = this->TransformLinearIndexTo3DIndexInOutputImage(k);
-			auto Pos3D = this->Transform3DIndexInOutputImageTo3DPhysicalPosition(Index3D);
-			auto OutputPixel = this->EvaluateAt3DPhysicalPosition(k, Pos3D[0], Pos3D[1], Pos3D[2], ThreadIndex);
+			auto Index3D_out = this->TransformLinearIndexTo3DIndexInOutputImage(k);
+			auto Pos3D_in = this->Transform3DIndexInOutputImageTo3DPositionInInputImage(Index3D);
+			auto OutputPixel = this->EvaluateAt3DPositionInInputImage(k, Pos3D_in[0], Pos3D_in[1], Pos3D_in[2], ThreadIndex);
 			if (m_Flag_EnableOutputImage == true)
 			{
-				m_OutputImage(Index3D[0], Index3D[1], Index3D[2]) = OutputPixel;
+				m_OutputImage(Index3D_out[0], Index3D_out[1], Index3D_out[2]) = OutputPixel;
 			}
 			if (m_Flag_EnableOutputPixelArray == true)
 			{
@@ -423,23 +447,27 @@ Evaluate_in_a_thread(int_max PointIndex_start, int_max PointIndex_end, int_max T
 			}
 			if (m_Flag_EnableOutputToOtherPlace == true)
 			{
-				this->StoreOutputPixelInPixelArrayOfOtherFormat(OutputPixel, k, ThreadIndex);
+				this->StoreOutputPixelToOtherPlace(OutputPixel, k, ThreadIndex);
 			}
 		}
 	}
 	else
 	{
-		if (m_PointList_3DIndex_OutputImage != nullptr)
+		if (m_PointList_3DWorldPosition != nullptr)
 		{
 			for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
 			{
-				DenseVector<int_max, 3> Index3D;
-				m_PointList_3DIndex_OutputImage->GetCol(k, Index3D);
-				auto Pos3D = this->Transform3DIndexInOutputImageTo3DPhysicalPosition(Index3D);
-				auto OutputPixel = this->EvaluateAt3DPhysicalPosition(k, Pos3D[0], Pos3D[1], Pos3D[2], ThreadIndex);
+				DenseVector<ScalarType, 3> Pos3D_world;
+				m_PointList_3DWorldPosition->GetCol(k, Pos3D_world);
+				auto Pos3D_in = m_InputImage->Transform3DWorldPositionTo3DPosition(Pos3D_world);
+				auto OutputPixel = this->EvaluateAt3DPositionInInputImage(k, Pos3D_in[0], Pos3D_in[1], Pos3D_in[2], ThreadIndex);
 				if (m_Flag_EnableOutputImage == true)
 				{
-					m_OutputImage(Index3D[0], Index3D[1], Index3D[2]) = OutputPixel;
+					auto Index3D_out = m_OutputImage.Transform3DWorldPositionToNearest3DDiscreteIndex(Pos3D_world);
+					if (m_OutputImage.CheckIf3DIndexIsInsideImage(Index3D_out) == true)
+					{
+						m_OutputImage(Index3D_out[0], Index3D_out[1], Index3D_out[2]) = OutputPixel;
+					}
 				}
 				if (m_Flag_EnableOutputPixelArray == true)
 				{
@@ -447,7 +475,33 @@ Evaluate_in_a_thread(int_max PointIndex_start, int_max PointIndex_end, int_max T
 				}
 				if (m_Flag_EnableOutputToOtherPlace == true)
 				{
-					this->StoreOutputPixelInPixelArrayOfOtherFormat(OutputPixel, k, ThreadIndex);
+					this->StoreOutputPixelToOtherPlace(OutputPixel, k, ThreadIndex);
+				}
+			}
+		}
+		else if (m_PointList_3DPosition_InputImage != nullptr)
+		{
+			for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
+			{
+				DenseVector<ScalarType, 3> Pos3D_in;
+				m_PointList_3DPosition_InputImage->GetCol(k, Pos3D_in);
+				auto OutputPixel = this->EvaluateAt3DPositionInInputImage(k, Pos3D_in[0], Pos3D_in[1], Pos3D_in[2], ThreadIndex);
+				if (m_Flag_EnableOutputImage == true)
+				{
+					auto Pos3D_out = this->Transform3DPositionInInputImageTo3DPositionInOutputImage(Pos3D_in);
+					auto Index3D_out = m_OutputImage.Transform3DPositionToNearest3DDiscreteIndex(Pos3D_out);
+					if (m_OutputImage.CheckIf3DIndexIsInsideImage(Index3D) == true)
+					{
+						m_OutputImage(Index3D_out[0], Index3D_out[1], Index3D_out[2]) = OutputPixel;
+					}
+				}
+				if (m_Flag_EnableOutputPixelArray == true)
+				{
+					m_OutputPixelArray[k] = OutputPixel;
+				}
+				if (m_Flag_EnableOutputToOtherPlace == true)
+				{
+					this->StoreOutputPixelToOtherPlace(OutputPixel, k, ThreadIndex);
 				}
 			}
 		}
@@ -455,16 +509,17 @@ Evaluate_in_a_thread(int_max PointIndex_start, int_max PointIndex_end, int_max T
 		{
 			for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
 			{
-				DenseVector<int_max, 3> Index3D_input;
-				m_PointList_3DIndex_InputImage->GetCol(k, Index3D_input);
-				auto Pos3D = m_InputImage->Transform3DIndexTo3DPhysicalPosition(Index3D_input);
-				auto OutputPixel = this->EvaluateAt3DPhysicalPosition(k, Pos3D[0], Pos3D[1], Pos3D[2], ThreadIndex);
+				DenseVector<int_max, 3> Index3D_in;
+				m_PointList_3DIndex_InputImage->GetCol(k, Index3D_in);
+				auto Pos3D_in = m_InputImage->Transform3DIndexTo3DPosition(Index3D_in);
+				auto OutputPixel = this->EvaluateAt3DPositionInInputImage(k, Pos3D_in[0], Pos3D_in[1], Pos3D_in[2], ThreadIndex);
 				if (m_Flag_EnableOutputImage == true)
 				{
-					auto Index3D = m_OutputImage.Transform3DPhysicalPositionToNearest3DDiscreteIndex(Pos3D);
+					auto Pos3D_out = this->Transform3DPositionInInputImageTo3DPositionInOutputImage(Pos3D_in);
+					auto Index3D_out = m_OutputImage.Transform3DPositionToNearest3DDiscreteIndex(Pos3D_out);
 					if (m_OutputImage.CheckIf3DIndexIsInsideImage(Index3D) == true)
 					{
-						m_OutputImage(Index3D[0], Index3D[1], Index3D[2]) = OutputPixel;
+						m_OutputImage(Index3D_out[0], Index3D_out[1], Index3D_out[2]) = OutputPixel;
 					}
 				}
 				if (m_Flag_EnableOutputPixelArray == true)
@@ -473,23 +528,24 @@ Evaluate_in_a_thread(int_max PointIndex_start, int_max PointIndex_end, int_max T
 				}
 				if (m_Flag_EnableOutputToOtherPlace == true)
 				{
-					this->StoreOutputPixelInPixelArrayOfOtherFormat(OutputPixel, k, ThreadIndex);
+					this->StoreOutputPixelToOtherPlace(OutputPixel, k, ThreadIndex);
 				}
 			}
 		}
-		else if (m_PointList_3DPhysicalPosition != nullptr)
+		else if (m_PointList_3DPosition_OutputImage != nullptr)
 		{
 			for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
 			{
-				DenseVector<ScalarType, 3> Pos3D;
-				m_PointList_3DPhysicalPosition->GetCol(k, Pos3D);
-				auto OutputPixel = this->EvaluateAt3DPhysicalPosition(k, Pos3D[0], Pos3D[1], Pos3D[2], ThreadIndex);
+				DenseVector<ScalarType, 3> Pos3D_out;
+				m_PointList_3DPosition_OutputImage->GetCol(k, Pos3D_out);
+				auto Pos3D_in = this->Transform3DPositionInOutputImageTo3DPositionInInputImage(Pos3D_out);
+				auto OutputPixel = this->EvaluateAt3DPositionInInputImage(k, Pos3D_in[0], Pos3D_in[1], Pos3D_in[2], ThreadIndex);
 				if (m_Flag_EnableOutputImage == true)
 				{
-					auto Index3D = m_OutputImage.Transform3DPhysicalPositionToNearest3DDiscreteIndex(Pos3D);
+					auto Index3D_out = m_OutputImage.Transform3DPositionToNearest3DDiscreteIndex(Pos3D_out);
 					if (m_OutputImage.CheckIf3DIndexIsInsideImage(Index3D) == true)
 					{
-						m_OutputImage(Index3D[0], Index3D[1], Index3D[2]) = OutputPixel;
+						m_OutputImage(Index3D_out[0], Index3D_out[1], Index3D_out[2]) = OutputPixel;
 					}
 				}
 				if (m_Flag_EnableOutputPixelArray == true)
@@ -498,7 +554,29 @@ Evaluate_in_a_thread(int_max PointIndex_start, int_max PointIndex_end, int_max T
 				}
 				if (m_Flag_EnableOutputToOtherPlace == true)
 				{
-					this->StoreOutputPixelInPixelArrayOfOtherFormat(OutputPixel, k, ThreadIndex);
+					this->StoreOutputPixelToOtherPlace(OutputPixel, k, ThreadIndex);
+				}
+			}
+		}
+		else if (m_PointList_3DIndex_OutputImage != nullptr)
+		{
+			for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
+			{
+				DenseVector<int_max, 3> Index3D_out;
+				m_PointList_3DIndex_OutputImage->GetCol(k, Index3D_out);
+				auto Pos3D_in = this->Transform3DIndexInOutputImageTo3DPositionInInputImage(Index3D_out);
+				auto OutputPixel = this->EvaluateAt3DPositionInInputImage(k, Pos3D_in[0], Pos3D_in[1], Pos3D_in[2], ThreadIndex);
+				if (m_Flag_EnableOutputImage == true)
+				{// no check for range of Index3D_out
+					m_OutputImage(Index3D_out[0], Index3D_out[1], Index3D_out[2]) = OutputPixel;
+				}
+				if (m_Flag_EnableOutputPixelArray == true)
+				{
+					m_OutputPixelArray[k] = OutputPixel;
+				}
+				if (m_Flag_EnableOutputToOtherPlace == true)
+				{
+					this->StoreOutputPixelToOtherPlace(OutputPixel, k, ThreadIndex);
 				}
 			}
 		}
@@ -517,61 +595,54 @@ template<typename InputImageType, typename OutputImageType, typename ScalarType>
 DenseVector<int_max, 3> ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
 TransformLinearIndexTo3DIndexInOutputImage(int_max LinearIndex)
 {
-	auto divresult = std::div(LinearIndex, m_OutputImageInfo.Size[0] * m_OutputImageInfo.Size[1]);
-
-	auto zIndex = divresult.quot; // z
-
-	divresult = std::div(divresult.rem, m_OutputImageInfo.Size[0]);
-
-	auto yIndex = divresult.quot; // y
-	auto xIndex = divresult.rem; // x
-
-	DenseVector<int_max, 3> Index3D;
-	Index3D[0] = int_max(xIndex);
-	Index3D[1] = int_max(yIndex);
-	Index3D[2] = int_max(zIndex);
-
-	return Index3D;
+	return ImageCoordinateTransform_LinearIndexTo3DIndex(LinearIndex, m_OutputImageInfo);
 }
 
 
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
 template<typename IndexType>
 DenseVector<ScalarType, 3> ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
-Transform3DIndexInOutputImageTo3DPhysicalPosition(const DenseVector<IndexType, 3>& Index3D)
-{
-	return this->Transform3DIndexInOutputImageTo3DPhysicalPosition(Index3D[0], Index3D[1], Index3D[2]);
-}
-
-template<typename InputImageType, typename OutputImageType, typename ScalarType>
-template<typename IndexType>
-DenseVector<ScalarType, 3> ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
-Transform3DIndexInOutputImageTo3DPhysicalPosition(IndexType x_Index, IndexType y_Index, IndexType z_Index)
+Transform3DIndexInOutputImageTo3DWorldPosition(const DenseVector<IndexType, 3>& Index3D)
 {
 	DenseVector<ScalarType, 3> Position;
-	Position[0] = ScalarType(m_OutputImageInfo.Origin[0] + double(x_Index) * m_OutputImageInfo.Spacing[0]);
-	Position[1] = ScalarType(m_OutputImageInfo.Origin[1] + double(y_Index) * m_OutputImageInfo.Spacing[1]);
-	Position[2] = ScalarType(m_OutputImageInfo.Origin[2] + double(z_Index) * m_OutputImageInfo.Spacing[2]);
+	Position = this->Transform3DIndexInOutputImageTo3DWorldPosition(Index3D[0], Index3D[1], Index3D[2]);
+	return Position;
+}
+
+
+template<typename InputImageType, typename OutputImageType, typename ScalarType>
+template<typename IndexType>
+DenseVector<ScalarType, 3> ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
+Transform3DIndexInOutputImageTo3DWorldPosition(IndexType x_Index, IndexType y_Index, IndexType z_Index)
+{
+	DenseVector<ScalarType, 3> Position;
+	Position = ImageCoordinateTransform_3DIndexTo3DWorldPosition(x_Index, y_Index, z_Index, m_OutputImageInfo);
 	return Position;
 }
 
 
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
 DenseVector<ScalarType, 3> ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
-Transform3DPhysicalPositionTo3DIndexInOutputImage(const DenseVector<ScalarType, 3>& Position)
+Transform3DPositionInOutputImageTo3DWorldPosition(ScalarType x, ScalarType y, ScalarType z)
 {
-	return this->Transform3DPhysicalPositionTo3DIndexInOutputImage(Position[0], Position[1], Position[2]);
+	return ImageCoordinateTransform_3DPositionTo3DWorldPosition(x, y, z, m_OutputImageInfo);
 }
 
 
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
 DenseVector<ScalarType, 3> ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
-Transform3DPhysicalPositionTo3DIndexInOutputImage(ScalarType x, ScalarType y, ScalarType z)
+Transform3DWorldPositionTo3DIndexInOutputImage(const DenseVector<ScalarType, 3>& Position)
+{
+	return this->Transform3DWorldPositionTo3DIndexInOutputImage(Position[0], Position[1], Position[2]);
+}
+
+
+template<typename InputImageType, typename OutputImageType, typename ScalarType>
+DenseVector<ScalarType, 3> ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
+Transform3DWorldPositionTo3DIndexInOutputImage(ScalarType x, ScalarType y, ScalarType z)
 {
 	DenseVector<ScalarType, 3> Index3D;
-	Index3D[0] = ScalarType((double(x) - m_OutputImageInfo.Origin[0]) / m_OutputImageInfo.Spacing[0]);
-	Index3D[1] = ScalarType((double(y) - m_OutputImageInfo.Origin[1]) / m_OutputImageInfo.Spacing[1]);
-	Index3D[2] = ScalarType((double(z) - m_OutputImageInfo.Origin[2]) / m_OutputImageInfo.Spacing[2]);
+	Index3D = ImageCoordinateTransform_3DWorldPositionTo3DIndex(x, y, z, m_OutputImageInfo);
 	return Index3D;
 }
 
