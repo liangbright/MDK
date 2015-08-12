@@ -115,8 +115,6 @@ struct DenseImageData3D
 	template<typename ScalarType>
 	inline DenseVector<ScalarType, 3> Transform3DWorldPositionTo3DPosition(ScalarType x, ScalarType y, ScalarType z) const;
 
-	void UpdateTransformMatrix_3DIndex_3DWorld();
-
 private:
 //deleted:
     DenseImageData3D(const DenseImageData3D&) = delete;
@@ -400,30 +398,30 @@ public:
 	//------------------ get Pixel by using interpolation method --------------------//
 
 	template<typename OutputPixelType = PixelType, typename ScalarType>
-	OutputPixelType GetPixelAt3DIndex(ScalarType xIndex, ScalarType yIndex, ScalarType zIndex, const InterpolationOptionType& Option) const;
+	OutputPixelType GetPixelAt3DIndex(ScalarType xIndex, ScalarType yIndex, ScalarType zIndex, const InterpolationOptionType& Option, bool EnableBoundCheck = true) const;
 
-	PixelType GetPixelAt3DIndex(int_max xIndex, int_max yIndex, int_max zIndex, const InterpolationOptionType& Option) const;
-	PixelType GetPixelAt3DIndex(int xIndex, int yIndex, int zIndex, const InterpolationOptionType& Option) const;
-	PixelType GetPixelAt3DIndex(long xIndex, long yIndex, long zIndex, const InterpolationOptionType& Option) const;
-
-	template<typename OutputPixelType = PixelType, typename ScalarType>
-	OutputPixelType GetPixelAt3DIndex(const DenseVector<ScalarType, 3>& Index3D, const InterpolationOptionType& Option) const;
-
-	PixelType GetPixelAt3DIndex(const DenseVector<int_max, 3>& Index3D, const InterpolationOptionType& Option) const;
-	PixelType GetPixelAt3DIndex(const DenseVector<int, 3>& Index3D, const InterpolationOptionType& Option) const;
-	PixelType GetPixelAt3DIndex(const DenseVector<long, 3>& Index3D, const InterpolationOptionType& Option) const;
+	PixelType GetPixelAt3DIndex(int_max xIndex, int_max yIndex, int_max zIndex, const InterpolationOptionType& Option, bool EnableBoundCheck = true) const;
+	PixelType GetPixelAt3DIndex(int xIndex, int yIndex, int zIndex, const InterpolationOptionType& Option, bool EnableBoundCheck = true) const;
+	PixelType GetPixelAt3DIndex(long xIndex, long yIndex, long zIndex, const InterpolationOptionType& Option, bool EnableBoundCheck = true) const;
 
 	template<typename OutputPixelType = PixelType, typename ScalarType>
-	OutputPixelType GetPixelAt3DPosition(ScalarType x, ScalarType y, ScalarType z, const InterpolationOptionType& Option) const;
+	OutputPixelType GetPixelAt3DIndex(const DenseVector<ScalarType, 3>& Index3D, const InterpolationOptionType& Option, bool EnableBoundCheck = true) const;
+
+	PixelType GetPixelAt3DIndex(const DenseVector<int_max, 3>& Index3D, const InterpolationOptionType& Option, bool EnableBoundCheck = true) const;
+	PixelType GetPixelAt3DIndex(const DenseVector<int, 3>& Index3D, const InterpolationOptionType& Option, bool EnableBoundCheck = true) const;
+	PixelType GetPixelAt3DIndex(const DenseVector<long, 3>& Index3D, const InterpolationOptionType& Option, bool EnableBoundCheck = true) const;
 
 	template<typename OutputPixelType = PixelType, typename ScalarType>
-	OutputPixelType GetPixelAt3DPosition(const DenseVector<ScalarType, 3>& Position, const InterpolationOptionType& Option) const;
+	OutputPixelType GetPixelAt3DPosition(ScalarType x, ScalarType y, ScalarType z, const InterpolationOptionType& Option, bool EnableBoundCheck = true) const;
 
 	template<typename OutputPixelType = PixelType, typename ScalarType>
-	OutputPixelType GetPixelAt3DWorldPosition(ScalarType x, ScalarType y, ScalarType z, const InterpolationOptionType& Option) const;
+	OutputPixelType GetPixelAt3DPosition(const DenseVector<ScalarType, 3>& Position, const InterpolationOptionType& Option, bool EnableBoundCheck = true) const;
 
 	template<typename OutputPixelType = PixelType, typename ScalarType>
-	OutputPixelType GetPixelAt3DWorldPosition(const DenseVector<ScalarType, 3>& Position, const InterpolationOptionType& Option) const;
+	OutputPixelType GetPixelAt3DWorldPosition(ScalarType x, ScalarType y, ScalarType z, const InterpolationOptionType& Option, bool EnableBoundCheck = true) const;
+
+	template<typename OutputPixelType = PixelType, typename ScalarType>
+	OutputPixelType GetPixelAt3DWorldPosition(const DenseVector<ScalarType, 3>& Position, const InterpolationOptionType& Option, bool EnableBoundCheck = true) const;
 
 	//------------------------- Get LinearIndex or 3DIndex In Region -------------------//
     

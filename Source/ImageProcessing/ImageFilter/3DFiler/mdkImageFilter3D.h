@@ -12,7 +12,7 @@ namespace mdk
 
 // SISO: Single Input Image, Single Output Image
 // Each OutputPixel can be stored in Image or PixelArray or both
-// This is just a reference design. It is not necessry to derive child-class from this one.
+// This is just a reference design. It is not necessary to derive child-class from this one.
 
 template<typename InputImage_Type, typename OutputImage_Type, typename Scalar_Type>
 class ImageFilter3D : public Object
@@ -59,10 +59,10 @@ protected:
 	bool m_Flag_EnableOutputPixelArray;
 	bool m_Flag_EnableOutputToOtherPlace;
 
-	bool m_Flag_EvaluateAt3DWorldPosition;
-	// true: use EvaluateAt3DWorldPosition
-	
-	enum class PhysicalCoordinateSystemForEvaluation {WORLD, INPUT, OUTPUT, UNKOWN};
+	bool m_Flag_Input_Output_SameOrientation;
+	// m_OutputImage and m_InputImage have the same orientation
+
+	enum class PhysicalCoordinateSystemForEvaluation {WORLD, INPUT, OUTPUT, UNKNOWN};
 
 	PhysicalCoordinateSystemForEvaluation m_PhysicalCoordinateSystemForEvaluation;
 
@@ -73,9 +73,11 @@ protected:
 	DenseVector<double, 3> m_3DPositionTransformFromInputToOutput_Offset;
 
 	//------------------------- output ----------------------------------------------------//
-	OutputImageType m_OutputImage;
+	// if m_Flag_ScanOutputImageGrid is true, then write result to m_OutputImage
+	// else, then write result to m_OutputImage
+
+	OutputImageType m_OutputImage; 
 	ObjectArray<OutputPixelType> m_OutputPixelArray;
-	// or Other Place
 
 protected:
 	ImageFilter3D();
@@ -154,45 +156,26 @@ protected:
 	// PointIndex may be LinearIndex in m_OutputImage, or index in m_PointList_XXX
 	// PointIndex <=> (x,y,z) : from one we get the other, good for debug
 	// 
-	inline virtual OutputPixelType EvaluateAt3DWorldPosition(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex) = 0;
-	inline virtual OutputPixelType EvaluateAt3DPositionInInputImage(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex) = 0;
-	inline virtual OutputPixelType EvaluateAt3DPositionInOutputImage(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex) = 0;
+	inline virtual OutputPixelType EvaluateAt3DWorldPosition(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex) { return GetZeroPixel<OutputPixelType>(); }
+	inline virtual OutputPixelType EvaluateAt3DPositionInInputImage(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex) { return GetZeroPixel<OutputPixelType>(); }
+	inline virtual OutputPixelType EvaluateAt3DPositionInOutputImage(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex) { return GetZeroPixel<OutputPixelType>(); }
 
 	// If we want to store pixel NOT in m_OutputPixelArray, but some other place (some data object in a derived class)
 	inline virtual void StoreOutputPixelToOtherPlace(OutputPixelType& OutputPixel, int_max PointIndex, int_max ThreadIndex) {}
 
 	int_max GetOptimalThreadCount();
 	
+	void SelectPhysicalCoordinateSystemForEvaluation(PhysicalCoordinateSystemForEvaluation Option);
+
+	void CompareOrientation_Input_Output();
 
 	void Update3DPositionTransform_Input_Output();
 
 	//---------- Coordinate Transform between Input and Output --------------------------------//
 
-	template<typename IndexType>
 	DenseVector<ScalarType, 3> Transform3DPositionInInputImageTo3DPositionInOutputImage(const DenseVector<ScalarType, 3>& Position_in);
 
-	template<typename IndexType>
 	DenseVector<ScalarType, 3> Transform3DPositionInOutputImageTo3DPositionInInputImage(const DenseVector<ScalarType, 3>& Position_out);
-
-	//---------- Coordinate Transform about Output --------------------------------------------//
-
-	DenseVector<int_max, 3> TransformLinearIndexTo3DIndexInOutputImage(int_max LinearIndex);
-
-	int_max TransformLinearIndexTo3DIndexInOutputImage(const DenseVector<int_max, 3>& Index3D);
-
-	template<typename IndexType>
-	DenseVector<ScalarType, 3> Transform3DIndexTo3DPositionInOutputImage(const DenseVector<IndexType, 3>& Index3D);
-
-	template<typename IndexType>
-	DenseVector<ScalarType, 3> Transform3DIndexInOutputImageTo3DWorldPosition(const DenseVector<IndexType, 3>& Index3D);
-
-	DenseVector<ScalarType, 3> Transform3DPositionTo3DIndexInOutputImage(const DenseVector<ScalarType, 3>& Position);
-
-	DenseVector<ScalarType, 3> Transform3DPositionInOutputImageTo3DWorldPosition(const DenseVector<ScalarType, 3>& Position);
-
-	DenseVector<ScalarType, 3> Transform3DWorldPositionTo3DIndexInOutputImage(const DenseVector<ScalarType, 3>& Position);
-
-	DenseVector<ScalarType, 3> Transform3DWorldPositionTo3DPositionInOutputImage(const DenseVector<ScalarType, 3>& Position);
 
 private:
 	ImageFilter3D(const ImageFilter3D&) = delete;

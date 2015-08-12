@@ -29,7 +29,7 @@ public:
 private:
 	double m_Radius; // distance between Position(+) and Position(-), in Physical unit (mm)
 
-	DataArray<Mask_Of_ScalarDenseImageGradientFilter3D<ScalarType>> m_MaskList;
+	ObjectArray<Mask_Of_ScalarDenseImageGradientFilter3D<ScalarType>> m_MaskList;
 
 	int_max m_Flag_MaskOriginLocation;
 	//  0: Middle

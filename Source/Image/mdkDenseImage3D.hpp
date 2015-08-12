@@ -24,7 +24,7 @@ void DenseImageData3D<PixelType>::Clear()
 	m_Info.Clear();
 	m_PixelCountPerZSlice = 0;
     m_PixelArray.Clear();
-	m_Pixel_OutsideImage = PixelType(0);
+	m_Pixel_OutsideImage = GetZeroPixel<PixelType>();
 }
 
 
@@ -221,18 +221,6 @@ DenseVector<ScalarType, 3> DenseImageData3D<PixelType>::Transform3DWorldPosition
 	Position[1] = ScalarType(double(temp_x)*R[3] + double(temp_y)*R[4] + double(temp_z)*R[5]);
 	Position[2] = ScalarType(double(temp_x)*R[6] + double(temp_y)*R[7] + double(temp_z)*R[8]);
 	return Position;
-}
-
-
-template<typename PixelType>
-void DenseImageData3D<PixelType>::UpdateTransformMatrix_3DIndex_3DWorld()
-{
-	auto R = m_Info.Orientation.GetElementPointer();
-	m_Info.TransformMatrix_3DIndexTo3DWorld.SetCol(0, {m_Info.Spacing[0]*R[0], m_Info.Spacing[0]*R[1], m_Info.Spacing[0]*R[2]});
-	m_Info.TransformMatrix_3DIndexTo3DWorld.SetCol(1, {m_Info.Spacing[1]*R[3], m_Info.Spacing[1]*R[4], m_Info.Spacing[1]*R[5]});
-    m_Info.TransformMatrix_3DIndexTo3DWorld.SetCol(2, {m_Info.Spacing[2]*R[6], m_Info.Spacing[2]*R[7], m_Info.Spacing[2]*R[8]});
-	// inverse transform
-	m_Info.TransformMatrix_3DWorldTo3DIndex = m_Info.TransformMatrix_3DIndexTo3DWorld.Inv();
 }
 
 //========================================================== DenseImage ========================================================================//
@@ -763,7 +751,7 @@ void DenseImage3D<PixelType>::SetSpacing(double Spacing_x, double Spacing_y, dou
     m_ImageData->m_Info.Spacing[1] = Spacing_y;
     m_ImageData->m_Info.Spacing[2] = Spacing_z;
 
-	m_ImageData->UpdateTransformMatrix_3DIndex_3DWorld();
+	m_ImageData->m_Info.UpdateTransformMatrix();
 }
 
 
@@ -859,7 +847,7 @@ void DenseImage3D<PixelType>::SetOrientation(const DenseMatrix<double>& Orientat
 
 	m_ImageData->m_Info.Orientation = Orientation;
 
-	m_ImageData->UpdateTransformMatrix_3DIndex_3DWorld();
+	m_ImageData->m_Info.UpdateTransformMatrix();
 }
 
 
@@ -1570,99 +1558,99 @@ const PixelType& DenseImage3D<PixelType>::GetPixelNearestTo3DWorldPosition(const
 template<typename PixelType>
 template<typename OutputPixelType, typename ScalarType>
 OutputPixelType DenseImage3D<PixelType>::
-GetPixelAt3DIndex(ScalarType xIndex, ScalarType yIndex, ScalarType zIndex, const InterpolationOptionType& Option) const
+GetPixelAt3DIndex(ScalarType xIndex, ScalarType yIndex, ScalarType zIndex, const InterpolationOptionType& Option, bool EnableBoundCheck) const
 {
-	return InterpolateImageAt3DIndex<OutputPixelType>(*this, xIndex, yIndex, zIndex, Option);
+	return InterpolateImageAt3DIndex<OutputPixelType>(*this, xIndex, yIndex, zIndex, Option, EnableBoundCheck);
 }
 
 
 template<typename PixelType>
-PixelType DenseImage3D<PixelType>::GetPixelAt3DIndex(int_max xIndex, int_max yIndex, int_max zIndex, const InterpolationOptionType& Option) const
+PixelType DenseImage3D<PixelType>::GetPixelAt3DIndex(int_max xIndex, int_max yIndex, int_max zIndex, const InterpolationOptionType& Option, bool EnableBoundCheck) const
 {
-	return InterpolateImageAt3DIndex_Nearest<PixelType>(*this, xIndex, yIndex, zIndex, Option);
+	return InterpolateImageAt3DIndex_Nearest<PixelType>(*this, xIndex, yIndex, zIndex, Option, EnableBoundCheck);
 }
 
 
 template<typename PixelType>
-PixelType DenseImage3D<PixelType>::GetPixelAt3DIndex(int xIndex, int yIndex, int zIndex, const InterpolationOptionType& Option) const
+PixelType DenseImage3D<PixelType>::GetPixelAt3DIndex(int xIndex, int yIndex, int zIndex, const InterpolationOptionType& Option, bool EnableBoundCheck) const
 {
-	return this->GetPixelAt3DIndex(int_max(xIndex), int_max(yIndex), int_max(zIndex), Option);
+	return this->GetPixelAt3DIndex(int_max(xIndex), int_max(yIndex), int_max(zIndex), Option, EnableBoundCheck);
 }
 
 
 template<typename PixelType>
-PixelType DenseImage3D<PixelType>::GetPixelAt3DIndex(long xIndex, long yIndex, long zIndex, const InterpolationOptionType& Option) const
+PixelType DenseImage3D<PixelType>::GetPixelAt3DIndex(long xIndex, long yIndex, long zIndex, const InterpolationOptionType& Option, bool EnableBoundCheck) const
 {
-	return this->GetPixelAt3DIndex(int_max(xIndex), int_max(yIndex), int_max(zIndex), Option);
+	return this->GetPixelAt3DIndex(int_max(xIndex), int_max(yIndex), int_max(zIndex), Option, EnableBoundCheck);
 }
 
 
 template<typename PixelType>
 template<typename OutputPixelType, typename ScalarType>
 OutputPixelType DenseImage3D<PixelType>::
-GetPixelAt3DIndex(const DenseVector<ScalarType, 3>& Index3D, const InterpolationOptionType& Option) const
+GetPixelAt3DIndex(const DenseVector<ScalarType, 3>& Index3D, const InterpolationOptionType& Option, bool EnableBoundCheck) const
 {
-	return this->GetPixelAt3DIndex<OutputPixelType>(Index3D[0], Index3D[1], Index3D[2], Option);
+	return this->GetPixelAt3DIndex<OutputPixelType>(Index3D[0], Index3D[1], Index3D[2], Option, EnableBoundCheck);
 }
 
 
 template<typename PixelType>
 PixelType DenseImage3D<PixelType>::
-GetPixelAt3DIndex(const DenseVector<int_max, 3>& Index3D, const InterpolationOptionType& Option) const
+GetPixelAt3DIndex(const DenseVector<int_max, 3>& Index3D, const InterpolationOptionType& Option, bool EnableBoundCheck) const
 {
-	return this->GetPixelAt3DIndex(Index3D[0], Index3D[1], Index3D[2], Option);
+	return this->GetPixelAt3DIndex(Index3D[0], Index3D[1], Index3D[2], Option, EnableBoundCheck);
 }
 
 
 template<typename PixelType>
 PixelType DenseImage3D<PixelType>::
-GetPixelAt3DIndex(const DenseVector<int, 3>& Index3D, const InterpolationOptionType& Option) const
+GetPixelAt3DIndex(const DenseVector<int, 3>& Index3D, const InterpolationOptionType& Option, bool EnableBoundCheck) const
 {
-	return this->GetPixelAt3DIndex(int_max(Index3D[0]), int_max(Index3D[1]), int_max(Index3D[2]), Option);
+	return this->GetPixelAt3DIndex(int_max(Index3D[0]), int_max(Index3D[1]), int_max(Index3D[2]), Option, EnableBoundCheck);
 }
 
 
 template<typename PixelType>
 PixelType DenseImage3D<PixelType>::
-GetPixelAt3DIndex(const DenseVector<long, 3>& Index3D, const InterpolationOptionType& Option) const
+GetPixelAt3DIndex(const DenseVector<long, 3>& Index3D, const InterpolationOptionType& Option, bool EnableBoundCheck) const
 {
-	return this->GetPixelAt3DIndex(int_max(Index3D[0]), int_max(Index3D[1]), int_max(Index3D[2]), Option);
+	return this->GetPixelAt3DIndex(int_max(Index3D[0]), int_max(Index3D[1]), int_max(Index3D[2]), Option, EnableBoundCheck);
 }
 
 
 template<typename PixelType>
 template<typename OutputPixelType, typename ScalarType>
 OutputPixelType DenseImage3D<PixelType>::
-GetPixelAt3DPosition(ScalarType x, ScalarType y, ScalarType z, const InterpolationOptionType& Option) const
+GetPixelAt3DPosition(ScalarType x, ScalarType y, ScalarType z, const InterpolationOptionType& Option, bool EnableBoundCheck) const
 {
-	return InterpolateImageAt3DPosition<OutputPixelType>(*this, x, y, z, Option);
+	return InterpolateImageAt3DPosition<OutputPixelType>(*this, x, y, z, Option, EnableBoundCheck);
 }
 
 
 template<typename PixelType>
 template<typename OutputPixelType, typename ScalarType>
 OutputPixelType DenseImage3D<PixelType>::
-GetPixelAt3DPosition(const DenseVector<ScalarType, 3>& Position, const InterpolationOptionType& Option) const
+GetPixelAt3DPosition(const DenseVector<ScalarType, 3>& Position, const InterpolationOptionType& Option, bool EnableBoundCheck) const
 {
-	return InterpolateImageAt3DPosition<OutputPixelType>(*this, Position[0], Position[1], Position[2], Option);
+	return InterpolateImageAt3DPosition<OutputPixelType>(*this, Position[0], Position[1], Position[2], Option, EnableBoundCheck);
 }
 
 
 template<typename PixelType>
 template<typename OutputPixelType, typename ScalarType>
 OutputPixelType DenseImage3D<PixelType>::
-GetPixelAt3DWorldPosition(ScalarType x, ScalarType y, ScalarType z, const InterpolationOptionType& Option) const
+GetPixelAt3DWorldPosition(ScalarType x, ScalarType y, ScalarType z, const InterpolationOptionType& Option, bool EnableBoundCheck) const
 {
-	return InterpolateImageAt3DWorldPosition<OutputPixelType>(*this, x, y, z, Option);
+	return InterpolateImageAt3DWorldPosition<OutputPixelType>(*this, x, y, z, Option, EnableBoundCheck);
 }
 
 
 template<typename PixelType>
 template<typename OutputPixelType, typename ScalarType>
 OutputPixelType DenseImage3D<PixelType>::
-GetPixelAt3DWorldPosition(const DenseVector<ScalarType, 3>& Position, const InterpolationOptionType& Option) const
+GetPixelAt3DWorldPosition(const DenseVector<ScalarType, 3>& Position, const InterpolationOptionType& Option, bool EnableBoundCheck) const
 {
-	return InterpolateImageAt3DWorldPosition<OutputPixelType>(*this, Position[0], Position[1], Position[2], Option);
+	return InterpolateImageAt3DWorldPosition<OutputPixelType>(*this, Position[0], Position[1], Position[2], Option, EnableBoundCheck);
 }
 
 

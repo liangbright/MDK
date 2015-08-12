@@ -27,13 +27,18 @@ public:
 	ScalarDenseImageConvolutionFilter3D();
 	~ScalarDenseImageConvolutionFilter3D();
 
+	void Clear();
+
 	void SetConvolutionCoefficient(DenseMatrix<ScalarType> Coef);
 	const DenseMatrix<ScalarType>& GetConvolutionCoefficient();
 
 	inline OutputPixelType EvaluateAt3DPositionInInputImage(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex);
 
-protected:
-	virtual bool Preprocess();
+protected:	
+	virtual bool Preprocess();	
+
+private:
+	void ClearSelf();
 
 private:
 	ScalarDenseImageConvolutionFilter3D(const ScalarDenseImageConvolutionFilter3D&) = delete;

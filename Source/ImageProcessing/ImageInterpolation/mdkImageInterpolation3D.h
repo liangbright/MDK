@@ -47,37 +47,43 @@ template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
 OutputPixelType InterpolateImageAt3DIndex(const DenseImage3D<InputPixelType>& InputImage,
 									      ScalarType x, ScalarType y, ScalarType z, 
-										  const Option_Of_Image3DInterpolation<InputPixelType>& Option);
+										  const Option_Of_Image3DInterpolation<InputPixelType>& Option,
+										  bool EnableBoundCheck = true);
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
 OutputPixelType InterpolateImageAt3DPosition(const DenseImage3D<InputPixelType>& InputImage,
                                              ScalarType x, ScalarType y, ScalarType z, 
-											 const Option_Of_Image3DInterpolation<InputPixelType>& Option);
+											 const Option_Of_Image3DInterpolation<InputPixelType>& Option,
+											 bool EnableBoundCheck = true);
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
 OutputPixelType InterpolateImageAt3DWorldPosition(const DenseImage3D<InputPixelType>& InputImage,
                                                   ScalarType x, ScalarType y, ScalarType z, 
-												  const Option_Of_Image3DInterpolation<InputPixelType>& Option);
+												  const Option_Of_Image3DInterpolation<InputPixelType>& Option,
+												  bool EnableBoundCheck = true);
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
 OutputPixelType InterpolateImageAt3DIndex_Nearest(const DenseImage3D<InputPixelType>& InputImage,
                                                   ScalarType x, ScalarType y, ScalarType z, 
-												  const Option_Of_Image3DInterpolation<InputPixelType>& Option);
+												  const Option_Of_Image3DInterpolation<InputPixelType>& Option,
+												  bool EnableBoundCheck = true);
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
 OutputPixelType InterpolateImageAt3DIndex_Linear(const DenseImage3D<InputPixelType>& InputImage,
                                                  ScalarType x, ScalarType y, ScalarType z, 
-												 const Option_Of_Image3DInterpolation<InputPixelType>& Option);
+												 const Option_Of_Image3DInterpolation<InputPixelType>& Option,
+												 bool EnableBoundCheck = true);
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
 OutputPixelType InterpolateImageAt3DIndex_Cubic(const DenseImage3D<InputPixelType>& InputImage,
                                                 ScalarType x, ScalarType y, ScalarType z, 
-											    const Option_Of_Image3DInterpolation<InputPixelType>& Option);
+											    const Option_Of_Image3DInterpolation<InputPixelType>& Option,
+												bool EnableBoundCheck = true);
 
 //====================================== SparseImage3D ===============================================================//
 

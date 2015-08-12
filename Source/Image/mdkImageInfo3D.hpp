@@ -104,7 +104,7 @@ inline
 DenseVector<ScalarType_Position, 3>
 ImageCoordinateTransform_3DIndexTo3DPosition(ScalarType_Index xIndex, ScalarType_Index yIndex, ScalarType_Index zIndex, const ImageInfo3D& Info)
 {
-	return ImageCoordinateTransform_3DIndexTo3DPosition<ScalarType_Position>(xInde, yIndex, zIndex, Info.Spacing[0], Info.Spacing[1], Info.Spacing[2]);
+	return ImageCoordinateTransform_3DIndexTo3DPosition<ScalarType_Position>(xIndex, yIndex, zIndex, Info.Spacing[0], Info.Spacing[1], Info.Spacing[2]);
 }
 
 
@@ -229,6 +229,7 @@ DenseVector<ScalarType, 3> ImageCoordinateTransform_3DWorldPositionTo3DPosition(
 {
 	return ImageCoordinateTransform_3DWorldPositionTo3DPosition(x, y, z, Info.Orientation, Info.Origin[0], Info.Origin[1], Info.Origin[2]);
 }
+
 
 }//namespace mdk
 

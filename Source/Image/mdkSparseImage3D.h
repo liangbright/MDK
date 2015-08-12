@@ -135,7 +135,7 @@ public:
 
     //--------------------------- Get/Set Info and Data ------------------------------//
 
-	inline Image3DInfo GetInfo() const;
+	inline ImageInfo3D GetInfo() const;
 
 	inline DenseVector<int_max, 3> GetSize() const;
 

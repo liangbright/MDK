@@ -7,8 +7,8 @@ namespace mdk
 template<typename PixelType>
 bool Save3DScalarImageAsJsonDataFile(const DenseImage3D<PixelType>& InputImage, const String& FilePathAndName)
 {
-	int_max ByteNumber = GetByteNumberOfScalar(PixelType(0));
-    if (ByteNumber <= 0)
+	int_max ByteCount = GetByteCountOfScalar(PixelType(0));
+    if (ByteCount <= 0)
     {
         MDK_Error("Unknown type of image @ Save3DScalarImageAsJsonDataFile(...)")
         return false;

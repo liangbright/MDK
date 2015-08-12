@@ -6,13 +6,13 @@
 
 #include "mdkDebugConfig.h"
 #include "mdkDenseMatrix.h"
-#include "mdkDenseImageFilterWithSingleMask3D.h"
+#include "mdkDenseImageFilterWithSingleMaskInInputImage3D.h"
 
 namespace mdk
 {
 
 template<typename InputPixel_Type, typename OutputPixel_Type = InputPixel_Type, typename Scalar_Type = OutputPixel_Type>
-class ScalarDenseImagePoolingFilter3D : public DenseImageFilterWithSingleMask3D<InputPixel_Type, OutputPixel_Type, Scalar_Type>
+class ScalarDenseImagePoolingFilter3D : public DenseImageFilterWithSingleMaskInInputImage3D<InputPixel_Type, OutputPixel_Type, Scalar_Type>
 {
 public:
 	typedef InputPixel_Type  InputPixelType;

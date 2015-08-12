@@ -322,9 +322,9 @@ bool SparseImage3D<PixelType>::IsEmpty() const
 
 template<typename PixelType>
 inline
-Image3DInfo SparseImage3D<PixelType>::GetInfo() const
+ImageInfo3D SparseImage3D<PixelType>::GetInfo() const
 {
-	Image3DInfo Info;
+	ImageInfo3D Info;
 	Info.Origin = this->GetOrigin();
 	Info.Spacing = this->GetSpacing();
 	Info.Size = this->GetSize();

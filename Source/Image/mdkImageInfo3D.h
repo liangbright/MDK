@@ -177,6 +177,16 @@ struct ImageInfo3D
 		                                     { 0.0, 0.0, 1.0 } };
 		TransformMatrix_3DWorldTo3DIndex.FixSize();
 	}
+
+	void UpdateTransformMatrix()
+	{
+		auto R = Orientation.GetElementPointer();
+		TransformMatrix_3DIndexTo3DWorld.SetCol(0, { Spacing[0] * R[0], Spacing[0] * R[1], Spacing[0] * R[2] });
+		TransformMatrix_3DIndexTo3DWorld.SetCol(1, { Spacing[1] * R[3], Spacing[1] * R[4], Spacing[1] * R[5] });
+		TransformMatrix_3DIndexTo3DWorld.SetCol(2, { Spacing[2] * R[6], Spacing[2] * R[7], Spacing[2] * R[8] });
+		// inverse transform
+		TransformMatrix_3DWorldTo3DIndex = TransformMatrix_3DIndexTo3DWorld.Inv();
+	}
 };
 
 
@@ -260,6 +270,42 @@ inline DenseVector<ScalarType, 3> ImageCoordinateTransform_3DWorldPositionTo3DPo
 template<typename ScalarType>
 inline DenseVector<ScalarType, 3> ImageCoordinateTransform_3DWorldPositionTo3DPosition(ScalarType x, ScalarType y, ScalarType z, const ImageInfo3D& Info);
 
+//---------------------- Get zero pixel ---------------------------------//
+template<typename PixelType>
+inline PixelType  GetZeroPixel() { return PixelType(0); }
+//specialization
+template<>
+inline double  GetZeroPixel() { return 0; }
+
+template<>
+inline float   GetZeroPixel() { return 0; }
+
+template<>
+inline int8    GetZeroPixel() { return 0; }
+
+template<>
+inline int16   GetZeroPixel() { return 0; }
+
+template<>
+inline int32   GetZeroPixel() { return 0; }
+
+template<>
+inline int64   GetZeroPixel() { return 0; }
+
+template<>
+inline uint8   GetZeroPixel() { return 0; }
+
+template<>
+inline uint16  GetZeroPixel() { return 0; }
+
+template<>
+inline uint32  GetZeroPixel() { return 0; }
+
+template<>
+inline uint64  GetZeroPixel() { return 0; }
+
+template<typename ScalarType, int_max Length>
+inline DenseVector<ScalarType, Length>  GetZeroPixel() { DenseVector<ScalarType, Length> ZeroPixel = 0; return ZeroPixel; }
 
 }//namespace mdk
 

@@ -39,8 +39,7 @@ public:
 
 private:
 	bool CheckInput();
-    void BuildMask_3DIndex();
-	void BuildMask_3DPosition();
+    void BuildMask();
 	void ClearSelf();
 
 private:
