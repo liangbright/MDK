@@ -5,7 +5,6 @@
 #include <cmath>
 
 #include "mdkDebugConfig.h"
-#include "mdkDenseMatrix.h"
 #include "mdkImageFilter3D.h"
 
 namespace mdk
@@ -14,8 +13,8 @@ namespace mdk
 template<typename ScalarType>
 struct Mask_Of_ScalarDenseImageGradientFilter3D
 {
-	DenseVector<ScalarType, 3> PointA; // physical position
-	DenseVector<ScalarType, 3> PointB; // physical position
+	DenseVector<ScalarType, 3> PointA; // physical position in input image
+	DenseVector<ScalarType, 3> PointB; // physical position in input image
 };
 
 template<typename InputPixel_Type, typename Scalar_Type = double>
@@ -29,7 +28,7 @@ public:
 private:
 	double m_Radius; // distance between Position(+) and Position(-), in Physical unit (mm)
 
-	ObjectArray<Mask_Of_ScalarDenseImageGradientFilter3D<ScalarType>> m_MaskList;
+	ObjectArray<Mask_Of_ScalarDenseImageGradientFilter3D<ScalarType>> m_MaskList; // in InputImage
 
 	int_max m_Flag_MaskOriginLocation;
 	//  0: Middle
@@ -54,14 +53,14 @@ public:
 
     void Clear();
 
-	inline OutputPixelType EvaluateAt3DPhysicalPosition(ScalarType x0, ScalarType y0, ScalarType z0);
+	inline OutputPixelType EvaluateAt3DPositionInInputImage(ScalarType x0, ScalarType y0, ScalarType z0);
 
 private:
 	void ClearSelf();
 	bool CheckInput();
 	bool Preprocess();
     void BuildMask();
-	inline OutputPixelType EvaluateAt3DPhysicalPosition(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex);
+	inline OutputPixelType EvaluateAt3DPositionInInputImage(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex);
 
 private:
     ScalarDenseImageGradientFilter3D(const ScalarDenseImageGradientFilter3D&) = delete;

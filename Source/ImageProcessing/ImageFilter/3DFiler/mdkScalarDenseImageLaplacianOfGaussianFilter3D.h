@@ -36,9 +36,7 @@ public:
 private:
 	void ClearSelf();
 	bool CheckInput();
-	bool Preprocess();
-    void BuildMask_3DIndex();
-	void BuildMask_3DPhysicalPosition();
+	void BuildMask();
 
 private:
     ScalarDenseImageLaplacianOfGaussianFilter3D(const ScalarDenseImageLaplacianOfGaussianFilter3D&) = delete;

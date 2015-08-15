@@ -8,7 +8,7 @@ namespace mdk
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 ScalarDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType, ScalarType>::ScalarDenseImageConvolutionFilter3D()
 {
-
+	this->ClearSelf();
 }
 
 

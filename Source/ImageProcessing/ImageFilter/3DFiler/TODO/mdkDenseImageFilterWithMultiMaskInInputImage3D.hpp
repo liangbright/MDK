@@ -1,25 +1,25 @@
-﻿#ifndef mdk_DenseImageFilterWithMultiMask3D_hpp
-#define mdk_DenseImageFilterWithMultiMask3D_hpp
+﻿#ifndef mdk_DenseImageFilterWithMultiMaskInInputImage3D_hpp
+#define mdk_DenseImageFilterWithMultiMaskInInputImage3D_hpp
 
 
 namespace mdk
 {
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-DenseImageFilterWithMultiMask3D<InputPixelType, OutputPixelType, ScalarType>::DenseImageFilterWithMultiMask3D()
+DenseImageFilterWithMultiMaskInInputImage3D<InputPixelType, OutputPixelType, ScalarType>::DenseImageFilterWithMultiMaskInInputImage3D()
 {
     this->Clear();
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-DenseImageFilterWithMultiMask3D<InputPixelType, OutputPixelType, ScalarType>::~DenseImageFilterWithMultiMask3D()
+DenseImageFilterWithMultiMaskInInputImage3D<InputPixelType, OutputPixelType, ScalarType>::~DenseImageFilterWithMultiMaskInInputImage3D()
 {
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void DenseImageFilterWithMultiMask3D<InputPixelType, OutputPixelType, ScalarType>::Clear()
+void DenseImageFilterWithMultiMaskInInputImage3D<InputPixelType, OutputPixelType, ScalarType>::Clear()
 {
 	this->ImageFilter3D::Clear();
 	m_MaskList.Clear();
@@ -30,35 +30,35 @@ void DenseImageFilterWithMultiMask3D<InputPixelType, OutputPixelType, ScalarType
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-DataArray<DenseMatrix<ScalarType>>& DenseImageFilterWithMultiMask3D<InputPixelType, OutputPixelType, ScalarType>::MaskList()
+DataArray<DenseMatrix<ScalarType>>& DenseImageFilterWithMultiMaskInInputImage3D<InputPixelType, OutputPixelType, ScalarType>::MaskList()
 {
 	return m_MaskList;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-const DataArray<DenseMatrix<ScalarType>>& DenseImageFilterWithMultiMask3D<InputPixelType, OutputPixelType, ScalarType>::MaskList() const
+const DataArray<DenseMatrix<ScalarType>>& DenseImageFilterWithMultiMaskInInputImage3D<InputPixelType, OutputPixelType, ScalarType>::MaskList() const
 {
 	return m_MaskList;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void DenseImageFilterWithMultiMask3D<InputPixelType, OutputPixelType, ScalarType>::Use3DIndexInMask()
+void DenseImageFilterWithMultiMaskInInputImage3D<InputPixelType, OutputPixelType, ScalarType>::Use3DIndexInMask()
 {
 	m_Flag_3DPositionInMask = 0;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void DenseImageFilterWithMultiMask3D<InputPixelType, OutputPixelType, ScalarType>::Use3DPhysicalPositionInMask()
+void DenseImageFilterWithMultiMaskInInputImage3D<InputPixelType, OutputPixelType, ScalarType>::Use3DPhysicalPositionInMask()
 {
 	m_Flag_3DPositionInMask = 1;
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void DenseImageFilterWithMultiMask3D<InputPixelType, OutputPixelType, ScalarType>::ComputeRegionOfNOBoundCheck_3DIndex()
+void DenseImageFilterWithMultiMaskInInputImage3D<InputPixelType, OutputPixelType, ScalarType>::ComputeRegionOfNOBoundCheck_3DIndex()
 {
     if (m_MaskList.IsEmpty() == true)
     {
@@ -138,7 +138,7 @@ void DenseImageFilterWithMultiMask3D<InputPixelType, OutputPixelType, ScalarType
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void DenseImageFilterWithMultiMask3D<InputPixelType, OutputPixelType, ScalarType>::ComputeRegionOfNOBoundCheck_3DPosition()
+void DenseImageFilterWithMultiMaskInInputImage3D<InputPixelType, OutputPixelType, ScalarType>::ComputeRegionOfNOBoundCheck_3DPosition()
 {    
 	if (m_MaskList.IsEmpty() == true)
     {
@@ -222,7 +222,7 @@ void DenseImageFilterWithMultiMask3D<InputPixelType, OutputPixelType, ScalarType
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-bool DenseImageFilterWithMultiMask3D<InputPixelType, OutputPixelType, ScalarType>::Preprocess()
+bool DenseImageFilterWithMultiMaskInInputImage3D<InputPixelType, OutputPixelType, ScalarType>::Preprocess()
 {
     if (this->ImageFilter3D::Preprocess() == false)
     {
@@ -241,7 +241,7 @@ bool DenseImageFilterWithMultiMask3D<InputPixelType, OutputPixelType, ScalarType
 	}
 	else
 	{
-		MDK_Error("m_Flag_3DPositionInMask is -1 @ DenseImageFilterWithMultiMask3D::Preprocess()")
+		MDK_Error("m_Flag_3DPositionInMask is -1 @ DenseImageFilterWithMultiMaskInInputImage3D::Preprocess()")
 		return false;
 	}
 
@@ -251,7 +251,7 @@ bool DenseImageFilterWithMultiMask3D<InputPixelType, OutputPixelType, ScalarType
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 inline 
-bool DenseImageFilterWithMultiMask3D<InputPixelType, OutputPixelType, ScalarType>::
+bool DenseImageFilterWithMultiMaskInInputImage3D<InputPixelType, OutputPixelType, ScalarType>::
 WhetherToCheckBoundAtMaskOrigin_3DIndex(ScalarType x, ScalarType y, ScalarType z, int_max MaskIndex)
 {
     bool WhetherToCheck = false;
@@ -276,7 +276,7 @@ WhetherToCheckBoundAtMaskOrigin_3DIndex(ScalarType x, ScalarType y, ScalarType z
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 inline
-bool DenseImageFilterWithMultiMask3D<InputPixelType, OutputPixelType, ScalarType>::
+bool DenseImageFilterWithMultiMaskInInputImage3D<InputPixelType, OutputPixelType, ScalarType>::
 WhetherToCheckBoundAtMaskOrigin_3DPosition(ScalarType x, ScalarType y, ScalarType z, int_max MaskIndex)
 {
     bool WhetherToCheck = false;

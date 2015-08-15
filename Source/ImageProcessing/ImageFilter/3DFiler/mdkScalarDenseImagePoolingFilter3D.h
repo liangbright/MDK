@@ -5,7 +5,6 @@
 #include <cmath>
 
 #include "mdkDebugConfig.h"
-#include "mdkDenseMatrix.h"
 #include "mdkDenseImageFilterWithSingleMaskInInputImage3D.h"
 
 namespace mdk
@@ -33,9 +32,9 @@ public:
     virtual void Clear();
 
 private:
+	void ClearSelf();
 	bool CheckInput();
-    void BuildMask_3DIndex();
-	void BuildMask_3DPhysicalPosition();
+	void BuildMask();
 
 private:
     ScalarDenseImagePoolingFilter3D(const ScalarDenseImagePoolingFilter3D&) = delete;

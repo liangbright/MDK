@@ -1,11 +1,7 @@
 ﻿#ifndef mdk_ScalarDenseImageMaxAbsPoolingFilter3D_h
 #define mdk_ScalarDenseImageMaxAbsPoolingFilter3D_h
 
-#include <algorithm>
-#include <cmath>
-
 #include "mdkDebugConfig.h"
-#include "mdkDenseMatrix.h"
 #include "mdkScalarDenseImagePoolingFilter3D.h"
 
 namespace mdk
@@ -24,7 +20,7 @@ public:
     ~ScalarDenseImageMaxAbsPoolingFilter3D();
   
 private:
-	inline OutputPixelType EvaluateAt3DPhysicalPosition(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex);
+	inline OutputPixelType EvaluateAt3DPositionInInputImage(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex);
 
 private:
     ScalarDenseImageMaxAbsPoolingFilter3D(const ScalarDenseImageMaxAbsPoolingFilter3D&) = delete;
