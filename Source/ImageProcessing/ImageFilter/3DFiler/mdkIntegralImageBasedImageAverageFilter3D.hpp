@@ -7,7 +7,7 @@ namespace mdk
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 IntegralImageBasedImageAverageFilter3D<InputPixelType, OutputPixelType, ScalarType>::IntegralImageBasedImageAverageFilter3D()
 {
-    this->Clear();
+    this->ClearSelf();
 }
 
 
@@ -21,11 +21,18 @@ template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void IntegralImageBasedImageAverageFilter3D<InputPixelType, OutputPixelType, ScalarType>::Clear()
 {
 	this->ImageFilter3D::Clear();
+	this->ClearSelf();
+}
 
+
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+void IntegralImageBasedImageAverageFilter3D<InputPixelType, OutputPixelType, ScalarType>::ClearSelf()
+{
 	m_IntegralImage_Internal.Clear();
 	m_IntegralImage = &m_IntegralImage_Internal;
 	m_Radius = { 0, 0, 0 };
 	m_Radius_Index3D = { 0, 0, 0 };
+	this->SelectPhysicalCoordinateSystemForEvaluation(PhysicalCoordinateSystemForEvaluation::INPUT);
 }
 
 
@@ -115,11 +122,11 @@ bool IntegralImageBasedImageAverageFilter3D<InputPixelType, OutputPixelType, Sca
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 OutputPixelType IntegralImageBasedImageAverageFilter3D<InputPixelType, OutputPixelType, ScalarType>::
-EvaluateAt3DPhysicalPosition(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex)
+EvaluateAt3DPositionInInputImage(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex)
 {
 	// Index3D=[x, y, z] : ScalarType
 	// x1 < x < x2, y1 < y < y2, z1 < z < z2
-	auto Index3D = m_IntegralImage->Transform3DPhysicalPositionTo3DIndex(x0, y0, z0);
+	auto Index3D = m_IntegralImage->Transform3DPositionTo3DIndex(x0, y0, z0);
 	auto Size = m_IntegralImage->GetSize();
 	//---------------------------------------------------------
 	int_max x1 = int_max(std::round(Index3D[0] - m_Radius_Index3D[0]));

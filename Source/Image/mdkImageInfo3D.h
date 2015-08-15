@@ -145,6 +145,11 @@ struct ImageInfo3D
 		(*this) = Info;
 	}
 
+	ImageInfo3D(ImageInfo3D&& Info)
+	{
+		(*this) = std::move(Info);
+	}
+
 	void operator=(const ImageInfo3D& Info)
 	{
 		Size = Info.Size;
@@ -153,6 +158,16 @@ struct ImageInfo3D
 		Orientation = Info.Orientation;
 		TransformMatrix_3DIndexTo3DWorld = Info.TransformMatrix_3DIndexTo3DWorld;
 		TransformMatrix_3DWorldTo3DIndex = Info.TransformMatrix_3DWorldTo3DIndex;
+	}
+
+	void operator=(ImageInfo3D&& Info)
+	{
+		Size = Info.Size;
+		Spacing = Info.Spacing;
+		Origin = Info.Origin;
+		Orientation = std::move(Info.Orientation);
+		TransformMatrix_3DIndexTo3DWorld = std::move(Info.TransformMatrix_3DIndexTo3DWorld);
+		TransformMatrix_3DWorldTo3DIndex = std::move(Info.TransformMatrix_3DWorldTo3DIndex);
 	}
 
 	void Clear()
