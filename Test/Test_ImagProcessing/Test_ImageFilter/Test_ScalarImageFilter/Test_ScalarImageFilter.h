@@ -13,16 +13,22 @@
 namespace mdk
 {
 
-void test_ScalarImageGaussianFilter3D()
+void test_ScalarDenseImageGaussianFilter3D()
 {
-    String FilePath = "C:/Research/MDK_Build/Test/Test_ImageFilter/Test_ScalarImageFilter/Debug/";
+    String FilePath = "C:/Research/MDK/MDK_Build/Test/Test_ImageProcessing/Test_ImageFilter/Test_ScalarImageFilter/TestData/3/";
 
 	DenseImage3D<double> InputImage;
-	Load3DScalarImageFromJsonDataFile(InputImage, FilePath + "TestImage.json");
+	//Load3DScalarImageFromJsonDataFile(InputImage, FilePath + "TestImage.json");
+	Load3DScalarImageFromDICOMSeries(InputImage, FilePath);
+
+	//InputImage.SetSpacing(1.0, 1.0, 1.0);
+	//InputImage.SetSize(100, 100, 30);
 
 	ScalarDenseImageGaussianFilter3D<double> imfilter;
 
     imfilter.SetInputImage(&InputImage);
+
+	imfilter.SetOutputImageInfo(InputImage.GetInfo());
 
     DenseMatrix<double> RoationMatrix(3, 3);
     RoationMatrix.FillDiagonal(1);
@@ -31,16 +37,18 @@ void test_ScalarImageGaussianFilter3D()
 	imfilter.SetGaussianParameter(Sigma, RoationMatrix, 3);
 
 	auto Option = imfilter.GetImageInterpolationOption();
-	Option.MethodType = Image3DInterpolationMethodEnum::Linear;
+	Option.MethodType = Image3DInterpolationMethodEnum::Nearest;
 	Option.BoundaryOption = Image3DInterpolationBoundaryOptionEnum::Constant;
 	Option.Pixel_OutsideImage = 0;
 	imfilter.SetImageInterpolationOption(Option);
+
+	imfilter.SetMaxThreadCount(8);
 
     imfilter.Update();
 
     auto& OutputImage = *imfilter.GetOutputImage();
 
-    Save3DScalarImageAsJsonDataFile(OutputImage, FilePath + "FilteredTestImage.json");
+    Save3DScalarImageAsJsonDataFile(OutputImage, FilePath + "Data.json");
 
     std::system("pause");
 }

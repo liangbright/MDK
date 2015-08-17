@@ -201,18 +201,18 @@ template<typename ScalarType = int_max>
 inline DenseVector<ScalarType, 3> ImageCoordinateTransform_LinearIndexTo3DIndex(int_max LinearIndex, const ImageInfo3D& Info);
 
 template<typename ScalarType>
-inline DenseVector<ScalarType, 3> ImageCoordinateTransform_LinearIndexTo3DPosition(int_max LinearIndex, double SpacingX, double SpacingY, double SpacingZ);
+inline DenseVector<ScalarType, 3> ImageCoordinateTransform_LinearIndexTo3DPosition(int_max LinearIndex, int_max ImageSizeX, int_max ImageSizeY, double SpacingX, double SpacingY, double SpacingZ);
 
 template<typename ScalarType>
 inline DenseVector<ScalarType, 3> ImageCoordinateTransform_LinearIndexTo3DPosition(int_max LinearIndex, const ImageInfo3D& Info);
 
 template<typename ScalarType>
-inline DenseVector<ScalarType, 3> ImageCoordinateTransforme_LinearIndexTo3DWorldPosition(int_max LinearIndex, int_max ImageSizeX, int_max ImageSizeY,
-                                                                                         const DenseMatrix<double>& TransformMatrix_3DIndexTo3DWorld,
-								                                                         double OriginX, double OriginY, double OriginZ);
+inline DenseVector<ScalarType, 3> ImageCoordinateTransform_LinearIndexTo3DWorldPosition(int_max LinearIndex, int_max ImageSizeX, int_max ImageSizeY,
+                                                                                        const DenseMatrix<double>& TransformMatrix_3DIndexTo3DWorld,
+								                                                        double OriginX, double OriginY, double OriginZ);
 
 template<typename ScalarType>
-inline DenseVector<ScalarType, 3> ImageCoordinateTransforme_LinearIndexTo3DWorldPosition(int_max LinearIndex, const ImageInfo3D& Info);
+inline DenseVector<ScalarType, 3> ImageCoordinateTransform_LinearIndexTo3DWorldPosition(int_max LinearIndex, const ImageInfo3D& Info);
 
 //3DIndex is discrete
 inline int_max ImageCoordinateTransform_3DIndexToLinearIndex(int_max xIndex, int_max yIndex, int_max zIndex, int_max ImageSizeX, int_max ImageSizeY);

@@ -91,10 +91,10 @@ void ScalarDenseImageGaussianFilter3D<InputPixelType, OutputPixelType, ScalarTyp
 {
 	auto Spacing = m_InputImage->GetSpacing();
 
-	auto MaxRadius = m_SigmaList.Max() * m_CutOffRatio * 1.5;
-	auto MaxRadius_x = double(int_max(MaxRadius / Spacing[0]) + 1)*Spacing[0];
-	auto MaxRadius_y = double(int_max(MaxRadius / Spacing[1]) + 1)*Spacing[1];
-	auto MaxRadius_z = double(int_max(MaxRadius / Spacing[2]) + 1)*Spacing[2];
+	auto MaxRadius_xyz = m_SigmaList.Max() * m_CutOffRatio;
+	auto MaxRadius_x = double(int_max(MaxRadius_xyz / Spacing[0]) + 1)*Spacing[0];
+	auto MaxRadius_y = double(int_max(MaxRadius_xyz / Spacing[1]) + 1)*Spacing[1];
+	auto MaxRadius_z = double(int_max(MaxRadius_xyz / Spacing[2]) + 1)*Spacing[2];
 
 	DenseMatrix<double> InverseCovarianceMatrix(3, 3);
     InverseCovarianceMatrix.Fill(0);
@@ -107,11 +107,13 @@ void ScalarDenseImageGaussianFilter3D<InputPixelType, OutputPixelType, ScalarTyp
     // at each point of the grid, compute the mahalanobis distance to the center (0,0,0), i.e., sqrt(SquaredRatio)
     // add the points within the m_CutOffRatio to Mask
     
+	int_max MaxPointCount = 4*int_max(MaxRadius_x / Spacing[0]) * int_max(MaxRadius_y / Spacing[1]) * int_max(MaxRadius_z / Spacing[2]);
+
 	m_MaskOf3DPosition.FastResize(0);
-	m_MaskOf3DPosition.ReserveCapacity(3 * 8 * MaxRadius_x*MaxRadius_y*MaxRadius_z);
+	m_MaskOf3DPosition.ReserveCapacity(3 * MaxPointCount);
 
 	m_ConvolutionCoefficient.FastResize(0);
-	m_ConvolutionCoefficient.ReserveCapacity(8*MaxRadius_x*MaxRadius_y*MaxRadius_z);
+	m_ConvolutionCoefficient.ReserveCapacity(MaxPointCount);
 
 	DenseMatrix<double> Position(3, 1);
 	DenseMatrix<double> Position_Transpose(1, 3);

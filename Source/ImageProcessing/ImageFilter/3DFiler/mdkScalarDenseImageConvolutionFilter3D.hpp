@@ -1,5 +1,5 @@
-﻿#ifndef __mdkScalarDenseImageConvolutionFilter3D_hpp
-#define __mdkScalarDenseImageConvolutionFilter3D_hpp
+﻿#ifndef mdk_ScalarDenseImageConvolutionFilter3D_hpp
+#define mdk_ScalarDenseImageConvolutionFilter3D_hpp
 
 
 namespace mdk
@@ -8,7 +8,7 @@ namespace mdk
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 ScalarDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType, ScalarType>::ScalarDenseImageConvolutionFilter3D()
 {
-
+	this->ClearSelf();
 }
 
 
@@ -43,7 +43,7 @@ void ScalarDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType, Scalar
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void ScalarDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType, ScalarType>::ClearSelf()
 {
-	this->SelectPhysicalCoordinateSystemForEvaluation(PhysicalCoordinateSystemForEvaluation::INPUT);
+	this->SelectCoordinateSystemForEvaluation(CoordinateSystemForEvaluation::INPUT);
 	m_ConvolutionCoefficient.Clear();
 }
 

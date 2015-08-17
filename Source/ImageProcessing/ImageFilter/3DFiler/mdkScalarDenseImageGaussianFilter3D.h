@@ -1,5 +1,5 @@
-﻿#ifndef __mdkScalarDenseImageGaussianFilter3D_h
-#define __mdkScalarDenseImageGaussianFilter3D_h
+﻿#ifndef mdk_ScalarDenseImageGaussianFilter3D_h
+#define mdk_ScalarDenseImageGaussianFilter3D_h
 
 #include <algorithm>
 #include <cmath>
