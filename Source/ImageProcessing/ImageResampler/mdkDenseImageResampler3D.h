@@ -16,7 +16,7 @@ public:
 	typedef Scalar_Type      ScalarType;
 
 private:
-	bool m_Flag_SmoothWhenDownsmapling;
+	bool m_Flag_SmoothWhenDownsmapling; // user input
 	bool m_Flag_SmoothInputImage;
 	DenseImage3D<OutputPixelType> m_SmoothedImage; // Smooth InputImage when down sampling 
 
@@ -29,15 +29,11 @@ public:
 	void EnableSmoothingWhenDownsampling(bool On_Off = true);
 
 private:
+	void ClearSelf();
 	bool Preprocess();
 	bool Postprocess();
 
-	inline OutputPixelType EvaluateAt3DPhysicalPosition(int_max PointIndex, ScalarType x, ScalarType y, ScalarType z, int_max ThreadIndex);
-
-private:
-	// hide the two function, because output is always image
-	void SetOutputAsImage() = delete;
-	void SetOutputAsPixelArray() = delete;
+	inline OutputPixelType EvaluateAt3DPositionInInputImage(int_max PointIndex, ScalarType x, ScalarType y, ScalarType z, int_max ThreadIndex);
 
 private:
 	void operator=(const DenseImageResampler3D&) = delete;

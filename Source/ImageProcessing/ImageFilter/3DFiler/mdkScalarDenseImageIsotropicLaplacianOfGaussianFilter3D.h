@@ -5,7 +5,6 @@
 #include <cmath>
 
 #include "mdkDebugConfig.h"
-#include "mdkDenseMatrix.h"
 #include "mdkScalarDenseImageConvolutionFilter3D.h"
 
 namespace mdk
@@ -33,10 +32,9 @@ public:
     virtual void Clear();
 
 private:
+	void ClearSelf();
 	bool CheckInput();
-	bool Preprocess();
-    void BuildMask_3DIndex();
-	void BuildMask_3DPhysicalPosition();
+	void BuildMask();
 
 private:
     ScalarDenseImageIsotropicLaplacianOfGaussianFilter3D(const ScalarDenseImageIsotropicLaplacianOfGaussianFilter3D&) = delete;

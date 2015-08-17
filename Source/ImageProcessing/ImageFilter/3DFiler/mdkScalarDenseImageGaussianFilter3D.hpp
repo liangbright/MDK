@@ -33,6 +33,7 @@ void ScalarDenseImageGaussianFilter3D<InputPixelType, OutputPixelType, ScalarTyp
 	m_CutOffRatio = 0;
 }
 
+
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void ScalarDenseImageGaussianFilter3D<InputPixelType, OutputPixelType, ScalarType>::
 SetGaussianParameter(const DenseVector<double, 3>& SigmaList, const DenseMatrix<double>& RotationMatrix, double CutOffRatio)
@@ -107,13 +108,13 @@ void ScalarDenseImageGaussianFilter3D<InputPixelType, OutputPixelType, ScalarTyp
     // at each point of the grid, compute the mahalanobis distance to the center (0,0,0), i.e., sqrt(SquaredRatio)
     // add the points within the m_CutOffRatio to Mask
     
-	int_max MaxPointCount = 4*int_max(MaxRadius_x / Spacing[0]) * int_max(MaxRadius_y / Spacing[1]) * int_max(MaxRadius_z / Spacing[2]);
+	int_max PointCount_max = 4 * int_max((MaxRadius_x / Spacing[0])*(MaxRadius_y / Spacing[1])*(MaxRadius_z / Spacing[2]));
 
 	m_MaskOf3DPosition.FastResize(0);
-	m_MaskOf3DPosition.ReserveCapacity(3 * MaxPointCount);
+	m_MaskOf3DPosition.ReserveCapacity(3 * PointCount_max);
 
 	m_ConvolutionCoefficient.FastResize(0);
-	m_ConvolutionCoefficient.ReserveCapacity(MaxPointCount);
+	m_ConvolutionCoefficient.ReserveCapacity(PointCount_max);
 
 	DenseMatrix<double> Position(3, 1);
 	DenseMatrix<double> Position_Transpose(1, 3);

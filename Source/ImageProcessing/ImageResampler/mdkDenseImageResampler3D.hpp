@@ -7,7 +7,7 @@ namespace mdk
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::DenseImageResampler3D()
 {
-	this->Clear();
+	this->ClearSelf();
 }
 
 
@@ -21,10 +21,17 @@ template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::Clear()
 {
 	this->ImageFilter3D::Clear();
+	this->ClearSelf();
+}
 
+
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+void DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::ClearSelf()
+{
 	m_Flag_SmoothWhenDownsmapling = false;
 	m_Flag_SmoothInputImage = false;
 	m_SmoothedImage.Clear();
+	this->SelectPhysicalCoordinateSystemForEvaluation(PhysicalCoordinateSystemForEvaluation::INPUT);
 }
 
 
@@ -90,15 +97,15 @@ bool DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::Postpro
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 inline OutputPixelType DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::
-EvaluateAt3DPhysicalPosition(int_max PointIndex, ScalarType x, ScalarType y, ScalarType z, int_max ThreadIndex)
+EvaluateAt3DPositionInInputImage(int_max PointIndex, ScalarType x, ScalarType y, ScalarType z, int_max ThreadIndex)
 {
 	if (m_Flag_SmoothInputImage == false)
 	{
-		return m_InputImage->GetPixelAt3DPhysicalPosition<OutputPixelType>(x, y, z, m_ImageInterpolationOption);
+		return m_InputImage->GetPixelAt3DPosition<OutputPixelType>(x, y, z, m_ImageInterpolationOption);
 	}
 	else
 	{
-		return m_SmoothedImage.GetPixelAt3DPhysicalPosition<OutputPixelType>(x, y, z, m_ImageInterpolationOption);
+		return m_SmoothedImage.GetPixelAt3DPosition<OutputPixelType>(x, y, z, m_ImageInterpolationOption);
 	}
 }
 

@@ -631,8 +631,14 @@ Evaluate_in_a_thread_At3DWorldPosition(int_max PointIndex_start, int_max PointIn
 				auto Pos3D_world = m_OutputImage.Transform3DIndexTo3DWorldPosition(Index3D_out);
 				auto OutputPixel = this->EvaluateAt3DWorldPosition(k, Pos3D_world[0], Pos3D_world[1], Pos3D_world[2], ThreadIndex);
 				if (m_Flag_EnableOutputImage == true)
-				{// no check for range of Index3D_out
-					m_OutputImage(Index3D_out[0], Index3D_out[1], Index3D_out[2]) = OutputPixel;
+				{
+					auto xIndex_out = int_max(std::round(Index3D_out[0]));
+					auto yIndex_out = int_max(std::round(Index3D_out[1]));
+					auto zIndex_out = int_max(std::round(Index3D_out[2]));
+					if (m_OutputImage.CheckIf3DIndexIsInsideImage(xIndex_out, yIndex_out, zIndex_out) == true)
+					{
+						m_OutputImage(xIndex_out, yIndex_out, zIndex_out) = OutputPixel;
+					}
 				}
 				if (m_Flag_EnableOutputPixelArray == true)
 				{
@@ -657,7 +663,8 @@ Evaluate_in_a_thread_At3DPositionInInputImage(int_max PointIndex_start, int_max 
 		for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
 		{
 			auto Index3D_out = ImageCoordinateTransform_LinearIndexTo3DIndex(k, m_OutputImageInfo);
-			auto Pos3D_in = m_InputImage->Transform3DIndexTo3DPosition(Index3D_out);
+			auto Pos3D_out = m_OutputImage.Transform3DIndexTo3DPosition(Index3D_out);
+			auto Pos3D_in = this->Transform3DPositionInOutputImageTo3DPositionInInputImage(Pos3D_out);
 			auto OutputPixel = this->EvaluateAt3DPositionInInputImage(k, Pos3D_in[0], Pos3D_in[1], Pos3D_in[2], ThreadIndex);
 			if (m_Flag_EnableOutputImage == true)
 			{
@@ -790,8 +797,14 @@ Evaluate_in_a_thread_At3DPositionInInputImage(int_max PointIndex_start, int_max 
 				auto Pos3D_in = this->Transform3DPositionInOutputImageTo3DPositionInInputImage(Pos_out);
 				auto OutputPixel = this->EvaluateAt3DPositionInInputImage(k, Pos3D_in[0], Pos3D_in[1], Pos3D_in[2], ThreadIndex);
 				if (m_Flag_EnableOutputImage == true)
-				{// no check for range of Index3D_out
-					m_OutputImage(Index3D_out[0], Index3D_out[1], Index3D_out[2]) = OutputPixel;
+				{
+					auto xIndex_out = int_max(std::round(Index3D_out[0]));
+					auto yIndex_out = int_max(std::round(Index3D_out[1]));
+					auto zIndex_out = int_max(std::round(Index3D_out[2]));
+					if (m_OutputImage.CheckIf3DIndexIsInsideImage(xIndex_out, yIndex_out, zIndex_out) == true)
+					{
+						m_OutputImage(xIndex_out, yIndex_out, zIndex_out) = OutputPixel;
+					}
 				}
 				if (m_Flag_EnableOutputPixelArray == true)
 				{
@@ -817,7 +830,7 @@ Evaluate_in_a_thread_At3DPositionInOutputImage(int_max PointIndex_start, int_max
 		{
 			auto Index3D_out = ImageCoordinateTransform_LinearIndexTo3DIndex(k, m_OutputImageInfo);
 			auto Pos3D_out = m_OutputImage.Transform3DIndexTo3DPosition(Index3D_out);
-			auto OutputPixel = this->EvaluateAt3DPositionInOutputImage(k, Pos3D_out[0], Pos3D_out[1], Pos3D_out[2], ThreadIndex);	
+			auto OutputPixel = this->EvaluateAt3DPositionInOutputImage(k, Pos3D_out[0], Pos3D_out[1], Pos3D_out[2], ThreadIndex);
 			if (m_Flag_EnableOutputImage == true)
 			{
 				m_OutputImage(Index3D_out[0], Index3D_out[1], Index3D_out[2]) = OutputPixel;
@@ -947,8 +960,14 @@ Evaluate_in_a_thread_At3DPositionInOutputImage(int_max PointIndex_start, int_max
 				auto Pos3D_out = m_OutputImage.Transform3DIndexTo3DPosition(Index3D_out);
 				auto OutputPixel = this->EvaluateAt3DPositionInOutputImage(k, Pos3D_out[0], Pos3D_out[1], Pos3D_out[2], ThreadIndex);
 				if (m_Flag_EnableOutputImage == true)
-				{// no check for range of Index3D_out
-					m_OutputImage(Index3D_out[0], Index3D_out[1], Index3D_out[2]) = OutputPixel;
+				{
+					auto xIndex_out = int_max(std::round(Index3D_out[0]));
+					auto yIndex_out = int_max(std::round(Index3D_out[1]));
+					auto zIndex_out = int_max(std::round(Index3D_out[2]));
+					if (m_OutputImage.CheckIf3DIndexIsInsideImage(xIndex_out, yIndex_out, zIndex_out) == true)
+					{
+						m_OutputImage(xIndex_out, yIndex_out, zIndex_out) = OutputPixel;
+					}
 				}
 				if (m_Flag_EnableOutputPixelArray == true)
 				{

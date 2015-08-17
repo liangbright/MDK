@@ -1,5 +1,5 @@
-﻿#ifndef mdk_DenseImageFilterWithMultiMask3D_h
-#define mdk_DenseImageFilterWithMultiMask3D_h
+﻿#ifndef mdk_DenseImageFilterWithMultiMaskInInputImage3D_h
+#define mdk_DenseImageFilterWithMultiMaskInInputImage3D_h
 
 #include "mdkImageFilter3D.h"
 #include "mdkDenseImage3D.h"
@@ -8,7 +8,7 @@ namespace mdk
 {
 
 template<typename InputPixel_Type, typename OutputPixel_Type, typename Scalar_Type = OutputPixel_Type>
-class DenseImageFilterWithMultiMask3D : public ImageFilter3D<DenseImage3D<InputPixel_Type>, DenseImage3D<OutputPixel_Type>, Scalar_Type>
+class DenseImageFilterWithMultiMaskInInputImage3D : public ImageFilter3D<DenseImage3D<InputPixel_Type>, DenseImage3D<OutputPixel_Type>, Scalar_Type>
 {
 public:
 	typedef ScalarType Scalar_Type;
@@ -33,8 +33,8 @@ protected:
 	DataArray<Image3DBoxRegionOf3DPhysicalPosition> m_NOBoundCheckRegionList_3DPosition;
 
 protected:		
-	DenseImageFilterWithMultiMask3D();
-	virtual ~DenseImageFilterWithMultiMask3D();
+	DenseImageFilterWithMultiMaskInInputImage3D();
+	virtual ~DenseImageFilterWithMultiMaskInInputImage3D();
  
 public:
     virtual void Clear();
@@ -56,13 +56,13 @@ protected:
 	inline bool WhetherToCheckBoundAtMaskOrigin_3DPosition(double x, double y, double z, int_max MaskIndex);
 
 private:
-	DenseImageFilterWithMultiMask3D(const DenseImageFilterWithMultiMask3D&) = delete;
-	void operator=(const DenseImageFilterWithMultiMask3D&) = delete;
+	DenseImageFilterWithMultiMaskInInputImage3D(const DenseImageFilterWithMultiMaskInInputImage3D&) = delete;
+	void operator=(const DenseImageFilterWithMultiMaskInInputImage3D&) = delete;
 };
 
 }//end namespace mdk
 
 
-#include "mdkDenseImageFilterWithMultiMask3D.hpp"
+#include "mdkDenseImageFilterWithMultiMaskInInputImage3D.hpp"
 
 #endif

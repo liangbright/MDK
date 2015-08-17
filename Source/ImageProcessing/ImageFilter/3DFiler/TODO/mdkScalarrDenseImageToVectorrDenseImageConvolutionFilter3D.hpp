@@ -21,7 +21,7 @@ ScalarDenseImageToVectorDenseImageConvolutionFilter3D<InputPixelType, OutputPixe
 template<typename InputPixelType, typename OutputPixelType>
 void ScalarDenseImageToVectorDenseImageConvolutionFilter3D<InputPixelType, OutputPixelType>::Clear()
 {
-	this->DenseImageFilterWithMultiMask3D::Clear();
+	this->DenseImageFilterWithMultiMaskInInputImage3D::Clear();
 
     m_OutputPixelMatrix = nullptr;
 }

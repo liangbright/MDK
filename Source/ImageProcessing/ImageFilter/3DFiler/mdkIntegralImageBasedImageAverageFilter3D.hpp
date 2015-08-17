@@ -7,7 +7,7 @@ namespace mdk
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 IntegralImageBasedImageAverageFilter3D<InputPixelType, OutputPixelType, ScalarType>::IntegralImageBasedImageAverageFilter3D()
 {
-    this->Clear();
+    this->ClearSelf();
 }
 
 
@@ -21,11 +21,18 @@ template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void IntegralImageBasedImageAverageFilter3D<InputPixelType, OutputPixelType, ScalarType>::Clear()
 {
 	this->ImageFilter3D::Clear();
+	this->ClearSelf();
+}
 
+
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+void IntegralImageBasedImageAverageFilter3D<InputPixelType, OutputPixelType, ScalarType>::ClearSelf()
+{
 	m_IntegralImage_Internal.Clear();
 	m_IntegralImage = &m_IntegralImage_Internal;
 	m_Radius = { 0, 0, 0 };
 	m_Radius_Index3D = { 0, 0, 0 };
+	this->SelectPhysicalCoordinateSystemForEvaluation(PhysicalCoordinateSystemForEvaluation::INPUT);
 }
 
 
@@ -115,15 +122,25 @@ bool IntegralImageBasedImageAverageFilter3D<InputPixelType, OutputPixelType, Sca
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 OutputPixelType IntegralImageBasedImageAverageFilter3D<InputPixelType, OutputPixelType, ScalarType>::
-EvaluateAt3DPhysicalPosition(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex)
+EvaluateAt3DPositionInInputImage(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex)
 {
 	// Index3D=[x, y, z] : ScalarType
-	// x1 < x < x2, y1 < y < y2, z1 < z < z2
-	auto Index3D = m_IntegralImage->Transform3DPhysicalPositionTo3DIndex(x0, y0, z0);
+	auto Index3D = m_IntegralImage->Transform3DPositionTo3DIndex(x0, y0, z0);
 	auto Size = m_IntegralImage->GetSize();
 	//---------------------------------------------------------
-	int_max x1 = int_max(std::round(Index3D[0] - m_Radius_Index3D[0]));
-	int_max x2 = int_max(std::round(Index3D[0] + m_Radius_Index3D[0]));
+	// x1 <= x <= x2, y1 <= y <= y2, z1 <= z <= z2
+	auto x1 = int_max(std::round(Index3D[0] - m_Radius_Index3D[0]));
+	auto x2 = int_max(std::round(Index3D[0] + m_Radius_Index3D[0]));
+	auto y1 = int_max(std::round(Index3D[1] - m_Radius_Index3D[1]));
+	auto y2 = int_max(std::round(Index3D[1] + m_Radius_Index3D[1]));
+	auto z1 = int_max(std::round(Index3D[2] - m_Radius_Index3D[2]));
+	auto z2 = int_max(std::round(Index3D[2] + m_Radius_Index3D[2]));
+	// average window is outside the image
+	if (x1 >= Size[0] || x2 < 0 || y1 >= Size[1] || y2 < 0 || z1 >= Size[2] || z2 < 0)
+	{
+		return OutputPixelType(m_ImageInterpolationOption.Pixel_OutsideImage);
+	}
+	// now, the window overlap with the image
 	if (x1 < 0)	{ x1 = 0; }
 	if (x2 >= Size[0]) { x2 = Size[0] - 1; }
 	if (x1 == x2) 
@@ -137,9 +154,7 @@ EvaluateAt3DPhysicalPosition(int_max PointIndex, ScalarType x0, ScalarType y0, S
 			x2 = x2 + 1;
 		}
 	} 
-
-	int_max y1 = int_max(std::round(Index3D[1] - m_Radius_Index3D[1]));
-	int_max y2 = int_max(std::round(Index3D[1] + m_Radius_Index3D[1]));
+	
 	if (y1 < 0)	{ y1 = 0; }
 	if (y2 >= Size[1]) {y2 = Size[1] - 1;}
 	if (y1 == y2)
@@ -154,8 +169,6 @@ EvaluateAt3DPhysicalPosition(int_max PointIndex, ScalarType x0, ScalarType y0, S
 		}
 	}
 
-	int_max z1 = int_max(std::round(Index3D[2] - m_Radius_Index3D[2]));
-	int_max z2 = int_max(std::round(Index3D[2] + m_Radius_Index3D[2]));
 	if (z1 < 0)	{z1 = 0;}
 	if (z2 >= Size[2]) {z2 = Size[2] - 1;}
 	if (z1 == z2)

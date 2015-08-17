@@ -3,14 +3,14 @@
 
 #include <algorithm>
 
-#include "mdkDenseImageFilterWithMultiMask3D.h"
+#include "mdkDenseImageFilterWithMultiMaskInInputImage3D.h"
 #include "mdkScalarDenseImageInterpolator3D.h"
 
 namespace mdk
 {
 
 template<typename InputPixel_Type, typename OutputPixel_Type>
-class ScalarDenseImageToVectorDenseImageConvolutionFilter3D : public DenseImageFilterWithMultiMask3D<InputPixel_Type, OutputPixel_Type>
+class ScalarDenseImageToVectorDenseImageConvolutionFilter3D : public DenseImageFilterWithMultiMaskInInputImage3D<InputPixel_Type, OutputPixel_Type>
 {
 public:
 	typedef InputPixel_Type InputPixelType;

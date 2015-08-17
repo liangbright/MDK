@@ -28,6 +28,7 @@ void ScalarDenseImageGradientMagnitudeFilter3D<InputPixelType, OutputPixelType, 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void ScalarDenseImageGradientMagnitudeFilter3D<InputPixelType, OutputPixelType, ScalarType>::ClearSelf()
 {
+	this->SelectPhysicalCoordinateSystemForEvaluation(PhysicalCoordinateSystemForEvaluation::INPUT);
 	m_Radius = 0;
 	m_AngleResolution = 0;
 	m_Flag_MaskOriginLocation = 0;
@@ -187,15 +188,15 @@ void ScalarDenseImageGradientMagnitudeFilter3D<InputPixelType, OutputPixelType, 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 OutputPixelType ScalarDenseImageGradientMagnitudeFilter3D<InputPixelType, OutputPixelType, ScalarType>::
-EvaluateAt3DPhysicalPosition(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex)
+EvaluateAt3DPositionInInputImage(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex)
 {	
-	return this->EvaluateAt3DPhysicalPosition(x0, y0, z0);
+	return this->EvaluateAt3DPositionInInputImage(x0, y0, z0);
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 OutputPixelType ScalarDenseImageGradientMagnitudeFilter3D<InputPixelType, OutputPixelType, ScalarType>::
-EvaluateAt3DPhysicalPosition(ScalarType x0, ScalarType y0, ScalarType z0)
+EvaluateAt3DPositionInInputImage(ScalarType x0, ScalarType y0, ScalarType z0)
 {
 	OutputPixelType GradientMagnitude = 0;
 
@@ -210,8 +211,8 @@ EvaluateAt3DPhysicalPosition(ScalarType x0, ScalarType y0, ScalarType z0)
 		{
 			auto PositionA = m_MaskList[k].PointA + Position_0;
 			auto PositionB = m_MaskList[k].PointB + Position_0;
-			auto PixelA = m_InputImage->GetPixelAt3DPhysicalPosition<OutputPixelType>(PositionA, m_ImageInterpolationOption);
-			auto PixelB = m_InputImage->GetPixelAt3DPhysicalPosition<OutputPixelType>(PositionB, m_ImageInterpolationOption);
+			auto PixelA = m_InputImage->GetPixelAt3DPosition<OutputPixelType>(PositionA, m_ImageInterpolationOption);
+			auto PixelB = m_InputImage->GetPixelAt3DPosition<OutputPixelType>(PositionB, m_ImageInterpolationOption);
 			auto Difference = std::abs(PixelA - PixelB);
 			if (GradientMagnitude < Difference)
 			{
@@ -221,12 +222,12 @@ EvaluateAt3DPhysicalPosition(ScalarType x0, ScalarType y0, ScalarType z0)
 	}
 	else if (m_Flag_MaskOriginLocation == 1)
 	{		
-		auto Pixel_0 = m_InputImage->GetPixelAt3DPhysicalPosition<OutputPixelType>(x0, y0, z0, m_ImageInterpolationOption);
+		auto Pixel_0 = m_InputImage->GetPixelAt3DPosition<OutputPixelType>(x0, y0, z0, m_ImageInterpolationOption);
 
 		for (int_max k = 0; k < m_MaskList.GetLength(); ++k)
 		{
 			auto PositionA = m_MaskList[k].PointA + Position_0;
-			auto PixelA = m_InputImage->GetPixelAt3DPhysicalPosition<OutputPixelType>(PositionA, m_ImageInterpolationOption);
+			auto PixelA = m_InputImage->GetPixelAt3DPosition<OutputPixelType>(PositionA, m_ImageInterpolationOption);
 			auto Difference = Pixel_0 - PixelA;
 			if (k == 0)
 			{
@@ -245,12 +246,12 @@ EvaluateAt3DPhysicalPosition(ScalarType x0, ScalarType y0, ScalarType z0)
 		Position_0[1] = y0;
 		Position_0[2] = z0;
 
-		auto Pixel_0 = m_InputImage->GetPixelAt3DPhysicalPosition<OutputPixelType>(x0, y0, z0, m_ImageInterpolationOption);
+		auto Pixel_0 = m_InputImage->GetPixelAt3DPosition<OutputPixelType>(x0, y0, z0, m_ImageInterpolationOption);
 
 		for (int_max k = 0; k < m_MaskList.GetLength(); ++k)
 		{
 			auto PositionA = m_MaskList[k].PointA + Position_0;
-			auto PixelA = m_InputImage->GetPixelAt3DPhysicalPosition<OutputPixelType>(PositionA, m_ImageInterpolationOption);
+			auto PixelA = m_InputImage->GetPixelAt3DPosition<OutputPixelType>(PositionA, m_ImageInterpolationOption);
 			auto Difference = PixelA - Pixel_0;
 			if (k == 0)
 			{

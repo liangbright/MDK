@@ -339,22 +339,19 @@ void DenseImage3D<PixelType>::CopyPixelData(const PixelType_Input* InputPixelPoi
 template<typename PixelType>
 void DenseImage3D<PixelType>::Copy(DenseImage3D<PixelType>&& InputImage)
 {
+	if (InputImage.IsPureEmpty() == true)
+	{
+		return;
+	}
+
 	if (!m_ImageData)
 	{
 		m_ImageData = std::make_shared<DenseImageData3D<PixelType>>();
 	}
 
-	m_ImageData->m_Info.Size[0] = InputImage.m_ImageData->m_Info.Size[0];
-	m_ImageData->m_Info.Size[1] = InputImage.m_ImageData->m_Info.Size[1];
-	m_ImageData->m_Info.Size[2] = InputImage.m_ImageData->m_Info.Size[2];
+	m_ImageData->m_Info  = std::move(InputImage.m_ImageData->m_Info);
 	m_ImageData->m_PixelCountPerZSlice = InputImage.m_ImageData->m_PixelCountPerZSlice;
-
-	m_ImageData->m_Info.Orientation = std::move(InputImage.m_ImageData->m_Info.Orientation);
-	m_ImageData->m_Info.TransformMatrix_3DIndexTo3DWorld = std::move(InputImage.m_ImageData->m_Info.TransformMatrix_3DIndexTo3DWorld);
-	m_ImageData->m_Info.TransformMatrix_3DWorldTo3DIndex = std::move(InputImage.m_ImageData->m_Info.TransformMatrix_3DWorldTo3DIndex);
-
 	m_ImageData->m_PixelArray = std::move(InputImage.m_ImageData->m_PixelArray);
-
 	m_ImageData->m_Pixel_OutsideImage = InputImage.m_ImageData->m_Pixel_OutsideImage;
 
 	InputImage.Clear();

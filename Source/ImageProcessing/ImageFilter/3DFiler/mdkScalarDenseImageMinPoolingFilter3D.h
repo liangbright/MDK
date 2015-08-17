@@ -1,11 +1,7 @@
 ﻿#ifndef mdk_ScalarDenseImageMinPoolingFilter3D_h
 #define mdk_ScalarDenseImageMinPoolingFilter3D_h
 
-#include <algorithm>
-#include <cmath>
-
 #include "mdkDebugConfig.h"
-#include "mdkDenseMatrix.h"
 #include "mdkScalarDenseImagePoolingFilter3D.h"
 
 namespace mdk
@@ -24,7 +20,7 @@ public:
     ~ScalarDenseImageMinPoolingFilter3D();
   
 private:
-	inline OutputPixelType EvaluateAt3DPhysicalPosition(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex);
+	inline OutputPixelType EvaluateAt3DPositionInInputImage(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex);
 
 private:
     ScalarDenseImageMinPoolingFilter3D(const ScalarDenseImageMinPoolingFilter3D&) = delete;

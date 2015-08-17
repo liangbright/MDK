@@ -23,7 +23,7 @@ void test_3D()
 	std::cout << "start IntegralImageBuilder3D" << '\n';
 	IntegralImageBuilder3D<double> imbuilder;
 	imbuilder.SetInputImage(&InputImage);
-	imbuilder.SetMaxNumberOfThread(6);
+	imbuilder.SetMaxThreadCount(6);
 	imbuilder.Update();
 	auto IntegralImageA = imbuilder.GetOutputImage();
 	std::cout << "OK" << '\n';
@@ -35,7 +35,7 @@ void test_3D()
 	AverageFilter1.SetOutputImageInfo(InputImage.GetInfo());
 	AverageFilter1.EnableOutputImage();
 	AverageFilter1.SetRadius(2, 2, 3);
-	AverageFilter1.SetMaxNumberOfThread(6);
+	AverageFilter1.SetMaxThreadCount(6);
 	AverageFilter1.Update();
 	auto& AverageImage1 = *AverageFilter1.GetOutputImage();
 	auto IntegralImageB = AverageFilter1.GetIntegralImage();
@@ -55,7 +55,7 @@ void test_3D()
 	AverageFilter2.SetInputImage(&InputImage);
 	AverageFilter2.SetOutputImageInfo(InputImage.GetInfo());
 	AverageFilter2.SetPoolingRadius(3);
-	AverageFilter2.SetMaxNumberOfThread(6);
+	AverageFilter2.SetMaxThreadCount(6);
 	AverageFilter2.Update();
 	auto& AverageImage2 = *AverageFilter2.GetOutputImage();
 	std::cout << "OK" << '\n';		
