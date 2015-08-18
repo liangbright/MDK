@@ -29,7 +29,7 @@ template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void ScalarDenseImagePoolingFilter3D<InputPixelType, OutputPixelType, ScalarType>::ClearSelf()
 {
 	m_Radius = 0;
-	this->SelectPhysicalCoordinateSystemForEvaluation(PhysicalCoordinateSystemForEvaluation::INPUT);
+	this->SelectCoordinateSystemForEvaluation(CoordinateSystemForEvaluation::INPUT);
 }
 
 

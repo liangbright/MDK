@@ -31,7 +31,7 @@ void DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::ClearSe
 	m_Flag_SmoothWhenDownsmapling = false;
 	m_Flag_SmoothInputImage = false;
 	m_SmoothedImage.Clear();
-	this->SelectPhysicalCoordinateSystemForEvaluation(PhysicalCoordinateSystemForEvaluation::INPUT);
+	this->SelectCoordinateSystemForEvaluation(CoordinateSystemForEvaluation::INPUT);
 }
 
 
