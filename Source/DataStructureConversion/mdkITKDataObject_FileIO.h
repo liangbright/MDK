@@ -3,7 +3,7 @@
 
 #include <itkImage.h>
 
-#include "mdkType.h"
+#include "mdkTypeInference.h"
 #include "mdkString.h"
 #include "mdkFileIO.h"
 

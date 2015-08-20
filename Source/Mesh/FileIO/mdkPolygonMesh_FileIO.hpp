@@ -9,7 +9,7 @@ bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<MeshAttributeType>& InputMe
 {
 	typedef MeshAttributeType::ScalarType  ScalarType;
 	//---------------------------------------------
-	if (GetByteNumberOfScalar(ScalarType(0)) <= 0)
+	if (GetByteCountOfScalar(ScalarType(0)) <= 0)
 	{
 		MDK_Error("Unknown ScalarType @ SavePolygonMeshAsJsonDataFile_Header(...)")
 		return false;
@@ -53,7 +53,7 @@ bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<MeshAttributeType>& InputMe
 	{
 		IsOK = false;
 	}
-	if (SaveScalarArrayAsDataFile(PointData.GetElementPointer(), PointData.GetElementNumber(), FilePath + PointDataFileName) == false)
+	if (SaveScalarArrayAsDataFile(PointData.GetElementPointer(), PointData.GetElementCount(), FilePath + PointDataFileName) == false)
 	{
 		IsOK = false;
 	}	
@@ -177,7 +177,7 @@ bool LoadPolygonMeshFromJsonDataFile(PolygonMesh<MeshAttributeType>& OutputMesh,
 	{
 		bool IsOK = true;
 		DenseMatrix<ScalarType> PointData(3, PointCount);
-		if (LoadScalarArrayFromDataFile(PointData.GetElementPointer(), PointData.GetElementNumber(), FilePath + PointDataFileName, ScalarTypeInDataFile) == false)
+		if (LoadScalarArrayFromDataFile(PointData.GetElementPointer(), PointData.GetElementCount(), FilePath + PointDataFileName, ScalarTypeInDataFile) == false)
 		{
 			IsOK = false;
 		}		

@@ -53,7 +53,7 @@ bool LoadITK3DScalarImageFromJsonDataFile(itk::Image<PixelType, 3>& OutputITKIma
 	if (it != JObject.end())
 	{
 		auto tempArray = it->second.ToScalarArray<int_max>();
-		if (tempArray.GetElementNumber() != 3)
+		if (tempArray.GetElementCount() != 3)
 		{
 			MDK_Error("Size vector is wrong @ LoadITK3DScalarImageFromJsonDataFile(...)")
 			return false;
@@ -73,7 +73,7 @@ bool LoadITK3DScalarImageFromJsonDataFile(itk::Image<PixelType, 3>& OutputITKIma
 	if (it != JObject.end())
 	{
 		auto tempArray = it->second.ToScalarArray<double>();
-		if (tempArray.GetElementNumber() != 3)
+		if (tempArray.GetElementCount() != 3)
 		{
 			MDK_Error("Spacing vector is wrong @ LoadITK3DScalarImageFromJsonDataFile(...)")
 			return false;
@@ -93,7 +93,7 @@ bool LoadITK3DScalarImageFromJsonDataFile(itk::Image<PixelType, 3>& OutputITKIma
 	if (it != JObject.end())
 	{
 		auto tempArray = it->second.ToScalarArray<double>();
-		if (tempArray.GetElementNumber() != 3)
+		if (tempArray.GetElementCount() != 3)
 		{
 			MDK_Error("Origin vector is wrong @ LoadITK3DScalarImageFromJsonDataFile(...)")
 			return false;
@@ -113,7 +113,7 @@ bool LoadITK3DScalarImageFromJsonDataFile(itk::Image<PixelType, 3>& OutputITKIma
 	if (it != JObject.end())
 	{
 		auto tempOrientation = it->second.ToScalarArray<double>();
-		if (tempOrientation.GetElementNumber() != 9)
+		if (tempOrientation.GetElementCount() != 9)
 		{
 			MDK_Error("Orientation size is wrong @ LoadITK3DScalarImageFromJsonDataFile(...)")
 			return false;
@@ -158,10 +158,10 @@ bool LoadITK3DScalarImageFromJsonDataFile(itk::Image<PixelType, 3>& OutputITKIma
 	OutputITKImage.SetRegions(region);
 	OutputITKImage.Allocate();
 
-	int_max OutputPixelNumber = Size[0] * Size[1] * Size[2];
+	int_max OutputPixelCount = Size[0] * Size[1] * Size[2];
 
 	auto PtrOfITKImage = OutputITKImage.GetBufferPointer();
-	if (LoadScalarArrayFromDataFile(PtrOfITKImage, OutputPixelNumber, DataFilePathAndName, PixelTypeInDataFile) == false)
+	if (LoadScalarArrayFromDataFile(PtrOfITKImage, OutputPixelCount, DataFilePathAndName, PixelTypeInDataFile) == false)
 	{
 		OutputITKImage.Delete();
 	}

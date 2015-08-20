@@ -238,7 +238,7 @@ template<typename PixelType>
 bool Load3DScalarImageFromSingleDICOMFile(DenseImage3D<PixelType>& OutputImage, const String& FilePathAndName)
 {
     typedef itk::Image<PixelType, 3>  ITKImageType;
-    typedef itk::ImageFileReader<ImageType> ITKImageReaderType;
+	typedef itk::ImageFileReader<ITKImageType> ITKImageReaderType;
 
     ITKImageReaderType::Pointer  ITKImageReader = ITKImageReaderType::New();
 

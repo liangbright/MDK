@@ -21,6 +21,9 @@ void test_ScalarDenseImageGaussianFilter3D()
 	//Load3DScalarImageFromJsonDataFile(InputImage, FilePath + "TestImage.json");
 	Load3DScalarImageFromDICOMSeries(InputImage, FilePath);
 
+	DenseImage3D<double> InputImage2;
+	Load3DScalarImageFromSingleDICOMFile(InputImage2, "Z:/sun-lab/Liang_Liang/DrPadala-3D Echo Segmentation/3DEcho_DrPadala/Ring.dcm");//wrong spacing etc
+
 	//InputImage.SetSpacing(1.0, 1.0, 1.0);
 	//InputImage.SetSize(100, 100, 30);
 
