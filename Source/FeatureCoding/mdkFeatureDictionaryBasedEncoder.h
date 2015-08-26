@@ -1,5 +1,5 @@
-#ifndef __mdkFeatureDictionaryBasedEncoder_h
-#define __mdkFeatureDictionaryBasedEncoder_h
+#ifndef mdk_FeatureDictionaryBasedEncoder_h
+#define mdk_FeatureDictionaryBasedEncoder_h
 
 #include "mdkObject.h"
 
@@ -27,7 +27,7 @@ public:
     
 	virtual void SetInputDictionary(const DictionaryType* InputDictionary) = 0;
 
-    virtual void SetMaxNumberOfThread(int_max Number) = 0;
+    virtual void SetMaxThreadCount(int_max Number) = 0;
 
     virtual bool Update() = 0;
 

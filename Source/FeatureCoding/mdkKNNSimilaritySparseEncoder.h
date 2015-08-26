@@ -1,5 +1,5 @@
-#ifndef __mdkKNNSimilaritySparseEncoder_h
-#define __mdkKNNSimilaritySparseEncoder_h
+#ifndef mdk_KNNSimilaritySparseEncoder_h
+#define mdk_KNNSimilaritySparseEncoder_h
 
 #include "mdkString.h"
 #include "mdkFeatureCoding_Common_Type.h"
@@ -11,7 +11,7 @@ namespace mdk
 template<typename ScalarType>
 struct Parameter_Of_KNNSimilaritySparseEncoder
 {
-    int_max NeighbourNumber;
+    int_max NeighbourCount;
 
     VectorSimilarityTypeEnum SimilarityType;
     //
@@ -29,7 +29,7 @@ struct Parameter_Of_KNNSimilaritySparseEncoder
 
     void Clear()
     {
-        NeighbourNumber = 0;
+        NeighbourCount = 0;
         SimilarityType = VectorSimilarityTypeEnum::Unknown;
     }
 

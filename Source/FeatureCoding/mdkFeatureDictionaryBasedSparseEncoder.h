@@ -1,9 +1,5 @@
-#ifndef __mdkFeatureDictionaryBasedSparseEncoder_h
-#define __mdkFeatureDictionaryBasedSparseEncoder_h
-
-#include <string>
-#include <atomic>
-#include <thread>
+#ifndef mdk_FeatureDictionaryBasedSparseEncoder_h
+#define mdk_FeatureDictionaryBasedSparseEncoder_h
 
 #include "mdkParallelForLoop.h"
 #include "mdkObjectArray.h"
@@ -33,8 +29,8 @@ protected:
 	ObjectArray<SparseVector<ScalarType>> m_SparseCode;
 
 	//-------------- about thread ------------//
-    int_max m_MinNumberOfDataPerThread;
-    int_max m_MaxNumberOfThread;
+    int_max m_MinCountOfDataPerThread;
+    int_max m_MaxThreadCount;
     DenseMatrix<int_max> m_ThreadStatus;
 
 protected:
@@ -51,9 +47,9 @@ public:
 
 	void SetInputDictionary(const DictionaryType* Dictionary);
 
-    void SetMaxNumberOfThread(int_max Number);
+    void SetMaxThreadCount(int_max Count);
 
-    void SetMinNumberOfDataPerThread(int_max Number);
+    void SetMinCountOfDataPerThread(int_max Count);
 
     virtual bool CheckInput();
 
@@ -71,16 +67,16 @@ protected:
     virtual bool Preprocess();
     virtual bool Postprocess();
 
-    virtual void GenerateCode_in_a_Thread(int_max IndexOfDataVector_start, int_max IndexOfDataVector_end, int_max ThreadIndex);
+    virtual void GenerateCode_in_a_thread(int_max IndexOfDataVector_start, int_max IndexOfDataVector_end, int_max ThreadIndex);
 
 	inline virtual SparseVector<ScalarType> EncodeSingleDataVector(int_max DataIndex, const DenseMatrix<ScalarType>& DataColVector, int_max ThreadIndex) = 0;
 
     void CheckThreadStatus();
 
-	int_max GetNumberOfThreadTobeCreated();
-	int_max GetMinNumberOfDataPerThread();
+	int_max GetCountOfThreadTobeCreated();
+	int_max GetMinCountOfDataPerThread();
 
-	int_max GetTotalNumberOfInputFeatureDataVector();
+	int_max GetTotalCountOfInputFeatureDataVector();
 
 private:
     FeatureDictionaryBasedSparseEncoder(const FeatureDictionaryBasedSparseEncoder&) = delete;

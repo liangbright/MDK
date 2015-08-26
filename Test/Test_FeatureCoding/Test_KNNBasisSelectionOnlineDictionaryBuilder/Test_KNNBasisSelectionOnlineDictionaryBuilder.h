@@ -1,4 +1,4 @@
-#include "mdkFileIO.h"
+#include "mdkDenseMatrix_FileIO.h"
 #include "mdkKNNBasisSelectionOnlineDictionaryBuilder.h"
 
 void Test_Matrix()
@@ -29,13 +29,14 @@ void Test_SimpleCase()
 {
     using namespace mdk;
 
-    std::string FilePath = "C:/Research/MDK/MDK_Build/Test/Test_FeatureCoding/Test_KNNBasisSelectionOnlineDictionaryBuilder/TestData/SimpleCase/";
+    String FilePath = "C:/Research/MDK/MDK_Build/Test/Test_FeatureCoding/Test_KNNBasisSelectionOnlineDictionaryBuilder/TestData/SimpleCase/";
 
-    std::string FeatureDataFilePathAndName = FilePath + "DataSample.json";
+    String FeatureDataFilePathAndName = FilePath + "DataSample.json";
 
-    auto FeatureData = LoadDenseMatrixFromJsonDataFile<double>(FeatureDataFilePathAndName);
+	DenseMatrix<double> FeatureData;
+	LoadDenseMatrixFromJsonDataFile(FeatureData, FeatureDataFilePathAndName);
 
-    int_max FeatureDataNumber = FeatureData.GetColNumber();
+    int_max FeatureDataNumber = FeatureData.GetColCount();
 
     KNNBasisSelectionOnlineDictionaryBuilder<double> DictionaryBuilder;
 
@@ -84,9 +85,10 @@ void Test_GaussianObjectImage()
 
     std::string FeatureDataFilePathAndName = FilePath + "GaussianObjectImage.json";
 
-    auto FeatureData = LoadDenseMatrixFromJsonDataFile<double>(FeatureDataFilePathAndName);
+	DenseMatrix<double> FeatureData;
+	LoadDenseMatrixFromJsonDataFile(FeatureData, FeatureDataFilePathAndName);
 
-    int_max FeatureDataNumber = FeatureData.GetColNumber();
+    int_max FeatureDataNumber = FeatureData.GetColCount();
 
     KNNBasisSelectionOnlineDictionaryBuilder<double> DictionaryBuilder;
 

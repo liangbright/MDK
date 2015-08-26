@@ -7,6 +7,7 @@
 
 #include "mdkObject.h"
 #include "mdkLinearAlgebraConfig.h"
+#include "mdkMatrix_Common.h"
 //#include "mdkDenseMatrix.h"
 
 namespace mdk
@@ -22,7 +23,7 @@ class DenseShadowMatrix;
 template<typename ElementType>
 class DenseGlueMatrixForMultiplication;
 
-struct MatrixSize;
+//struct MatrixSize;
 // end of forward-declare //
 
 //---------------------------------------------------------------------------------------------------------------------------------//

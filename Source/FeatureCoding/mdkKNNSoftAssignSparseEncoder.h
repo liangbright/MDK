@@ -12,7 +12,7 @@ namespace mdk
 template<typename ScalarType>
 struct Parameter_Of_KNNSoftAssignSparseEncoder
 {
-    int_max NeighbourNumber;
+    int_max NeighbourCount;
 
     VectorSimilarityTypeEnum SimilarityType;
     //
@@ -32,7 +32,7 @@ struct Parameter_Of_KNNSoftAssignSparseEncoder
 
     void Clear()
     {
-        NeighbourNumber = 0;
+		NeighbourCount = 0;
         SimilarityType = VectorSimilarityTypeEnum::Unknown;
         SimilarityThreshold = 0;
     }

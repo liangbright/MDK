@@ -1,5 +1,5 @@
-#ifndef __mdkKNNSimilaritySparseEncoder_hpp
-#define __mdkKNNSimilaritySparseEncoder_hpp
+#ifndef mdk_KNNSimilaritySparseEncoder_hpp
+#define mdk_KNNSimilaritySparseEncoder_hpp
 
 namespace mdk
 {
@@ -21,7 +21,7 @@ template<typename ScalarType>
 void KNNSimilaritySparseEncoder<ScalarType>::Clear()
 {
     this->FeatureDictionaryBasedSparseEncoder::Clear();
-    m_Parameter.Clear();
+	this->ClearSelf();
 }
 
 
@@ -31,6 +31,7 @@ void KNNSimilaritySparseEncoder<ScalarType>::ClearSelf()
 	m_Parameter.Clear();
 }
 
+
 template<typename ScalarType>
 bool KNNSimilaritySparseEncoder<ScalarType>::CheckInput()
 {
@@ -39,9 +40,9 @@ bool KNNSimilaritySparseEncoder<ScalarType>::CheckInput()
         return false;
     }
 
-    if (m_Parameter.NeighbourNumber <= 0)
+    if (m_Parameter.NeighbourCount <= 0)
     {
-        MDK_Error("NeighbourNumber <= 0  @ KNNSimilaritySparseEncoder::CheckInput()")
+        MDK_Error("NeighbourCount <= 0  @ KNNSimilaritySparseEncoder::CheckInput()")
         return false;
     }
 
@@ -98,7 +99,7 @@ EncodeSingleDataVector(const DenseMatrix<ScalarType>& DataColVector)
 	SparseVector<ScalarType> OutputCode;
 
     const auto& BasisMatrix = m_Dictionary->BasisMatrix(); // "auto  = " will copy
-	auto BasisNumber = BasisMatrix.GetColNumber();
+	auto BasisCount = BasisMatrix.GetColCount();
 	const auto& VarianceOfL1Distance = m_Dictionary->VarianceOfL1Distance();
 	const auto& VarianceOfL2Distance = m_Dictionary->VarianceOfL2Distance();
 	const auto& VarianceOfKLDivergence = m_Dictionary->VarianceOfKLDivergence();
@@ -106,9 +107,9 @@ EncodeSingleDataVector(const DenseMatrix<ScalarType>& DataColVector)
 	auto ExpFactor = m_Parameter.GetExpFactor();
     //----------------------------------------------------------------------------------------------------
 
-    DenseMatrix<ScalarType> SimilarityList(1, m_Parameter.NeighbourNumber);
+    DenseMatrix<ScalarType> SimilarityList(1, m_Parameter.NeighbourCount);
 
-    DenseMatrix<int_max> NeighbourIndexList(1, m_Parameter.NeighbourNumber);
+    DenseMatrix<int_max> NeighbourIndexList(1, m_Parameter.NeighbourCount);
 
     switch (m_Parameter.SimilarityType)
     {
@@ -116,20 +117,20 @@ EncodeSingleDataVector(const DenseMatrix<ScalarType>& DataColVector)
     {
         auto DistanceList = ComputeL1DistanceListFromSingleVectorToColVectorSet(DataColVector, BasisMatrix);
 
-        NeighbourIndexList = FindKNNByDistanceList(DistanceList, m_Parameter.NeighbourNumber);
+        NeighbourIndexList = FindKNNByDistanceList(DistanceList, m_Parameter.NeighbourCount);
 
         auto NeighbourDistanceList = DistanceList.GetSubMatrix(NeighbourIndexList);
 
         // calculate mean variance
 
         auto Variance = ScalarType(0);
-        for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
+        for (int_max i = 0; i < m_Parameter.NeighbourCount; ++i)
         {
             Variance += VarianceOfL1Distance[NeighbourIndexList[i]];
         }
-        Variance /= m_Parameter.NeighbourNumber;
+        Variance /= m_Parameter.NeighbourCount;
 
-        for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
+        for (int_max i = 0; i < m_Parameter.NeighbourCount; ++i)
         {
             auto temp = (NeighbourDistanceList[i] * NeighbourDistanceList[i]) / Variance;
 
@@ -142,18 +143,18 @@ EncodeSingleDataVector(const DenseMatrix<ScalarType>& DataColVector)
     {
         auto DistanceList = ComputeL2DistanceListFromSingleVectorToColVectorSet(DataColVector, BasisMatrix);
 
-        NeighbourIndexList = FindKNNByDistanceList(DistanceList, m_Parameter.NeighbourNumber);
+        NeighbourIndexList = FindKNNByDistanceList(DistanceList, m_Parameter.NeighbourCount);
 
         auto NeighbourDistanceList = DistanceList.GetSubMatrix(NeighbourIndexList);
 
         auto Variance = ScalarType(0);
-        for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
+        for (int_max i = 0; i < m_Parameter.NeighbourCount; ++i)
         {
             Variance += VarianceOfL2Distance[NeighbourIndexList[i]];
         }
-        Variance /= m_Parameter.NeighbourNumber;
+        Variance /= m_Parameter.NeighbourCount;
 
-        for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
+        for (int_max i = 0; i < m_Parameter.NeighbourCount; ++i)
         {
             auto temp = (NeighbourDistanceList[i] * NeighbourDistanceList[i]) / Variance;
 
@@ -166,11 +167,11 @@ EncodeSingleDataVector(const DenseMatrix<ScalarType>& DataColVector)
     {
         auto CorrelationList = ComputeCorrelationListFromSingleVectorToColVectorSet(DataColVector, BasisMatrix);
 
-        NeighbourIndexList = FindKNNByDistanceList(CorrelationList, m_Parameter.NeighbourNumber);
+        NeighbourIndexList = FindKNNByDistanceList(CorrelationList, m_Parameter.NeighbourCount);
 
         auto NeighbourCorrelationList = CorrelationList.GetSubMatrix(NeighbourIndexList);
 
-        for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
+        for (int_max i = 0; i < m_Parameter.NeighbourCount; ++i)
         {
             SimilarityList[i] = (NeighbourCorrelationList[i] + 1) / 2;   // [-1, 1] => [0, 1]
         }
@@ -181,11 +182,11 @@ EncodeSingleDataVector(const DenseMatrix<ScalarType>& DataColVector)
     {
         auto CorrelationList = ComputeCorrelationListFromSingleVectorToColVectorSet(DataColVector, BasisMatrix);
 
-        NeighbourIndexList = FindKNNByDistanceList(CorrelationList, m_Parameter.NeighbourNumber);
+        NeighbourIndexList = FindKNNByDistanceList(CorrelationList, m_Parameter.NeighbourCount);
 
         auto NeighbourCorrelationList = CorrelationList.GetSubMatrix(NeighbourIndexList);
 
-        for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
+        for (int_max i = 0; i < m_Parameter.NeighbourCount; ++i)
         {
             SimilarityList[i] = std::abs(NeighbourCorrelationList[i]); // [-1, 0] => [0, 1]           
         }
@@ -196,18 +197,18 @@ EncodeSingleDataVector(const DenseMatrix<ScalarType>& DataColVector)
     {
         auto KLDivergenceList = ComputeKLDivergenceListOfSingleVectorFromColVectorSet(DataColVector, BasisMatrix);
 
-        NeighbourIndexList = FindKNNByDistanceList(KLDivergenceList, m_Parameter.NeighbourNumber);
+        NeighbourIndexList = FindKNNByDistanceList(KLDivergenceList, m_Parameter.NeighbourCount);
 
         auto NeighbourKLDivergenceList = KLDivergenceList.GetSubMatrix(NeighbourIndexList);
 
         auto Variance = ScalarType(0);
-        for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
+        for (int_max i = 0; i < m_Parameter.NeighbourCount; ++i)
         {
             Variance += VarianceOfKLDivergence[NeighbourIndexList[i]];
         }
-        Variance /= m_Parameter.NeighbourNumber;
+        Variance /= m_Parameter.NeighbourCount;
 
-        for (int_max i = 0; i < m_Parameter.NeighbourNumber; ++i)
+        for (int_max i = 0; i < m_Parameter.NeighbourCount; ++i)
         {
             auto temp = (NeighbourKLDivergenceList[i] * NeighbourKLDivergenceList[i]) / Variance;
 
@@ -220,7 +221,7 @@ EncodeSingleDataVector(const DenseMatrix<ScalarType>& DataColVector)
     {
         auto JSDivergenceList = ComputeJSDivergenceListFromSingleVectorToColVectorSet(DataColVector, BasisMatrix);
 
-        NeighbourIndexList = FindKNNByDistanceList(JSDivergenceList, m_Parameter.NeighbourNumber);
+        NeighbourIndexList = FindKNNByDistanceList(JSDivergenceList, m_Parameter.NeighbourCount);
 
         SimilarityList = MatrixSubtract(ScalarType(1), JSDivergenceList.GetSubMatrix(NeighbourIndexList));
     }
@@ -232,12 +233,11 @@ EncodeSingleDataVector(const DenseMatrix<ScalarType>& DataColVector)
         return OutputCode;
     }
 
-	OutputCode.Construct(NeighbourIndexList, SimilarityList, BasisNumber);
+	OutputCode.Construct(NeighbourIndexList, SimilarityList, BasisCount);
 	return OutputCode;
 }
 
 //------------------------------------------------------------ static function --------------------------------------------------------//
-
 
 template<typename ScalarType>
 inline 
@@ -266,9 +266,9 @@ ComputeKNNCode(const DenseMatrix<ScalarType>& DataColVector,
                const VectorSimilarityTypeEnum SimilarityType,
                const DenseMatrix<ScalarType>& VarianceList)
 {
-    int_max KNNBasisNumber = KNNBasisMatrix.GetColNumber();
+    int_max KNNBasisCount = KNNBasisMatrix.GetColCount();
 
-    DenseMatrix<ScalarType> SimilarityList(1, KNNBasisNumber);
+    DenseMatrix<ScalarType> SimilarityList(1, KNNBasisCount);
 
 	ScalarType ExpFactor = Parameter_Of_KNNSimilaritySparseEncoder<ScalarType>::GetExpFactor();
 
@@ -282,7 +282,7 @@ ComputeKNNCode(const DenseMatrix<ScalarType>& DataColVector,
 
         auto Variance = VarianceList.Mean();
 
-        for (int_max i = 0; i < KNNBasisNumber; ++i)
+        for (int_max i = 0; i < KNNBasisCount; ++i)
         {
             auto temp = (DistanceList[i] * DistanceList[i]) / Variance;
 
@@ -297,7 +297,7 @@ ComputeKNNCode(const DenseMatrix<ScalarType>& DataColVector,
 
         auto Variance = VarianceList.Mean();
 
-        for (int_max i = 0; i < KNNBasisNumber; ++i)
+        for (int_max i = 0; i < KNNBasisCount; ++i)
         {
             auto temp = (DistanceList[i] * DistanceList[i]) / Variance;
 
@@ -310,7 +310,7 @@ ComputeKNNCode(const DenseMatrix<ScalarType>& DataColVector,
     {
         auto CorrelationList = ComputeCorrelationListFromSingleVectorToColVectorSet(DataColVector, KNNBasisMatrix);
 
-        for (int_max i = 0; i < KNNBasisNumber; ++i)
+        for (int_max i = 0; i < KNNBasisCount; ++i)
         {
             SimilarityList[i] = (CorrelationList[i] + 1) / 2;   // [-1, 1] => [0, 1]
         }
@@ -321,7 +321,7 @@ ComputeKNNCode(const DenseMatrix<ScalarType>& DataColVector,
     {
         auto CorrelationList = ComputeCorrelationListFromSingleVectorToColVectorSet(DataColVector, KNNBasisMatrix);
 
-        for (int_max i = 0; i < KNNBasisNumber; ++i)
+        for (int_max i = 0; i < KNNBasisCount; ++i)
         {
             SimilarityList[i] = std::abs(CorrelationList[i]); // [-1, 0] => [0, 1]           
         }
@@ -334,7 +334,7 @@ ComputeKNNCode(const DenseMatrix<ScalarType>& DataColVector,
 
         auto Variance = VarianceList.Mean();
 
-        for (int_max i = 0; i < KNNBasisNumber; ++i)
+        for (int_max i = 0; i < KNNBasisCount; ++i)
         {
             auto temp = (DistanceList[i] * DistanceList[i]) / Variance;
 
@@ -368,8 +368,8 @@ ComputeSimilarityBetweenTwoVector(const DenseMatrix<ScalarType>& VectorA,
         return ScalarType(0);
     }
 
-    auto LengthA = VectorA.GetElementNumber();
-    auto LengthB = VectorB.GetElementNumber();
+    auto LengthA = VectorA.GetElementCount();
+    auto LengthB = VectorB.GetElementCount();
 
     if (LengthA != LengthB)
     {

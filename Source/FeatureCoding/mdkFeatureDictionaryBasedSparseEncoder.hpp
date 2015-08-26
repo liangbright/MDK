@@ -1,5 +1,5 @@
-#ifndef __mdkFeatureDictionaryBasedSparseEncoder_hpp
-#define __mdkFeatureDictionaryBasedSparseEncoder_hpp
+#ifndef mdk_FeatureDictionaryBasedSparseEncoder_hpp
+#define mdk_FeatureDictionaryBasedSparseEncoder_hpp
 
 namespace mdk
 {
@@ -23,8 +23,8 @@ void FeatureDictionaryBasedSparseEncoder<ScalarType>::Clear()
     m_FeatureData = nullptr;
     m_Dictionary  = nullptr;
 	m_SparseCode.Clear();
-    m_MinNumberOfDataPerThread = 1;
-    m_MaxNumberOfThread = 1;
+    m_MinCountOfDataPerThread = 1;
+    m_MaxThreadCount = 1;
     m_ThreadStatus.Clear();
     m_ThreadStatus.FastResize(1, 1);
 }
@@ -45,47 +45,47 @@ void FeatureDictionaryBasedSparseEncoder<ScalarType>::SetInputDictionary(const F
 
 
 template<typename ScalarType>
-void FeatureDictionaryBasedSparseEncoder<ScalarType>::SetMaxNumberOfThread(int_max Number)
+void FeatureDictionaryBasedSparseEncoder<ScalarType>::SetMaxThreadCount(int_max Count)
 {
-    if (Number <= 0)
+    if (Count <= 0)
     {
-        MDK_Error("Invalid input @ FeatureDictionaryBasedSparseEncoder::SetMaxNumberOfThread(int_max Number)")
-        m_MaxNumberOfThread = 1;
+        MDK_Error("Invalid input @ FeatureDictionaryBasedSparseEncoder::SetMaxCountOfThread(int_max Count)")
+        m_MaxThreadCount = 1;
         return;
     }
-    m_MaxNumberOfThread = Number;
+    m_MaxThreadCount = Count;
 }
 
 
 template<typename ScalarType>
-int_max FeatureDictionaryBasedSparseEncoder<ScalarType>::GetNumberOfThreadTobeCreated()
+int_max FeatureDictionaryBasedSparseEncoder<ScalarType>::GetCountOfThreadTobeCreated()
 {
-    auto TotalDataVectorNumber = this->GetTotalNumberOfInputFeatureDataVector();
+    auto TotalDataVectorCount = this->GetTotalCountOfInputFeatureDataVector();
 
-    return Compute_NumberOfThreadTobeCreated_For_ParallelBlock(TotalDataVectorNumber, m_MaxNumberOfThread, m_MinNumberOfDataPerThread);
+    return Compute_CountOfThreadTobeCreated_For_ParallelBlock(TotalDataVectorCount, m_MaxThreadCount, m_MinCountOfDataPerThread);
 }
 
 
 template<typename ScalarType>
-void FeatureDictionaryBasedSparseEncoder<ScalarType>::SetMinNumberOfDataPerThread(int_max Number)
+void FeatureDictionaryBasedSparseEncoder<ScalarType>::SetMinCountOfDataPerThread(int_max Count)
 {
-    m_MinNumberOfDataPerThread = Number;
+    m_MinCountOfDataPerThread = Count;
 }
 
 
 template<typename ScalarType>
-int_max FeatureDictionaryBasedSparseEncoder<ScalarType>::GetMinNumberOfDataPerThread()
+int_max FeatureDictionaryBasedSparseEncoder<ScalarType>::GetMinCountOfDataPerThread()
 {
-    return m_MinNumberOfDataPerThread;
+    return m_MinCountOfDataPerThread;
 }
 
 
 template<typename ScalarType>
-int_max FeatureDictionaryBasedSparseEncoder<ScalarType>::GetTotalNumberOfInputFeatureDataVector()
+int_max FeatureDictionaryBasedSparseEncoder<ScalarType>::GetTotalCountOfInputFeatureDataVector()
 {
     if (m_FeatureData != nullptr)
     {
-        return m_FeatureData->GetColNumber();
+        return m_FeatureData->GetColCount();
     }
     else
     {
@@ -121,16 +121,16 @@ bool FeatureDictionaryBasedSparseEncoder<ScalarType>::CheckInput()
         return false;
     }
 
-    if (m_MaxNumberOfThread <= 0)
+    if (m_MaxThreadCount <= 0)
     {
-        MDK_Warning("Input MaxNumberOfThread is invalid, set to 1 @ FeatureDictionaryBasedSparseEncoder::CheckInput()")
-        m_MaxNumberOfThread = 1;
+        MDK_Warning("Input MaxCountOfThread is invalid, set to 1 @ FeatureDictionaryBasedSparseEncoder::CheckInput()")
+        m_MaxThreadCount = 1;
     }
 
-    if (m_MinNumberOfDataPerThread <= 0)
+    if (m_MinCountOfDataPerThread <= 0)
     {
-        MDK_Warning("input m_MinNumberOfDataPerThread is invalid, set to 1 @ FeatureDictionaryBasedSparseEncoder::CheckInput()")
-        m_MinNumberOfDataPerThread = 1;
+        MDK_Warning("input m_MinCountOfDataPerThread is invalid, set to 1 @ FeatureDictionaryBasedSparseEncoder::CheckInput()")
+        m_MinCountOfDataPerThread = 1;
     }
 
     return true;
@@ -140,7 +140,7 @@ bool FeatureDictionaryBasedSparseEncoder<ScalarType>::CheckInput()
 template<typename ScalarType>
 bool FeatureDictionaryBasedSparseEncoder<ScalarType>::Preprocess()
 {
-	m_SparseCode.FastResize(m_FeatureData->GetColNumber());
+	m_SparseCode.FastResize(m_FeatureData->GetColCount());
     return true;
 }
 
@@ -166,15 +166,15 @@ bool FeatureDictionaryBasedSparseEncoder<ScalarType>::Update()
         return false;
     }
 
-    int_max TotalDataVectorNumber = this->GetTotalNumberOfInputFeatureDataVector();
+    int_max TotalDataVectorCount = this->GetTotalCountOfInputFeatureDataVector();
 
-    m_ThreadStatus.Resize(1, this->GetNumberOfThreadTobeCreated());
+    m_ThreadStatus.Resize(1, this->GetCountOfThreadTobeCreated());
     m_ThreadStatus.Fill(0);
 
     // multi-thread -----------------------------------------------------------------
 
-    ParallelBlock([&](int_max Index_start, int_max Index_end, int_max ThreadIndex){this->GenerateCode_in_a_Thread(Index_start, Index_end, ThreadIndex); },
-                  0, TotalDataVectorNumber - 1, m_MaxNumberOfThread, m_MinNumberOfDataPerThread);
+    ParallelBlock([&](int_max Index_start, int_max Index_end, int_max ThreadIndex){this->GenerateCode_in_a_thread(Index_start, Index_end, ThreadIndex); },
+                  0, TotalDataVectorCount - 1, m_MaxThreadCount, m_MinCountOfDataPerThread);
     //------------------------------------------------------------
 
 	this->CheckThreadStatus();
@@ -192,7 +192,7 @@ bool FeatureDictionaryBasedSparseEncoder<ScalarType>::Update()
 template<typename ScalarType>
 void FeatureDictionaryBasedSparseEncoder<ScalarType>::CheckThreadStatus()
 {
-    for (int_max k = 0; k < m_ThreadStatus.GetElementNumber(); ++k)
+    for (int_max k = 0; k < m_ThreadStatus.GetElementCount(); ++k)
     {
         if (m_ThreadStatus[k] == 0)
         {
@@ -207,7 +207,7 @@ void FeatureDictionaryBasedSparseEncoder<ScalarType>::CheckThreadStatus()
 
 
 template<typename ScalarType>
-void FeatureDictionaryBasedSparseEncoder<ScalarType>::GenerateCode_in_a_Thread(int_max IndexOfDataVector_start, 
+void FeatureDictionaryBasedSparseEncoder<ScalarType>::GenerateCode_in_a_thread(int_max IndexOfDataVector_start, 
                                                                                int_max IndexOfDataVector_end, 
                                                                                int_max ThreadIndex)
 {
@@ -239,12 +239,12 @@ DenseMatrix<ScalarType> FeatureDictionaryBasedSparseEncoder<ScalarType>::Convert
 {
 	DenseMatrix<ScalarType> OutputCode;
 
-	auto BasisNumber = m_Dictionary->BasisMatrix().GetColNumber();
+	auto BasisCount = m_Dictionary->BasisMatrix().GetColCount();
 
-	auto IsOK = OutputCode.FastResize(BasisNumber, m_FeatureData->GetColNumber());
+	auto IsOK = OutputCode.FastResize(BasisCount, m_FeatureData->GetColCount());
 	if (IsOK == true)
 	{
-		for (int_max j = 0; j < m_FeatureData->GetColNumber(); ++j)
+		for (int_max j = 0; j < m_FeatureData->GetColCount(); ++j)
 		{
 			auto tempCode = m_SparseCode[j].CreateDenseVector();
 
@@ -260,8 +260,8 @@ template<typename ScalarType>
 SparseMatrix<ScalarType> FeatureDictionaryBasedSparseEncoder<ScalarType>::ConvertOutputCodeToSparseMatrix()
 {
 	SparseMatrix<ScalarType> OutputCode;
-    auto BasisNumber = m_Dictionary->BasisMatrix().GetColNumber();
-	OutputCode.ConstructFromSparseColVectorSetInOrder(m_SparseCode, BasisNumber, m_FeatureData->GetColNumber());
+    auto BasisCount = m_Dictionary->BasisMatrix().GetColCount();
+	OutputCode.ConstructFromSparseColVectorSetInOrder(m_SparseCode, BasisCount, m_FeatureData->GetColCount());
     return OutputCode;
 }
 

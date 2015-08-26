@@ -7,6 +7,7 @@
 #include <cmath>
 #include <algorithm>
 
+//#include "mdkMatrix_Common.h"
 #include "mdkDenseMatrix.h"
 
 namespace mdk
@@ -39,7 +40,7 @@ private:
 
 	int_max m_ColCount;
 
-	int_max m_ElementNumber;
+	int_max m_ElementCount;
 
     bool m_Flag_OutputVector;
 
@@ -146,7 +147,7 @@ private:
 
     inline int_max GetElementCount() const;
 
-    inline bool IsEmpty() const;
+	inline bool IsEmpty() const;
 
     inline MatrixSize GetSize() const;
 

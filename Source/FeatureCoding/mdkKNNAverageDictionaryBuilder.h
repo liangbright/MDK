@@ -1,9 +1,7 @@
-#ifndef __mdkKNNAverageOnlineDictionaryBuilder_h
-#define __mdkKNNAverageOnlineDictionaryBuilder_h
-
+#ifndef mdk_KNNAverageDictionaryBuilder_h
+#define mdk_KNNAverageDictionaryBuilder_h
 
 #include <random>
-
 
 #include "mdkFileIO.h"
 #include "mdkString.h"
@@ -19,15 +17,15 @@ namespace mdk
 {
 
 template<typename ScalarType>
-struct Parameter_Of_KNNAverageOnlineDictionaryBuilder
+struct Parameter_Of_KNNAverageDictionaryBuilder
 {
     std::string DictionaryName;
 
-    int_max BasisNumber;
+    int_max BasisCount;
 
-    bool BasisPositive;
-    bool BasisNormalizedWithL1Norm;
-    bool BasisNormalizedWithL2Norm;
+    bool Flag_BasisPositive;
+    bool Flag_BasisNormalizedWithL1Norm;
+    bool Flag_BasisNormalizedWithL2Norm;
 
     Parameter_Of_KNNSoftAssignSparseEncoder<ScalarType> ParameterOfKNNSoftAssign;
 
@@ -35,15 +33,15 @@ struct Parameter_Of_KNNAverageOnlineDictionaryBuilder
 
     // ------ whether or not use scale factor --------
 	// ||x - s*y||, s is scale factor, e.g., 0.9
-    bool WhetherToUseScaleFactor;
+    bool Flag_WhetherToUseScaleFactor;
 
     // parameter for data sampling --------
 
-    int_max MaxNumberOfDataInEachBatch; // the number of data in each batch/thread
+    int_max MaxCountOfDataInEachBatch; // the number of data in each batch/thread
 
-	int_max MaxNumberOfInteration;
+	int_max MaxCountOfInteration;
 
-    int_max MaxNumberOfThread;
+	int_max MaxThreadCount;
 
     // parameter for updating dictionary information
 
@@ -57,28 +55,28 @@ struct Parameter_Of_KNNAverageOnlineDictionaryBuilder
 
 //--------------------------------------------------------------------------------------------------------
 
-    Parameter_Of_KNNAverageOnlineDictionaryBuilder() { this->Clear(); }
-    ~Parameter_Of_KNNAverageOnlineDictionaryBuilder() {}
+    Parameter_Of_KNNAverageDictionaryBuilder() { this->Clear(); }
+    ~Parameter_Of_KNNAverageDictionaryBuilder() {}
 
     void Clear()
     {
         ParameterOfKNNSoftAssign.Clear();
 
-        BasisNumber = 0;
+        BasisCount = 0;
 
-        BasisPositive = false;
-        BasisNormalizedWithL1Norm = false;
-        BasisNormalizedWithL2Norm = false;
+		Flag_BasisPositive = false;
+		Flag_BasisNormalizedWithL1Norm = false;
+		Flag_BasisNormalizedWithL2Norm = false;
 
         ExperienceDiscountFactor = 0;
 
-        WhetherToUseScaleFactor = false;
+        Flag_WhetherToUseScaleFactor = false;
 
-        MaxNumberOfDataInEachBatch = 0;
+        MaxCountOfDataInEachBatch = 0;
 
-        MaxNumberOfInteration = 1;
+        MaxCountOfInteration = 1;
 
-        MaxNumberOfThread = 1;
+		MaxThreadCount = 1;
 
         Flag_Update_BasisAge = true;
 
@@ -93,13 +91,13 @@ struct Parameter_Of_KNNAverageOnlineDictionaryBuilder
 
 
 template<typename Scalar_Type>
-class KNNAverageOnlineDictionaryBuilder : public FeatureDictionaryBuilder<FeatureDictionaryForSparseCoding<Scalar_Type>>
+class KNNAverageDictionaryBuilder : public FeatureDictionaryBuilder<FeatureDictionaryForSparseCoding<Scalar_Type>>
 {
 public:
 	typedef Scalar_Type ScalarType;
 
 public:
-    Parameter_Of_KNNAverageOnlineDictionaryBuilder<ScalarType> m_Parameter;
+    Parameter_Of_KNNAverageDictionaryBuilder<ScalarType> m_Parameter;
 
 private:
 
@@ -115,8 +113,8 @@ private:
     KNNSoftAssignSparseEncoder<ScalarType> m_KNNSoftAssignSparseEncoder;
 
 public:
-    KNNAverageOnlineDictionaryBuilder();
-    ~KNNAverageOnlineDictionaryBuilder();
+    KNNAverageDictionaryBuilder();
+    ~KNNAverageDictionaryBuilder();
 
     void Clear();
 
@@ -139,32 +137,32 @@ protected:
 
     void UpdateDictionary(FeatureDictionaryForSparseCoding<ScalarType>& Dictionary, 
                           const DenseMatrix<ScalarType>& FeatureData,
-                          const DataArray<SparseVector<ScalarType>>& CodeTable);
+                          const ObjectArray<SparseVector<ScalarType>>& CodeTable);
 
     void UpdateBasisMatrixAndBasisExperience(DenseMatrix<ScalarType>&       BasisMatrix,
                                              DenseMatrix<ScalarType>&       BasisExperience,
                                              const DenseMatrix<ScalarType>& FeatureData,
-                                             const DataArray<SparseVector<ScalarType>>& CodeTable);
+                                             const ObjectArray<SparseVector<ScalarType>>& CodeTable);
 
     void UpdateBasisMatrixAndBasisExperience_UseScaleFactor(DenseMatrix<ScalarType>&       BasisMatrix,
                                                             DenseMatrix<ScalarType>&       BasisExperience,
                                                             const DenseMatrix<ScalarType>& FeatureData,
-                                                            const DataArray<SparseVector<ScalarType>>& CodeTable);
+                                                            const ObjectArray<SparseVector<ScalarType>>& CodeTable);
 
     void UpdateBasisMatrixAndBasisExperience_NoScaleFactor(DenseMatrix<ScalarType>&       BasisMatrix,
                                                            DenseMatrix<ScalarType>&       BasisExperience,
                                                            const DenseMatrix<ScalarType>& FeatureData,
-                                                           const DataArray<SparseVector<ScalarType>>& CodeTable);
+                                                           const ObjectArray<SparseVector<ScalarType>>& CodeTable);
 
     void ApplyConstraintOnBasis(DenseMatrix<ScalarType>& BasisMatrix);
 
     void UpdateDictionary_OtherInformation(FeatureDictionaryForSparseCoding<ScalarType>& Dictionary,
                                            const DenseMatrix<ScalarType>& BasisExperience_init,
-                                           int_max TotalDataNumber);
+                                           int_max TotalDataCount);
 
     void AdjustBasisExperience(DenseMatrix<ScalarType>& BasisExperience, 
                                const DenseMatrix<ScalarType>& BasisExperience_init,
-                               int_max TotalDataNumber);
+                               int_max TotalDataCount);
 
     void UpdateSimilarityMatrix(DenseMatrix<ScalarType>& SimilarityMatrix, 
                                 const DenseMatrix<ScalarType>& BasisMatrix, 
@@ -174,30 +172,30 @@ protected:
 
     void UpdateVarianceOfL1Distance(DenseMatrix<ScalarType>& Variance,
                                     const DenseMatrix<ScalarType>& FeatureData,
-                                    const DataArray<SparseVector<ScalarType>>& CodeTable,
+                                    const ObjectArray<SparseVector<ScalarType>>& CodeTable,
                                     const DenseMatrix<ScalarType>& BasisMatrix,
                                     const DenseMatrix<ScalarType>& BasisExperience_init);
 
     void UpdateVarianceOfL2Distance(DenseMatrix<ScalarType>& Variance,
                                     const DenseMatrix<ScalarType>& FeatureData,
-                                    const DataArray<SparseVector<ScalarType>>& CodeTable,
+                                    const ObjectArray<SparseVector<ScalarType>>& CodeTable,
                                     const DenseMatrix<ScalarType>& BasisMatrix,
                                     const DenseMatrix<ScalarType>& BasisExperience_init);
 
     void UpdateVarianceOfKLDivergence(DenseMatrix<ScalarType>& Variance,
                                       const DenseMatrix<ScalarType>& FeatureData,
-                                      const DataArray<SparseVector<ScalarType>>& CodeTable,
+                                      const ObjectArray<SparseVector<ScalarType>>& CodeTable,
                                       const DenseMatrix<ScalarType>& BasisMatrix,
                                       const DenseMatrix<ScalarType>& BasisExperience_init);
 
     void UpdateVarianceOfReconstruction(DenseMatrix<ScalarType>& Variance,
                                         const DenseMatrix<ScalarType>& FeatureData,
-                                        const DataArray<SparseVector<ScalarType>>& CodeTable,
+                                        const ObjectArray<SparseVector<ScalarType>>& CodeTable,
                                         const DenseMatrix<ScalarType>& BasisMatrix,
                                         const DenseMatrix<ScalarType>& BasisExperience_init);
 
     DenseMatrix<ScalarType> ComputeDataReconstructionErrorL2Norm(const DenseMatrix<ScalarType>&  FeatureData,
-                                                                 const DataArray<SparseVector<ScalarType>>& CodeTable,
+                                                                 const ObjectArray<SparseVector<ScalarType>>& CodeTable,
                                                                  const DenseMatrix<ScalarType>&  BasisMatrix);
 
 };
@@ -206,6 +204,6 @@ protected:
 }// namespace mdk
 
 
-#include "mdkKNNAverageOnlineDictionaryBuilder.hpp"
+#include "mdkKNNAverageDictionaryBuilder.hpp"
 
 #endif

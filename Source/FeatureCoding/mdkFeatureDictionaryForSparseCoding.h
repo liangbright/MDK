@@ -1,5 +1,5 @@
-#ifndef __mdkFeatureDictionaryForSparseCoding_h
-#define __mdkFeatureDictionaryForSparseCoding_h
+#ifndef mdk_FeatureDictionaryForSparseCoding_h
+#define mdk_FeatureDictionaryForSparseCoding_h
 
 #include <atomic>
 
@@ -44,7 +44,7 @@ struct DictionaryData_Of_FeatureDictionaryForSparseCoding
     // ColNumber is BasisNumber (the number of bases)
     // RowNumber is Length of Feature Data Vector
 
-	DenseMatrix<ScalarType> WeightMatrix; // W
+	//DenseMatrix<ScalarType> MaskMatrix; // W
 
     //------------ basis unique ID -----------------------------------
     // row vector
@@ -55,9 +55,9 @@ struct DictionaryData_Of_FeatureDictionaryForSparseCoding
 
     //------------ constraint on basis -----------------------------------
 
-    bool BasisPositive;
-    bool BasisNormalizedWithL1Norm;
-    bool BasisNormalizedWithL2Norm;
+    bool Flag_BasisPositive;
+	bool Flag_BasisNormalizedWithL1Norm;
+	bool Flag_BasisNormalizedWithL2Norm;
 
     //----------- Current "Dictionary Time " --------------------
 
@@ -65,12 +65,10 @@ struct DictionaryData_Of_FeatureDictionaryForSparseCoding
 
     //------------ Age of each basis ----------------------------
     // row vector
-
     DenseMatrix<ScalarType> BasisAge;
 
     // ---------- basis  Experience on Representing Data ----
     // row vector
-
     DenseMatrix<ScalarType> BasisExperience;
     // the weighted total number of training data samples
     // for each basis from day 0
@@ -81,17 +79,19 @@ struct DictionaryData_Of_FeatureDictionaryForSparseCoding
 
     DenseMatrix<ScalarType> SimilarityMatrix;
 
-    ScalarType SimilarityThreshold_For_ComputeBasisRedundancy;
+    ScalarType SimilarityThreshold_For_BasisRedundancyCalculation;
 
     DenseMatrix<ScalarType> BasisRedundancy;
     // BasisRedundancy[j] =  the number of the other bases near the basis j ( Similarity(i, j) >= SimilarityThreshold) 
     // range [0, BasisNumber-1]
+	// matrix rank can also measure redundancy
 
     //----------------- Variance -------------------------
 	// row vector
 
 	//DenseMatrix<ScalarType> VarianceForDecoder;
 	// reserved, not used yet 
+
 
     DenseMatrix<ScalarType> VarianceOfL1Distance; 
     // Length = BasisNumber

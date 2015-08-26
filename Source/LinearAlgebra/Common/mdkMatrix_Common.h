@@ -1,5 +1,5 @@
-﻿#ifndef __mdkMatrix_Common_h
-#define __mdkMatrix_Common_h
+﻿#ifndef mdk_Matrix_Common_h
+#define mdk_Matrix_Common_h
 
 //#include <vector>
 #include <iomanip>
@@ -40,7 +40,7 @@ enum struct MatrixElementTypeEnum
     UNKNOWN,
 };
 
-// ----------------------------- mdkMatrixSize struct -------------------------------------------------------------//
+// ----------------------------- MatrixSize struct -------------------------------------------------------------//
 
 struct MatrixSize
 {

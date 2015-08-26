@@ -1,6 +1,5 @@
-﻿#ifndef __mdkMatrixCommon_hpp
-#define __mdkMatrixCommon_hpp
-
+﻿#ifndef mdk_Matrix_Common_hpp
+#define mdk_Matrix_Common_hpp
 
 namespace mdk
 {
