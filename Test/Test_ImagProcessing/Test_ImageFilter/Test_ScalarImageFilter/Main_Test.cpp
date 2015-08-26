@@ -7,7 +7,7 @@ using namespace mdk;
 int main()
 {
    
-    test_ScalarImageGaussianFilter3D();
+	test_ScalarDenseImageGaussianFilter3D();
 
     std::system("pause");
 }

@@ -92,10 +92,10 @@ void ScalarDenseImageGaussianFilter3D<InputPixelType, OutputPixelType, ScalarTyp
 {
 	auto Spacing = m_InputImage->GetSpacing();
 
-	auto MaxRadius = m_SigmaList.Max() * m_CutOffRatio * 1.5;
-	auto MaxRadius_x = double(int_max(MaxRadius / Spacing[0]) + 1)*Spacing[0];
-	auto MaxRadius_y = double(int_max(MaxRadius / Spacing[1]) + 1)*Spacing[1];
-	auto MaxRadius_z = double(int_max(MaxRadius / Spacing[2]) + 1)*Spacing[2];
+	auto MaxRadius_xyz = m_SigmaList.Max() * m_CutOffRatio;
+	auto MaxRadius_x = double(int_max(MaxRadius_xyz / Spacing[0]) + 1)*Spacing[0];
+	auto MaxRadius_y = double(int_max(MaxRadius_xyz / Spacing[1]) + 1)*Spacing[1];
+	auto MaxRadius_z = double(int_max(MaxRadius_xyz / Spacing[2]) + 1)*Spacing[2];
 
 	DenseMatrix<double> InverseCovarianceMatrix(3, 3);
     InverseCovarianceMatrix.Fill(0);

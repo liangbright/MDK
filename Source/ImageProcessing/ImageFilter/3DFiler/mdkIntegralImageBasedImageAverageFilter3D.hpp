@@ -32,7 +32,7 @@ void IntegralImageBasedImageAverageFilter3D<InputPixelType, OutputPixelType, Sca
 	m_IntegralImage = &m_IntegralImage_Internal;
 	m_Radius = { 0, 0, 0 };
 	m_Radius_Index3D = { 0, 0, 0 };
-	this->SelectPhysicalCoordinateSystemForEvaluation(PhysicalCoordinateSystemForEvaluation::INPUT);
+	this->SelectCoordinateSystemForEvaluation(CoordinateSystemForEvaluation::INPUT);
 }
 
 

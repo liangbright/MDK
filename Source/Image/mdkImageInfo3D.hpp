@@ -35,9 +35,9 @@ DenseVector<ScalarType, 3> ImageCoordinateTransform_LinearIndexTo3DIndex(int_max
 
 template<typename ScalarType>
 inline 
-DenseVector<ScalarType, 3> ImageCoordinateTransform_LinearIndexTo3DPosition(int_max LinearIndex, double SpacingX, double SpacingY, double SpacingZ)
+DenseVector<ScalarType, 3> ImageCoordinateTransform_LinearIndexTo3DPosition(int_max LinearIndex, int_max ImageSizeX, int_max ImageSizeY, double SpacingX, double SpacingY, double SpacingZ)
 {
-	auto Index3D = ImageCoordinateTransform_LinearIndexTo3DIndex(LinearIndex);
+	auto Index3D = ImageCoordinateTransform_LinearIndexTo3DIndex(LinearIndex, ImageSizeX, ImageSizeY);
 	auto Position = ImageCoordinateTransform_3DIndexTo3DPosition<ScalarType>(Index3D[0], Index3D[1], Index3D[2], SpacingX, SpacingY, SpacingZ);
 	return Position;
 }
@@ -47,7 +47,7 @@ template<typename ScalarType>
 inline 
 DenseVector<ScalarType, 3> ImageCoordinateTransform_LinearIndexTo3DPosition(int_max LinearIndex, const ImageInfo3D& Info)
 {
-	return ImageCoordinateTransform_LinearIndexTo3DPosition(LinearIndex, Info.Origin[0], Info.Origin[1], Info.Origin[2]);
+	return ImageCoordinateTransform_LinearIndexTo3DPosition(LinearIndex, Info.Size[0], Info.Size[1], Info.Origin[0], Info.Origin[1], Info.Origin[2]);
 }
 
 
@@ -66,7 +66,7 @@ DenseVector<ScalarType, 3> ImageCoordinateTransform_LinearIndexTo3DWorldPosition
 
 template<typename ScalarType>
 inline 
-DenseVector<ScalarType, 3> ImageCoordinateTransforme_LinearIndexTo3DWorldPosition(int_max LinearIndex, const ImageInfo3D& Info)
+DenseVector<ScalarType, 3> ImageCoordinateTransform_LinearIndexTo3DWorldPosition(int_max LinearIndex, const ImageInfo3D& Info)
 {
 	return ImageCoordinateTransform_LinearIndexTo3DWorldPosition(LinearIndex, Info.TransformMatrix_3DIndexTo3DWorld, Info.Origin[0], Info.Origin[1], Info.Origin[2]);
 }

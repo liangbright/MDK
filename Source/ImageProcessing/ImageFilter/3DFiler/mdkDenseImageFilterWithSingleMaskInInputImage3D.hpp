@@ -41,10 +41,8 @@ bool DenseImageFilterWithSingleMaskInInputImage3D<InputPixelType, OutputPixelTyp
 		return false;
 	}
 
+	this->BuildMask(); // build mask before region check
 	this->ComputeNOBoundCheckRegionOf3DPosition();
-
-	this->BuildMask();
-
 	return true;
 }
 
@@ -57,15 +55,14 @@ void DenseImageFilterWithSingleMaskInInputImage3D<InputPixelType, OutputPixelTyp
         return;
     }
 
-    auto Origin = m_InputImage->GetOrigin();
-    auto Size = m_InputImage->GetSize();
+    auto PhysicalSize = m_InputImage->GetPhysicalSize();
     auto PixelSpacing = m_InputImage->GetSpacing();
 
     auto SafeDistance_x = 2 * PixelSpacing[0];
     auto SafeDistance_y = 2 * PixelSpacing[1];
     auto SafeDistance_z = 2 * PixelSpacing[2];
 
-    ScalarType MaxDeviation_x[2] = { 0, 0 };
+    ScalarType MaxDeviation_x[2] = { 0, 0 }; // {-x direction , +x direction}
     ScalarType MaxDeviation_y[2] = { 0, 0 };
     ScalarType MaxDeviation_z[2] = { 0, 0 };
 
@@ -102,21 +99,21 @@ void DenseImageFilterWithSingleMaskInInputImage3D<InputPixelType, OutputPixelTyp
         }
     }
 
-	if (   MaxDeviation_x[0] + MaxDeviation_x[1] + 2 * SafeDistance_x < Size[0]
-		&& MaxDeviation_y[0] + MaxDeviation_y[1] + 2 * SafeDistance_y < Size[1]
-        && MaxDeviation_z[0] + MaxDeviation_z[1] + 2 * SafeDistance_z < Size[2])
+	if (   MaxDeviation_x[0] + MaxDeviation_x[1] + 2 * SafeDistance_x < PhysicalSize[0]
+		&& MaxDeviation_y[0] + MaxDeviation_y[1] + 2 * SafeDistance_y < PhysicalSize[1]
+		&& MaxDeviation_z[0] + MaxDeviation_z[1] + 2 * SafeDistance_z < PhysicalSize[2])
     {
-        m_NOBoundCheckRegionOf3DPosition.x_min = Origin[0] + MaxDeviation_x[0] + SafeDistance_x;
+        m_NOBoundCheckRegionOf3DPosition.x_min = MaxDeviation_x[0] + SafeDistance_x;
 
-        m_NOBoundCheckRegionOf3DPosition.x_max = Origin[0] + Size[0] - MaxDeviation_x[1] - SafeDistance_x;
+		m_NOBoundCheckRegionOf3DPosition.x_max = PhysicalSize[0] - MaxDeviation_x[1] - SafeDistance_x;
 
-        m_NOBoundCheckRegionOf3DPosition.y_min = Origin[1] + MaxDeviation_y[0] + SafeDistance_y;
+        m_NOBoundCheckRegionOf3DPosition.y_min = MaxDeviation_y[0] + SafeDistance_y;
 
-        m_NOBoundCheckRegionOf3DPosition.y_max = Origin[1] + Size[1] - MaxDeviation_y[1] - SafeDistance_y;
+		m_NOBoundCheckRegionOf3DPosition.y_max = PhysicalSize[1] - MaxDeviation_y[1] - SafeDistance_y;
 
-        m_NOBoundCheckRegionOf3DPosition.z_min = Origin[2] + MaxDeviation_z[0] + SafeDistance_z;
+        m_NOBoundCheckRegionOf3DPosition.z_min = MaxDeviation_z[0] + SafeDistance_z;
 
-        m_NOBoundCheckRegionOf3DPosition.z_max = Origin[2] + Size[2] - MaxDeviation_z[1] - SafeDistance_z;
+		m_NOBoundCheckRegionOf3DPosition.z_max = PhysicalSize[2] - MaxDeviation_z[1] - SafeDistance_z;
     }
 }
 

@@ -33,6 +33,8 @@ protected:
 	//-------------------------- input --------------------------------------------------//
 	const InputImageType* m_InputImage;
 
+	ImageInfo3D m_InputImageInfo;//copy data to speedup
+
 	ImageInterpolationOptionType m_ImageInterpolationOption;
 
 	// only one of these is used
@@ -42,8 +44,6 @@ protected:
 	const DenseMatrix<ScalarType>* m_PointList_3DPosition_OutputImage;
 	const DenseMatrix<int_max>*    m_PointList_3DIndex_OutputImage;
 
-	ImageInfo3D m_InputImageInfo;//copy data to speedup
-
 	ImageInfo3D m_OutputImageInfo;
 
 	int_max m_MaxThreadCount; // max number of threads
@@ -52,7 +52,7 @@ protected:
 	int_max m_OutputPixelCount;
 
 	bool m_Flag_ScanOutputImageGrid;
-	// true: whole m_OutputImage
+	// true: whole output image grid
 	// false: only scan each point in m_PointList_XXX
 
 	bool m_Flag_EnableOutputImage;
@@ -62,9 +62,9 @@ protected:
 	bool m_Flag_Input_Output_SameOrientation;
 	// m_OutputImage and m_InputImage have the same orientation
 
-	enum class PhysicalCoordinateSystemForEvaluation {WORLD, INPUT, OUTPUT, UNKNOWN};
+	enum class CoordinateSystemForEvaluation {WORLD, INPUT, OUTPUT, UNKNOWN};
 
-	PhysicalCoordinateSystemForEvaluation m_PhysicalCoordinateSystemForEvaluation;
+	CoordinateSystemForEvaluation m_CoordinateSystemForEvaluation;
 
 	DenseMatrix<double> m_3DPositionTransformFromOuputToInput_Matrix;
 	DenseVector<double, 3> m_3DPositionTransformFromOuputToInput_Offset;
@@ -73,11 +73,9 @@ protected:
 	DenseVector<double, 3> m_3DPositionTransformFromInputToOutput_Offset;
 
 	//------------------------- output ----------------------------------------------------//
-	// if m_Flag_ScanOutputImageGrid is true, then write result to m_OutputImage
-	// else, then write result to m_OutputImage
-
 	OutputImageType m_OutputImage; 
 	ObjectArray<OutputPixelType> m_OutputPixelArray;
+	// or Other Place
 
 protected:
 	ImageFilter3D();
@@ -165,7 +163,7 @@ protected:
 
 	int_max GetOptimalThreadCount();
 	
-	void SelectPhysicalCoordinateSystemForEvaluation(PhysicalCoordinateSystemForEvaluation Option);
+	void SelectCoordinateSystemForEvaluation(CoordinateSystemForEvaluation Option);
 
 	void CompareOrientation_Input_Output();
 

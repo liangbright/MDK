@@ -21,11 +21,11 @@ template<typename InputImageType, typename OutputImageType, typename ScalarType>
 void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::Clear()
 {
 	m_InputImage = nullptr;
+	m_InputImageInfo.Clear();
+
 	m_ImageInterpolationOption.MethodType = ImageInterpolationMethodEnum::Nearest;
 	m_ImageInterpolationOption.BoundaryOption = ImageInterpolationBoundaryOptionEnum::Replicate;
 	m_ImageInterpolationOption.Pixel_OutsideImage = InputPixelType(0);
-
-	m_InputImageInfo.Clear();
 
 	m_PointList_3DWorldPosition = nullptr;
 	m_PointList_3DIndex_InputImage = nullptr;
@@ -47,7 +47,7 @@ void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::Clear()
 	m_OutputImage.Clear();
 	m_OutputPixelArray.Clear();
 
-	m_PhysicalCoordinateSystemForEvaluation = PhysicalCoordinateSystemForEvaluation::UNKNOWN;
+	m_CoordinateSystemForEvaluation = CoordinateSystemForEvaluation::UNKNOWN;
 }
 
 
@@ -367,9 +367,9 @@ bool ImageFilter3D<InputImageType, OutputImageType, ScalarType>::CheckInput()
 		return false;
 	}
 
-	if (m_PhysicalCoordinateSystemForEvaluation == PhysicalCoordinateSystemForEvaluation::UNKNOWN)
+	if (m_CoordinateSystemForEvaluation == CoordinateSystemForEvaluation::UNKNOWN)
 	{
-		MDK_Error("PhysicalCoordinateSystemForEvaluation is UNKNOWN")
+		MDK_Error("CoordinateSystemForEvaluation is UNKNOWN")
 		return false;
 	}
 
@@ -473,19 +473,19 @@ template<typename InputImageType, typename OutputImageType, typename ScalarType>
 void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
 Evaluate_in_a_thread(int_max PointIndex_start, int_max PointIndex_end, int_max ThreadIndex)
 {
-	switch (m_PhysicalCoordinateSystemForEvaluation)
+	switch (m_CoordinateSystemForEvaluation)
 	{
-	case PhysicalCoordinateSystemForEvaluation::WORLD:
+	case CoordinateSystemForEvaluation::WORLD:
 		Evaluate_in_a_thread_At3DWorldPosition(PointIndex_start, PointIndex_end, ThreadIndex);
 		break;
-	case PhysicalCoordinateSystemForEvaluation::INPUT:
+	case CoordinateSystemForEvaluation::INPUT:
 		Evaluate_in_a_thread_At3DPositionInInputImage(PointIndex_start, PointIndex_end, ThreadIndex);
 		break;
-	case PhysicalCoordinateSystemForEvaluation::OUTPUT:
+	case CoordinateSystemForEvaluation::OUTPUT:
 		Evaluate_in_a_thread_At3DPositionInOutputImage(PointIndex_start, PointIndex_end, ThreadIndex);
 		break;
-	case PhysicalCoordinateSystemForEvaluation::UNKNOWN:
-		MDK_Error("PhysicalCoordinateSystemForEvaluation is UNKNOWN")
+	case CoordinateSystemForEvaluation::UNKNOWN:
+		MDK_Error("CoordinateSystemForEvaluation is UNKNOWN")
 	}
 }
 
@@ -498,10 +498,13 @@ Evaluate_in_a_thread_At3DWorldPosition(int_max PointIndex_start, int_max PointIn
 	{
 		for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
 		{
-			auto Index3D_out = ImageCoordinateTransform_LinearIndexTo3DIndex(k, m_OutputImageInfo);// m_OutputImage size may be zero
+			auto Index3D_out = ImageCoordinateTransform_LinearIndexTo3DIndex(k, m_OutputImageInfo);
 			auto Pos3D_world = m_OutputImage.Transform3DIndexTo3DWorldPosition(Index3D_out);
 			auto OutputPixel = this->EvaluateAt3DWorldPosition(k, Pos3D_world[0], Pos3D_world[1], Pos3D_world[2], ThreadIndex);
-			m_OutputImage(Index3D_out[0], Index3D_out[1], Index3D_out[2]) = OutputPixel;
+			if (m_Flag_EnableOutputImage == true)
+			{
+				m_OutputImage(Index3D_out[0], Index3D_out[1], Index3D_out[2]) = OutputPixel;
+			}
 			if (m_Flag_EnableOutputPixelArray == true)
 			{
 				m_OutputPixelArray[k] = OutputPixel;
@@ -988,9 +991,9 @@ int_max ImageFilter3D<InputImageType, OutputImageType, ScalarType>::GetOptimalTh
 
 
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
-void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::SelectPhysicalCoordinateSystemForEvaluation(PhysicalCoordinateSystemForEvaluation Option)
+void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::SelectCoordinateSystemForEvaluation(CoordinateSystemForEvaluation Option)
 {
-	m_PhysicalCoordinateSystemForEvaluation = Option;
+	m_CoordinateSystemForEvaluation = Option;
 }
 
 
