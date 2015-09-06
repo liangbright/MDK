@@ -7,6 +7,8 @@
 #include <chrono>
 #include <ctime>
 
+#include "mdkDenseImage2D.h"
+#include "mdkDenseImage2D_FileIO.h"
 #include "mdkDenseImage3D.h"
 #include "mdkDenseImage3D_FileIO.h"
 #include "mdkCurve_FileIO.h"
@@ -55,7 +57,102 @@ void testCurve()
 
 }
 
-void testA()
+void test2DA()
+{
+	DenseImage2D<double> ScalarImage_double;
+	ScalarImage_double.SetSize(100, 100);
+	ScalarImage_double.SetOrigin(0, 0, 0);
+	ScalarImage_double.SetSpacing(1, 1);
+
+	ScalarImage_double(1, 1) = 1;
+	ScalarImage_double(1, 2) = 2;
+
+	DenseImage2D<double>::InterpolationOptionType Option_double;
+	Option_double.MethodType = Image2DInterpolationMethodEnum::Linear;
+	Option_double.BoundaryOption = Image2DInterpolationBoundaryOptionEnum::Replicate;
+	Option_double.Pixel_OutsideImage = 0;
+	auto a0 = ScalarImage_double.GetPixelAt2DIndex(1.0, 1.5);
+	auto a1 = ScalarImage_double.GetPixelAt2DIndex(1.0, 1.5, Option_double);
+	auto a2 = ScalarImage_double.GetPixelAt3DWorldPosition(1.0, 1.5, 1.0, Option_double);
+	auto a3 = ScalarImage_double.GetPixelAt3DWorldPosition(1.0, 1.5, 10.0, Option_double);
+	auto a4 = ScalarImage_double(1, 1);
+
+	DenseImage2D<float> ScalarImage_float;
+	ScalarImage_float.SetSize(100, 100);
+	ScalarImage_float.SetOrigin(0, 0, 0);
+	ScalarImage_float.SetSpacing(1, 1);
+
+	DenseImage2D<float>::InterpolationOptionType Option_float;
+	Option_float.MethodType = Image2DInterpolationMethodEnum::Linear;
+	Option_float.BoundaryOption = Image2DInterpolationBoundaryOptionEnum::Replicate;
+	Option_float.Pixel_OutsideImage = 0;
+	auto b1 = ScalarImage_float.GetPixelAt2DIndex(1.0, 1.5, Option_float);
+	auto b2 = ScalarImage_float.GetPixelAt3DWorldPosition(1.0, 1.5, 1.0, Option_float);
+	auto b3 = ScalarImage_float(1, 1);
+
+	// do not use int, precision loss
+	DenseImage2D<int> ScalarImage_int;
+	ScalarImage_int.SetSize(100, 100);
+	ScalarImage_int.SetOrigin(0, 0, 0);
+	ScalarImage_int.SetSpacing(1, 1);
+
+	DenseImage2D<int>::InterpolationOptionType Option_int;
+	Option_int.MethodType = Image2DInterpolationMethodEnum::Linear;
+	Option_int.BoundaryOption = Image2DInterpolationBoundaryOptionEnum::Replicate;
+	Option_int.Pixel_OutsideImage = 0;
+	auto aa1 = ScalarImage_int.GetPixelAt2DIndex(1.0, 1.5, Option_int);
+	auto aa2 = ScalarImage_int.GetPixelAt3DWorldPosition(1.0, 1.5, 1.0, Option_int);
+	auto aa3 = ScalarImage_int(1, 1);
+
+	DenseImage2D<DenseVector<double, 3>> VectorImage_double;
+	VectorImage_double.SetSize(10, 10);
+	VectorImage_double.SetOrigin(0, 0, 0);
+	VectorImage_double.SetSpacing(1, 1);
+
+	DenseImage2D<DenseVector<double, 3>>::InterpolationOptionType Option_vd;
+	Option_vd.MethodType = Image2DInterpolationMethodEnum::Linear;
+	Option_vd.BoundaryOption = Image2DInterpolationBoundaryOptionEnum::Replicate;
+	Option_vd.Pixel_OutsideImage = 0;
+	auto c1 = VectorImage_double.GetPixelAt2DIndex(1.0, 1.5, Option_vd);
+	auto c2 = VectorImage_double.GetPixelAt3DWorldPosition(1.0, 1.5, 1.0, Option_vd);
+	auto c3 = VectorImage_double(1, 1);
+
+	DenseImage2D<DenseVector<float, 3>> VectorImage_float;
+	VectorImage_float.SetSize(10, 10);
+	VectorImage_float.SetOrigin(0, 0, 0);
+	VectorImage_float.SetSpacing(1, 1);
+
+	DenseImage2D<DenseVector<float, 3>>::InterpolationOptionType Option_vf;
+	Option_vf.MethodType = Image2DInterpolationMethodEnum::Linear;
+	Option_vf.BoundaryOption = Image2DInterpolationBoundaryOptionEnum::Replicate;
+	Option_vf.Pixel_OutsideImage = 0;
+	auto d0 = VectorImage_float.GetPixelAt2DIndex(1, 1.5);//float->int_max
+	auto d1 = VectorImage_float.GetPixelAt2DIndex(float(1.0), float(1.5), Option_vf);
+	auto d2 = VectorImage_float.GetPixelAt3DWorldPosition(float(1.0), float(1.5), float(1.0), Option_vf);
+	auto d3 = VectorImage_float(1, 1);
+
+	// do not use int, precision loss
+	DenseImage2D<DenseVector<int, 3>> VectorImage_int;
+	VectorImage_int.SetSize(10, 10);
+	VectorImage_int.SetOrigin(0, 0, 0);
+	VectorImage_int.SetSpacing(1, 1);
+
+	DenseImage2D<DenseVector<int, 3>>::InterpolationOptionType Option_vi;
+	Option_vi.MethodType = Image2DInterpolationMethodEnum::Linear;
+	Option_vi.BoundaryOption = Image2DInterpolationBoundaryOptionEnum::Replicate;
+	Option_vi.Pixel_OutsideImage = 0;
+	auto e1 = VectorImage_int.GetPixelAt2DIndex(int(1.0), int(1.5), Option_vi);
+}
+
+void test2D_FileIO()
+{
+	DenseImage2D<double> ScalarImage_double;
+	String FilePathAndName = "C:/Research/SpineAnalysis/TestData/Patient1/T2W/T2W0005.dcm";
+	Load2DScalarImageFromSingleDICOMFile(ScalarImage_double, FilePathAndName);
+}
+
+
+void test3DA()
 {
 	DenseImage3D<double> ScalarImage_double;
 	ScalarImage_double.SetSize(100, 100, 100);
@@ -138,7 +235,7 @@ void testA()
 	auto e1 = VectorImage_int.GetPixelAt3DIndex(int(1.0), int(1.5), int(1.0), Option_vi);
 }
 
-void testB()
+void test3DB()
 {
 	DenseImage3D<double> ScalarImage_double;
 	ScalarImage_double.SetSize(100, 100, 100);

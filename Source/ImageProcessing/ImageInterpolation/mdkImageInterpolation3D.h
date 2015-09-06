@@ -91,74 +91,85 @@ template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
 OutputPixelType InterpolateImageAt3DIndex(const SparseImage3D<InputPixelType>& InputImage,
 										  ScalarType x, ScalarType y, ScalarType z, 
-										  const Option_Of_Image3DInterpolation<InputPixelType>& Option);
+										  const Option_Of_Image3DInterpolation<InputPixelType>& Option,
+										  bool EnableBoundCheck = true);
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
 OutputPixelType InterpolateImageAt3DPosition(const SparseImage3D<InputPixelType>& InputImage,
                                              ScalarType x, ScalarType y, ScalarType z, 
-											 const Option_Of_Image3DInterpolation<InputPixelType>& Option);
+											 const Option_Of_Image3DInterpolation<InputPixelType>& Option,
+											 bool EnableBoundCheck = true);
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
 OutputPixelType InterpolateImageAt3DWorldPosition(const SparseImage3D<InputPixelType>& InputImage,
                                                   ScalarType x, ScalarType y, ScalarType z, 
-												  const Option_Of_Image3DInterpolation<InputPixelType>& Option);
+												  const Option_Of_Image3DInterpolation<InputPixelType>& Option,
+												  bool EnableBoundCheck = true);
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
 OutputPixelType InterpolateImageAt3DIndex_Nearest(const SparseImage3D<InputPixelType>& InputImage,
-                                                            ScalarType x, ScalarType y, ScalarType z, 
-															const Option_Of_Image3DInterpolation<InputPixelType>& Option);
+                                                  ScalarType x, ScalarType y, ScalarType z, 
+												  const Option_Of_Image3DInterpolation<InputPixelType>& Option,
+												  bool EnableBoundCheck = true);
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
 OutputPixelType InterpolateImageAt3DPosition_Nearest(const SparseImage3D<InputPixelType>& InputImage,
                                                      ScalarType x, ScalarType y, ScalarType z, 
-													 const Option_Of_Image3DInterpolation<InputPixelType>& Option);
+													 const Option_Of_Image3DInterpolation<InputPixelType>& Option,
+													 bool EnableBoundCheck = true);
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
 OutputPixelType InterpolateImageAt3DWorldPosition_Nearest(const SparseImage3D<InputPixelType>& InputImage,
                                                           ScalarType x, ScalarType y, ScalarType z, 
-														  const Option_Of_Image3DInterpolation<InputPixelType>& Option);
+														  const Option_Of_Image3DInterpolation<InputPixelType>& Option,
+														  bool EnableBoundCheck = true);
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
 OutputPixelType InterpolateImageAt3DIndex_Linear(const SparseImage3D<InputPixelType>& InputImage,
-                                                           ScalarType x, ScalarType y, ScalarType z, 
-														   const Option_Of_Image3DInterpolation<InputPixelType>& Option);
+                                                 ScalarType x, ScalarType y, ScalarType z, 
+												 const Option_Of_Image3DInterpolation<InputPixelType>& Option,
+												 bool EnableBoundCheck = true);
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
 OutputPixelType InterpolateImageAt3DPosition_Linear(const SparseImage3D<InputPixelType>& InputImage,
                                                     ScalarType x, ScalarType y, ScalarType z, 
-												    const Option_Of_Image3DInterpolation<InputPixelType>& Option);
+												    const Option_Of_Image3DInterpolation<InputPixelType>& Option,
+													bool EnableBoundCheck = true);
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
 OutputPixelType InterpolateImageAt3DWorldPosition_Linear(const SparseImage3D<InputPixelType>& InputImage,
                                                          ScalarType x, ScalarType y, ScalarType z, 
-														 const Option_Of_Image3DInterpolation<InputPixelType>& Option);
+														 const Option_Of_Image3DInterpolation<InputPixelType>& Option,
+														 bool EnableBoundCheck = true);
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
 OutputPixelType InterpolateImageAt3DIndex_Cubic(const SparseImage3D<InputPixelType>& InputImage,
                                                 ScalarType x, ScalarType y, ScalarType z, 
-												const Option_Of_Image3DInterpolation<InputPixelType>& Option);
+												const Option_Of_Image3DInterpolation<InputPixelType>& Option,
+												bool EnableBoundCheck = true);
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
 OutputPixelType InterpolateImageAt3DPosition_Cubic(const SparseImage3D<InputPixelType>& InputImage,
 								                   ScalarType x, ScalarType y, ScalarType z, 
-												   const Option_Of_Image3DInterpolation<InputPixelType>& Option);
+												   const Option_Of_Image3DInterpolation<InputPixelType>& Option,
+												   bool EnableBoundCheck = true);
 
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
 OutputPixelType InterpolateImageAt3DWorldPosition_Cubic(const SparseImage3D<InputPixelType>& InputImage,
 								                        ScalarType x, ScalarType y, ScalarType z, 
-														const Option_Of_Image3DInterpolation<InputPixelType>& Option);
-
+														const Option_Of_Image3DInterpolation<InputPixelType>& Option,
+														bool EnableBoundCheck = true);
 }// namespace mdk
 
 #include "mdkDenseImageInterpolation3D.hpp"

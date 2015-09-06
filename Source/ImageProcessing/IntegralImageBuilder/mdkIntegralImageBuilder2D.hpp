@@ -22,19 +22,12 @@ void IntegralImageBuilder2D<InputPixelType, OutputPixelType>::Clear()
 {
 	m_InputImage = nullptr;
 	m_OutputImage.Clear();
-	m_MaxNumberOfThread = 1;
 }
 
 template<typename InputPixelType, typename OutputPixelType>
 void IntegralImageBuilder2D<InputPixelType, OutputPixelType>::SetInputImage(const DenseImage2D<InputPixelType>* InputImage);
 {
 	m_InputImage = InputImage;
-}
-
-template<typename InputPixelType, typename OutputPixelType>
-void IntegralImageBuilder2D<InputPixelType, OutputPixelType>::SetMaxNumberOfThread(int_max Number)
-{
-	m_MaxNumberOfThread = Number;
 }
 
 template<typename InputPixelType, typename OutputPixelType>
@@ -49,12 +42,6 @@ bool IntegralImageBuilder2D<InputPixelType, OutputPixelType>::CheckInput()
 	if (m_InputImage->IsEmpty() == true)
 	{
 		MDK_Error("m_InputImage is empty @ IntegralImageBuilder2D::CheckInput()")
-		return false;
-	}
-
-	if (m_MaxNumberOfThread <= 0)
-	{
-		MDK_Error("m_MaxNumberOfThread <= 0 @ IntegralImageBuilder2D::CheckInput()")
 		return false;
 	}
 
@@ -74,25 +61,25 @@ bool IntegralImageBuilder2D<InputPixelType, OutputPixelType>::Update()
 
 	for (int_max y = 0; y < InputSize[1]; ++y)
 	{
-		auto tempOutoutPixel = OutputPixelType(0);
+		auto tempOutputPixel = OutputPixelType(0);
 
 		for (int_max x = 0; x < InputSize[0]; ++x)
 		{
-			tempOutoutPixel += OutputPixelType((*m_InputImage)(x, y));
+			tempOutputPixel += OutputPixelType((*m_InputImage)(x, y));
 
-			m_OutputImage(x, y) = tempOutoutPixel;
+			m_OutputImage(x, y) = tempOutputPixel;
 		}
 	}
 
 	for (int_max x = 0; x < InputSize[0]; ++x)
 	{
-		auto tempOutoutPixel = OutputPixelType(0);
+		auto tempOutputPixel = OutputPixelType(0);
 
 		for (int_max y = 0; y < InputSize[1]; ++y)
 		{
-			tempOutoutPixel += m_OutputImage(x, y);
+			tempOutputPixel += m_OutputImage(x, y);
 
-			m_OutputImage(x, y) = tempOutoutPixel;
+			m_OutputImage(x, y) = tempOutputPixel;
 		}
 	}
 

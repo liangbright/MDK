@@ -1,9 +1,9 @@
-﻿#ifndef mdk_ImageFilter3D_h
-#define mdk_ImageFilter3D_h
+﻿#ifndef mdk_ImageFilter2D_h
+#define mdk_ImageFilter2D_h
 
 #include "mdkParallelForLoop.h"
-#include "mdkDenseImage3D.h"
-#include "mdkSparseImage3D.h"
+#include "mdkDenseImage2D.h"
+#include "mdkSparseImage2D.h"
 
 namespace mdk
 {
@@ -13,7 +13,7 @@ namespace mdk
 // This is just a reference design. It is not necessary to derive child-class from this one.
 
 template<typename InputImage_Type, typename OutputImage_Type, typename Scalar_Type>
-class ImageFilter3D : public Object
+class ImageFilter2D : public Object
 {
 public:
 	typedef InputImage_Type  InputImageType;
@@ -23,26 +23,26 @@ public:
 
 	typedef Scalar_Type  ScalarType; // float or double
 
-	typedef Option_Of_Image3DInterpolation<InputPixelType>  ImageInterpolationOptionType;
-	typedef MethodEnum_Of_Image3DInterpolation              ImageInterpolationMethodEnum;
-	typedef BoundaryOptionEnum_Of_Image3DInterpolation      ImageInterpolationBoundaryOptionEnum;
+	typedef Option_Of_Image2DInterpolation<InputPixelType>  ImageInterpolationOptionType;
+	typedef MethodEnum_Of_Image2DInterpolation              ImageInterpolationMethodEnum;
+	typedef BoundaryOptionEnum_Of_Image2DInterpolation      ImageInterpolationBoundaryOptionEnum;
 
 protected:
 	//-------------------------- input --------------------------------------------------//
 	const InputImageType* m_InputImage;
 
-	ImageInfo3D m_InputImageInfo;//copy data to speedup
+	ImageInfo2D m_InputImageInfo;//copy data to speedup
 
 	ImageInterpolationOptionType m_ImageInterpolationOption;
 
 	// only one of these is used
 	const DenseMatrix<ScalarType>* m_PointList_3DWorldPosition;
-	const DenseMatrix<ScalarType>* m_PointList_3DPosition_InputImage;
-	const DenseMatrix<int_max>*    m_PointList_3DIndex_InputImage;
-	const DenseMatrix<ScalarType>* m_PointList_3DPosition_OutputImage;
-	const DenseMatrix<int_max>*    m_PointList_3DIndex_OutputImage;
+	const DenseMatrix<ScalarType>* m_PointList_2DPosition_InputImage;
+	const DenseMatrix<int_max>*    m_PointList_2DIndex_InputImage;
+	const DenseMatrix<ScalarType>* m_PointList_2DPosition_OutputImage;
+	const DenseMatrix<int_max>*    m_PointList_2DIndex_OutputImage;
 
-	ImageInfo3D m_OutputImageInfo;
+	ImageInfo2D m_OutputImageInfo;
 
 	int_max m_MaxThreadCount; // max number of threads
 
@@ -64,11 +64,11 @@ protected:
 
 	CoordinateSystemForEvaluation m_CoordinateSystemForEvaluation;
 
-	DenseMatrix<double> m_3DPositionTransformFromOuputToInput_Matrix;
-	DenseVector<double, 3> m_3DPositionTransformFromOuputToInput_Offset;
+	DenseMatrix<double>    m_2DPositionTransformFromOuputToInput_Matrix; // 3x3
+	DenseVector<double, 2> m_2DPositionTransformFromOuputToInput_Offset;
 
-	DenseMatrix<double> m_3DPositionTransformFromInputToOutput_Matrix;
-	DenseVector<double, 3> m_3DPositionTransformFromInputToOutput_Offset;
+	DenseMatrix<double>    m_2DPositionTransformFromInputToOutput_Matrix; // 3x3
+	DenseVector<double, 2> m_2DPositionTransformFromInputToOutput_Offset;
 
 	//------------------------- output ----------------------------------------------------//
 	OutputImageType m_OutputImage; 
@@ -76,33 +76,33 @@ protected:
 	// or Other Place
 
 protected:
-	ImageFilter3D();
-	virtual ~ImageFilter3D();
+	ImageFilter2D();
+	virtual ~ImageFilter2D();
 
 public:
 	virtual void Clear();
 
 	void SetInputImage(const InputImageType* InputImage);
 
-	void SetOutputImageInfo(const ImageInfo3D& Info);
+	void SetOutputImageInfo(const ImageInfo2D& Info);
 
 	void SetOutputImageInfo(const DenseVector<double, 3>& Origin,
-						    const DenseVector<double, 3>& Spacing,
-						    const DenseVector<int_max, 3>& Size,
+						    const DenseVector<double, 2>& Spacing,
+						    const DenseVector<int_max, 2>& Size,
 							const DenseMatrix<double>& Orientation);
 
-	// Number of Pixel in x/y/z direction
+	// Number of Pixel in x/y direction
 	// Origin of output image = Origin of input image
 	// Spacing of output image may not be equal to Spacing of input image
-	void SetOutputImageInfoBySize(const DenseVector<int_max, 3>& Size);
-	void SetOutputImageInfoBySize(int_max Lx, int_max Ly, int_max Lz);
+	void SetOutputImageInfoBySize(const DenseVector<int_max, 2>& Size);
+	void SetOutputImageInfoBySize(int_max Lx, int_max Ly);
 
 	// Origin of output image = Origin of input image
 	// Size of output image may not be equal to Size of input image
-	void SetOutputImageInfoBySpacing(const DenseVector<double, 3>& Spacing);
-	void SetOutputImageInfoBySpacing(double Spacing_x, double Spacing_y, double Spacing_z);
+	void SetOutputImageInfoBySpacing(const DenseVector<double, 2>& Spacing);
+	void SetOutputImageInfoBySpacing(double Spacing_x, double Spacing_y);
 
-	const ImageInfo3D& GetOutputImageInfo();
+	const ImageInfo2D& GetOutputImageInfo();
 
 	void EnableOutputImage(bool On_Off = true);
 	void EnableOutputPixelArray(bool On_Off = true);
@@ -117,13 +117,13 @@ public:
 
 	void SetPointListOf3DWorldPosition(const DenseMatrix<ScalarType>* ListOf3DWorldPosition);
 
-	void SetPointListOf3DPositionInInputImage(const DenseMatrix<ScalarType>* ListOf3DPosition);
+	void SetPointListOf2DPositionInInputImage(const DenseMatrix<ScalarType>* ListOf2DPosition);
 
-	void SetPointListOf3DIndexInInputImage(const DenseMatrix<int_max>* ListOf3DIndex);
+	void SetPointListOf2DIndexInInputImage(const DenseMatrix<int_max>* ListOf2DIndex);
 
-	void SetPointListOf3DPositionInOutputImage(const DenseMatrix<ScalarType>* ListOf3DPosition);
+	void SetPointListOf2DPositionInOutputImage(const DenseMatrix<ScalarType>* ListOf2DPosition);
 
-	void SetPointListOf3DIndexInOutputImage(const DenseMatrix<int_max>* ListOf3DIndex);
+	void SetPointListOf2DIndexInOutputImage(const DenseMatrix<int_max>* ListOf2DIndex);
 
 	void SetImageInterpolationOption(const ImageInterpolationOptionType& InputOption);
 
@@ -144,17 +144,17 @@ protected:
 
 	void Evaluate_in_a_thread_At3DWorldPosition(int_max PointIndex_start, int_max PointIndex_end, int_max ThreadIndex);
 
-	void Evaluate_in_a_thread_At3DPositionInInputImage(int_max PointIndex_start, int_max PointIndex_end, int_max ThreadIndex);
+	void Evaluate_in_a_thread_At2DPositionInInputImage(int_max PointIndex_start, int_max PointIndex_end, int_max ThreadIndex);
 
-	void Evaluate_in_a_thread_At3DPositionInOutputImage(int_max PointIndex_start, int_max PointIndex_end, int_max ThreadIndex);
+	void Evaluate_in_a_thread_At2DPositionInOutputImage(int_max PointIndex_start, int_max PointIndex_end, int_max ThreadIndex);
 
-	// Evaluate at Point (x, y, z) with PointIndex
+	// Evaluate at Point (x, y) with PointIndex
 	// PointIndex may be LinearIndex in m_OutputImage, or index in m_PointList_XXX
-	// PointIndex <=> (x,y,z) : from one we get the other, good for debug
+	// PointIndex <=> (x,y) : from one we get the other, good for debug
 	// 
 	inline virtual OutputPixelType EvaluateAt3DWorldPosition(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex) { return GetZeroPixel<OutputPixelType>(); }
-	inline virtual OutputPixelType EvaluateAt3DPositionInInputImage(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex) { return GetZeroPixel<OutputPixelType>(); }
-	inline virtual OutputPixelType EvaluateAt3DPositionInOutputImage(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex) { return GetZeroPixel<OutputPixelType>(); }
+	inline virtual OutputPixelType EvaluateAt2DPositionInInputImage(int_max PointIndex, ScalarType x0, ScalarType y0, int_max ThreadIndex) { return GetZeroPixel<OutputPixelType>(); }
+	inline virtual OutputPixelType EvaluateAt2DPositionInOutputImage(int_max PointIndex, ScalarType x0, ScalarType y0, int_max ThreadIndex) { return GetZeroPixel<OutputPixelType>(); }
 
 	// If we want to store pixel NOT in m_OutputPixelArray, but some other place (some data object in a derived class)
 	inline virtual void StoreOutputPixelToOtherPlace(OutputPixelType& OutputPixel, int_max PointIndex, int_max ThreadIndex) {}
@@ -165,21 +165,21 @@ protected:
 
 	void CompareOrientation_Input_Output();
 
-	void Update3DPositionTransform_Input_Output();
+	void Update2DPositionTransform_Input_Output();
 
 	//---------- Coordinate Transform between Input and Output --------------------------------//
 
-	DenseVector<ScalarType, 3> Transform3DPositionInInputImageTo3DPositionInOutputImage(const DenseVector<ScalarType, 3>& Position_in);
+	DenseVector<ScalarType, 3> Transform2DPositionInInputImageTo2DPositionInOutputImage(const DenseVector<ScalarType, 2>& Position_in);
 
-	DenseVector<ScalarType, 3> Transform3DPositionInOutputImageTo3DPositionInInputImage(const DenseVector<ScalarType, 3>& Position_out);
+	DenseVector<ScalarType, 3> Transform2DPositionInOutputImageTo2DPositionInInputImage(const DenseVector<ScalarType, 2>& Position_out);
 
 private:
-	ImageFilter3D(const ImageFilter3D&) = delete;
-	void operator=(const ImageFilter3D&) = delete;
+	ImageFilter2D(const ImageFilter2D&) = delete;
+	void operator=(const ImageFilter2D&) = delete;
 };
 
 }// namespace mdk
 
-#include "mdkImageFilter3D.hpp"
+#include "mdkImageFilter2D.hpp"
 
 #endif

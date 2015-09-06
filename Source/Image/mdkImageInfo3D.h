@@ -1,6 +1,8 @@
 ﻿#ifndef mdk_ImageInfo3D_h
 #define mdk_ImageInfo3D_h
 
+#include "mdkZeroPixel.h"
+
 namespace mdk
 {
 struct BoxRegionOf3DIndexInImage3D
@@ -131,10 +133,11 @@ struct ImageInfo3D
 	// Column-2: DirectionZ
 
 	DenseMatrix<double> TransformMatrix_3DIndexTo3DWorld;
-	DenseMatrix<double> TransformMatrix_3DWorldTo3DIndex;
 	// column-0: DirectionX * SpacingX
 	// column-1: DirectionY * SpacingY
 	// Column-2: DirectionZ * SpacingZ
+
+	DenseMatrix<double> TransformMatrix_3DWorldTo3DIndex;
 
 //-------------------------------------------
 	ImageInfo3D() { this->Clear(); }
@@ -200,7 +203,13 @@ struct ImageInfo3D
 		TransformMatrix_3DIndexTo3DWorld.SetCol(1, { Spacing[1] * R[3], Spacing[1] * R[4], Spacing[1] * R[5] });
 		TransformMatrix_3DIndexTo3DWorld.SetCol(2, { Spacing[2] * R[6], Spacing[2] * R[7], Spacing[2] * R[8] });
 		// inverse transform
-		TransformMatrix_3DWorldTo3DIndex = TransformMatrix_3DIndexTo3DWorld.Inv();
+		//TransformMatrix_3DWorldTo3DIndex = TransformMatrix_3DIndexTo3DWorld.Inv();
+		double S0 = 1.0 / Spacing[0];
+		double S1 = 1.0 / Spacing[1];
+		double S2 = 1.0 / Spacing[2];
+		TransformMatrix_3DWorldTo3DIndex.SetCol(0, { S0*R[0], S1*R[3], S2*R[6] });
+		TransformMatrix_3DWorldTo3DIndex.SetCol(1, { S0*R[1], S1*R[4], S2*R[7] });
+		TransformMatrix_3DWorldTo3DIndex.SetCol(2, { S0*R[2], S1*R[5], S2*R[8] });
 	}
 };
 
@@ -284,43 +293,6 @@ inline DenseVector<ScalarType, 3> ImageCoordinateTransform_3DWorldPositionTo3DPo
 
 template<typename ScalarType>
 inline DenseVector<ScalarType, 3> ImageCoordinateTransform_3DWorldPositionTo3DPosition(ScalarType x, ScalarType y, ScalarType z, const ImageInfo3D& Info);
-
-//---------------------- Get zero pixel ---------------------------------//
-template<typename PixelType>
-inline PixelType  GetZeroPixel() { return PixelType(0); }
-//specialization
-template<>
-inline double  GetZeroPixel() { return 0; }
-
-template<>
-inline float   GetZeroPixel() { return 0; }
-
-template<>
-inline int8    GetZeroPixel() { return 0; }
-
-template<>
-inline int16   GetZeroPixel() { return 0; }
-
-template<>
-inline int32   GetZeroPixel() { return 0; }
-
-template<>
-inline int64   GetZeroPixel() { return 0; }
-
-template<>
-inline uint8   GetZeroPixel() { return 0; }
-
-template<>
-inline uint16  GetZeroPixel() { return 0; }
-
-template<>
-inline uint32  GetZeroPixel() { return 0; }
-
-template<>
-inline uint64  GetZeroPixel() { return 0; }
-
-template<typename ScalarType, int_max Length>
-inline DenseVector<ScalarType, Length>  GetZeroPixel() { DenseVector<ScalarType, Length> ZeroPixel = 0; return ZeroPixel; }
 
 }//namespace mdk
 

@@ -95,8 +95,8 @@ ScalarType ComputeAngleBetweenTwoVectorIn3D(const ScalarType* VectorA, const Sca
 template<typename ScalarType>
 inline
 DenseVector<ScalarType, 3> ComputeTriangleNormalIn3D(const DenseMatrix<ScalarType>& PointPositionA, 
-                                                      const DenseMatrix<ScalarType>& PointPositionB, 
-                                                      const DenseMatrix<ScalarType>& PointPositionC)
+                                                     const DenseMatrix<ScalarType>& PointPositionB, 
+                                                     const DenseMatrix<ScalarType>& PointPositionC)
 {
     DenseVector<ScalarType, 3> Normal;
 
@@ -156,8 +156,8 @@ DenseVector<ScalarType, 3> ComputeTriangleNormalIn3D(const ScalarType* PointPosi
 template<typename ScalarType>
 inline
 ScalarType ComputeTriangleAreaIn3D(const DenseMatrix<ScalarType>& PointPositionA,
-                                    const DenseMatrix<ScalarType>& PointPositionB,
-                                    const DenseMatrix<ScalarType>& PointPositionC)
+                                   const DenseMatrix<ScalarType>& PointPositionB,
+                                   const DenseMatrix<ScalarType>& PointPositionC)
 {
     if (PointPositionA.GetElementNumber() != 3 || PointPositionB.GetElementNumber() != 3 || PointPositionC.GetElementNumber() != 3)
     {

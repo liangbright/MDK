@@ -15,7 +15,7 @@ template<typename ElementType>
 class SparseMatrix;
 
 template<typename PixelType>
-class Image2D;
+class DenseImage2D;
 
 template<typename PixelType>
 class DenseImage3D;
@@ -29,7 +29,7 @@ class PolygonMesh;
 
 
 //-------------------------------------- convert mdk image to itk image--------------------------------------------------------------------//
-
+//----------3D----------------
 //copy or share data
 template<typename PixelType>
 itk::SmartPointer<itk::ImportImageFilter<PixelType, 3>> ConvertMDK3DScalarImageByITKImportImageFilter(const DenseImage3D<PixelType>& MDKImage, bool SharePixelData);
@@ -39,17 +39,28 @@ template<typename PixelType>
 itk::SmartPointer<itk::Image<PixelType, 3>> ConvertMDK3DScalarImageToITK3DScalarImage(const DenseImage3D<PixelType>& MDKImage);
 
 template<typename PixelType>
-bool ConvertMDK3DScalarImageToITK3DScalarImage(const DenseImage3D<PixelType>& MDKImage, itk::Image<PixelType, 3>& ITKImage);
-
-template<typename PixelType>
 bool ConvertMDK3DScalarImageToITK3DScalarImage(const DenseImage3D<PixelType>& MDKImage, itk::Image<PixelType, 3>* ITKImage);
 
-//-------------------------------------- convert itk image to mdk image (copy data) ------------------------------------------------------------//
+//----------2D to 3D ----------------
+//copy or share data
 template<typename PixelType>
-bool ConvertITK3DScalarImageToMDK3DScalarImage(const itk::Image<PixelType, 3>& ITKImage, DenseImage3D<PixelType>& MDKImage);
+itk::SmartPointer<itk::ImportImageFilter<PixelType, 3>> ConvertMDK2DScalarImageByITKImportImageFilter(const DenseImage2D<PixelType>& MDKImage, bool SharePixelData);
+
+//copy data
+template<typename PixelType>
+itk::SmartPointer<itk::Image<PixelType, 3>> ConvertMDK2DScalarImageToITK2DScalarImage(const DenseImage2D<PixelType>& MDKImage);
 
 template<typename PixelType>
+bool ConvertMDK2DScalarImageToITK3DScalarImage(const DenseImage2D<PixelType>& MDKImage, itk::Image<PixelType, 3>* ITKImage);
+
+//-------------------------------------- convert itk image to mdk image (copy data) ------------------------------------------------------------//
+//----------3D----------------
+template<typename PixelType>
 bool ConvertITK3DScalarImageToMDK3DScalarImage(const itk::Image<PixelType, 3>* ITKImage, DenseImage3D<PixelType>& MDKImage);
+
+//----------3D to 2D ----------------
+template<typename PixelType>
+bool ConvertITK3DScalarImageSliceToMDK2DScalarImage(const itk::Image<PixelType, 2>* ITKImage, DenseImage3D<PixelType>& MDKImage);
 
 //--------------------------------------- convert mdk TriangleMesh to itk Mesh -----------------------------------------------//
 //template<typename ScalarType>

@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <cmath>
 
-#include "mdkObject.h"
+#include "mdkDenseImage2D.h"
 
 namespace mdk
 {
@@ -19,7 +19,6 @@ public:
 private:
 	const DenseImage2D<InputPixelType>* m_InputImage;
 	DenseImage2D<OutputPixelType> m_OutputImage;
-	int_max  m_MaxNumberOfThread;
 
 public:		
     IntegralImageBuilder2D();
@@ -27,7 +26,6 @@ public:
   
     void Clear();
 	void SetInputImage(const DenseImage2D<InputPixelType>* InputImage);
-	void SetMaxNumberOfThread(int_max Number);
 	bool Update();
 	DenseImage2D<InputPixelType>* GetOutputImage();
 

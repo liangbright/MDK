@@ -455,6 +455,19 @@ bool DenseImage3D<PixelType>::IsPureEmpty() const
 
 template<typename PixelType>
 inline
+bool DenseImage3D<PixelType>::IsPixelDataInInternalArray() const
+{
+	if (this->IsPureEmpty() == true)
+	{
+		return false;
+	}
+
+	return m_ImageData->m_PixelArray.IsDataInInternalArray();
+}
+
+
+template<typename PixelType>
+inline
 PixelType* DenseImage3D<PixelType>::GetPixelPointer()
 {
 	if (m_ImageData)
@@ -575,24 +588,36 @@ template<typename PixelType>
 inline 
 ImageInfo3D DenseImage3D<PixelType>::GetInfo() const
 {
+	ImageInfo3D Info;
 	if (this->IsPureEmpty() == false)
 	{
-		return m_ImageData->m_Info;
+		Info = m_ImageData->m_Info;
 	}
-
-	ImageInfo3D EmptyInfo;
-	return EmptyInfo;
+	return Info;
 }
 
 
 template<typename PixelType>
 inline
-void DenseImage3D<PixelType>::SetInfo(const ImageInfo3D& Info) const
+void DenseImage3D<PixelType>::SetInfo(const ImageInfo3D& Info, bool Flag_AllocateMemory)
 {
-	this->SetOrigin(Info.Origin);
-	this->SetSpacing(Info.Spacing);	
-	this->SetOrientation(Info.Orientation);
-	this->SetSize(Info.Size); // allocate memory
+	if (Flag_AllocateMemory == true)
+	{
+		this->SetSize(Info.Size); // allocate memory
+	}
+	if (this->IsPureEmpty() == true)
+	{
+		this->SetSize(0, 0, 0);
+	}
+	m_ImageData->m_Info = Info;
+}
+
+
+template<typename PixelType>
+inline
+void DenseImage3D<PixelType>::AllocateMemory()
+{
+	this->SetSize(this->GetSize());
 }
 
 
@@ -607,7 +632,9 @@ DenseVector<int_max, 3> DenseImage3D<PixelType>::GetSize() const
 	else
 	{
 		DenseVector<int_max, 3> EmptySize;
-		EmptySize.Fill(0);
+		EmptySize[0] = 0;
+		EmptySize[1] = 0;
+		EmptySize[2] = 0;
 		return EmptySize;
 	}
 }
@@ -887,20 +914,20 @@ template<typename PixelType>
 inline
 DenseVector<double, 3> DenseImage3D<PixelType>::GetPhysicalSize() const
 {
-	DenseVector<double, 3> Size;
+	DenseVector<double, 3> PhysicalSize;
 	if (this->IsPureEmpty() == false)
 	{
-		Size[0] = double(m_ImageData->m_Info.Size[0]) * m_ImageData->m_Info.Spacing[0];
-		Size[1] = double(m_ImageData->m_Info.Size[1]) * m_ImageData->m_Info.Spacing[1];
-		Size[2] = double(m_ImageData->m_Info.Size[2]) * m_ImageData->m_Info.Spacing[2];
+		PhysicalSize[0] = double(m_ImageData->m_Info.Size[0]) * m_ImageData->m_Info.Spacing[0];
+		PhysicalSize[1] = double(m_ImageData->m_Info.Size[1]) * m_ImageData->m_Info.Spacing[1];
+		PhysicalSize[2] = double(m_ImageData->m_Info.Size[2]) * m_ImageData->m_Info.Spacing[2];
 	}
 	else
 	{
-		Size[0] = 0;
-		Size[1] = 0;
-		Size[2] = 0;
+		PhysicalSize[0] = 0;
+		PhysicalSize[1] = 0;
+		PhysicalSize[2] = 0;
 	}
-    return Size;
+	return PhysicalSize;
 }
 
 

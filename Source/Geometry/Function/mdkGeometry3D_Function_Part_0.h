@@ -37,32 +37,32 @@ ScalarType ComputeAngleBetweenTwoVectorIn3D(const ScalarType* VectorA, const Sca
 template<typename ScalarType>
 inline
 DenseVector<ScalarType, 3> ComputeTriangleNormalIn3D(const DenseMatrix<ScalarType>& PointPositionA,
-                                                      const DenseMatrix<ScalarType>& PointPositionB, 
-                                                      const DenseMatrix<ScalarType>& PointPositionC);
+                                                     const DenseMatrix<ScalarType>& PointPositionB, 
+                                                     const DenseMatrix<ScalarType>& PointPositionC);
 
 template<typename ScalarType>
 inline
 DenseVector<ScalarType, 3> ComputeTriangleNormalIn3D(const DenseVector<ScalarType, 3>& PointPositionA,
-                                                      const DenseVector<ScalarType, 3>& PointPositionB, 
-                                                      const DenseVector<ScalarType, 3>& PointPositionC);
+                                                     const DenseVector<ScalarType, 3>& PointPositionB, 
+                                                     const DenseVector<ScalarType, 3>& PointPositionC);
 
 template<typename ScalarType>
 inline
 DenseVector<ScalarType, 3> ComputeTriangleNormalIn3D(const ScalarType* PointPositionA,
-                                                      const ScalarType* PointPositionB, 
-                                                      const ScalarType* PointPositionC);
+                                                     const ScalarType* PointPositionB, 
+                                                     const ScalarType* PointPositionC);
 
 template<typename ScalarType>
 inline
 ScalarType ComputeTriangleAreaIn3D(const DenseMatrix<ScalarType>& PointPositionA,
-                                    const DenseMatrix<ScalarType>& PointPositionB,
-                                    const DenseMatrix<ScalarType>& PointPositionC);
+                                   const DenseMatrix<ScalarType>& PointPositionB,
+                                   const DenseMatrix<ScalarType>& PointPositionC);
 
 template<typename ScalarType>
 inline
 ScalarType ComputeTriangleAreaIn3D(const DenseVector<ScalarType, 3>& PointPositionA,
-                                    const DenseVector<ScalarType, 3>& PointPositionB,
-                                    const DenseVector<ScalarType, 3>& PointPositionC);
+                                   const DenseVector<ScalarType, 3>& PointPositionB,
+                                   const DenseVector<ScalarType, 3>& PointPositionC);
 
 template<typename ScalarType>
 inline

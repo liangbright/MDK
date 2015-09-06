@@ -12,7 +12,6 @@
 
 // must be the last to include
 #include "mdkImageInfo3D.h" 
-#include "mdkLocalCoordinateSystem3D.h"
 
 namespace mdk
 {
@@ -192,19 +191,23 @@ public:
 
 	inline bool IsPureEmpty() const;
 
+	inline bool IsPixelDataInInternalArray() const;
+
     //--------------------------- Get/Set Info and Data ------------------------------//
 
 	inline ImageInfo3D GetInfo() const;
 
-	inline void SetInfo(const ImageInfo3D& Info) const;
+	inline void SetInfo(const ImageInfo3D& Info, bool Flag_AllocateMemory = true);
+
+	inline void AllocateMemory(); // the same as SetSize(this->GetSize());
 
 	inline DenseVector<int_max, 3> GetSize() const;
 
     inline void GetSize(int_max& Lx, int_max& Ly, int_max& Lz) const;
 
-	inline void SetSize(const DenseVector<int_max, 3>& Size);
+	inline void SetSize(const DenseVector<int_max, 3>& Size);// Memory is allocated inside the function
 
-	inline void SetSize(int_max Lx, int_max Ly, int_max Lz);
+	inline void SetSize(int_max Lx, int_max Ly, int_max Lz);// Memory is allocated inside the function
 
 	inline DenseVector<double, 3> GetSpacing() const;
 

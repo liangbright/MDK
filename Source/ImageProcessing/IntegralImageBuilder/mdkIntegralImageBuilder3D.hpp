@@ -146,13 +146,13 @@ ComputeSumInDirectionZ(int_max xy_LinearIndex_start, int_max xy_LinearIndex_end)
         int_max y = k / InputSize[0];
         int_max x = k % InputSize[0];
 
-		auto tempOutoutPixel = OutputPixelType(0);
+		auto tempOutputPixel = OutputPixelType(0);
 
         for (int_max z = 0; z < InputSize[2]; ++z)
         {
-            tempOutoutPixel += m_OutputImage(x, y, z);
+			tempOutputPixel += m_OutputImage(x, y, z);
 
-			m_OutputImage(x, y, z) = tempOutoutPixel;
+			m_OutputImage(x, y, z) = tempOutputPixel;
         }                
     }
 }

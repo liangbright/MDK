@@ -58,7 +58,7 @@ OutputPixelType InterpolateImageAt3DIndex_Nearest(const DenseImage3D<InputPixelT
                                                   ScalarType x, ScalarType y, ScalarType z, 
 												  const Option_Of_Image3DInterpolation<InputPixelType>& Option,
 												  bool EnableBoundCheck)
-{// no input check
+{
     auto Size = InputImage.GetSize();
 
 	auto x0 = int_max(std::round(x));
@@ -238,16 +238,16 @@ OutputPixelType InterpolateImageAt3DIndex_Linear(const DenseImage3D<InputPixelTy
 	return OutputPixelType(c);
 }
 
-
+/*
 template<typename OutputPixelType, typename InputPixelType, typename ScalarType>
 inline
 OutputPixelType InterpolateImageAt3DIndex_Cubic(const DenseImage3D<InputPixelType>& InputImage,
                                                 ScalarType x, ScalarType y, ScalarType z, 
 												const Option_Of_Image3DInterpolation<InputPixelType>& Option)
 {   
-	MDK_Error("Not implemented yet @ InterpolateImageAt3DIndex_Cubic")
-	return GetZeroPixel<OutputPixelType>();
+
 }
+*/
 
 }// namespace mdk
 
