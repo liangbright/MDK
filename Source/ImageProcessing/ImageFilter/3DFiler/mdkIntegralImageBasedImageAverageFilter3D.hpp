@@ -129,11 +129,11 @@ EvaluateAt3DPositionInInputImage(int_max PointIndex, ScalarType x0, ScalarType y
 	auto Size = m_IntegralImage->GetSize();
 	//---------------------------------------------------------
 	// x1 <= x <= x2, y1 <= y <= y2, z1 <= z <= z2
-	auto x1 = int_max(std::round(Index3D[0] - m_Radius_Index3D[0]));
+	auto x1 = int_max(std::round(Index3D[0] - m_Radius_Index3D[0]-1));
 	auto x2 = int_max(std::round(Index3D[0] + m_Radius_Index3D[0]));
-	auto y1 = int_max(std::round(Index3D[1] - m_Radius_Index3D[1]));
+	auto y1 = int_max(std::round(Index3D[1] - m_Radius_Index3D[1]-1));
 	auto y2 = int_max(std::round(Index3D[1] + m_Radius_Index3D[1]));
-	auto z1 = int_max(std::round(Index3D[2] - m_Radius_Index3D[2]));
+	auto z1 = int_max(std::round(Index3D[2] - m_Radius_Index3D[2]-1));
 	auto z2 = int_max(std::round(Index3D[2] + m_Radius_Index3D[2]));
 	// average window is outside the image
 	if (x1 >= Size[0] || x2 < 0 || y1 >= Size[1] || y2 < 0 || z1 >= Size[2] || z2 < 0)

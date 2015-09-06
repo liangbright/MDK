@@ -17,7 +17,7 @@
 namespace mdk
 {
 //-------------------------------------------------------------------------------------------------------//
-// 2D DenseImage Class
+// 2D DenseImage Class:  2D Image on a Flat Plane in 3D Space
 // Pixel is Scalar or vector
 // Lx: number of Pixel in x-direction
 // Ly: number of Pixel in y-direction

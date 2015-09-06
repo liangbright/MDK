@@ -25,7 +25,7 @@ EvaluateAt3DPositionInInputImage(int_max PointIndex, ScalarType x0, ScalarType y
 	auto PixelSet = this->GetInputImagePixelByMask_At3DPosition<OutputPixelType>(x0, y0, z0);
 
 	OutputPixelType MinPixel = PixelSet[0];
-	for (int_max k = 1; k < PixelSet.GetElementNumber(); ++k)
+	for (int_max k = 1; k < PixelSet.GetElementCount(); ++k)
 	{
 		if (MinPixel > PixelSet[k])
 		{

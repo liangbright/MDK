@@ -9,7 +9,7 @@
 namespace mdk
 {
 
-template<typename InputPixel_Type, typename OutputPixel_Type>
+template<typename InputPixel_Type, typename OutputPixel_Type = InputPixel_Type>
 class IntegralImageBuilder2D : public Object
 {
 public:

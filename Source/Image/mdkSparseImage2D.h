@@ -9,7 +9,7 @@
 #include "mdkDebugConfig.h"
 #include "mdkDenseMatrix.h"
 #include "mdkImageInterpolation2D.h"
-#include "mdkImageInfo.h" // must be the last to include
+#include "mdkImageInfo2D.h" // must be the last to include
 
 namespace mdk
 {
@@ -142,7 +142,7 @@ public:
 
     //--------------------------- Get/Set Info and Data ------------------------------//
 
-	inline Image2DInfo GetInfo() const;
+	inline ImageInfo2D GetInfo() const;
 
 	inline DenseVector<int_max, 2> GetSize() const;
 

@@ -21,8 +21,8 @@ public:
 	typedef Scalar_Type      ScalarType;
 
 private:
-	const DenseImage3D<OutputPixelType>* m_IntegralImage;
-	DenseImage3D<OutputPixelType> m_IntegralImage_Internal;
+	const DenseImage2D<OutputPixelType>* m_IntegralImage;
+	DenseImage2D<OutputPixelType> m_IntegralImage_Internal;
 	DenseVector<double, 2> m_Radius;         // Physical radius
 	DenseVector<double, 2> m_Radius_Index2D; // Index radius in m_InputImage and m_IntegralImage
 

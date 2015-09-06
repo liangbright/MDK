@@ -25,7 +25,7 @@ void IntegralImageBuilder2D<InputPixelType, OutputPixelType>::Clear()
 }
 
 template<typename InputPixelType, typename OutputPixelType>
-void IntegralImageBuilder2D<InputPixelType, OutputPixelType>::SetInputImage(const DenseImage2D<InputPixelType>* InputImage);
+void IntegralImageBuilder2D<InputPixelType, OutputPixelType>::SetInputImage(const DenseImage2D<InputPixelType>* InputImage)
 {
 	m_InputImage = InputImage;
 }
@@ -43,6 +43,31 @@ bool IntegralImageBuilder2D<InputPixelType, OutputPixelType>::CheckInput()
 	{
 		MDK_Error("m_InputImage is empty @ IntegralImageBuilder2D::CheckInput()")
 		return false;
+	}
+
+	bool Flag_Init_OutputImage = false;
+	if (m_OutputImage.IsEmpty() == true)
+	{
+		Flag_Init_OutputImage = true;
+	}
+	else
+	{
+		auto InputInfo = m_InputImage->GetInfo();
+		auto OutputInfo = m_OutputImage.GetInfo();
+		if (InputInfo.Size[0] != OutputInfo.Size[0] || InputInfo.Size[1] != OutputInfo.Size[1]
+			|| InputInfo.Spacing[0] != OutputInfo.Spacing[0] || InputInfo.Spacing[1] != OutputInfo.Spacing[1]
+			|| InputInfo.Origin[0] != OutputInfo.Origin[0] || InputInfo.Origin[1] != OutputInfo.Origin[1] || InputInfo.Origin[2] != OutputInfo.Origin[2])
+		{
+			Flag_Init_OutputImage = true;
+		}
+	}
+
+	if (Flag_Init_OutputImage == true)
+	{
+		m_OutputImage.SetOrigin(m_InputImage->GetOrigin());
+		m_OutputImage.SetSpacing(m_InputImage->GetSpacing());
+		m_OutputImage.SetOrientation(m_InputImage->GetOrientation());
+		m_OutputImage.SetSize(m_InputImage->GetSize());
 	}
 
     return true;
@@ -84,6 +109,13 @@ bool IntegralImageBuilder2D<InputPixelType, OutputPixelType>::Update()
 	}
 
     return true;
+}
+
+
+template<typename InputPixelType, typename OutputPixelType>
+DenseImage2D<InputPixelType>* IntegralImageBuilder2D<InputPixelType, OutputPixelType>::GetOutputImage()
+{
+	return &m_OutputImage;
 }
 
 }//end namespace mdk

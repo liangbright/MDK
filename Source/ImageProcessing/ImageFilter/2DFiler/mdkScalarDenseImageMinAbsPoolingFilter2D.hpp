@@ -1,28 +1,28 @@
-﻿#ifndef mdk_ScalarDenseImageMinAbsPoolingFilter3D_hpp
-#define mdk_ScalarDenseImageMinAbsPoolingFilter3D_hpp
+﻿#ifndef mdk_ScalarDenseImageMinAbsPoolingFilter2D_hpp
+#define mdk_ScalarDenseImageMinAbsPoolingFilter2D_hpp
 
 namespace mdk
 {
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-ScalarDenseImageMinAbsPoolingFilter3D<InputPixelType, OutputPixelType, ScalarType>::ScalarDenseImageMinAbsPoolingFilter3D()
+ScalarDenseImageMinAbsPoolingFilter2D<InputPixelType, OutputPixelType, ScalarType>::ScalarDenseImageMinAbsPoolingFilter2D()
 {
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-ScalarDenseImageMinAbsPoolingFilter3D<InputPixelType, OutputPixelType, ScalarType>::~ScalarDenseImageMinAbsPoolingFilter3D()
+ScalarDenseImageMinAbsPoolingFilter2D<InputPixelType, OutputPixelType, ScalarType>::~ScalarDenseImageMinAbsPoolingFilter2D()
 {
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 inline
-OutputPixelType ScalarDenseImageMinAbsPoolingFilter3D<InputPixelType, OutputPixelType, ScalarType>::
-EvaluateAt3DPositionInInputImage(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex)
+OutputPixelType ScalarDenseImageMinAbsPoolingFilter2D<InputPixelType, OutputPixelType, ScalarType>::
+EvaluateAt2DPositionInInputImage(int_max PointIndex, ScalarType x0, ScalarType y0, int_max ThreadIndex)
 {
 	//DataArray<OutputPixelType> PixelSet;
-	auto PixelSet = this->GetInputImagePixelByMask_At3DPosition<OutputPixelType>(x0, y0, z0);
+	auto PixelSet = this->GetInputImagePixelByMask_At2DPosition<OutputPixelType>(x0, y0);
 
 	OutputPixelType MinPixel_P = 0;
 	OutputPixelType MinPixel_N = 0;

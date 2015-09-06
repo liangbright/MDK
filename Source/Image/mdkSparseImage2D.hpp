@@ -340,9 +340,9 @@ bool SparseImage2D<PixelType>::IsEmpty() const
 
 template<typename PixelType>
 inline
-Image2DInfo SparseImage2D<PixelType>::GetInfo() const
+ImageInfo2D SparseImage2D<PixelType>::GetInfo() const
 {
-	Image2DInfo Info;
+	ImageInfo2D Info;
 	Info.Origin = this->GetOrigin();
 	Info.Spacing = this->GetSpacing();
 	Info.Size = this->GetSize();

@@ -632,7 +632,7 @@ Evaluate_in_a_thread_At3DWorldPosition(int_max PointIndex_start, int_max PointIn
 					auto yIndex_out = int_max(std::round(Index2D_out[1]));
 					if (m_OutputImage.CheckIf2DIndexIsInsideImage(xIndex_out, yIndex_out) == true)
 					{
-						m_OutputImage(xIndex_out, yIndex_out, zIndex_out) = OutputPixel;
+						m_OutputImage(xIndex_out, yIndex_out) = OutputPixel;
 					}
 				}
 				if (m_Flag_EnableOutputPixelArray == true)
@@ -1033,10 +1033,10 @@ void ImageFilter2D<InputImageType, OutputImageType, ScalarType>::Update2DPositio
 
 
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
-DenseVector<ScalarType, 3> ImageFilter2D<InputImageType, OutputImageType, ScalarType>::
-Transform2DPositionInInputImageTo2DPositionInOutputImage(const DenseVector<ScalarType, 3>& Position_in)
+DenseVector<ScalarType, 2> ImageFilter2D<InputImageType, OutputImageType, ScalarType>::
+Transform2DPositionInInputImageTo2DPositionInOutputImage(const DenseVector<ScalarType, 2>& Position_in)
 {
-	DenseVector<ScalarType, 3> Position_out;
+	DenseVector<ScalarType, 2> Position_out;
 	if (m_Flag_Input_Output_SameOrientation == true)
 	{
 		Position_out[0] = m_InputImageInfo.Origin[0] - m_OutputImageInfo.Origin[0] + Position_in[0];
@@ -1045,8 +1045,10 @@ Transform2DPositionInInputImageTo2DPositionInOutputImage(const DenseVector<Scala
 	else
 	{
 		auto M = m_2DPositionTransformFromInputToOutput_Matrix.GetElementPointer();		
-		Position_out[0] = M[0] * Position_in[0] + M[3] * Position_in[1] + M[6] * Position_in[2] + m_2DPositionTransformFromInputToOutput_Offset[0];
-		Position_out[1] = M[1] * Position_in[0] + M[4] * Position_in[1] + M[7] * Position_in[2] + m_2DPositionTransformFromInputToOutput_Offset[1];
+		Position_out[0] = M[0] * Position_in[0] + M[3] * Position_in[1] + m_2DPositionTransformFromInputToOutput_Offset[0];
+		Position_out[1] = M[1] * Position_in[0] + M[4] * Position_in[1] + m_2DPositionTransformFromInputToOutput_Offset[1];
+		//Position_out[0] = M[0] * Position_in[0] + M[3] * Position_in[1] + M[6] * Position_in[2] + m_2DPositionTransformFromInputToOutput_Offset[0];
+		//Position_out[1] = M[1] * Position_in[0] + M[4] * Position_in[1] + M[7] * Position_in[2] + m_2DPositionTransformFromInputToOutput_Offset[1];
 		//Position_out[2] = M[2] * Position_in[0] + M[5] * Position_in[1] + M[8] * Position_in[2] + m_2DPositionTransformFromInputToOutput_Offset[2];		
 	}
 	return Position_out;
@@ -1054,10 +1056,10 @@ Transform2DPositionInInputImageTo2DPositionInOutputImage(const DenseVector<Scala
 
 
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
-DenseVector<ScalarType, 3> ImageFilter2D<InputImageType, OutputImageType, ScalarType>::
-Transform2DPositionInOutputImageTo2DPositionInInputImage(const DenseVector<ScalarType, 3>& Position_out)
+DenseVector<ScalarType, 2> ImageFilter2D<InputImageType, OutputImageType, ScalarType>::
+Transform2DPositionInOutputImageTo2DPositionInInputImage(const DenseVector<ScalarType, 2>& Position_out)
 {
-	DenseVector<ScalarType, 3> Position_in;
+	DenseVector<ScalarType, 2> Position_in;
 	if (m_Flag_Input_Output_SameOrientation == true)
 	{
 		Position_in[0] = m_OutputImageInfo.Origin[0] - m_InputImageInfo.Origin[0] + Position_out[0];
@@ -1066,8 +1068,10 @@ Transform2DPositionInOutputImageTo2DPositionInInputImage(const DenseVector<Scala
 	else
 	{
 		auto M = m_2DPositionTransformFromOuputToInput_Matrix.GetElementPointer();		
-		Position_in[0] = M[0] * Position_out[0] + M[3] * Position_out[1] + M[6] * Position_out[2] + m_2DPositionTransformFromOuputToInput_Offset[0];
-		Position_in[1] = M[1] * Position_out[0] + M[4] * Position_out[1] + M[7] * Position_out[2] + m_2DPositionTransformFromOuputToInput_Offset[1];
+		Position_in[0] = M[0] * Position_out[0] + M[3] * Position_out[1] + m_2DPositionTransformFromOuputToInput_Offset[0];
+		Position_in[1] = M[1] * Position_out[0] + M[4] * Position_out[1] + m_2DPositionTransformFromOuputToInput_Offset[1];
+		//Position_in[0] = M[0] * Position_out[0] + M[3] * Position_out[1] + M[6] * Position_out[2] + m_2DPositionTransformFromOuputToInput_Offset[0];
+		//Position_in[1] = M[1] * Position_out[0] + M[4] * Position_out[1] + M[7] * Position_out[2] + m_2DPositionTransformFromOuputToInput_Offset[1];
 		//Position_in[2] = M[2] * Position_out[0] + M[5] * Position_out[1] + M[8] * Position_out[2] + m_2DPositionTransformFromOuputToInput_Offset[2];		
 	}
 	return Position_in;

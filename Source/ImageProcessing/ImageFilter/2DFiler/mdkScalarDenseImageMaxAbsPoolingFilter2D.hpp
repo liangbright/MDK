@@ -1,28 +1,28 @@
-﻿#ifndef mdk_ScalarDenseImageMaxAbsPoolingFilter3D_hpp
-#define mdk_ScalarDenseImageMaxAbsPoolingFilter3D_hpp
+﻿#ifndef mdk_ScalarDenseImageMaxAbsPoolingFilter2D_hpp
+#define mdk_ScalarDenseImageMaxAbsPoolingFilter2D_hpp
 
 namespace mdk
 {
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-ScalarDenseImageMaxAbsPoolingFilter3D<InputPixelType, OutputPixelType, ScalarType>::ScalarDenseImageMaxAbsPoolingFilter3D()
+ScalarDenseImageMaxAbsPoolingFilter2D<InputPixelType, OutputPixelType, ScalarType>::ScalarDenseImageMaxAbsPoolingFilter2D()
 {
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-ScalarDenseImageMaxAbsPoolingFilter3D<InputPixelType, OutputPixelType, ScalarType>::~ScalarDenseImageMaxAbsPoolingFilter3D()
+ScalarDenseImageMaxAbsPoolingFilter2D<InputPixelType, OutputPixelType, ScalarType>::~ScalarDenseImageMaxAbsPoolingFilter2D()
 {
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 inline
-OutputPixelType ScalarDenseImageMaxAbsPoolingFilter3D<InputPixelType, OutputPixelType, ScalarType>::
-EvaluateAt3DPositionInInputImage(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex)
+OutputPixelType ScalarDenseImageMaxAbsPoolingFilter2D<InputPixelType, OutputPixelType, ScalarType>::
+EvaluateAt2DPositionInInputImage(int_max PointIndex, ScalarType x0, ScalarType y0, int_max ThreadIndex)
 {
 	//DataArray<OutputPixelType> PixelSet;
-	auto PixelSet = this->GetInputImagePixelByMask_At3DPosition<OutputPixelType>(x0, y0, z0);
+	auto PixelSet = this->GetInputImagePixelByMask_At2DPosition<OutputPixelType>(x0, y0);
 
 	OutputPixelType MaxPixel_P = 0;
 	OutputPixelType MaxPixel_N = 0;

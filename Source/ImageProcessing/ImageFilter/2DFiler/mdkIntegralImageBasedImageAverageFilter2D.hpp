@@ -1,6 +1,6 @@
 ﻿#ifndef mdk_IntegralImageBasedImageAverageFilter2D_hpp
 #define mdk_IntegralImageBasedImageAverageFilter2D_hpp
-`
+
 namespace mdk
 {
 
@@ -109,7 +109,6 @@ bool IntegralImageBasedImageAverageFilter2D<InputPixelType, OutputPixelType, Sca
 	{
 		IntegralImageBuilder2D<double> ImBuilder;
 		ImBuilder.SetInputImage(m_InputImage);
-		ImBuilder.SetMaxThreadCount(m_MaxThreadCount);
 		ImBuilder.Update();
 		m_IntegralImage_Internal = std::move(*ImBuilder.GetOutputImage());
 	}

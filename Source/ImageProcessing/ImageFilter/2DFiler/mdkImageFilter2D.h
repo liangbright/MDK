@@ -169,9 +169,9 @@ protected:
 
 	//---------- Coordinate Transform between Input and Output --------------------------------//
 
-	DenseVector<ScalarType, 3> Transform2DPositionInInputImageTo2DPositionInOutputImage(const DenseVector<ScalarType, 2>& Position_in);
+	DenseVector<ScalarType, 2> Transform2DPositionInInputImageTo2DPositionInOutputImage(const DenseVector<ScalarType, 2>& Position_in);
 
-	DenseVector<ScalarType, 3> Transform2DPositionInOutputImageTo2DPositionInInputImage(const DenseVector<ScalarType, 2>& Position_out);
+	DenseVector<ScalarType, 2> Transform2DPositionInOutputImageTo2DPositionInInputImage(const DenseVector<ScalarType, 2>& Position_out);
 
 private:
 	ImageFilter2D(const ImageFilter2D&) = delete;

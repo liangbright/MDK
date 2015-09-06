@@ -161,50 +161,66 @@ OutputPixelType InterpolateImageAt3DIndex_Linear(const DenseImage3D<InputPixelTy
 		}
 		else if (Option.BoundaryOption == BoundaryOptionEnum_Of_Image3DInterpolation::Replicate)
 		{
-			bool Flag_Outside = false;
+			bool Flag_return = false;
 
 			if (x0 < 0)
 			{
 				x0 = 0;
-				Flag_Outside = true;
+				Flag_return = true;
 			}
 			else if (x0 >= Size[0] - 1) // on the edge or outside
 			{
 				x0 = Size[0] - 1;
-				Flag_Outside = true;
+				Flag_return = true;
 			}
 
 			if (y0 < 0)
 			{
 				y0 = 0;
-				Flag_Outside = true;
+				Flag_return = true;
 			}
 			else if (y0 >= Size[1] - 1)// on the edge or outside
 			{
 				y0 = Size[1] - 1;
-				Flag_Outside = true;
+				Flag_return = true;
 			}
 
 			if (z0 < 0)
 			{
 				z0 = 0;
-				Flag_Outside = true;
+				Flag_return = true;
 			}
 			else if (z0 >= Size[2] - 1)// on the edge or outside
 			{
 				z0 = Size[2] - 1;
-				Flag_Outside = true;
+				Flag_return = true;
 			}
 
-			if (Flag_Outside == true)
+			if (Flag_return == true)
 			{
 				return OutputPixelType(InputImage.GetPixelAt3DIndex(x0, y0, z0));
 			}
 		}
 	}
-	//---------------------------------------------
+	else // assume (x0, y0, z0) is in the image (may be on edge)
+	{//if on edge, then return
+		if (x0 == Size[0] - 1)
+		{
+			return OutputPixelType(InputImage.GetPixelAt2DIndex(x0, y0, z0));
+		}
 
-	// (x0, y0, z0) is now inside the image
+		if (y0 == Size[1] - 1)
+		{
+			return OutputPixelType(InputImage.GetPixelAt2DIndex(x0, y0, z0));
+		}
+
+		if (z0 == Size[2] - 1)
+		{
+			return OutputPixelType(InputImage.GetPixelAt2DIndex(x0, y0, z0));
+		}
+	}
+	//---------------------------------------------
+	// (x0, y0, z0) is now inside the image, NOT on edge
 
     int_max x1 = x0 + 1;
     int_max y1 = y0 + 1;
