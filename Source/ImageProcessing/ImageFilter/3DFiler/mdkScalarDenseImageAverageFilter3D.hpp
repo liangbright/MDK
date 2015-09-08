@@ -19,17 +19,17 @@ ScalarDenseImageAverageFilter3D<InputPixelType, OutputPixelType, ScalarType>::~S
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 OutputPixelType ScalarDenseImageAverageFilter3D<InputPixelType, OutputPixelType, ScalarType>::
-EvaluateAt3DPhysicalPosition(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex)
+EvaluateAt3DPositionInInputImage(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex)
 {
 	//DataArray<OutputPixelType> PixelSet;
-	auto PixelSet = this->GetInputImagePixelByPointMask_At3DPhysicalPosition<OutputPixelType>(x0, y0, z0);
+	auto PixelSet = this->GetInputImagePixelByMask_At3DPosition<OutputPixelType>(x0, y0, z0);
 
 	ScalarType AveragePixel = PixelSet[0];
-	for (int_max k = 1; k < PixelSet.GetElementNumber(); ++k)
+	for (int_max k = 1; k < PixelSet.GetElementCount(); ++k)
 	{
-			AveragePixel += PixelSet[k];
+	    AveragePixel += PixelSet[k];
 	}
-	AveragePixel /= ScalarType(PixelSet.GetElementNumber());
+	AveragePixel /= ScalarType(PixelSet.GetElementCount());
 
 	return OutputPixelType(AveragePixel);
 }

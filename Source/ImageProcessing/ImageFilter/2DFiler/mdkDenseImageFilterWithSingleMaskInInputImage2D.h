@@ -11,7 +11,7 @@ namespace mdk
 //Mask is defined in input image space
 
 template<typename InputPixel_Type, typename OutputPixel_Type, typename Scalar_Type = double>
-class DenseImageFilterWithSingleMaskInInputImage2D : public ImageFilter3D<DenseImage2D<InputPixel_Type>, DenseImage2D<OutputPixel_Type>, Scalar_Type>
+class DenseImageFilterWithSingleMaskInInputImage2D : public ImageFilter2D<DenseImage2D<InputPixel_Type>, DenseImage2D<OutputPixel_Type>, Scalar_Type>
 {
 public:
 	typedef InputPixel_Type  InputPixelType;
@@ -19,10 +19,9 @@ public:
 	typedef Scalar_Type      ScalarType;
 
 protected:
-	DenseMatrix<ScalarType> m_MaskOf3DPosition; // 3DPosition in InputImage
+	DenseMatrix<ScalarType> m_MaskOf2DPosition; // 2DPosition in InputImage
     // row_0: dx
     // row_1: dy
-    // row_2: dz
 
 	BoxRegionOf2DPositionInImage2D m_NOBoundCheckRegionOf2DPosition;
 

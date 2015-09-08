@@ -2,7 +2,8 @@
 
 int main()
 {
-	test_3D();
+	test_2D();
+	//test_3D();
 
     std::system("pause");
 }

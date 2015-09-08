@@ -24,7 +24,7 @@ public:
     ~ScalarDenseImageAverageFilter2D();
   
 private:
-	inline OutputPixelType EvaluateAt2DPhysicalPosition(int_max PointIndex, ScalarType x0, ScalarType y0, int_max ThreadIndex);
+	inline OutputPixelType EvaluateAt2DPositionInInputImage(int_max PointIndex, ScalarType x0, ScalarType y0, int_max ThreadIndex);
 
 private:
     ScalarDenseImageAverageFilter2D(const ScalarDenseImageAverageFilter2D&) = delete;

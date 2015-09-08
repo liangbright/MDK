@@ -24,7 +24,7 @@ public:
     ~ScalarDenseImageAverageFilter3D();
   
 private:
-	inline OutputPixelType EvaluateAt3DPhysicalPosition(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex);
+	inline OutputPixelType EvaluateAt3DPositionInInputImage(int_max PointIndex, ScalarType x0, ScalarType y0, ScalarType z0, int_max ThreadIndex);
 
 private:
     ScalarDenseImageAverageFilter3D(const ScalarDenseImageAverageFilter3D&) = delete;

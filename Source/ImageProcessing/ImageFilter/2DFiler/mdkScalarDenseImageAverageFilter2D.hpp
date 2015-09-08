@@ -19,17 +19,17 @@ ScalarDenseImageAverageFilter2D<InputPixelType, OutputPixelType, ScalarType>::~S
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 OutputPixelType ScalarDenseImageAverageFilter2D<InputPixelType, OutputPixelType, ScalarType>::
-EvaluateAt2DPhysicalPosition(int_max PointIndex, ScalarType x0, ScalarType y0, int_max ThreadIndex)
+EvaluateAt2DPositionInInputImage(int_max PointIndex, ScalarType x0, ScalarType y0, int_max ThreadIndex)
 {
 	//DataArray<OutputPixelType> PixelSet;
-	auto PixelSet = this->GetInputImagePixelByPointMask_At2DPhysicalPosition<OutputPixelType>(x0, y0);
+	auto PixelSet = this->GetInputImagePixelByMask_At2DPosition<OutputPixelType>(x0, y0);
 
 	ScalarType AveragePixel = PixelSet[0];
-	for (int_max k = 1; k < PixelSet.GetElementNumber(); ++k)
+	for (int_max k = 1; k < PixelSet.GetElementCount(); ++k)
 	{
-			AveragePixel += PixelSet[k];
+	    AveragePixel += PixelSet[k];
 	}
-	AveragePixel /= ScalarType(PixelSet.GetElementNumber());
+	AveragePixel /= ScalarType(PixelSet.GetElementCount());
 
 	return OutputPixelType(AveragePixel);
 }

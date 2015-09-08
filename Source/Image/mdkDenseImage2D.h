@@ -16,16 +16,16 @@
 
 namespace mdk
 {
-//-------------------------------------------------------------------------------------------------------//
-// 2D DenseImage Class:  2D Image on a Flat Plane in 3D Space
-// Pixel is Scalar or vector
-// Lx: number of Pixel in x-direction
-// Ly: number of Pixel in y-direction
-//------------------- coordinate system -----------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------------------//
+// 2D DenseImage Class:  2D Image on a Flat Plane in 3D Space, e.g., 2D slice of 3D image
+// Pixel is scalar or vector
+// Lx: number of Pixel in x-direction of image space
+// Ly: number of Pixel in y-direction of image space
+//------------------- coordinate system -------------------------------------------------------------------------------------------
 // 2DIndex:            Pixel index in image space, example:				   (0,0),                           (1,1)
 // 2DPosition:         Pixel Physical Position in image space			   (0,0),                           (spacing_x,spacing_y) 
 // 3DWorldPosition:    Pixel physical position in world coordinate system  (Origin[0],Origin[1],Origin[2]), (x,y,z)
-// --------------------------------------------------------------------------------------------------------//
+// --------------------------------------------------------------------------------------------------------------------------------//
 
 //-----------------------------------------------------
 #if defined MDK_DEBUG_MODE
