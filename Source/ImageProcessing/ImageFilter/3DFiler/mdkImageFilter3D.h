@@ -140,13 +140,10 @@ protected:
 	virtual bool Preprocess();
 	virtual bool Postprocess() { return true; }
 
-	inline virtual void Evaluate_in_a_thread(int_max PointIndex_start, int_max PointIndex_end, int_max ThreadIndex);
-
-	void Evaluate_in_a_thread_At3DWorldPosition(int_max PointIndex_start, int_max PointIndex_end, int_max ThreadIndex);
-
-	void Evaluate_in_a_thread_At3DPositionInInputImage(int_max PointIndex_start, int_max PointIndex_end, int_max ThreadIndex);
-
-	void Evaluate_in_a_thread_At3DPositionInOutputImage(int_max PointIndex_start, int_max PointIndex_end, int_max ThreadIndex);
+	virtual void Evaluate();
+	virtual void Evaluate_3DWorldPosition();
+	virtual void Evaluate_3DPositionInInputImage();
+	virtual void Evaluate_3DPositionInOutputImage();
 
 	// Evaluate at Point (x, y, z) with PointIndex
 	// PointIndex may be LinearIndex in m_OutputImage, or index in m_PointList_XXX

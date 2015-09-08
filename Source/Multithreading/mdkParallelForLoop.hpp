@@ -3,7 +3,7 @@
 
 namespace mdk
 {
-
+//------------------------------------------------- ParallelForLoop ----------------------------------------------------------------------------//
 template<typename FunctionType>
 inline
 void ParallelForLoop(FunctionType SingleFunction, const std::vector<int_max>& LoopIndexList, int_max MaxThreadCount, int_max MinDataCountPerThread)
@@ -46,6 +46,51 @@ void ParallelForLoop_Block_in_a_thread(FunctionType SingleFunction, int_max Loop
 	}
 }
 
+//------------------------------------------------- ParallelForLoop_WithThreadIndex ----------------------------------------------------------------------------//
+
+template<typename FunctionType>
+inline
+void ParallelForLoop_WithThreadIndex(FunctionType SingleFunction, const std::vector<int_max>& LoopIndexList, int_max MaxThreadCount, int_max MinDataCountPerThread)
+{
+	ParallelBlock([&](std::vector<int_max> SubLoopIndexList, int_max ThreadIndex)
+	              {ParallelForLoop_WithThreadIndex_Block_in_a_thread(SingleFunction, SubLoopIndexList, ThreadIndex); },
+	              LoopIndexList, MaxThreadCount, MinDataCountPerThread);
+}
+
+
+template<typename FunctionType>
+inline
+void ParallelForLoop_WithThreadIndex_Block_in_a_thread(FunctionType SingleFunction, std::vector<int_max> SubLoopIndexList, int_max ThreadIndex)
+{
+	for (int_max i = 0; i < int_max(SubLoopIndexList.size()); ++i)
+	{
+		SingleFunction(SubLoopIndexList[i], ThreadIndex);
+	}
+}
+
+// Attention : LoopIndex_start <= LoopIndex_end
+template<typename FunctionType>
+inline
+void ParallelForLoop_WithThreadIndex(FunctionType SingleFunction, int_max LoopIndex_start, int_max LoopIndex_end,
+int_max MaxThreadCount, int_max MinDataCountPerThread)
+{
+	ParallelBlock([&](int_max Index_start, int_max Index_end, int_max ThreadIndex)
+	              {ParallelForLoop_WithThreadIndex_Block_in_a_thread(SingleFunction, Index_start, Index_end, ThreadIndex); },
+	              LoopIndex_start, LoopIndex_end, MaxThreadCount, MinDataCountPerThread);
+}
+
+
+template<typename FunctionType>
+inline
+void ParallelForLoop_WithThreadIndex_Block_in_a_thread(FunctionType SingleFunction, int_max LoopIndex_start, int_max LoopIndex_end, int_max ThreadIndex)
+{
+	for (int_max i = LoopIndex_start; i <= LoopIndex_end; ++i)
+	{
+		SingleFunction(i, ThreadIndex);
+	}
+}
+
+//------------------------------------------------- ParallelBlock ----------------------------------------------------------------------------//
 
 template<typename FunctionType>
 inline

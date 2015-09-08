@@ -318,14 +318,11 @@ bool ImageFilter3D<InputImageType, OutputImageType, ScalarType>::Update()
 		return false;
 	}
 
-	// multi-thread -----------------------------------------------------------------
 	if (m_OutputPixelCount > 0)
 	{ 
-		ParallelBlock([&](int_max Index_start, int_max Index_end, int_max ThreadIndex)
-					  {this->Evaluate_in_a_thread(Index_start, Index_end, ThreadIndex); },
-					  0, m_OutputPixelCount - 1, m_MaxThreadCount, 1);
+		this->Evaluate();
 	}
-	//-------------------------------------------------------------------------------
+
 	if (this->Postprocess() == false)
 	{
 		return false;
@@ -470,19 +467,18 @@ bool ImageFilter3D<InputImageType, OutputImageType, ScalarType>::Preprocess()
 
 
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
-void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
-Evaluate_in_a_thread(int_max PointIndex_start, int_max PointIndex_end, int_max ThreadIndex)
+void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::Evaluate()
 {
 	switch (m_CoordinateSystemForEvaluation)
 	{
 	case CoordinateSystemForEvaluation::WORLD:
-		Evaluate_in_a_thread_At3DWorldPosition(PointIndex_start, PointIndex_end, ThreadIndex);
+		this->Evaluate_3DWorldPosition();
 		break;
 	case CoordinateSystemForEvaluation::INPUT:
-		Evaluate_in_a_thread_At3DPositionInInputImage(PointIndex_start, PointIndex_end, ThreadIndex);
+		this->Evaluate_3DPositionInInputImage();
 		break;
 	case CoordinateSystemForEvaluation::OUTPUT:
-		Evaluate_in_a_thread_At3DPositionInOutputImage(PointIndex_start, PointIndex_end, ThreadIndex);
+		this->Evaluate_3DPositionInOutputImage();
 		break;
 	case CoordinateSystemForEvaluation::UNKNOWN:
 		MDK_Error("CoordinateSystemForEvaluation is UNKNOWN")
@@ -491,12 +487,12 @@ Evaluate_in_a_thread(int_max PointIndex_start, int_max PointIndex_end, int_max T
 
 
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
-void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
-Evaluate_in_a_thread_At3DWorldPosition(int_max PointIndex_start, int_max PointIndex_end, int_max ThreadIndex)
+void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::Evaluate_3DWorldPosition()
 {
 	if (m_Flag_ScanOutputImageGrid == true)
 	{
-		for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
+		//for (int_max k = 0; k < m_OutputPixelCount; ++k)
+		auto TempFunction = [&](int_max k, int_max ThreadIndex)
 		{
 			auto Index3D_out = ImageCoordinateTransform_LinearIndexTo3DIndex(k, m_OutputImageInfo);
 			auto Pos3D_world = m_OutputImage.Transform3DIndexTo3DWorldPosition(Index3D_out);
@@ -513,13 +509,15 @@ Evaluate_in_a_thread_At3DWorldPosition(int_max PointIndex_start, int_max PointIn
 			{
 				this->StoreOutputPixelToOtherPlace(OutputPixel, k, ThreadIndex);
 			}
-		}
+		};
+		ParallelForLoop_WithThreadIndex(TempFunction, 0, m_OutputPixelCount - 1, m_MaxThreadCount);
 	}
 	else
 	{
 		if (m_PointList_3DWorldPosition != nullptr)
 		{
-			for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
+			//for (int_max k = 0; k < m_OutputPixelCount; ++k)
+			auto TempFunction = [&](int_max k, int_max ThreadIndex)
 			{
 				DenseVector<ScalarType, 3> Pos3D_world;
 				m_PointList_3DWorldPosition->GetCol(k, Pos3D_world);
@@ -540,11 +538,13 @@ Evaluate_in_a_thread_At3DWorldPosition(int_max PointIndex_start, int_max PointIn
 				{
 					this->StoreOutputPixelToOtherPlace(OutputPixel, k, ThreadIndex);
 				}
-			}
+			};
+			ParallelForLoop_WithThreadIndex(TempFunction, 0, m_OutputPixelCount - 1, m_MaxThreadCount);
 		}
 		else if (m_PointList_3DPosition_InputImage != nullptr)
 		{
-			for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
+			//for (int_max k = 0; k < m_OutputPixelCount; ++k)
+			auto TempFunction = [&](int_max k, int_max ThreadIndex)
 			{
 				DenseVector<ScalarType, 3> Pos3D_in;
 				m_PointList_3DPosition_InputImage->GetCol(k, Pos3D_in);
@@ -567,11 +567,13 @@ Evaluate_in_a_thread_At3DWorldPosition(int_max PointIndex_start, int_max PointIn
 				{
 					this->StoreOutputPixelToOtherPlace(OutputPixel, k, ThreadIndex);
 				}
-			}
+			};
+			ParallelForLoop_WithThreadIndex(TempFunction, 0, m_OutputPixelCount - 1, m_MaxThreadCount);
 		}
 		else if (m_PointList_3DIndex_InputImage != nullptr)
 		{
-			for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
+			//for (int_max k = 0; k < m_OutputPixelCount; ++k)
+			auto TempFunction = [&](int_max k, int_max ThreadIndex)
 			{
 				DenseVector<int_max, 3> Index3D_in;
 				m_PointList_3DIndex_InputImage->GetCol(k, Index3D_in);
@@ -594,11 +596,13 @@ Evaluate_in_a_thread_At3DWorldPosition(int_max PointIndex_start, int_max PointIn
 				{
 					this->StoreOutputPixelToOtherPlace(OutputPixel, k, ThreadIndex);
 				}
-			}
+			};
+			ParallelForLoop_WithThreadIndex(TempFunction, 0, m_OutputPixelCount - 1, m_MaxThreadCount);
 		}
 		else if (m_PointList_3DPosition_OutputImage != nullptr)
 		{
-			for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
+			//for (int_max k = 0; k < m_OutputPixelCount; ++k)
+			auto TempFunction = [&](int_max k, int_max ThreadIndex)
 			{
 				DenseVector<ScalarType, 3> Pos3D_out;
 				m_PointList_3DPosition_OutputImage->GetCol(k, Pos3D_out);
@@ -620,11 +624,13 @@ Evaluate_in_a_thread_At3DWorldPosition(int_max PointIndex_start, int_max PointIn
 				{
 					this->StoreOutputPixelToOtherPlace(OutputPixel, k, ThreadIndex);
 				}
-			}
+			};
+			ParallelForLoop_WithThreadIndex(TempFunction, 0, m_OutputPixelCount - 1, m_MaxThreadCount);
 		}
 		else if (m_PointList_3DIndex_OutputImage != nullptr)
 		{
-			for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
+			//for (int_max k = 0; k < m_OutputPixelCount; ++k)
+			auto TempFunction = [&](int_max k, int_max ThreadIndex)
 			{
 				DenseVector<int_max, 3> Index3D_out;
 				m_PointList_3DIndex_OutputImage->GetCol(k, Index3D_out);
@@ -648,19 +654,20 @@ Evaluate_in_a_thread_At3DWorldPosition(int_max PointIndex_start, int_max PointIn
 				{
 					this->StoreOutputPixelToOtherPlace(OutputPixel, k, ThreadIndex);
 				}
-			}
+			};
+			ParallelForLoop_WithThreadIndex(TempFunction, 0, m_OutputPixelCount - 1, m_MaxThreadCount);
 		}
 	}
 }
 
 
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
-void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
-Evaluate_in_a_thread_At3DPositionInInputImage(int_max PointIndex_start, int_max PointIndex_end, int_max ThreadIndex)
+void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::Evaluate_3DPositionInInputImage()
 {
 	if (m_Flag_ScanOutputImageGrid == true)
 	{
-		for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
+		//for (int_max k = 0; k < m_OutputPixelCount; ++k)
+		auto TempFunction = [&](int_max k, int_max ThreadIndex)
 		{
 			auto Index3D_out = ImageCoordinateTransform_LinearIndexTo3DIndex(k, m_OutputImageInfo);
 			auto Pos3D_out = m_OutputImage.Transform3DIndexTo3DPosition(Index3D_out);
@@ -678,13 +685,15 @@ Evaluate_in_a_thread_At3DPositionInInputImage(int_max PointIndex_start, int_max 
 			{
 				this->StoreOutputPixelToOtherPlace(OutputPixel, k, ThreadIndex);
 			}
-		}
+		};
+		ParallelForLoop_WithThreadIndex(TempFunction, 0, m_OutputPixelCount - 1, m_MaxThreadCount);
 	}
 	else
 	{
 		if (m_PointList_3DWorldPosition != nullptr)
 		{
-			for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
+			//for (int_max k = 0; k < m_OutputPixelCount; ++k)
+			auto TempFunction = [&](int_max k, int_max ThreadIndex)
 			{
 				DenseVector<ScalarType, 3> Pos3D_world;
 				m_PointList_3DWorldPosition->GetCol(k, Pos3D_world);
@@ -706,11 +715,13 @@ Evaluate_in_a_thread_At3DPositionInInputImage(int_max PointIndex_start, int_max 
 				{
 					this->StoreOutputPixelToOtherPlace(OutputPixel, k, ThreadIndex);
 				}
-			}
+			};
+			ParallelForLoop_WithThreadIndex(TempFunction, 0, m_OutputPixelCount - 1, m_MaxThreadCount);
 		}
 		else if (m_PointList_3DPosition_InputImage != nullptr)
 		{
-			for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
+			//for (int_max k = 0; k < m_OutputPixelCount; ++k)
+			auto TempFunction = [&](int_max k, int_max ThreadIndex)
 			{
 				DenseVector<ScalarType, 3> Pos3D_in;
 				m_PointList_3DPosition_InputImage->GetCol(k, Pos3D_in);
@@ -732,11 +743,13 @@ Evaluate_in_a_thread_At3DPositionInInputImage(int_max PointIndex_start, int_max 
 				{
 					this->StoreOutputPixelToOtherPlace(OutputPixel, k, ThreadIndex);
 				}
-			}
+			};
+			ParallelForLoop_WithThreadIndex(TempFunction, 0, m_OutputPixelCount - 1, m_MaxThreadCount);
 		}
 		else if (m_PointList_3DIndex_InputImage != nullptr)
 		{
-			for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
+			//for (int_max k = 0; k < m_OutputPixelCount; ++k)
+			auto TempFunction = [&](int_max k, int_max ThreadIndex)
 			{
 				DenseVector<int_max, 3> Index3D_in;
 				m_PointList_3DIndex_InputImage->GetCol(k, Index3D_in);
@@ -759,11 +772,13 @@ Evaluate_in_a_thread_At3DPositionInInputImage(int_max PointIndex_start, int_max 
 				{
 					this->StoreOutputPixelToOtherPlace(OutputPixel, k, ThreadIndex);
 				}
-			}
+			};
+			ParallelForLoop_WithThreadIndex(TempFunction, 0, m_OutputPixelCount - 1, m_MaxThreadCount);
 		}
 		else if (m_PointList_3DPosition_OutputImage != nullptr)
 		{
-			for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
+			//for (int_max k = 0; k < m_OutputPixelCount; ++k)
+			auto TempFunction = [&](int_max k, int_max ThreadIndex)
 			{
 				DenseVector<ScalarType, 3> Pos3D_out;
 				m_PointList_3DPosition_OutputImage->GetCol(k, Pos3D_out);
@@ -785,11 +800,13 @@ Evaluate_in_a_thread_At3DPositionInInputImage(int_max PointIndex_start, int_max 
 				{
 					this->StoreOutputPixelToOtherPlace(OutputPixel, k, ThreadIndex);
 				}
-			}
+			};
+			ParallelForLoop_WithThreadIndex(TempFunction, 0, m_OutputPixelCount - 1, m_MaxThreadCount);
 		}
 		else if (m_PointList_3DIndex_OutputImage != nullptr)
 		{
-			for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
+			//for (int_max k = 0; k < m_OutputPixelCount; ++k)
+			auto TempFunction = [&](int_max k, int_max ThreadIndex)
 			{
 				DenseVector<int_max, 3> Index3D_out;
 				m_PointList_3DIndex_OutputImage->GetCol(k, Index3D_out);
@@ -814,19 +831,20 @@ Evaluate_in_a_thread_At3DPositionInInputImage(int_max PointIndex_start, int_max 
 				{
 					this->StoreOutputPixelToOtherPlace(OutputPixel, k, ThreadIndex);
 				}
-			}
+			};
+			ParallelForLoop_WithThreadIndex(TempFunction, 0, m_OutputPixelCount - 1, m_MaxThreadCount);
 		}
 	}
 }
 
 
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
-void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::
-Evaluate_in_a_thread_At3DPositionInOutputImage(int_max PointIndex_start, int_max PointIndex_end, int_max ThreadIndex)
+void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::Evaluate_3DPositionInOutputImage()
 {
 	if (m_Flag_ScanOutputImageGrid == true)
 	{
-		for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
+		//for (int_max k = 0; k < m_OutputPixelCount; ++k)
+		auto TempFunction = [&](int_max k, int_max ThreadIndex)
 		{
 			auto Index3D_out = ImageCoordinateTransform_LinearIndexTo3DIndex(k, m_OutputImageInfo);
 			auto Pos3D_out = m_OutputImage.Transform3DIndexTo3DPosition(Index3D_out);
@@ -843,13 +861,15 @@ Evaluate_in_a_thread_At3DPositionInOutputImage(int_max PointIndex_start, int_max
 			{
 				this->StoreOutputPixelToOtherPlace(OutputPixel, k, ThreadIndex);
 			}
-		}
+		};
+		ParallelForLoop_WithThreadIndex(TempFunction, 0, m_OutputPixelCount - 1, m_MaxThreadCount);
 	}
 	else
 	{
 		if (m_PointList_3DWorldPosition != nullptr)
 		{
-			for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
+			//for (int_max k = 0; k < m_OutputPixelCount; ++k)
+			auto TempFunction = [&](int_max k, int_max ThreadIndex)
 			{
 				DenseVector<ScalarType, 3> Pos3D_world;
 				m_PointList_3DWorldPosition->GetCol(k, Pos3D_world);
@@ -871,11 +891,13 @@ Evaluate_in_a_thread_At3DPositionInOutputImage(int_max PointIndex_start, int_max
 				{
 					this->StoreOutputPixelToOtherPlace(OutputPixel, k, ThreadIndex);
 				}
-			}
+			};
+			ParallelForLoop_WithThreadIndex(TempFunction, 0, m_OutputPixelCount - 1, m_MaxThreadCount);
 		}
 		else if (m_PointList_3DPosition_InputImage != nullptr)
 		{
-			for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
+			//for (int_max k = 0; k < m_OutputPixelCount; ++k)
+			auto TempFunction = [&](int_max k, int_max ThreadIndex)
 			{
 				DenseVector<ScalarType, 3> Pos3D_in;
 				m_PointList_3DPosition_InputImage->GetCol(k, Pos3D_in);
@@ -897,11 +919,13 @@ Evaluate_in_a_thread_At3DPositionInOutputImage(int_max PointIndex_start, int_max
 				{
 					this->StoreOutputPixelToOtherPlace(OutputPixel, k, ThreadIndex);
 				}
-			}
+			};
+			ParallelForLoop_WithThreadIndex(TempFunction, 0, m_OutputPixelCount - 1, m_MaxThreadCount);
 		}
 		else if (m_PointList_3DIndex_InputImage != nullptr)
 		{
-			for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
+			//for (int_max k = 0; k < m_OutputPixelCount; ++k)
+			auto TempFunction = [&](int_max k, int_max ThreadIndex)
 			{
 				DenseVector<int_max, 3> Index3D_in;
 				m_PointList_3DIndex_InputImage->GetCol(k, Index3D_in);
@@ -924,11 +948,13 @@ Evaluate_in_a_thread_At3DPositionInOutputImage(int_max PointIndex_start, int_max
 				{
 					this->StoreOutputPixelToOtherPlace(OutputPixel, k, ThreadIndex);
 				}
-			}
+			};
+			ParallelForLoop_WithThreadIndex(TempFunction, 0, m_OutputPixelCount - 1, m_MaxThreadCount);
 		}
 		else if (m_PointList_3DPosition_OutputImage != nullptr)
 		{
-			for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
+			//for (int_max k = 0; k < m_OutputPixelCount; ++k)
+			auto TempFunction = [&](int_max k, int_max ThreadIndex)
 			{
 				DenseVector<ScalarType, 3> Pos3D_out;
 				m_PointList_3DPosition_OutputImage->GetCol(k, Pos3D_out);
@@ -949,11 +975,13 @@ Evaluate_in_a_thread_At3DPositionInOutputImage(int_max PointIndex_start, int_max
 				{
 					this->StoreOutputPixelToOtherPlace(OutputPixel, k, ThreadIndex);
 				}
-			}
+			};
+			ParallelForLoop_WithThreadIndex(TempFunction, 0, m_OutputPixelCount - 1, m_MaxThreadCount);
 		}
 		else if (m_PointList_3DIndex_OutputImage != nullptr)
 		{
-			for (int_max k = PointIndex_start; k <= PointIndex_end; ++k)
+			//for (int_max k = 0; k < m_OutputPixelCount; ++k)
+			auto TempFunction = [&](int_max k, int_max ThreadIndex)
 			{
 				DenseVector<int_max, 3> Index3D_out;
 				m_PointList_3DIndex_OutputImage->GetCol(k, Index3D_out);
@@ -977,7 +1005,8 @@ Evaluate_in_a_thread_At3DPositionInOutputImage(int_max PointIndex_start, int_max
 				{
 					this->StoreOutputPixelToOtherPlace(OutputPixel, k, ThreadIndex);
 				}
-			}
+			};
+			ParallelForLoop_WithThreadIndex(TempFunction, 0, m_OutputPixelCount - 1, m_MaxThreadCount);
 		}
 	}
 }

@@ -4,6 +4,7 @@
 #include <ctime>
 #include <cstdlib>
 #include <array>
+#include <iostream>
 
 #include "mdkDenseImage3D_FileIO.h"
 #include "mdkDenseImageResampler3D.h"
@@ -18,7 +19,11 @@ namespace mdk
 
 void test_a()
 {
-	String FilePath_InputImage = "G:/AorticValveData/2014_7_25/P2115937/phase0";
+	std::cout << "FilePath_InputImage?" << '\n';
+	std::string name;
+	std::cin >> name;
+
+	String FilePath_InputImage = name; // "G:/AorticValveData/2014_7_25/P2115937/phase0";
 	//String FilePath_InputImage = "G:/AorticValveData/2014_7_25/P2115937/Detection/TestImage.json";
 
 	String Test_Path = "C:/Research/MDK/MDK_Build/Test/Test_ImageProcessing/Test_ImageResampler/Test_DenseImageResampler3D/TestData/";

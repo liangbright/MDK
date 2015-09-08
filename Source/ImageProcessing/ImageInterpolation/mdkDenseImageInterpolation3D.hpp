@@ -206,17 +206,17 @@ OutputPixelType InterpolateImageAt3DIndex_Linear(const DenseImage3D<InputPixelTy
 	{//if on edge, then return
 		if (x0 == Size[0] - 1)
 		{
-			return OutputPixelType(InputImage.GetPixelAt2DIndex(x0, y0, z0));
+			return OutputPixelType(InputImage.GetPixelAt3DIndex(x0, y0, z0));
 		}
 
 		if (y0 == Size[1] - 1)
 		{
-			return OutputPixelType(InputImage.GetPixelAt2DIndex(x0, y0, z0));
+			return OutputPixelType(InputImage.GetPixelAt3DIndex(x0, y0, z0));
 		}
 
 		if (z0 == Size[2] - 1)
 		{
-			return OutputPixelType(InputImage.GetPixelAt2DIndex(x0, y0, z0));
+			return OutputPixelType(InputImage.GetPixelAt3DIndex(x0, y0, z0));
 		}
 	}
 	//---------------------------------------------
