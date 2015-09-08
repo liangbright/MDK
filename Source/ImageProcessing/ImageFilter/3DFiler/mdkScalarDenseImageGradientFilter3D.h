@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <cmath>
 
+#include <vtkSphereSource.h>
+
 #include "mdkDebugConfig.h"
 #include "mdkImageFilter3D.h"
 

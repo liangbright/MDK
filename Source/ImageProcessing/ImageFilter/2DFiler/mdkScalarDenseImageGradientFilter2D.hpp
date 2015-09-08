@@ -29,9 +29,9 @@ template<typename InputPixelType, typename ScalarType>
 void ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::ClearSelf()
 {
 	m_Radius = 0;
-	m_AngleResolution = 0;
 	m_Flag_MaskOriginLocation = 0;
 	m_MaskList.Clear();
+	m_MaskCountAtEachLevel = {8, 32, 90, 360};
 	this->SelectCoordinateSystemForEvaluation(CoordinateSystemForEvaluation::INPUT);
 }
 
@@ -44,30 +44,37 @@ void ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::SetRadius(dou
 
 
 template<typename InputPixelType, typename ScalarType>
-void ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::SetCenterInMiddle()
+void ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::SetMaskOriginInMiddle()
 {
 	m_Flag_MaskOriginLocation = 0;
 }
 
 
 template<typename InputPixelType, typename ScalarType>
-void ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::SetCenterAsPositivePole()
+void ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::SetMaskOriginAsPositivePole()
 {
 	m_Flag_MaskOriginLocation = 1;
 }
 
 
 template<typename InputPixelType, typename ScalarType>
-void ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::SetCenterAsNegativePole()
+void ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::SetMaskOriginAsNegativePole()
 {
 	m_Flag_MaskOriginLocation = -1;
 }
 
 
 template<typename InputPixelType, typename ScalarType>
-void ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::SetAngleResolution(double AngleResolution)
+void ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::SaveMask(const String& FilePathAndName)
 {
-	m_AngleResolution = AngleResolution;
+	
+}
+
+
+template<typename InputPixelType, typename ScalarType>
+void ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::LoadMask(const String& FilePathAndName)
+{
+
 }
 
 
@@ -85,10 +92,22 @@ bool ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::CheckInput()
 		return false;
 	}
 
-	if (m_AngleResolution <= 0.0)
+	for (int_max k = 0; k < m_MaskCountAtEachLevel.GetElementCount(); ++k)
 	{
-		MDK_Error("m_AngleResolution <= 0.0 @ ScalarDenseImageGradientFilter2D::CheckInput(...)")
-		return false;
+		if (m_MaskCountAtEachLevel[k] <= 0)
+		{
+			MDK_Error("MaskCountAtEachLevel[k] <= 0 @ ScalarDenseImageGradientFilter2D::CheckInput(...)")
+			return false;
+		}
+
+		if (k >= 1)
+		{
+			auto Ratio = int_max(double(m_MaskCountAtEachLevel[k]) / double(m_MaskCountAtEachLevel[k-1]));
+			if (Ratio <= 1)
+			{
+				MDK_Error("Ratio <= 1 @ ScalarDenseImageGradientFilter2D::CheckInput(...)")
+			}
+		}
 	}
 
 	return true;
@@ -96,14 +115,58 @@ bool ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::CheckInput()
 
 
 template<typename InputPixelType, typename ScalarType>
-bool ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::Preprocess()
+void ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::
+BuildMaskWithGradientPrior(const DenseVector<ScalarType, 2>& GradientPrior, const DenseVector<int_max>& MaskCountAtEachLevel)
 {
-	if (this->ImageFilter2D::Preprocess() == false)
+	m_MaskCountAtEachLevel = MaskCountAtEachLevel;
+	this->BuildMaskWithGradientPrior(GradientPrior);
+}
+
+
+template<typename InputPixelType, typename ScalarType>
+void ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::BuildMaskWithGradientPrior(const DenseVector<ScalarType, 2>& GradientPrior)
+{
+	m_MaskList.Clear();
+	m_MaskList.Resize(m_MaskCountAtEachLevel.GetElementCount());
+	for (int_max k = 0; k < m_MaskList.GetElementCount(); ++k)
 	{
-		return false;
+		m_MaskList[k].Resize(m_MaskCountAtEachLevel[k]);
+		this->InitializeMaskAtLevel(k);
 	}
+
+	// Select a subset from MaskList[0] Level 0 based on GradientPrior
+	DenseVector<ScalarType> DotProductList;
+	DotProductList.Resize(m_MaskList[0].GetElementCount());
+	for (int_max n = 0; n < m_MaskList[0].GetElementCount(); ++n)
+	{
+		auto Direction = m_MaskList[0][n].PointP - m_MaskList[0][n].PointN;
+		DotProductList[n] = Direction[0] * GradientPrior[0] + Direction[1] * GradientPrior[1];
+	}
+	auto IndexList_sort = DotProductList.Sort("descend");
+	int_max MaskCount_keep = int_max(double(m_MaskCountAtEachLevel[0]) * 0.1);// keep 10% of MaskList[0]
+	MaskCount_keep = std::max(MaskCount_keep, int_max(1));
+	auto MaskIndexList_keep = IndexList_sort.GetSubSet(0, MaskCount_keep - 1);
+	m_MaskList[0] = m_MaskList[0].GetSubSet(MaskIndexList_keep);
+
+	// Link
+	for (int_max k = 0; k < m_MaskList.GetElementCount() - 1; ++k)
+	{
+		for (int_max n = 0; n < m_MaskList[k].GetElementCount(); ++n)
+		{
+			for (int_max m = 0; m < m_MaskList[k + 1].GetElementCount(); ++m)
+			{
+				this->BuildMaskLink(k, n, k + 1, m);
+			}
+		}
+	}
+}
+
+
+template<typename InputPixelType, typename ScalarType>
+void ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::BuildMask(const DenseVector<int_max>& MaskCountAtEachLevel)
+{
+	m_MaskCountAtEachLevel = MaskCountAtEachLevel;
 	this->BuildMask();
-	return true;
 }
 
 
@@ -111,60 +174,91 @@ template<typename InputPixelType, typename ScalarType>
 void ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::BuildMask()
 {
 	m_MaskList.Clear();
+	m_MaskList.Resize(m_MaskCountAtEachLevel.GetElementCount());
+	for (int_max k = 0; k < m_MaskList.GetElementCount(); ++k)
+	{
+		m_MaskList[k].Resize(m_MaskCountAtEachLevel[k]);
+		this->InitializeMaskAtLevel(k);
+	}
+
+	for (int_max k = 0; k < m_MaskList.GetElementCount()-1; ++k)
+	{
+		for (int_max n = 0; n < m_MaskList[k].GetElementCount(); ++n)
+		{
+			for (int_max m = 0; m < m_MaskList[k+1].GetElementCount(); ++m)
+			{
+				this->BuildMaskLink(k, n, k + 1, m);
+			}
+		}
+	}
+}
+
+
+template<typename InputPixelType, typename ScalarType>
+void ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::InitializeMaskAtLevel(int_max Level)
+{
+	auto MaskCount = m_MaskCountAtEachLevel[Level];
+
+	const double pi = std::acos(-1.0);
+	auto Theta = 2*pi/double(MaskCount);
 
 	if (m_Flag_MaskOriginLocation == 0)
 	{
-		const double pi = std::acos(-1.0);
-		const int_max AngleNumber = int_max(pi / m_AngleResolution);
-		auto Theta = pi / double(AngleNumber);
-
-		m_MaskList.FastResize(AngleNumber * AngleNumber);
-
 		double HalfRadius = m_Radius / 2.0;
 
-		int_max MaskIndex = -1;
-
-		for (int_max j = 0; j < AngleNumber; ++j)
+		for (int_max k = 0; k < MaskCount; ++k)
 		{
-			auto AngleY = Theta*double(j);
-			auto y = HalfRadius * std::cos(AngleY);
+			auto Angle = Theta*double(k);
+			auto y = HalfRadius * std::sin(Angle);
+			auto x = HalfRadius * std::cos(Angle);
 
-			for (int_max i = 0; i < AngleNumber; ++i)
-			{
-				auto AngleX = Theta*ScalarType(i);
-				auto x = HalfRadius * std::cos(AngleX);
-
-				MaskIndex += 1;
-				m_MaskList[MaskIndex].PointA = { x, y};
-				m_MaskList[MaskIndex].PointB = { -x, -y};
-			}
+			m_MaskList[Level][k].PointP = {x, y};
+			m_MaskList[Level][k].PointN = { -x, -y };
 		}
 	}
-	else // if (m_Flag_MaskOriginLocation == 1 || m_Flag_MaskOriginLocation == -1)
+	else if (m_Flag_MaskOriginLocation == 1)
 	{
-		const double pi = std::acos(-1.0);
-		const int_max AngleNumber = int_max(2 * pi / m_AngleResolution);
-		auto Theta = 2 * pi / double(AngleNumber);
-
-		m_MaskList.FastResize(AngleNumber * AngleNumber);
-
-		int_max MaskIndex = -1;
-
-		for (int_max j = 0; j < AngleNumber; ++j)
+		for (int_max k = 0; k < MaskCount; ++k)
 		{
-			auto AngleY = Theta*double(j);
-			auto y = m_Radius * std::cos(AngleY);
+			auto Angle = Theta*double(k);
+			auto y = m_Radius * std::sin(Angle);
+			auto x = m_Radius * std::cos(Angle);
 
-			for (int_max i = 0; i < AngleNumber; ++i)
-			{
-				auto AngleX = Theta*ScalarType(i);
-				auto x = m_Radius * std::cos(AngleX);
-
-				MaskIndex += 1;
-				m_MaskList[MaskIndex].PointA = { x, y};
-			}
+			m_MaskList[Level][k].PointP = { 0, 0 };
+			m_MaskList[Level][k].PointN = { -x, -y };
 		}
 	}
+	else // m_Flag_MaskOriginLocation == -1
+	{
+		for (int_max k = 0; k < MaskCount; ++k)
+		{
+			auto Angle = Theta*double(k);
+			auto y = m_Radius * std::sin(Angle);
+			auto x = m_Radius * std::cos(Angle);
+
+			m_MaskList[Level][k].PointP = { x, y };
+			m_MaskList[Level][k].PointN = { 0, 0 };
+		}
+	}
+}
+
+
+template<typename InputPixelType, typename ScalarType>
+void ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::BuildMaskLink(int_max LevelA, int_max MaskIndexA, int_max LevelB, int_max MaskIndexB)
+{// LevelB=LevelA+1;
+
+	auto VectorA = m_MaskList[LevelA][MaskIndexA].PointP - m_MaskList[LevelA][MaskIndexA].PointN;
+	DenseVector<ScalarType> DotProductList;
+	DotProductList.Resize(m_MaskList[LevelB].GetElementCount());
+	for (int_max n = 0; n < m_MaskList[LevelB].GetElementCount(); ++n)
+	{
+		auto VectorB = m_MaskList[LevelB][n].PointP - m_MaskList[LevelB][n].PointN;
+		DotProductList[n] = VectorA[0] * VectorB[0] + VectorA[1] * VectorB[1];
+	}
+
+	auto IndexList_sort = DotProductList.Sort("descend");
+	auto MaskCount_near = int_max(double(m_MaskCountAtEachLevel[LevelB]) / double(m_MaskCountAtEachLevel[LevelA]));    
+	m_MaskList[LevelA][MaskIndexA].MaskIndexListAtNextLevel = IndexList_sort.GetSubSet(0, MaskCount_near - 1);
 }
 
 
@@ -180,140 +274,55 @@ template<typename InputPixelType, typename ScalarType>
 DenseVector<ScalarType, 2> ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::
 EvaluateAt2DPositionInInputImage(ScalarType x0, ScalarType y0)
 {
-	DenseVector<ScalarType, 3> GradientVector;
+	DenseVector<ScalarType, 2> Gradient_max;
+	int_max MaskIndex_max = -1;
 
-	ScalarType GradientMagnitude = 0;
-
-	DenseVector<ScalarType, 2> Position_0;
-	Position_0[0] = x0;
-	Position_0[1] = y0;
-
-	if (m_Flag_MaskOriginLocation == 0)
-	{ 
-		auto EPSValue = std::numeric_limits<ScalarType>::epsilon();
-		int_max Index_max = 0; // index in m_MaskList
-		int_max Sign_max = 0;  // sign of PixelA - PixelB
-		for (int_max k = 0; k < m_MaskList.GetLength(); ++k)
-		{
-			auto PositionA = m_MaskList[k].PointA + Position_0;
-			auto PositionB = m_MaskList[k].PointB + Position_0;
-			auto PixelA = m_InputImage->GetPixelAt2DPosition<OutputPixelType>(PositionA, m_ImageInterpolationOption);
-			auto PixelB = m_InputImage->GetPixelAt2DPosition<OutputPixelType>(PositionB, m_ImageInterpolationOption);
-			auto Difference = std::abs(PixelA - PixelB);
-			if (GradientMagnitude < Difference)
-			{
-				GradientMagnitude = Difference;
-				Index_max = k;
-			}
-
-			if (Difference <= EPSValue)
-			{
-				Sign_max = 0;				
-			}
-			else 		
-			{
-				if (PixelA > PixelB)
-				{
-					Sign_max = 1;
-				}
-				else // if (PixelA < PixelB)
-				{
-					Sign_max = -1;
-				}
-			}
-		}
-
-		if (Sign_max == 1)
-		{
-			GradientVector = m_MaskList[Index_max].PointA - m_MaskList[Index_max].PointB;
-			GradientVector /= GradientVector.L2Norm();
-			GradientVector *= GradientMagnitude;
-		}
-		else if (Sign_max == -1)
-		{
-			GradientVector = m_MaskList[Index_max].PointB - m_MaskList[Index_max].PointA;
-			GradientVector /= GradientVector.L2Norm();
-			GradientVector *= GradientMagnitude;
-		}
-		else
-		{
-			GradientVector.Fill(0);
-		}
-	}
-	else if (m_Flag_MaskOriginLocation == 1)
+	// Level 0
+	DenseVector<int_max> MaskIndexList = span(0, m_MaskList[0].GetLength()-1);
+	this->EvaluateAt2DPositionInInputImage_SingleLevel(MaskIndex_max, Gradient_max, x0, y0, 0, MaskIndexList);
+	
+	//from Level 1
+	for (int_max k = 1; k < m_MaskList.GetLength(); ++k)
 	{
-		auto Pixel_0 = m_InputImage->GetPixelAt2DPosition(x0, y0, m_ImageInterpolationOption);
+		MaskIndexList = m_MaskList[k - 1][MaskIndex_max].MaskIndexListAtNextLevel;
+		this->EvaluateAt2DPositionInInputImage_SingleLevel(MaskIndex_max, Gradient_max, x0, y0, k, MaskIndexList);
+	}
 
-		auto EPSValue = std::numeric_limits<ScalarType>::epsilon();
-		int_max Index_max = 0;
-		for (int_max k = 0; k < m_MaskList.GetLength(); ++k)
-		{
-			auto PositionA = m_MaskList[k].PointA + Position_0;
-			auto PixelA = m_InputImage->GetPixelAt2DPosition<OutputPixelType>(PositionA, m_ImageInterpolationOption);
-			auto Difference = std::abs(Pixel_0 - PixelA);
-			if (k == 0)
-			{
-				GradientMagnitude = Difference;
-			}
-			else if (GradientMagnitude < Difference)
-			{
-				GradientMagnitude = Difference;
-				Index_max = k;
-			}
-		}
+	return Gradient_max;
+}
+
+
+template<typename InputPixelType, typename ScalarType>
+void ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::
+EvaluateAt2DPositionInInputImage_SingleLevel(int_max& MaskIndex_max, OutputPixelType& Gradient_max, ScalarType x0, ScalarType y0, int_max Level, const DenseVector<int_max>& MaskIndexList)
+{	
+	ScalarType Magnitude = 0;
+
+	for (int_max k = 0; k < MaskIndexList.GetLength(); ++k)
+	{
+		auto MaskIndex = MaskIndexList[k];
 		
-		GradientVector = Position_0 - m_MaskList[Index_max].PointA;
+		auto xp = m_MaskList[Level][MaskIndex].PointP[0] + x0;
+		auto yp = m_MaskList[Level][MaskIndex].PointP[1] + y0;
 
-		if (GradientMagnitude > EPSValue)
-		{
-			GradientVector /= GradientVector.L2Norm();
-			GradientVector *= GradientMagnitude;
-		}
-		else
-		{
-			GradientVector.Fill(0);
-		}
-	}
-	else //if (m_Flag_MaskOriginLocation == -1)
-	{
-		DenseVector<ScalarType, 2> Position_0;
-		Position_0[0] = x0;
-		Position_0[1] = y0;
+		auto xn = m_MaskList[Level][MaskIndex].PointN[0] + x0;
+		auto yn = m_MaskList[Level][MaskIndex].PointN[1] + y0;
 
-		auto Pixel_0 = m_InputImage->GetPixelAt2DPosition(x0, y0, m_ImageInterpolationOption);
+		auto PixelP = m_InputImage->GetPixelAt2DPosition<ScalarType>(xp, yp, m_ImageInterpolationOption);
+		auto PixelN = m_InputImage->GetPixelAt2DPosition<ScalarType>(xn, yn, m_ImageInterpolationOption);
+		auto Difference = PixelP - PixelN;
 
-		auto EPSValue = std::numeric_limits<ScalarType>::epsilon();
-		int_max Index_max = 0;
-		for (int_max k = 0; k < m_MaskList.GetLength(); ++k)
+		if (k == 0 || Magnitude < Difference)
 		{
-			auto PositionA = m_MaskList[k].PointA + Position_0;
-			auto PixelA = m_InputImage->GetPixelAt2DPosition<OutputPixelType>(PositionA, m_ImageInterpolationOption);
-			auto Difference = std::abs(PixelA - Pixel_0);
-			if (k == 0)
-			{
-				GradientMagnitude = Difference;
-			}
-			else if (GradientMagnitude < Difference)
-			{
-				GradientMagnitude = Difference;
-				Index_max = k;
-			}
-		}
-
-		GradientVector = m_MaskList[Index_max].PointA - Position_0;
-
-		if (GradientMagnitude > EPSValue)
-		{
-			GradientVector /= GradientVector.L2Norm();
-			GradientVector *= GradientMagnitude;
-		}
-		else
-		{
-			GradientVector.Fill(0);
+			Magnitude = Difference;
+			MaskIndex_max = MaskIndex;
+			Gradient_max[0] = xp - xn;
+			Gradient_max[1] = yp - yn;
 		}
 	}
 
-	return GradientVector;
+	Gradient_max /= Gradient_max.L2Norm();
+	Gradient_max *= Magnitude;
 }
 
 }//end namespace mdk

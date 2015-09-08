@@ -119,54 +119,44 @@ void ScalarDenseImageGradientMagnitudeFilter2D<InputPixelType, OutputPixelType, 
 	if (m_Flag_MaskOriginLocation == 0)
 	{
 		const double pi = std::acos(-1.0);
-		const int_max AngleNumber = int_max(pi / m_AngleResolution);
-		auto Theta = pi / double(AngleNumber);
+		const int_max AngleCount = int_max(pi / m_AngleResolution);
+		auto Theta = pi / double(AngleCount);
 
-		m_MaskList.FastResize(AngleNumber * AngleNumber);
+		m_MaskList.FastResize(AngleCount * AngleCount);
 
 		double HalfRadius = m_Radius / 2.0;
 
 		int_max MaskIndex = -1;
 
-		for (int_max j = 0; j < AngleNumber; ++j)
+		for (int_max k = 0; k < AngleCount; ++k)
 		{
-			auto AngleY = Theta*double(j);
-			auto y = HalfRadius * std::cos(AngleY);
+			auto Angle = Theta*double(k);
+			auto y = HalfRadius * std::cos(Angle);
+			auto x = HalfRadius * std::cos(Angle);
 
-			for (int_max i = 0; i < AngleNumber; ++i)
-			{
-				auto AngleX = Theta*ScalarType(i);
-				auto x = HalfRadius * std::cos(AngleX);
-
-				MaskIndex += 1;
-				m_MaskList[MaskIndex].PointA = { x, y};
-				m_MaskList[MaskIndex].PointB = { -x, -y};
-			}
+			MaskIndex += 1;
+			m_MaskList[MaskIndex].PointA = { x, y };
+			m_MaskList[MaskIndex].PointB = { -x, -y };
 		}
 	}
-	else // if (m_Flag_MaskOriginLocation == 1 or -1)
+	else // if (m_Flag_MaskOriginLocation == 1 || m_Flag_MaskOriginLocation == -1)
 	{
 		const double pi = std::acos(-1.0);
-		const int_max AngleNumber = int_max(2 * pi / m_AngleResolution);
-		auto Theta = 2 * pi / double(AngleNumber);
+		const int_max AngleCount = int_max(2 * pi / m_AngleResolution);
+		auto Theta = 2 * pi / double(AngleCount);
 
-		m_MaskList.FastResize(AngleNumber * AngleNumber * AngleNumber);
+		m_MaskList.FastResize(AngleCount * AngleCount);
 
 		int_max MaskIndex = -1;
 
-		for (int_max j = 0; j < AngleNumber; ++j)
+		for (int_max k = 0; k < AngleCount; ++k)
 		{
-			auto AngleY = Theta*double(j);
-			auto y = m_Radius * std::cos(AngleY);
+			auto Angle = Theta*double(k);
+			auto y = m_Radius * std::cos(Angle);
+			auto x = m_Radius * std::cos(Angle);
 
-			for (int_max i = 0; i < AngleNumber; ++i)
-			{
-				auto AngleX = Theta*ScalarType(i);
-				auto x = m_Radius * std::cos(AngleX);
-
-				MaskIndex += 1;
-				m_MaskList[MaskIndex].PointA = { x, y, z };
-			}
+			MaskIndex += 1;
+			m_MaskList[MaskIndex].PointA = { x, y };
 		}
 	}
 }

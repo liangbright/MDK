@@ -6,6 +6,7 @@
 
 #include "mdkDebugConfig.h"
 #include "mdkImageFilter2D.h"
+#include "String.h"
 
 namespace mdk
 {
@@ -13,9 +14,13 @@ namespace mdk
 template<typename ScalarType>
 struct Mask_Of_ScalarDenseImageGradientFilter2D
 {
-	DenseVector<ScalarType, 2> PointA; // physical position in input image
-	DenseVector<ScalarType, 2> PointB; // physical position in input image
+	// Direction of Mask: PointN -> PointP
+	DenseVector<ScalarType, 2> PointP; // Positive pole, physical position in input image
+	DenseVector<ScalarType, 2> PointN; // Negtive pole, physical position in input image
+
+	DenseVector<int_max> MaskIndexListAtNextLevel;
 };
+
 
 template<typename InputPixel_Type, typename Scalar_Type = double>
 class ScalarDenseImageGradientFilter2D : public ImageFilter2D<DenseImage2D<InputPixel_Type>, DenseImage2D<DenseVector<Scalar_Type, 2>>, Scalar_Type>
@@ -25,17 +30,21 @@ public:
 	typedef DenseVector<Scalar_Type, 2> OutputPixelType; // Gradient Vector
 	typedef Scalar_Type				    ScalarType;
 
+	typedef Mask_Of_ScalarDenseImageGradientFilter2D<ScalarType> MaskType;
+
 private:
 	double m_Radius; // distance between Position(+) and Position(-), in Physical unit (mm)
 
-	ObjectArray<Mask_Of_ScalarDenseImageGradientFilter2D<ScalarType>> m_MaskList; // in InputImage
+	ObjectArray<ObjectArray<MaskType>> m_MaskList; // m_MaskList[k] is MaskList at Level k
 
 	int_max m_Flag_MaskOriginLocation;
 	//  0: Middle
 	//  1: PositivePole
 	// -1: NegativePole
 
-	double m_AngleResolution; // delta = 2*pi / m_AngleResolution
+	DenseVector<int_max> m_MaskCountAtEachLevel;
+
+	DenseVector<ScalarType, 2> m_Gradient_prior;
 
 public:		
     ScalarDenseImageGradientFilter2D();
@@ -46,21 +55,25 @@ public:
 	void SetMaskOriginAsPositivePole();
 	void SetMaskOriginAsNegativePole();
 
-	void SetAngleResolution(double AngleResolution);
-	//example:
-	//const double pi = std::acos(-1.0);
-	//auto AngleResolution = pi / 4.0;
-
-    void Clear();
+	void SaveMask(const String& FilePathAndName);
+	void LoadMask(const String& FilePathAndName);
+	
+	void BuildMask();// use default MaskCountAtEachLevel
+	void BuildMask(const DenseVector<int_max>& MaskCountAtEachLevel);
+	void BuildMaskWithGradientPrior(const DenseVector<ScalarType, 2>& GradientPrior);
+	void BuildMaskWithGradientPrior(const DenseVector<ScalarType, 2>& GradientPrior, const DenseVector<int_max>& MaskCountAtEachLevel);
+	
+	void Clear();
 
 	inline OutputPixelType EvaluateAt2DPositionInInputImage(ScalarType x0, ScalarType y0);
 
 private:
 	void ClearSelf();
 	bool CheckInput();
-	bool Preprocess();
-    void BuildMask();
+	void InitializeMaskAtLevel(int_max Level);
+	void BuildMaskLink(int_max LevelA, int_max MaskIndexA, int_max LevelB, int_max MaskIndexB);
 	inline OutputPixelType EvaluateAt2DPositionInInputImage(int_max PointIndex, ScalarType x0, ScalarType y0, int_max ThreadIndex);
+	inline void EvaluateAt2DPositionInInputImage_SingleLevel(int_max& MaskIndex_max, OutputPixelType& Gradient_max, ScalarType x0, ScalarType y0, int_max Level, const DenseVector<int_max>& MaskIndexList);
 
 private:
     ScalarDenseImageGradientFilter2D(const ScalarDenseImageGradientFilter2D&) = delete;
