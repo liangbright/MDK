@@ -1741,13 +1741,13 @@ void MembraneMesh<MeshAttributeType>::ReserveCapacity(int_max PointCount, int_ma
 		this->Recreate();
 	}
 
-	m_MeshData->PointPositionTable->ReserveCapacity(3 * PointCount);
-	m_MeshData->PointList->ReserveCapacity(PointCount);
-	m_MeshData->PointValidityFlagList->ReserveCapacity(PointCount);
-	m_MeshData->EdgeList->ReserveCapacity(EdgeCount);
-	m_MeshData->EdgeValidityFlagList->ReserveCapacity(EdgeCount);
-	m_MeshData->CellList->ReserveCapacity(CellCount);
-	m_MeshData->CellValidityFlagList->ReserveCapacity(CellCount);
+	m_MeshData->PointPositionTable.ReserveCapacity(3 * PointCount);
+	m_MeshData->PointList.ReserveCapacity(PointCount);
+	m_MeshData->PointValidityFlagList.ReserveCapacity(PointCount);
+	m_MeshData->EdgeList.ReserveCapacity(EdgeCount);
+	m_MeshData->EdgeValidityFlagList.ReserveCapacity(EdgeCount);
+	m_MeshData->CellList.ReserveCapacity(CellCount);
+	m_MeshData->CellValidityFlagList.ReserveCapacity(CellCount);
 }
 
 
