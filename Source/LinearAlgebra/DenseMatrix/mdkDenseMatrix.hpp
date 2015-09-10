@@ -991,6 +991,7 @@ void DenseMatrix<ElementType>::Copy(const DenseVector<ElementType, TemplateLengt
 	if (InputVectorLength <= 0)
 	{
 		this->Copy(MDK_EMPTY);
+		return;
 	}
 
 	if (this->IsPureEmpty() == true)
