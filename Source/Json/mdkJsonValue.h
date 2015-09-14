@@ -22,7 +22,7 @@ class JsonValue : public Object
 {
 public:
 	// int/long long/float/double Array is represented by DenseMatrix as a row vector
-	// There is NO BoolArray bacause std::vector<bool> is crap
+	// There is NO BoolArray because std::vector<bool> is crap
 	enum struct TypeEnum
 	{
 		Type_Null,
@@ -62,23 +62,28 @@ public:
 	JsonValue(long long Value);
 	JsonValue(float Value);
 	JsonValue(double Value);	
-	JsonValue(DenseMatrix<int> InputArray);
-	JsonValue(DenseVector<int> InputArray);
 	JsonValue(const int* InputArray, int_max ArrayLength);
-	JsonValue(DenseMatrix<long long> InputArray);
-	JsonValue(DenseVector<long long> InputArray);
 	JsonValue(const long long* InputArray, int_max ArrayLength);
-	JsonValue(DenseMatrix<float> InputArray);
-	JsonValue(DenseVector<float> InputArray);
 	JsonValue(const float* InputArray, int_max ArrayLength);
-	JsonValue(DenseMatrix<double> InputArray);
-	JsonValue(DenseVector<double> InputArray);
 	JsonValue(const double* InputArray, int_max ArrayLength);
+	JsonValue(DenseMatrix<int> InputArray);
+	JsonValue(DenseMatrix<long long> InputArray);
+	JsonValue(DenseMatrix<float> InputArray);
+	JsonValue(DenseMatrix<double> InputArray);
+
+	template<int_max TempLength>
+	JsonValue(DenseVector<int, TempLength> InputArray);
+	template<int_max TempLength>
+	JsonValue(DenseVector<long long, TempLength> InputArray);
+	template<int_max TempLength>
+	JsonValue(DenseVector<float, TempLength> InputArray);
+	template<int_max TempLength>
+	JsonValue(DenseVector<double, TempLength> InputArray);
+	
 	JsonValue(const char* Value);
 	JsonValue(String Value);
 	JsonValue(JsonArray Value);
 	JsonValue(JsonObject Value);
-
 	JsonValue(const JsonValue& Value);
 	JsonValue(JsonValue&& Value);
 	~JsonValue();
@@ -90,20 +95,30 @@ public:
 	void operator=(double Value);
 	void operator=(const DenseMatrix<int>& InputArray);
 	void operator=(DenseMatrix<int>&& InputArray);
-	void operator=(const DenseVector<int>& InputArray);
-	void operator=(DenseVector<int>&& InputArray);
 	void operator=(const DenseMatrix<long long>& InputArray);
 	void operator=(DenseMatrix<long long>&& InputArray);
-	void operator=(const DenseVector<long long>& InputArray);
-	void operator=(DenseVector<long long>&& InputArray);
 	void operator=(const DenseMatrix<float>& InputArray);
 	void operator=(DenseMatrix<float>&& InputArray);
-	void operator=(const DenseVector<float>& InputArray);
-	void operator=(DenseVector<float>&& InputArray);
 	void operator=(const DenseMatrix<double>& InputArray);
 	void operator=(DenseMatrix<double>&& InputArray);
-	void operator=(const DenseVector<double>& InputArray);
-	void operator=(DenseVector<double>&& InputArray);
+	
+	template<int_max TempLength>
+	void operator=(const DenseVector<int, TempLength>& InputArray);
+	template<int_max TempLength>
+	void operator=(DenseVector<int, TempLength>&& InputArray);		
+	template<int_max TempLength>
+	void operator=(const DenseVector<int_max, TempLength>& InputArray);	
+	template<int_max TempLength>
+	void operator=(DenseVector<long long, TempLength>&& InputArray);
+	template<int_max TempLength>
+	void operator=(const DenseVector<float, TempLength>& InputArray);
+	template<int_max TempLength>
+	void operator=(DenseVector<float, TempLength>&& InputArray);
+	template<int_max TempLength>
+	void operator=(const DenseVector<double, TempLength>& InputArray);
+	template<int_max TempLength>
+	void operator=(DenseVector<double, TempLength>&& InputArray);
+	
 	void operator=(const char* Value);
 	void operator=(const String& Value);
 	void operator=(String&& Value);
