@@ -1,5 +1,5 @@
 ﻿#include <iostream>
-#include "Test_GradientFilter2D.h"
+#include "Test_GradientFilter3D.h"
 
 using namespace mdk;
 

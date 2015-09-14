@@ -153,6 +153,7 @@ public:
     inline void operator=(MembraneMesh&& InputMesh);
 
     inline void Clear();
+	inline void Clear(const MDK_Symbol_PureEmpty&);
 
     inline void Copy(const MembraneMesh& InputMesh);
 	inline void Copy(MembraneMesh&& InputMesh);

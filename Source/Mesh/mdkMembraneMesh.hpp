@@ -83,17 +83,35 @@ void MembraneMesh<MeshAttributeType>::Clear()
 
 template<typename MeshAttributeType>
 inline
+void MembraneMesh<MeshAttributeType>::Clear(const MDK_Symbol_PureEmpty&)
+{
+	if (m_MeshData)
+	{
+		m_MeshData.reset();
+	}
+}
+
+
+template<typename MeshAttributeType>
+inline
 void MembraneMesh<MeshAttributeType>::Copy(const MembraneMesh<MeshAttributeType>& InputMesh)
 {
-    if (this->IsPureEmpty() == true)
-    {
-		this->Recreate();
-    }
+	//prevent self copy
+	if (&m_MeshData == &InputMesh.m_MeshData)
+	{
+		return;
+	}
 
 	if (InputMesh.IsPureEmpty() == true)
     {
+		this->Clear();
         return;
     }
+
+	if (this->IsPureEmpty() == true)
+	{
+		this->Recreate();
+	}
 
     m_MeshData->PointPositionTable = InputMesh.m_MeshData->PointPositionTable;
     m_MeshData->PointValidityFlagList = InputMesh.m_MeshData->PointValidityFlagList;
@@ -139,15 +157,22 @@ template<typename MeshAttributeType>
 inline
 void MembraneMesh<MeshAttributeType>::Copy(MembraneMesh<MeshAttributeType>&& InputMesh)
 {
-	if (this->IsPureEmpty() == true)
+	//prevent self copy
+	if (&m_MeshData == &InputMesh.m_MeshData)
 	{
-		this->Recreate();
+		return;
 	}
 
 	if (InputMesh.IsPureEmpty() == true)
 	{
+		this->Clear();
 		return;
 	}
+
+	if (this->IsPureEmpty() == true)
+	{
+		this->Recreate();
+	}	
 
 	m_MeshData->PointPositionTable = std::move(InputMesh.m_MeshData->PointPositionTable);
 	m_MeshData->PointValidityFlagList = std::move(InputMesh.m_MeshData->PointValidityFlagList);

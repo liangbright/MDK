@@ -29,6 +29,90 @@ Handle_Of_Point_Of_MembraneMesh FindNearestPointOnMesh(const TriangleMesh<MeshAt
 
 
 template<typename MeshAttributeType>
+TriangleMesh<MeshAttributeType> SubdivideTriangleMesh_Linear(const TriangleMesh<MeshAttributeType>& InputMesh)
+{
+	typedef typename MeshAttributeType::ScalarType ScalarType;
+	//----------------------------------------------------------------------------//
+	TriangleMesh<MeshAttributeType> OutputMesh;
+	
+	auto PointCount_input = InputMesh.GetPointCount();
+	auto EdgeCount_input = InputMesh.GetEdgeCount();
+	auto CellCount_input = InputMesh.GetCellCount();
+	auto PointCount = PointCount_input + EdgeCount_input;
+	auto EdgeCount = EdgeCount_input * 2;
+	auto CellCount = CellCount_input * 4;
+	OutputMesh.ReserveCapacity(PointCount, EdgeCount, CellCount);
+
+	//------- add initial point by copying all point of InputMesh ----------------//
+	DenseVector<Handle_Of_Point_Of_MembraneMesh> PointHandleList_init;
+	PointHandleList_init.Resize(PointCount_input);
+	for (auto it = InputMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	{
+		auto Index = it.GetPointHandle().GetIndex();
+		auto Pos = it.Point().GetPosition();
+		PointHandleList_init[Index] = OutputMesh.AddPoint(Pos);
+	}
+
+	//------- add new point by splitting each edge of InputMesh -----------------//   
+	DenseVector<Handle_Of_Point_Of_MembraneMesh> PointHandleList_new;
+	for (auto it = InputMesh.GetIteratorOfEdge(); it.IsNotEnd(); ++it)
+	{
+		auto TempList = it.Edge().GetPointHandleList();
+		auto P0 = InputMesh.GetPointPosition(TempList[0]);
+		auto P1 = InputMesh.GetPointPosition(TempList[1]);
+		auto P3 = P0 + P1;
+		P3 /= ScalarType(2);
+		auto H3 = OutputMesh.AddPoint(P3);
+		PointHandleList_new.Append(H3);
+	}
+
+	//------- add new cell by splitting each cell of InputMesh ----------------//   
+	for (auto it = InputMesh.GetIteratorOfCell(); it.IsNotEnd(); ++it)
+	{
+		auto PointHandleList_input = it.Cell().GetPointHandleList(); // P0, P1, P2
+		auto EdgeHandleList_input = it.Cell().GetEdgeHandleList();   // P0-P1, P1-P2, P2-P1
+		//-----------------
+		//      0
+		//    3    5
+		// 1    4     2
+		//-----------------		
+		auto H0 = PointHandleList_init[PointHandleList_input[0].GetIndex()];
+		auto H1 = PointHandleList_init[PointHandleList_input[1].GetIndex()];
+		auto H2 = PointHandleList_init[PointHandleList_input[2].GetIndex()];
+		auto H3 = PointHandleList_new[EdgeHandleList_input[0].GetIndex()];
+		auto H4 = PointHandleList_new[EdgeHandleList_input[1].GetIndex()];
+		auto H5 = PointHandleList_new[EdgeHandleList_input[2].GetIndex()];
+		OutputMesh.AddCellByPoint(H0, H3, H5);
+		OutputMesh.AddCellByPoint(H3, H1, H4);
+		OutputMesh.AddCellByPoint(H3, H4, H5);
+		OutputMesh.AddCellByPoint(H5, H4, H2);
+	}
+	//--------------------------------------------------------------------------//
+	return OutputMesh;
+}
+
+
+template<typename MeshAttributeType>
+TriangleMesh<MeshAttributeType> SubdivideTriangleMesh_Linear(const TriangleMesh<MeshAttributeType>& InputMesh, int_max SubdivisionNumber)
+{
+	TriangleMesh<MeshAttributeType> OutputMesh;
+	if (SubdivisionNumber <= 0)
+	{
+		MDK_Error(" SubdivisionNumber <=0 @ SubdivideTriangleMesh_Linear(...,...)")
+	}
+	else
+	{
+		OutputMesh = SubdivideTriangleMesh_Linear(InputMesh);
+		for (int_max k = 1; k < SubdivisionNumber; ++k)//k from 1
+		{
+			OutputMesh = SubdivideTriangleMesh_Linear(OutputMesh);
+		}
+	}
+	return OutputMesh;
+}
+
+
+template<typename MeshAttributeType>
 TriangleMesh<MeshAttributeType> SubdivideTriangleMeshByVTKLinearSubdivisionFilter(const TriangleMesh<MeshAttributeType>& TargetMesh, int_max SubdivisionNumber)
 {
 	auto VTKMesh = ConvertMDKTriangleMeshToVTKPolyData(TargetMesh);
