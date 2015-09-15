@@ -42,6 +42,8 @@ private:
 	//  1: PositivePole
 	// -1: NegativePole
 
+	ScalarType m_AngleResolution;// the smallest angle
+
 	DenseVector<int_max> m_MaskCountAtEachLevel;
 
 	DenseVector<ScalarType, 2> m_Gradient_prior;
@@ -55,13 +57,13 @@ public:
 	void SetMaskOriginAsPositivePole();
 	void SetMaskOriginAsNegativePole();
 
-	void SaveMask(const String& FilePathAndName);
-	void LoadMask(const String& FilePathAndName);
+	//void SaveMask(const String& FilePathAndName);
+	//void LoadMask(const String& FilePathAndName);
 	
-	void BuildMask();// use default MaskCountAtEachLevel
-	void BuildMask(const DenseVector<int_max>& MaskCountAtEachLevel);
+	void SetAngleResolution(ScalarType Resolution);
+
+	void BuildMask();
 	void BuildMaskWithGradientPrior(const DenseVector<ScalarType, 2>& GradientPrior);
-	void BuildMaskWithGradientPrior(const DenseVector<ScalarType, 2>& GradientPrior, const DenseVector<int_max>& MaskCountAtEachLevel);
 	
 	void Clear();
 
@@ -70,8 +72,9 @@ public:
 private:
 	void ClearSelf();
 	bool CheckInput();
+	void InitializeMaskList();
 	void InitializeMaskAtLevel(int_max Level);
-	void BuildMaskLink(int_max LevelA, int_max MaskIndexA, int_max LevelB, int_max MaskIndexB);
+	void BuildMaskLink(int_max Level, int_max MaskIndex);
 	inline OutputPixelType EvaluateAt2DPositionInInputImage(int_max PointIndex, ScalarType x0, ScalarType y0, int_max ThreadIndex);
 	inline void EvaluateAt2DPositionInInputImage_SingleLevel(int_max& MaskIndex_max, OutputPixelType& Gradient_max, ScalarType x0, ScalarType y0, int_max Level, const DenseVector<int_max>& MaskIndexList);
 

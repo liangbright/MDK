@@ -23,6 +23,12 @@ Handle_Of_Point_Of_MembraneMesh FindNearestPointOnMesh(const TriangleMesh<MeshAt
                                                        const DenseVector<typename MeshAttributeType::ScalarType, 3>& PointPosition);
 
 template<typename MeshAttributeType>
+TriangleMesh<MeshAttributeType> SubdivideTriangleMesh_Linear(const TriangleMesh<MeshAttributeType>& InputMesh);// divide once only
+
+template<typename MeshAttributeType>
+TriangleMesh<MeshAttributeType> SubdivideTriangleMesh_Linear(const TriangleMesh<MeshAttributeType>& InputMesh, int_max SubdivisionNumber);
+
+template<typename MeshAttributeType>
 TriangleMesh<MeshAttributeType> SubdivideTriangleMeshByVTKLinearSubdivisionFilter(const TriangleMesh<MeshAttributeType>& TargetMesh, int_max SubdivisionNumber);
 
 template<typename MeshAttributeType>

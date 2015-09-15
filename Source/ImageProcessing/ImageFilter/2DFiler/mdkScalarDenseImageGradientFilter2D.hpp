@@ -30,8 +30,9 @@ void ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::ClearSelf()
 {
 	m_Radius = 0;
 	m_Flag_MaskOriginLocation = 0;
+	m_AngleResolution = 1;
 	m_MaskList.Clear();
-	m_MaskCountAtEachLevel = {8, 32, 90, 360};
+	m_MaskCountAtEachLevel.Clear();
 	this->SelectCoordinateSystemForEvaluation(CoordinateSystemForEvaluation::INPUT);
 }
 
@@ -65,6 +66,13 @@ void ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::SetMaskOrigin
 
 
 template<typename InputPixelType, typename ScalarType>
+void ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::SetAngleResolution(ScalarType Resolution)
+{
+	m_AngleResolution = Resolution;
+}
+
+/*
+template<typename InputPixelType, typename ScalarType>
 void ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::SaveMask(const String& FilePathAndName)
 {
 	
@@ -76,7 +84,7 @@ void ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::LoadMask(cons
 {
 
 }
-
+*/
 
 template<typename InputPixelType, typename ScalarType>
 bool ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::CheckInput()
@@ -92,22 +100,10 @@ bool ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::CheckInput()
 		return false;
 	}
 
-	for (int_max k = 0; k < m_MaskCountAtEachLevel.GetElementCount(); ++k)
+	if (m_AngleResolution < 0 || m_AngleResolution > 6.2832)
 	{
-		if (m_MaskCountAtEachLevel[k] <= 0)
-		{
-			MDK_Error("MaskCountAtEachLevel[k] <= 0 @ ScalarDenseImageGradientFilter2D::CheckInput(...)")
-			return false;
-		}
-
-		if (k >= 1)
-		{
-			auto Ratio = int_max(double(m_MaskCountAtEachLevel[k]) / double(m_MaskCountAtEachLevel[k-1]));
-			if (Ratio <= 1)
-			{
-				MDK_Error("Ratio <= 1 @ ScalarDenseImageGradientFilter2D::CheckInput(...)")
-			}
-		}
+		MDK_Error("m_AngleResolution is invalid @ ScalarDenseImageGradientFilter2D::CheckInput(...)")
+		return false;
 	}
 
 	return true;
@@ -115,24 +111,9 @@ bool ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::CheckInput()
 
 
 template<typename InputPixelType, typename ScalarType>
-void ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::
-BuildMaskWithGradientPrior(const DenseVector<ScalarType, 2>& GradientPrior, const DenseVector<int_max>& MaskCountAtEachLevel)
-{
-	m_MaskCountAtEachLevel = MaskCountAtEachLevel;
-	this->BuildMaskWithGradientPrior(GradientPrior);
-}
-
-
-template<typename InputPixelType, typename ScalarType>
 void ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::BuildMaskWithGradientPrior(const DenseVector<ScalarType, 2>& GradientPrior)
 {
-	m_MaskList.Clear();
-	m_MaskList.Resize(m_MaskCountAtEachLevel.GetElementCount());
-	for (int_max k = 0; k < m_MaskList.GetElementCount(); ++k)
-	{
-		m_MaskList[k].Resize(m_MaskCountAtEachLevel[k]);
-		this->InitializeMaskAtLevel(k);
-	}
+	this->InitializeMaskList();
 
 	// Select a subset from MaskList[0] Level 0 based on GradientPrior
 	DenseVector<ScalarType> DotProductList;
@@ -143,8 +124,7 @@ void ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::BuildMaskWith
 		DotProductList[n] = Direction[0] * GradientPrior[0] + Direction[1] * GradientPrior[1];
 	}
 	auto IndexList_sort = DotProductList.Sort("descend");
-	int_max MaskCount_keep = int_max(double(m_MaskCountAtEachLevel[0]) * 0.1);// keep 10% of MaskList[0]
-	MaskCount_keep = std::max(MaskCount_keep, int_max(1));
+	int_max MaskCount_keep = int_max(double(m_MaskCountAtEachLevel[0]) * 0.1) + 1;// keep 10% of MaskList[0]
 	auto MaskIndexList_keep = IndexList_sort.GetSubSet(0, MaskCount_keep - 1);
 	m_MaskList[0] = m_MaskList[0].GetSubSet(MaskIndexList_keep);
 
@@ -153,43 +133,55 @@ void ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::BuildMaskWith
 	{
 		for (int_max n = 0; n < m_MaskList[k].GetElementCount(); ++n)
 		{
-			for (int_max m = 0; m < m_MaskList[k + 1].GetElementCount(); ++m)
-			{
-				this->BuildMaskLink(k, n, k + 1, m);
-			}
+			this->BuildMaskLink(k, n);
 		}
 	}
-}
-
-
-template<typename InputPixelType, typename ScalarType>
-void ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::BuildMask(const DenseVector<int_max>& MaskCountAtEachLevel)
-{
-	m_MaskCountAtEachLevel = MaskCountAtEachLevel;
-	this->BuildMask();
 }
 
 
 template<typename InputPixelType, typename ScalarType>
 void ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::BuildMask()
 {
+	this->InitializeMaskList();
+
+	for (int_max k = 0; k < m_MaskList.GetElementCount()-1; ++k)
+	{
+		for (int_max n = 0; n < m_MaskList[k].GetElementCount(); ++n)
+		{
+			this->BuildMaskLink(k, n);
+		}
+	}
+}
+
+
+template<typename InputPixelType, typename ScalarType>
+void ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::InitializeMaskList()
+{
+	//------------------------------------------------------
+	const auto pi = ScalarType(std::acos(-1.0));
+	auto MaskCount_max = int_max(2*pi/m_AngleResolution);
+	int_max Level_max = std::log2(MaskCount_max+1)/2 - 1;
+	if (Level_max < 0) { Level_max = 0; }
+    //------------------------------------------------------
+	m_MaskCountAtEachLevel.Clear();
+	m_MaskCountAtEachLevel.Resize(Level_max+1);
+	m_MaskCountAtEachLevel[0] = 8; //Level 0
+	if (Level_max >= 1)
+	{
+		m_MaskCountAtEachLevel[1] = 32;// Level 1			
+	}
+	// from Level 2
+	for (int_max k = 2; k <= Level_max; ++k)
+	{
+		m_MaskCountAtEachLevel[k] = 4 * m_MaskCountAtEachLevel[k - 1];
+	}
+	//------------------------------------------------------
 	m_MaskList.Clear();
 	m_MaskList.Resize(m_MaskCountAtEachLevel.GetElementCount());
 	for (int_max k = 0; k < m_MaskList.GetElementCount(); ++k)
 	{
 		m_MaskList[k].Resize(m_MaskCountAtEachLevel[k]);
 		this->InitializeMaskAtLevel(k);
-	}
-
-	for (int_max k = 0; k < m_MaskList.GetElementCount()-1; ++k)
-	{
-		for (int_max n = 0; n < m_MaskList[k].GetElementCount(); ++n)
-		{
-			for (int_max m = 0; m < m_MaskList[k+1].GetElementCount(); ++m)
-			{
-				this->BuildMaskLink(k, n, k + 1, m);
-			}
-		}
 	}
 }
 
@@ -244,21 +236,22 @@ void ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::InitializeMas
 
 
 template<typename InputPixelType, typename ScalarType>
-void ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::BuildMaskLink(int_max LevelA, int_max MaskIndexA, int_max LevelB, int_max MaskIndexB)
-{// LevelB=LevelA+1;
+void ScalarDenseImageGradientFilter2D<InputPixelType, ScalarType>::BuildMaskLink(int_max Level, int_max MaskIndex)
+{
+	auto Level_next = Level+1;
 
-	auto VectorA = m_MaskList[LevelA][MaskIndexA].PointP - m_MaskList[LevelA][MaskIndexA].PointN;
+	auto VectorA = m_MaskList[Level][MaskIndex].PointP - m_MaskList[Level][MaskIndex].PointN;
 	DenseVector<ScalarType> DotProductList;
-	DotProductList.Resize(m_MaskList[LevelB].GetElementCount());
-	for (int_max n = 0; n < m_MaskList[LevelB].GetElementCount(); ++n)
+	DotProductList.Resize(m_MaskList[Level_next].GetElementCount());
+	for (int_max n = 0; n < m_MaskList[Level_next].GetElementCount(); ++n)
 	{
-		auto VectorB = m_MaskList[LevelB][n].PointP - m_MaskList[LevelB][n].PointN;
+		auto VectorB = m_MaskList[Level_next][n].PointP - m_MaskList[Level_next][n].PointN;
 		DotProductList[n] = VectorA[0] * VectorB[0] + VectorA[1] * VectorB[1];
 	}
 
 	auto IndexList_sort = DotProductList.Sort("descend");
-	auto MaskCount_near = int_max(double(m_MaskCountAtEachLevel[LevelB]) / double(m_MaskCountAtEachLevel[LevelA]));    
-	m_MaskList[LevelA][MaskIndexA].MaskIndexListAtNextLevel = IndexList_sort.GetSubSet(0, MaskCount_near - 1);
+	auto MaskCount_keep = int_max(double(m_MaskCountAtEachLevel[Level_next]) / double(m_MaskCountAtEachLevel[Level])) + 1;
+	m_MaskList[Level][MaskIndex].MaskIndexListAtNextLevel = IndexList_sort.GetSubSet(0, MaskCount_keep - 1);
 }
 
 

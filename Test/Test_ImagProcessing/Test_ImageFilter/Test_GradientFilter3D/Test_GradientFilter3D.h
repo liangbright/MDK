@@ -1,31 +1,31 @@
-﻿#ifndef Test_GradientFilter2D_h
-#define Test_GradientFilter2D_h
+﻿#ifndef Test_GradientFilter3D_h
+#define Test_GradientFilter3D_h
 
 #include <ctime>
 #include <cstdlib>
 #include <array>
 
-#include "mdkDenseImage2D_FileIO.h"
-#include "mdkScalarDenseImageGradientFilter2D.h"
+#include "mdkDenseImage3D_FileIO.h"
+#include "mdkScalarDenseImageGradientFilter3D.h"
 
 namespace mdk
 {
 
 void test_a()
 {
-	String FilePath_InputImage = "C:/Research/SpineAnalysis/TestData/Patient1/T2W/T2W0005.dcm";
+	String FilePath_InputImage = "C:/Research/AorticValve/Data/AorticValveData/2014_7_25/P2115937/phase0/";
 
-	String Test_Path = "C:/Research/MDK/MDK_Build/Test/Test_ImageProcessing/Test_ImageFilter/Test_GradientFilter2D/TestData/";
+	String Test_Path = "C:/Research/MDK/MDK_Build/Test/Test_ImageProcessing/Test_ImageFilter/Test_GradientFilter3D/TestData/";
 
 	String FileNameAndPath_OutputImage = Test_Path + "GradientMagImage.json";
 
-	DenseImage2D<double> InputImage;
-	Load2DScalarImageFromSingleDICOMFile(InputImage, FilePath_InputImage);
+	DenseImage3D<double> InputImage;
+	Load3DScalarImageFromDICOMSeries(InputImage, FilePath_InputImage);
 	//auto InputImage = Load3DScalarImageFromJsonDataFile<double>(FilePath_InputImage);
 
 	std::cout << "start" << '\n';
 
-	ScalarDenseImageGradientFilter2D<double> GFilter;
+	ScalarDenseImageGradientFilter3D<double> GFilter;
 	GFilter.SetInputImage(&InputImage);
     
 	double CosT = 0.707;
@@ -43,13 +43,16 @@ void test_a()
 	//Resampler.SetOutputImageInfoBySize(256, 256);
 
 	auto InterpolationOption = GFilter.GetImageInterpolationOption();
-	InterpolationOption.MethodType = ScalarDenseImageGradientFilter2D<double>::ImageInterpolationMethodEnum::Linear;
-	InterpolationOption.BoundaryOption = ScalarDenseImageGradientFilter2D<double>::ImageInterpolationBoundaryOptionEnum::Constant;
+	InterpolationOption.MethodType = ScalarDenseImageGradientFilter3D<double>::ImageInterpolationMethodEnum::Linear;
+	InterpolationOption.BoundaryOption = ScalarDenseImageGradientFilter3D<double>::ImageInterpolationBoundaryOptionEnum::Constant;
 	InterpolationOption.Pixel_OutsideImage = 0;
 	GFilter.SetImageInterpolationOption(InterpolationOption);
-	GFilter.SetMaxThreadCount(4);
+	GFilter.SetMaxThreadCount(8);
 
-	GFilter.SetRadius(1.0);
+	GFilter.SetRadius(2.0);
+	GFilter.SetSphereResolution(3600);
+
+	std::cout << "BuildMask" << '\n';
 
 	GFilter.BuildMask();
 
@@ -57,19 +60,21 @@ void test_a()
 	//DenseVector<int_max> MaskCountPerLevel = { 8, 32 };
 	//GFilter.BuildMaskWithGradientPrior(GradientPrior, MaskCountPerLevel);
 
+	std::cout << "Update" << '\n';
+
 	GFilter.Update();
 	const auto& GradientImage = *GFilter.GetOutputImage();
 
 	std::cout << "done" << '\n';
 
-	DenseImage2D<double> GradientMagImage;
+	DenseImage3D<double> GradientMagImage;
 	GradientMagImage.SetInfo(GradientImage.GetInfo());
 	for (int_max k = 0; k < GradientMagImage.GetPixelCount(); ++k)
 	{
 		GradientMagImage[k] = GradientImage[k].L2Norm();
 	}
 
-	Save2DScalarImageAsJsonDataFile(GradientMagImage, FileNameAndPath_OutputImage);
+	Save3DScalarImageAsJsonDataFile(GradientMagImage, FileNameAndPath_OutputImage);
 }
 
 }//namespace mdk

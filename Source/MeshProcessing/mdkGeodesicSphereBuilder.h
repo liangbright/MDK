@@ -13,8 +13,8 @@ public:
 	typedef Scalar_Type ScalarType; // double or float
 	typedef TriangleMesh<TriangleMeshEmptyAttributeType<ScalarType>> MeshType;
 
-	ObjectArray<MeshType> m_SphereList;
-	int_max m_MaxDepth;
+	ObjectArray<MeshType> m_SphereList; // L2Norm of each vector ((0,0,0) to Point) is 1
+	int_max m_MaxDepth;//Length-1 of m_SphereList
 
 public:
 	GeodesicSphereBuilder();

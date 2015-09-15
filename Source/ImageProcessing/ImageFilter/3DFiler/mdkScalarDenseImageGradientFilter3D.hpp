@@ -29,10 +29,11 @@ template<typename InputPixelType, typename ScalarType>
 void ScalarDenseImageGradientFilter3D<InputPixelType, ScalarType>::ClearSelf()
 {
 	m_Radius = 0;
-	m_AngleResolution = 0;
 	m_Flag_MaskOriginLocation = 0;
 	m_MaskList.Clear();
-	this->SelectPhysicalCoordinateSystemForEvaluation(PhysicalCoordinateSystemForEvaluation::INPUT);
+	m_SphereResolution = 0;
+	m_SphereBuilder.Clear();
+	this->SelectCoordinateSystemForEvaluation(CoordinateSystemForEvaluation::INPUT);
 }
 
 
@@ -44,30 +45,30 @@ void ScalarDenseImageGradientFilter3D<InputPixelType, ScalarType>::SetRadius(dou
 
 
 template<typename InputPixelType, typename ScalarType>
-void ScalarDenseImageGradientFilter3D<InputPixelType, ScalarType>::SetCenterInMiddle()
+void ScalarDenseImageGradientFilter3D<InputPixelType, ScalarType>::SetMaskOriginInMiddle()
 {
 	m_Flag_MaskOriginLocation = 0;
 }
 
 
 template<typename InputPixelType, typename ScalarType>
-void ScalarDenseImageGradientFilter3D<InputPixelType, ScalarType>::SetCenterAsPositivePole()
+void ScalarDenseImageGradientFilter3D<InputPixelType, ScalarType>::SetMaskOriginAsPositivePole()
 {
 	m_Flag_MaskOriginLocation = 1;
 }
 
 
 template<typename InputPixelType, typename ScalarType>
-void ScalarDenseImageGradientFilter3D<InputPixelType, ScalarType>::SetCenterAsNegativePole()
+void ScalarDenseImageGradientFilter3D<InputPixelType, ScalarType>::SetMaskOriginAsNegativePole()
 {
 	m_Flag_MaskOriginLocation = -1;
 }
 
 
 template<typename InputPixelType, typename ScalarType>
-void ScalarDenseImageGradientFilter3D<InputPixelType, ScalarType>::SetAngleResolution(double AngleResolution)
+void ScalarDenseImageGradientFilter3D<InputPixelType, ScalarType>::SetSphereResolution(int_max Resolution)
 {
-	m_AngleResolution = AngleResolution;
+	m_SphereResolution = Resolution;
 }
 
 
@@ -85,24 +86,12 @@ bool ScalarDenseImageGradientFilter3D<InputPixelType, ScalarType>::CheckInput()
 		return false;
 	}
 
-	if (m_AngleResolution <= 0.0)
+	if (m_SphereResolution <= 0.0)
 	{
-		MDK_Error("m_AngleResolution <= 0.0 @ ScalarDenseImageGradientFilter3D::CheckInput(...)")
+		MDK_Error("m_SphereResolution <= 0.0 @ ScalarDenseImageGradientFilter3D::CheckInput(...)")
 		return false;
 	}
 
-	return true;
-}
-
-
-template<typename InputPixelType, typename ScalarType>
-bool ScalarDenseImageGradientFilter3D<InputPixelType, ScalarType>::Preprocess()
-{
-	if (this->ImageFilter3D::Preprocess() == false)
-	{
-		return false;
-	}
-	this->BuildMask();
 	return true;
 }
 
@@ -110,75 +99,162 @@ bool ScalarDenseImageGradientFilter3D<InputPixelType, ScalarType>::Preprocess()
 template<typename InputPixelType, typename ScalarType>
 void ScalarDenseImageGradientFilter3D<InputPixelType, ScalarType>::BuildMask()
 {
+	this->InitializeMaskList();
+
+	for (int_max k = 0; k < m_MaskList.GetElementCount() - 1; ++k)
+	{
+		for (int_max n = 0; n < m_MaskList[k].GetElementCount(); ++n)
+		{
+			this->BuildMaskLink(k, n);
+		}
+	}
+}
+
+
+template<typename InputPixelType, typename ScalarType>
+void ScalarDenseImageGradientFilter3D<InputPixelType, ScalarType>::BuildMaskWithGradientPrior(const DenseVector<ScalarType, 3>& GradientPrior)
+{
+	this->InitializeMaskList();
+
+	// Select a subset from MaskList[0] Level 0 based on GradientPrior
+	DenseVector<ScalarType> DotProductList;
+	DotProductList.Resize(m_MaskList[0].GetElementCount());
+	for (int_max n = 0; n < m_MaskList[0].GetElementCount(); ++n)
+	{
+		auto Direction = m_MaskList[0][n].PointP - m_MaskList[0][n].PointN;
+		DotProductList[n] = Direction[0] * GradientPrior[0] + Direction[1] * GradientPrior[1] + Direction[2] * GradientPrior[2];
+	}
+	auto IndexList_sort = DotProductList.Sort("descend");
+
+	int_max MaskCount_keep = 10;// keep 10 of MaskList[0]
+	auto MaskIndexList_keep = IndexList_sort.GetSubSet(0, MaskCount_keep - 1);
+	m_MaskList[0] = m_MaskList[0].GetSubSet(MaskIndexList_keep);
+
+	// Link
+	for (int_max k = 0; k < m_MaskList.GetElementCount() - 1; ++k)
+	{
+		for (int_max n = 0; n < m_MaskList[k].GetElementCount(); ++n)
+		{
+			this->BuildMaskLink(k, n);
+		}
+	}
+}
+
+
+template<typename InputPixelType, typename ScalarType>
+void ScalarDenseImageGradientFilter3D<InputPixelType, ScalarType>::InitializeMaskList()
+{
+	//-----------------------------------------------------
+	m_SphereBuilder.Clear();
+
+	int_max MaxDepth = 0;
+	if (m_SphereResolution <= 20)
+	{
+		MaxDepth = 0;
+	}
+	else if (m_SphereResolution <= 42)
+	{
+		MaxDepth = 1;
+	}
+	else if (m_SphereResolution <= 162)
+	{
+		MaxDepth = 2;
+	}
+	else if (m_SphereResolution <= 642)
+	{
+		MaxDepth = 3;
+	}
+	else if (m_SphereResolution <= 2562)
+	{
+		MaxDepth = 4;
+	}
+	else if (m_SphereResolution <= 10242)
+	{
+		MaxDepth = 5;
+	}
+	else if (m_SphereResolution <= 40962)
+	{
+		MaxDepth = 6;
+	}
+	else
+	{
+		MaxDepth = (std::log2(m_SphereResolution) / 2) - 2;
+	}
+
+	if (m_SphereResolution > 40962)
+	{
+		MDK_Warning("m_SphereResolution > 40962 and MaxDepth > 6 @ ScalarDenseImageGradientFilter3D::InitializeMaskList()")
+	}
+
+	m_SphereBuilder.SetMaxDepth(MaxDepth);
+	m_SphereBuilder.Update();
+	auto& SphereList = *m_SphereBuilder.GetSphereList();
+	//-----------------------------------------------------
 	m_MaskList.Clear();
-
-	if (m_Flag_MaskOriginLocation == 0)
+	m_MaskList.Resize(SphereList.GetLength());
+	for (int_max Level = 0; Level < SphereList.GetLength(); Level++)
 	{
-		const double pi = std::acos(-1.0);
-		const int_max AngleNumber = int_max(pi / m_AngleResolution);
-		auto Theta = pi / double(AngleNumber);
+		auto& Sphere = SphereList[Level];
 
-		m_MaskList.FastResize(AngleNumber * AngleNumber * AngleNumber);
+		m_MaskList[Level].Resize(Sphere.GetPointCount());
 
-		double HalfRadius = m_Radius / 2.0;
-
-		int_max MaskIndex = -1;
-
-		for (int_max k = 0; k < AngleNumber; ++k)
+		if (m_Flag_MaskOriginLocation == 0)
 		{
-			auto AngleZ = Theta*double(k);
-			auto z = HalfRadius * std::cos(AngleZ);
-
-			for (int_max j = 0; j < AngleNumber; ++j)
+			double HalfRadius = m_Radius / 2.0;
+			int_max MaskIndex = -1;
+			for (auto it = Sphere.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
 			{
-				auto AngleY = Theta*double(j);
-				auto y = HalfRadius * std::cos(AngleY);
-
-				for (int_max i = 0; i < AngleNumber; ++i)
-				{
-					auto AngleX = Theta*ScalarType(i);
-					auto x = HalfRadius * std::cos(AngleX);
-
-					MaskIndex += 1;
-					m_MaskList[MaskIndex].PointA = { x, y, z };
-					m_MaskList[MaskIndex].PointB = { -x, -y, -z };
-				}
+				auto Direction = it.Point().GetPosition();
+				MaskIndex += 1;				
+				m_MaskList[Level][MaskIndex].PointP = Direction*HalfRadius;
+				m_MaskList[Level][MaskIndex].PointN = Direction*(-HalfRadius);
+			}
+		}
+		else if (m_Flag_MaskOriginLocation == 1)
+		{
+			int_max MaskIndex = -1;
+			for (auto it = Sphere.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+			{
+				auto Direction = it.Point().GetPosition();
+				MaskIndex += 1;
+				m_MaskList[Level][MaskIndex].PointP = { 0, 0 };
+				m_MaskList[Level][MaskIndex].PointN = Direction*(-m_Radius);
+			}
+		}
+		else // m_Flag_MaskOriginLocation == -1
+		{
+			int_max MaskIndex = -1;
+			for (auto it = Sphere.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+			{
+				auto Direction = it.Point().GetPosition();
+				MaskIndex += 1;
+				m_MaskList[Level][MaskIndex].PointP = Direction*m_Radius;
+				m_MaskList[Level][MaskIndex].PointN = { 0, 0 };
 			}
 		}
 	}
-	else // if (m_Flag_MaskOriginLocation == 1 || m_Flag_MaskOriginLocation == -1)
+}
+
+
+template<typename InputPixelType, typename ScalarType>
+void ScalarDenseImageGradientFilter3D<InputPixelType, ScalarType>::BuildMaskLink(int_max Level, int_max MaskIndex)
+{
+	int_max Level_next=Level+1;
+
+	auto VectorA = m_MaskList[Level][MaskIndex].PointP - m_MaskList[Level][MaskIndex].PointN;
+	DenseVector<ScalarType> DotProductList;
+	DotProductList.Resize(m_MaskList[Level_next].GetElementCount());
+	for (int_max n = 0; n < m_MaskList[Level_next].GetElementCount(); ++n)
 	{
-		const double pi = std::acos(-1.0);
-		const int_max AngleNumber = int_max(2 * pi / m_AngleResolution);
-		auto Theta = 2 * pi / double(AngleNumber);
-
-		m_MaskList.FastResize(AngleNumber * AngleNumber * AngleNumber);
-
-		DenseVector<double, 3> Angle;
-
-		int_max MaskIndex = -1;
-
-		for (int_max k = 0; k < AngleNumber; ++k)
-		{
-			auto AngleZ = Theta*double(k);
-			auto z = m_Radius * std::cos(AngleZ);
-
-			for (int_max j = 0; j < AngleNumber; ++j)
-			{
-				auto AngleY = Theta*double(j);
-				auto y = m_Radius * std::cos(AngleY);
-
-				for (int_max i = 0; i < AngleNumber; ++i)
-				{
-					auto AngleX = Theta*ScalarType(i);
-					auto x = m_Radius * std::cos(AngleX);
-
-					MaskIndex += 1;
-					m_MaskList[MaskIndex].PointA = { x, y, z };
-				}
-			}
-		}
+		auto VectorB = m_MaskList[Level_next][n].PointP - m_MaskList[Level_next][n].PointN;
+		DotProductList[n] = VectorA[0] * VectorB[0] + VectorA[1] * VectorB[1] + VectorA[2] * VectorB[2];
 	}
+
+	auto IndexList_sort = DotProductList.Sort("descend");
+	
+	int_max MaskCount_keep = 5;// keep only 5
+
+	m_MaskList[Level][MaskIndex].MaskIndexListAtNextLevel = IndexList_sort.GetSubSet(0, MaskCount_keep - 1);
 }
 
 
@@ -194,142 +270,58 @@ template<typename InputPixelType, typename ScalarType>
 DenseVector<ScalarType, 3> ScalarDenseImageGradientFilter3D<InputPixelType, ScalarType>::
 EvaluateAt3DPositionInInputImage(ScalarType x0, ScalarType y0, ScalarType z0)
 {
-	DenseVector<ScalarType, 3> GradientVector;
+	DenseVector<ScalarType, 3> Gradient_max;
+	int_max MaskIndex_max = -1;
 
-	ScalarType GradientMagnitude = 0;
+	// Level 0
+	DenseVector<int_max> MaskIndexList = span(0, m_MaskList[0].GetLength() - 1);
+	this->EvaluateAt3DPositionInInputImage_SingleLevel(MaskIndex_max, Gradient_max, x0, y0, z0, 0, MaskIndexList);
 
-	DenseVector<ScalarType, 3> Position_0;
-	Position_0[0] = x0;
-	Position_0[1] = y0;
-	Position_0[2] = z0;
-
-	if (m_Flag_MaskOriginLocation == 0)
-	{ 
-		auto EPSValue = std::numeric_limits<ScalarType>::epsilon();
-		int_max Index_max = 0; // index in m_MaskList
-		int_max Sign_max = 0;  // sign of PixelA - PixelB
-		for (int_max k = 0; k < m_MaskList.GetLength(); ++k)
-		{
-			auto PositionA = m_MaskList[k].PointA + Position_0;
-			auto PositionB = m_MaskList[k].PointB + Position_0;
-			auto PixelA = m_InputImage->GetPixelAt3DPosition<OutputPixelType>(PositionA, m_ImageInterpolationOption);
-			auto PixelB = m_InputImage->GetPixelAt3DPosition<OutputPixelType>(PositionB, m_ImageInterpolationOption);
-			auto Difference = std::abs(PixelA - PixelB);
-			if (GradientMagnitude < Difference)
-			{
-				GradientMagnitude = Difference;
-				Index_max = k;
-			}
-
-			if (Difference <= EPSValue)
-			{
-				Sign_max = 0;				
-			}
-			else 		
-			{
-				if (PixelA > PixelB)
-				{
-					Sign_max = 1;
-				}
-				else // if (PixelA < PixelB)
-				{
-					Sign_max = -1;
-				}
-			}
-		}
-
-		if (Sign_max == 1)
-		{
-			GradientVector = m_MaskList[Index_max].PointA - m_MaskList[Index_max].PointB;
-			GradientVector /= GradientVector.L2Norm();
-			GradientVector *= GradientMagnitude;
-		}
-		else if (Sign_max == -1)
-		{
-			GradientVector = m_MaskList[Index_max].PointB - m_MaskList[Index_max].PointA;
-			GradientVector /= GradientVector.L2Norm();
-			GradientVector *= GradientMagnitude;
-		}
-		else
-		{
-			GradientVector.Fill(0);
-		}
-	}
-	else if (m_Flag_MaskOriginLocation == 1)
+	//from Level 1
+	for (int_max k = 1; k < m_MaskList.GetLength(); ++k)
 	{
-		auto Pixel_0 = m_InputImage->GetPixelAt3DPosition(x0, y0, z0, m_ImageInterpolationOption);
-
-		auto EPSValue = std::numeric_limits<ScalarType>::epsilon();
-		int_max Index_max = 0;
-		for (int_max k = 0; k < m_MaskList.GetLength(); ++k)
-		{
-			auto PositionA = m_MaskList[k].PointA + Position_0;
-			auto PixelA = m_InputImage->GetPixelAt3DPosition<OutputPixelType>(PositionA, m_ImageInterpolationOption);
-			auto Difference = Pixel_0 - PixelA;
-			if (k == 0)
-			{
-				GradientMagnitude = Difference;
-			}
-			else if (GradientMagnitude < Difference)
-			{
-				GradientMagnitude = Difference;
-				Index_max = k;
-			}
-		}
-		
-		GradientVector = Position_0 - m_MaskList[Index_max].PointA;
-
-		if (GradientMagnitude > EPSValue)
-		{
-			GradientVector /= GradientVector.L2Norm();
-			GradientVector *= GradientMagnitude;
-		}
-		else
-		{
-			GradientVector.Fill(0);
-		}
+		MaskIndexList = m_MaskList[k - 1][MaskIndex_max].MaskIndexListAtNextLevel;
+		this->EvaluateAt3DPositionInInputImage_SingleLevel(MaskIndex_max, Gradient_max, x0, y0, z0, k, MaskIndexList);
 	}
-	else //if (m_Flag_MaskOriginLocation == -1)
+
+	return Gradient_max;
+}
+
+
+template<typename InputPixelType, typename ScalarType>
+void ScalarDenseImageGradientFilter3D<InputPixelType, ScalarType>::
+EvaluateAt3DPositionInInputImage_SingleLevel(int_max& MaskIndex_max, OutputPixelType& Gradient_max, ScalarType x0, ScalarType y0, ScalarType z0, int_max Level, const DenseVector<int_max>& MaskIndexList)
+{
+	ScalarType Magnitude = 0;
+
+	for (int_max k = 0; k < MaskIndexList.GetLength(); ++k)
 	{
-		DenseVector<ScalarType, 3> Position_0;
-		Position_0[0] = x0;
-		Position_0[1] = y0;
-		Position_0[2] = z0;
+		auto MaskIndex = MaskIndexList[k];
 
-		auto Pixel_0 = m_InputImage->GetPixelAt3DPosition(x0, y0, z0, m_ImageInterpolationOption);
+		auto xp = m_MaskList[Level][MaskIndex].PointP[0] + x0;
+		auto yp = m_MaskList[Level][MaskIndex].PointP[1] + y0;
+		auto zp = m_MaskList[Level][MaskIndex].PointP[2] + z0;
 
-		auto EPSValue = std::numeric_limits<ScalarType>::epsilon();
-		int_max Index_max = 0;
-		for (int_max k = 0; k < m_MaskList.GetLength(); ++k)
+		auto xn = m_MaskList[Level][MaskIndex].PointN[0] + x0;
+		auto yn = m_MaskList[Level][MaskIndex].PointN[1] + y0;
+		auto zn = m_MaskList[Level][MaskIndex].PointN[2] + z0;
+
+		auto PixelP = m_InputImage->GetPixelAt3DPosition<ScalarType>(xp, yp, zp, m_ImageInterpolationOption);
+		auto PixelN = m_InputImage->GetPixelAt3DPosition<ScalarType>(xn, yn, zn, m_ImageInterpolationOption);
+		auto Difference = PixelP - PixelN;
+
+		if (k == 0 || Magnitude < Difference)
 		{
-			auto PositionA = m_MaskList[k].PointA + Position_0;
-			auto PixelA = m_InputImage->GetPixelAt3DPosition<OutputPixelType>(PositionA, m_ImageInterpolationOption);
-			auto Difference = PixelA - Pixel_0;
-			if (k == 0)
-			{
-				GradientMagnitude = Difference;
-			}
-			else if (GradientMagnitude < Difference)
-			{
-				GradientMagnitude = Difference;
-				Index_max = k;
-			}
-		}
-
-		GradientVector = m_MaskList[Index_max].PointA - Position_0;
-
-		if (GradientMagnitude > EPSValue)
-		{
-			GradientVector /= GradientVector.L2Norm();
-			GradientVector *= GradientMagnitude;
-		}
-		else
-		{
-			GradientVector.Fill(0);
+			Magnitude = Difference;
+			MaskIndex_max = MaskIndex;
+			Gradient_max[0] = xp - xn;
+			Gradient_max[1] = yp - yn;
+			Gradient_max[2] = zp - zn;
 		}
 	}
 
-	return GradientVector;
+	Gradient_max /= Gradient_max.L2Norm();
+	Gradient_max *= Magnitude;
 }
 
 }//end namespace mdk

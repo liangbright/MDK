@@ -51,11 +51,12 @@ void test_a()
 
 	GFilter.SetRadius(1.0);
 
-	GFilter.BuildMask();
+	GFilter.SetAngleResolution(0.0175);
+	
+	//GFilter.BuildMask();
 
-	//DenseVector<double, 2> GradientPrior = { 1.0, 0.0 };
-	//DenseVector<int_max> MaskCountPerLevel = { 8, 32 };
-	//GFilter.BuildMaskWithGradientPrior(GradientPrior, MaskCountPerLevel);
+	DenseVector<double, 2> GradientPrior = { 1.0, 0.0 };
+	GFilter.BuildMaskWithGradientPrior(GradientPrior);
 
 	GFilter.Update();
 	const auto& GradientImage = *GFilter.GetOutputImage();
