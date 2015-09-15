@@ -610,6 +610,7 @@ void DenseImage3D<PixelType>::SetInfo(const ImageInfo3D& Info, bool Flag_Allocat
 		this->SetSize(0, 0, 0);
 	}
 	m_ImageData->m_Info = Info;
+	m_ImageData->m_Info.UpdateTransformMatrix();// just in case TransformMatrix not updated in input Info
 }
 
 

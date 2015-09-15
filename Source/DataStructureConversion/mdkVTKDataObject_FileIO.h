@@ -7,6 +7,8 @@
 #include <vtkPointData.h>
 #include <vtkCellArray.h>
 #include <vtkImageData.h>
+#include <vtkPolyDataReader.h>
+#include <vtkPolyDataWriter.h>
 
 #include "mdkString.h"
 #include "mdkFileIO.h"
@@ -16,12 +18,15 @@
 
 namespace mdk
 {
+bool SaveVTKPolyDataAsVTKFile(vtkPolyData* OutputVTKMesh, const String& FilePathAndName);//ASCII VTK file
+bool LoadVTKPolyDataFromVTKFile(vtkPolyData* OutputVTKMesh, const String& FilePathAndName);
 
-bool LoadVTKPolygonMeshFromJsonDataFile(vtkPolyData& OutputVTKMesh, const String& FilePathAndName);
-bool LoadVTKPolygonMeshFromJsonDataFile(vtkPolyData* OutputVTKMesh, const String& FilePathAndName);
+//directly load from file, not converted from mdk::PolygonMesh
+//bool LoadVTKPolygonMeshFromJsonDataFile(vtkPolyData* OutputVTKMesh, const String& FilePathAndName);
 
-bool LoadVTK3DScalarImageFromJsonDataFile(vtkImageData& OutputVTKImage, VTKDataTypeEnum OutputPixelType, const String& FilePathAndName);
-bool LoadVTK3DScalarImageFromJsonDataFile(vtkImageData* OutputVTKImage, VTKDataTypeEnum OutputPixelType, const String& FilePathAndName);
+//directly load from file, not converted from mdk::DenseImage3D
+//bool LoadVTK3DScalarImageFromJsonDataFile(vtkImageData* OutputVTKImage, VTKDataTypeEnum OutputPixelType, const String& FilePathAndName);
+
 }// namespace mdk
 
 #endif

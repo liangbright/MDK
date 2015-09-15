@@ -5,13 +5,55 @@
 
 namespace mdk
 {
-
-bool LoadVTKPolygonMeshFromJsonDataFile(vtkPolyData& OutputVTKMesh, const String& FilePathAndName)
+bool SaveVTKPolyDataAsVTKFile(vtkPolyData* OutputVTKMesh, const String& FilePathAndName)
 {
-	return LoadVTKPolygonMeshFromJsonDataFile(&OutputVTKMesh, FilePathAndName);
+	if (OutputVTKMesh == nullptr)
+	{
+		MDK_Error("input is nullptr @ SaveVTKPolyDataAsVTKFile(...)")
+		return false;
+	}
+
+	auto writer = vtkSmartPointer<vtkPolyDataWriter>::New();
+	writer->SetFileName(FilePathAndName.StdString().c_str());
+	writer->SetInputData(OutputVTKMesh);
+	writer->SetFileTypeToASCII();
+	try
+	{
+		writer->Write();
+	}
+	catch (...)
+	{
+		MDK_Error(" Can not write data @ SaveVTKPolyDataAsVTKFile(...) ")
+		return false;
+	}
+	return true;
 }
 
 
+bool LoadVTKPolyDataFromVTKFile(vtkPolyData* OutputVTKMesh, const String& FilePathAndName)
+{
+	if (OutputVTKMesh == nullptr)
+	{
+		MDK_Error("input is nullptr @ LoadVTKPolyDataFromVTKFile(...)")
+		return false;
+	}
+
+	auto Reader = vtkSmartPointer<vtkPolyDataReader>::New();
+	Reader->SetFileName(FilePathAndName.StdString().c_str());
+	try
+	{
+		Reader->Update();
+	}
+	catch (...)
+	{
+		MDK_Error(" Can not read data @ LoadVTKPolyDataFromVTKFile(...) ")
+		return false;
+	}
+	OutputVTKMesh->ShallowCopy(Reader->GetOutput());
+	return true;
+}
+
+/*
 bool LoadVTKPolygonMeshFromJsonDataFile(vtkPolyData* OutputVTKMesh, const String& FilePathAndName)
 {
 	if (OutputVTKMesh == nullptr)
@@ -73,27 +115,27 @@ bool LoadVTKPolygonMeshFromJsonDataFile(vtkPolyData* OutputVTKMesh, const String
 		return false;
 	}
 	//----------------------------------------------
-	int_max PointNumber = 0;
-	it = JObject.find("PointNumber");
+	int_max PointCount = 0;
+	it = JObject.find("PointCount");
 	if (it != JObject.end())
 	{
-		PointNumber = it->second.ToScalar<int_max>();
+		PointCount = it->second.ToScalar<int_max>();
 	}
 	else
 	{
-		MDK_Error("Couldn't get PointNumber @ LoadVTKPolygonMeshFromJsonDataFile(...)")
+		MDK_Error("Couldn't get PointCount @ LoadVTKPolygonMeshFromJsonDataFile(...)")
 		return false;
 	}
 	//----------------------------------------------
-	int_max CellNumber = 0;
-	it = JObject.find("CellNumber");
+	int_max CellCount = 0;
+	it = JObject.find("CellCount");
 	if (it != JObject.end())
 	{
-		CellNumber = it->second.ToScalar<int_max>();
+		CellCount = it->second.ToScalar<int_max>();
 	}
 	else
 	{
-		MDK_Error("Couldn't get CellNumber @ LoadVTKPolygonMeshFromJsonDataFile(...)")
+		MDK_Error("Couldn't get CellCount @ LoadVTKPolygonMeshFromJsonDataFile(...)")
 		return false;
 	}
 	//----------------------------------------------	
@@ -121,12 +163,12 @@ bool LoadVTKPolygonMeshFromJsonDataFile(vtkPolyData* OutputVTKMesh, const String
 		return false;
 	}
 	//----------------------------------------------	
-	if (PointNumber > 0)
+	if (PointCount > 0)
 	{
 		String FilePath = ExtractFilePath(FilePathAndName);
 
 		bool IsOK = true;
-		DenseMatrix<double> PointData(3, PointNumber);
+		DenseMatrix<double> PointData(3, PointCount);
 		if (LoadScalarArrayFromDataFile(PointData.GetElementPointer(), PointData.GetElementCount(), FilePath + PointDataFileName, ScalarTypeInDataFile) == false)
 		{
 			IsOK = false;
@@ -134,8 +176,8 @@ bool LoadVTKPolygonMeshFromJsonDataFile(vtkPolyData* OutputVTKMesh, const String
 
 		//Get CellData from JsonArray
 		ObjectArray<DenseVector<int_max>> CellData;
-		CellData.Resize(CellNumber);
-		if (CellNumber > 0)
+		CellData.Resize(CellCount);
+		if (CellCount > 0)
 		{
 			JsonArray JArray_CellData;
 			if (JsonFile::Load(JArray_CellData, FilePath + CellDataFileName) == false)
@@ -163,8 +205,8 @@ bool LoadVTKPolygonMeshFromJsonDataFile(vtkPolyData* OutputVTKMesh, const String
 		if (ScalarTypeInDataFile == "double")
 		{
 			VTKPointData->SetDataType(VTK_DOUBLE);
-			VTKPointData->SetNumberOfPoints(PointNumber);
-			for (int i = 0; i < PointNumber; ++i)
+			VTKPointData->SetNumberOfPoints(PointCount);
+			for (int i = 0; i < PointCount; ++i)
 			{
 				double pos[3];
 				pos[0] = PointData(0, i);
@@ -176,8 +218,8 @@ bool LoadVTKPolygonMeshFromJsonDataFile(vtkPolyData* OutputVTKMesh, const String
 		else if (ScalarTypeInDataFile == "float")
 		{
 			VTKPointData->SetDataType(VTK_FLOAT);
-			VTKPointData->SetNumberOfPoints(PointNumber);
-			for (int i = 0; i < PointNumber; ++i)
+			VTKPointData->SetNumberOfPoints(PointCount);
+			for (int i = 0; i < PointCount; ++i)
 			{
 				float pos[3];
 				pos[0] = float(PointData(0, i));
@@ -191,8 +233,8 @@ bool LoadVTKPolygonMeshFromJsonDataFile(vtkPolyData* OutputVTKMesh, const String
 			MDK_Warning("ScalarTypeInDataFile is not double or float @ LoadVTKPolygonMeshFromJsonDataFile(...)")
 
 			VTKPointData->SetDataType(VTK_DOUBLE);
-			VTKPointData->SetNumberOfPoints(PointNumber);
-			for (int i = 0; i < PointNumber; ++i)
+			VTKPointData->SetNumberOfPoints(PointCount);
+			for (int i = 0; i < PointCount; ++i)
 			{
 				double pos[3];
 				pos[0] = PointData(0, i);
@@ -203,11 +245,11 @@ bool LoadVTKPolygonMeshFromJsonDataFile(vtkPolyData* OutputVTKMesh, const String
 		}
 		//------------------------------------------
 		auto VTKCellData = vtkSmartPointer<vtkCellArray>::New();
-		for (int i = 0; i < CellNumber; ++i)
+		for (int i = 0; i < CellCount; ++i)
 		{
-			auto PointNumberInCell = CellData[i].GetElementCount();
-			VTKCellData->InsertNextCell(PointNumberInCell);
-			for (int n = 0; n < PointNumberInCell; ++n)
+			auto PointCountInCell = CellData[i].GetElementCount();
+			VTKCellData->InsertNextCell(PointCountInCell);
+			for (int n = 0; n < PointCountInCell; ++n)
 			{
 				auto PointIndex = CellData[i][n];
 				VTKCellData->InsertCellPoint(PointIndex);
@@ -223,14 +265,8 @@ bool LoadVTKPolygonMeshFromJsonDataFile(vtkPolyData* OutputVTKMesh, const String
 		return false;
 	}
 }
-
-
-bool LoadVTK3DScalarImageFromJsonDataFile(vtkImageData& OutputVTKImage, VTKDataTypeEnum OutputPixelType, const String& FilePathAndName)
-{
-	return LoadVTK3DScalarImageFromJsonDataFile(&OutputVTKImage, OutputPixelType, FilePathAndName);
-}
-
-
+*/
+/*
 bool LoadVTK3DScalarImageFromJsonDataFile(vtkImageData* OutputVTKImage, VTKDataTypeEnum OutputPixelType, const String& FilePathAndName)
 {
 	if (OutputVTKImage == nullptr)
@@ -426,7 +462,7 @@ bool LoadVTK3DScalarImageFromJsonDataFile(vtkImageData* OutputVTKImage, VTKDataT
 		return false;
 	}
 }
-
+*/
 
 }// namespace mdk
 

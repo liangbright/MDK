@@ -56,11 +56,18 @@ bool ConvertMDK2DScalarImageToITK3DScalarImage(const DenseImage2D<PixelType>& MD
 //-------------------------------------- convert itk image to mdk image (copy data) ------------------------------------------------------------//
 //----------3D----------------
 template<typename PixelType>
+bool ConvertITK3DScalarImageToMDK3DScalarImage(itk::Image<PixelType, 3>* ITKImage, DenseImage3D<PixelType>& MDKImage, bool SharePixelData);
+
+template<typename PixelType>
 bool ConvertITK3DScalarImageToMDK3DScalarImage(const itk::Image<PixelType, 3>* ITKImage, DenseImage3D<PixelType>& MDKImage);
 
 //----------3D to 2D ----------------
+// ITKImage should be a Slice
 template<typename PixelType>
-bool ConvertITK3DScalarImageSliceToMDK2DScalarImage(const itk::Image<PixelType, 2>* ITKImage, DenseImage3D<PixelType>& MDKImage);
+bool ConvertITK3DScalarImageSliceToMDK2DScalarImage(itk::Image<PixelType, 3>* ITKImage, DenseImage2D<PixelType>& MDKImage, bool SharePixelData);
+
+template<typename PixelType>
+bool ConvertITK3DScalarImageSliceToMDK2DScalarImage(const itk::Image<PixelType, 3>* ITKImage, DenseImage2D<PixelType>& MDKImage);
 
 //--------------------------------------- convert mdk TriangleMesh to itk Mesh -----------------------------------------------//
 //template<typename ScalarType>

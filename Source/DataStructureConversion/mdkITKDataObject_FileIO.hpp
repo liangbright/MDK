@@ -3,10 +3,25 @@
 
 namespace mdk
 {
-
 template<typename PixelType>
-bool LoadITK3DScalarImageFromJsonDataFile(itk::Image<PixelType, 3>& OutputITKImage, const String& FilePathAndName)
+bool SaveITK3DScalarImageAsJsonDataFile(itk::Image<PixelType, 3>* OutputITKImage, const String& FilePathAndName)
 {
+	DenseImage3D<PixelType> MDKImage;
+	ConvertITK3DScalarImageToMDK3DScalarImage(OutputITKImage, MDKImage, true);//share data
+	return Save3DScalarImageAsJsonDataFile(MDKImage, FilePathAndName);
+}
+
+/*
+template<typename PixelType>
+bool LoadITK3DScalarImageFromJsonDataFile(itk::Image<PixelType, 3>* OutputITKImage, const String& FilePathAndName)
+{
+	if (OutputITKImage == nullptr)
+	{
+		MDK_Error("input is nullptr @ LoadITK3DScalarImageFromJsonDataFile(...)")
+		return false;
+	}
+
+	//-----------------------------------------------------
 	JsonObject JObject;
 	if (JsonFile::Load(JObject, FilePathAndName) == false)
 	{
@@ -153,32 +168,21 @@ bool LoadITK3DScalarImageFromJsonDataFile(itk::Image<PixelType, 3>& OutputITKIma
 	region.SetIndex(start);
 	region.SetSize(Size_itk);
 
-	OutputITKImage.SetOrigin(Origin.GetElementPointer());
-	OutputITKImage.SetSpacing(Spacing.GetElementPointer());
-	OutputITKImage.SetRegions(region);
-	OutputITKImage.Allocate();
+	OutputITKImage->SetOrigin(Origin.GetElementPointer());
+	OutputITKImage->SetSpacing(Spacing.GetElementPointer());
+	OutputITKImage->SetRegions(region);
+	OutputITKImage->Allocate();
 
 	int_max OutputPixelCount = Size[0] * Size[1] * Size[2];
 
-	auto PtrOfITKImage = OutputITKImage.GetBufferPointer();
+	auto PtrOfITKImage = OutputITKImage->GetBufferPointer();
 	if (LoadScalarArrayFromDataFile(PtrOfITKImage, OutputPixelCount, DataFilePathAndName, PixelTypeInDataFile) == false)
 	{
-		OutputITKImage.Delete();
+		OutputITKImage->Delete();
 	}
 	return true;
 }
-
-template<typename PixelType>
-bool LoadITK3DScalarImageFromJsonDataFile(itk::Image<PixelType, 3>* OutputITKImage, const String& FilePathAndName)
-{
-	if (OutputITKImage == nullptr)
-	{
-		MDK_Error("invlaid input: nullptr @ LoadITK3DScalarImageFromJsonDataFile(...)")
-		return false;
-	}
-
-	return LoadITK3DScalarImageFromJsonDataFile(*OutputITKImage, FilePathAndName);
-}
+*/
 
 }// namespace mdk
 

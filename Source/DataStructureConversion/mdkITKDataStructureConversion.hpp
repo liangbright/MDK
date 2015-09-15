@@ -306,6 +306,45 @@ bool ConvertMDK2DScalarImageToITK3DScalarImage(const DenseImage2D<PixelType>& MD
 }
 
 //--------------------------------------------- ITK-3D to MDK-3D -----------------------------------------------------------------------//
+template<typename PixelType>
+bool ConvertITK3DScalarImageToMDK3DScalarImage(itk::Image<PixelType, 3>* ITKImage, DenseImage3D<PixelType>& MDKImage, bool SharePixelData)
+{
+	if (ITKImage == nullptr)
+	{
+		MDK_Error("ITKImage is nullptr @ ConvertITK3DScalarImageToMDK3DScalarImage(...)")
+		return false;
+	}
+
+	if (SharePixelData == false)
+	{
+		return ConvertITK3DScalarImageToMDK3DScalarImage(ITKImage, MDKImage);
+	}
+
+	auto Size = ITKImage->GetBufferedRegion().GetSize();
+	auto Spacing = ITKImage->GetSpacing();
+	auto Origin = ITKImage->GetOrigin();
+	auto Direction = ITKImage->GetDirection();
+
+	ImageInfo3D Info;
+	Info.Size[0] = Size[0];
+	Info.Size[1] = Size[1];
+	Info.Size[2] = Size[2];
+	Info.Spacing[0] = Spacing[0];
+	Info.Spacing[1] = Spacing[1];
+	Info.Spacing[2] = Spacing[2];
+	Info.Origin[0] = Origin[0];
+	Info.Origin[1] = Origin[1];
+	Info.Origin[2] = Origin[2];
+	for (int j = 0; j < 3; ++j)
+	{
+		for (int i = 0; i < 3; ++i)
+		{
+			Info.Orientation(i, j) = double(Direction(i, j));
+		}
+	}	
+	MDKImage.Share(ITKImage->GetBufferPointer(), Info);
+}
+
 
 template<typename PixelType>
 bool ConvertITK3DScalarImageToMDK3DScalarImage(const itk::Image<PixelType, 3>* ITKImage, DenseImage3D<PixelType>& MDKImage)
@@ -348,6 +387,51 @@ bool ConvertITK3DScalarImageToMDK3DScalarImage(const itk::Image<PixelType, 3>* I
 }
 
 //------------------------------------------------- ITK-3D to MDK-2D ---------------------------------------------------------------------//
+// ITKImage should be a Slice
+template<typename PixelType>
+bool ConvertITK3DScalarImageSliceToMDK2DScalarImage(itk::Image<PixelType, 3>* ITKImage, DenseImage2D<PixelType>& MDKImage, bool SharePixelData)
+{
+	if (ITKImage == nullptr)
+	{
+		MDK_Error("ITKImage is nullptr @ ConvertITK3DScalarImageToMDK2DScalarImage(...)")
+		return false;
+	}
+
+	if (SharePixelData == false)
+	{
+		return ConvertITK3DScalarImageSliceToMDK2DScalarImage(ITKImage, MDKImage);
+	}
+
+	auto Size = ITKImage->GetBufferedRegion().GetSize();
+	auto Spacing = ITKImage->GetSpacing();
+	auto Origin = ITKImage->GetOrigin();
+	auto Direction = ITKImage->GetDirection();
+
+	if (Size[2] > 1)
+	{
+		MDK_Error("ITKImage is NOT a Slice in 3D Space @ ConvertITK3DScalarImageToMDK2DScalarImage(...)")
+		return false;
+	}
+
+	ImageInfo2D Info;
+	Info.Size[0] = Size[0];
+	Info.Size[1] = Size[1];
+	Info.Spacing[0] = Spacing[0];
+	Info.Spacing[1] = Spacing[1];
+	Info.Origin[0] = Origin[0];
+	Info.Origin[1] = Origin[1];
+	Info.Origin[2] = Origin[2];
+	for (int j = 0; j < 3; ++j)
+	{
+		for (int i = 0; i < 3; ++i)
+		{
+			Info.Orientation(i, j) = double(Direction(i, j));
+		}
+	}
+	MDKImage.Share(ITKImage->GetBufferPointer(), Info);
+}
+
+
 template<typename PixelType>
 bool ConvertITK3DScalarImageSliceToMDK2DScalarImage(const itk::Image<PixelType, 3>* ITKImage, DenseImage2D<PixelType>& MDKImage)
 {

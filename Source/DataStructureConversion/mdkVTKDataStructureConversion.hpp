@@ -60,7 +60,7 @@ VTKDataTypeEnum GetVTKScalarType(const ScalarType& ReferenceScalar)
 	return TranslateMDKScalarTypeToVTKScalarType(Name);
 }
 
-//--------------------------------------- 3D Curve ------------------------------------------------------------//
+//-------------------------------------- convert mdk Curve/Matrix to vtkPolyData ----------------------------------------------------------//
 
 template<typename ScalarType>
 vtkSmartPointer<vtkPolyData> ConvertSingleMDK3DCurveToVTKPolyData(const DenseMatrix<ScalarType>& MDK3DCurve)
@@ -183,6 +183,7 @@ bool ConvertMultipleMDK3DCurveToVTKPolyData(const ObjectArray<DenseMatrix<Scalar
 	return true;
 }
 
+//-------------------------------------- convert vtkPolyData to mdk Curve/Matrix ----------------------------------------------------------//
 
 template<typename ScalarType>
 bool ConvertVTKPolyDataToMDK3DCurve(vtkPolyData& VTKCurveData, ObjectArray<DenseMatrix<ScalarType>>& MDK3DCurveData)
@@ -227,7 +228,7 @@ bool ConvertVTKPolyDataToMDK3DCurve(vtkPolyData* VTKCurveData, ObjectArray<Dense
 	return true;
 }
 
-//------------------------------------------------- 3D Scalar Image --------------------------------------------------//
+//-------------------------------------- convert mdk 3D image to vtk 3D image (copy data) -----------------------------------------------------//
 
 template<typename PixelType>
 vtkSmartPointer<vtkImageData> ConvertMDK3DScalarImageToVTK3DScalarImage(const DenseImage3D<PixelType>& MDKImage)
@@ -235,13 +236,6 @@ vtkSmartPointer<vtkImageData> ConvertMDK3DScalarImageToVTK3DScalarImage(const De
 	auto VTKImage = vtkSmartPointer<vtkImageData>::New();
 	ConvertMDK3DScalarImageToVTK3DScalarImage(MDKImage, VTKImage.GetPointer());
 	return VTKImage;
-}
-
-
-template<typename PixelType>
-bool ConvertMDK3DScalarImageToVTK3DScalarImage(const DenseImage3D<PixelType>& MDKImage, vtkImageData& VTKImage)
-{
-	return ConvertMDK3DScalarImageToVTK3DScalarImage(MDKImage, &VTKImage)
 }
 
 
@@ -273,7 +267,7 @@ bool ConvertMDK3DScalarImageToVTK3DScalarImage(const DenseImage3D<PixelType>& MD
 
         auto PtrOfVTKImage = static_cast<double*>(VTKImage->GetScalarPointer());
 
-		for (int_max k = 0; k < MDKImage.GetPixelNumber(); ++k)
+		for (int_max k = 0; k < MDKImage.GetPixelCount(); ++k)
         {
 			PtrOfVTKImage[k] = PtrOfMDKImage[k];
         }
@@ -284,7 +278,7 @@ bool ConvertMDK3DScalarImageToVTK3DScalarImage(const DenseImage3D<PixelType>& MD
 
         auto PtrOfVTKImage = static_cast<float*>(VTKImage->GetScalarPointer());
 
-		for (int_max k = 0; k < MDKImage.GetPixelNumber(); ++k)
+		for (int_max k = 0; k < MDKImage.GetPixelCount(); ++k)
         {
 			PtrOfVTKImage[k] = PtrOfMDKImage[k];
         }
@@ -295,7 +289,7 @@ bool ConvertMDK3DScalarImageToVTK3DScalarImage(const DenseImage3D<PixelType>& MD
 
         auto PtrOfVTKImage = static_cast<int8*>(VTKImage->GetScalarPointer());
 
-		for (int_max k = 0; k < MDKImage.GetPixelNumber(); ++k)
+		for (int_max k = 0; k < MDKImage.GetPixelCount(); ++k)
         {
 			PtrOfVTKImage[k] = PtrOfMDKImage[k];
         }
@@ -306,7 +300,7 @@ bool ConvertMDK3DScalarImageToVTK3DScalarImage(const DenseImage3D<PixelType>& MD
 
         auto PtrOfVTKImage = static_cast<int16*>(VTKImage->GetScalarPointer());
 
-		for (int_max k = 0; k < MDKImage.GetPixelNumber(); ++k)
+		for (int_max k = 0; k < MDKImage.GetPixelCount(); ++k)
         {
 			PtrOfVTKImage[k] = PtrOfMDKImage[k];
         }
@@ -317,7 +311,7 @@ bool ConvertMDK3DScalarImageToVTK3DScalarImage(const DenseImage3D<PixelType>& MD
 
         auto PtrOfVTKImage = static_cast<int32*>(VTKImage->GetScalarPointer());
 
-		for (int_max k = 0; k < MDKImage.GetPixelNumber(); ++k)
+		for (int_max k = 0; k < MDKImage.GetPixelCount(); ++k)
         {
 			PtrOfVTKImage[k] = PtrOfMDKImage[k];
         }
@@ -328,7 +322,7 @@ bool ConvertMDK3DScalarImageToVTK3DScalarImage(const DenseImage3D<PixelType>& MD
 
         auto PtrOfVTKImage = static_cast<int64*>(VTKImage->GetScalarPointer());
 
-		for (int_max k = 0; k < MDKImage.GetPixelNumber(); ++k)
+		for (int_max k = 0; k < MDKImage.GetPixelCount(); ++k)
         {
 			PtrOfVTKImage[k] = PtrOfMDKImage[k];
         }
@@ -339,7 +333,7 @@ bool ConvertMDK3DScalarImageToVTK3DScalarImage(const DenseImage3D<PixelType>& MD
 
         auto PtrOfVTKImage = static_cast<uint8*>(VTKImage->GetScalarPointer());
 
-		for (int_max k = 0; k < MDKImage.GetPixelNumber(); ++k)
+		for (int_max k = 0; k < MDKImage.GetPixelCount(); ++k)
         {
 			PtrOfVTKImage[k] = PtrOfMDKImage[k];
         }
@@ -350,7 +344,7 @@ bool ConvertMDK3DScalarImageToVTK3DScalarImage(const DenseImage3D<PixelType>& MD
 
         auto PtrOfVTKImage = static_cast<uint16*>(VTKImage->GetScalarPointer());
 
-		for (int_max k = 0; k < MDKImage.GetPixelNumber(); ++k)
+		for (int_max k = 0; k < MDKImage.GetPixelCount(); ++k)
         {
 			PtrOfVTKImage[k] = PtrOfMDKImage[k];
         }
@@ -361,7 +355,7 @@ bool ConvertMDK3DScalarImageToVTK3DScalarImage(const DenseImage3D<PixelType>& MD
 
         auto PtrOfVTKImage = static_cast<uint32*>(VTKImage->GetScalarPointer());
 
-		for (int_max k = 0; k < MDKImage.GetPixelNumber(); ++k)
+		for (int_max k = 0; k < MDKImage.GetPixelCount(); ++k)
         {
 			PtrOfVTKImage[k] = PtrOfMDKImage[k];
         }
@@ -372,7 +366,7 @@ bool ConvertMDK3DScalarImageToVTK3DScalarImage(const DenseImage3D<PixelType>& MD
 
         auto PtrOfVTKImage = static_cast<uint64*>(VTKImage->GetScalarPointer());
 
-		for (int_max k = 0; k < MDKImage.GetPixelNumber(); ++k)
+		for (int_max k = 0; k < MDKImage.GetPixelCount(); ++k)
         {
 			PtrOfVTKImage[k] = PtrOfMDKImage[k];
         }
@@ -385,17 +379,17 @@ bool ConvertMDK3DScalarImageToVTK3DScalarImage(const DenseImage3D<PixelType>& MD
     return VTKImage;
 }
 
-
-template<typename PixelType>
-bool ConvertVTK3DScalarImageToMDK3DScalarImage(const vtkImageData& VTKImage, DenseImage3D<PixelType>& MDKImage)
-{
-	return ConvertVTK3DScalarImageToMDK3DScalarImage(&VTKImage, MDKImage);
-}
-
+//-------------------------------------- convert vtk 3D image to mdk 3D image (copy data) -----------------------------------------------------//
 
 template<typename PixelType>
 bool ConvertVTK3DScalarImageToMDK3DScalarImage(const vtkImageData* VTKImage, DenseImage3D<PixelType>& MDKImage)
 {
+	if (VTKImage == nullptr)
+	{
+		MDK_Error("input is nullptr @ ConvertVTK3DScalarImageToMDK3DScalarImage(...)")
+		return false;
+	}
+
     int Extent[6];
     VTKImage->GetExtent(Extent);
 
@@ -417,7 +411,7 @@ bool ConvertVTK3DScalarImageToMDK3DScalarImage(const vtkImageData* VTKImage, Den
     {
         auto PtrOfVTKImage = static_cast<double*>(VTKImage->GetScalarPointer());
 
-		for (int_max k = 0; k < MDKImage.GetPixelNumber(); ++k)
+		for (int_max k = 0; k < MDKImage.GetPixelCount(); ++k)
         {
 			PtrOfMDKImage[k] = PtrOfVTKImage[k];
         }
@@ -426,7 +420,7 @@ bool ConvertVTK3DScalarImageToMDK3DScalarImage(const vtkImageData* VTKImage, Den
     {
         auto PtrOfVTKImage = static_cast<float*>(VTKImage->GetScalarPointer());
 
-		for (int_max k = 0; k < MDKImage.GetPixelNumber(); ++k)
+		for (int_max k = 0; k < MDKImage.GetPixelCount(); ++k)
         {
 			PtrOfMDKImage[k] = PtrOfVTKImage[k];
         }
@@ -435,7 +429,7 @@ bool ConvertVTK3DScalarImageToMDK3DScalarImage(const vtkImageData* VTKImage, Den
     {
         auto PtrOfVTKImage = static_cast<int8*>(VTKImage->GetScalarPointer());
 
-		for (int_max k = 0; k < MDKImage.GetPixelNumber(); ++k)
+		for (int_max k = 0; k < MDKImage.GetPixelCount(); ++k)
         {
 			PtrOfMDKImage[k] = PtrOfVTKImage[k];
         }
@@ -444,7 +438,7 @@ bool ConvertVTK3DScalarImageToMDK3DScalarImage(const vtkImageData* VTKImage, Den
     {
         auto PtrOfVTKImage = static_cast<int16*>(VTKImage->GetScalarPointer());
 
-		for (int_max k = 0; k < MDKImage.GetPixelNumber(); ++k)
+		for (int_max k = 0; k < MDKImage.GetPixelCount(); ++k)
         {
 			PtrOfMDKImage[k] = PtrOfVTKImage[k];
         }
@@ -453,7 +447,7 @@ bool ConvertVTK3DScalarImageToMDK3DScalarImage(const vtkImageData* VTKImage, Den
     {
         auto PtrOfVTKImage = static_cast<int32*>(VTKImage->GetScalarPointer());
 
-		for (int_max k = 0; k < MDKImage.GetPixelNumber(); ++k)
+		for (int_max k = 0; k < MDKImage.GetPixelCount(); ++k)
         {
 			PtrOfMDKImage[k] = PtrOfVTKImage[k];
         }
@@ -462,7 +456,7 @@ bool ConvertVTK3DScalarImageToMDK3DScalarImage(const vtkImageData* VTKImage, Den
     {
         auto PtrOfVTKImage = static_cast<int64*>(VTKImage->GetScalarPointer());
 
-		for (int_max k = 0; k < MDKImage.GetPixelNumber(); ++k)
+		for (int_max k = 0; k < MDKImage.GetPixelCount(); ++k)
         {
 			PtrOfMDKImage[k] = PtrOfVTKImage[k];
         }
@@ -471,7 +465,7 @@ bool ConvertVTK3DScalarImageToMDK3DScalarImage(const vtkImageData* VTKImage, Den
     {
         auto PtrOfVTKImage = static_cast<uint8*>(VTKImage->GetScalarPointer());
 
-		for (int_max k = 0; k < MDKImage.GetPixelNumber(); ++k)
+		for (int_max k = 0; k < MDKImage.GetPixelCount(); ++k)
         {
 			PtrOfMDKImage[k] = PtrOfVTKImage[k];
         }
@@ -480,7 +474,7 @@ bool ConvertVTK3DScalarImageToMDK3DScalarImage(const vtkImageData* VTKImage, Den
     {
         auto PtrOfVTKImage = static_cast<uint16*>(VTKImage->GetScalarPointer());
 
-		for (int_max k = 0; k < MDKImage.GetPixelNumber(); ++k)
+		for (int_max k = 0; k < MDKImage.GetPixelCount(); ++k)
         {
 			PtrOfMDKImage[k] = PtrOfVTKImage[k];
         }
@@ -489,7 +483,7 @@ bool ConvertVTK3DScalarImageToMDK3DScalarImage(const vtkImageData* VTKImage, Den
     {
         auto PtrOfVTKImage = static_cast<uint32*>(VTKImage->GetScalarPointer());
 
-		for (int_max k = 0; k < MDKImage.GetPixelNumber(); ++k)
+		for (int_max k = 0; k < MDKImage.GetPixelCount(); ++k)
         {
 			PtrOfMDKImage[k] = PtrOfVTKImage[k];
         }
@@ -498,7 +492,7 @@ bool ConvertVTK3DScalarImageToMDK3DScalarImage(const vtkImageData* VTKImage, Den
     {
         auto PtrOfVTKImage = static_cast<uint64*>(VTKImage->GetScalarPointer());
 
-		for (int_max k = 0; k < MDKImage.GetPixelNumber(); ++k)
+		for (int_max k = 0; k < MDKImage.GetPixelCount(); ++k)
         {
 			PtrOfMDKImage[k] = PtrOfVTKImage[k];
         }
@@ -511,7 +505,7 @@ bool ConvertVTK3DScalarImageToMDK3DScalarImage(const vtkImageData* VTKImage, Den
     return true;
 }
 
-//------------------------------------------- PolygonMesh ------------------------------------------------------//
+//--------------------------------------- convert mdk PolygonMesh to vtkPolyData -----------------------------------------------//
 
 template<typename MeshAttributeType>
 vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMesh<MeshAttributeType>& MDKMesh)
@@ -519,13 +513,6 @@ vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMes
 	auto VTKMesh = vtkSmartPointer<vtkPolyData>::New();
 	ConvertMDKPolygonMeshToVTKPolyData(MDKMesh, VTKMesh.GetPointer());
 	return VTKMesh;
-}
-
-
-template<typename MeshAttributeType>
-bool ConvertMDKPolygonMeshToVTKPolyData(const PolygonMesh<MeshAttributeType>& MDKMesh, vtkPolyData& VTKMesh)
-{
-	return ConvertMDKPolygonMeshToVTKPolyData(MDKMesh, &VTKMesh);
 }
 
 
@@ -620,13 +607,7 @@ bool ConvertMDKPolygonMeshToVTKPolyData(const PolygonMesh<MeshAttributeType>& MD
     return true;
 }
 
-
-template<typename MeshAttributeType>
-bool ConvertVTKPolyDataToMDKPolygonMesh(vtkPolyData& VTKMesh, PolygonMesh<MeshAttributeType>& MDKMesh)
-{
-	return ConvertVTKPolyDataToMDKPolygonMesh(&VTKMesh, MDKMesh);
-}
-
+//--------------------------------------- convert vtkPolyData to mdk PolygonMesh ------------------------------------------------//
 
 template<typename MeshAttributeType>
 bool ConvertVTKPolyDataToMDKPolygonMesh(vtkPolyData* VTKMesh, PolygonMesh<MeshAttributeType>& MDKMesh)
@@ -677,7 +658,7 @@ bool ConvertVTKPolyDataToMDKPolygonMesh(vtkPolyData* VTKMesh, PolygonMesh<MeshAt
     return true;
 }
 
-//--------------------------------------------- TriangleMesh ------------------------------------------------------//
+//--------------------------------------- convert mdk TriangleMesh to vtkPolyData -----------------------------------------------//
 
 template<typename MeshAttributeType>
 vtkSmartPointer<vtkPolyData> ConvertMDKTriangleMeshToVTKPolyData(const TriangleMesh<MeshAttributeType>& MDKMesh)
@@ -685,13 +666,6 @@ vtkSmartPointer<vtkPolyData> ConvertMDKTriangleMeshToVTKPolyData(const TriangleM
 	auto VTKMesh = vtkSmartPointer<vtkPolyData>::New();
 	ConvertMDKTriangleMeshToVTKPolyData(MDKMesh, VTKMesh.GetPointer());
 	return VTKMesh;
-}
-
-
-template<typename MeshAttributeType>
-bool ConvertMDKTriangleMeshToVTKPolyData(const TriangleMesh<MeshAttributeType>& MDKMesh, vtkPolyData& VTKMesh)
-{
-	return ConvertMDKTriangleMeshToVTKPolyData(MDKMesh, &VTKMesh);
 }
 
 
@@ -787,13 +761,7 @@ bool ConvertMDKTriangleMeshToVTKPolyData(const TriangleMesh<MeshAttributeType>& 
 	return true;
 }
 
-
-template<typename MeshAttributeType>
-bool ConvertVTKPolyDataToMDKTriangleMesh(vtkPolyData& VTKMesh, TriangleMesh<MeshAttributeType>& MDKMesh)
-{
-	return ConvertVTKPolyDataToMDKTriangleMesh(&VTKMesh, MDKMesh);
-}
-
+//--------------------------------------- convert vtkPolyData to mdk TriangleMesh ------------------------------------------------//
 
 template<typename MeshAttributeType>
 bool ConvertVTKPolyDataToMDKTriangleMesh(vtkPolyData* VTKMesh, TriangleMesh<MeshAttributeType>& MDKMesh)
@@ -801,7 +769,7 @@ bool ConvertVTKPolyDataToMDKTriangleMesh(vtkPolyData* VTKMesh, TriangleMesh<Mesh
 	if (VTKMesh == nullptr)
 	{
 		MDK_Error("VTKMesh is nullptr @ ConvertVTKPolyDataToMDKTriangleMesh(...)")
-			return false;
+		return false;
 	}
 
 	typedef TriangleMesh<MeshAttributeType>::ScalarType ScalarType;

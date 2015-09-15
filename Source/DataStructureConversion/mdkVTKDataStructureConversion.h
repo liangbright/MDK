@@ -87,27 +87,22 @@ bool ConvertMultipleMDK3DCurveToVTKPolyData(const ObjectArray<DenseMatrix<Scalar
 template<typename ScalarType>
 bool ConvertMultipleMDK3DCurveToVTKPolyData(const ObjectArray<DenseMatrix<ScalarType>>& MDK3DCurveList, vtkPolyData* VTKCurve);
 
-//-------------------------------------- convert vtkPolyData  to mdk Curve/Matrix ----------------------------------------------------------//
+//-------------------------------------- convert vtkPolyData to mdk Curve/Matrix ----------------------------------------------------------//
 template<typename ScalarType>
 bool ConvertVTKPolyDataToMDK3DCurve(vtkPolyData& VTKCurveData, ObjectArray<DenseMatrix<ScalarType>>& MDK3DCurveData);
 
 template<typename ScalarType>
 bool ConvertVTKPolyDataToMDK3DCurve(vtkPolyData* VTKCurveData, ObjectArray<DenseMatrix<ScalarType>>& MDK3DCurveData);
 
-//-------------------------------------- convert mdk image to vtk image (copy data) -------------------------------------------------------------//
+//-------------------------------------- convert mdk 3D image to vtk 3D image (copy data) -----------------------------------------------------//
 template<typename PixelType>
 vtkSmartPointer<vtkImageData> ConvertMDK3DScalarImageToVTK3DScalarImage(const DenseImage3D<PixelType>& MDKImage);
 
 template<typename PixelType>
-bool ConvertMDK3DScalarImageToVTK3DScalarImage(const DenseImage3D<PixelType>& MDKImage, vtkImageData& VTKImage);
-
-template<typename PixelType>
 bool ConvertMDK3DScalarImageToVTK3DScalarImage(const DenseImage3D<PixelType>& MDKImage, vtkImageData* VTKImage);
 
-//-------------------------------------- convert vtk image to mdk image (copy data) -------------------------------------------------------------//
-template<typename PixelType>
-bool ConvertVTK3DScalarImageToMDK3DScalarImage(const vtkImageData& VTKImage, DenseImage3D<PixelType>& MDKImage);
-
+//-------------------------------------- convert vtk 3D image to mdk 3D image (copy data) -----------------------------------------------------//
+// vtkImageData is not template, so do not share data
 template<typename PixelType>
 bool ConvertVTK3DScalarImageToMDK3DScalarImage(const vtkImageData* VTKImage, DenseImage3D<PixelType>& MDKImage);
 
@@ -116,15 +111,9 @@ template<typename MeshAttributeType>
 vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMesh<MeshAttributeType>& MDKMesh);
 
 template<typename MeshAttributeType>
-bool ConvertMDKPolygonMeshToVTKPolyData(const PolygonMesh<MeshAttributeType>& MDKMesh, vtkPolyData& VTKMesh);
-
-template<typename MeshAttributeType>
 bool ConvertMDKPolygonMeshToVTKPolyData(const PolygonMesh<MeshAttributeType>& MDKMesh, vtkPolyData* VTKMesh);
 
 //--------------------------------------- convert vtkPolyData to mdk PolygonMesh ------------------------------------------------//
-template<typename MeshAttributeType>
-bool ConvertVTKPolyDataToMDKPolygonMesh(vtkPolyData& VTKMesh, PolygonMesh<MeshAttributeType>& MDKMesh);
-
 template<typename MeshAttributeType>
 bool ConvertVTKPolyDataToMDKPolygonMesh(vtkPolyData* VTKMesh, PolygonMesh<MeshAttributeType>& MDKMesh);
 
@@ -133,15 +122,9 @@ template<typename MeshAttributeType>
 vtkSmartPointer<vtkPolyData> ConvertMDKTriangleMeshToVTKPolyData(const TriangleMesh<MeshAttributeType>& MDKMesh);
 
 template<typename MeshAttributeType>
-bool ConvertMDKTriangleMeshToVTKPolyData(const TriangleMesh<MeshAttributeType>& MDKMesh, vtkPolyData& VTKMesh);
-
-template<typename MeshAttributeType>
 bool ConvertMDKTriangleMeshToVTKPolyData(const TriangleMesh<MeshAttributeType>& MDKMesh, vtkPolyData* VTKMesh);
 
 //--------------------------------------- convert vtkPolyData to mdk TriangleMesh ------------------------------------------------//
-template<typename MeshAttributeType>
-bool ConvertVTKPolyDataToMDKTriangleMesh(vtkPolyData& VTKMesh, TriangleMesh<MeshAttributeType>& MDKMesh);
-
 template<typename MeshAttributeType>
 bool ConvertVTKPolyDataToMDKTriangleMesh(vtkPolyData* VTKMesh, TriangleMesh<MeshAttributeType>& MDKMesh);
 

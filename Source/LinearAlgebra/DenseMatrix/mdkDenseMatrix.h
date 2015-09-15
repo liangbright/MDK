@@ -12,6 +12,7 @@
 #include "mdkString.h"
 #include "mdkLinearAlgebraConfig.h"
 #include "mdkMatrix_Common.h"
+#include "mdkObjectArray.h"
 #include "mdkStdObjectVector.h"
 #include "mdkDenseVector.h"
 #include "mdkDenseShadowMatrix.h"
