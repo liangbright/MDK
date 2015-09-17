@@ -88,6 +88,12 @@ bool ConvertSingleMDK3DCurveToVTKPolyData(const DenseMatrix<ScalarType>& MDK3DCu
 	}
 
 	auto PointNumber = MDK3DCurve.GetColCount();
+	if (PointNumber == 0)
+	{
+		MDK_Warning("input curve is empty @ ConvertSingleMDK3DCurveToVTKPolyData(...)")
+		return false;
+	}
+
 	if (MDK3DCurve.GetRowCount() != 3)
 	{
 		MDK_Error("Invalid MDK3DCurve @ mdkFileIO ConvertSingleMDK3DCurveToVTKPolyData")
