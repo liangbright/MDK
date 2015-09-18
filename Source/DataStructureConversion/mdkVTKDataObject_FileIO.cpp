@@ -30,6 +30,14 @@ bool SaveVTKPolyDataAsVTKFile(vtkPolyData* OutputVTKMesh, const String& FilePath
 }
 
 
+vtkSmartPointer<vtkPolyData> LoadVTKPolyDataFromVTKFile(const String& FilePathAndName)
+{
+	auto VTKMesh = vtkSmartPointer<vtkPolyData>::New();
+	LoadVTKPolyDataFromVTKFile(VTKMesh, FilePathAndName);
+	return VTKMesh;
+}
+
+
 bool LoadVTKPolyDataFromVTKFile(vtkPolyData* OutputVTKMesh, const String& FilePathAndName)
 {
 	if (OutputVTKMesh == nullptr)
