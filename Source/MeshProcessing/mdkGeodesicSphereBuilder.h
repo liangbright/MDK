@@ -16,6 +16,9 @@ public:
 	ObjectArray<MeshType> m_SphereList; // L2Norm of each vector ((0,0,0) to Point) is 1
 	int_max m_MaxDepth;//Length-1 of m_SphereList
 
+	// Depth:              1,  2,   3,   4,    5,     5,     7
+	// SphereResolution:  20, 42, 162, 642, 2562, 10242, 40962
+
 public:
 	GeodesicSphereBuilder();
 	~GeodesicSphereBuilder();

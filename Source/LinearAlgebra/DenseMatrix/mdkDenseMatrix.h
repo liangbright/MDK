@@ -850,46 +850,46 @@ public:
     inline DenseMatrix<ElementType_Output> GetCol(int_max ColIndex) const;
 
     template<typename ElementType_Output, int_max VectorFixedLength>
-    inline void GetCol(int_max ColIndex, DenseVector<ElementType_Output, VectorFixedLength>& ColData) const;
+    inline void GetCol(int_max ColIndex, DenseVector<ElementType_Output, VectorFixedLength>& ColVectorData) const;
 
     // must use different GetCol for variable and fixed length DenseVector
     template<typename ElementType_Output>
-    inline void GetCol(int_max ColIndex, DenseVector<ElementType_Output>& ColData) const;
+    inline void GetCol(int_max ColIndex, DenseVector<ElementType_Output>& ColVectorData) const;
 
     template<typename ElementType_Output>
-    inline void GetCol(int_max ColIndex, DenseMatrix<ElementType_Output>& ColData) const;
+    inline void GetCol(int_max ColIndex, DenseMatrix<ElementType_Output>& ColVectorData) const;
 
     template<typename ElementType_Output>
-    inline void GetCol(int_max ColIndex, ElementType_Output* ColData) const;
+    inline void GetCol(int_max ColIndex, ElementType_Output* ColVectorData) const;
 
     template<typename ElementType_Input>
-    inline void SetCol(int_max ColIndex, const std::initializer_list<ElementType_Input>& ColData);
+    inline void SetCol(int_max ColIndex, const std::initializer_list<ElementType_Input>& ColVectorData);
 
     template<typename ElementType_Input, int_max TemplateVectorLength>
-    inline void SetCol(int_max ColIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& ColData);
+    inline void SetCol(int_max ColIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& ColVectorData);
 
     template<typename ElementType_Input>
-    inline void SetCol(int_max ColIndex, const DenseMatrix<ElementType_Input>& ColData);
+    inline void SetCol(int_max ColIndex, const DenseMatrix<ElementType_Input>& ColVectorData);
 
     template<typename ElementType_Input>
-    inline void SetCol(int_max ColIndex, const ElementType_Input* ColData);
+    inline void SetCol(int_max ColIndex, const ElementType_Input* ColVectorData);
     
     inline void FillCol(int_max ColIndex, const ElementType& Element);
 
     template<typename ElementType_Input>
-    inline void AppendCol(const std::initializer_list<ElementType_Input>& ColData);
+    inline void AppendCol(const std::initializer_list<ElementType_Input>& ColVectorData);
 
     template<typename ElementType_Input, int_max TemplateVectorLength>
-    inline void AppendCol(const DenseVector<ElementType_Input, TemplateVectorLength>& ColData);
+    inline void AppendCol(const DenseVector<ElementType_Input, TemplateVectorLength>& ColVectorData);
 
     template<typename ElementType_Input>
-    inline void AppendCol(const DenseMatrix<ElementType_Input>& ColData);
+    inline void AppendCol(const DenseMatrix<ElementType_Input>& ColVectorData);// Input is Vector, NOT matrix
 
     template<typename ElementType_Input>
-    inline void AppendCol(const ElementType_Input* ColData, int_max Length);
+    inline void AppendCol(const ElementType_Input* ColVectorData, int_max Length);
 
     template<typename ElementType_Input>
-    inline void AppendCol(const ElementType_Input* ColData);
+    inline void AppendCol(const ElementType_Input* ColVectorData);
 
     inline void DeleteCol(int_max ColIndex);
 
@@ -903,19 +903,19 @@ public:
     inline void DeleteCol(const int_max* ColIndexList, int_max ListLength);
 
     template<typename ElementType_Input>
-    inline void InsertCol(int_max ColIndex, const std::initializer_list<ElementType_Input>& ColData);
+    inline void InsertCol(int_max ColIndex, const std::initializer_list<ElementType_Input>& ColVectorData);
 
     template<typename ElementType_Input, int_max TemplateVectorLength>
-    inline void InsertCol(int_max ColIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& ColData);
+    inline void InsertCol(int_max ColIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& ColVectorData);
 
     template<typename ElementType_Input>
-    inline void InsertCol(int_max ColIndex, const DenseMatrix<ElementType_Input>& ColData);
+    inline void InsertCol(int_max ColIndex, const DenseMatrix<ElementType_Input>& ColVectorData);
 
     template<typename ElementType_Input>
-    inline void InsertCol(int_max ColIndex, const ElementType_Input* ColData, int_max Length);
+    inline void InsertCol(int_max ColIndex, const ElementType_Input* ColVectorData, int_max Length);
 
     template<typename ElementType_Input>
-    inline void InsertCol(int_max ColIndex, const ElementType_Input* ColData);
+    inline void InsertCol(int_max ColIndex, const ElementType_Input* ColVectorData);
 
     //---------------------- Get/Set/Fill/Append A Single Row, Delete Multi-Rows  ----------------------------------------//
     
@@ -923,45 +923,45 @@ public:
     inline DenseMatrix<ElementType_Output> GetRow(int_max RowIndex) const;
 
     template<typename ElementType_Output, int_max VectorFixedLength>
-    inline void GetRow(int_max RowIndex, DenseVector<ElementType_Output, VectorFixedLength>& RowData) const;
+    inline void GetRow(int_max RowIndex, DenseVector<ElementType_Output, VectorFixedLength>& RowVectorData) const;
 
     template<typename ElementType_Output>
-    inline void GetRow(int_max RowIndex, DenseVector<ElementType_Output>& RowData) const;//this can not be replaced by the above function
+    inline void GetRow(int_max RowIndex, DenseVector<ElementType_Output>& RowVectorData) const;//this can not be replaced by the above function
 
     template<typename ElementType_Output>
-    inline void GetRow(int_max RowIndex, DenseMatrix<ElementType_Output>& RowData) const;
+    inline void GetRow(int_max RowIndex, DenseMatrix<ElementType_Output>& RowVectorData) const;
 
     template<typename ElementType_Output>
-    inline void GetRow(int_max RowIndex, ElementType_Output* RowData) const;
+    inline void GetRow(int_max RowIndex, ElementType_Output* RowVectorData) const;
 
     template<typename ElementType_Input>
-    inline void SetRow(int_max RowIndex, const std::initializer_list<ElementType_Input>& RowData);
+    inline void SetRow(int_max RowIndex, const std::initializer_list<ElementType_Input>& RowVectorData);
 
     template<typename ElementType_Input, int_max TemplateVectorLength>
-    inline void SetRow(int_max RowIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& RowData);
+    inline void SetRow(int_max RowIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& RowVectorData);
 
     template<typename ElementType_Input>
-    inline void SetRow(int_max RowIndex, const DenseMatrix<ElementType_Input>& RowData);
+    inline void SetRow(int_max RowIndex, const DenseMatrix<ElementType_Input>& RowVectorData);
 
     template<typename ElementType_Input>
-    inline void SetRow(int_max RowIndex, const ElementType_Input* RowData);
+    inline void SetRow(int_max RowIndex, const ElementType_Input* RowVectorData);
 
     inline void FillRow(int_max RowIndex, const ElementType& Element);
 
     template<typename ElementType_Input>
-    inline void AppendRow(const std::initializer_list<ElementType_Input>& RowData);
+    inline void AppendRow(const std::initializer_list<ElementType_Input>& RowVectorData);
 
     template<typename ElementType_Input, int_max TemplateVectorLength>
-    inline void AppendRow(const DenseVector<ElementType_Input, TemplateVectorLength>& RowData);
+    inline void AppendRow(const DenseVector<ElementType_Input, TemplateVectorLength>& RowVectorData);
 
     template<typename ElementType_Input>
-    inline void AppendRow(const DenseMatrix<ElementType_Input>& RowData);
+    inline void AppendRow(const DenseMatrix<ElementType_Input>& RowVectorData);
 
     template<typename ElementType_Input>
-    inline void AppendRow(const ElementType_Input* RowData, int_max Length);
+    inline void AppendRow(const ElementType_Input* RowVectorData, int_max Length);
 
     template<typename ElementType_Input>
-    inline void AppendRow(const ElementType_Input* RowData);
+    inline void AppendRow(const ElementType_Input* RowVectorData);
 
     inline void DeleteRow(int_max RowIndex);
 
@@ -975,19 +975,19 @@ public:
     inline void DeleteRow(const int_max* RowIndexList, int_max ListLength);
 
     template<typename ElementType_Input>
-    inline void InsertRow(int_max RowIndex, const std::initializer_list<ElementType_Input>& RowData);
+    inline void InsertRow(int_max RowIndex, const std::initializer_list<ElementType_Input>& RowVectorData);
 
     template<typename ElementType_Input, int_max TemplateVectorLength>
-    inline void InsertRow(int_max RowIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& RowData);
+    inline void InsertRow(int_max RowIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& RowVectorData);
 
     template<typename ElementType_Input>
-    inline void InsertRow(int_max RowIndex, const DenseMatrix<ElementType_Input>& RowData);
+    inline void InsertRow(int_max RowIndex, const DenseMatrix<ElementType_Input>& RowVectorData);
 
     template<typename ElementType_Input>
-    inline void InsertRow(int_max RowIndex, const ElementType_Input* RowData, int_max Length);
+    inline void InsertRow(int_max RowIndex, const ElementType_Input* RowVectorData, int_max Length);
 
     template<typename ElementType_Input>
-    inline void InsertRow(int_max RowIndex, const ElementType_Input* RowData);
+    inline void InsertRow(int_max RowIndex, const ElementType_Input* RowVectorData);
 
     //---------------------- Append, delete, insert element when matrix is vector -----------------//
     // if matrix is empty or has one element, then it will become row vector
@@ -1038,10 +1038,10 @@ public:
     inline DenseMatrix<ElementType_Output> GetDiagonal() const;
 
     template<typename ElementType_Output, int_max VectorFixedLength>
-    inline void GetDiagonal(DenseVector<ElementType_Output, VectorFixedLength>& RowData) const;
+    inline void GetDiagonal(DenseVector<ElementType_Output, VectorFixedLength>& RowVectorData) const;
 
     template<typename ElementType_Output>
-    inline void GetDiagonal(DenseVector<ElementType_Output>& RowData) const;// this can not be replaced by the above function
+    inline void GetDiagonal(DenseVector<ElementType_Output>& RowVectorData) const;// this can not be replaced by the above function
 
     template<typename ElementType_Output>
     inline void GetDiagonal(DenseMatrix<ElementType_Output>& DiagonalData) const;

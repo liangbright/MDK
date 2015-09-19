@@ -4978,52 +4978,52 @@ DenseMatrix<ElementType_Output> DenseMatrix<ElementType>::GetCol(int_max ColInde
 template<typename ElementType>
 template<typename ElementType_Output, int_max VectorFixedLength>
 inline
-void DenseMatrix<ElementType>::GetCol(int_max ColIndex, DenseVector<ElementType_Output, VectorFixedLength>& ColData) const
+void DenseMatrix<ElementType>::GetCol(int_max ColIndex, DenseVector<ElementType_Output, VectorFixedLength>& ColVectorData) const
 { // this is for fixed length DenseVector
 	if (VectorFixedLength != this->GetRowCount())
 	{
 		MDK_Error("Size not match @ DenseMatrix::GetCol(ColIndex, fixed length DenseVector)")
 		return;
 	}
-    this->GetCol(ColIndex, ColData.GetElementPointer());
+    this->GetCol(ColIndex, ColVectorData.GetElementPointer());
 }
 
 
 template<typename ElementType>
 template<typename ElementType_Output>
 inline
-void DenseMatrix<ElementType>::GetCol(int_max ColIndex, DenseVector<ElementType_Output>& ColData) const
+void DenseMatrix<ElementType>::GetCol(int_max ColIndex, DenseVector<ElementType_Output>& ColVectorData) const
 { // this is for variable length DenseVector
-	ColData.FastResize(this->GetRowCount());
-	this->GetCol(ColIndex, ColData.GetElementPointer());
+	ColVectorData.FastResize(this->GetRowCount());
+	this->GetCol(ColIndex, ColVectorData.GetElementPointer());
 }
 
 
 template<typename ElementType>
 template<typename ElementType_Output>
 inline
-void DenseMatrix<ElementType>::GetCol(int_max ColIndex, DenseMatrix<ElementType_Output>& ColData) const
+void DenseMatrix<ElementType>::GetCol(int_max ColIndex, DenseMatrix<ElementType_Output>& ColVectorData) const
 {
-    ColData.FastResize(this->GetRowCount(), 1);
-    this->GetCol(ColIndex, ColData.GetElementPointer());
+    ColVectorData.FastResize(this->GetRowCount(), 1);
+    this->GetCol(ColIndex, ColVectorData.GetElementPointer());
 }
 
 
 template<typename ElementType>
 template<typename ElementType_Output>
 inline 
-void DenseMatrix<ElementType>::GetCol(int_max ColIndex, ElementType_Output* ColData) const
+void DenseMatrix<ElementType>::GetCol(int_max ColIndex, ElementType_Output* ColVectorData) const
 {
     auto SelfSize = this->GetSize();
     if (SelfSize.ColCount == 0)
     {
-        MDK_Error("Self is empty @ DenseMatrix::GetCol(ColIndex, ElementType* ColData)")
+        MDK_Error("Self is empty @ DenseMatrix::GetCol(ColIndex, ElementType* ColVectorData)")
         return;
     }
 
-    if (ColIndex >= SelfSize.ColCount || ColIndex < 0 || ColData == nullptr)
+    if (ColIndex >= SelfSize.ColCount || ColIndex < 0 || ColVectorData == nullptr)
 	{
-		MDK_Error("Invalid Input @ DenseMatrix::GetCol(int_max ColIndex, ElementType* ColData)")
+		MDK_Error("Invalid Input @ DenseMatrix::GetCol(int_max ColIndex, ElementType* ColVectorData)")
 		return;
 	}
 
@@ -5033,7 +5033,7 @@ void DenseMatrix<ElementType>::GetCol(int_max ColIndex, ElementType_Output* ColD
 
 	for (int_max i = 0; i < SelfSize.RowCount; ++i)
 	{
-		ColData[i] = ElementType_Output(RawPointer[i]);
+		ColVectorData[i] = ElementType_Output(RawPointer[i]);
 	}
 }
 
@@ -5041,69 +5041,69 @@ void DenseMatrix<ElementType>::GetCol(int_max ColIndex, ElementType_Output* ColD
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-void DenseMatrix<ElementType>::SetCol(int_max ColIndex, const std::initializer_list<ElementType_Input>& ColData)
+void DenseMatrix<ElementType>::SetCol(int_max ColIndex, const std::initializer_list<ElementType_Input>& ColVectorData)
 {
-    if (int_max(ColData.size()) != this->GetRowCount())
+    if (int_max(ColVectorData.size()) != this->GetRowCount())
     {
         MDK_Error("Invalid Input size @ DenseMatrix::SetCol(ColIndex, std::initializer_list)")
         return;
     }
 
-    this->SetCol(ColIndex, ColData.begin());
+    this->SetCol(ColIndex, ColVectorData.begin());
 }
 
 
 template<typename ElementType>
 template<typename ElementType_Input, int_max TemplateVectorLength>
 inline
-void DenseMatrix<ElementType>::SetCol(int_max ColIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& ColData)
+void DenseMatrix<ElementType>::SetCol(int_max ColIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& ColVectorData)
 {// TemplateVectorLength is -1 for variable length DenseVector
-    if (ColData.GetElementCount() != this->GetRowCount())
+    if (ColVectorData.GetElementCount() != this->GetRowCount())
     {
         MDK_Error("Invalid Input size @ DenseMatrix::SetCol(ColIndex, DenseVector)")
         return;
     }
-    this->SetCol(ColIndex, ColData.GetElementPointer());
+    this->SetCol(ColIndex, ColVectorData.GetElementPointer());
 }
 
 
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-void DenseMatrix<ElementType>::SetCol(int_max ColIndex, const DenseMatrix<ElementType_Input>& ColData)
+void DenseMatrix<ElementType>::SetCol(int_max ColIndex, const DenseMatrix<ElementType_Input>& ColVectorData)
 {
-    if (ColData.IsVector() == false)
+    if (ColVectorData.IsVector() == false)
     {
         MDK_Error("Invalid Input : must be a vector @ DenseMatrix::SetCol(ColIndex, DenseMatrix)")
         return;
     }
 
-    if (ColData.GetElementCount() != this->GetRowCount())
+    if (ColVectorData.GetElementCount() != this->GetRowCount())
     {
         MDK_Error("Invalid Input size @ DenseMatrix::SetCol(ColIndex, DenseMatrix)")
         return;
     }
 
-    this->SetCol(ColIndex, ColData.GetElementPointer());
+    this->SetCol(ColIndex, ColVectorData.GetElementPointer());
 }
 
 
 template<typename ElementType>
 template<typename ElementType_Input>
 inline 
-void DenseMatrix<ElementType>::SetCol(int_max ColIndex, const ElementType_Input* ColData)
+void DenseMatrix<ElementType>::SetCol(int_max ColIndex, const ElementType_Input* ColVectorData)
 {
     auto SelfSize = this->GetSize();
 
     if (SelfSize.ColCount == 0)
     {
-        MDK_Error("Self is empty @ DenseMatrix::SetCol(ColIndex, const ElementType_Input* ColData)")
+        MDK_Error("Self is empty @ DenseMatrix::SetCol(ColIndex, const ElementType_Input* ColVectorData)")
         return;
     }
 
-    if (ColIndex >= SelfSize.ColCount || ColIndex < 0 || ColData == nullptr)
+    if (ColIndex >= SelfSize.ColCount || ColIndex < 0 || ColVectorData == nullptr)
 	{
-		MDK_Error("Invalid Input @ DenseMatrix::SetCol(ColIndex, const ElementType_Input* ColData)")
+		MDK_Error("Invalid Input @ DenseMatrix::SetCol(ColIndex, const ElementType_Input* ColVectorData)")
 		return;
 	}
 
@@ -5116,10 +5116,10 @@ void DenseMatrix<ElementType>::SetCol(int_max ColIndex, const ElementType_Input*
     // int_max Index = ColIndex*SelfSize.RowCount;
     //for (int_max i = 0; i < SelfSize.RowCount; ++i)
     //{
-    //	RawPointer[Index + i] = ElementType(ColData[i]);
+    //	RawPointer[Index + i] = ElementType(ColVectorData[i]);
     //}
 
-    auto tempColData = ColData;
+    auto tempColData = ColVectorData;
 
     auto BeginPointer = this->GetElementPointer();
     BeginPointer += ColIndex*SelfSize.RowCount;
@@ -5163,50 +5163,50 @@ void DenseMatrix<ElementType>::FillCol(int_max ColIndex, const ElementType& Elem
 template<typename ElementType>
 template<typename ElementType_Input>
 inline 
-void DenseMatrix<ElementType>::AppendCol(const std::initializer_list<ElementType_Input>& ColData)
+void DenseMatrix<ElementType>::AppendCol(const std::initializer_list<ElementType_Input>& ColVectorData)
 {
-    this->AppendCol(ColData.begin(), int_max(ColData.size()));
+    this->AppendCol(ColVectorData.begin(), int_max(ColVectorData.size()));
 }
 
 
 template<typename ElementType>
 template<typename ElementType_Input, int_max TemplateVectorLength>
 inline
-void DenseMatrix<ElementType>::AppendCol(const DenseVector<ElementType_Input, TemplateVectorLength>& ColData)
+void DenseMatrix<ElementType>::AppendCol(const DenseVector<ElementType_Input, TemplateVectorLength>& ColVectorData)
 {// TemplateVectorLength is -1 for variable length DenseVector
-    this->AppendCol(ColData.GetElementPointer(), ColData.GetElementCount());
+    this->AppendCol(ColVectorData.GetElementPointer(), ColVectorData.GetElementCount());
 }
 
 
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-void DenseMatrix<ElementType>::AppendCol(const DenseMatrix<ElementType_Input>& ColData)
+void DenseMatrix<ElementType>::AppendCol(const DenseMatrix<ElementType_Input>& ColVectorData)
 {
-    if (ColData.IsVector() == false)
+    if (ColVectorData.IsVector() == false)
     {
-        MDK_Error("Input must be a vector @ DenseMatrix::AppendCol(const DenseMatrix<ElementType_Input>& ColData)")
+        MDK_Error("Input must be a vector @ DenseMatrix::AppendCol(const DenseMatrix<ElementType_Input>& ColVectorData)")
         return;
     }
 
-    this->AppendCol(ColData.GetElementPointer(), ColData.GetElementCount());
+    this->AppendCol(ColVectorData.GetElementPointer(), ColVectorData.GetElementCount());
 }
 
 
 template<typename ElementType>
 template<typename ElementType_Input>
 inline 
-void DenseMatrix<ElementType>::AppendCol(const ElementType_Input* ColData, int_max Length)
+void DenseMatrix<ElementType>::AppendCol(const ElementType_Input* ColVectorData, int_max Length)
 {
-	if (ColData == nullptr || Length <= 0)
+	if (ColVectorData == nullptr || Length <= 0)
 	{
-		MDK_Warning("Input is empty @ DenseMatrix::AppendCol(const ElementType_Input* ColData, int_max Length)")
+		MDK_Warning("Input is empty @ DenseMatrix::AppendCol(const ElementType_Input* ColVectorData, int_max Length)")
 		return;
 	}
 
     if (this->IsSizeFixed() == true)
     {
-        MDK_Error("Size can not change @ DenseMatrix::AppendCol(const ElementType_Input* ColData, int_max Length)")
+        MDK_Error("Size can not change @ DenseMatrix::AppendCol(const ElementType_Input* ColVectorData, int_max Length)")
         return;
     }
 
@@ -5214,7 +5214,7 @@ void DenseMatrix<ElementType>::AppendCol(const ElementType_Input* ColData, int_m
 
     if (SelfSize.RowCount > 0 && Length != SelfSize.RowCount)
     {
-        MDK_Error("Invalid Input: size not match @ DenseMatrix::AppendCol(const ElementType_Input* ColData, int_max Length)")
+        MDK_Error("Invalid Input: size not match @ DenseMatrix::AppendCol(const ElementType_Input* ColVectorData, int_max Length)")
         return;
     }
 
@@ -5226,14 +5226,14 @@ void DenseMatrix<ElementType>::AppendCol(const ElementType_Input* ColData, int_m
 
     this->Resize(Length, SelfSize.ColCount + 1);
 
-    this->SetCol(SelfSize.ColCount, ColData);
+    this->SetCol(SelfSize.ColCount, ColVectorData);
 }
 
 
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-void DenseMatrix<ElementType>::AppendCol(const ElementType_Input* ColData)
+void DenseMatrix<ElementType>::AppendCol(const ElementType_Input* ColVectorData)
 {
     auto RowCount = this->GetRowCount();
 
@@ -5243,7 +5243,7 @@ void DenseMatrix<ElementType>::AppendCol(const ElementType_Input* ColData)
         return;
     }
 
-    this->AppendCol(ColData, RowCount);
+    this->AppendCol(ColVectorData, RowCount);
 }
 
 
@@ -5358,44 +5358,44 @@ void DenseMatrix<ElementType>::DeleteCol(const int_max* ColIndexList, int_max Li
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-void DenseMatrix<ElementType>::InsertCol(int_max ColIndex, const std::initializer_list<ElementType_Input>& ColData)
+void DenseMatrix<ElementType>::InsertCol(int_max ColIndex, const std::initializer_list<ElementType_Input>& ColVectorData)
 {
-    this->InsertCol(ColIndex, ColData.begin(), int_max(ColData.size()));
+    this->InsertCol(ColIndex, ColVectorData.begin(), int_max(ColVectorData.size()));
 }
 
 
 template<typename ElementType>
 template<typename ElementType_Input, int_max TemplateVectorLength>
 inline
-void DenseMatrix<ElementType>::InsertCol(int_max ColIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& ColData)
+void DenseMatrix<ElementType>::InsertCol(int_max ColIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& ColVectorData)
 {// TemplateVectorLength is -1 for variable length DenseVector
-    this->InsertCol(ColIndex, ColData.GetElementPointer(), ColData.GetElementCount());
+    this->InsertCol(ColIndex, ColVectorData.GetElementPointer(), ColVectorData.GetElementCount());
 }
 
 
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-void DenseMatrix<ElementType>::InsertCol(int_max ColIndex, const DenseMatrix<ElementType_Input>& ColData)
+void DenseMatrix<ElementType>::InsertCol(int_max ColIndex, const DenseMatrix<ElementType_Input>& ColVectorData)
 {
-    if (ColData.IsVector() == false)
+    if (ColVectorData.IsVector() == false)
     {
         MDK_Error("Input is NOT a vector @ DenseMatrix::InsertCol(ColIndex, DenseMatrix)")
         return;
     }
 
-    this->InsertCol(ColIndex, ColData.GetElementPointer(), ColData.GetElementCount());
+    this->InsertCol(ColIndex, ColVectorData.GetElementPointer(), ColVectorData.GetElementCount());
 }
 
 
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-void DenseMatrix<ElementType>::InsertCol(int_max ColIndex, const ElementType_Input* ColData, int_max Length)
+void DenseMatrix<ElementType>::InsertCol(int_max ColIndex, const ElementType_Input* ColVectorData, int_max Length)
 {
     if (this->IsSizeFixed() == true)
     {
-        MDK_Error("Matrix Size can not change @ DenseMatrix::InsertCol(ColIndex, const ElementType_Input* ColData, int_max Length)")
+        MDK_Error("Matrix Size can not change @ DenseMatrix::InsertCol(ColIndex, const ElementType_Input* ColVectorData, int_max Length)")
         return;
     }
 
@@ -5403,17 +5403,17 @@ void DenseMatrix<ElementType>::InsertCol(int_max ColIndex, const ElementType_Inp
 
     if (SelfSize.ColCount == 0)
     {
-        if (ColIndex != 0 || ColData == nullptr || Length <= 0)
+        if (ColIndex != 0 || ColVectorData == nullptr || Length <= 0)
         {
-            MDK_Error("Invalid Input @ DenseMatrix::InsertCol(ColIndex, const ElementType_Input* ColData, int_max Length)")
+            MDK_Error("Invalid Input @ DenseMatrix::InsertCol(ColIndex, const ElementType_Input* ColVectorData, int_max Length)")
             return;
         }
     }
     else
     {
-        if (ColIndex >= SelfSize.ColCount || ColIndex < 0 || ColData == nullptr || Length != SelfSize.RowCount || Length <= 0)
+        if (ColIndex >= SelfSize.ColCount || ColIndex < 0 || ColVectorData == nullptr || Length != SelfSize.RowCount || Length <= 0)
         {
-            MDK_Error("Invalid Input @ DenseMatrix::InsertCol(ColIndex, const ElementType_Input* ColData, int_max Length)")
+            MDK_Error("Invalid Input @ DenseMatrix::InsertCol(ColIndex, const ElementType_Input* ColVectorData, int_max Length)")
             return;
         }
     }
@@ -5425,7 +5425,7 @@ void DenseMatrix<ElementType>::InsertCol(int_max ColIndex, const ElementType_Inp
 
     m_MatrixData->CopyDataToInternalArrayIfNecessary();
 
-    m_MatrixData->StdVector.insert(m_MatrixData->StdVector.begin() + ColIndex*SelfSize.RowCount, ColData, ColData + Length);
+    m_MatrixData->StdVector.insert(m_MatrixData->StdVector.begin() + ColIndex*SelfSize.RowCount, ColVectorData, ColVectorData + Length);
 
     m_MatrixData->RowCount = Length;
 
@@ -5438,7 +5438,7 @@ void DenseMatrix<ElementType>::InsertCol(int_max ColIndex, const ElementType_Inp
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-void DenseMatrix<ElementType>::InsertCol(int_max ColIndex, const ElementType_Input* ColData)
+void DenseMatrix<ElementType>::InsertCol(int_max ColIndex, const ElementType_Input* ColVectorData)
 {
     auto RowCount = this->GetRowCount();
     if (RowCount == 0)
@@ -5446,7 +5446,7 @@ void DenseMatrix<ElementType>::InsertCol(int_max ColIndex, const ElementType_Inp
         MDK_Error("must input RowCount because Self is empty @ DenseMatrix::InsertCol(...)")
         return;
     }
-    this->InsertCol(ColIndex, ColData, RowCount);
+    this->InsertCol(ColIndex, ColVectorData, RowCount);
 }
 
 
@@ -5465,52 +5465,52 @@ DenseMatrix<ElementType_Output> DenseMatrix<ElementType>::GetRow(int_max RowInde
 template<typename ElementType>
 template<typename ElementType_Output, int_max VectorFixedLength>
 inline
-void DenseMatrix<ElementType>::GetRow(int_max RowIndex, DenseVector<ElementType_Output, VectorFixedLength>& RowData) const
+void DenseMatrix<ElementType>::GetRow(int_max RowIndex, DenseVector<ElementType_Output, VectorFixedLength>& RowVectorData) const
 {// this is for fixed length DenseVector
 	if (VectorFixedLength != this->GetColCount())
 	{
 		MDK_Error("Size not match @ DenseMatrix::GetRow(RowIndex, ixed length DenseVector)")
 	}
-    this->GetRow(RowIndex, RowData.GetElementPointer());
+    this->GetRow(RowIndex, RowVectorData.GetElementPointer());
 }
 
 
 template<typename ElementType>
 template<typename ElementType_Output>
 inline
-void DenseMatrix<ElementType>::GetRow(int_max RowIndex, DenseVector<ElementType_Output>& RowData) const
+void DenseMatrix<ElementType>::GetRow(int_max RowIndex, DenseVector<ElementType_Output>& RowVectorData) const
 {// this is  for variable length DenseVector
-	RowData.FastResize(this->GetColCount());
-	this->GetRow(RowIndex, RowData.GetElementPointer());
+	RowVectorData.FastResize(this->GetColCount());
+	this->GetRow(RowIndex, RowVectorData.GetElementPointer());
 }
 
 
 template<typename ElementType>
 template<typename ElementType_Output>
 inline
-void DenseMatrix<ElementType>::GetRow(int_max RowIndex, DenseMatrix<ElementType_Output>& RowData) const
+void DenseMatrix<ElementType>::GetRow(int_max RowIndex, DenseMatrix<ElementType_Output>& RowVectorData) const
 {
-    RowData.FastResize(1, this->GetColCount());
-    this->GetRow(RowIndex, RowData.GetElementPointer());
+    RowVectorData.FastResize(1, this->GetColCount());
+    this->GetRow(RowIndex, RowVectorData.GetElementPointer());
 }
 
 
 template<typename ElementType>
 template<typename ElementType_Output>
 inline
-void DenseMatrix<ElementType>::GetRow(int_max RowIndex, ElementType_Output* RowData) const
+void DenseMatrix<ElementType>::GetRow(int_max RowIndex, ElementType_Output* RowVectorData) const
 {
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowCount == 0)
     {
-        MDK_Error("Self is empty @ DenseMatrix GetRow(RowIndex, ElementType* RowData)")
+        MDK_Error("Self is empty @ DenseMatrix GetRow(RowIndex, ElementType* RowVectorData)")
         return;
     }
 
-    if (RowIndex >= SelfSize.RowCount || RowIndex < 0 || RowData == nullptr)
+    if (RowIndex >= SelfSize.RowCount || RowIndex < 0 || RowVectorData == nullptr)
 	{
-		MDK_Error("Invalid Input @ DenseMatrix GetRow(RowIndex, ElementType* RowData)")
+		MDK_Error("Invalid Input @ DenseMatrix GetRow(RowIndex, ElementType* RowVectorData)")
 		return;
 	}
 
@@ -5520,7 +5520,7 @@ void DenseMatrix<ElementType>::GetRow(int_max RowIndex, ElementType_Output* RowD
 
 	for (int_max j = 0; j < SelfSize.ColCount; ++j)
 	{
-		RowData[j] = ElementType_Output(RawPointer[Index + RowIndex]);
+		RowVectorData[j] = ElementType_Output(RawPointer[Index + RowIndex]);
 		Index += SelfSize.RowCount;
 	}
 }
@@ -5529,68 +5529,68 @@ void DenseMatrix<ElementType>::GetRow(int_max RowIndex, ElementType_Output* RowD
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-void DenseMatrix<ElementType>::SetRow(int_max RowIndex, const std::initializer_list<ElementType_Input>& RowData)
+void DenseMatrix<ElementType>::SetRow(int_max RowIndex, const std::initializer_list<ElementType_Input>& RowVectorData)
 {
-    if (int_max(RowData.size()) != this->GetColCount())
+    if (int_max(RowVectorData.size()) != this->GetColCount())
     {
         MDK_Error("Input size is wrong @ DenseMatrix::SetRow(int_max RowIndex, std::initializer_list)")
         return;
     }
-    this->SetRow(RowIndex, RowData.begin());
+    this->SetRow(RowIndex, RowVectorData.begin());
 }
 
 
 template<typename ElementType>
 template<typename ElementType_Input, int_max TemplateVectorLength>
 inline
-void DenseMatrix<ElementType>::SetRow(int_max RowIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& RowData)
+void DenseMatrix<ElementType>::SetRow(int_max RowIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& RowVectorData)
 {//TemplateVectorLength is -1 for variable length DenseVector
-    if (RowData.GetElementCount() != this->GetColCount())
+    if (RowVectorData.GetElementCount() != this->GetColCount())
     {
         MDK_Error("Input size is wrong @ DenseMatrix::SetRow(int_max RowIndex, DenseVector)")
         return;
     }
-    this->SetRow(RowIndex, RowData.GetElementPointer());
+    this->SetRow(RowIndex, RowVectorData.GetElementPointer());
 }
 
 
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-void DenseMatrix<ElementType>::SetRow(int_max RowIndex, const DenseMatrix<ElementType_Input>& RowData)
+void DenseMatrix<ElementType>::SetRow(int_max RowIndex, const DenseMatrix<ElementType_Input>& RowVectorData)
 {
-    if (RowData.IsVector() == false)
+    if (RowVectorData.IsVector() == false)
     {
         MDK_Error("Input must be a vector @ DenseMatrix::SetRow(int_max RowIndex, DenseMatrix)")
         return;
     }
 
-    if (RowData.GetElementCount() != this->GetColCount())
+    if (RowVectorData.GetElementCount() != this->GetColCount())
     {
         MDK_Error("Input size is wrong @ DenseMatrix::SetRow(int_max RowIndex, DenseMatrix)")
         return;
     }
 
-    this->SetRow(RowIndex, RowData.GetElementPointer());
+    this->SetRow(RowIndex, RowVectorData.GetElementPointer());
 }
 
 
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-void DenseMatrix<ElementType>::SetRow(int_max RowIndex, const ElementType_Input* RowData)
+void DenseMatrix<ElementType>::SetRow(int_max RowIndex, const ElementType_Input* RowVectorData)
 {
     auto SelfSize = this->GetSize();
 
     if (SelfSize.RowCount == 0)
     {
-        MDK_Error("Self is empty @ DenseMatrix::SetRow(int_max RowIndex, const ElementType_Input* RowData)")
+        MDK_Error("Self is empty @ DenseMatrix::SetRow(int_max RowIndex, const ElementType_Input* RowVectorData)")
         return;
     }
 
-    if (RowIndex >= SelfSize.RowCount || RowIndex < 0 || RowData == nullptr)
+    if (RowIndex >= SelfSize.RowCount || RowIndex < 0 || RowVectorData == nullptr)
     {
-        MDK_Error("Invalid Input @ DenseMatrix::SetRow(RowIndex, const ElementType_Input* RowData)")
+        MDK_Error("Invalid Input @ DenseMatrix::SetRow(RowIndex, const ElementType_Input* RowVectorData)")
         return;
     }
 
@@ -5600,7 +5600,7 @@ void DenseMatrix<ElementType>::SetRow(int_max RowIndex, const ElementType_Input*
 
     for (int_max j = 0; j < SelfSize.ColCount; ++j)
     {
-        RawPointer[Index + RowIndex] = ElementType(RowData[j]);
+        RawPointer[Index + RowIndex] = ElementType(RowVectorData[j]);
 
         Index += SelfSize.RowCount;
      }
@@ -5641,50 +5641,50 @@ void DenseMatrix<ElementType>::FillRow(int_max RowIndex, const ElementType& Elem
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-void DenseMatrix<ElementType>::AppendRow(const std::initializer_list<ElementType_Input>& RowData)
+void DenseMatrix<ElementType>::AppendRow(const std::initializer_list<ElementType_Input>& RowVectorData)
 {
-    this->AppendRow(RowData.begin(), int_max(RowData.size()));
+    this->AppendRow(RowVectorData.begin(), int_max(RowVectorData.size()));
 }
 
 
 template<typename ElementType>
 template<typename ElementType_Input, int_max TemplateVectorLength>
 inline
-void DenseMatrix<ElementType>::AppendRow(const DenseVector<ElementType_Input, TemplateVectorLength>& RowData)
+void DenseMatrix<ElementType>::AppendRow(const DenseVector<ElementType_Input, TemplateVectorLength>& RowVectorData)
 {// TemplateVectorLength is -1 for variable length DenseVector
-    this->AppendRow(RowData.GetElementPointer(), RowData.GetElementCount());
+    this->AppendRow(RowVectorData.GetElementPointer(), RowVectorData.GetElementCount());
 }
 
 
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-void DenseMatrix<ElementType>::AppendRow(const DenseMatrix<ElementType_Input>& RowData)
+void DenseMatrix<ElementType>::AppendRow(const DenseMatrix<ElementType_Input>& RowVectorData)
 {
-    if (RowData.IsVector() == false)
+    if (RowVectorData.IsVector() == false)
     {
-        MDK_Error("Input must be a vector @ DenseMatrix::AppendRow(const DenseMatrix<ElementType_Input>& RowData)")
+        MDK_Error("Input must be a vector @ DenseMatrix::AppendRow(const DenseMatrix<ElementType_Input>& RowVectorData)")
         return;
     }
 
-    this->AppendRow(RowData.GetElementPointer(), RowData.GetElementCount());
+    this->AppendRow(RowVectorData.GetElementPointer(), RowVectorData.GetElementCount());
 }
 
 
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-void DenseMatrix<ElementType>::AppendRow(const ElementType_Input* RowData, int_max Length)
+void DenseMatrix<ElementType>::AppendRow(const ElementType_Input* RowVectorData, int_max Length)
 {
-	if (RowData == nullptr || Length <= 0)
+	if (RowVectorData == nullptr || Length <= 0)
 	{
-		MDK_Warning("Input is empty @ DenseMatrix::AppendRow(const ElementType_Input* RowData, int_max Length)")
+		MDK_Warning("Input is empty @ DenseMatrix::AppendRow(const ElementType_Input* RowVectorData, int_max Length)")
 		return;
 	}
 
     if (this->IsSizeFixed() == true)
     {
-        MDK_Error("Size can not change @ DenseMatrix::AppendRow(const ElementType_Input* RowData, int_max Length)")
+        MDK_Error("Size can not change @ DenseMatrix::AppendRow(const ElementType_Input* RowVectorData, int_max Length)")
         return;
     }
 
@@ -5692,7 +5692,7 @@ void DenseMatrix<ElementType>::AppendRow(const ElementType_Input* RowData, int_m
 
     if (SelfSize.ColCount > 0 && Length != SelfSize.ColCount)
     {
-        MDK_Error("Invalid Input: size does not match @ DenseMatrix::AppendRow(const ElementType_Input* RowData, int_max Length)")
+        MDK_Error("Invalid Input: size does not match @ DenseMatrix::AppendRow(const ElementType_Input* RowVectorData, int_max Length)")
         return;
     }
 
@@ -5704,14 +5704,14 @@ void DenseMatrix<ElementType>::AppendRow(const ElementType_Input* RowData, int_m
 
     this->Resize(SelfSize.RowCount + 1, Length);
 
-    this->SetRow(SelfSize.RowCount, RowData);
+    this->SetRow(SelfSize.RowCount, RowVectorData);
 }
 
 
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-void DenseMatrix<ElementType>::AppendRow(const ElementType_Input* RowData)
+void DenseMatrix<ElementType>::AppendRow(const ElementType_Input* RowVectorData)
 {
     auto ColCount = this->GetColCount();
 
@@ -5721,7 +5721,7 @@ void DenseMatrix<ElementType>::AppendRow(const ElementType_Input* RowData)
         return;
     }
 
-    this->AppendRow(RowData, ColCount);
+    this->AppendRow(RowVectorData, ColCount);
 }
 
 
@@ -5827,56 +5827,56 @@ void DenseMatrix<ElementType>::DeleteRow(const int_max* RowIndexList, int_max Li
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-void DenseMatrix<ElementType>::InsertRow(int_max RowIndex, const std::initializer_list<ElementType_Input>& RowData)
+void DenseMatrix<ElementType>::InsertRow(int_max RowIndex, const std::initializer_list<ElementType_Input>& RowVectorData)
 {
-    this->InsertRow(RowIndex, RowData.begin(), int_max(RowData.size()));
+    this->InsertRow(RowIndex, RowVectorData.begin(), int_max(RowVectorData.size()));
 }
 
 
 template<typename ElementType>
 template<typename ElementType_Input, int_max TemplateVectorLength>
 inline
-void DenseMatrix<ElementType>::InsertRow(int_max RowIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& RowData)
+void DenseMatrix<ElementType>::InsertRow(int_max RowIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& RowVectorData)
 {// TemplateVectorLength is -1 for variable length DenseVector
-    this->InsertRow(RowIndex, RowData.GetElementPointer(), RowData.GetElementCount());
+    this->InsertRow(RowIndex, RowVectorData.GetElementPointer(), RowVectorData.GetElementCount());
 }
 
 
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-void DenseMatrix<ElementType>::InsertRow(int_max RowIndex, const DenseMatrix<ElementType_Input>& RowData)
+void DenseMatrix<ElementType>::InsertRow(int_max RowIndex, const DenseMatrix<ElementType_Input>& RowVectorData)
 {
-    if (RowData.IsVector() == false)
+    if (RowVectorData.IsVector() == false)
     {
-        MDK_Error("Input is NOT a vector @ DenseMatrix::InsertRow(int_max RowIndex, const DenseMatrix<ElementType_Input>& RowData)")
+        MDK_Error("Input is NOT a vector @ DenseMatrix::InsertRow(int_max RowIndex, const DenseMatrix<ElementType_Input>& RowVectorData)")
         return;
     }
 
-    this->InsertRow(RowIndex, RowData.GetElementPointer(), RowData.GetElementCount());
+    this->InsertRow(RowIndex, RowVectorData.GetElementPointer(), RowVectorData.GetElementCount());
 }
 
 
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-void DenseMatrix<ElementType>::InsertRow(int_max RowIndex, const ElementType_Input* RowData, int_max Length)
+void DenseMatrix<ElementType>::InsertRow(int_max RowIndex, const ElementType_Input* RowVectorData, int_max Length)
 {
     if (this->IsSizeFixed() == true)
     {
-        MDK_Error("Size can not change @ DenseMatrix::InsertRow(RowIndex, const ElementType_Input* RowData, int_max Length)")
+        MDK_Error("Size can not change @ DenseMatrix::InsertRow(RowIndex, const ElementType_Input* RowVectorData, int_max Length)")
         return;
     }
 
     if (this->IsEmpty() == true)
     {
-        if (RowIndex == 0 && RowData != nullptr && Length > 0)
+        if (RowIndex == 0 && RowVectorData != nullptr && Length > 0)
         {
-            this->AppendRow(RowData, Length);
+            this->AppendRow(RowVectorData, Length);
         }
 		else
 		{
-			MDK_Error("Invalid Input @ DenseMatrix::InsertRow(RowIndex, const ElementType_Input* RowData, int_max Length)")
+			MDK_Error("Invalid Input @ DenseMatrix::InsertRow(RowIndex, const ElementType_Input* RowVectorData, int_max Length)")
 		}
         return;
     }
@@ -5885,9 +5885,9 @@ void DenseMatrix<ElementType>::InsertRow(int_max RowIndex, const ElementType_Inp
 
     auto SelfSize = this->GetSize();
 
-    if (RowIndex >= SelfSize.RowCount || RowIndex < 0 || RowData == nullptr || Length != SelfSize.ColCount)
+    if (RowIndex >= SelfSize.RowCount || RowIndex < 0 || RowVectorData == nullptr || Length != SelfSize.ColCount)
     {
-        MDK_Error("Invalid Input @ DenseMatrix::InsertRow(RowIndex, const ElementType_Input* RowData, int_max Length)")
+        MDK_Error("Invalid Input @ DenseMatrix::InsertRow(RowIndex, const ElementType_Input* RowVectorData, int_max Length)")
         return;
     }
 
@@ -5909,7 +5909,7 @@ void DenseMatrix<ElementType>::InsertRow(int_max RowIndex, const ElementType_Inp
 
     for (int_max j = 0; j < SelfSize.ColCount; ++j)
     {
-        tempRawPointer[j*(SelfSize.RowCount + 1) + RowIndex] = ElementType(RowData[j]);
+        tempRawPointer[j*(SelfSize.RowCount + 1) + RowIndex] = ElementType(RowVectorData[j]);
     }
 
     for (int_max j = 0; j < SelfSize.ColCount; ++j)
@@ -5929,7 +5929,7 @@ void DenseMatrix<ElementType>::InsertRow(int_max RowIndex, const ElementType_Inp
 template<typename ElementType>
 template<typename ElementType_Input>
 inline
-void DenseMatrix<ElementType>::InsertRow(int_max RowIndex, const ElementType_Input* RowData)
+void DenseMatrix<ElementType>::InsertRow(int_max RowIndex, const ElementType_Input* RowVectorData)
 {
     auto ColCount = this->GetColCount();
     if (ColCount == 0)
@@ -5937,7 +5937,7 @@ void DenseMatrix<ElementType>::InsertRow(int_max RowIndex, const ElementType_Inp
         MDK_Error("must input ColCount because Self is empty @ DenseMatrix::InsertRow(...)")
         return;
     }
-    this->InsertRow(RowIndex, RowData, ColCount);
+    this->InsertRow(RowIndex, RowVectorData, ColCount);
 }
 
 

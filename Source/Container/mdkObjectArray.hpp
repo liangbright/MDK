@@ -1071,6 +1071,22 @@ ElementType ObjectArray<ElementType>::PopBack()
 
 template<typename ElementType>
 inline
+void ObjectArray<ElementType>::Push(ElementType Element)
+{
+	this->Append(std::move(Element));
+}
+
+
+template<typename ElementType>
+inline
+ElementType ObjectArray<ElementType>::Pop()
+{
+	this->PopBack();
+}
+
+
+template<typename ElementType>
+inline
 ObjectArray<ElementType> ObjectArray<ElementType>::GetSubSet(int_max Index_start, int_max Index_end)
 {
     ObjectArray<ElementType> Subset;

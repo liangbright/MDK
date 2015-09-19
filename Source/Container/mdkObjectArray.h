@@ -490,6 +490,9 @@ public:
 	inline void PushBack(ElementType Element);
     inline ElementType PopBack();
 
+	inline void Push(ElementType Element);
+	inline ElementType Pop();
+
     //----------------------- Get a subset ------------------------------//
 
     inline ObjectArray<ElementType> GetSubSet(int_max Index_start, int_max Index_end);

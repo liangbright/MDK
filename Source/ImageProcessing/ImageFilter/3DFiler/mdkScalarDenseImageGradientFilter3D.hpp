@@ -252,7 +252,7 @@ void ScalarDenseImageGradientFilter3D<InputPixelType, ScalarType>::BuildMaskLink
 
 	auto IndexList_sort = DotProductList.Sort("descend");
 	
-	int_max MaskCount_keep = 5;// keep only 5
+	int_max MaskCount_keep = 6;// 6 neighbor at the next level
 
 	m_MaskList[Level][MaskIndex].MaskIndexListAtNextLevel = IndexList_sort.GetSubSet(0, MaskCount_keep - 1);
 }
