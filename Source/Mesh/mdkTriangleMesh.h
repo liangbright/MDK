@@ -99,27 +99,30 @@ public:
 
     //------------- Function optimized For TriangleMesh --------------------------------------------------//
 
-    void UpdateNormalAtCell(); // all
+	void UpdateNormalAtCell(const MDK_Symbol_ALL&);
     void UpdateNormalAtCell(CellHandleType CellHandle);
     void UpdateNormalAtCell(int_max CellID);
 
-    void UpdateAreaOfCell(); // all
+	void UpdateAreaOfCell(const MDK_Symbol_ALL&);
     void UpdateAreaOfCell(CellHandleType CellHandle);
     void UpdateAreaOfCell(int_max CellID);
 
-    void UpdateCornerAngleOfCell(); // all
+	void UpdateCornerAngleOfCell(const MDK_Symbol_ALL&);
     void UpdateCornerAngleOfCell(CellHandleType CellHandle);
     void UpdateCornerAngleOfCell(int_max CellID);
 
-	void UpdateAngleWeightedNormalAtPoint(); // all
+	// CellNormal must be available: call UpdateNormalAtCell() and UpdateCornerAngleOfCell()
+	void UpdateAngleWeightedNormalAtPoint(const MDK_Symbol_ALL&);
 	void UpdateAngleWeightedNormalAtPoint(PointHandleType PointHandle);
 	void UpdateAngleWeightedNormalAtPoint(int_max PointID);
 
-    void UpdateGaussianCurvatureAtPoint(); // all
+	// run UpdateCornerAngleOfCell and UpdateAreaOfCell first
+	void UpdateGaussianCurvatureAtPoint(const MDK_Symbol_ALL&);
     void UpdateGaussianCurvatureAtPoint(PointHandleType PointHandle);
     void UpdateGaussianCurvatureAtPoint(int_max PointID);
 
-    void UpdateMeanCurvatureAtPoint(); // all
+	// run UpdateAreaOfCell() first
+	void UpdateMeanCurvatureAtPoint(const MDK_Symbol_ALL&);
     void UpdateMeanCurvatureAtPoint(PointHandleType PointHandle);
     void UpdateMeanCurvatureAtPoint(int_max PointID);
 

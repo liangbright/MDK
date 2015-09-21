@@ -137,7 +137,7 @@ TriangleMesh<MeshAttributeType> TriangleMesh<MeshAttributeType>::GetSubMeshByCel
 //------------- Function optimized for TriangleMesh --------------------------------------------------//
 
 template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateNormalAtCell() // all
+void TriangleMesh<MeshAttributeType>::UpdateNormalAtCell(const MDK_Symbol_ALL&)
 { 
     for (auto it = this->GetIteratorOfCell(); it.IsNotEnd(); ++it)
     {
@@ -178,7 +178,7 @@ void TriangleMesh<MeshAttributeType>::UpdateNormalAtCell(int_max CellID)
 
 
 template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateAreaOfCell() // all
+void TriangleMesh<MeshAttributeType>::UpdateAreaOfCell(const MDK_Symbol_ALL&)
 {
     for (auto it = this->GetIteratorOfCell(); it.IsNotEnd(); ++it)
     {
@@ -213,7 +213,7 @@ void TriangleMesh<MeshAttributeType>::UpdateAreaOfCell(int_max CellID)
 
 
 template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateCornerAngleOfCell() // all
+void TriangleMesh<MeshAttributeType>::UpdateCornerAngleOfCell(const MDK_Symbol_ALL&)
 {
     for (auto it = this->GetIteratorOfCell(); it.IsNotEnd(); ++it)
     {
@@ -263,7 +263,7 @@ void TriangleMesh<MeshAttributeType>::UpdateCornerAngleOfCell(int_max CellID)
 
 
 template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateAngleWeightedNormalAtPoint() // all
+void TriangleMesh<MeshAttributeType>::UpdateAngleWeightedNormalAtPoint(const MDK_Symbol_ALL&)
 {// CellNormal must be available: call UpdateNormalAtCell() and UpdateCornerAngleOfCell()
     for (auto it = this->GetIteratorOfPoint(); it.IsNotEnd(); ++it)
     {
@@ -349,7 +349,7 @@ void TriangleMesh<MeshAttributeType>::UpdateAngleWeightedNormalAtPoint(int_max P
 
 
 template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint() // all
+void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint(const MDK_Symbol_ALL&)
 {// run UpdateCornerAngleOfCell and UpdateAreaOfCell first
     for (auto it = this->GetIteratorOfPoint(); it.IsNotEnd(); ++it)
     {
@@ -453,13 +453,13 @@ void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint(PointHandle
 
 template<typename MeshAttributeType>
 void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint(int_max PointID)
-{
+{// run UpdateCornerAngleOfCell and UpdateAreaOfCell first
     this->UpdateGaussianCurvatureAtPoint(this->GetPointHandleByID(PointID));
 }
 
 
 template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateMeanCurvatureAtPoint() // all
+void TriangleMesh<MeshAttributeType>::UpdateMeanCurvatureAtPoint(const MDK_Symbol_ALL&)
 { // run UpdateAreaOfCell() first
     for (auto it = this->GetIteratorOfPoint(); it.IsNotEnd(); ++it)
     {
@@ -600,7 +600,7 @@ void TriangleMesh<MeshAttributeType>::UpdateMeanCurvatureAtPoint(PointHandleType
 
 template<typename MeshAttributeType>
 void TriangleMesh<MeshAttributeType>::UpdateMeanCurvatureAtPoint(int_max PointID)
-{
+{// run UpdateAreaOfCell() first
     this->UpdateMeanCurvatureAtPoint(this->GetPointHandleByID(PointID));
 }
 

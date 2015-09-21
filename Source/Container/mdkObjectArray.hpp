@@ -932,7 +932,8 @@ void ObjectArray<ElementType>::Delete(const int_max* IndexList, int_max ListLeng
 template<typename ElementType>
 inline 
 void ObjectArray<ElementType>::Delete(int_max Index_start, int_max Index_end)
-{
+{// allowed if Index_start == Index_end
+	
     if (this->IsSizeFixed() == true)
     {
         MDK_Error("Size can not change @ ObjectArray::Delete(int_max Index_start, int_max Index_end)")
@@ -952,7 +953,7 @@ void ObjectArray<ElementType>::Delete(int_max Index_start, int_max Index_end)
         || Index_end >= SelfLength || Index_end < 0 )
     {
         MDK_Error("Invalid Input @ ObjectArray::Delete(int_max Index_start, int_max Index_end)")
-        return false;
+        return;
     }
 
     m_Data->CopyDataToStdVectorIfNecessary();
