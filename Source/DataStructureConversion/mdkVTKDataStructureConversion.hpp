@@ -72,13 +72,6 @@ vtkSmartPointer<vtkPolyData> ConvertSingleMDK3DCurveToVTKPolyData(const DenseMat
 
 
 template<typename ScalarType>
-bool ConvertSingleMDK3DCurveToVTKPolyData(const DenseMatrix<ScalarType>& MDK3DCurve, vtkPolyData& VTKCurve)
-{
-	return ConvertSingleMDK3DCurveToVTKPolyData(MDK3DCurve, &VTKCurve);
-}
-
-
-template<typename ScalarType>
 bool ConvertSingleMDK3DCurveToVTKPolyData(const DenseMatrix<ScalarType>& MDK3DCurve, vtkPolyData* VTKCurve)
 {
 	if (VTKCurve == nullptr)
@@ -128,13 +121,6 @@ vtkSmartPointer<vtkPolyData> ConvertMultipleMDK3DCurveToVTKPolyData(const Object
 	auto VTKCurve = vtkSmartPointer<vtkPolyData>::New();
 	ConvertMultipleMDK3DCurveToVTKPolyData(MDK3DCurveList, VTKCurve.GetPointer());
 	return VTKCurve;
-}
-
-
-template<typename ScalarType>
-bool ConvertMultipleMDK3DCurveToVTKPolyData(const ObjectArray<DenseMatrix<ScalarType>>& MDK3DCurveList, vtkPolyData& VTKCurve)
-{
-	return ConvertMultipleMDK3DCurveToVTKPolyData(MDK3DCurveList, &VTKCurve);
 }
 
 
@@ -192,43 +178,57 @@ bool ConvertMultipleMDK3DCurveToVTKPolyData(const ObjectArray<DenseMatrix<Scalar
 //-------------------------------------- convert vtkPolyData to mdk Curve/Matrix ----------------------------------------------------------//
 
 template<typename ScalarType>
-bool ConvertVTKPolyDataToMDK3DCurve(vtkPolyData& VTKCurveData, ObjectArray<DenseMatrix<ScalarType>>& MDK3DCurveData)
-{
-	return ConvertVTKPolyDataToMDK3DCurve(&VTKCurveData, MDK3DCurveData);
-}
-
-
-template<typename ScalarType>
-bool ConvertVTKPolyDataToMDK3DCurve(vtkPolyData* VTKCurveData, ObjectArray<DenseMatrix<ScalarType>>& MDK3DCurveData)
+bool ConvertVTKPolyDataToMultipleMDK3DCurve(vtkPolyData* VTKCurveData, ObjectArray<DenseMatrix<ScalarType>>& MDK3DCurveData)
 {
 	if (VTKCurveData == nullptr)
 	{
-		MDK_Error("VTKCurveData is nullptr @ ConvertVTKPolyDataToMDK3DCurve(...)")
+		MDK_Error("VTKCurveData is nullptr @ ConvertVTKPolyDataToMultipleMDK3DCurve(...)")
 		return false;
 	}
 	
-	auto CurveNumber = int_max(VTKCurveData->GetNumberOfLines());
-	//auto CellNumber = int_max(VTKCurveData->GetNumberOfCells());
+	auto CurveCount = int_max(VTKCurveData->GetNumberOfLines());
+	//auto CellCount = int_max(VTKCurveData->GetNumberOfCells());
 	
 	auto PointSet = VTKCurveData->GetPoints();
 	//auto VTKCurveList = VTKCurveData->GetLines();
 
-	MDK3DCurveData.FastResize(CurveNumber);
+	MDK3DCurveData.FastResize(CurveCount);
 
-	for (int_max k = 0; k < CurveNumber; ++k)
+	for (int_max k = 0; k < CurveCount; ++k)
 	{
 		auto Cell = VTKCurveData->GetCell(k);
-		auto PointNumber = int_max(Cell->GetNumberOfPoints());
+		auto PointCount = int_max(Cell->GetNumberOfPoints());
 
 		auto& OutputCurve_k = MDK3DCurveData[k];
-		OutputCurve_k.Resize(3, PointNumber);
+		OutputCurve_k.FastResize(3, PointCount);
 
-		for (int_max n = 0; n < PointNumber; ++n)
+		for (int_max n = 0; n < PointCount; ++n)
 		{
 			double Pos[3];
 			auto PointID = Cell->GetPointId(n);
 			PointSet->GetPoint(PointID, Pos);
 			OutputCurve_k.SetCol(n, Pos);
+		}
+	}
+	return true;
+}
+
+
+template<typename ScalarType>
+bool ConvertVTKPolyDataToSingleMDK3DCurve(vtkPolyData* VTKCurveData, DenseMatrix<ScalarType>& MDK3DCurveData)
+{
+	ObjectArray<DenseMatrix<ScalarType>> MDK3DCurveData_init;
+	ConvertVTKPolyDataToMultipleMDK3DCurve(VTKCurveData, MDK3DCurveData_init);
+	// put all curve into one matrix
+	auto SegmentCount = MDK3DCurveData_init.GetLength();
+	MDK3DCurveData.FastResize(0, 0);
+	MDK3DCurveData.ReserveCapacity(3*SegmentCount*2);
+	for (int_max k = 0; k < SegmentCount; ++k)
+	{
+		auto& Segmente_k = MDK3DCurveData_init[k];
+		for (int_max n = 0; n < Segmente_k.GetColCount(); ++n)
+		{
+			MDK3DCurveData.AppendCol(Segmente_k.GetPointerOfCol(n), 3);
 		}
 	}
 	return true;

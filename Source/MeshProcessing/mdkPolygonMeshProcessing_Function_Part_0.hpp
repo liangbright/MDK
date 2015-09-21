@@ -187,6 +187,7 @@ Handle_Of_Point_Of_MembraneMesh FindNearestPointOnMesh(const PolygonMesh<MeshAtt
         if (IsFirstPoint == true)
         {
             Distance_sq_min = Distance_sq;
+			OutputPointHandle = it.GetPointHandle();
             IsFirstPoint = false;
         }
         else

@@ -73,26 +73,20 @@ template<typename ScalarType>
 vtkSmartPointer<vtkPolyData> ConvertSingleMDK3DCurveToVTKPolyData(const DenseMatrix<ScalarType>& MDK3DCurve);
 
 template<typename ScalarType>
-bool ConvertSingleMDK3DCurveToVTKPolyData(const DenseMatrix<ScalarType>& MDK3DCurve, vtkPolyData& VTKCurve);
-
-template<typename ScalarType>
 bool ConvertSingleMDK3DCurveToVTKPolyData(const DenseMatrix<ScalarType>& MDK3DCurve, vtkPolyData* VTKCurve);
 
 template<typename ScalarType>
 vtkSmartPointer<vtkPolyData> ConvertMultipleMDK3DCurveToVTKPolyData(const ObjectArray<DenseMatrix<ScalarType>>& MDK3DCurveList);
 
 template<typename ScalarType>
-bool ConvertMultipleMDK3DCurveToVTKPolyData(const ObjectArray<DenseMatrix<ScalarType>>& MDK3DCurveList, vtkPolyData& VTKCurve);
-
-template<typename ScalarType>
 bool ConvertMultipleMDK3DCurveToVTKPolyData(const ObjectArray<DenseMatrix<ScalarType>>& MDK3DCurveList, vtkPolyData* VTKCurve);
 
 //-------------------------------------- convert vtkPolyData to mdk Curve/Matrix ----------------------------------------------------------//
 template<typename ScalarType>
-bool ConvertVTKPolyDataToMDK3DCurve(vtkPolyData& VTKCurveData, ObjectArray<DenseMatrix<ScalarType>>& MDK3DCurveData);
+bool ConvertVTKPolyDataToMultipleMDK3DCurve(vtkPolyData* VTKCurveData, ObjectArray<DenseMatrix<ScalarType>>& MDK3DCurveData);//multiple curve
 
 template<typename ScalarType>
-bool ConvertVTKPolyDataToMDK3DCurve(vtkPolyData* VTKCurveData, ObjectArray<DenseMatrix<ScalarType>>& MDK3DCurveData);
+bool ConvertVTKPolyDataToSingleMDK3DCurve(vtkPolyData* VTKCurveData, DenseMatrix<ScalarType>& MDK3DCurveData);//single curve
 
 //-------------------------------------- convert mdk 3D image to vtk 3D image (copy data) -----------------------------------------------------//
 template<typename PixelType>
