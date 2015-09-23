@@ -882,12 +882,15 @@ public:
     template<typename ElementType_Input, int_max TemplateVectorLength>
     inline void AppendCol(const DenseVector<ElementType_Input, TemplateVectorLength>& ColVectorData);
 
+	// Attention: ColVectorData must NOT point to memory of this because size may change, pointed memory will be invalide
     template<typename ElementType_Input>
     inline void AppendCol(const DenseMatrix<ElementType_Input>& ColVectorData);// Input is Vector, NOT matrix
 
+	// Attention: ColVectorData must NOT point to memory of this because size may change, pointed memory will be invalide
     template<typename ElementType_Input>
     inline void AppendCol(const ElementType_Input* ColVectorData, int_max Length);
 
+	// Attention: ColVectorData must NOT point to memory of this because size may change, pointed memory will be invalide
     template<typename ElementType_Input>
     inline void AppendCol(const ElementType_Input* ColVectorData);
 
@@ -895,11 +898,14 @@ public:
 
     inline void DeleteCol(const std::initializer_list<int_max>& ColIndexList);
 
+	// Attention: ColIndexList must NOT point to memory of this because size may change, pointed memory will be invalide
     template<int_max TemplateVectorLength>
     inline void DeleteCol(const DenseVector<int_max, TemplateVectorLength>& ColIndexList);
 
+	// Attention: ColIndexList must NOT point to memory of this because size may change, pointed memory will be invalide
     inline void DeleteCol(const DenseMatrix<int_max>& ColIndexList);
 
+	// Attention: ColIndexList must NOT point to memory of this because size may change, pointed memory will be invalide
     inline void DeleteCol(const int_max* ColIndexList, int_max ListLength);
 
     template<typename ElementType_Input>
@@ -908,12 +914,15 @@ public:
     template<typename ElementType_Input, int_max TemplateVectorLength>
     inline void InsertCol(int_max ColIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& ColVectorData);
 
+	// Attention: ColVectorData must NOT point to memory of this because size may change, pointed memory will be invalide
     template<typename ElementType_Input>
     inline void InsertCol(int_max ColIndex, const DenseMatrix<ElementType_Input>& ColVectorData);
 
+	// Attention: ColVectorData must NOT point to memory of this because size may change, pointed memory will be invalide
     template<typename ElementType_Input>
     inline void InsertCol(int_max ColIndex, const ElementType_Input* ColVectorData, int_max Length);
 
+	// Attention: ColVectorData must NOT point to memory of this because size may change, pointed memory will be invalide
     template<typename ElementType_Input>
     inline void InsertCol(int_max ColIndex, const ElementType_Input* ColVectorData);
 
@@ -954,12 +963,15 @@ public:
     template<typename ElementType_Input, int_max TemplateVectorLength>
     inline void AppendRow(const DenseVector<ElementType_Input, TemplateVectorLength>& RowVectorData);
 
+	// Attention: RowVectorData must NOT point to memory of this because size may change, pointed memory will be invalide
     template<typename ElementType_Input>
     inline void AppendRow(const DenseMatrix<ElementType_Input>& RowVectorData);
 
+	// Attention: RowVectorData must NOT point to memory of this because size may change, pointed memory will be invalide
     template<typename ElementType_Input>
     inline void AppendRow(const ElementType_Input* RowVectorData, int_max Length);
 
+	// Attention: RowVectorData must NOT point to memory of this because size may change, pointed memory will be invalide
     template<typename ElementType_Input>
     inline void AppendRow(const ElementType_Input* RowVectorData);
 
@@ -970,8 +982,10 @@ public:
     template<int_max TemplateVectorLength>
     inline void DeleteRow(const DenseVector<int_max, TemplateVectorLength>& RowIndexList);
 
+	// Attention: RowIndexList must NOT point to memory of this because size may change, pointed memory will be invalide
     inline void DeleteRow(const DenseMatrix<int_max>& RowIndexList);
 
+	// Attention: RowIndexList must NOT point to memory of this because size may change, pointed memory will be invalide
     inline void DeleteRow(const int_max* RowIndexList, int_max ListLength);
 
     template<typename ElementType_Input>
@@ -980,12 +994,15 @@ public:
     template<typename ElementType_Input, int_max TemplateVectorLength>
     inline void InsertRow(int_max RowIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& RowVectorData);
 
+	// Attention: RowVectorData must NOT point to memory of this because size may change, pointed memory will be invalide
     template<typename ElementType_Input>
     inline void InsertRow(int_max RowIndex, const DenseMatrix<ElementType_Input>& RowVectorData);
 
+	// Attention: RowVectorData must NOT point to memory of this because size may change, pointed memory will be invalide
     template<typename ElementType_Input>
     inline void InsertRow(int_max RowIndex, const ElementType_Input* RowVectorData, int_max Length);
 
+	// Attention: RowVectorData must NOT point to memory of this because size may change, pointed memory will be invalide
     template<typename ElementType_Input>
     inline void InsertRow(int_max RowIndex, const ElementType_Input* RowVectorData);
 
@@ -1001,9 +1018,11 @@ public:
     template<typename ElementType_Input, int_max TemplateVectorLength>
     inline void Append(const DenseVector<ElementType_Input, TemplateVectorLength>& ElementData);
 
+	// Attention: ElementData must NOT point to memory of this because size may change, pointed memory will be invalide
     template<typename ElementType_Input>
     inline void Append(const DenseMatrix<ElementType_Input>& ElementData);
 
+	// Attention: ElementData must NOT point to memory of this because size may change, pointed memory will be invalide
     template<typename ElementType_Input>
     inline void Append(const ElementType_Input* ElementData, int_max Length);
 
@@ -1014,11 +1033,13 @@ public:
     template<int_max TemplateVectorLength>
     inline void Delete(const DenseVector<int_max, TemplateVectorLength>& LinearIndexList);
 
+	// Attention: LinearIndexList must NOT point to memory of this because size may change, pointed memory will be invalide
     inline void Delete(const DenseMatrix<int_max>& LinearIndexList);
 
+	// Attention: LinearIndexList must NOT point to memory of this because size may change, pointed memory will be invalide
     inline void Delete(const int_max* LinearIndexList, int_max ListLength);
 
-    inline void Insert(int_max LinearIndex, const ElementType& Element);
+    inline void Insert(int_max LinearIndex, ElementType Element);
 
     template<typename ElementType_Input>
     inline void Insert(int_max LinearIndex, const std::initializer_list<ElementType_Input>& ElementData);
@@ -1026,9 +1047,11 @@ public:
     template<typename ElementType_Input, int_max TemplateVectorLength>
     inline void Insert(int_max LinearIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& ElementData);
 
+	// Attention: ElementData must NOT point to memory of this because size may change, pointed memory will be invalide
     template<typename ElementType_Input>
     inline void Insert(int_max LinearIndex, const DenseMatrix<ElementType_Input>& ElementData);
 
+	// Attention: ElementData must NOT point to memory of this because size may change, pointed memory will be invalide
     template<typename ElementType_Input>
     inline void Insert(int_max LinearIndex, const ElementType_Input* ElementData, int_max Length);
 

@@ -5198,6 +5198,14 @@ template<typename ElementType_Input>
 inline 
 void DenseMatrix<ElementType>::AppendCol(const ElementType_Input* ColVectorData, int_max Length)
 {
+	//Attention:
+	// ColVectorData must NOT point to memory of this
+	// example:
+	// DenseMatrix<double> M(3, 99);
+	// M.AppendCol(M.GetPointerOf(98));
+	// then, the result is Wrong!!!
+	//---------------------------------------------------------------------------
+
 	if (ColVectorData == nullptr || Length <= 0)
 	{
 		MDK_Warning("Input is empty @ DenseMatrix::AppendCol(const ElementType_Input* ColVectorData, int_max Length)")
@@ -6185,15 +6193,15 @@ void DenseMatrix<ElementType>::Delete(const int_max* LinearIndexList, int_max Li
 
 template<typename ElementType>
 inline
-void DenseMatrix<ElementType>::Insert(int_max LinearIndex, const ElementType& Element)
+void DenseMatrix<ElementType>::Insert(int_max LinearIndex, ElementType Element)
 {
     if (this->IsRowVector() == true)
     {
-        this->InsertCol(LinearIndex, { Element });
+        this->InsertCol(LinearIndex, { std::move(Element) });
     }
     else if (this->IsColVector() == true)
     {
-        this->InsertRow(LinearIndex, { Element });
+		this->InsertRow(LinearIndex, { std::move(Element) });
     }
     else
     {
