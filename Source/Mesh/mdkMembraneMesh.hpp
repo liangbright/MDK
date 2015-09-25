@@ -332,6 +332,51 @@ int_max MembraneMesh<MeshAttributeType>::GetCellCount() const
 	}
 }
 
+
+template<typename MeshAttributeType>
+inline
+int_max MembraneMesh<MeshAttributeType>::GetMaxValueOfPointIndex() const
+{
+	if (!m_MeshData)
+	{
+		return 0;
+	}
+	else
+	{
+		return m_MeshData->PointPositionTable.GetColCount();
+	}
+}
+
+
+template<typename MeshAttributeType>
+inline
+int_max MembraneMesh<MeshAttributeType>::GetMaxValueOfEdgeIndex() const
+{
+	if (!m_MeshData)
+	{
+		return 0;
+	}
+	else
+	{
+		return m_MeshData->EdgeList.GetLength();
+	}
+}
+
+
+template<typename MeshAttributeType>
+inline
+int_max MembraneMesh<MeshAttributeType>::GetMaxValueOfCellIndex() const
+{
+	if (!m_MeshData)
+	{
+		return 0;
+	}
+	else
+	{
+		return m_MeshData->CellList.GetLength();
+	}
+}
+
 //------ Get/Set GlobalAttribute -----------------------------------//
 
 template<typename MeshAttributeType>

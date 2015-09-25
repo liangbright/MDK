@@ -172,6 +172,11 @@ public:
     inline int_max GetDirectedEdgeCount() const;
     inline int_max GetCellCount() const;
  
+	inline int_max GetMaxValueOfPointIndex() const;// the maximum value of PointHanlde.GetIndex()
+	inline int_max GetMaxValueOfEdgeIndex() const;// the maximum value of EdgeHanlde.GetIndex()
+	//inline int_max GetMaxValueOfDirectedEdgeIndex() const;// the maximum value of DirectedEdgeHanlde.GetIndex()
+	inline int_max GetMaxValueOfCellIndex() const;// the maximum value of CellHanlde.GetIndex()
+
     //------ Get/Set GlobalAttribute -----------------------------------//
 
     inline GlobalAttribute& Attribute();
