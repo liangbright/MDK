@@ -9,9 +9,12 @@ template<typename ScalarType>
 struct LocalCoordinateSystem3DWithUnitSpacing
 {
 	DenseVector<ScalarType, 3> Origin;
-	DenseVector<ScalarType, 3> DirectionX;
-	DenseVector<ScalarType, 3> DirectionY;
-	DenseVector<ScalarType, 3> DirectionZ;
+
+	DenseMatrix<ScalarType> Orientation;
+	//Col-0: DirectionX
+	//Col-1: DirectionY
+	//Col-2: DirectionZ
+
 	// Spacing is [1, 1, 1]
 
 //-----------------------------------------------------------------
@@ -21,17 +24,16 @@ struct LocalCoordinateSystem3DWithUnitSpacing
 	void operator=(const LocalCoordinateSystem3DWithUnitSpacing& InputSys)
 	{
 		Origin = InputSys.Origin;
-		DirectionX = InputSys.DirectionX;
-		DirectionY = InputSys.DirectionY;
-		DirectionZ = InputSys.DirectionZ;
+		Orientation = InputSys.Orientation;
 	}
 
 	void Clear()
 	{
-		Origin = { 0, 0, 0 };
-		DirectionX = { 1, 0, 0 };
-		DirectionY = { 0, 1, 0 };
-		DirectionZ = { 0, 0, 1 };
+		Origin.Fill(0);
+		Orientation.Clear();
+		Orientation.Resize(3, 3);
+		Orientation.Fill(0);
+		Orientation.FixSize();
 	}
 };
 
@@ -39,9 +41,12 @@ template<typename ScalarType>
 struct LocalCoordinateSystem3D
 {
 	DenseVector<ScalarType, 3> Origin;
-	DenseVector<ScalarType, 3> DirectionX;
-	DenseVector<ScalarType, 3> DirectionY;
-	DenseVector<ScalarType, 3> DirectionZ;
+
+	DenseVector<ScalarType, 3> Orientation;
+	//Col-0: DirectionX
+	//Col-1: DirectionY
+	//Col-2: DirectionZ
+
 	DenseVector<ScalarType, 3> Spacing;
 //------------------------------------------------------------
 	LocalCoordinateSystem3D() { this->Clear(); }
@@ -50,19 +55,18 @@ struct LocalCoordinateSystem3D
 	void operator=(const LocalCoordinateSystem3D& InputSys)
 	{
 		Origin = InputSys.Origin;
-		DirectionX = InputSys.DirectionX;
-		DirectionY = InputSys.DirectionY;
-		DirectionZ = InputSys.DirectionZ;
+		Orientation = InputSys.Orientation;
 		Spacing = InputSys.Spacing;
 	}
 
 	void Clear()
 	{
-		Origin = { 0, 0, 0 };
-		DirectionX = { 1, 0, 0 };
-		DirectionY = { 0, 1, 0 };
-		DirectionZ = { 0, 0, 1 };
-		Spacing = { 1, 1, 1 };
+		Origin.Fill(0);
+		Orientation.Clear();
+		Orientation.Resize(3, 3);
+		Orientation.Fill(0);
+		Orientation.FixSize();
+		Spacing.Fill(1);
 	}
 };
 

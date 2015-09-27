@@ -20,11 +20,11 @@ public:
 	typedef Scalar_Type ScalarType;
 
 private:
-	// m_SourceControlPointSet must be valid during EstimateParameter() and TransformPoint()
-	const DenseMatrix<ScalarType>* m_SourceControlPointSet; // 3 x N
+	// m_SourceLandmarkPointSet must be valid during EstimateParameter() and TransformPoint()
+	const DenseMatrix<ScalarType>* m_SourceLandmarkPointSet; // 3 x N
 
-	// m_TargetControlPointSet must be valid during EstimateParameter()
-	const DenseMatrix<ScalarType>* m_TargetControlPointSet; // 3 x N
+	// m_TargetLandmarkPointSet must be valid during EstimateParameter()
+	const DenseMatrix<ScalarType>* m_TargetLandmarkPointSet; // 3 x N
 	
 	DenseMatrix<ScalarType> m_Parameter;  // (N+4) x 3
 
@@ -34,8 +34,8 @@ public:
 
 	void Clear();
 
-	void SetSourceControlPointSet(const DenseMatrix<ScalarType>* SourcePointSet);
-	void SetTargetControlPointSet(const DenseMatrix<ScalarType>* TargetPointSet);
+	void SetSourceLandmarkPointSet(const DenseMatrix<ScalarType>* SourceLandmarkPointSet);
+	void SetTargetLandmarkPointSet(const DenseMatrix<ScalarType>* TargetLandmarkPointSet);
 	void EstimateParameter();
 
 	void SetParameter(const DenseMatrix<ScalarType>& Parameter);
@@ -43,6 +43,9 @@ public:
 
 	DenseVector<ScalarType, 3> TransformPoint(ScalarType x, ScalarType y, ScalarType z) const;
 	using CoordinateTransform3D::TransformPoint;
+
+private:
+	bool CheckLandmarkPointSet();
 
 private:
 	ThinPlateSplineTransform3D(const ThinPlateSplineTransform3D&) = delete;

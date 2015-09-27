@@ -63,11 +63,11 @@ private:
 
     inline int_max GetColCount() const;
 
-    inline int_max GetElementNumber() const;
+    inline int_max GetElementCount() const;
 
     inline MatrixSize GetSize() const;
 
-    inline int_max GetMatrixNumber() const;
+	inline int_max GetMatrixCount() const;
 
     inline bool IsEmpty() const;
 

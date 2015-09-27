@@ -1,5 +1,5 @@
-#ifndef Test_ThinPlateSplineTransform_h
-#define Test_ThinPlateSplineTransform_h
+#ifndef Test_RotationTransform_h
+#define Test_RotationTransform_h
 
 //================================================
 #include <algorithm>
@@ -9,17 +9,17 @@
 #include <initializer_list>
 #include <functional>
 
-#include "mdkAffineTransform3D.h"
+#include "mdkRotationTransform3D.h"
 #include "mdkDenseMatrix_FileIO.h"
 
 void Test_a()
 {
 	using namespace mdk;
 
-	AffineTransform3D<double> Transform;
+	RotationTransform3D<double> Transform;
 
-	String File_Source = "C:/Research/MDK/MDK_Build/Test/Test_Geometry/Test_CoordinateTransform/Test_AffineTransform/TestData/Source.json";
-	String File_Target = "C:/Research/MDK/MDK_Build/Test/Test_Geometry/Test_CoordinateTransform/Test_AffineTransform/TestData/Target.json";
+	String File_Source = "C:/Research/MDK/MDK_Build/Test/Test_Geometry/Test_CoordinateTransform/Test_RotationTransform/TestData/Source.json";
+	String File_Target = "C:/Research/MDK/MDK_Build/Test/Test_Geometry/Test_CoordinateTransform/Test_RotationTransform/TestData/Target.json";
 
 	DenseMatrix<double> SourceControlPointSet, TargetControlPointSet;
 	LoadDenseMatrixFromJsonDataFile(SourceControlPointSet, File_Source);
@@ -29,7 +29,9 @@ void Test_a()
 	Transform.SetTargetLandmarkPointSet(&TargetControlPointSet);
 	Transform.EstimateParameter();
 
-	auto TransformMatrix = Transform.GetTransformationMatrix();
+	auto RotationMatrix = Transform.GetRotationMatrix();
+
+	auto RotationCenter = Transform.GetRotationCenter();
 
 	DenseMatrix<double> TargetPointSet;
 	TargetPointSet.Resize(SourceControlPointSet.GetSize());
@@ -41,9 +43,10 @@ void Test_a()
 		TargetPointSet.SetCol(k, Pos_new);
 	}
 
-	DisplayMatrix("TransformMatrix", TransformMatrix, 4);
-
-	DisplayMatrix("TargetPointSet", TargetPointSet, 4);
+	DisplayMatrix("RotationMatrix", RotationMatrix, 3);
+	DisplayMatrix("SourceControlPointSet", SourceControlPointSet, 3);
+	DisplayMatrix("TargetControlPointSet", TargetControlPointSet, 3);
+	DisplayMatrix("TargetPointSet", TargetPointSet, 3);
 }
 
 

@@ -139,17 +139,11 @@ protected:
 
 public:
     DenseImage3D();
-
     DenseImage3D(const DenseImage3D& InputImage);
-
     DenseImage3D(DenseImage3D&& InputImage);
-
     ~DenseImage3D();
-
     void operator=(const DenseImage3D& InputImage);
-
     void operator=(DenseImage3D&& InputImage);
-
     //---------------------------------------------------------//
 
     // Copy can be used to convert an DenseImage from double (Type_Input) to float (PixelType), etc
@@ -184,11 +178,7 @@ public:
 
 	//---------------------------------------------------------//
 	void Clear();
-
-	//---------------------------------------------------------//
-
     inline bool IsEmpty() const;
-
 	inline bool IsPureEmpty() const;
 
 	inline bool IsPixelDataInInternalArray() const;

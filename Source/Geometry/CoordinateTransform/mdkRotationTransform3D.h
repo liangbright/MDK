@@ -30,12 +30,11 @@ public:
 	typedef Scalar_Type ScalarType;
 
 private:
-	// m_SourceControlPointSet and m_TargetControlPointSet must be valid when EstimateParameter() is called
-	const DenseMatrix<ScalarType>* m_SourceControlPointSet; // 3 x N
-	const DenseMatrix<ScalarType>* m_TargetControlPointSet; // 3 x N
+	// m_SourceLandmarkPointSet and m_TargetLandmarkPointSet must be valid when EstimateParameter() is called
+	const DenseMatrix<ScalarType>* m_SourceLandmarkPointSet; // 3 x N
+	const DenseMatrix<ScalarType>* m_TargetLandmarkPointSet; // 3 x N
 
 	DenseMatrix<ScalarType> m_Rotation;
-
 	DenseVector<ScalarType, 3> m_RotationCenter;
 
 public:
@@ -44,12 +43,9 @@ public:
 
 	void Clear();
 
-	void SetSourceControlPointSet(const DenseMatrix<ScalarType>* SourcePointSet);
-	void SetTargetControlPointSet(const DenseMatrix<ScalarType>* TargetPointSet);
+	void SetSourceLandmarkPointSet(const DenseMatrix<ScalarType>* SourceLandmarkPointSet);
+	void SetTargetLandmarkPointSet(const DenseMatrix<ScalarType>* TargetLandmarkPointSet);
 	void EstimateParameter();
-
-	void SetRotationMatrixByAngle(const DenseVector<ScalarType, 3>& AngleList);
-	void SetRotationMatrixByAngle(ScalarType AngleX, ScalarType AngleY, ScalarType AngleZ);
 
 	void SetRotationMatrix(const DenseMatrix<ScalarType>& Rotation);
 	DenseMatrix<ScalarType> GetRotationMatrix() const;
@@ -61,15 +57,13 @@ public:
 	using CoordinateTransform3D::TransformPoint;
 
 private:
-	bool CheckControlPointSet();
+	bool CheckLandmarkPointSet();
 
 public:
-	static DenseMatrix<ScalarType> ComputeRotationMatrix_Rx_ByAngleX(ScalarType AngleX);
-	static DenseMatrix<ScalarType> ComputeRotationMatrix_Ry_ByAngleY(ScalarType AngleY);
-	static DenseMatrix<ScalarType> ComputeRotationMatrix_Rz_ByAngleZ(ScalarType AngleZ);
-	static DenseMatrix<ScalarType> ComputeRotationMatrixByAngleXYZ(const DenseVector<ScalarType, 3>& AngleList);
-	static DenseMatrix<ScalarType> ComputeRotationMatrixByAngleXYZ(ScalarType AngleX, ScalarType AngleY, ScalarType AngleZ);
-	static DenseMatrix<ScalarType> ComputeRotationMatrixByAngleAlongAxis(ScalarType Angle, const DenseVector<ScalarType, 3>& Axis);
+	static DenseMatrix<ScalarType> ComputeRotationMatrix_around_X_axis(ScalarType Angle);
+	static DenseMatrix<ScalarType> ComputeRotationMatrix_around_Y_axis(ScalarType Angle);
+	static DenseMatrix<ScalarType> ComputeRotationMatrix_around_Z_axis(ScalarType Angle);
+	static DenseMatrix<ScalarType> ComputeRotationMatrix_around_Direction(ScalarType Angle, const DenseVector<ScalarType, 3>& Direction);
 
 	static DenseVector<ScalarType, 3> RotatePoint(const DenseVector<ScalarType, 3>& PointPosition,											      
 												  const DenseMatrix<ScalarType>& RotationMatrix,
