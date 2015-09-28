@@ -5,29 +5,28 @@ namespace mdk
 {
 
 template<typename MeshAttributeType>
-DenseVector<Handle_Of_Point_Of_MembraneMesh> TraceMeshBoundaryCurve(const PolygonMesh<MeshAttributeType>& TargetMesh,
-                                                                    Handle_Of_Point_Of_MembraneMesh PointHandle_start)
+DenseVector<Handle_Of_Point_Of_MembraneMesh> TraceMeshBoundaryCurve(const PolygonMesh<MeshAttributeType>& TargetMesh, Handle_Of_Point_Of_MembraneMesh PointHandle_start)
 {
     typedef Handle_Of_Point_Of_MembraneMesh PointHandleType;
 
     DenseVector<PointHandleType> PointHandleListOfBoundaryCurve;
 
-    int_max BoundaryEdgeNumberOfInputMesh = 0;
+    int_max BoundaryEdgeCountOfInputMesh = 0;
     for (auto it = TargetMesh.GetIteratorOfEdge(); it.IsNotEnd(); ++it)
     {
         if (it.Edge().IsBoundary() == true)
         {
-            BoundaryEdgeNumberOfInputMesh += 1;
+            BoundaryEdgeCountOfInputMesh += 1;
         }
     }
 
-    if (BoundaryEdgeNumberOfInputMesh <= 0)
+    if (BoundaryEdgeCountOfInputMesh <= 0)
     {
-        MDK_Error("BoundaryEdgeNumberOfInputMesh  <= 0 @ mdkPolygonMeshProcessing TraceMeshBoundaryCurve(...)")
+        MDK_Error("BoundaryEdgeCountOfInputMesh  <= 0 @ mdkPolygonMeshProcessing TraceMeshBoundaryCurve(...)")
         return PointHandleListOfBoundaryCurve;
     }
 
-    PointHandleListOfBoundaryCurve.SetCapacity(BoundaryEdgeNumberOfInputMesh);
+    PointHandleListOfBoundaryCurve.SetCapacity(BoundaryEdgeCountOfInputMesh);
 
     PointHandleListOfBoundaryCurve.Append(PointHandle_start);
 
@@ -87,15 +86,23 @@ DenseVector<Handle_Of_Point_Of_MembraneMesh> TraceMeshBoundaryCurve(const Polygo
             break; // while
         }
 
-        PointHandleListOfBoundaryCurve.Append(BoundaryPointHandle_next);
+		//check if BoundaryPointHandle_next is already in PointHandleListOfBoundaryCurve
+		auto tempIndex = PointHandleListOfBoundaryCurve.ExactMatch("first", BoundaryPointHandle_next);
+		if (tempIndex >= 0)
+		{
+			MDK_Warning("Boundary Curve selfintersect ! @ mdkPolygonMeshProcessing TraceMeshBoundaryCurve(...)")
+			break;//while
+		}
+
+		PointHandleListOfBoundaryCurve.Append(BoundaryPointHandle_next);
 
         BoundaryPointHandle_prev = BoundaryPointHandle_current;
         BoundaryPointHandle_current = BoundaryPointHandle_next;
         Counter += 1;
 
-        if (Counter > BoundaryEdgeNumberOfInputMesh)
+        if (Counter > BoundaryEdgeCountOfInputMesh)
         {
-            MDK_Error("Counter > BoundaryEdgeNumberOfInputMesh @ mdkPolygonMeshProcessing TraceMeshBoundaryCurve(...)")
+            MDK_Error("Counter > BoundaryEdgeCountOfInputMesh @ mdkPolygonMeshProcessing TraceMeshBoundaryCurve(...)")
             break; // while
         }
     }
@@ -119,10 +126,10 @@ ObjectArray<DenseVector<Handle_Of_Point_Of_MembraneMesh>> TraceMeshBoundaryCurve
             BoundaryPointHandleList.Append(it.GetPointHandle());
         }
     }
-    auto BoundaryPointNumber = BoundaryPointHandleList.GetLength();
+    auto BoundaryPointCount = BoundaryPointHandleList.GetLength();
 
     DenseVector<int_max> FlagList;
-    FlagList.Resize(BoundaryPointNumber);
+    FlagList.Resize(BoundaryPointCount);
     FlagList.Fill(0);
     // 0: not checked
     // 1: checked
@@ -152,8 +159,7 @@ ObjectArray<DenseVector<Handle_Of_Point_Of_MembraneMesh>> TraceMeshBoundaryCurve
         // set flag
         for (int_max k = 0; k < BoundaryCurve.GetLength(); ++k)
         {
-            auto tempHandle = BoundaryCurve[k];
-			auto tempIndex = BoundaryPointHandleList.Find("first", [&](PointHandleType Handle){ return Handle == tempHandle; });
+			auto tempIndex = BoundaryPointHandleList.ExactMatch("first", BoundaryCurve[k]);
             FlagList[tempIndex] = 1;
         }
 
