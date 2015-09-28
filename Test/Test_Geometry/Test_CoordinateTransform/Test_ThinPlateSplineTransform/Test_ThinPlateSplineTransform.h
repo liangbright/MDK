@@ -9,48 +9,79 @@
 #include <initializer_list>
 #include <functional>
 
+#include "mdkThinPlateSplineTransform2D.h"
 #include "mdkThinPlateSplineTransform3D.h"
+#include "mdkDenseMatrix_FileIO.h"
 
 
-void Test_simple()
+void Test_2D()
+{
+	using namespace mdk;
+
+	ThinPlateSplineTransform2D<double> TPSTransform;
+
+	String File_Source = "C:/Research/MDK/MDK_Build/Test/Test_Geometry/Test_CoordinateTransform/Test_ThinPlateSplineTransform/TestData/Source2D.json";
+	String File_Target = "C:/Research/MDK/MDK_Build/Test/Test_Geometry/Test_CoordinateTransform/Test_ThinPlateSplineTransform/TestData/Target2D.json";
+
+	DenseMatrix<double> SourceControlPointSet, TargetControlPointSet;
+	LoadDenseMatrixFromJsonDataFile(SourceControlPointSet, File_Source);
+	LoadDenseMatrixFromJsonDataFile(TargetControlPointSet, File_Target);
+
+	TPSTransform.SetSourceLandmarkPointSet(&SourceControlPointSet);
+	TPSTransform.SetTargetLandmarkPointSet(&TargetControlPointSet);
+	//TPSTransform.UseTPS3D();
+	TPSTransform.UseStandardTPS2D();
+	TPSTransform.EstimateParameter();
+
+	DenseMatrix<double> TargetPointSet;
+	TargetPointSet.Resize(TargetControlPointSet.GetSize());
+	for (int_max k = 0; k < TargetControlPointSet.GetColCount(); ++k)
+	{
+		auto Point_k = TPSTransform.TransformPoint(SourceControlPointSet(0, k), SourceControlPointSet(1, k));
+		TargetPointSet(0, k) = Point_k[0];
+		TargetPointSet(1, k) = Point_k[1];
+	}
+
+	auto Parameter = TPSTransform.GetParameter();
+
+	DisplayMatrix("Parameter", Parameter, 6);
+	DisplayMatrix("TargetControlPointSet", TargetControlPointSet, 6);
+	DisplayMatrix("TargetPointSet", TargetPointSet, 6);
+}
+
+
+void Test_3D()
 {
 	using namespace mdk;
 
 	ThinPlateSplineTransform3D<double> TPSTransform;
 
-	DenseMatrix<double> SourceControlPointSet(3, 10);
-	DenseMatrix<double> TargetControlPointSet(3, 10);
+	String File_Source = "C:/Research/MDK/MDK_Build/Test/Test_Geometry/Test_CoordinateTransform/Test_ThinPlateSplineTransform/TestData/Source.json";
+	String File_Target = "C:/Research/MDK/MDK_Build/Test/Test_Geometry/Test_CoordinateTransform/Test_ThinPlateSplineTransform/TestData/Target.json";
 
-	for (int_max i = 0; i < 10; ++i)
-	{
-		int_max j = i + 1;
+	DenseMatrix<double> SourceControlPointSet, TargetControlPointSet;
+	LoadDenseMatrixFromJsonDataFile(SourceControlPointSet, File_Source);
+	LoadDenseMatrixFromJsonDataFile(TargetControlPointSet, File_Target);
 
-		SourceControlPointSet(0, i) = double(j);
-		SourceControlPointSet(1, i) = double(j*j + 1);
-		SourceControlPointSet(2, i) = double(j + 2);
-
-		TargetControlPointSet(0, i) = double(j + 2);
-		TargetControlPointSet(1, i) = double(j*j + 1);
-		TargetControlPointSet(2, i) = double(j);
-	}
-
-	TPSTransform.SetSourceControlPointSet(&SourceControlPointSet);
-	TPSTransform.SetTargetControlPointSet(&TargetControlPointSet);
+	TPSTransform.SetSourceLandmarkPointSet(&SourceControlPointSet);
+	TPSTransform.SetTargetLandmarkPointSet(&TargetControlPointSet);
 	TPSTransform.EstimateParameter();
 
-	DenseMatrix<double> TestPointSet(3, 10);
-
-	for (int_max k = 0; k < 10; ++k)
+	DenseMatrix<double> TargetPointSet;
+	TargetPointSet.Resize(TargetControlPointSet.GetSize());
+	for (int_max k = 0; k < TargetControlPointSet.GetColCount(); ++k)
 	{
-		auto Point_k = TPSTransform.TransformPoint(SourceControlPointSet(0, k), SourceControlPointSet(1, k), SourceControlPointSet(2,k));
-		TestPointSet(0, k) = Point_k[0];
-		TestPointSet(1, k) = Point_k[1];
-		TestPointSet(2, k) = Point_k[2];
+		auto Point_k = TPSTransform.TransformPoint(SourceControlPointSet(0, k), SourceControlPointSet(1, k), SourceControlPointSet(2, k));
+		TargetPointSet(0, k) = Point_k[0];
+		TargetPointSet(1, k) = Point_k[1];
+		TargetPointSet(2, k) = Point_k[2];
 	}
 
-	DisplayMatrix("SourceControlPointSet", SourceControlPointSet, 4);
+	auto Parameter = TPSTransform.GetParameter();
+
+	DisplayMatrix("Parameter", Parameter, 4);
 	DisplayMatrix("TargetControlPointSet", TargetControlPointSet, 4);
-	DisplayMatrix("TestPointSet", TestPointSet, 4);
+	DisplayMatrix("TargetPointSet", TargetPointSet, 4);
 }
 
 

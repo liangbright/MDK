@@ -122,17 +122,11 @@ protected:
 
 public:
     DenseImage2D();
-
     DenseImage2D(const DenseImage2D& InputImage);
-
     DenseImage2D(DenseImage2D&& InputImage);
-
     ~DenseImage2D();
-
     void operator=(const DenseImage2D& InputImage);
-
     void operator=(DenseImage2D&& InputImage);
-
     //---------------------------------------------------------//
 
     // Copy can be used to convert an DenseImage from double (Type_Input) to float (PixelType), etc
@@ -168,10 +162,7 @@ public:
 	//---------------------------------------------------------//
 	void Clear();
 
-	//---------------------------------------------------------//
-
     inline bool IsEmpty() const;
-
 	inline bool IsPureEmpty() const;
 
 	inline bool IsPixelDataInInternalArray() const;
@@ -202,13 +193,13 @@ public:
 
 	inline DenseVector<double, 3> GetOrigin() const;
 
-    inline void GetOrigin(double& Origin_x, double& Origin_y, double& Origin_z) const;
+    inline void GetOrigin(double& Origin_x, double& Origin_y, double& Origin_z) const;//origin in 3D
 
-	inline void SetOrigin(const DenseVector<double, 3>& Origin);
+	inline void SetOrigin(const DenseVector<double, 3>& Origin);//origin in 3D
 
-    inline void SetOrigin(double Origin_x, double Origin_y, double Origin_z);
+    inline void SetOrigin(double Origin_x, double Origin_y, double Origin_z);//origin in 3D
 
-    inline DenseMatrix<double> GetOrientation() const;
+    inline DenseMatrix<double> GetOrientation() const;//orientation in 3D
 
     inline void SetOrientation(const DenseMatrix<double>& Orientation);
 

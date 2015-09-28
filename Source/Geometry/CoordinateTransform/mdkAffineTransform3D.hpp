@@ -7,6 +7,7 @@ namespace mdk
 template<typename ScalarType>
 AffineTransform3D<ScalarType>::AffineTransform3D()
 {
+	this->Clear();
 }
 
 template<typename ScalarType>
@@ -17,10 +18,11 @@ AffineTransform3D<ScalarType>::~AffineTransform3D()
 template<typename ScalarType>
 void AffineTransform3D<ScalarType>::Clear()
 {
-	m_SourceControlPointSet = nullptr;
-	m_TargetControlPointSet = nullptr;
+	m_SourceLandmarkPointSet = nullptr;
+	m_TargetLandmarkPointSet = nullptr;
 	m_Parameter.Clear();
 	m_Parameter.Resize(3, 4);
+	m_Parameter.FixSize();
 	m_Parameter.Fill(0);
 	m_Parameter(0, 0) = 1;
 	m_Parameter(1, 1) = 1;
@@ -28,52 +30,49 @@ void AffineTransform3D<ScalarType>::Clear()
 }
 
 template<typename ScalarType>
-void AffineTransform3D<ScalarType>::SetSourceControlPointSet(const DenseMatrix<ScalarType>* SourcePointSet)
+void AffineTransform3D<ScalarType>::SetSourceLandmarkPointSet(const DenseMatrix<ScalarType>* SourceLandmarkPointSet)
 {
-	m_SourceControlPointSet = SourcePointSet;
+	m_SourceLandmarkPointSet = SourceLandmarkPointSet;
 }
 
 template<typename ScalarType>
-void AffineTransform3D<ScalarType>::SetTargetControlPointSet(const DenseMatrix<ScalarType>* TargetPointSet)
+void AffineTransform3D<ScalarType>::SetTargetLandmarkPointSet(const DenseMatrix<ScalarType>* TargetLandmarkPointSet)
 {
-	m_TargetControlPointSet = TargetPointSet;
+	m_TargetLandmarkPointSet = TargetLandmarkPointSet;
 }
 
 
 template<typename ScalarType>
-bool AffineTransform3D<ScalarType>::CheckInput()
+bool AffineTransform3D<ScalarType>::CheckLandmarkPointSet()
 {
-	if (m_SourceControlPointSet == nullptr)
+	if (m_SourceLandmarkPointSet == nullptr)
 	{
-		MDK_Error("m_SourceControlPointSet is empty (nullptr) @  AffineTransform3D::CheckInput()")
+		MDK_Error("m_SourceLandmarkPointSet is nullptr @ AffineTransform3D::CheckLandmarkPointSet()")
 		return false;
 	}
-	else
-	{
-		if (m_SourceControlPointSet->GetRowCount() != 3)
-		{
-			MDK_Error("m_SourceControlPointSet empty or wrong size  @  AffineTransform3D::CheckInput()")
-			return false;
-		}
-	}
 
-	if (m_TargetControlPointSet == nullptr)
+	if (m_SourceLandmarkPointSet->GetRowCount() != 3)
 	{
-		MDK_Error("m_TargetControlPointSet is empty (nullptr) @  AffineTransform3D::CheckInput()")
+		MDK_Error("m_SourceLandmarkPointSet wrong size  @ AffineTransform3D::CheckLandmarkPointSet()")
 		return false;
 	}
-	else
+
+	if (m_TargetLandmarkPointSet == nullptr)
 	{
-		if (m_SourceControlPointSet->GetRowCount() != 3)
-		{
-			MDK_Error("m_TargetControlPointSet empty or wrong size  @  AffineTransform3D::CheckInput()")
-			return false;
-		}
+		MDK_Error("m_TargetLandmarkPointSet is nullptr @ AffineTransform3D::CheckLandmarkPointSet()")
+		return false;
+
 	}
 
-	if (m_SourceControlPointSet->GetColCount() != m_TargetControlPointSet->GetColCount())
+	if (m_TargetLandmarkPointSet->GetRowCount() != 3)
 	{
-		MDK_Error("m_SourceControlPointSet size and m_TargetControlPointSet size do not match @  AffineTransform3D::CheckInput()")
+		MDK_Error("m_TargetLandmarkPointSet wrong size  @ AffineTransform3D::CheckLandmarkPointSet()")
+		return false;
+	}
+
+	if (m_SourceLandmarkPointSet->GetColCount() != m_TargetLandmarkPointSet->GetColCount())
+	{
+		MDK_Error("m_SourceLandmarkPointSet size and m_TargetLandmarkPointSet size do not match @ AffineTransform3D::CheckLandmarkPointSet()")
 		return false;
 	}
 	//-------------------------------------------------------------------------------------------
@@ -84,25 +83,25 @@ bool AffineTransform3D<ScalarType>::CheckInput()
 template<typename ScalarType>
 void AffineTransform3D<ScalarType>::EstimateParameter()
 {
-	if (this->CheckInput() == false)
+	if (this->CheckLandmarkPointSet() == false)
 	{
 		return;
 	}
 
 	// Assemble SourceData Matrix
 	DenseMatrix<ScalarType> SourceData;
-	SourceData.Resize(4, m_SourceControlPointSet->GetColCount());
-	for (int_max k = 0; k < m_SourceControlPointSet->GetColCount(); ++k)
+	SourceData.Resize(4, m_SourceLandmarkPointSet->GetColCount());
+	for (int_max k = 0; k < m_SourceLandmarkPointSet->GetColCount(); ++k)
 	{
 		ScalarType Pos[3];
-		m_SourceControlPointSet->GetCol(k, Pos);
+		m_SourceLandmarkPointSet->GetCol(k, Pos);
 		SourceData(0, k) = Pos[0];//x
 		SourceData(1, k) = Pos[1];//y
 		SourceData(2, k) = Pos[2];//z
 		SourceData(3, k) = 1;
 	}
 
-	m_Parameter = MatrixMultiply((*m_TargetControlPointSet), SourceData.PInv());
+	m_Parameter = MatrixMultiply((*m_TargetLandmarkPointSet), SourceData.PInv());
 }
 
 
@@ -150,12 +149,13 @@ DenseMatrix<ScalarType> AffineTransform3D<ScalarType>::GetTransformationMatrix()
 
 
 template<typename ScalarType>
+inline 
 DenseVector<ScalarType, 3> AffineTransform3D<ScalarType>::TransformPoint(ScalarType x, ScalarType y, ScalarType z) const
 {
 	DenseVector<ScalarType, 3> NewPosition;
 	//NewPosition[k] = m_Parameter(k, 0)*x + m_Parameter(k, 1)*y + m_Parameter(k, 2)*z + m_Parameter(k, 3);
 
-	auto P = m_Parameter.GetElementPointer();
+	const auto P = m_Parameter.GetElementPointer();
 	NewPosition[0] = P[0] * x + P[3] * y + P[6] * z + P[9];
 	NewPosition[1] = P[1] * x + P[4] * y + P[7] * z + P[10];
 	NewPosition[2] = P[2] * x + P[5] * y + P[8] * z + P[11];

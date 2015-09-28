@@ -40,9 +40,9 @@ public:
 	typedef Scalar_Type ScalarType;
 
 private:
-	// m_SourceControlPointSet and m_TargetControlPointSet must be valid when EstimateParameter() is called
-	const DenseMatrix<ScalarType>* m_SourceControlPointSet; // 3 x N
-	const DenseMatrix<ScalarType>* m_TargetControlPointSet; // 3 x N
+	// m_SourceLandmarkPointSet and m_TargetLandmarkPointSet must be valid when EstimateParameter() is called
+	const DenseMatrix<ScalarType>* m_SourceLandmarkPointSet; // 3 x N
+	const DenseMatrix<ScalarType>* m_TargetLandmarkPointSet; // 3 x N
 
 	DenseMatrix<ScalarType> m_Parameter;  // 3 x 4
 
@@ -52,19 +52,18 @@ public:
 
 	void Clear();
 
-	void SetSourceControlPointSet(const DenseMatrix<ScalarType>* SourcePointSet);
-	void SetTargetControlPointSet(const DenseMatrix<ScalarType>* TargetPointSet);
+	void SetSourceLandmarkPointSet(const DenseMatrix<ScalarType>* SourceLandmarkPointSet);
+	void SetTargetLandmarkPointSet(const DenseMatrix<ScalarType>* TargetLandmarkPointSet);
 	void EstimateParameter();
 
 	void SetTransformationMatrix(const DenseMatrix<ScalarType>& TransformationMatrix);
 	DenseMatrix<ScalarType> GetTransformationMatrix() const;
 
-	DenseVector<ScalarType, 3> TransformPoint(ScalarType x, ScalarType y, ScalarType z) const;
-
+	inline DenseVector<ScalarType, 3> TransformPoint(ScalarType x, ScalarType y, ScalarType z) const;
 	using CoordinateTransform3D::TransformPoint;
 
 private:
-	bool CheckInput();
+	bool CheckLandmarkPointSet();
 
 private:
 	AffineTransform3D(const AffineTransform3D&) = delete;

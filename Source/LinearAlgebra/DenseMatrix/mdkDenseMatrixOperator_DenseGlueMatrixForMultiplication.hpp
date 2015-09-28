@@ -61,7 +61,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(DenseGlueMatrixForMul
 
     // check if GlueMatrixA only has one matrix
 
-    if (GlueMatrixA.GetMatrixNumber() == 1)
+    if (GlueMatrixA.GetMatrixCount() == 1)
     {
         DenseGlueMatrixForLinearCombination<ElementType> tempGlueMatrix_L;
 
@@ -134,7 +134,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(DenseGlueMatrixForMul
 
     // check if GlueMatrixA only has one matrix
 
-    if (GlueMatrixA.GetMatrixNumber() == 1)
+    if (GlueMatrixA.GetMatrixCount() == 1)
     {
         DenseGlueMatrixForLinearCombination<ElementType> tempGlueMatrix_L;
 
@@ -205,7 +205,7 @@ DenseGlueMatrixForMultiplication<ElementType> operator*(DenseGlueMatrixForMultip
         return EmptyGlueMatrix_M;
     }
 
-    int_max MatrixNumber = GlueMatrixA.GetMatrixNumber();
+    int_max MatrixNumber = GlueMatrixA.GetMatrixCount();
 
     GlueMatrixA.m_ColCount = SizeB.ColCount;
 
@@ -276,7 +276,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(const DenseMatrix<Ele
 
     // check if GlueMatrixB only has one matrix
 
-    if (GlueMatrixB.GetMatrixNumber() == 1)
+    if (GlueMatrixB.GetMatrixCount() == 1)
     {
         DenseGlueMatrixForLinearCombination<ElementType> tempGlueMatrix_L;
 
@@ -351,7 +351,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(const DenseMatrix<Ele
 
     // check if GlueMatrixB only has one matrix
 
-    if (GlueMatrixB.GetMatrixNumber() == 1)
+    if (GlueMatrixB.GetMatrixCount() == 1)
     {
         DenseGlueMatrixForLinearCombination<ElementType> tempGlueMatrix_L;
 
@@ -365,7 +365,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(const DenseMatrix<Ele
         tempGlueMatrix_L.m_SourceMatrixSharedCopyList.reserve(2);
         tempGlueMatrix_L.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
-        tempGlueMatrix_L.m_SourceMatrixSharedCopyList[1].SwapSmartPointer(tempGlueMatrix_L.m_SourceMatrixSharedCopyList[0]);
+        tempGlueMatrix_L.m_SourceMatrixSharedCopyList[1].Swap(tempGlueMatrix_L.m_SourceMatrixSharedCopyList[0]);
 
         tempGlueMatrix_L.m_SourceMatrixSharedCopyList[0].ForceShare(MatrixA);
 
@@ -377,7 +377,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(const DenseMatrix<Ele
     }
     else
     {
-        return MatrixA + GlueMatrixB.CreateDenseMatrix();
+        return MatrixA - GlueMatrixB.CreateDenseMatrix();
     }
 }
 
@@ -435,7 +435,7 @@ DenseGlueMatrixForMultiplication<ElementType> operator*(const DenseMatrix<Elemen
 
     for (int_max i = MatrixNumber; i >= 1; --i)
     {
-        GlueMatrixB.m_SourceMatrixSharedCopyList[i].SwapSmartPointer(GlueMatrixB.m_SourceMatrixSharedCopyList[i - 1]);
+        GlueMatrixB.m_SourceMatrixSharedCopyList[i].Swap(GlueMatrixB.m_SourceMatrixSharedCopyList[i - 1]);
     }    
 
     GlueMatrixB.m_SourceMatrixSharedCopyList[0].ForceShare(MatrixA);
@@ -462,7 +462,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(DenseGlueMatrixForMul
 {
     // check if GlueMatrixA only has one matrix
 
-    if (GlueMatrixA.GetMatrixNumber() == 1)
+    if (GlueMatrixA.GetMatrixCount() == 1)
     {
         DenseGlueMatrixForLinearCombination<ElementType> tempGlueMatrix_L;
 
@@ -491,7 +491,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(DenseGlueMatrixForMul
 {
     // check if GlueMatrixA only has one matrix
 
-    if (GlueMatrixA.GetMatrixNumber() == 1)
+    if (GlueMatrixA.GetMatrixCount() == 1)
     {
         DenseGlueMatrixForLinearCombination<ElementType> tempGlueMatrix_L;
 
@@ -549,7 +549,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(const ElementType& El
 {
     // check if GlueMatrixB only has one matrix
 
-    if (GlueMatrixB.GetMatrixNumber() == 1)
+    if (GlueMatrixB.GetMatrixCount() == 1)
     {
         DenseGlueMatrixForLinearCombination<ElementType> tempGlueMatrix_L;
 
@@ -578,7 +578,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(const ElementType& El
 {
     // check if GlueMatrixB only has one matrix
 
-    if (GlueMatrixB.GetMatrixNumber() == 1)
+    if (GlueMatrixB.GetMatrixCount() == 1)
     {
         DenseGlueMatrixForLinearCombination<ElementType> tempGlueMatrix_L;
 
@@ -746,15 +746,15 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(DenseGlueMatrixForMul
 
     // check if GlueMatrixA_M only has one matrix
 
-    if (GlueMatrixA_M.GetMatrixNumber() == 1)
+    if (GlueMatrixA_M.GetMatrixCount() == 1)
     {
-        int_max MatrixNumber_B = GlueMatrixB_L.GetMatrixNumber();
+        int_max MatrixNumber_B = GlueMatrixB_L.GetMatrixCount();
 
         //GlueMatrixB_L.m_SourceMatrixSharedCopyList.resize(MatrixNumber_B + 1);
         GlueMatrixB_L.m_SourceMatrixSharedCopyList.reserve(MatrixNumber_B + 1);
         GlueMatrixB_L.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
-        GlueMatrixB_L.m_SourceMatrixSharedCopyList[MatrixNumber_B].SwapSmartPointer(GlueMatrixA_M.m_SourceMatrixSharedCopyList[0]);
+        GlueMatrixB_L.m_SourceMatrixSharedCopyList[MatrixNumber_B].Swap(GlueMatrixA_M.m_SourceMatrixSharedCopyList[0]);
 
         GlueMatrixB_L.m_ElementList_Coef.push_back(GlueMatrixA_M.m_Element_Coef);
 
@@ -812,15 +812,15 @@ DenseGlueMatrixForLinearCombination<ElementType>& operator-(DenseGlueMatrixForMu
 
     // check if GlueMatrixA_M only has one matrix
 
-    if (GlueMatrixA_M.GetMatrixNumber() == 1)
+    if (GlueMatrixA_M.GetMatrixCount() == 1)
     {
-        int_max MatrixNumber_B = GlueMatrixB_L.GetMatrixNumber();
+        int_max MatrixNumber_B = GlueMatrixB_L.GetMatrixCount();
 
         //GlueMatrixB_L.m_SourceMatrixSharedCopyList.resize(MatrixNumber_B + 1);
         GlueMatrixB_L.m_SourceMatrixSharedCopyList.reserve(MatrixNumber_B + 1);
         GlueMatrixB_L.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
-        GlueMatrixB_L.m_SourceMatrixSharedCopyList[MatrixNumber_B].SwapSmartPointer(GlueMatrixA_M.m_SourceMatrixSharedCopyList[0]);
+        GlueMatrixB_L.m_SourceMatrixSharedCopyList[MatrixNumber_B].Swap(GlueMatrixA_M.m_SourceMatrixSharedCopyList[0]);
 
         for (int_max i = 0; i < MatrixNumber_B; ++i)
         {
@@ -907,9 +907,9 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(DenseGlueMatrixForLin
 
     // check if GlueMatrixB_M only has one matrix
 
-    if (GlueMatrixB_M.GetMatrixNumber() == 1)
+    if (GlueMatrixB_M.GetMatrixCount() == 1)
     {
-        int_max MatrixNumber_A = GlueMatrixA_L.GetMatrixNumber();
+        int_max MatrixNumber_A = GlueMatrixA_L.GetMatrixCount();
 
         //GlueMatrixA_L.m_SourceMatrixSharedCopyList.resize(MatrixNumber_A + 1);
         GlueMatrixA_L.m_SourceMatrixSharedCopyList.reserve(MatrixNumber_A + 1);
@@ -974,9 +974,9 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(DenseGlueMatrixForLin
 
     // check if GlueMatrixB_M only has one matrix
 
-    if (GlueMatrixB_M.GetMatrixNumber() == 1)
+    if (GlueMatrixB_M.GetMatrixCount() == 1)
     {
-        int_max MatrixNumber_A = GlueMatrixA_L.GetMatrixNumber();
+        int_max MatrixNumber_A = GlueMatrixA_L.GetMatrixCount();
 
         //GlueMatrixA_L.m_SourceMatrixSharedCopyList.resize(MatrixNumber_A + 1);
         GlueMatrixA_L.m_SourceMatrixSharedCopyList.reserve(MatrixNumber_A + 1);
@@ -1062,9 +1062,9 @@ DenseGlueMatrixForLinearCombination<ElementType> operator+(DenseGlueMatrixForMul
 
     // check if one matrix in GlueMatrixA and one matrix in GlueMatrixB
 
-    int_max MatrixNumber_A = GlueMatrixA.GetMatrixNumber();
+    int_max MatrixNumber_A = GlueMatrixA.GetMatrixCount();
 
-    int_max MatrixNumber_B = GlueMatrixB.GetMatrixNumber();
+    int_max MatrixNumber_B = GlueMatrixB.GetMatrixCount();
 
     if (MatrixNumber_A == 1 && MatrixNumber_B == 1)
     {
@@ -1152,9 +1152,9 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(DenseGlueMatrixForMul
 
     // check if one matrix in GlueMatrixA and one matrix in GlueMatrixB
 
-    int_max MatrixNumber_A = GlueMatrixA.GetMatrixNumber();
+    int_max MatrixNumber_A = GlueMatrixA.GetMatrixCount();
 
-    int_max MatrixNumber_B = GlueMatrixB.GetMatrixNumber();
+    int_max MatrixNumber_B = GlueMatrixB.GetMatrixCount();
 
     if (MatrixNumber_A == 1 && MatrixNumber_B == 1)
     {
@@ -1170,7 +1170,7 @@ DenseGlueMatrixForLinearCombination<ElementType> operator-(DenseGlueMatrixForMul
         tempGlueMatrix_L.m_SourceMatrixSharedCopyList.reserve(2);
         tempGlueMatrix_L.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
-        tempGlueMatrix_L.m_SourceMatrixSharedCopyList[1].SwapSmartPointer(GlueMatrixB.m_SourceMatrixSharedCopyList[0]);
+        tempGlueMatrix_L.m_SourceMatrixSharedCopyList[1].Swap(GlueMatrixB.m_SourceMatrixSharedCopyList[0]);
 
         tempGlueMatrix_L.m_ElementList_Coef.push_back(GlueMatrixA.m_Element_Coef);
 
@@ -1241,9 +1241,9 @@ DenseGlueMatrixForMultiplication<ElementType> operator*(DenseGlueMatrixForMultip
         return EmptyGlueMatrix_M;
     }
 
-    int_max MatrixNumber_A = GlueMatrixA.GetMatrixNumber();
+    int_max MatrixNumber_A = GlueMatrixA.GetMatrixCount();
 
-    int_max MatrixNumber_B = GlueMatrixB.GetMatrixNumber();
+    int_max MatrixNumber_B = GlueMatrixB.GetMatrixCount();
     
     if (MatrixNumber_A == 1 && MatrixNumber_B == 1)
     {
@@ -1253,7 +1253,7 @@ DenseGlueMatrixForMultiplication<ElementType> operator*(DenseGlueMatrixForMultip
         GlueMatrixA.m_SourceMatrixSharedCopyList.reserve(2);
         GlueMatrixA.m_SourceMatrixSharedCopyList.emplace_back(MDK_PURE_EMPTY_MATRIX);
 
-        GlueMatrixA.m_SourceMatrixSharedCopyList[1].SwapSmartPointer(GlueMatrixB.m_SourceMatrixSharedCopyList[0]);
+        GlueMatrixA.m_SourceMatrixSharedCopyList[1].Swap(GlueMatrixB.m_SourceMatrixSharedCopyList[0]);
 
         GlueMatrixA.m_Element_Coef *= GlueMatrixB.m_Element_Coef;
 

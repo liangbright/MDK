@@ -84,7 +84,7 @@ bool LoadMultiple3DCurveFromVTKFile(ObjectArray<DenseMatrix<ScalarType>>& Output
 	}
 
 	auto VTKCurveData = Reader->GetOutput();
-	ConvertVTKPolyDataToMDK3DCurve(VTKCurveData, OutputCurveList);
+	ConvertVTKPolyDataToMultipleMDK3DCurve(VTKCurveData, OutputCurveList);
 	return true;
 }
 

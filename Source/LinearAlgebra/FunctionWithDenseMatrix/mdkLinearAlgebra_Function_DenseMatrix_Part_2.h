@@ -177,23 +177,29 @@ struct DenseMatrixEigenResult
 
     DenseMatrixEigenResult(){};
 
-    // move constructor
+	DenseMatrixEigenResult(const DenseMatrixEigenResult& Result)
+	{
+		*this = Result;
+	}
+
     DenseMatrixEigenResult(DenseMatrixEigenResult&& Result)
     {
-        EigenVector = std::move(Result.EigenVector);
-        EigenValue  = std::move(Result.EigenValue);
+		*this = std::move(Result);
     }
 
     ~DenseMatrixEigenResult(){};
 
-    void operator=(const DenseMatrixEigenResult&& Result)
-    {
-        EigenVector = std::move(Result.EigenVector);
-        EigenValue  = std::move(Result.EigenValue);
-    }
+	void operator=(const DenseMatrixEigenResult& Result)
+	{
+		EigenVector = Result.EigenVector;
+		EigenValue = Result.EigenValue;
+	}
 
-    //------------------------------------------------------
-    void operator=(const DenseMatrixEigenResult&) = delete;
+	void operator=(DenseMatrixEigenResult&& Result)
+	{
+		EigenVector = std::move(Result.EigenVector);
+		EigenValue = std::move(Result.EigenValue);
+	}
 };
 
 template<typename ElementType>
@@ -213,25 +219,31 @@ struct DenseMatrixPCAResult
 
     DenseMatrixPCAResult(){};
 
-    // move constructor
+	DenseMatrixPCAResult(const DenseMatrixPCAResult& Result)
+	{
+		*this = Result;
+	}
+
     DenseMatrixPCAResult(DenseMatrixPCAResult&& Result)
     {
-        Mean = std::move(Result.Mean);
-        EigenVector = std::move(Result.EigenVector);
-        EigenValue = std::move(Result.EigenValue);
+		*this = std::move(Result);
     }
 
     ~DenseMatrixPCAResult(){};
 
-    void operator=(const DenseMatrixPCAResult&& Result)
+	void operator=(const DenseMatrixPCAResult& Result)
+	{
+		Mean = Result.Mean;
+		EigenVector = Result.EigenVector;
+		EigenValue = Result.EigenValue;
+	}
+
+    void operator=(DenseMatrixPCAResult&& Result)
     {
         Mean = std::move(Result.Mean);
         EigenVector = std::move(Result.EigenVector);
         EigenValue = std::move(Result.EigenValue);
     }
-
-    //------------------------------------------------------
-    void operator=(const DenseMatrixPCAResult&) = delete;
 };
 
 template<typename ElementType>
@@ -242,36 +254,38 @@ inline DenseMatrixPCAResult<ElementType> MatrixPCA(const DenseMatrix<ElementType
 template<typename ElementType>
 struct DenseMatrixSVDResult
 {
-    // Matrix = U*S*V;
+    // Matrix = U*S*V';
     DenseMatrix<ElementType> U;  // matrix
-    DenseMatrix<ElementType> S;  // matrix  : change to vector?
+    DenseMatrix<ElementType> S;  // matrix, S(0) >= S(1) >= S(2) >= ...
     DenseMatrix<ElementType> V;  // matrix
 
     DenseMatrixSVDResult(){};
 
-    // move constructor
-    DenseMatrixSVDResult(DenseMatrixSVDResult&& Result)
-    {
-        // this will call copy "=" not move "="
-        //U = Result.U;
+	DenseMatrixSVDResult(const DenseMatrixSVDResult& Result)
+	{
+		*this = Result;
+	}
 
-        U = std::move(Result.U);
-        V = std::move(Result.V);
-        S = std::move(Result.S);
+    DenseMatrixSVDResult(DenseMatrixSVDResult&& Result)
+    {        
+		*this = std::move(Result);
     }
 
     ~DenseMatrixSVDResult(){};
 
-    void operator=(const DenseMatrixSVDResult&& Result)
+    void operator=(const DenseMatrixSVDResult& Result)
     {
-        U = std::move(Result.U);
-        V = std::move(Result.V);
-        S = std::move(Result.S);
+        U = Result.U;        
+        S = Result.S;
+		V = Result.V;
     }
 
-    //------------------------------------------------------
-    void operator=(const DenseMatrixSVDResult&) = delete;
-
+	void operator=(DenseMatrixSVDResult&& Result)
+	{
+		U = std::move(Result.U);
+		S = std::move(Result.S);
+		V = std::move(Result.V);
+	}
 };
 
 

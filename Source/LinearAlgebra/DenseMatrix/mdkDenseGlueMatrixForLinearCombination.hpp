@@ -88,7 +88,7 @@ MatrixSize DenseGlueMatrixForLinearCombination<ElementType>::GetSize() const
 
 template<typename ElementType>
 inline
-int_max DenseGlueMatrixForLinearCombination<ElementType>::GetMatrixNumber() const
+int_max DenseGlueMatrixForLinearCombination<ElementType>::GetMatrixCount() const
 {
     return m_SourceMatrixSharedCopyList.size();
 }

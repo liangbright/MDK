@@ -74,7 +74,7 @@ private:
 
     inline MatrixSize GetSize() const;
 
-    inline int_max GetMatrixNumber() const;
+	inline int_max GetMatrixCount() const;
 
     inline bool IsEmpty() const;
 

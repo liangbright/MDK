@@ -66,7 +66,7 @@ int_max DenseGlueMatrixForMultiplication<ElementType>::GetColCount() const
 
 template<typename ElementType>
 inline
-int_max DenseGlueMatrixForMultiplication<ElementType>::GetElementNumber() const
+int_max DenseGlueMatrixForMultiplication<ElementType>::GetElementCount() const
 {
     return m_RowCount*m_ColCount;
 }
@@ -88,7 +88,7 @@ MatrixSize DenseGlueMatrixForMultiplication<ElementType>::GetSize() const
 
 template<typename ElementType>
 inline
-int_max DenseGlueMatrixForMultiplication<ElementType>::GetMatrixNumber() const
+int_max DenseGlueMatrixForMultiplication<ElementType>::GetMatrixCount() const
 {
     return m_SourceMatrixSharedCopyList.size();
 }

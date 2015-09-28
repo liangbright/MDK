@@ -6,6 +6,7 @@ namespace mdk
 template<typename ScalarType>
 ThinPlateSplineTransform3D<ScalarType>::ThinPlateSplineTransform3D()
 {
+	this->Clear();
 }
 
 template<typename ScalarType>
@@ -16,73 +17,84 @@ ThinPlateSplineTransform3D<ScalarType>::~ThinPlateSplineTransform3D()
 template<typename ScalarType>
 void ThinPlateSplineTransform3D<ScalarType>::Clear()
 {
-	m_SourceControlPointSet = nullptr;
-	m_TargetControlPointSet = nullptr;
+	m_SourceLandmarkPointSet = nullptr;
+	m_TargetLandmarkPointSet = nullptr;
 	m_Parameter.Clear();
 }
 
 template<typename ScalarType>
-void ThinPlateSplineTransform3D<ScalarType>::SetSourceControlPointSet(const DenseMatrix<ScalarType>* SourcePointSet)
+void ThinPlateSplineTransform3D<ScalarType>::SetSourceLandmarkPointSet(const DenseMatrix<ScalarType>* SourceLandmarkPointSet)
 {
-	m_SourceControlPointSet = SourcePointSet;
+	m_SourceLandmarkPointSet = SourceLandmarkPointSet;
 }
 
 template<typename ScalarType>
-void ThinPlateSplineTransform3D<ScalarType>::SetTargetControlPointSet(const DenseMatrix<ScalarType>* TargetPointSet)
+void ThinPlateSplineTransform3D<ScalarType>::SetTargetLandmarkPointSet(const DenseMatrix<ScalarType>* TargetLandmarkPointSet)
 {
-	m_TargetControlPointSet = TargetPointSet;
+	m_TargetLandmarkPointSet = TargetLandmarkPointSet;
 }
 
 template<typename ScalarType>
-void ThinPlateSplineTransform3D<ScalarType>::SetParameter(const DenseMatrix<ScalarType>& Parameter)
+bool ThinPlateSplineTransform3D<ScalarType>::CheckLandmarkPointSet()
 {
-	m_Parameter = Parameter;
-}
+	if (m_SourceLandmarkPointSet == nullptr)
+	{
+		MDK_Error("m_SourceLandmarkPointSet is nullptr @ ThinPlateSplineTransform3D::CheckLandmarkPointSet()")
+		return false;
+	}
 
-template<typename ScalarType>
-const DenseMatrix<ScalarType>& ThinPlateSplineTransform3D<ScalarType>::GetParameter() const
-{
-	return m_Parameter;
-}
+	if (m_SourceLandmarkPointSet->GetRowCount() != 3)
+	{
+		MDK_Error("m_SourceLandmarkPointSet wrong size  @ ThinPlateSplineTransform3D::CheckLandmarkPointSet()")
+		return false;
+	}
 
+	if (m_TargetLandmarkPointSet == nullptr)
+	{
+		MDK_Error("m_TargetLandmarkPointSet is nullptr @ ThinPlateSplineTransform3D::CheckLandmarkPointSet()")
+		return false;
+
+	}
+
+	if (m_TargetLandmarkPointSet->GetRowCount() != 3)
+	{
+		MDK_Error("m_TargetLandmarkPointSet wrong size  @ ThinPlateSplineTransform3D::CheckLandmarkPointSet()")
+		return false;
+	}
+
+	if (m_SourceLandmarkPointSet->GetColCount() != m_TargetLandmarkPointSet->GetColCount())
+	{
+		MDK_Error("m_SourceLandmarkPointSet size and m_TargetLandmarkPointSet size do not match @ ThinPlateSplineTransform3D::CheckLandmarkPointSet()")
+		return false;
+	}
+
+	return true;
+}
 
 template<typename ScalarType>
 void ThinPlateSplineTransform3D<ScalarType>::EstimateParameter()
 {
 	// check input 
-	if (m_SourceControlPointSet == nullptr || m_TargetControlPointSet == nullptr)
+	if (this->CheckLandmarkPointSet() == false)
 	{
-		MDK_Error("SourcePointSet or TargetPointSet is empty (nullptr) @ ThinPlateSplineTransform3D::EstimateParameter()")
-	    return;
-	}
-
-	if (m_SourceControlPointSet->GetRowCount() != 3 || m_TargetControlPointSet->GetRowCount() != 3)
-	{
-		MDK_Error("RowCount of SourcePointSet or TargetPointSet is not 3 @ ThinPlateSplineTransform3D::EstimateParameter()")
-	    return;
-	}
-
-	if (m_SourceControlPointSet->GetColCount() != m_TargetControlPointSet->GetColCount())
-	{
-		MDK_Error("ControlPointCount is not the same @ ThinPlateSplineTransform3D::EstimateParameter()")
-	    return;
+		return;
 	}
     //---------------------- input check done -------------------------------------------------------------------//
 	
 	//------------------- Construct L matrix as in the literature --------------------------------------------------//
 	/*
-	auto ControlPointCount = m_SourceControlPointSet->GetColCount();
+	auto PointCount = m_SourceLandmarkPointSet->GetColCount();
 
-    // compute K matrix K(i,j)= distance between point_i and point_j in SourcePointSet
+    // compute K matrix K(i,j)= distance between point_i and point_j in SourceLandmarkPointSet
 	DenseMatrix<ScalarType> K;
-	K.Resize(ControlPointCount, ControlPointCount);
-	for (int_max i = 0; i < ControlPointCount - 1; ++i)
+	K.Resize(PointCount, PointCount);
+	for (int_max i = 0; i < PointCount - 1; ++i)
 	{
-		auto Point_i = m_SourceControlPointSet->GetPointerOfCol(i);
+		auto Point_i = m_SourceLandmarkPointSet->GetPointerOfCol(i);
 
-		for (int_max j = i + 1; j < ControlPointCount; ++j)
+		for (int_max j = i + 1; j < PointCount; ++j)
 		{
-			auto Point_j = m_SourceControlPointSet->GetPointerOfCol(j);
+			auto Point_j = m_SourceLandmarkPointSet->GetPointerOfCol(j);
 
 			auto Distance =  (Point_i[0] - Point_j[0])*(Point_i[0] - Point_j[0]) 
 				            +(Point_i[1] - Point_j[1])*(Point_i[1] - Point_j[1])
@@ -96,13 +108,13 @@ void ThinPlateSplineTransform3D<ScalarType>::EstimateParameter()
 
 	// assemble P matrix
 	DenseMatrix<ScalarType> P;
-	P.Resize(ControlPointCount, 4);
-	for (int_max i = 0; i < ControlPointCount; ++i)
+	P.Resize(PointCount, 4);
+	for (int_max i = 0; i < PointCount; ++i)
 	{
 		P(i, 0) = 1;
-		P(i, 1) = (*m_SourceControlPointSet)(0, i); // x
-		P(i, 2) = (*m_SourceControlPointSet)(1, i); // y
-		P(i, 3) = (*m_SourceControlPointSet)(2, i); // z
+		P(i, 1) = (*m_SourceLandmarkPointSet)(0, i); // x
+		P(i, 2) = (*m_SourceLandmarkPointSet)(1, i); // y
+		P(i, 3) = (*m_SourceLandmarkPointSet)(2, i); // z
 	}
 
 	// get transpose of P
@@ -120,19 +132,19 @@ void ThinPlateSplineTransform3D<ScalarType>::EstimateParameter()
 
 	// construct L matrix directly
 
-	auto ControlPointCount = m_SourceControlPointSet->GetColCount();
+	auto PointCount = m_SourceLandmarkPointSet->GetColCount();
 
 	DenseMatrix<ScalarType> L;
-	L.Resize(ControlPointCount + 4, ControlPointCount + 4);
+	L.Resize(PointCount + 4, PointCount + 4);
 
 	// add K in L
-	for (int_max i = 0; i < ControlPointCount - 1; ++i)
+	for (int_max i = 0; i < PointCount - 1; ++i)
 	{
-		auto Point_i = m_SourceControlPointSet->GetPointerOfCol(i);
+		auto Point_i = m_SourceLandmarkPointSet->GetPointerOfCol(i);
 
-		for (int_max j = i + 1; j < ControlPointCount; ++j)
+		for (int_max j = i + 1; j < PointCount; ++j)
 		{
-			auto Point_j = m_SourceControlPointSet->GetPointerOfCol(j);
+			auto Point_j = m_SourceLandmarkPointSet->GetPointerOfCol(j);
 
 			auto Distance =  (Point_i[0] - Point_j[0])*(Point_i[0] - Point_j[0]) 
 				            +(Point_i[1] - Point_j[1])*(Point_i[1] - Point_j[1])
@@ -145,27 +157,27 @@ void ThinPlateSplineTransform3D<ScalarType>::EstimateParameter()
 	}
 
 	// add P in L
-	for (int_max i = 0; i < ControlPointCount; ++i)
+	for (int_max i = 0; i < PointCount; ++i)
 	{
-		L(i, ControlPointCount) = 1;
-		L(i, ControlPointCount + 1) = (*m_SourceControlPointSet)(0, i); // x
-		L(i, ControlPointCount + 2) = (*m_SourceControlPointSet)(1, i); // y
-		L(i, ControlPointCount + 3) = (*m_SourceControlPointSet)(2, i); // z
+		L(i, PointCount) = 1;
+		L(i, PointCount + 1) = (*m_SourceLandmarkPointSet)(0, i); // x
+		L(i, PointCount + 2) = (*m_SourceLandmarkPointSet)(1, i); // y
+		L(i, PointCount + 3) = (*m_SourceLandmarkPointSet)(2, i); // z
 	}
 
 	// add P' in L
-	for (int_max j = 0; j < ControlPointCount; ++j)
+	for (int_max j = 0; j < PointCount; ++j)
 	{
-		L(ControlPointCount, j) = 1;
-		L(ControlPointCount + 1, j) = (*m_SourceControlPointSet)(0, j); // x
-		L(ControlPointCount + 2, j) = (*m_SourceControlPointSet)(1, j); // y
-		L(ControlPointCount + 3, j) = (*m_SourceControlPointSet)(2, j); // z
+		L(PointCount, j) = 1;
+		L(PointCount + 1, j) = (*m_SourceLandmarkPointSet)(0, j); // x
+		L(PointCount + 2, j) = (*m_SourceLandmarkPointSet)(1, j); // y
+		L(PointCount + 3, j) = (*m_SourceLandmarkPointSet)(2, j); // z
 	}
 
 	// add ZeroMatrix in L
-	for (int_max j = ControlPointCount; j < ControlPointCount + 4; ++j)
+	for (int_max j = PointCount; j < PointCount + 4; ++j)
 	{
-		for (int_max i = ControlPointCount; i < ControlPointCount + 4; ++i)
+		for (int_max i = PointCount; i < PointCount + 4; ++i)
 		{		
 			L(i, j) = 0;
 		}
@@ -173,14 +185,14 @@ void ThinPlateSplineTransform3D<ScalarType>::EstimateParameter()
 
 	// assemble B matrix
 	DenseMatrix<ScalarType> B;
-	B.Resize(ControlPointCount + 4, 3);
-	for (int_max i = 0; i < ControlPointCount; ++i)
+	B.Resize(PointCount + 4, 3);
+	for (int_max i = 0; i < PointCount; ++i)
 	{
-		B(i, 0) = (*m_TargetControlPointSet)(0, i); // x
-		B(i, 1) = (*m_TargetControlPointSet)(1, i); // y
-		B(i, 2) = (*m_TargetControlPointSet)(2, i); // z
+		B(i, 0) = (*m_TargetLandmarkPointSet)(0, i); // x
+		B(i, 1) = (*m_TargetLandmarkPointSet)(1, i); // y
+		B(i, 2) = (*m_TargetLandmarkPointSet)(2, i); // z
 	}
-	for (int_max i = ControlPointCount; i < ControlPointCount + 4; ++i)
+	for (int_max i = PointCount; i < PointCount + 4; ++i)
 	{
 		B(i, 0) = 0;
 		B(i, 1) = 0;
@@ -196,7 +208,46 @@ void ThinPlateSplineTransform3D<ScalarType>::EstimateParameter()
 	//DisplayMatrix("m_Parameter", m_Parameter, 4);
 }
 
+
 template<typename ScalarType>
+void ThinPlateSplineTransform3D<ScalarType>::SetParameter(const DenseMatrix<ScalarType>& Parameter)
+{
+	if (m_SourceLandmarkPointSet == nullptr)
+	{
+		MDK_Error("m_SourceLandmarkPointSet is nullptr @ ThinPlateSplineTransform3D::SetParameter()")
+		return;
+	}
+
+	if (m_SourceLandmarkPointSet->GetRowCount() != 3)
+	{
+		MDK_Error("m_SourceLandmarkPointSet wrong size @ ThinPlateSplineTransform3D::SetParameter()")
+		return;
+	}
+
+	if (Parameter.GetColCount() != 3)
+	{
+		MDK_Error("Parameter wrong size @ ThinPlateSplineTransform3D::SetParameter(...)")
+		return;
+	}
+
+	if (Parameter.GetRowCount() != m_SourceLandmarkPointSet->GetColCount() + 4)
+	{
+		MDK_Error("Parameter wrong size @ ThinPlateSplineTransform3D::SetParameter(...)")
+		return;
+	}
+
+	m_Parameter = Parameter;
+}
+
+template<typename ScalarType>
+DenseMatrix<ScalarType> ThinPlateSplineTransform3D<ScalarType>::GetParameter() const
+{
+	return m_Parameter;
+}
+
+
+template<typename ScalarType>
+inline 
 DenseVector<ScalarType, 3> ThinPlateSplineTransform3D<ScalarType>::TransformPoint(ScalarType x, ScalarType y, ScalarType z) const
 {
 	DenseVector<ScalarType, 3> OutputPosition;
@@ -204,11 +255,11 @@ DenseVector<ScalarType, 3> ThinPlateSplineTransform3D<ScalarType>::TransformPoin
 	OutputPosition[1] = 0;
 	OutputPosition[2] = 0;
 
-	auto ControlPointCount = m_SourceControlPointSet->GetColCount();
+	auto PointCount = m_SourceLandmarkPointSet->GetColCount();
 	
-	for (int_max k = 0; k < ControlPointCount; ++k)
+	for (int_max k = 0; k < PointCount; ++k)
 	{
-		auto Point_k = m_SourceControlPointSet->GetPointerOfCol(k);
+		auto Point_k = m_SourceLandmarkPointSet->GetPointerOfCol(k);
 		auto Distance = (x - Point_k[0])*(x - Point_k[0]) + (y - Point_k[1])*(y - Point_k[1]) + (z - Point_k[2])*(z - Point_k[2]);	
 		Distance = std::sqrt(Distance);
 		OutputPosition[0] += m_Parameter(k, 0)*Distance;
@@ -218,10 +269,10 @@ DenseVector<ScalarType, 3> ThinPlateSplineTransform3D<ScalarType>::TransformPoin
 
 	for (int_max k = 0; k < 3; ++k)
 	{
-		OutputPosition[k] +=  m_Parameter(ControlPointCount, k) 
-			                + m_Parameter(ControlPointCount + 1, k)*x
-		                    + m_Parameter(ControlPointCount + 2, k)*y
-		                    + m_Parameter(ControlPointCount + 3, k)*z;
+		OutputPosition[k] +=  m_Parameter(PointCount, k) 
+			                + m_Parameter(PointCount + 1, k)*x
+		                    + m_Parameter(PointCount + 2, k)*y
+		                    + m_Parameter(PointCount + 3, k)*z;
 	}
 
 	return OutputPosition;
