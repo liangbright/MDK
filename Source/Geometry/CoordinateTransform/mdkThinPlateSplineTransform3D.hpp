@@ -35,19 +35,7 @@ void ThinPlateSplineTransform3D<ScalarType>::SetTargetLandmarkPointSet(const Den
 }
 
 template<typename ScalarType>
-void ThinPlateSplineTransform3D<ScalarType>::SetParameter(const DenseMatrix<ScalarType>& Parameter)
-{
-	m_Parameter = Parameter;
-}
-
-template<typename ScalarType>
-const DenseMatrix<ScalarType>& ThinPlateSplineTransform3D<ScalarType>::GetParameter() const
-{
-	return m_Parameter;
-}
-
-template<typename ScalarType>
-void ThinPlateSplineTransform3D<ScalarType>::CheckLandmarkPointSet
+bool ThinPlateSplineTransform3D<ScalarType>::CheckLandmarkPointSet()
 {
 	if (m_SourceLandmarkPointSet == nullptr)
 	{
@@ -220,7 +208,46 @@ void ThinPlateSplineTransform3D<ScalarType>::EstimateParameter()
 	//DisplayMatrix("m_Parameter", m_Parameter, 4);
 }
 
+
 template<typename ScalarType>
+void ThinPlateSplineTransform3D<ScalarType>::SetParameter(const DenseMatrix<ScalarType>& Parameter)
+{
+	if (m_SourceLandmarkPointSet == nullptr)
+	{
+		MDK_Error("m_SourceLandmarkPointSet is nullptr @ ThinPlateSplineTransform3D::SetParameter()")
+		return;
+	}
+
+	if (m_SourceLandmarkPointSet->GetRowCount() != 3)
+	{
+		MDK_Error("m_SourceLandmarkPointSet wrong size @ ThinPlateSplineTransform3D::SetParameter()")
+		return;
+	}
+
+	if (Parameter.GetColCount() != 3)
+	{
+		MDK_Error("Parameter wrong size @ ThinPlateSplineTransform3D::SetParameter(...)")
+		return;
+	}
+
+	if (Parameter.GetRowCount() != m_SourceLandmarkPointSet->GetColCount() + 4)
+	{
+		MDK_Error("Parameter wrong size @ ThinPlateSplineTransform3D::SetParameter(...)")
+		return;
+	}
+
+	m_Parameter = Parameter;
+}
+
+template<typename ScalarType>
+DenseMatrix<ScalarType> ThinPlateSplineTransform3D<ScalarType>::GetParameter() const
+{
+	return m_Parameter;
+}
+
+
+template<typename ScalarType>
+inline 
 DenseVector<ScalarType, 3> ThinPlateSplineTransform3D<ScalarType>::TransformPoint(ScalarType x, ScalarType y, ScalarType z) const
 {
 	DenseVector<ScalarType, 3> OutputPosition;

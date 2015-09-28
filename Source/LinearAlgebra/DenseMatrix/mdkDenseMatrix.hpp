@@ -6403,7 +6403,7 @@ void DenseMatrix<ElementType>::GetDiagonal(ElementType_Output* DiagonalData) con
 
     for (int_max i = 0; i < SelfSize.RowCount; ++i)
     {
-		DiagonalData[j] = ElementType_Output(RawPointer[Index + i]);
+		DiagonalData[i] = ElementType_Output(RawPointer[Index + i]);
         Index += SelfSize.RowCount;
     }
 }

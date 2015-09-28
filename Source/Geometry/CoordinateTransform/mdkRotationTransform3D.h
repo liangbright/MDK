@@ -6,8 +6,10 @@
 
 namespace mdk
 {
-// TargetPoint = RotationTransform(SourcePoint)= RotationMatrix*SourcePoint
-// RotationMatrix = Rz*Ry*Rx;
+// TargetPoint = RotationTransform(SourcePoint)= RotationMatrix*(SourcePoint-RotationCenter)+RotationCenter
+// Y = RX+T <=> Y=R(X-C)+C , C is rotation center and C = pinv(I-R)*(Yc-R*Xc), Yc=mean(Y), Xc=mean(X)
+//
+// RotationMatrix: rotate a-angle around X-axis, Y-axis, Z-axis
 // Rx = [1,      0,  0
 //       0, cos(a), -sin(a)
 //       0, sin(a), cos(a)]
@@ -16,7 +18,7 @@ namespace mdk
 //            0,   1,  0
 //       -sin(b),  0,  cos(b)]
 //
-// Rx = [cos(c),  -sin(c),  0
+// Rz = [cos(c),  -sin(c),  0
 //       sin(c),   cos(c),  0
 //            0,        0,  1]
 //
@@ -53,7 +55,7 @@ public:
 	void SetRotationCenter(const DenseVector<ScalarType, 3>& Center);
 	DenseVector<ScalarType, 3> GetRotationCenter() const;
 
-	DenseVector<ScalarType, 3> TransformPoint(ScalarType x, ScalarType y, ScalarType z) const;
+	inline DenseVector<ScalarType, 3> TransformPoint(ScalarType x, ScalarType y, ScalarType z) const;
 	using CoordinateTransform3D::TransformPoint;
 
 private:
@@ -66,7 +68,7 @@ public:
 	static DenseMatrix<ScalarType> ComputeRotationMatrix_around_Direction(ScalarType Angle, const DenseVector<ScalarType, 3>& Direction);
 
 	static DenseVector<ScalarType, 3> RotatePoint(const DenseVector<ScalarType, 3>& PointPosition,											      
-												  const DenseMatrix<ScalarType>& RotationMatrix,
+												  const DenseMatrix<ScalarType>&    RotationMatrix,
 												  const DenseVector<ScalarType, 3>& RotationCenter);
 
 	//RotationCenter is [0, 0, 0]

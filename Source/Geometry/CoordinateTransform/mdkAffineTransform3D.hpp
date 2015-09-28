@@ -149,12 +149,13 @@ DenseMatrix<ScalarType> AffineTransform3D<ScalarType>::GetTransformationMatrix()
 
 
 template<typename ScalarType>
+inline 
 DenseVector<ScalarType, 3> AffineTransform3D<ScalarType>::TransformPoint(ScalarType x, ScalarType y, ScalarType z) const
 {
 	DenseVector<ScalarType, 3> NewPosition;
 	//NewPosition[k] = m_Parameter(k, 0)*x + m_Parameter(k, 1)*y + m_Parameter(k, 2)*z + m_Parameter(k, 3);
 
-	auto P = m_Parameter.GetElementPointer();
+	const auto P = m_Parameter.GetElementPointer();
 	NewPosition[0] = P[0] * x + P[3] * y + P[6] * z + P[9];
 	NewPosition[1] = P[1] * x + P[4] * y + P[7] * z + P[10];
 	NewPosition[2] = P[2] * x + P[5] * y + P[8] * z + P[11];

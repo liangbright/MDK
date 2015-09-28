@@ -2,5 +2,6 @@
 
 int main()
 {
-	Test_a();
+	Test_2D();
+	Test_3D();
 }

@@ -59,8 +59,7 @@ public:
 	void SetTransformationMatrix(const DenseMatrix<ScalarType>& TransformationMatrix);
 	DenseMatrix<ScalarType> GetTransformationMatrix() const;
 
-	DenseVector<ScalarType, 3> TransformPoint(ScalarType x, ScalarType y, ScalarType z) const;
-
+	inline DenseVector<ScalarType, 3> TransformPoint(ScalarType x, ScalarType y, ScalarType z) const;
 	using CoordinateTransform3D::TransformPoint;
 
 private:

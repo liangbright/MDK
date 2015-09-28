@@ -39,9 +39,9 @@ public:
 	void EstimateParameter();
 
 	void SetParameter(const DenseMatrix<ScalarType>& Parameter);
-	const DenseMatrix<ScalarType>& GetParameter() const;
+	DenseMatrix<ScalarType> GetParameter() const;
 
-	DenseVector<ScalarType, 3> TransformPoint(ScalarType x, ScalarType y, ScalarType z) const;
+	inline DenseVector<ScalarType, 3> TransformPoint(ScalarType x, ScalarType y, ScalarType z) const;
 	using CoordinateTransform3D::TransformPoint;
 
 private:

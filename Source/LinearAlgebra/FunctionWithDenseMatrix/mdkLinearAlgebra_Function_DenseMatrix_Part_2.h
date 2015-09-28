@@ -256,7 +256,7 @@ struct DenseMatrixSVDResult
 {
     // Matrix = U*S*V';
     DenseMatrix<ElementType> U;  // matrix
-    DenseMatrix<ElementType> S;  // matrix  : change to vector?
+    DenseMatrix<ElementType> S;  // matrix, S(0) >= S(1) >= S(2) >= ...
     DenseMatrix<ElementType> V;  // matrix
 
     DenseMatrixSVDResult(){};
