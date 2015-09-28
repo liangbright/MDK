@@ -9,6 +9,9 @@
 #include <vtkImageData.h>
 #include <vtkPolyDataReader.h>
 #include <vtkPolyDataWriter.h>
+#include <vtkUnstructuredGrid.h>
+#include <vtkUnstructuredGridReader.h>
+#include <vtkUnstructuredGridWriter.h>
 
 #include "mdkString.h"
 #include "mdkFileIO.h"
@@ -23,6 +26,12 @@ bool SaveVTKPolyDataAsVTKFile(vtkPolyData* OutputVTKMesh, const String& FilePath
 vtkSmartPointer<vtkPolyData> LoadVTKPolyDataFromVTKFile(const String& FilePathAndName);
 
 bool LoadVTKPolyDataFromVTKFile(vtkPolyData* OutputVTKMesh, const String& FilePathAndName);
+
+bool SaveVTKUnstructuredGridAsVTKFile(vtkUnstructuredGrid* OutputVTKMesh, const String& FilePathAndName);//ASCII VTK file
+
+vtkSmartPointer<vtkUnstructuredGrid> LoadVTKUnstructuredGridFromVTKFile(const String& FilePathAndName);
+
+bool LoadVTKUnstructuredGridFromVTKFile(vtkUnstructuredGrid* OutputVTKMesh, const String& FilePathAndName);
 
 //directly load from file, not converted from mdk::PolygonMesh
 //bool LoadVTKPolygonMeshFromJsonDataFile(vtkPolyData* OutputVTKMesh, const String& FilePathAndName);

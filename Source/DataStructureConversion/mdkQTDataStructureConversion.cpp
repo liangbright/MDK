@@ -257,7 +257,7 @@ bool CheckIf_QTJsonArray_Is_ScalarArray(const QJsonArray& QJArray)
 DenseMatrix<double> ConvertQTJsonArrayToMDKScalarArray(const QJsonArray& QJArray)
 {
 	DenseMatrix<double> OutputArray;
-	OutputArray.ReserveCapacity(1, int_max(QJArray.size()));
+	OutputArray.SetCapacity(1, int_max(QJArray.size()));
 	for (auto it = QJArray.begin(); it != QJArray.end(); ++it)
 	{
 		if ((*it).type() != QJsonValue::Type::Double)
@@ -275,7 +275,7 @@ DenseMatrix<double> ConvertQTJsonArrayToMDKScalarArray(const QJsonArray& QJArray
 JsonArray ConvertQTJsonArrayToMDKJsonArray(const QJsonArray& QJArray)
 {
 	JsonArray JArray;
-	JArray.ReserveCapacity(int_max(QJArray.size()));
+	JArray.SetCapacity(int_max(QJArray.size()));
 	for (auto it = QJArray.begin(); it != QJArray.end(); ++it)
 	{		
 		JArray.Append(ConvertQTJsonValueToMDKJsonValue(*it));

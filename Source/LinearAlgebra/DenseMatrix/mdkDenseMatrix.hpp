@@ -1557,23 +1557,23 @@ void DenseMatrix<ElementType>::FastResize(int_max InputElementNumber) // do not 
 
 template<typename ElementType>
 inline
-void DenseMatrix<ElementType>::ReserveCapacity(int_max InputRowCount, int_max InputColCount)
+void DenseMatrix<ElementType>::SetCapacity(int_max InputRowCount, int_max InputColCount)
 {
-    this->ReserveCapacity(InputRowCount*InputColCount);
+	this->SetCapacity(InputRowCount*InputColCount);
 }
 
 
 template<typename ElementType>
 inline
-void DenseMatrix<ElementType>::ReserveCapacity(MatrixSize InputSize)
+void DenseMatrix<ElementType>::SetCapacity(MatrixSize InputSize)
 {
-	this->ReserveCapacity(InputSize.RowCount*InputSize.ColCount);
+	this->SetCapacity(InputSize.RowCount*InputSize.ColCount);
 }
 
 
 template<typename ElementType>
 inline
-void DenseMatrix<ElementType>::ReserveCapacity(int_max InputElementNumber)
+void DenseMatrix<ElementType>::SetCapacity(int_max InputElementNumber)
 {
 	if (this->IsPureEmpty() == true)
 	{
@@ -1586,7 +1586,7 @@ void DenseMatrix<ElementType>::ReserveCapacity(int_max InputElementNumber)
 	{
 		if (Self_ElementNumber != InputElementNumber)
 		{
-			MDK_Error("Size can not change @ DenseMatrix::ReserveCapacity(...)")
+			MDK_Error("Size can not change @ DenseMatrix::SetCapacity(...)")
 		}
 		return;
 	}
@@ -1602,7 +1602,7 @@ try
 }
 catch (...)
 {
-    MDK_Error("Out of Memory @ DenseMatrix::ReserveCapacity(int_max InputElementNumber)")
+    MDK_Error("Out of Memory @ DenseMatrix::SetCapacity(int_max InputElementNumber)")
 }
 }
 

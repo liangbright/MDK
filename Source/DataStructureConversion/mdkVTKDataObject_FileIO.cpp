@@ -61,6 +61,63 @@ bool LoadVTKPolyDataFromVTKFile(vtkPolyData* OutputVTKMesh, const String& FilePa
 	return true;
 }
 
+
+bool SaveVTKUnstructuredGridAsVTKFile(vtkUnstructuredGrid* OutputVTKMesh, const String& FilePathAndName)
+{
+	if (OutputVTKMesh == nullptr)
+	{
+		MDK_Error("input is nullptr @ SaveVTKUnstructuredGridAsVTKFile(...)")
+		return false;
+	}
+
+	auto writer = vtkSmartPointer<vtkUnstructuredGridWriter>::New();
+	writer->SetFileName(FilePathAndName.StdString().c_str());
+	writer->SetInputData(OutputVTKMesh);
+	writer->SetFileTypeToASCII();
+	try
+	{
+		writer->Write();
+	}
+	catch (...)
+	{
+		MDK_Error(" Can not write data @ SaveVTKUnstructuredGridAsVTKFile(...) ")
+		return false;
+	}
+	return true;
+}
+
+
+vtkSmartPointer<vtkUnstructuredGrid> LoadVTKUnstructuredGridFromVTKFile(const String& FilePathAndName)
+{
+	auto VTKMesh = vtkSmartPointer<vtkUnstructuredGrid>::New();
+	LoadVTKUnstructuredGridFromVTKFile(VTKMesh, FilePathAndName);
+	return VTKMesh;
+}
+
+
+bool LoadVTKUnstructuredGridFromVTKFile(vtkUnstructuredGrid* OutputVTKMesh, const String& FilePathAndName)
+{
+	if (OutputVTKMesh == nullptr)
+	{
+		MDK_Error("input is nullptr @ LoadVTKUnstructuredGridFromVTKFile(...)")
+		return false;
+	}
+
+	auto Reader = vtkSmartPointer<vtkUnstructuredGridReader>::New();
+	Reader->SetFileName(FilePathAndName.StdString().c_str());
+	try
+	{
+		Reader->Update();
+	}
+	catch (...)
+	{
+		MDK_Error(" Can not read data @ LoadVTKUnstructuredGridFromVTKFile(...) ")
+		return false;
+	}
+	OutputVTKMesh->ShallowCopy(Reader->GetOutput());
+	return true;
+}
+
 /*
 bool LoadVTKPolygonMeshFromJsonDataFile(vtkPolyData* OutputVTKMesh, const String& FilePathAndName)
 {

@@ -382,11 +382,11 @@ public:
 
     inline void FastResize(int_max InputElementNumber); // if matrix is vector, do not care about old data, can not use it to resize a m x n matrix (m>1 and n>1)
 
-    inline void ReserveCapacity(int_max InputRowCount, int_max InputColCount); // reserve memory, current matrix size do not change
+	inline void SetCapacity(int_max InputRowCount, int_max InputColCount); // reserve memory, current matrix size do not change
 
-    inline void ReserveCapacity(MatrixSize InputSize);
+	inline void SetCapacity(MatrixSize InputSize);
 
-    inline void ReserveCapacity(int_max InputElementNumber); // reserve memory, current matrix size do not change
+	inline void SetCapacity(int_max InputElementNumber); // reserve memory, current matrix size do not change
 
     inline void ReleaseUnusedCapacity();
 

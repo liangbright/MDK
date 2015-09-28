@@ -27,7 +27,7 @@ DenseVector<Handle_Of_Point_Of_MembraneMesh> TraceMeshBoundaryCurve(const Polygo
         return PointHandleListOfBoundaryCurve;
     }
 
-    PointHandleListOfBoundaryCurve.ReserveCapacity(BoundaryEdgeNumberOfInputMesh);
+    PointHandleListOfBoundaryCurve.SetCapacity(BoundaryEdgeNumberOfInputMesh);
 
     PointHandleListOfBoundaryCurve.Append(PointHandle_start);
 

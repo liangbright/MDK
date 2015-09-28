@@ -402,7 +402,7 @@ public:
 	inline void Resize(int_max InputLength); // try to keep the old data
 	inline void FastResize(int_max InputLength); // do not care about old data
 
-	inline void ReserveCapacity(int_max InputElementNumber); // reserve memory, current Length does not change
+	inline void SetCapacity(int_max InputElementNumber); // reserve memory, current Length does not change
     inline void ReleaseUnusedCapacity();
 
     inline void FixSize();

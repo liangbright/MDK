@@ -92,7 +92,7 @@ public:
 
 	inline bool FastResize(int_max Length);
 
-	inline bool ReserveCapacity(int_max Length);
+	inline bool SetCapacity(int_max Length);
 
     inline void ReleaseUnusedCapacity();
 

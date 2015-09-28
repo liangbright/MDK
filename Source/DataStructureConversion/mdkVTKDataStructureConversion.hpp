@@ -80,8 +80,8 @@ bool ConvertSingleMDK3DCurveToVTKPolyData(const DenseMatrix<ScalarType>& MDK3DCu
 		return false;
 	}
 
-	auto PointNumber = MDK3DCurve.GetColCount();
-	if (PointNumber == 0)
+	auto PointCount = MDK3DCurve.GetColCount();
+	if (PointCount == 0)
 	{
 		MDK_Warning("input curve is empty @ ConvertSingleMDK3DCurveToVTKPolyData(...)")
 		return false;
@@ -99,9 +99,9 @@ bool ConvertSingleMDK3DCurveToVTKPolyData(const DenseMatrix<ScalarType>& MDK3DCu
 	PointSet->SetDataType(VtkDataType);
 
 	auto CellList = vtkSmartPointer<vtkCellArray>::New();
-	CellList->InsertNextCell(PointNumber);
+	CellList->InsertNextCell(PointCount);
 
-	for (int n = 0; n < PointNumber; ++n)
+	for (int n = 0; n < PointCount; ++n)
 	{
 		ScalarType Pos[3];
 		MDK3DCurve.GetCol(n, Pos);
@@ -150,9 +150,9 @@ bool ConvertMultipleMDK3DCurveToVTKPolyData(const ObjectArray<DenseMatrix<Scalar
 	auto CurveNumber = MDK3DCurveList.GetLength();
 	for (int_max k = 0; k < CurveNumber; ++k)
 	{
-		auto PointNumber = MDK3DCurveList[k].GetColCount();
+		auto PointCount = MDK3DCurveList[k].GetColCount();
 
-		CellList->InsertNextCell(PointNumber);
+		CellList->InsertNextCell(PointCount);
 
 		if (MDK3DCurveList[k].GetRowCount() != 3)
 		{
@@ -160,7 +160,7 @@ bool ConvertMultipleMDK3DCurveToVTKPolyData(const ObjectArray<DenseMatrix<Scalar
 			return VTKCurve;
 		}
 
-		for (int_max n = 0; n < PointNumber; ++n)
+		for (int_max n = 0; n < PointCount; ++n)
 		{
 			ScalarType Pos[3];
 			MDK3DCurveList[k].GetCol(n, Pos);
@@ -222,7 +222,7 @@ bool ConvertVTKPolyDataToSingleMDK3DCurve(vtkPolyData* VTKCurveData, DenseMatrix
 	// put all curve into one matrix
 	auto SegmentCount = MDK3DCurveData_init.GetLength();
 	MDK3DCurveData.FastResize(0, 0);
-	MDK3DCurveData.ReserveCapacity(3*SegmentCount*2);
+	MDK3DCurveData.SetCapacity(3*SegmentCount*2);
 	for (int_max k = 0; k < SegmentCount; ++k)
 	{
 		auto& Segmente_k = MDK3DCurveData_init[k];
@@ -540,17 +540,17 @@ bool ConvertMDKPolygonMeshToVTKPolyData(const PolygonMesh<MeshAttributeType>& MD
 	ObjectArray<DenseVector<int_max>> CellTable;
     MDKMesh.GetPointPositionMatrixAndCellTable(PointPositionTable, CellTable);
 
-    int_max PointNumber = PointPositionTable.GetColCount();
-    int_max CellNumber = CellTable.GetLength();
+    int_max PointCount = PointPositionTable.GetColCount();
+    int_max CellCount = CellTable.GetLength();
 
     auto PointData = vtkSmartPointer<vtkPoints>::New();
 
     if (ScalarTypeName == "double")
     {
         PointData->SetDataType(VTK_DOUBLE);
-        PointData->SetNumberOfPoints(PointNumber);
+        PointData->SetNumberOfPoints(PointCount);
        
-        for (int i = 0; i < PointNumber; ++i)
+        for (int i = 0; i < PointCount; ++i)
         {
 			double pos[3];
 			pos[0] = double(PointPositionTable(0, i));
@@ -562,9 +562,9 @@ bool ConvertMDKPolygonMeshToVTKPolyData(const PolygonMesh<MeshAttributeType>& MD
     else if (ScalarTypeName == "float")
     {
         PointData->SetDataType(VTK_FLOAT);
-        PointData->SetNumberOfPoints(PointNumber);        
+        PointData->SetNumberOfPoints(PointCount);        
 
-        for (int i = 0; i < PointNumber; ++i)
+        for (int i = 0; i < PointCount; ++i)
         {
 			float pos[3];
             pos[0] = float(PointPositionTable(0, i));
@@ -578,9 +578,9 @@ bool ConvertMDKPolygonMeshToVTKPolyData(const PolygonMesh<MeshAttributeType>& MD
         MDK_Warning("ScalarTypeName is not double or float @ ConvertMDKPolygonMeshToVTKPolyData(...)")
 
         PointData->SetDataType(VTK_DOUBLE);
-        PointData->SetNumberOfPoints(PointNumber);
+        PointData->SetNumberOfPoints(PointCount);
 
-        for (int i = 0; i < PointNumber; ++i)
+        for (int i = 0; i < PointCount; ++i)
         {
 			double pos[3];
 			pos[0] = double(PointPositionTable(0, i));
@@ -594,7 +594,7 @@ bool ConvertMDKPolygonMeshToVTKPolyData(const PolygonMesh<MeshAttributeType>& MD
 
     auto CellData = vtkSmartPointer<vtkCellArray>::New();
 
-    for (int i = 0; i < CellNumber; ++i)
+    for (int i = 0; i < CellCount; ++i)
     {
         auto PointNumberInCell = CellTable[i].GetElementCount();
 
@@ -626,29 +626,29 @@ bool ConvertVTKPolyDataToMDKPolygonMesh(vtkPolyData* VTKMesh, PolygonMesh<MeshAt
 	
     typedef PolygonMesh<MeshAttributeType>::ScalarType ScalarType;
     
-	auto PointNumber = int_max(VTKMesh->GetNumberOfPoints());
+	auto PointCount = int_max(VTKMesh->GetNumberOfPoints());
 
-    if (PointNumber == 0)
+    if (PointCount == 0)
     {
 		MDKMesh.Clear();
         return true;
     }
 
-    DenseMatrix<ScalarType> PointData(3, PointNumber);
+    DenseMatrix<ScalarType> PointData(3, PointCount);
 
-    for (int_max k = 0; k < PointNumber; ++k)
+    for (int_max k = 0; k < PointCount; ++k)
     {
         double pos[3];
 		VTKMesh->GetPoint(k, pos);
         PointData.SetCol(k, pos);
     }
 
-	auto CellNumber = int_max(VTKMesh->GetNumberOfCells());
+	auto CellCount = int_max(VTKMesh->GetNumberOfCells());
 
 	ObjectArray<DenseVector<int_max>> CellData;
-    CellData.FastResize(CellNumber);
+    CellData.FastResize(CellCount);
 
-    for (int_max k = 0; k < CellNumber; ++k)
+    for (int_max k = 0; k < CellCount; ++k)
     {
 		auto Cell = VTKMesh->GetCell(k);
         auto PointNumberInCell = int_max(Cell->GetNumberOfPoints());
@@ -693,17 +693,17 @@ bool ConvertMDKTriangleMeshToVTKPolyData(const TriangleMesh<MeshAttributeType>& 
 	ObjectArray<DenseVector<int_max>> CellTable;
 	MDKMesh.GetPointPositionMatrixAndCellTable(PointPositionTable, CellTable);
 
-	int_max PointNumber = PointPositionTable.GetColCount();
-	int_max CellNumber = CellTable.GetLength();
+	int_max PointCount = PointPositionTable.GetColCount();
+	int_max CellCount = CellTable.GetLength();
 
 	auto PointData = vtkSmartPointer<vtkPoints>::New();
 
 	if (ScalarTypeName == "double")
 	{
 		PointData->SetDataType(VTK_DOUBLE); // this will clear internal memory of PointData
-		PointData->SetNumberOfPoints(PointNumber);
+		PointData->SetNumberOfPoints(PointCount);
 
-		for (int i = 0; i < PointNumber; ++i)
+		for (int i = 0; i < PointCount; ++i)
 		{
 			double pos[3];
 			pos[0] = double(PointPositionTable(0, i));
@@ -715,9 +715,9 @@ bool ConvertMDKTriangleMeshToVTKPolyData(const TriangleMesh<MeshAttributeType>& 
 	else if (ScalarTypeName == "float")
 	{
 		PointData->SetDataType(VTK_FLOAT);
-		PointData->SetNumberOfPoints(PointNumber);
+		PointData->SetNumberOfPoints(PointCount);
 
-		for (int i = 0; i < PointNumber; ++i)
+		for (int i = 0; i < PointCount; ++i)
 		{
 			float pos[3];
 			pos[0] = float(PointPositionTable(0, i));
@@ -731,9 +731,9 @@ bool ConvertMDKTriangleMeshToVTKPolyData(const TriangleMesh<MeshAttributeType>& 
 		MDK_Warning("ScalarTypeName is not double or float @ ConvertMDKPolygonMeshToVTKPolyData(...)")
 
 		PointData->SetDataType(VTK_DOUBLE);
-		PointData->SetNumberOfPoints(PointNumber);
+		PointData->SetNumberOfPoints(PointCount);
 		
-		for (int i = 0; i < PointNumber; ++i)
+		for (int i = 0; i < PointCount; ++i)
 		{
 			double pos[3];
 			pos[0] = double(PointPositionTable(0, i));
@@ -747,7 +747,7 @@ bool ConvertMDKTriangleMeshToVTKPolyData(const TriangleMesh<MeshAttributeType>& 
 
 	auto CellData = vtkSmartPointer<vtkCellArray>::New();
 
-	for (int i = 0; i < CellNumber; ++i)
+	for (int i = 0; i < CellCount; ++i)
 	{
 		auto PointNumberInCell = CellTable[i].GetElementCount();
 
@@ -785,28 +785,28 @@ bool ConvertVTKPolyDataToMDKTriangleMesh(vtkPolyData* VTKMesh, TriangleMesh<Mesh
 	VTKTriangleMeshFilter->Update();
 	auto VTKTriangleMesh = VTKTriangleMeshFilter->GetOutput();
 
-	auto PointNumber = VTKTriangleMesh->GetNumberOfPoints();
+	auto PointCount = VTKTriangleMesh->GetNumberOfPoints();
 
-	if (PointNumber == 0)
+	if (PointCount == 0)
 	{
 		MDKMesh.Clear();
 		return true;
 	}
 
-	DenseMatrix<ScalarType> PointData(3, PointNumber);
-	for (int_max k = 0; k < PointNumber; ++k)
+	DenseMatrix<ScalarType> PointData(3, PointCount);
+	for (int_max k = 0; k < PointCount; ++k)
 	{
 		double pos[3];
 		VTKTriangleMesh->GetPoint(k, pos);
 		PointData.SetCol(k, pos);
 	}
 
-	auto CellNumber = VTKTriangleMesh->GetNumberOfCells();
+	auto CellCount = VTKTriangleMesh->GetNumberOfCells();
 
 	ObjectArray<DenseVector<int_max>> CellData;
-	CellData.FastResize(CellNumber);
+	CellData.FastResize(CellCount);
 
-	for (int_max k = 0; k < CellNumber; ++k)
+	for (int_max k = 0; k < CellCount; ++k)
 	{
 		auto Cell = VTKTriangleMesh->GetCell(k);
 

@@ -308,7 +308,7 @@ void ObjectArray<ElementType>::FastResize(int_max InputLength)
 
 template<typename ElementType>
 inline
-void ObjectArray<ElementType>::ReserveCapacity(int_max InputElementNumber)
+void ObjectArray<ElementType>::SetCapacity(int_max InputElementNumber)
 {
     if (!m_Data)
     {
@@ -327,7 +327,7 @@ try
 }
 catch (...)
 {
-    MDK_Error("Out of Memory @ ObjectArray::ReserveCapacity(int_max InputElementNumber)")
+    MDK_Error("Out of Memory @ ObjectArray::SetCapacity(int_max InputElementNumber)")
 }
 }
 

@@ -25,7 +25,7 @@ DenseVector<int_max> FindUniqueElementInVector(const DenseVector<ElementType, L>
         return IndexList_unique;
     }
 
-    IndexList_unique.ReserveCapacity(IndexList_sort.GetLength());
+    IndexList_unique.SetCapacity(IndexList_sort.GetLength());
 
 	auto Element_prev = InputVector[IndexList_sort[0]];
 
@@ -78,7 +78,7 @@ DenseVector<int_max> FindUniqueElementInVector(const DenseVector<ElementType, L>
         return IndexList_unique;
     }
 
-    IndexList_unique.ReserveCapacity(IndexList_sort.GetLength());
+    IndexList_unique.SetCapacity(IndexList_sort.GetLength());
 
 	auto Element_prev = InputVector[IndexList_sort[0]];
 

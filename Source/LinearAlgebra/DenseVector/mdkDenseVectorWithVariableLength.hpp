@@ -346,11 +346,11 @@ catch (...)
 
 template<typename ElementType>
 inline 
-bool DenseVector<ElementType>::ReserveCapacity(int_max Length)
+bool DenseVector<ElementType>::SetCapacity(int_max Length)
 {
     if (Length < 0)
     {
-        MDK_Error("Invalid input @ DenseVector::ReserveCapacity(...)")
+        MDK_Error("Invalid input @ DenseVector::SetCapacity(...)")
         return false;
     }
 
@@ -360,7 +360,7 @@ try
 }
 catch (...)
 {
-    MDK_Error("Out of Memory @ DenseVector::ReserveCapacity(...)")
+    MDK_Error("Out of Memory @ DenseVector::SetCapacity(...)")
 	return false;
 }
 	return true;

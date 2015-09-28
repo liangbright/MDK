@@ -66,7 +66,7 @@ inline DenseVector<int_max> span(int_max Index_A, int_max Index_B)
     }
     else if (Index_A < Index_B)
     {
-        IndexList.ReserveCapacity(Index_B - Index_A + 1);
+        IndexList.SetCapacity(Index_B - Index_A + 1);
 
         for (int_max i = Index_A; i <= Index_B; ++i)
         {
@@ -75,7 +75,7 @@ inline DenseVector<int_max> span(int_max Index_A, int_max Index_B)
     }
     else //if (Index_A > Index_B)
     {
-		IndexList.ReserveCapacity(Index_A - Index_B + 1);
+		IndexList.SetCapacity(Index_A - Index_B + 1);
 
         for (int_max i = Index_A; i >= Index_B; --i)
         {
@@ -97,7 +97,7 @@ inline DenseVector<int_max> span(int_max Index_A, int_max Step, int_max Index_B)
     }
     else if (Index_A < Index_B && Step > 0)
     {
-		IndexList.ReserveCapacity(Index_B - Index_A + 1);
+		IndexList.SetCapacity(Index_B - Index_A + 1);
 
         for (int_max i = Index_A; i <= Index_B; i += Step)
         {
@@ -106,7 +106,7 @@ inline DenseVector<int_max> span(int_max Index_A, int_max Step, int_max Index_B)
     }
     else if (Index_A > Index_B && Step < 0)
     {
-		IndexList.ReserveCapacity(Index_A - Index_B + 1);
+		IndexList.SetCapacity(Index_A - Index_B + 1);
 
         for (int_max i = Index_A; i >= Index_B; i += Step)
         {

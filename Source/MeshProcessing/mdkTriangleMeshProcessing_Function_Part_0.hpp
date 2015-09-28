@@ -41,7 +41,7 @@ TriangleMesh<MeshAttributeType> SubdivideTriangleMesh_Linear(const TriangleMesh<
 	auto PointCount = PointCount_input + EdgeCount_input;
 	auto EdgeCount = EdgeCount_input * 2;
 	auto CellCount = CellCount_input * 4;
-	OutputMesh.ReserveCapacity(PointCount, EdgeCount, CellCount);
+	OutputMesh.SetCapacity(PointCount, EdgeCount, CellCount);
 
 	//------- add initial point by copying all point of InputMesh ----------------//
 	DenseVector<Handle_Of_Point_Of_MembraneMesh> PointHandleList_init;

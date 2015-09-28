@@ -350,9 +350,9 @@ public:
     inline CellIteratorType   GetIteratorOfCell();
     inline const CellIteratorType   GetIteratorOfCell() const;
 
-	//------------ ReserveCapacity, ReleaseUnusedCapacity -------------------------------------//
+	//------------ SetCapacity, ReleaseUnusedCapacity -------------------------------------//
 
-	void ReserveCapacity(int_max PointCount, int_max EdgeCount, int_max CellCount);
+	void SetCapacity(int_max PointCount, int_max EdgeCount, int_max CellCount);
 
 	void ReleaseUnusedCapacity();
 

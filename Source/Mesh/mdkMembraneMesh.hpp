@@ -895,7 +895,7 @@ inline
 void MembraneMesh<MeshAttributeType>::GetPointHandleList(DenseVector<Handle_Of_Point_Of_MembraneMesh>& OutputHandleList) const
 {
 	OutputHandleList.FastResize(0);
-    OutputHandleList.ReserveCapacity(m_MeshData->PointList.GetLength());
+    OutputHandleList.SetCapacity(m_MeshData->PointList.GetLength());
     Handle_Of_Point_Of_MembraneMesh PointHandle;
     for (int_max k = 0; k < m_MeshData->PointList.GetLength(); ++k)
     {
@@ -921,7 +921,7 @@ inline
 void MembraneMesh<MeshAttributeType>::GetEdgeHandleList(DenseVector<Handle_Of_Edge_Of_MembraneMesh>& OutputHandleList) const
 {
 	OutputHandleList.FastResize(0);
-    OutputHandleList.ReserveCapacity(m_MeshData->EdgeList.GetLength());
+    OutputHandleList.SetCapacity(m_MeshData->EdgeList.GetLength());
     Handle_Of_Edge_Of_MembraneMesh EdgeHandle;
     for (int_max k = 0; k < m_MeshData->EdgeList.GetLength(); ++k)
     {
@@ -948,7 +948,7 @@ void MembraneMesh<MeshAttributeType>::
 GetDirectedEdgeHandleList(DenseVector<Handle_Of_DirectedEdge_Of_MembraneMesh>& OutputHandleList) const
 {
 	OutputHandleList.FastResize(0);
-    OutputHandleList.ReserveCapacity(2*m_MeshData->EdgeList.GetLength());    
+    OutputHandleList.SetCapacity(2*m_MeshData->EdgeList.GetLength());    
     for (int_max k = 0; k < m_MeshData->EdgeList.GetLength(); ++k)
     {
         if (m_MeshData->EdgeValidityFlagList[k] == 1)
@@ -982,7 +982,7 @@ inline
 void MembraneMesh<MeshAttributeType>::GetCellHandleList(DenseVector<Handle_Of_Cell_Of_MembraneMesh>& OutputHandleList) const
 {
 	OutputHandleList.FastResize(0);
-    OutputHandleList.ReserveCapacity(m_MeshData->CellList.GetLength());
+    OutputHandleList.SetCapacity(m_MeshData->CellList.GetLength());
     Handle_Of_Cell_Of_MembraneMesh CellHandle;
     for (int_max k = 0; k < m_MeshData->CellList.GetLength(); ++k)
     {
@@ -1525,7 +1525,7 @@ inline
 void MembraneMesh<MeshAttributeType>::GetPointIDList(DenseVector<int_max>& OutputIDList) const
 {
 	OutputIDList.FastResize(0);
-    OutputIDList.ReserveCapacity(int_max(m_MeshData->Map_PointID_to_PointIndex.size()));
+    OutputIDList.SetCapacity(int_max(m_MeshData->Map_PointID_to_PointIndex.size()));
     for (auto it = m_MeshData->Map_PointID_to_PointIndex.begin(); it != m_MeshData->Map_PointID_to_PointIndex.end(); ++it)
     {
         OutputIDList.Append(it->first);
@@ -1546,7 +1546,7 @@ inline
 void MembraneMesh<MeshAttributeType>::GetEdgeIDList(DenseVector<int_max>& OutputIDList) const
 {
 	OutputIDList.FastResize(0);
-    OutputIDList.ReserveCapacity(int_max(m_MeshData->Map_EdgeID_to_EdgeIndex.size()));
+    OutputIDList.SetCapacity(int_max(m_MeshData->Map_EdgeID_to_EdgeIndex.size()));
     for (auto it = m_MeshData->Map_EdgeID_to_EdgeIndex.begin(); it != m_MeshData->Map_EdgeID_to_EdgeIndex.end(); ++it)
     {
         OutputIDList.Append(it->first);
@@ -1567,7 +1567,7 @@ inline
 void MembraneMesh<MeshAttributeType>::GetDirectedEdgeIDList(DenseVector<int_max>& OutputIDList) const
 {
 	OutputIDList.FastResize(0);
-    OutputIDList.ReserveCapacity(int_max(m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.size()));
+    OutputIDList.SetCapacity(int_max(m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.size()));
     for (auto it = m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.begin(); it != m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.end(); ++it)
     {
         OutputIDList.Append(it->first);
@@ -1588,7 +1588,7 @@ inline
 void MembraneMesh<MeshAttributeType>::GetCellIDList(DenseVector<int_max>& OutputIDList) const
 {
 	OutputIDList.FastResize(0);
-    OutputIDList.ReserveCapacity(int_max(m_MeshData->Map_CellID_to_CellIndex.size()));
+    OutputIDList.SetCapacity(int_max(m_MeshData->Map_CellID_to_CellIndex.size()));
     for (auto it = m_MeshData->Map_CellID_to_CellIndex.begin(); it != m_MeshData->Map_CellID_to_CellIndex.end(); ++it)
     {
         OutputIDList.Append(it->first);
@@ -1802,22 +1802,22 @@ const Iterator_Of_Cell_Of_MembraneMesh<MeshAttributeType> MembraneMesh<MeshAttri
     return it;
 }
 
-//------------ ReserveCapacity, ReleaseUnusedCapacity -------------------------------------//
+//------------ SetCapacity, ReleaseUnusedCapacity -------------------------------------//
 template<typename MeshAttributeType>
-void MembraneMesh<MeshAttributeType>::ReserveCapacity(int_max PointCount, int_max EdgeCount, int_max CellCount)
+void MembraneMesh<MeshAttributeType>::SetCapacity(int_max PointCount, int_max EdgeCount, int_max CellCount)
 {
 	if (this->IsPureEmpty() == true)
 	{
 		this->Recreate();
 	}
 
-	m_MeshData->PointPositionTable.ReserveCapacity(3 * PointCount);
-	m_MeshData->PointList.ReserveCapacity(PointCount);
-	m_MeshData->PointValidityFlagList.ReserveCapacity(PointCount);
-	m_MeshData->EdgeList.ReserveCapacity(EdgeCount);
-	m_MeshData->EdgeValidityFlagList.ReserveCapacity(EdgeCount);
-	m_MeshData->CellList.ReserveCapacity(CellCount);
-	m_MeshData->CellValidityFlagList.ReserveCapacity(CellCount);
+	m_MeshData->PointPositionTable.SetCapacity(3 * PointCount);
+	m_MeshData->PointList.SetCapacity(PointCount);
+	m_MeshData->PointValidityFlagList.SetCapacity(PointCount);
+	m_MeshData->EdgeList.SetCapacity(EdgeCount);
+	m_MeshData->EdgeValidityFlagList.SetCapacity(EdgeCount);
+	m_MeshData->CellList.SetCapacity(CellCount);
+	m_MeshData->CellValidityFlagList.SetCapacity(CellCount);
 }
 
 
@@ -2486,7 +2486,7 @@ void MembraneMesh<MeshAttributeType>::CleanDataStructure()
 {
     //-------------------------- clean PolintList and update Map_PointID_to_PointIndex -----------------------------------------------------------//
     DenseVector<int_max> ValidPointIndexList;
-    ValidPointIndexList.ReserveCapacity(m_MeshData->PointList.GetLength());
+    ValidPointIndexList.SetCapacity(m_MeshData->PointList.GetLength());
 
     for (int_max k = 0; k < m_MeshData->PointList.GetLength(); ++k) // k is PointIndex
     {
@@ -2602,7 +2602,7 @@ void MembraneMesh<MeshAttributeType>::CleanDataStructure()
     //---- clean EdgeList and update Map_EdgeID_to_EdgeIndex and Map_DirectedEdgeID_to_DirectedEdgeIndex -----------------//
 
     DenseVector<int_max> ValidEdgeIndexList;
-    ValidEdgeIndexList.ReserveCapacity(m_MeshData->EdgeList.GetLength());
+    ValidEdgeIndexList.SetCapacity(m_MeshData->EdgeList.GetLength());
 
     for (int_max k = 0; k < m_MeshData->EdgeList.GetLength(); ++k) // k is EdgeIndex
     {
@@ -2703,7 +2703,7 @@ void MembraneMesh<MeshAttributeType>::CleanDataStructure()
     //------------------ clean CellList and Update Map_CellID_to_CellIndex ---------------------------------------------------------------------//
 
     DenseVector<int_max> ValidCellIndexList;
-    ValidCellIndexList.ReserveCapacity(m_MeshData->CellList.GetLength());
+    ValidCellIndexList.SetCapacity(m_MeshData->CellList.GetLength());
 
     for (int_max k = 0; k < m_MeshData->CellList.GetLength(); ++k) // k is CellIndex
     {
@@ -2778,7 +2778,7 @@ void MembraneMesh<MeshAttributeType>::CleanDataStructure()
 		auto& DirectedEdgeList_old = m_MeshData->EdgeList[k].DirectedEdgeList();
 
 		DenseVector<int_max> ValidDirectedEdgeRelativeIndexList;
-		ValidDirectedEdgeRelativeIndexList.ReserveCapacity(DirectedEdgeList_old.GetLength());
+		ValidDirectedEdgeRelativeIndexList.SetCapacity(DirectedEdgeList_old.GetLength());
 
 		for (int_max n = 0; n < DirectedEdgeList_old.GetLength(); ++n)// n is RelativeIndex_old
 		{

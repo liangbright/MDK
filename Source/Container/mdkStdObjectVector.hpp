@@ -258,7 +258,7 @@ catch (...)
 
 template<typename ElementType>
 inline
-void StdObjectVector<ElementType>::ReserveCapacity(int_max InputElementNumber)
+void StdObjectVector<ElementType>::SetCapacity(int_max InputElementNumber)
 {
 try
 {
@@ -270,7 +270,7 @@ try
 }
 catch (...)
 {
-    MDK_Error("Out of Memory @ StdObjectVector::ReserveCapacity(int_max InputElementNumber)")
+    MDK_Error("Out of Memory @ StdObjectVector::SetCapacity(int_max InputElementNumber)")
 }
 }
 
