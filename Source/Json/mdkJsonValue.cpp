@@ -671,7 +671,7 @@ void JsonValue::Clear()
 	m_Type = TypeEnum::Type_Null;
 }
 
-
+/*
 bool JsonValue::GetBool(bool DefaultValue) const
 {
 	if (m_Type == TypeEnum::Type_Bool)
@@ -792,6 +792,7 @@ DenseMatrix<double> JsonValue::GetDoubleArray(const DenseMatrix<double>& Default
 	}
 	return DefaultArray;
 }
+*/
 
 String JsonValue::GetString() const
 {

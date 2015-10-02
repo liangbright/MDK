@@ -158,7 +158,9 @@ public:
 	//  ToScalarArray<ScalarType>()  : internal array is converted to ScalarType Array
 	//  ScalarType is int/long long/float/double
 	//-----------------------------------------------------------------------------------------------------------------------//
-
+	//
+	// disable these function to avoid confusion
+	/*
 	bool GetBool(bool DefaultValue = false) const;
 	int GetInt(int DefaultValue = 0) const;
 	long long GetLongLong(long long DefaultValue = 0) const;
@@ -172,6 +174,8 @@ public:
 	DenseMatrix<float> GetFloatArray(const DenseMatrix<float>& DefaultArray) const;
 	DenseMatrix<double> GetDoubleArray() const;
 	DenseMatrix<double> GetDoubleArray(const DenseMatrix<double>& DefaultArray) const;
+	*/
+
 	String GetString() const;
 	String GetString(const String& DefaultValue) const;
 	JsonArray GetJsonArray() const;
@@ -179,15 +183,14 @@ public:
 	JsonObject GetJsonObject() const;
 	JsonObject GetJsonObject(const JsonObject& DefaultValue) const;
 
-	// check if int/long long/float/double ?
+	// check if bool/int/long long/float/double ?
 	bool IsScalar() const
 	{
 		return (m_Type == TypeEnum::Type_Bool) || (m_Type == TypeEnum::Type_Int) || (m_Type == TypeEnum::Type_LongLong)
 			|| (m_Type == TypeEnum::Type_Float) || (m_Type == TypeEnum::Type_Double);
 	};
 
-	// convert internal int/long long/float/double to scalar	
-	// ScalarType is int/long long/float/double
+	// convert internal bool/int/long long/float/double to scalar with ScalarType	
 	template<typename ScalarType>
 	ScalarType ToScalar(ScalarType DefaultValue = GetNaNElement<ScalarType>()) const;
 
@@ -198,8 +201,7 @@ public:
 			|| (m_Type == TypeEnum::Type_FloatArray) || (m_Type == TypeEnum::Type_DoubleArray);
 	};
 
-	// convert internal int/long long/float/double array to scalar array
-	// ScalarType is int/long long/float/double 
+	// convert internal int/long long/float/double array to scalar array with ScalarType
 	template<typename ScalarType>
 	DenseMatrix<ScalarType> ToScalarArray() const;
 

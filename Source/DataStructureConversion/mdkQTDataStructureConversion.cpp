@@ -33,27 +33,27 @@ QJsonValue ConvertMDKJsonValueToQTJsonValue(const JsonValue& JValue)
 	}
 	case JsonValue::TypeEnum::Type_Bool:
 	{
-		QJsonValue QJValue(JValue.GetBool());
+		QJsonValue QJValue(JValue.ToScalar<bool>());
 		return QJValue;
 	}
 	case JsonValue::TypeEnum::Type_Int:
 	{
-		QJsonValue QJValue(JValue.GetInt());
+		QJsonValue QJValue(JValue.ToScalar<int>());
 		return QJValue;
 	}
 	case JsonValue::TypeEnum::Type_LongLong:
 	{
-		QJsonValue QJValue(JValue.GetLongLong());
+		QJsonValue QJValue(JValue.ToScalar<long long>());
 		return QJValue;
 	}
 	case JsonValue::TypeEnum::Type_Float:
 	{
-		QJsonValue QJValue(double(JValue.GetFloat()));
+		QJsonValue QJValue(double(JValue.ToScalar<float>()));
 		return QJValue;
 	}
 	case JsonValue::TypeEnum::Type_Double:
 	{
-		QJsonValue QJValue(JValue.GetDouble());
+		QJsonValue QJValue(JValue.ToScalar<double>());
 		return QJValue;
 	}
 	case JsonValue::TypeEnum::Type_IntArray:
