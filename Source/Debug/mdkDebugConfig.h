@@ -19,7 +19,7 @@ namespace mdk
     
 #define  MDK_Error(x)      std::cout << '\a' << '\a' << '\a' << "ERROR: !~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!: " << '\n' \
                                      << x << '\n';  \
-                           Pause_Here_To_Debug();
+                           MDKError_Pause_Here_To_Debug();
 
 /*
 #define  MDK_Warning    std::cout << "Warning: ......" << '\n' \
