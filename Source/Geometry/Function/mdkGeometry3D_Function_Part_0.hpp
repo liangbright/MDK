@@ -48,6 +48,31 @@ DenseVector<ScalarType, 3> ComputeVectorCrossProductIn3D(const ScalarType* Vecto
 
 
 template<typename ScalarType>
+inline ScalarType ComputeVectorDotProductIn3D(const DenseMatrix<ScalarType>& VectorA, const DenseMatrix<ScalarType>& VectorB)
+{
+	if (VectorA.GetElementNumber() != 3 || VectorB.GetElementNumber() != 3)
+	{
+		MDK_Error("Input is not 3D vector @ mdkGeometry3D ComputeVectorDotProductIn3D(...)")			
+		return 0;
+	}
+
+	return VectorA[0] * VectorB[0] + VectorA[1] * VectorB[1] + VectorA[2] * VectorB[2];
+}
+
+template<typename ScalarType>
+inline ScalarType ComputeVectorDotProductIn3D(const DenseVector<ScalarType, 3>& VectorA, const DenseVector<ScalarType, 3>& VectorB)
+{
+	return VectorA[0] * VectorB[0] + VectorA[1] * VectorB[1] + VectorA[2] * VectorB[2];
+}
+
+template<typename ScalarType>
+inline ScalarType ComputeVectorDotProductIn3D(const ScalarType* VectorA, const ScalarType* VectorB)
+{
+	return VectorA[0] * VectorB[0] + VectorA[1] * VectorB[1] + VectorA[2] * VectorB[2];
+}
+
+
+template<typename ScalarType>
 inline
 ScalarType ComputeAngleBetweenTwoVectorIn3D(const DenseMatrix<ScalarType>& VectorA, const DenseMatrix<ScalarType>& VectorB)
 {

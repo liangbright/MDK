@@ -88,6 +88,13 @@ DenseVector<ElementType>::DenseVector(DenseVector<ElementType>&& InputVector)
 
 
 template<typename ElementType>
+inline DenseVector<ElementType>::DenseVector(const std::initializer_list<const DenseVector<ElementType>*>& InputList)
+{
+	(*this) = InputList;
+}
+
+
+template<typename ElementType>
 inline
 DenseVector<ElementType>::~DenseVector()
 {

@@ -6,28 +6,31 @@ namespace mdk
 // compute cross product: VectorA x VectorB, right hand coordinate system
 // ref: http://mathworld.wolfram.com/CrossProduct.html
 template<typename ScalarType>
-inline
-DenseVector<ScalarType, 3> ComputeVectorCrossProductIn3D(const DenseMatrix<ScalarType>& VectorA, const DenseMatrix<ScalarType>& VectorB);
+inline DenseVector<ScalarType, 3> ComputeVectorCrossProductIn3D(const DenseMatrix<ScalarType>& VectorA, const DenseMatrix<ScalarType>& VectorB);
 
 template<typename ScalarType>
-inline
-DenseVector<ScalarType, 3> ComputeVectorCrossProductIn3D(const DenseVector<ScalarType, 3>& VectorA, const DenseVector<ScalarType, 3>& VectorB);
+inline DenseVector<ScalarType, 3> ComputeVectorCrossProductIn3D(const DenseVector<ScalarType, 3>& VectorA, const DenseVector<ScalarType, 3>& VectorB);
 
 template<typename ScalarType>
-inline
-DenseVector<ScalarType, 3> ComputeVectorCrossProductIn3D(const ScalarType* VectorA,  const ScalarType* VectorB);
+inline DenseVector<ScalarType, 3> ComputeVectorCrossProductIn3D(const ScalarType* VectorA,  const ScalarType* VectorB);
 
 template<typename ScalarType>
-inline
-ScalarType ComputeAngleBetweenTwoVectorIn3D(const DenseMatrix<ScalarType>& VectorA, const DenseMatrix<ScalarType>& VectorB);
+inline ScalarType ComputeVectorDotProductIn3D(const DenseMatrix<ScalarType>& VectorA, const DenseMatrix<ScalarType>& VectorB);
 
 template<typename ScalarType>
-inline
-ScalarType ComputeAngleBetweenTwoVectorIn3D(const DenseVector<ScalarType, 3>& VectorA, const DenseVector<ScalarType, 3>& VectorB);
+inline ScalarType ComputeVectorDotProductIn3D(const DenseVector<ScalarType, 3>& VectorA, const DenseVector<ScalarType, 3>& VectorB);
 
 template<typename ScalarType>
-inline
-ScalarType ComputeAngleBetweenTwoVectorIn3D(const ScalarType* VectorA, const ScalarType* VectorB);
+inline ScalarType ComputeVectorDotProductIn3D(const ScalarType* VectorA, const ScalarType* VectorB);
+
+template<typename ScalarType>
+inline ScalarType ComputeAngleBetweenTwoVectorIn3D(const DenseMatrix<ScalarType>& VectorA, const DenseMatrix<ScalarType>& VectorB);
+
+template<typename ScalarType>
+inline ScalarType ComputeAngleBetweenTwoVectorIn3D(const DenseVector<ScalarType, 3>& VectorA, const DenseVector<ScalarType, 3>& VectorB);
+
+template<typename ScalarType>
+inline ScalarType ComputeAngleBetweenTwoVectorIn3D(const ScalarType* VectorA, const ScalarType* VectorB);
 
 
 // compute normal vector of triangle in 3D

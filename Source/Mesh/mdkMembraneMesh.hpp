@@ -2474,14 +2474,6 @@ void MembraneMesh<MeshAttributeType>::DeletePoint(const DenseVector<int_max>& Po
 // Only use CleanDataStructure() if memory is an issue, when InvalidPointHandleCount/ValidPointCount( GetPointCount() ) > 0.5
 
 template<typename MeshAttributeType>
-int_max MembraneMesh<MeshAttributeType>::GetInvalidPointHandleCount() const
-{
-    auto ValidPointCount = this->GetPointCount();
-    auto PointCountOfList = m_MeshData->PointList.GetLength();
-    return  ValidPointCount - PointCountOfList;
-}
-
-template<typename MeshAttributeType>
 void MembraneMesh<MeshAttributeType>::CleanDataStructure()
 {
     //-------------------------- clean PolintList and update Map_PointID_to_PointIndex -----------------------------------------------------------//
@@ -2571,7 +2563,7 @@ void MembraneMesh<MeshAttributeType>::CleanDataStructure()
     
     if (ValidPointIndexList.GetLength() != m_MeshData->PointList.GetLength())
     {
-        // remove deleted item from PointList
+        // remove deleted-item from PointList
 		PointListType PointList_new;
         PointList_new.Resize(ValidPointIndexList.GetLength());
         for (int_max k = 0; k < ValidPointIndexList.GetLength(); ++k)
@@ -2866,6 +2858,41 @@ void MembraneMesh<MeshAttributeType>::CleanDataStructure()
 		}
 	}
 	//---------------- done clean DirectedEdgeList and update Map_DirectedEdgeID_to_DirectedEdgeIndex ----------------------------//
+}
+
+template<typename MeshAttributeType>
+bool MembraneMesh<MeshAttributeType>::Check_If_DataStructure_is_Clean() const
+{
+	auto Count1 = this->GetInvalidPointHandleCount();
+	auto Count2 = this->GetInvalidEdgeHandleCount();
+	auto Count3 = this->GetInvalidCellHandleCount();
+	return (Count1 + Count2 + Count3 == 0);
+}
+
+
+template<typename MeshAttributeType>
+int_max MembraneMesh<MeshAttributeType>::GetInvalidPointHandleCount() const
+{
+	auto ValidPointCount = this->GetPointCount();
+	auto PointCountOfList = m_MeshData->PointList.GetLength();
+	return  PointCountOfList - ValidPointCount;
+}
+
+
+template<typename MeshAttributeType>
+int_max MembraneMesh<MeshAttributeType>::GetInvalidEdgeHandleCount() const
+{
+	auto ValidEdgeCount = this->GetEdgeCount();
+	auto EdgeCountOfList = m_MeshData->EdgeList.GetLength();
+	return  EdgeCountOfList - ValidEdgeCount;
+}
+
+template<typename MeshAttributeType>
+int_max MembraneMesh<MeshAttributeType>::GetInvalidCellHandleCount() const
+{
+	auto ValidCellCount = this->GetCellCount();
+	auto CellCountOfList = m_MeshData->CellList.GetLength();
+	return  CellCountOfList - ValidCellCount;
 }
 
 //-------------------- get a sub mesh by CellHandleList or CellIDList -----------------------------------------//
@@ -3653,27 +3680,17 @@ Handle_Of_Cell_Of_MembraneMesh MembraneMesh<MeshAttributeType>::MergeTwoAdjacent
 
 template<typename MeshAttributeType>
 std::pair<Handle_Of_Cell_Of_MembraneMesh, Handle_Of_Cell_Of_MembraneMesh> 
-MembraneMesh<MeshAttributeType>::SplitCellByEdge(Handle_Of_Edge_Of_MembraneMesh EdgeHandle)
+MembraneMesh<MeshAttributeType>::SplitCellByTwoPoint(PointHandleType PointHandleA, PointHandleType PointHandleB)
 {
 	std::pair<CellHandleType, CellHandleType> CellHandlePair;
-
-    if (this->IsValidHandle(EdgeHandle) == false)
-    {
-		MDK_Error("Invalid EdgeHandle @ MembraneMesh::SplitCellByEdge(...)")
-		CellHandlePair.first.SetToInvalid();
-		CellHandlePair.second.SetToInvalid();
-        return CellHandlePair;
-    }
-
+     return CellHandlePair;
 }
 
 
 template<typename MeshAttributeType>
 std::pair<Handle_Of_Cell_Of_MembraneMesh, Handle_Of_Cell_Of_MembraneMesh> 
-MembraneMesh<MeshAttributeType>::SplitCellByEdge(int_max EdgeID)
+MembraneMesh<MeshAttributeType>::SplitCellByTwoPoint(int_max PointIDA, int_max PointIDB)
 {
-    auto EdgeHandle = this->GetEdgeHandleByID(EdgeID);
-    return this->SplitCellByEdge(EdgeHandle);
 }
 
 //----------------------------------- private InternalFunction ---------------------------------------------------------//

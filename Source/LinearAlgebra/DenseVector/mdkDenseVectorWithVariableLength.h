@@ -51,6 +51,8 @@ public:
 
     inline DenseVector(DenseVector<ElementType>&& InputVector);
 
+	inline DenseVector(const std::initializer_list<const DenseVector<ElementType>*>& InputList);
+
     inline ~DenseVector();
 
     //------------------------------------------------------------
@@ -64,7 +66,11 @@ public:
 
     inline void operator=(DenseVector<ElementType>&& InputVector);
 
-    inline void operator=(const std::initializer_list<const DenseVector<ElementType>*>& InputList);
+	// this cause compiler internal error: VS2013 C1001
+	//template<int_max LengthParameter>
+	//inline void operator=(const std::initializer_list<const DenseVector<ElementType, LengthParameter>*>& InputList);
+
+	inline void operator=(const std::initializer_list<const DenseVector<ElementType>*>& InputList);
 
     inline void operator=(const std::initializer_list<ElementType>& InputVector);
 

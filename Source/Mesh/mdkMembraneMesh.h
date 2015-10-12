@@ -416,11 +416,13 @@ public:
     void DeletePoint(const DenseVector<int_max>& PointIDList);
 
     // remove deleted item from object list ----------------------------------------------------------//
-    // attention: after this function is called, handle may become invalid, but, ID will not change
+    // attention: after CleanDataStructure() is called, handle may become invalid, but, ID will not change
     // use this function when InvalidPointHandleCount/ValidPointCount( GetPointCount() ) > 0.5
-    void CleanDataStructure();
-    
+    void CleanDataStructure();	
+	bool Check_If_DataStructure_is_Clean() const;//true: clean, false: invalid handle exit
     int_max GetInvalidPointHandleCount() const; // the number of invalid point handles
+	int_max GetInvalidEdgeHandleCount() const; // the number of invalid edge handles
+	int_max GetInvalidCellHandleCount() const; // the number of invalid cell handles
 
     //---------------------------------------------------------------------------------------------------
 
@@ -450,8 +452,8 @@ public:
     CellHandleType MergeTwoAdjacentCell(CellHandleType CellHandleA, CellHandleType CellHandleB);
     CellHandleType MergeTwoAdjacentCell(int_max CellIDA, int_max CellIDB);
 
-    std::pair<CellHandleType, CellHandleType> SplitCellByEdge(EdgeHandleType EdgeHandle);
-    std::pair<CellHandleType, CellHandleType> SplitCellByEdge(int_max EdgeID);
+	std::pair<CellHandleType, CellHandleType> SplitCellByTwoPoint(PointHandleType PointHandleA, PointHandleType PointHandleB);
+	std::pair<CellHandleType, CellHandleType> SplitCellByTwoPoint(int_max PointIDA, int_max PointIDB);
 
     //-----------------------------------------------------------------------------------------------------
 
