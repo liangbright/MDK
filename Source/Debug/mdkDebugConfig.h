@@ -15,11 +15,11 @@ namespace mdk
 
 //#define  mdkDebugCode(x) 
 
-#define  MDK_Warning(x)    std::cout << "Warning: " << x << '\n';
+#define  MDK_Warning(x)    std::cout << "Warning: " << x << '\n'; MDK_Pause_Here_To_Debug();
     
 #define  MDK_Error(x)      std::cout << '\a' << '\a' << '\a' << "ERROR: !~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!~!: " << '\n' \
                                      << x << '\n';  \
-                           MDKError_Pause_Here_To_Debug();
+                           MDK_Pause_Here_To_Debug();
 
 /*
 #define  MDK_Warning    std::cout << "Warning: ......" << '\n' \
