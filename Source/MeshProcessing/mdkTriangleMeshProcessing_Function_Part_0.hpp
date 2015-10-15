@@ -52,7 +52,6 @@ TriangleMesh<MeshAttributeType> SubdivideTriangleMesh_Linear(const TriangleMesh<
 	int_max PointIndex_output_init = -1;
 	for (auto it = InputMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
 	{
-		auto Index = 
 		auto Pos = it.Point().GetPosition();
 		PointHandleList_init.Append(OutputMesh.AddPoint(Pos));
 		PointIndex_output_init += 1;
