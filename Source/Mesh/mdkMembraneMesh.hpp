@@ -2871,7 +2871,7 @@ bool MembraneMesh<MeshAttributeType>::Check_If_DataStructure_is_Clean() const
 
 
 template<typename MeshAttributeType>
-int_max MembraneMesh<MeshAttributeType>::GetInvalidPointHandleCount() const
+int_max MembraneMesh<MeshAttributeType>::GetDeletedPointHandleCount() const
 {
 	auto ValidPointCount = this->GetPointCount();
 	auto PointCountOfList = m_MeshData->PointList.GetLength();
@@ -2880,7 +2880,7 @@ int_max MembraneMesh<MeshAttributeType>::GetInvalidPointHandleCount() const
 
 
 template<typename MeshAttributeType>
-int_max MembraneMesh<MeshAttributeType>::GetInvalidEdgeHandleCount() const
+int_max MembraneMesh<MeshAttributeType>::GetDeletedEdgeHandleCount() const
 {
 	auto ValidEdgeCount = this->GetEdgeCount();
 	auto EdgeCountOfList = m_MeshData->EdgeList.GetLength();
@@ -2888,7 +2888,7 @@ int_max MembraneMesh<MeshAttributeType>::GetInvalidEdgeHandleCount() const
 }
 
 template<typename MeshAttributeType>
-int_max MembraneMesh<MeshAttributeType>::GetInvalidCellHandleCount() const
+int_max MembraneMesh<MeshAttributeType>::GetDeletedCellHandleCount() const
 {
 	auto ValidCellCount = this->GetCellCount();
 	auto CellCountOfList = m_MeshData->CellList.GetLength();

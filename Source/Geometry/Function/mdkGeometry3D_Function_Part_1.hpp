@@ -109,6 +109,37 @@ DenseVector<ScalarType, 3> ProjectPointToPlane(const ScalarType* Point, const Sc
 	return ProjectedPoint;
 }
 
+template<typename ScalarType>
+int_max FindNearestPointOnCurve(const DenseMatrix<ScalarType>& Curve, const DenseVector<ScalarType, 3>& Point_ref)
+{
+	if (Curve.IsEmpty() == true)
+	{
+		MDK_Warning("Curve is empty @ FindNearestPointOnCurve(...)")
+		return -1;
+	}
+	else if (Curve.GetColCount() == 1)
+	{
+		return 0;
+	}
+
+	DenseVector<ScalarType, 3> Point0;
+	Curve.GetCol(0, Point0);
+	ScalarType Distance_min = (Point_ref - Point0).L2Norm();
+	int_max Index_min = 0;
+	for (int_max k = 1; k < Curve.GetColCount(); ++k)
+	{
+		DenseVector<ScalarType, 3> Point_k;
+		Curve.GetCol(k, Point_k);
+		auto Distance = (Point_ref - Point_k).L2Norm();
+		if (Distance < Distance_min)
+		{
+			Distance_min = Distance;
+			Index_min = k;
+		}
+	}
+	return Index_min;
+}
+
 }// namespace mdk
 
 #endif

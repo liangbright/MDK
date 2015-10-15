@@ -44,17 +44,28 @@ TriangleMesh<MeshAttributeType> SubdivideTriangleMesh_Linear(const TriangleMesh<
 	OutputMesh.SetCapacity(PointCount, EdgeCount, CellCount);
 
 	//------- add initial point by copying all point of InputMesh ----------------//
+	DenseVector<int_max> PointIndexMap_init;
+	PointIndexMap_init.Resize(PointCount_input + InputMesh.GetDeletedPointHandleCount());
+	PointIndexMap_init.Fill(-1);
 	DenseVector<Handle_Of_Point_Of_MembraneMesh> PointHandleList_init;
-	PointHandleList_init.Resize(PointCount_input);
+	PointHandleList_init.SetCapacity(PointCount_input);
+	int_max PointIndex_output_init = -1;
 	for (auto it = InputMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
 	{
-		auto Index = it.GetPointHandle().GetIndex();
+		auto Index = 
 		auto Pos = it.Point().GetPosition();
-		PointHandleList_init[Index] = OutputMesh.AddPoint(Pos);
+		PointHandleList_init.Append(OutputMesh.AddPoint(Pos));
+		PointIndex_output_init += 1;
+		PointIndexMap_init[it.GetPointHandle().GetIndex()] = PointIndex_output_init;
 	}
 
 	//------- add new point by splitting each edge of InputMesh -----------------//   
+	DenseVector<int_max> PointIndexMap_new;
+	PointIndexMap_new.Resize(EdgeCount_input + InputMesh.GetDeletedEdgeHandleCount());
+	PointIndexMap_new.Fill(-1);
 	DenseVector<Handle_Of_Point_Of_MembraneMesh> PointHandleList_new;
+	PointHandleList_new.SetCapacity(EdgeCount_input);
+	int_max PointIndex_output_new = -1;
 	for (auto it = InputMesh.GetIteratorOfEdge(); it.IsNotEnd(); ++it)
 	{
 		auto TempList = it.Edge().GetPointHandleList();
@@ -64,6 +75,8 @@ TriangleMesh<MeshAttributeType> SubdivideTriangleMesh_Linear(const TriangleMesh<
 		P3 /= ScalarType(2);
 		auto H3 = OutputMesh.AddPoint(P3);
 		PointHandleList_new.Append(H3);
+		PointIndex_output_new += 1;
+		PointIndexMap_new[it.GetEdgeHandle().GetIndex()] = PointIndex_output_new;
 	}
 
 	//------- add new cell by splitting each cell of InputMesh ----------------//   
@@ -76,12 +89,12 @@ TriangleMesh<MeshAttributeType> SubdivideTriangleMesh_Linear(const TriangleMesh<
 		//    3    5
 		// 1    4     2
 		//-----------------		
-		auto H0 = PointHandleList_init[PointHandleList_input[0].GetIndex()];
-		auto H1 = PointHandleList_init[PointHandleList_input[1].GetIndex()];
-		auto H2 = PointHandleList_init[PointHandleList_input[2].GetIndex()];
-		auto H3 = PointHandleList_new[EdgeHandleList_input[0].GetIndex()];
-		auto H4 = PointHandleList_new[EdgeHandleList_input[1].GetIndex()];
-		auto H5 = PointHandleList_new[EdgeHandleList_input[2].GetIndex()];
+		auto H0 = PointHandleList_init[PointIndexMap_init[PointHandleList_input[0].GetIndex()]];
+		auto H1 = PointHandleList_init[PointIndexMap_init[PointHandleList_input[1].GetIndex()]];
+		auto H2 = PointHandleList_init[PointIndexMap_init[PointHandleList_input[2].GetIndex()]];
+		auto H3 = PointHandleList_new[PointIndexMap_new[EdgeHandleList_input[0].GetIndex()]];
+		auto H4 = PointHandleList_new[PointIndexMap_new[EdgeHandleList_input[1].GetIndex()]];
+		auto H5 = PointHandleList_new[PointIndexMap_new[EdgeHandleList_input[2].GetIndex()]];
 		OutputMesh.AddCellByPoint(H0, H3, H5);
 		OutputMesh.AddCellByPoint(H3, H1, H4);
 		OutputMesh.AddCellByPoint(H3, H4, H5);

@@ -420,9 +420,9 @@ public:
     // use this function when InvalidPointHandleCount/ValidPointCount( GetPointCount() ) > 0.5
     void CleanDataStructure();	
 	bool Check_If_DataStructure_is_Clean() const;//true: clean, false: invalid handle exit
-    int_max GetInvalidPointHandleCount() const; // the number of invalid point handles
-	int_max GetInvalidEdgeHandleCount() const; // the number of invalid edge handles
-	int_max GetInvalidCellHandleCount() const; // the number of invalid cell handles
+    int_max GetDeletedPointHandleCount() const; // the number of Deleted point handles
+	int_max GetDeletedEdgeHandleCount() const; // the number of Deleted edge handles
+	int_max GetDeletedCellHandleCount() const; // the number of Deleted cell handles
 
     //---------------------------------------------------------------------------------------------------
 

@@ -9,9 +9,9 @@ JsonFile::JsonFile(const String& FilePathAndName)
 {
 	m_QFile = std::make_unique<QFile>();
 	m_QFile->setFileName(FilePathAndName.StdString().c_str());
-	if (!m_QFile->open(QIODevice::WriteOnly))
+	if (!m_QFile->open(QIODevice::ReadWrite))
 	{
-		MDK_Error("Couldn't open file to save result @ JsonFile::JsonFile(...)")
+		MDK_Error("Couldn't open file @ JsonFile::JsonFile(...)")
 		return;
 	}
 	m_QTextStream = std::make_unique<QTextStream>(m_QFile.get());

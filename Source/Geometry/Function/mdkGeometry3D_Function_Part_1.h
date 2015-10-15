@@ -37,6 +37,9 @@ DenseVector<ScalarType, 3> ProjectPointToPlane(const DenseVector<ScalarType, 3>&
 template<typename ScalarType>
 DenseVector<ScalarType, 3> ProjectPointToPlane(const ScalarType* Point, const ScalarType* PlaneOrigin, const ScalarType* PlaneNormal);
 
+template<typename ScalarType>
+int_max FindNearestPointOnCurve(const DenseMatrix<ScalarType>& Curve, const DenseVector<ScalarType, 3>& Point_ref);
+
 }// namespace mdk
 
 #include "mdkGeometry3D_Function_Part_1.hpp"

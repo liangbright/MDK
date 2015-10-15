@@ -165,7 +165,7 @@ void DenseVector<ElementType>::operator=(const std::initializer_list<const Dense
 
         TotalElementNumber += InputVectorPtr->GetElementCount();
 
-        if (this->GetElementPointer() == InputVectorPtr->GetElementPointer())
+		if (this->GetElementPointer() != nullptr && this->GetElementPointer() == InputVectorPtr->GetElementPointer())
         {
             IsSelfInInputList = true;
         }
@@ -1348,7 +1348,7 @@ Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunct
         return IndexList;
     }
 
-    IndexList.ReserveCapacity(MaxOutputNumber);
+    IndexList.SetCapacity(MaxOutputNumber);
 
 	if (Index_start < Index_end)
 	{

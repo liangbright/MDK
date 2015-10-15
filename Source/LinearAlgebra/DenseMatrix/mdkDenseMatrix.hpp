@@ -471,13 +471,13 @@ void DenseMatrix<ElementType>::operator=(const std::initializer_list<const Dense
 
             TotalColCount += InputMatrixPtr->GetColCount();
 
-            if (InputRowCount != InputMatrixPtr->GetRowCount())
+			if (InputMatrixPtr->IsEmpty() == false && InputRowCount != InputMatrixPtr->GetRowCount())
             {
                 MDK_Error("RowCount is not the same in the list @ DenseMatrix::operator=(initializer_list of matrix pointer)")
                 return;
             }
 
-            if (this->GetElementPointer() == InputMatrixPtr->GetElementPointer())
+			if (this->GetElementPointer() != nullptr && this->GetElementPointer() == InputMatrixPtr->GetElementPointer())
             {
                 IsSelfInInputList = true;
             }
