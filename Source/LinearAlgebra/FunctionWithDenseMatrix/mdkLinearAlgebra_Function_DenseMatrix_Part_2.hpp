@@ -1502,23 +1502,21 @@ DenseMatrixSVDResult<ElementType> MatrixSVD(const DenseMatrix<ElementType>& Inpu
         return Result;
     }
 
-    Result.U.FastResize(Size.RowCount, Size.ColCount);
-    Result.S.FastResize(Size.RowCount, Size.ColCount);
-    Result.V.FastResize(Size.RowCount, Size.ColCount);
+	Result.U.FastResize(Size.RowCount, Size.RowCount);
+    Result.S.FastResize(std::min(Size.RowCount, Size.ColCount), 1);
+	Result.V.FastResize(Size.ColCount, Size.ColCount);
 
     auto ptrData = const_cast<ElementType*>(InputMatrix.GetElementPointer());
 
     // call Armadillo 
 
-    arma::Mat<ElementType> X(ptrData, arma::uword(Size.RowCount), arma::uword(Size.ColCount), false);
+	arma::Mat<ElementType> X(ptrData, arma::uword(Size.RowCount), arma::uword(Size.ColCount), false);
 
-    arma::Mat<ElementType> U(Result.U.GetElementPointer(), arma::uword(Size.RowCount), arma::uword(Size.ColCount), false);
-    arma::Col<ElementType> S;
-    arma::Mat<ElementType> V(Result.V.GetElementPointer(), arma::uword(Size.RowCount), arma::uword(Size.ColCount), false);
+	arma::Mat<ElementType> U(Result.U.GetElementPointer(), arma::uword(Result.U.GetRowCount()), arma::uword(Result.U.GetColCount()), false);
+	arma::Col<ElementType> S(Result.S.GetElementPointer(), arma::uword(Result.S.GetRowCount()), false);
+	arma::Mat<ElementType> V(Result.V.GetElementPointer(), arma::uword(Result.V.GetRowCount()), arma::uword(Result.V.GetColCount()), false);
 
     arma::svd(U, S, V, X);
-
-    Result.S.SetDiagonal(S.memptr());
 
     return Result;
 }

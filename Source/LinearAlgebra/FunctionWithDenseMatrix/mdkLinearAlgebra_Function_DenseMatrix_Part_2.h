@@ -254,9 +254,9 @@ inline DenseMatrixPCAResult<ElementType> MatrixPCA(const DenseMatrix<ElementType
 template<typename ElementType>
 struct DenseMatrixSVDResult
 {
-    // Matrix = U*S*V';
+    // Matrix = U*[S]*V';
     DenseMatrix<ElementType> U;  // matrix
-    DenseMatrix<ElementType> S;  // matrix, S(0) >= S(1) >= S(2) >= ...
+    DenseMatrix<ElementType> S;  // Vector, S(0) >= S(1) >= S(2) >= ...
     DenseMatrix<ElementType> V;  // matrix
 
     DenseMatrixSVDResult(){};

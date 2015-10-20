@@ -66,6 +66,7 @@ void PolygonMesh<MeshAttributeType>::Construct(DenseMatrix<ScalarType> InputPoin
         return;
     }
     //--------------------------------------------------------------------------------------------------
+	this->Clear();
 
 	auto PointHandleList = this->AddPointSet(std::move(InputPointPositionMatrix));
 
