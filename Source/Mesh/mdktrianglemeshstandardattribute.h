@@ -8,7 +8,7 @@ namespace mdk
 //============================================== GlobalStandardAttribute_Of_TriangleMesh ===========================================//
 enum class TriangleMeshGlobalStandardAttributeTypeEnum
 {
-    MeanCellArea,
+    MeanFaceArea,
     MeanEdgePhysicalLength
 };
 
@@ -29,7 +29,7 @@ struct GlobalStandardAttribute_Of_TriangleMesh : public GlobalStandardAttribute_
     void Clear()
     {
 		this->GlobalStandardAttribute_Of_PolygonMesh::Clear();
-        MeanCellArea = 0;
+        MeanFaceArea = 0;
         MeanEdgePhysicalLength = 0;
     }
 };
@@ -117,28 +117,28 @@ struct StandardAttribute_Of_DirectedEdge_Of_TriangleMesh : public StandardAttrib
 
 };
 
-//============================================== StandardAttribute_Of_Cell_Of_TriangleMesh ===========================================//
-enum class TriangleMeshCellStandardAttributeEnum
+//============================================== StandardAttribute_Of_Face_Of_TriangleMesh ===========================================//
+enum class TriangleMeshFaceStandardAttributeEnum
 {
     Area,
 };
 
 template<typename ScalarType>
-struct StandardAttribute_Of_Cell_Of_TriangleMesh : public StandardAttribute_Of_Cell_Of_PolygonMesh<ScalarType>
+struct StandardAttribute_Of_Face_Of_TriangleMesh : public StandardAttribute_Of_Face_Of_PolygonMesh<ScalarType>
 {
 //---------------------------------------
-	StandardAttribute_Of_Cell_Of_TriangleMesh() { this->Clear(); }
-	StandardAttribute_Of_Cell_Of_TriangleMesh(const StandardAttribute_Of_Cell_Of_TriangleMesh& InputAttribute) { (*this) = InputAttribute; }
-	~StandardAttribute_Of_Cell_Of_TriangleMesh() {}
+	StandardAttribute_Of_Face_Of_TriangleMesh() { this->Clear(); }
+	StandardAttribute_Of_Face_Of_TriangleMesh(const StandardAttribute_Of_Face_Of_TriangleMesh& InputAttribute) { (*this) = InputAttribute; }
+	~StandardAttribute_Of_Face_Of_TriangleMesh() {}
 
-	void operator=(const StandardAttribute_Of_Cell_Of_TriangleMesh& InputAttribute)
+	void operator=(const StandardAttribute_Of_Face_Of_TriangleMesh& InputAttribute)
     {
-		this->StandardAttribute_Of_Cell_Of_PolygonMesh::operator=(InputAttribute);
+		this->StandardAttribute_Of_Face_Of_PolygonMesh::operator=(InputAttribute);
     }
 
     void Clear()
     {
-		this->StandardAttribute_Of_Cell_Of_PolygonMesh::Clear();
+		this->StandardAttribute_Of_Face_Of_PolygonMesh::Clear();
         CornerAngle.FastResize(3);
         CornerAngle.Fill(0);
     }

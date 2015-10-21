@@ -50,15 +50,15 @@ struct StandardAttribute_Of_DirectedEdge_Of_MembraneMesh
     void Clear() {}
 };
 
-//============================================== CellAttribute_Of_MembraneMesh ===========================================//
+//============================================== FaceAttribute_Of_MembraneMesh ===========================================//
 
 template<typename ScalarType>
-struct StandardAttribute_Of_Cell_Of_MembraneMesh
+struct StandardAttribute_Of_Face_Of_MembraneMesh
 {
-	StandardAttribute_Of_Cell_Of_MembraneMesh() {}
-	StandardAttribute_Of_Cell_Of_MembraneMesh(const StandardAttribute_Of_Cell_Of_MembraneMesh& InputAttribute) {}
-	~StandardAttribute_Of_Cell_Of_MembraneMesh() {}
-	void operator=(const StandardAttribute_Of_Cell_Of_MembraneMesh&) {}
+	StandardAttribute_Of_Face_Of_MembraneMesh() {}
+	StandardAttribute_Of_Face_Of_MembraneMesh(const StandardAttribute_Of_Face_Of_MembraneMesh& InputAttribute) {}
+	~StandardAttribute_Of_Face_Of_MembraneMesh() {}
+	void operator=(const StandardAttribute_Of_Face_Of_MembraneMesh&) {}
     void Clear() {}
 };
 

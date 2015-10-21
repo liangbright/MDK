@@ -19,7 +19,7 @@ struct MembraneMeshStandardAttributeType
 	typedef StandardAttribute_Of_Point_Of_MembraneMesh<ScalarType>          PointAttributeType;
 	typedef StandardAttribute_Of_Edge_Of_MembraneMesh<ScalarType>           EdgeAttributeType;
 	typedef StandardAttribute_Of_DirectedEdge_Of_MembraneMesh<ScalarType>   DirectedEdgeAttributeType;
-	typedef StandardAttribute_Of_Cell_Of_MembraneMesh<ScalarType>           CellAttributeType;
+	typedef StandardAttribute_Of_Face_Of_MembraneMesh<ScalarType>           FaceAttributeType;
 };
 
 template<typename ScalarType>
@@ -30,7 +30,7 @@ struct MembraneMeshEmptyAttributeType
 	typedef StandardAttribute_Of_Point_Of_MembraneMesh<ScalarType>          PointAttributeType;
 	typedef StandardAttribute_Of_Edge_Of_MembraneMesh<ScalarType>           EdgeAttributeType;
 	typedef StandardAttribute_Of_DirectedEdge_Of_MembraneMesh<ScalarType>   DirectedEdgeAttributeType;
-	typedef StandardAttribute_Of_Cell_Of_MembraneMesh<ScalarType>           CellAttributeType;
+	typedef StandardAttribute_Of_Face_Of_MembraneMesh<ScalarType>           FaceAttributeType;
 };
 //------------------------------------------------------------------------------------------------//
 
@@ -63,17 +63,17 @@ struct MembraneMeshData
     // 1: Edge is an element of the mesh 
     // 0: Edge is deleted
 
-	StdObjectVector<Cell_Of_MembraneMesh<MeshAttributeType>> CellList; // also known as face, facet, element
+	StdObjectVector<Face_Of_MembraneMesh<MeshAttributeType>> FaceList; // also known as face, facet, element
 
-    DenseVector<int_max>  CellValidityFlagList;
-    // 1: Cell is an element of the mesh 
-    // 0: Cell is deleted
+    DenseVector<int_max>  FaceValidityFlagList;
+    // 1: Face is an element of the mesh 
+    // 0: Face is deleted
 
     // Attention: ID must >= 0
     std::unordered_map<int_max, int_max> Map_PointID_to_PointIndex;
     std::unordered_map<int_max, int_max> Map_EdgeID_to_EdgeIndex;
     std::unordered_map<int_max, DirectedEdgeIndex_Of_MembraneMesh> Map_DirectedEdgeID_to_DirectedEdgeIndex;
-    std::unordered_map<int_max, int_max> Map_CellID_to_CellIndex;
+    std::unordered_map<int_max, int_max> Map_FaceID_to_FaceIndex;
 
     //Mesh Attribute
     GlobalAttribute Attribute;
@@ -91,27 +91,27 @@ public:
     typedef typename MeshAttributeType::PointAttributeType        PointAttributeType;
     typedef typename MeshAttributeType::EdgeAttributeType         EdgeAttributeType;
     typedef typename MeshAttributeType::DirectedEdgeAttributeType DirectedEdgeAttributeType;
-    typedef typename MeshAttributeType::CellAttributeType         CellAttributeType;
+    typedef typename MeshAttributeType::FaceAttributeType         FaceAttributeType;
     //--------------------------------------------------------------------------------------------//
     typedef Point_Of_MembraneMesh<MeshAttributeType>           PointType;
     typedef Edge_Of_MembraneMesh<MeshAttributeType>            EdgeType;
     typedef DirectedEdge_Of_MembraneMesh<MeshAttributeType>    DirectedEdgeType;
-    typedef Cell_Of_MembraneMesh<MeshAttributeType>            CellType;
+    typedef Face_Of_MembraneMesh<MeshAttributeType>            FaceType;
 
     typedef Handle_Of_Point_Of_MembraneMesh          PointHandleType;
     typedef Handle_Of_Edge_Of_MembraneMesh           EdgeHandleType;
     typedef Handle_Of_DirectedEdge_Of_MembraneMesh   DirectedEdgeHandleType;
-    typedef Handle_Of_Cell_Of_MembraneMesh           CellHandleType;
+    typedef Handle_Of_Face_Of_MembraneMesh           FaceHandleType;
 
     typedef Iterator_Of_Point_Of_MembraneMesh<MeshAttributeType>           PointIteratorType;
     typedef Iterator_Of_Edge_Of_MembraneMesh<MeshAttributeType>            EdgeIteratorType;
     typedef Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttributeType>    DirectedEdgeIteratorType;
-    typedef Iterator_Of_Cell_Of_MembraneMesh<MeshAttributeType>            CellIteratorType;
+    typedef Iterator_Of_Face_Of_MembraneMesh<MeshAttributeType>            FaceIteratorType;
     //--------------------------------------------------------------------------------------------------//
 	typedef StdObjectVector<Point_Of_MembraneMesh<MeshAttributeType>>          PointListType;
 	typedef StdObjectVector<Edge_Of_MembraneMesh<MeshAttributeType>>           EdgeListType;
 	typedef StdObjectVector<DirectedEdge_Of_MembraneMesh<MeshAttributeType>>   DirectedEdgeListType;
-	typedef StdObjectVector<Cell_Of_MembraneMesh<MeshAttributeType>>           CellListType;
+	typedef StdObjectVector<Face_Of_MembraneMesh<MeshAttributeType>>           FaceListType;
 	//--------------------------------------------------------------------------------------------------//
 
 protected:
@@ -137,10 +137,10 @@ protected:
     friend struct Iterator_Of_DirectedEdge_Of_MembraneMesh;
 
     template<typename T>
-    friend class Cell_Of_MembraneMesh;    
+    friend class Face_Of_MembraneMesh;    
 
     template<typename T>
-    friend struct Iterator_Of_Cell_Of_MembraneMesh;
+    friend struct Iterator_Of_Face_Of_MembraneMesh;
 
 public:
     MembraneMesh();
@@ -170,12 +170,12 @@ public:
     inline int_max GetPointCount() const;
     inline int_max GetEdgeCount() const;
     inline int_max GetDirectedEdgeCount() const;
-    inline int_max GetCellCount() const;
+    inline int_max GetFaceCount() const;
  
 	inline int_max GetMaxValueOfPointIndex() const;// the maximum value of PointHanlde.GetIndex()
 	inline int_max GetMaxValueOfEdgeIndex() const;// the maximum value of EdgeHanlde.GetIndex()
 	//inline int_max GetMaxValueOfDirectedEdgeIndex() const;// the maximum value of DirectedEdgeHanlde.GetIndex()
-	inline int_max GetMaxValueOfCellIndex() const;// the maximum value of CellHanlde.GetIndex()
+	inline int_max GetMaxValueOfFaceIndex() const;// the maximum value of FaceHanlde.GetIndex()
 
     //------ Get/Set GlobalAttribute -----------------------------------//
 
@@ -212,7 +212,7 @@ public:
     inline DenseMatrix<ScalarType> GetPointPosition(const DenseVector<int_max>& PointIDList) const;
     inline void GetPointPosition(const DenseVector<int_max>& PointIDList, DenseMatrix<ScalarType>& PointPositionMatrix) const;
     
-    //----- Get/Set Mesh Item {Point, , Edge, DirectedEdge, Cell} by using Handle or ID ------//
+    //----- Get/Set Mesh Item {Point, , Edge, DirectedEdge, Face} by using Handle or ID ------//
 
     inline PointType& Point(PointHandleType PointHandle);
     inline const PointType& Point(PointHandleType PointHandle) const;
@@ -232,18 +232,18 @@ public:
     inline DirectedEdgeType& DirectedEdge(int_max DirectedEdgeID);
     inline const DirectedEdgeType& DirectedEdge(int_max DirectedEdgeID) const;
 
-    inline CellType& Cell(CellHandleType CellHandle);
-    inline const CellType& Cell(CellHandleType CellHandle) const;
+    inline FaceType& Face(FaceHandleType FaceHandle);
+    inline const FaceType& Face(FaceHandleType FaceHandle) const;
 
-    inline CellType& Cell(int_max CellID);
-    inline const CellType& Cell(int_max CellID) const;
+    inline FaceType& Face(int_max FaceID);
+    inline const FaceType& Face(int_max FaceID) const;
 
     //-------------- check handle -------------------------------------------------------//
 
     inline bool IsValidHandle(PointHandleType PointHandle) const;
     inline bool IsValidHandle(EdgeHandleType EdgeHandle) const;
     inline bool IsValidHandle(DirectedEdgeHandleType DirectedEdgeHandle) const;
-    inline bool IsValidHandle(CellHandleType CellHandle) const;
+    inline bool IsValidHandle(FaceHandleType FaceHandle) const;
 
     //--------- get HandleList ------------------------------------------------------------//
 
@@ -256,8 +256,8 @@ public:
     inline DenseVector<DirectedEdgeHandleType> GetDirectedEdgeHandleList() const;
     inline void GetDirectedEdgeHandleList(DenseVector<DirectedEdgeHandleType>& OutputHandleList) const;
 
-    inline DenseVector<CellHandleType> GetCellHandleList() const;
-    inline void GetCellHandleList(DenseVector<CellHandleType>& OutputHandleList) const;
+    inline DenseVector<FaceHandleType> GetFaceHandleList() const;
+    inline void GetFaceHandleList(DenseVector<FaceHandleType>& OutputHandleList) const;
 
     //----------- get PointHandle by Position, ID, ----------------------------------------------//
 
@@ -281,20 +281,20 @@ public:
     inline DirectedEdgeHandleType GetDirectedEdgeHandleByPoint(PointHandleType PointHandle_start, PointHandleType PointHandle_end) const;
     inline DirectedEdgeHandleType GetDirectedEdgeHandleByPoint(int_max PointID_start, int_max PointID_end) const;
 
-    //----------- get CellHandle by ID, PointHandleList or PointIDList EdgeHandleList or EdgeIDList ----------//
+    //----------- get FaceHandle by ID, PointHandleList or PointIDList EdgeHandleList or EdgeIDList ----------//
 
-    inline CellHandleType GetCellHandleByID(int_max CellID) const;
-    inline CellHandleType GetCellHandleByPoint(const DenseVector<PointHandleType>& PointHandleList) const;
-    inline CellHandleType GetCellHandleByPoint(const DenseVector<int_max>& PointIDList) const;
-    inline CellHandleType GetCellHandleByEdge(const DenseVector<EdgeHandleType>& EdgeHandleList) const;
-    inline CellHandleType GetCellHandleByEdge(const DenseVector<int_max>& EdgeIDList) const;
+    inline FaceHandleType GetFaceHandleByID(int_max FaceID) const;
+    inline FaceHandleType GetFaceHandleByPoint(const DenseVector<PointHandleType>& PointHandleList) const;
+    inline FaceHandleType GetFaceHandleByPoint(const DenseVector<int_max>& PointIDList) const;
+    inline FaceHandleType GetFaceHandleByEdge(const DenseVector<EdgeHandleType>& EdgeHandleList) const;
+    inline FaceHandleType GetFaceHandleByEdge(const DenseVector<int_max>& EdgeIDList) const;
 
     //-------------- check ID -------------------------------------------------------//
 
     inline bool IsValidPointID(int_max PointID) const;
     inline bool IsValidEdgeID(int_max EdgeID) const;
     inline bool IsValidDirectedEdgeID(int_max DirectedEdgeID) const;
-    inline bool IsValidCellID(int_max CellID) const;
+    inline bool IsValidFaceID(int_max FaceID) const;
 
     //--------- get IDList ------------------------------------------------------------//
 
@@ -307,8 +307,8 @@ public:
     inline DenseVector<int_max> GetDirectedEdgeIDList() const;
     inline void GetDirectedEdgeIDList(DenseVector<int_max>& OutputIDList) const;
 
-    inline DenseVector<int_max> GetCellIDList() const;
-    inline void GetCellIDList(DenseVector<int_max>& OutputIDList) const;
+    inline DenseVector<int_max> GetFaceIDList() const;
+    inline void GetFaceIDList(DenseVector<int_max>& OutputIDList) const;
 
     //----------- get Point ID by Handle, Position -----------------------------------------------------------//
 
@@ -328,13 +328,13 @@ public:
     inline int_max GetDirectedEdgeIDByPoint(PointHandleType PointHandle_start, PointHandleType PointHandle_end) const;
     inline int_max GetDirectedEdgeIDByPoint(int_max PointID_start, int_max PointID_end) const;
 
-    //----------- get CellID by CellHandle, EdgeHandleList, EdgeIDList, PointHandleList, PointIDList --------------------------//
+    //----------- get FaceID by FaceHandle, EdgeHandleList, EdgeIDList, PointHandleList, PointIDList --------------------------//
 
-    inline int_max GetCellIDByHandle(CellHandleType CellHandle) const;
-    inline int_max GetCellIDByPoint(const DenseVector<PointHandleType>& PointHandleList) const;
-    inline int_max GetCellIDByPoint(const DenseVector<int_max>& PointIDList) const;
-    inline int_max GetCellIDByEdge(const DenseVector<EdgeHandleType>& EdgeHandleList) const;
-    inline int_max GetCellIDByEdge(const DenseVector<int_max>& EdgeIDList) const;
+    inline int_max GetFaceIDByHandle(FaceHandleType FaceHandle) const;
+    inline int_max GetFaceIDByPoint(const DenseVector<PointHandleType>& PointHandleList) const;
+    inline int_max GetFaceIDByPoint(const DenseVector<int_max>& PointIDList) const;
+    inline int_max GetFaceIDByEdge(const DenseVector<EdgeHandleType>& EdgeHandleList) const;
+    inline int_max GetFaceIDByEdge(const DenseVector<int_max>& EdgeIDList) const;
 
     //------------- Iterator --------------------------------------------------------------//
 
@@ -347,12 +347,12 @@ public:
     inline DirectedEdgeIteratorType   GetIteratorOfDirectedEdge();
     inline const DirectedEdgeIteratorType   GetIteratorOfDirectedEdge() const;
 
-    inline CellIteratorType   GetIteratorOfCell();
-    inline const CellIteratorType   GetIteratorOfCell() const;
+    inline FaceIteratorType   GetIteratorOfFace();
+    inline const FaceIteratorType   GetIteratorOfFace() const;
 
 	//------------ SetCapacity, ReleaseUnusedCapacity -------------------------------------//
 
-	void SetCapacity(int_max PointCount, int_max EdgeCount, int_max CellCount);
+	void SetCapacity(int_max PointCount, int_max EdgeCount, int_max FaceCount);
 
 	void ReleaseUnusedCapacity();
 
@@ -376,31 +376,31 @@ public:
     EdgeHandleType AddEdge(PointHandleType PointHandle0, PointHandleType PointHandle1);
     EdgeHandleType AddEdge(int_max PointID0, int_max PointID1);
 
-    // add a cell and return CellHandle -> CellIndex in m_MeshData->CellList
+    // add a cell and return FaceHandle -> FaceIndex in m_MeshData->FaceList
     // add DirectedEdge of the cell
     // the order of Edge in EdgeHandleList determine the direction of each DirectedEdge and the direction/sign of the normal vector
-    CellHandleType AddCellByEdge(const DenseVector<EdgeHandleType>& EdgeHandleList);
-    CellHandleType AddCellByEdge(const DenseVector<int_max>& EdgeIDList);
+    FaceHandleType AddFaceByEdge(const DenseVector<EdgeHandleType>& EdgeHandleList);
+    FaceHandleType AddFaceByEdge(const DenseVector<int_max>& EdgeIDList);
 
-    // Add Cell with PointHandleList, Point0 <- Edge0 -> Point1 <- Edge1 -> Point2 ... Point_end <- Edge_end -> Point0
-    // in this function, AddCellByEdge() is called if necessary
-    CellHandleType AddCellByPoint(const DenseVector<PointHandleType>& PointHandleList);
-    CellHandleType AddCellByPoint(const DenseVector<int_max>& PointIDList);
+    // Add Face with PointHandleList, Point0 <- Edge0 -> Point1 <- Edge1 -> Point2 ... Point_end <- Edge_end -> Point0
+    // in this function, AddFaceByEdge() is called if necessary
+    FaceHandleType AddFaceByPoint(const DenseVector<PointHandleType>& PointHandleList);
+    FaceHandleType AddFaceByPoint(const DenseVector<int_max>& PointIDList);
 
     // Delete Mesh Item ----------------------------------------------------------------------------//
 
-    // m_MeshData->CellList[CellIndex].Clear() only release memory
-    // this function will delete each DirectedEdge of the Cell, and modify any information related to the cell
-    // CellHandle and CellID of the cell become invalid after the cell is deleted
-	void DeleteCell(CellHandleType CellHandle);
-	void DeleteCell(int_max CellID);
+    // m_MeshData->FaceList[FaceIndex].Clear() only release memory
+    // this function will delete each DirectedEdge of the Face, and modify any information related to the cell
+    // FaceHandle and FaceID of the cell become invalid after the cell is deleted
+	void DeleteFace(FaceHandleType FaceHandle);
+	void DeleteFace(int_max FaceID);
 
     // m_MeshData->EdgeList[EdgeIndex].Clear() only release memory
     // this function will modify any information related to the Edge
     // EdgeHandle and EdgeID of the edge become invalid after the edge is deleted
     // Check is performed in the function to make sure an edge can not be deleted if any adjacent cell exit
 	//
-	// note:  Call Edge(EdgeHandle).GetAdjacentCellCount() to check if the edge can be deleted or not
+	// note:  Call Edge(EdgeHandle).GetAdjacentFaceCount() to check if the edge can be deleted or not
 	void DeleteEdge(EdgeHandleType EdgeHandle);
 	void DeleteEdge(int_max EdgeID);
 
@@ -422,18 +422,18 @@ public:
 	bool Check_If_DataStructure_is_Clean() const;//true: clean, false: invalid handle exit
     int_max GetDeletedPointHandleCount() const; // the number of Deleted point handles
 	int_max GetDeletedEdgeHandleCount() const; // the number of Deleted edge handles
-	int_max GetDeletedCellHandleCount() const; // the number of Deleted cell handles
+	int_max GetDeletedFaceHandleCount() const; // the number of Deleted cell handles
 
     //---------------------------------------------------------------------------------------------------
 
-    // get a sub mesh by CellHandleList or CellIDList
-    MembraneMesh<MeshAttributeType> GetSubMeshByCell(const DenseVector<CellHandleType>& CellHandleList) const;
-    MembraneMesh<MeshAttributeType> GetSubMeshByCell(const DenseVector<int_max>& CellIDList) const;
+    // get a sub mesh by FaceHandleList or FaceIDList
+    MembraneMesh<MeshAttributeType> GetSubMeshByFace(const DenseVector<FaceHandleType>& FaceHandleList) const;
+    MembraneMesh<MeshAttributeType> GetSubMeshByFace(const DenseVector<int_max>& FaceIDList) const;
 
     // Change Topology ----------------------------------------------------------------------------------------
 
-    CellHandleType DilatePointToCell(PointHandleType PointHandle);
-    CellHandleType DilatePointToCell(int_max PointID);
+    FaceHandleType DilatePointToFace(PointHandleType PointHandle);
+    FaceHandleType DilatePointToFace(int_max PointID);
 
     // Position  = (Position_0 + Position_1) / 2
     PointHandleType ShrinkEdgeToPoint(EdgeHandleType EdgeHandle);
@@ -446,14 +446,14 @@ public:
     std::pair<EdgeHandleType, EdgeHandleType> SplitEdge(int_max PointID);
 
     // MiddlePointPosition  = sum(Position_i) / sum(i)
-    PointHandleType ShrinkCellToPoint(CellHandleType CellHandle);
-    PointHandleType ShrinkCellToPoint(int_max CellID);
+    PointHandleType ShrinkFaceToPoint(FaceHandleType FaceHandle);
+    PointHandleType ShrinkFaceToPoint(int_max FaceID);
 
-    CellHandleType MergeTwoAdjacentCell(CellHandleType CellHandleA, CellHandleType CellHandleB);
-    CellHandleType MergeTwoAdjacentCell(int_max CellIDA, int_max CellIDB);
+    FaceHandleType MergeTwoAdjacentFace(FaceHandleType FaceHandleA, FaceHandleType FaceHandleB);
+    FaceHandleType MergeTwoAdjacentFace(int_max FaceIDA, int_max FaceIDB);
 
-	std::pair<CellHandleType, CellHandleType> SplitCellByTwoPoint(PointHandleType PointHandleA, PointHandleType PointHandleB);
-	std::pair<CellHandleType, CellHandleType> SplitCellByTwoPoint(int_max PointIDA, int_max PointIDB);
+	std::pair<FaceHandleType, FaceHandleType> SplitFaceByTwoPoint(PointHandleType PointHandleA, PointHandleType PointHandleB);
+	std::pair<FaceHandleType, FaceHandleType> SplitFaceByTwoPoint(int_max PointIDA, int_max PointIDB);
 
     //-----------------------------------------------------------------------------------------------------
 
@@ -461,7 +461,7 @@ private:
     void InternalFuction_DeletePoint(int_max PointIndex);
     void InternalFuction_DeleteEdge(int_max EdgeIndex);
 	void InternalFuction_DeleteDirectedEdge(DirectedEdgeIndex_Of_MembraneMesh DirectedEdgeIndex);
-    void InternalFuction_DeleteCell(int_max CellIndex);
+    void InternalFuction_DeleteFace(int_max FaceIndex);
 };
 
 }// namespace mdk

@@ -63,7 +63,7 @@ public:
 
 };
 
-//====================================== DirectedEdge_Of_MembraneMesh (Cell Plasma Membrane) ===================================================//
+//====================================== DirectedEdge_Of_MembraneMesh (Face Plasma Membrane) ===================================================//
 
 struct DirectedEdgeIndex_Of_MembraneMesh
 {
@@ -174,31 +174,31 @@ public:
     
 };
 
-//====================================== Cell_Of_MembraneMesh ==============================================================//
+//====================================== Face_Of_MembraneMesh ==============================================================//
 
-struct Handle_Of_Cell_Of_MembraneMesh
+struct Handle_Of_Face_Of_MembraneMesh
 {
 private:
-    int_max m_Index;   // CellIndex in MembraneMesh::m_MeshData->CellList
+    int_max m_Index;   // FaceIndex in MembraneMesh::m_MeshData->FaceList
 
 public:
-    inline Handle_Of_Cell_Of_MembraneMesh();
-    inline Handle_Of_Cell_Of_MembraneMesh(const Handle_Of_Cell_Of_MembraneMesh& InputHandle);
-    inline ~Handle_Of_Cell_Of_MembraneMesh();
+    inline Handle_Of_Face_Of_MembraneMesh();
+    inline Handle_Of_Face_Of_MembraneMesh(const Handle_Of_Face_Of_MembraneMesh& InputHandle);
+    inline ~Handle_Of_Face_Of_MembraneMesh();
 
-    inline void operator=(const Handle_Of_Cell_Of_MembraneMesh& InputHandle);
+    inline void operator=(const Handle_Of_Face_Of_MembraneMesh& InputHandle);
 
-    inline void SetIndex(int_max CellIndex);
+    inline void SetIndex(int_max FaceIndex);
     inline int_max GetIndex() const;
 
     inline void SetToInvalid();
 
-    inline bool operator==(const Handle_Of_Cell_Of_MembraneMesh& InputHandle)  const;
-    inline bool operator!=(const Handle_Of_Cell_Of_MembraneMesh& InputHandle)  const;
-    inline bool operator>(const Handle_Of_Cell_Of_MembraneMesh& InputHandle) const;
-    inline bool operator>=(const Handle_Of_Cell_Of_MembraneMesh& InputHandle) const;
-    inline bool operator<(const Handle_Of_Cell_Of_MembraneMesh& InputHandle) const;
-    inline bool operator<=(const Handle_Of_Cell_Of_MembraneMesh& InputHandle) const;
+    inline bool operator==(const Handle_Of_Face_Of_MembraneMesh& InputHandle)  const;
+    inline bool operator!=(const Handle_Of_Face_Of_MembraneMesh& InputHandle)  const;
+    inline bool operator>(const Handle_Of_Face_Of_MembraneMesh& InputHandle) const;
+    inline bool operator>=(const Handle_Of_Face_Of_MembraneMesh& InputHandle) const;
+    inline bool operator<(const Handle_Of_Face_Of_MembraneMesh& InputHandle) const;
+    inline bool operator<=(const Handle_Of_Face_Of_MembraneMesh& InputHandle) const;
 
 };
 
@@ -336,7 +336,7 @@ inline bool Handle_Of_Edge_Of_MembraneMesh::operator<=(const Handle_Of_Edge_Of_M
     return m_Index <= InputHandle.m_Index;
 }
 
-//====================================== DirectedEdge_Of_MembraneMesh (Cell Plasma Membrane) ===================================================//
+//====================================== DirectedEdge_Of_MembraneMesh (Face Plasma Membrane) ===================================================//
 
 inline Handle_Of_DirectedEdge_Of_MembraneMesh::Handle_Of_DirectedEdge_Of_MembraneMesh()
 {
@@ -422,68 +422,68 @@ inline bool Handle_Of_DirectedEdge_Of_MembraneMesh::operator<=(const Handle_Of_D
     return m_Index <= InputHandle.m_Index;
 }
 
-//====================================== Cell_Of_MembraneMesh ==============================================================//
+//====================================== Face_Of_MembraneMesh ==============================================================//
 
-inline Handle_Of_Cell_Of_MembraneMesh::Handle_Of_Cell_Of_MembraneMesh()
+inline Handle_Of_Face_Of_MembraneMesh::Handle_Of_Face_Of_MembraneMesh()
 {
     this->SetToInvalid();
 }
 
-inline Handle_Of_Cell_Of_MembraneMesh::Handle_Of_Cell_Of_MembraneMesh(const Handle_Of_Cell_Of_MembraneMesh& InputHandle)
+inline Handle_Of_Face_Of_MembraneMesh::Handle_Of_Face_Of_MembraneMesh(const Handle_Of_Face_Of_MembraneMesh& InputHandle)
 {
     m_Index = InputHandle.m_Index;
 }
 
-inline Handle_Of_Cell_Of_MembraneMesh::~Handle_Of_Cell_Of_MembraneMesh()
+inline Handle_Of_Face_Of_MembraneMesh::~Handle_Of_Face_Of_MembraneMesh()
 {
 }
 
-inline void Handle_Of_Cell_Of_MembraneMesh::operator=(const Handle_Of_Cell_Of_MembraneMesh& InputHandle)
+inline void Handle_Of_Face_Of_MembraneMesh::operator=(const Handle_Of_Face_Of_MembraneMesh& InputHandle)
 {
     m_Index = InputHandle.m_Index;
 }
 
-inline void Handle_Of_Cell_Of_MembraneMesh::SetIndex(int_max CellIndex)
+inline void Handle_Of_Face_Of_MembraneMesh::SetIndex(int_max FaceIndex)
 {
-    m_Index = CellIndex;
+    m_Index = FaceIndex;
 }
 
-inline int_max Handle_Of_Cell_Of_MembraneMesh::GetIndex() const
+inline int_max Handle_Of_Face_Of_MembraneMesh::GetIndex() const
 {
     return m_Index;
 }
 
-inline void Handle_Of_Cell_Of_MembraneMesh::SetToInvalid()
+inline void Handle_Of_Face_Of_MembraneMesh::SetToInvalid()
 {
     m_Index = -1;
 }
 
-inline bool Handle_Of_Cell_Of_MembraneMesh::operator==(const Handle_Of_Cell_Of_MembraneMesh& InputHandle)  const
+inline bool Handle_Of_Face_Of_MembraneMesh::operator==(const Handle_Of_Face_Of_MembraneMesh& InputHandle)  const
 {
     return m_Index == InputHandle.m_Index;
 }
 
-inline bool Handle_Of_Cell_Of_MembraneMesh::operator!=(const Handle_Of_Cell_Of_MembraneMesh& InputHandle)  const
+inline bool Handle_Of_Face_Of_MembraneMesh::operator!=(const Handle_Of_Face_Of_MembraneMesh& InputHandle)  const
 {
     return m_Index != InputHandle.m_Index;
 }
 
-inline bool Handle_Of_Cell_Of_MembraneMesh::operator>(const Handle_Of_Cell_Of_MembraneMesh& InputHandle) const
+inline bool Handle_Of_Face_Of_MembraneMesh::operator>(const Handle_Of_Face_Of_MembraneMesh& InputHandle) const
 {
     return m_Index > InputHandle.m_Index;
 }
 
-inline bool Handle_Of_Cell_Of_MembraneMesh::operator>=(const Handle_Of_Cell_Of_MembraneMesh& InputHandle) const
+inline bool Handle_Of_Face_Of_MembraneMesh::operator>=(const Handle_Of_Face_Of_MembraneMesh& InputHandle) const
 {
     return m_Index >= InputHandle.m_Index;
 }
 
-inline bool Handle_Of_Cell_Of_MembraneMesh::operator<(const Handle_Of_Cell_Of_MembraneMesh& InputHandle) const
+inline bool Handle_Of_Face_Of_MembraneMesh::operator<(const Handle_Of_Face_Of_MembraneMesh& InputHandle) const
 {
     return m_Index < InputHandle.m_Index;
 }
 
-inline bool Handle_Of_Cell_Of_MembraneMesh::operator<=(const Handle_Of_Cell_Of_MembraneMesh& InputHandle) const
+inline bool Handle_Of_Face_Of_MembraneMesh::operator<=(const Handle_Of_Face_Of_MembraneMesh& InputHandle) const
 {
     return m_Index <= InputHandle.m_Index;
 }

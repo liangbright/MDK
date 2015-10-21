@@ -21,30 +21,30 @@ bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<MeshAttributeType>& InputMe
 	JObject["ScalarType"] = GetScalarTypeName(ScalarType(0));
 	JObject["IndexType"] = GetScalarTypeName(int_max(0));
 	JObject["PointCount"] = InputMesh.GetPointCount();
-	JObject["CellCount"] = InputMesh.GetCellCount();
+	JObject["FaceCount"] = InputMesh.GetFaceCount();
 	
 	//--------------------------------------------------------------------
-	ObjectArray<DenseVector<int_max>> CellData;
+	ObjectArray<DenseVector<int_max>> FaceData;
 	DenseMatrix<ScalarType> PointData;
-	InputMesh.GetPointPositionMatrixAndCellTable(PointData, CellData);
+	InputMesh.GetPointPositionMatrixAndFaceTable(PointData, FaceData);
 
 	String FilePath = ExtractFilePath(FilePathAndName);
 	String FileName = ExtractFileName(FilePathAndName);
-	String CellDataFileName = FileName + ".Cell.json";
+	String FaceDataFileName = FileName + ".Face.json";
 	String PointDataFileName = FileName + ".Point.data";
-	JObject["CellData"] = CellDataFileName;
+	JObject["FaceData"] = FaceDataFileName;
 	JObject["PointData"] = PointDataFileName;
 	//--------------------------------------------------------------------
 	//write cell to JsonArray
-	JsonArray JArray_CellData;
-	JArray_CellData.Resize(CellData.GetLength());
-	if (CellData.IsEmpty() == false)
+	JsonArray JArray_FaceData;
+	JArray_FaceData.Resize(FaceData.GetLength());
+	if (FaceData.IsEmpty() == false)
 	{
-		for (int_max i = 0; i < CellData.GetLength(); ++i)
+		for (int_max i = 0; i < FaceData.GetLength(); ++i)
 		{
-			const DenseVector<int_max>& Cell_i = CellData[i];
+			const DenseVector<int_max>& Face_i = FaceData[i];
 
-			JArray_CellData[i] = Cell_i;
+			JArray_FaceData[i] = Face_i;
 		}
 	}
 	//----------------------------------------------------------------------------------------------
@@ -57,7 +57,7 @@ bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<MeshAttributeType>& InputMe
 	{
 		IsOK = false;
 	}	
-	if (JsonFile::Save(JArray_CellData, FilePath + CellDataFileName) == false)
+	if (JsonFile::Save(JArray_FaceData, FilePath + FaceDataFileName) == false)
 	{
 		IsOK = false;
 	}
@@ -135,15 +135,15 @@ bool LoadPolygonMeshFromJsonDataFile(PolygonMesh<MeshAttributeType>& OutputMesh,
 		return false;
 	}
 	//----------------------------------------------
-	int_max CellCount = 0;
-	it = JObject.find("CellCount");
+	int_max FaceCount = 0;
+	it = JObject.find("FaceCount");
 	if (it != JObject.end())
 	{
-		CellCount = it->second.ToScalar<int_max>();
+		FaceCount = it->second.ToScalar<int_max>();
 	}
 	else
 	{
-		MDK_Error("Couldn't get CellCount @ LoadPolygonMeshFromJsonDataFile(...)")
+		MDK_Error("Couldn't get FaceCount @ LoadPolygonMeshFromJsonDataFile(...)")
 		return false;
 	}
 	//----------------------------------------------	
@@ -159,15 +159,15 @@ bool LoadPolygonMeshFromJsonDataFile(PolygonMesh<MeshAttributeType>& OutputMesh,
 		return false;
 	}
 	//----------------------------------------------	
-	String CellDataFileName;
-	it = JObject.find("CellData");
+	String FaceDataFileName;
+	it = JObject.find("FaceData");
 	if (it != JObject.end())
 	{
-		CellDataFileName = it->second.GetString();
+		FaceDataFileName = it->second.GetString();
 	}
 	else
 	{
-		MDK_Error("Couldn't get CellData @ LoadPolygonMeshFromJsonDataFile(...)")
+		MDK_Error("Couldn't get FaceData @ LoadPolygonMeshFromJsonDataFile(...)")
 		return false;
 	}
 	//----------------------------------------------
@@ -182,27 +182,27 @@ bool LoadPolygonMeshFromJsonDataFile(PolygonMesh<MeshAttributeType>& OutputMesh,
 			IsOK = false;
 		}		
 
-		//Get CellData from JsonArray
-		ObjectArray<DenseVector<int_max>> CellData;
-		CellData.Resize(CellCount);
-		if (CellCount > 0)
+		//Get FaceData from JsonArray
+		ObjectArray<DenseVector<int_max>> FaceData;
+		FaceData.Resize(FaceCount);
+		if (FaceCount > 0)
 		{
-			JsonArray JArray_CellData;
-			if (JsonFile::Load(JArray_CellData, FilePath + CellDataFileName) == false)
+			JsonArray JArray_FaceData;
+			if (JsonFile::Load(JArray_FaceData, FilePath + FaceDataFileName) == false)
 			{
 				IsOK = false;
 			}
 
-			if (JArray_CellData.IsEmpty() == false)
+			if (JArray_FaceData.IsEmpty() == false)
 			{
-				for (int_max i = 0; i < JArray_CellData.GetLength(); ++i)
+				for (int_max i = 0; i < JArray_FaceData.GetLength(); ++i)
 				{
-					CellData[i] = JArray_CellData[i].ToScalarArray<int_max>();
+					FaceData[i] = JArray_FaceData[i].ToScalarArray<int_max>();
 				}
 			}
 		}
 
-		OutputMesh.Construct(std::move(PointData), CellData);
+		OutputMesh.Construct(std::move(PointData), FaceData);
 		return IsOK;
 	}
 	else// empty mesh

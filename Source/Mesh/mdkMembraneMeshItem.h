@@ -27,7 +27,7 @@ class DirectedEdge_Of_MembraneMesh;
 struct DirectedEdgeIndex_Of_MembraneMesh;
 
 template<typename T>
-class Cell_Of_MembraneMesh;
+class Face_Of_MembraneMesh;
 //----------------------------------------------------------------------------------------------------------------------------//
 
 //====================================== Point_Of_MembraneMesh ==============================================================//
@@ -50,7 +50,7 @@ struct Data_Of_Point_Of_MembraneMesh
     DenseVector<DirectedEdgeIndex_Of_MembraneMesh> OutgoingDirectedEdgeIndexList; // index in Mesh.m_MeshData->DirectedEdgeList, this is the start point
     DenseVector<DirectedEdgeIndex_Of_MembraneMesh> IncomingDirectedEdgeIndexList; // index in Mesh.m_MeshData->DirectedEdgeList, this is the end point 
     
-    DenseVector<int_max> AdjacentCellIndexList;     // index in Mesh.m_MeshData->CellList
+    DenseVector<int_max> AdjacentFaceIndexList;     // index in Mesh.m_MeshData->FaceList
 
     //------------------------------------------------
 
@@ -96,7 +96,7 @@ private:
     inline DenseVector<int_max>& AdjacentEdgeIndexList();
     inline DenseVector<DirectedEdgeIndex_Of_MembraneMesh>& OutgoingDirectedEdgeIndexList();
     inline DenseVector<DirectedEdgeIndex_Of_MembraneMesh>& IncomingDirectedEdgeIndexList();
-    inline DenseVector<int_max>& AdjacentCellIndexList();
+    inline DenseVector<int_max>& AdjacentFaceIndexList();
 
     //-------------------------------------------------------------------------------------//
 public:
@@ -152,19 +152,19 @@ public:
     inline DenseVector<int_max> GetIncomingDirectedEdgeIDList() const;
     inline void GetIncomingDirectedEdgeIDList(DenseVector<int_max>& OutputHandleList) const;
 
-	inline int_max GetAdjacentCellCount() const;
+	inline int_max GetAdjacentFaceCount() const;
 
-    inline DenseVector<Handle_Of_Cell_Of_MembraneMesh> GetAdjacentCellHandleList() const;
-    inline void GetAdjacentCellHandleList(DenseVector<Handle_Of_Cell_Of_MembraneMesh>& OutputHandleList) const;
+    inline DenseVector<Handle_Of_Face_Of_MembraneMesh> GetAdjacentFaceHandleList() const;
+    inline void GetAdjacentFaceHandleList(DenseVector<Handle_Of_Face_Of_MembraneMesh>& OutputHandleList) const;
 
-    inline DenseVector<int_max> GetAdjacentCellIDList() const;
-    inline void GetAdjacentCellIDList(DenseVector<int_max>& OutputHandleList) const;
+    inline DenseVector<int_max> GetAdjacentFaceIDList() const;
+    inline void GetAdjacentFaceIDList(DenseVector<int_max>& OutputHandleList) const;
 
     inline PointAttributeType& Attribute();
     inline const PointAttributeType& Attribute() const;
 };
 
-//====================================== Edge_Of_MembraneMesh (Cell Wall) ==============================================================//
+//====================================== Edge_Of_MembraneMesh (Face Wall) ==============================================================//
 
 template<typename MeshAttributeType>
 struct Data_Of_Edge_Of_MembraneMesh
@@ -209,7 +209,7 @@ public:
     friend class DirectedEdge_Of_MembraneMesh;
 
     template<typename T>
-    friend class Cell_Of_MembraneMesh;
+    friend class Face_Of_MembraneMesh;
 
 private:
     std::unique_ptr<Data_Of_Edge_Of_MembraneMesh<MeshAttributeType>> m_Data;
@@ -244,13 +244,13 @@ private:
     inline DenseVector<int_max> GetAdjacentEdgeIndexList() const;
     inline void GetAdjacentEdgeIndexList(DenseVector<int_max>& OutputIndexList) const;
 
-    // Cell share this edge
-    inline DenseVector<int_max> GetAdjacentCellIndexList() const;
-    inline void GetAdjacentCellIndexList(DenseVector<int_max>& OutputIndexList) const;
+    // Face share this edge
+    inline DenseVector<int_max> GetAdjacentFaceIndexList() const;
+    inline void GetAdjacentFaceIndexList(DenseVector<int_max>& OutputIndexList) const;
 
-    // Cell share any vertex point of this edge
-    inline DenseVector<int_max> GetNeighbourCellIndexList() const;
-    inline void GetNeighbourCellIndexList(DenseVector<int_max>& OutputIndexList) const;
+    // Face share any vertex point of this edge
+    inline DenseVector<int_max> GetNeighbourFaceIndexList() const;
+    inline void GetNeighbourFaceIndexList(DenseVector<int_max>& OutputIndexList) const;
 
     //--------------------------------------------------------------------------//
 public:
@@ -286,29 +286,29 @@ public:
     inline DenseVector<int_max> GetAdjacentEdgeIDList() const;
     inline void GetAdjacentEdgeIDList(DenseVector<int_max>& OutputIDList) const;
 
-	// Cell share this edge
-	inline int_max GetAdjacentCellCount() const;
+	// Face share this edge
+	inline int_max GetAdjacentFaceCount() const;
 
-    inline DenseVector<Handle_Of_Cell_Of_MembraneMesh> GetAdjacentCellHandleList() const;
-    inline void GetAdjacentCellHandleList(DenseVector<Handle_Of_Cell_Of_MembraneMesh>& OutputHandleList) const;
+    inline DenseVector<Handle_Of_Face_Of_MembraneMesh> GetAdjacentFaceHandleList() const;
+    inline void GetAdjacentFaceHandleList(DenseVector<Handle_Of_Face_Of_MembraneMesh>& OutputHandleList) const;
 
-    inline DenseVector<int_max> GetAdjacentCellIDList() const;
-    inline void GetAdjacentCellIDList(DenseVector<int_max>& OutputIDList) const;
+    inline DenseVector<int_max> GetAdjacentFaceIDList() const;
+    inline void GetAdjacentFaceIDList(DenseVector<int_max>& OutputIDList) const;
 	
-	// Cell share any vertex point of this edge
-	inline int_max GetNeighbourCellCount() const;
+	// Face share any vertex point of this edge
+	inline int_max GetNeighbourFaceCount() const;
     
-    inline DenseVector<Handle_Of_Cell_Of_MembraneMesh> GetNeighbourCellHandleList() const;
-    inline void GetNeighbourCellHandleList(DenseVector<Handle_Of_Cell_Of_MembraneMesh>& OutputHandleList) const;
+    inline DenseVector<Handle_Of_Face_Of_MembraneMesh> GetNeighbourFaceHandleList() const;
+    inline void GetNeighbourFaceHandleList(DenseVector<Handle_Of_Face_Of_MembraneMesh>& OutputHandleList) const;
 
-    inline DenseVector<int_max> GetNeighbourCellIDList() const;
-    inline void GetNeighbourCellIDList(DenseVector<int_max>& OutputHandleList) const;
+    inline DenseVector<int_max> GetNeighbourFaceIDList() const;
+    inline void GetNeighbourFaceIDList(DenseVector<int_max>& OutputHandleList) const;
 
     inline EdgeAttributeType& Attribute();
     inline const EdgeAttributeType& Attribute() const;
 };
 
-//====================================== DirectedEdge_Of_MembraneMesh (Cell Plasma Membrane) ===================================================//
+//====================================== DirectedEdge_Of_MembraneMesh (Face Plasma Membrane) ===================================================//
 
 template<typename MeshAttributeType>
 struct Data_Of_DirectedEdge_Of_MembraneMesh
@@ -322,7 +322,7 @@ struct Data_Of_DirectedEdge_Of_MembraneMesh
 
     int_max ID; // unique identifier, it will not change after Mesh.ClearDataStructure()
 
-    int_max CellIndex;           // index in Mesh.m_MeshData->CellList,  It is -1 if this is a boundary Edge
+    int_max FaceIndex;           // index in Mesh.m_MeshData->FaceList,  It is -1 if this is a boundary Edge
 
     int_max PointIndex_start;   // index in Mesh.m_MeshData->PointList, the start point of the DirectedEdge 
     int_max PointIndex_end;     // index in Mesh.m_MeshData->PointList, the end point of the DirectedEdge
@@ -353,7 +353,7 @@ public:
     friend class Edge_Of_MembraneMesh;
 
     template<typename T>
-    friend class Cell_Of_MembraneMesh;
+    friend class Face_Of_MembraneMesh;
 
 private:
     std::unique_ptr<Data_Of_DirectedEdge_Of_MembraneMesh<MeshAttributeType>> m_Data;
@@ -378,7 +378,7 @@ private:
     inline void SetStartPointIndex(int_max PointIndex);
     inline void SetEndPointIndex(int_max PointIndex);
     inline void SetEdgeIndex(int_max EdgeIndex);
-    inline void SetCellIndex(int_max CellIndex);
+    inline void SetFaceIndex(int_max FaceIndex);
 
     inline void SetNextDirectedEdgeIndex(DirectedEdgeIndex_Of_MembraneMesh DirectedEdgeIndex);
     inline void SetNextDirectedEdgeIndex(int_max EdgeIndex, int_max RelativeIndex);
@@ -391,17 +391,17 @@ private:
     inline int_max GetStartPointIndex() const;
     inline int_max GetEndPointIndex() const;
     inline int_max GetEdgeIndex() const;
-    inline int_max GetCellIndex() const;
+    inline int_max GetFaceIndex() const;
 
 	inline DirectedEdgeIndex_Of_MembraneMesh GetNextDirectedEdgeIndex() const;
 	inline DirectedEdgeIndex_Of_MembraneMesh GetPreviousDirectedEdgeIndex() const;
 
     inline DenseVector<DirectedEdgeIndex_Of_MembraneMesh> GetFirendDirectedEdgeIndexList() const;
     
-	inline DenseVector<int_max> GetFirendCellIndexList() const;
+	inline DenseVector<int_max> GetFirendFaceIndexList() const;
 
-    inline DenseVector<int_max> GetNeighbourCellIndexList() const;
-    inline void GetNeighbourCellIndexList(DenseVector<int_max>& OutputIndexList) const;
+    inline DenseVector<int_max> GetNeighbourFaceIndexList() const;
+    inline void GetNeighbourFaceIndexList(DenseVector<int_max>& OutputIndexList) const;
 
     //-----------------------------------------------------------------------------------//
 public:
@@ -417,8 +417,8 @@ public:
     inline void EraseID();
     inline int_max GetID() const;
 
-    inline Handle_Of_Cell_Of_MembraneMesh GetCellHandle() const;
-    inline int_max GetCellID() const;
+    inline Handle_Of_Face_Of_MembraneMesh GetFaceHandle() const;
+    inline int_max GetFaceID() const;
 
     inline Handle_Of_Point_Of_MembraneMesh GetStartPointHandle() const;
     inline int_max GetStartPointID() const;
@@ -439,33 +439,33 @@ public:
 	inline DenseVector<Handle_Of_DirectedEdge_Of_MembraneMesh> GetFirendDirectedEdgeHandleList() const;
 	inline DenseVector<int_max> GetFirendDirectedEdgeIDList() const;
 
-	inline int_max GetFirendCellCount() const;
-	inline DenseVector<Handle_Of_Cell_Of_MembraneMesh> GetFirendCellHandleList() const;
-	inline DenseVector<int_max> GetFirendCellIDList() const;
+	inline int_max GetFirendFaceCount() const;
+	inline DenseVector<Handle_Of_Face_Of_MembraneMesh> GetFirendFaceHandleList() const;
+	inline DenseVector<int_max> GetFirendFaceIDList() const;
 
-	inline int_max GetNeighbourCellCount() const;
+	inline int_max GetNeighbourFaceCount() const;
 
-	inline DenseVector<Handle_Of_Cell_Of_MembraneMesh> GetNeighbourCellHandleList() const;
-    inline void GetNeighbourCellHandleList(DenseVector<Handle_Of_Cell_Of_MembraneMesh>& OutputHandleList) const;
+	inline DenseVector<Handle_Of_Face_Of_MembraneMesh> GetNeighbourFaceHandleList() const;
+    inline void GetNeighbourFaceHandleList(DenseVector<Handle_Of_Face_Of_MembraneMesh>& OutputHandleList) const;
 
-    inline DenseVector<int_max> GetNeighbourCellIDList() const;
-    inline void GetNeighbourCellIDList(DenseVector<int_max>& OutputHandleList) const;
+    inline DenseVector<int_max> GetNeighbourFaceIDList() const;
+    inline void GetNeighbourFaceIDList(DenseVector<int_max>& OutputHandleList) const;
 
     inline DirectedEdgeAttributeType& Attribute();
     inline const DirectedEdgeAttributeType& Attribute() const;
 };
 
-//====================================== Cell_Of_MembraneMesh ==============================================================//
+//====================================== Face_Of_MembraneMesh ==============================================================//
 
 template<typename MeshAttributeType>
-struct Data_Of_Cell_Of_MembraneMesh
+struct Data_Of_Face_Of_MembraneMesh
 {
     typedef typename MeshAttributeType::ScalarType           ScalarType;
-    typedef typename MeshAttributeType::CellAttributeType    CellAttributeType;
+    typedef typename MeshAttributeType::FaceAttributeType    FaceAttributeType;
 
     MembraneMesh<MeshAttributeType> Mesh;
 
-    int_max Index; // CellIndex: index of the Cell in Mesh.m_MeshData->CellList, it may change after Mesh.ClearDataStructure()
+    int_max Index; // FaceIndex: index of the Face in Mesh.m_MeshData->FaceList, it may change after Mesh.ClearDataStructure()
 
     int_max ID; // unique identifier, it will not change after Mesh.ClearDataStructure()
 
@@ -473,41 +473,41 @@ struct Data_Of_Cell_Of_MembraneMesh
 
     //--------------------------------------
 
-    CellAttributeType Attribute;
+    FaceAttributeType Attribute;
 
 //------------------------------------------------------------------------
-    Data_Of_Cell_Of_MembraneMesh() : Mesh(MDK_PURE_EMPTY) {}
-    ~Data_Of_Cell_Of_MembraneMesh() {};
+    Data_Of_Face_Of_MembraneMesh() : Mesh(MDK_PURE_EMPTY) {}
+    ~Data_Of_Face_Of_MembraneMesh() {};
 };
 
 template<typename MeshAttributeType>
-class Cell_Of_MembraneMesh : public Object
+class Face_Of_MembraneMesh : public Object
 {
 public:
     typedef typename MeshAttributeType::ScalarType           ScalarType;
-    typedef typename MeshAttributeType::CellAttributeType    CellAttributeType;
+    typedef typename MeshAttributeType::FaceAttributeType    FaceAttributeType;
 
 private:
-    std::unique_ptr<Data_Of_Cell_Of_MembraneMesh<MeshAttributeType>> m_Data;
+    std::unique_ptr<Data_Of_Face_Of_MembraneMesh<MeshAttributeType>> m_Data;
 
     template<typename T>
     friend class MembraneMesh;
 
 public:
-	Cell_Of_MembraneMesh();
-    Cell_Of_MembraneMesh(const Cell_Of_MembraneMesh<MeshAttributeType>& InputCell);
-    Cell_Of_MembraneMesh(Cell_Of_MembraneMesh<MeshAttributeType>&& InputCell);
-    ~Cell_Of_MembraneMesh();
+	Face_Of_MembraneMesh();
+    Face_Of_MembraneMesh(const Face_Of_MembraneMesh<MeshAttributeType>& InputFace);
+    Face_Of_MembraneMesh(Face_Of_MembraneMesh<MeshAttributeType>&& InputFace);
+    ~Face_Of_MembraneMesh();
 
-    void operator=(const Cell_Of_MembraneMesh<MeshAttributeType>& InputCell);
-    void operator=(Cell_Of_MembraneMesh<MeshAttributeType>&& InputCell);
+    void operator=(const Face_Of_MembraneMesh<MeshAttributeType>& InputFace);
+    void operator=(Face_Of_MembraneMesh<MeshAttributeType>&& InputFace);
 
 private:
     inline void ReCreate();
 	inline void Clear(const MDK_Symbol_PureEmpty&);
 
     inline void SetParentMesh(MembraneMesh<MeshAttributeType>& ParentMesh);
-    inline void SetIndex(int_max CellIndex);   
+    inline void SetIndex(int_max FaceIndex);   
     inline DenseVector<DirectedEdgeIndex_Of_MembraneMesh>& DirectedEdgeIndexList();
 
     //----------------------------------------------------------------------------//    
@@ -519,9 +519,9 @@ private:
     inline DenseVector<int_max> GetEdgeIndexList() const;
     inline void GetEdgeIndexList(DenseVector<int_max>& OutputIndexList) const;
 
-    // Cell share any Edge of this cell, not include this cell
-    inline DenseVector<int_max> GetAdjacentCellIndexList() const;
-    inline void GetAdjacentCellIndexList(DenseVector<int_max>& OutputIndexList) const;
+    // Face share any Edge of this cell, not include this cell
+    inline DenseVector<int_max> GetAdjacentFaceIndexList() const;
+    inline void GetAdjacentFaceIndexList(DenseVector<int_max>& OutputIndexList) const;
 
     //--------------------------------------------------------------------------------//
 public:
@@ -530,9 +530,9 @@ public:
     inline MembraneMesh<MeshAttributeType>& GetParentMesh();
     inline const MembraneMesh<MeshAttributeType>& GetParentMesh() const;
 
-    inline Handle_Of_Cell_Of_MembraneMesh GetHandle() const;
+    inline Handle_Of_Face_Of_MembraneMesh GetHandle() const;
 
-    inline void SetID(int_max CellID);
+    inline void SetID(int_max FaceID);
     inline void EraseID();
     inline int_max GetID() const;
 
@@ -566,17 +566,17 @@ public:
     inline DenseVector<int_max> GetEdgeRelativeIndexList() const;
     inline void GetEdgeRelativeIndexList(DenseVector<int_max>& RelativeIndexList) const;
 
-	inline int_max GetAdjacentCellCount() const;
+	inline int_max GetAdjacentFaceCount() const;
 
-    // Cell share any Edge of this cell, not include this cell
-    inline DenseVector<Handle_Of_Cell_Of_MembraneMesh> GetAdjacentCellHandleList() const;
-    inline void GetAdjacentCellHandleList(DenseVector<Handle_Of_Cell_Of_MembraneMesh>& OutputHandleList) const;
+    // Face share any Edge of this cell, not include this cell
+    inline DenseVector<Handle_Of_Face_Of_MembraneMesh> GetAdjacentFaceHandleList() const;
+    inline void GetAdjacentFaceHandleList(DenseVector<Handle_Of_Face_Of_MembraneMesh>& OutputHandleList) const;
 
-    inline DenseVector<int_max> GetAdjacentCellIDList() const;
-    inline void GetAdjacentCellIDList(DenseVector<int_max>& OutputIDList) const;
+    inline DenseVector<int_max> GetAdjacentFaceIDList() const;
+    inline void GetAdjacentFaceIDList(DenseVector<int_max>& OutputIDList) const;
 
-    inline CellAttributeType& Attribute();
-    inline const CellAttributeType& Attribute() const;
+    inline FaceAttributeType& Attribute();
+    inline const FaceAttributeType& Attribute() const;
 };
 
 }// namespace mdk

@@ -69,13 +69,13 @@ void MembraneMesh<MeshAttributeType>::Clear()
     m_MeshData->EdgeList.Clear();
     m_MeshData->EdgeValidityFlagList.Clear();
 
-    m_MeshData->CellList.Clear();
-    m_MeshData->CellValidityFlagList.Clear();
+    m_MeshData->FaceList.Clear();
+    m_MeshData->FaceValidityFlagList.Clear();
 
     m_MeshData->Map_PointID_to_PointIndex.clear();
     m_MeshData->Map_EdgeID_to_EdgeIndex.clear();
     m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.clear();
-    m_MeshData->Map_CellID_to_CellIndex.clear();
+    m_MeshData->Map_FaceID_to_FaceIndex.clear();
 
     m_MeshData->Attribute.Clear();
 }
@@ -134,20 +134,20 @@ void MembraneMesh<MeshAttributeType>::Copy(const MembraneMesh<MeshAttributeType>
         }
     }
 
-    m_MeshData->CellValidityFlagList = InputMesh.m_MeshData->CellValidityFlagList;
-    m_MeshData->CellList = InputMesh.m_MeshData->CellList;
-    for (int_max k = 0; k < m_MeshData->CellList.GetLength(); ++k)
+    m_MeshData->FaceValidityFlagList = InputMesh.m_MeshData->FaceValidityFlagList;
+    m_MeshData->FaceList = InputMesh.m_MeshData->FaceList;
+    for (int_max k = 0; k < m_MeshData->FaceList.GetLength(); ++k)
     {
-        if (m_MeshData->CellValidityFlagList[k] == 1)
+        if (m_MeshData->FaceValidityFlagList[k] == 1)
         {
-            m_MeshData->CellList[k].SetParentMesh(*this);
+            m_MeshData->FaceList[k].SetParentMesh(*this);
         }
     }
 
     m_MeshData->Map_PointID_to_PointIndex = InputMesh.m_MeshData->Map_PointID_to_PointIndex;
     m_MeshData->Map_EdgeID_to_EdgeIndex = InputMesh.m_MeshData->Map_EdgeID_to_EdgeIndex;
     m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex = InputMesh.m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex;
-    m_MeshData->Map_CellID_to_CellIndex = InputMesh.m_MeshData->Map_CellID_to_CellIndex;
+    m_MeshData->Map_FaceID_to_FaceIndex = InputMesh.m_MeshData->Map_FaceID_to_FaceIndex;
 
     m_MeshData->Attribute = InputMesh.m_MeshData->Attribute;
 }
@@ -195,20 +195,20 @@ void MembraneMesh<MeshAttributeType>::Copy(MembraneMesh<MeshAttributeType>&& Inp
 		}
 	}
 
-	m_MeshData->CellValidityFlagList = std::move(InputMesh.m_MeshData->CellValidityFlagList);
-	m_MeshData->CellList = std::move(InputMesh.m_MeshData->CellList);
-	for (int_max k = 0; k < m_MeshData->CellList.GetLength(); ++k)
+	m_MeshData->FaceValidityFlagList = std::move(InputMesh.m_MeshData->FaceValidityFlagList);
+	m_MeshData->FaceList = std::move(InputMesh.m_MeshData->FaceList);
+	for (int_max k = 0; k < m_MeshData->FaceList.GetLength(); ++k)
 	{
-		if (m_MeshData->CellValidityFlagList[k] == 1)
+		if (m_MeshData->FaceValidityFlagList[k] == 1)
 		{
-			m_MeshData->CellList[k].SetParentMesh(*this);
+			m_MeshData->FaceList[k].SetParentMesh(*this);
 		}
 	}
 
 	m_MeshData->Map_PointID_to_PointIndex = std::move(InputMesh.m_MeshData->Map_PointID_to_PointIndex);
 	m_MeshData->Map_EdgeID_to_EdgeIndex = std::move(InputMesh.m_MeshData->Map_EdgeID_to_EdgeIndex);
 	m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex = std::move(InputMesh.m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex);
-	m_MeshData->Map_CellID_to_CellIndex = std::move(InputMesh.m_MeshData->Map_CellID_to_CellIndex);
+	m_MeshData->Map_FaceID_to_FaceIndex = std::move(InputMesh.m_MeshData->Map_FaceID_to_FaceIndex);
 
 	m_MeshData->Attribute = std::move(InputMesh.m_MeshData->Attribute);
 }
@@ -320,7 +320,7 @@ int_max MembraneMesh<MeshAttributeType>::GetDirectedEdgeCount() const
 
 template<typename MeshAttributeType>
 inline
-int_max MembraneMesh<MeshAttributeType>::GetCellCount() const
+int_max MembraneMesh<MeshAttributeType>::GetFaceCount() const
 {
 	if (!m_MeshData)
 	{
@@ -328,7 +328,7 @@ int_max MembraneMesh<MeshAttributeType>::GetCellCount() const
 	}
 	else
 	{
-		return m_MeshData->CellValidityFlagList.Sum();
+		return m_MeshData->FaceValidityFlagList.Sum();
 	}
 }
 
@@ -365,7 +365,7 @@ int_max MembraneMesh<MeshAttributeType>::GetMaxValueOfEdgeIndex() const
 
 template<typename MeshAttributeType>
 inline
-int_max MembraneMesh<MeshAttributeType>::GetMaxValueOfCellIndex() const
+int_max MembraneMesh<MeshAttributeType>::GetMaxValueOfFaceIndex() const
 {
 	if (!m_MeshData)
 	{
@@ -373,7 +373,7 @@ int_max MembraneMesh<MeshAttributeType>::GetMaxValueOfCellIndex() const
 	}
 	else
 	{
-		return m_MeshData->CellList.GetLength();
+		return m_MeshData->FaceList.GetLength();
 	}
 }
 
@@ -754,32 +754,32 @@ const DirectedEdge_Of_MembraneMesh<MeshAttributeType>& MembraneMesh<MeshAttribut
 
 template<typename MeshAttributeType>
 inline
-Cell_Of_MembraneMesh<MeshAttributeType>& MembraneMesh<MeshAttributeType>::Cell(Handle_Of_Cell_Of_MembraneMesh CellHandle)
+Face_Of_MembraneMesh<MeshAttributeType>& MembraneMesh<MeshAttributeType>::Face(Handle_Of_Face_Of_MembraneMesh FaceHandle)
 {
-    return m_MeshData->CellList[CellHandle.GetIndex()];
+    return m_MeshData->FaceList[FaceHandle.GetIndex()];
 }
 
 template<typename MeshAttributeType>
 inline
-const Cell_Of_MembraneMesh<MeshAttributeType>& MembraneMesh<MeshAttributeType>::Cell(Handle_Of_Cell_Of_MembraneMesh CellHandle) const
+const Face_Of_MembraneMesh<MeshAttributeType>& MembraneMesh<MeshAttributeType>::Face(Handle_Of_Face_Of_MembraneMesh FaceHandle) const
 {
-    return m_MeshData->CellList[CellHandle.GetIndex()];
+    return m_MeshData->FaceList[FaceHandle.GetIndex()];
 }
 
 template<typename MeshAttributeType>
 inline
-Cell_Of_MembraneMesh<MeshAttributeType>& MembraneMesh<MeshAttributeType>::Cell(int_max CellID)
+Face_Of_MembraneMesh<MeshAttributeType>& MembraneMesh<MeshAttributeType>::Face(int_max FaceID)
 {
-	auto CellHandle = this->GetCellHandleByID(CellID);
-	return this->Cell(CellHandle)
+	auto FaceHandle = this->GetFaceHandleByID(FaceID);
+	return this->Face(FaceHandle)
 }
 
 template<typename MeshAttributeType>
 inline
-const Cell_Of_MembraneMesh<MeshAttributeType>& MembraneMesh<MeshAttributeType>::Cell(int_max CellID) const
+const Face_Of_MembraneMesh<MeshAttributeType>& MembraneMesh<MeshAttributeType>::Face(int_max FaceID) const
 {
-	auto CellHandle = this->GetCellHandleByID(CellID);
-	return this->Cell(CellHandle)
+	auto FaceHandle = this->GetFaceHandleByID(FaceID);
+	return this->Face(FaceHandle)
 }
 
 //-------------- check handle -------------------------------------------------------//
@@ -856,26 +856,26 @@ bool MembraneMesh<MeshAttributeType>::IsValidHandle(Handle_Of_DirectedEdge_Of_Me
 }
 
 template<typename MeshAttributeType>
-bool MembraneMesh<MeshAttributeType>::IsValidHandle(Handle_Of_Cell_Of_MembraneMesh CellHandle) const
+bool MembraneMesh<MeshAttributeType>::IsValidHandle(Handle_Of_Face_Of_MembraneMesh FaceHandle) const
 {
-    auto CellIndex = CellHandle.GetIndex();
-    if (CellIndex < 0 || CellIndex >= m_MeshData->CellValidityFlagList.GetLength())
+    auto FaceIndex = FaceHandle.GetIndex();
+    if (FaceIndex < 0 || FaceIndex >= m_MeshData->FaceValidityFlagList.GetLength())
     {
         return false;
     }
     else
     {
-        return (m_MeshData->CellValidityFlagList[CellIndex] == 1);
+        return (m_MeshData->FaceValidityFlagList[FaceIndex] == 1);
     }
 
     // slow
-    //if (CellIndex < 0 || CellIndex >= m_MeshData->CellList.GetLength())
+    //if (FaceIndex < 0 || FaceIndex >= m_MeshData->FaceList.GetLength())
     //{
     //    return false;
     //}
     //else
     //{
-    //    return m_MeshData->CellList[CellIndex].IsValid();
+    //    return m_MeshData->FaceList[FaceIndex].IsValid();
     //}
 }
 
@@ -969,27 +969,27 @@ GetDirectedEdgeHandleList(DenseVector<Handle_Of_DirectedEdge_Of_MembraneMesh>& O
 
 template<typename MeshAttributeType>
 inline
-DenseVector<Handle_Of_Cell_Of_MembraneMesh> MembraneMesh<MeshAttributeType>::GetCellHandleList() const
+DenseVector<Handle_Of_Face_Of_MembraneMesh> MembraneMesh<MeshAttributeType>::GetFaceHandleList() const
 {
-    DenseVector<Handle_Of_Cell_Of_MembraneMesh> OutputHandleList;
-    this->GetCellHandleList(OutputHandleList);
+    DenseVector<Handle_Of_Face_Of_MembraneMesh> OutputHandleList;
+    this->GetFaceHandleList(OutputHandleList);
     return OutputHandleList;
 }
 
 
 template<typename MeshAttributeType>
 inline
-void MembraneMesh<MeshAttributeType>::GetCellHandleList(DenseVector<Handle_Of_Cell_Of_MembraneMesh>& OutputHandleList) const
+void MembraneMesh<MeshAttributeType>::GetFaceHandleList(DenseVector<Handle_Of_Face_Of_MembraneMesh>& OutputHandleList) const
 {
 	OutputHandleList.FastResize(0);
-    OutputHandleList.SetCapacity(m_MeshData->CellList.GetLength());
-    Handle_Of_Cell_Of_MembraneMesh CellHandle;
-    for (int_max k = 0; k < m_MeshData->CellList.GetLength(); ++k)
+    OutputHandleList.SetCapacity(m_MeshData->FaceList.GetLength());
+    Handle_Of_Face_Of_MembraneMesh FaceHandle;
+    for (int_max k = 0; k < m_MeshData->FaceList.GetLength(); ++k)
     {
-        if (m_MeshData->CellValidityFlagList[k] == 1)
+        if (m_MeshData->FaceValidityFlagList[k] == 1)
         {
-            CellHandle.SetIndex(k);
-            OutputHandleList.Append(CellHandle);
+            FaceHandle.SetIndex(k);
+            OutputHandleList.Append(FaceHandle);
         }
     }
 }
@@ -1257,70 +1257,70 @@ Handle_Of_DirectedEdge_Of_MembraneMesh MembraneMesh<MeshAttributeType>::GetDirec
     return this->GetDirectedEdgeHandleByPoint(PointHandle_start, PointHandle_end);
 }
 
-//----------- get CellHandle by ID, PointHandleList, PointIDList, EdgeHandleList, or EdgeIDList ----------//
+//----------- get FaceHandle by ID, PointHandleList, PointIDList, EdgeHandleList, or EdgeIDList ----------//
 
 template<typename MeshAttributeType>
 inline 
-Handle_Of_Cell_Of_MembraneMesh MembraneMesh<MeshAttributeType>::GetCellHandleByID(int_max CellID) const
+Handle_Of_Face_Of_MembraneMesh MembraneMesh<MeshAttributeType>::GetFaceHandleByID(int_max FaceID) const
 {
-    Handle_Of_Cell_Of_MembraneMesh CellHandle;
+    Handle_Of_Face_Of_MembraneMesh FaceHandle;
 
-    if (CellID < 0)
+    if (FaceID < 0)
     {
-        //MDK_Warning("Invalid CellID (< 0) @ MembraneMesh::GetCellHandle(...)")
-        CellHandle.SetToInvalid();
-        return CellHandle;
+        //MDK_Warning("Invalid FaceID (< 0) @ MembraneMesh::GetFaceHandle(...)")
+        FaceHandle.SetToInvalid();
+        return FaceHandle;
     }
 
-    auto it = m_MeshData->Map_CellID_to_CellIndex.find(CellID);
-    if (it != m_MeshData->Map_CellID_to_CellIndex.end())
+    auto it = m_MeshData->Map_FaceID_to_FaceIndex.find(FaceID);
+    if (it != m_MeshData->Map_FaceID_to_FaceIndex.end())
     {
-        CellHandle.SetIndex(it->second);
+        FaceHandle.SetIndex(it->second);
     }
     else
     {
-        //MDK_Warning("Invalid CellID @ MembraneMesh::GetCellHandle(...)")
-        CellHandle.SetToInvalid();
+        //MDK_Warning("Invalid FaceID @ MembraneMesh::GetFaceHandle(...)")
+        FaceHandle.SetToInvalid();
     }
 
-    return CellHandle;
+    return FaceHandle;
 }
 
 
 template<typename MeshAttributeType>
 inline 
-Handle_Of_Cell_Of_MembraneMesh MembraneMesh<MeshAttributeType>::GetCellHandleByEdge(const DenseVector<Handle_Of_Edge_Of_MembraneMesh>& EdgeHandleList) const
+Handle_Of_Face_Of_MembraneMesh MembraneMesh<MeshAttributeType>::GetFaceHandleByEdge(const DenseVector<Handle_Of_Edge_Of_MembraneMesh>& EdgeHandleList) const
 {
-    Handle_Of_Cell_Of_MembraneMesh CellHandle;
+    Handle_Of_Face_Of_MembraneMesh FaceHandle;
 
     for (int_max k = 0; k < EdgeHandleList.GetLength(); ++k)
     {
         if (this->IsValidHandle(EdgeHandleList[k]) == false)
         {
-            //MDK_Warning("EdgeHandleList is invalid @ MembraneMesh::GetCellHandleByEdge(...)")
-            CellHandle.SetToInvalid();
-            return CellHandle;
+            //MDK_Warning("EdgeHandleList is invalid @ MembraneMesh::GetFaceHandleByEdge(...)")
+            FaceHandle.SetToInvalid();
+            return FaceHandle;
         }
     }
 
-    DenseVector<int_max> CellIndexList;
-    CellIndexList.Resize(EdgeHandleList.GetLength());
-    CellIndexList.Fill(-1);
+    DenseVector<int_max> FaceIndexList;
+    FaceIndexList.Resize(EdgeHandleList.GetLength());
+    FaceIndexList.Fill(-1);
 
     for (int_max k = 0; k < EdgeHandleList.GetLength() - 1; ++k)
     {
-        auto AdjacentCellIndexList_a = m_MeshData->EdgeList[EdgeHandleList[k].GetIndex()].GetAdjacentCellIndexList();
-        auto AdjacentCellIndexList_b = m_MeshData->EdgeList[EdgeHandleList[k + 1].GetIndex()].GetAdjacentCellIndexList();
+        auto AdjacentFaceIndexList_a = m_MeshData->EdgeList[EdgeHandleList[k].GetIndex()].GetAdjacentFaceIndexList();
+        auto AdjacentFaceIndexList_b = m_MeshData->EdgeList[EdgeHandleList[k + 1].GetIndex()].GetAdjacentFaceIndexList();
 
         int_max Counter = 0;
 
-        for (int_max n = 0; n < AdjacentCellIndexList_a.GetLength(); ++n)
+        for (int_max n = 0; n < AdjacentFaceIndexList_a.GetLength(); ++n)
         {            
-            for (int_max m = 0; m < AdjacentCellIndexList_b.GetLength(); ++m)
+            for (int_max m = 0; m < AdjacentFaceIndexList_b.GetLength(); ++m)
             {
-                if (AdjacentCellIndexList_a[n] == AdjacentCellIndexList_b[m])
+                if (AdjacentFaceIndexList_a[n] == AdjacentFaceIndexList_b[m])
                 {
-                    CellIndexList[k] = AdjacentCellIndexList_a[n];
+                    FaceIndexList[k] = AdjacentFaceIndexList_a[n];
                     Counter += 1;
                 }
             }
@@ -1328,35 +1328,35 @@ Handle_Of_Cell_Of_MembraneMesh MembraneMesh<MeshAttributeType>::GetCellHandleByE
 
         if (Counter > 1)
         {
-            MDK_Warning("EdgeHandleList is invalid : more than one copy of a handle @ MembraneMesh::GetCellHandle(...)")
-            CellHandle.SetToInvalid();
-            return CellHandle;
+            MDK_Warning("EdgeHandleList is invalid : more than one copy of a handle @ MembraneMesh::GetFaceHandle(...)")
+            FaceHandle.SetToInvalid();
+            return FaceHandle;
         }
     }
 
-    auto tempList = CellIndexList.FindUnique();
+    auto tempList = FaceIndexList.FindUnique();
     if (tempList.GetLength() != 1)
     {
-        //MDK_Warning("EdgeHandleList is invalid @ MembraneMesh::GetCellHandleByEdge(...)")
-        CellHandle.SetToInvalid();
-        return CellHandle;
+        //MDK_Warning("EdgeHandleList is invalid @ MembraneMesh::GetFaceHandleByEdge(...)")
+        FaceHandle.SetToInvalid();
+        return FaceHandle;
     }
     else
     {
-        CellHandle.SetIndex(CellIndexList[tempList[0]]);
-        return CellHandle;
+        FaceHandle.SetIndex(FaceIndexList[tempList[0]]);
+        return FaceHandle;
     }
 }
 
 template<typename MeshAttributeType>
 inline
-Handle_Of_Cell_Of_MembraneMesh MembraneMesh<MeshAttributeType>::GetCellHandleByEdge(const DenseVector<int_max>& EdgeIDList) const
+Handle_Of_Face_Of_MembraneMesh MembraneMesh<MeshAttributeType>::GetFaceHandleByEdge(const DenseVector<int_max>& EdgeIDList) const
 {
     if (EdgeIDList.IsEmpty() == true)
     {
-        Handle_Of_Cell_Of_MembraneMesh CellHandle;
-        CellHandle.SetToInvalid();
-        return CellHandle;
+        Handle_Of_Face_Of_MembraneMesh FaceHandle;
+        FaceHandle.SetToInvalid();
+        return FaceHandle;
     }
 
     DenseVector<Handle_Of_Edge_Of_MembraneMesh> EdgeHandleList;
@@ -1366,45 +1366,45 @@ Handle_Of_Cell_Of_MembraneMesh MembraneMesh<MeshAttributeType>::GetCellHandleByE
         EdgeHandleList[k] = this->GetEdgeHandle(EdgeIDList[k]);
     }
 
-    return this->GetCellHandleByEdge(EdgeHandleList);
+    return this->GetFaceHandleByEdge(EdgeHandleList);
 }
 
 
 template<typename MeshAttributeType>
 inline 
-Handle_Of_Cell_Of_MembraneMesh 
-MembraneMesh<MeshAttributeType>::GetCellHandleByPoint(const DenseVector<Handle_Of_Point_Of_MembraneMesh>& PointHandleList) const
+Handle_Of_Face_Of_MembraneMesh 
+MembraneMesh<MeshAttributeType>::GetFaceHandleByPoint(const DenseVector<Handle_Of_Point_Of_MembraneMesh>& PointHandleList) const
 {
-    Handle_Of_Cell_Of_MembraneMesh CellHandle;
+    Handle_Of_Face_Of_MembraneMesh FaceHandle;
 
     for (int_max k = 0; k < PointHandleList.GetLength(); ++k)
     {
         if (this->IsValidHandle(PointHandleList[k]) == false)
         {
-            //MDK_Warning("PointHandleList is invalid @ MembraneMesh::GetCellHandleByPoint(...)")
-            CellHandle.SetToInvalid();
-            return CellHandle;
+            //MDK_Warning("PointHandleList is invalid @ MembraneMesh::GetFaceHandleByPoint(...)")
+            FaceHandle.SetToInvalid();
+            return FaceHandle;
         }
     }
 
-    DenseVector<int_max> CellIndexList;
-    CellIndexList.Resize(PointHandleList.GetLength());
-    CellIndexList.Fill(-1);
+    DenseVector<int_max> FaceIndexList;
+    FaceIndexList.Resize(PointHandleList.GetLength());
+    FaceIndexList.Fill(-1);
 
     for (int_max k = 0; k < PointHandleList.GetLength() - 1; ++k)
     {
-        const auto& AdjacentCellIndexList_a = m_MeshData->PointList[PointHandleList[k].GetIndex()].AdjacentCellIndexList();
-        const auto& AdjacentCellIndexList_b = m_MeshData->PointList[PointHandleList[k + 1].GetIndex()].AdjacentCellIndexList();
+        const auto& AdjacentFaceIndexList_a = m_MeshData->PointList[PointHandleList[k].GetIndex()].AdjacentFaceIndexList();
+        const auto& AdjacentFaceIndexList_b = m_MeshData->PointList[PointHandleList[k + 1].GetIndex()].AdjacentFaceIndexList();
 
         int_max Counter = 0;
 
-        for (int_max n = 0; n < AdjacentCellIndexList_a.GetLength(); ++n)
+        for (int_max n = 0; n < AdjacentFaceIndexList_a.GetLength(); ++n)
         {
-            for (int_max m = 0; m < AdjacentCellIndexList_b.GetLength(); ++m)
+            for (int_max m = 0; m < AdjacentFaceIndexList_b.GetLength(); ++m)
             {
-                if (AdjacentCellIndexList_a[n] == AdjacentCellIndexList_b[m])
+                if (AdjacentFaceIndexList_a[n] == AdjacentFaceIndexList_b[m])
                 {
-                    CellIndexList[k] = AdjacentCellIndexList_a[n];
+                    FaceIndexList[k] = AdjacentFaceIndexList_a[n];
                     Counter += 1;
                 }
             }
@@ -1412,36 +1412,36 @@ MembraneMesh<MeshAttributeType>::GetCellHandleByPoint(const DenseVector<Handle_O
 
         if (Counter > 1)
         {
-            MDK_Warning("PointHandleList is invalid : more than one copy of a handle @ MembraneMesh::GetCellHandleByPoint(...)")
-            CellHandle.SetToInvalid();
-            return CellHandle;
+            MDK_Warning("PointHandleList is invalid : more than one copy of a handle @ MembraneMesh::GetFaceHandleByPoint(...)")
+            FaceHandle.SetToInvalid();
+            return FaceHandle;
         }
     }
 
-    auto tempList = CellIndexList.FindUnique();
+    auto tempList = FaceIndexList.FindUnique();
     if (tempList.GetLength() != 1)
     {
-        //MDK_Warning("PointHandleList is invalid @ MembraneMesh::GetCellHandleByPoint(...)")
-        CellHandle.SetToInvalid();
-        return CellHandle;
+        //MDK_Warning("PointHandleList is invalid @ MembraneMesh::GetFaceHandleByPoint(...)")
+        FaceHandle.SetToInvalid();
+        return FaceHandle;
     }
     else
     {
-        CellHandle.SetIndex(CellIndexList[tempList[0]]);
-        return CellHandle;
+        FaceHandle.SetIndex(FaceIndexList[tempList[0]]);
+        return FaceHandle;
     }
 }
 
 template<typename MeshAttributeType>
 inline 
-Handle_Of_Cell_Of_MembraneMesh
-MembraneMesh<MeshAttributeType>::GetCellHandleByPoint(const DenseVector<int_max>& PointIDList) const
+Handle_Of_Face_Of_MembraneMesh
+MembraneMesh<MeshAttributeType>::GetFaceHandleByPoint(const DenseVector<int_max>& PointIDList) const
 {
     if (PointIDList.IsEmpty() == true)
     {
-        Handle_Of_Cell_Of_MembraneMesh CellHandle;
-        CellHandle.SetToInvalid();
-        return CellHandle;
+        Handle_Of_Face_Of_MembraneMesh FaceHandle;
+        FaceHandle.SetToInvalid();
+        return FaceHandle;
     }
 
     DenseVector<Handle_Of_Point_Of_MembraneMesh> PointHandleList;
@@ -1451,7 +1451,7 @@ MembraneMesh<MeshAttributeType>::GetCellHandleByPoint(const DenseVector<int_max>
 		PointHandleList[k] = this->GetPointHandleByID(PointIDList[k]);
     }
 
-    return this->GetCellHandleByPoint(PointHandleList);
+    return this->GetFaceHandleByPoint(PointHandleList);
 }
 
 
@@ -1498,15 +1498,15 @@ bool MembraneMesh<MeshAttributeType>::IsValidDirectedEdgeID(int_max DirectedEdge
 
 template<typename MeshAttributeType>
 inline
-bool MembraneMesh<MeshAttributeType>::IsValidCellID(int_max CellID) const
+bool MembraneMesh<MeshAttributeType>::IsValidFaceID(int_max FaceID) const
 {
-    if (CellID < 0)
+    if (FaceID < 0)
     {
         return false;
     }
 
-    auto it = m_MeshData->Map_CellID_to_CellIndex.find(CellID);
-    return (it != m_MeshData->Map_CellID_to_CellIndex.end());
+    auto it = m_MeshData->Map_FaceID_to_FaceIndex.find(FaceID);
+    return (it != m_MeshData->Map_FaceID_to_FaceIndex.end());
 }
 
 //--------- get IDList ------------------------------------------------------------//
@@ -1576,20 +1576,20 @@ void MembraneMesh<MeshAttributeType>::GetDirectedEdgeIDList(DenseVector<int_max>
 
 template<typename MeshAttributeType>
 inline
-DenseVector<int_max> MembraneMesh<MeshAttributeType>::GetCellIDList() const
+DenseVector<int_max> MembraneMesh<MeshAttributeType>::GetFaceIDList() const
 {
     DenseVector<int_max> OutputIDList;
-    this->GetCellIDList(OutputIDList);
+    this->GetFaceIDList(OutputIDList);
     return OutputIDList;
 }
 
 template<typename MeshAttributeType>
 inline 
-void MembraneMesh<MeshAttributeType>::GetCellIDList(DenseVector<int_max>& OutputIDList) const
+void MembraneMesh<MeshAttributeType>::GetFaceIDList(DenseVector<int_max>& OutputIDList) const
 {
 	OutputIDList.FastResize(0);
-    OutputIDList.SetCapacity(int_max(m_MeshData->Map_CellID_to_CellIndex.size()));
-    for (auto it = m_MeshData->Map_CellID_to_CellIndex.begin(); it != m_MeshData->Map_CellID_to_CellIndex.end(); ++it)
+    OutputIDList.SetCapacity(int_max(m_MeshData->Map_FaceID_to_FaceIndex.size()));
+    for (auto it = m_MeshData->Map_FaceID_to_FaceIndex.begin(); it != m_MeshData->Map_FaceID_to_FaceIndex.end(); ++it)
     {
         OutputIDList.Append(it->first);
     }
@@ -1697,15 +1697,15 @@ int_max MembraneMesh<MeshAttributeType>::GetDirectedEdgeIDByPoint(int_max PointI
     return this->GetDirectedEdgeIDByPoint(PointHandle_start, PointHandle_end)
 }
 
-//----------- get CellID by CellHandle, EdgeHandleList, EdgeIDList, PointHandleList, PointIDList --------------------------//
+//----------- get FaceID by FaceHandle, EdgeHandleList, EdgeIDList, PointHandleList, PointIDList --------------------------//
 
 template<typename MeshAttributeType>
 inline 
-int_max MembraneMesh<MeshAttributeType>::GetCellIDByHandle(Handle_Of_Cell_Of_MembraneMesh CellHandle) const
+int_max MembraneMesh<MeshAttributeType>::GetFaceIDByHandle(Handle_Of_Face_Of_MembraneMesh FaceHandle) const
 {
-    if (this->IsValidHandle(CellHandle) == true)
+    if (this->IsValidHandle(FaceHandle) == true)
     {
-        return m_MeshData->CellList[CellHandle.GetIndex()].GetID();
+        return m_MeshData->FaceList[FaceHandle.GetIndex()].GetID();
     }
     else
     {
@@ -1716,15 +1716,15 @@ int_max MembraneMesh<MeshAttributeType>::GetCellIDByHandle(Handle_Of_Cell_Of_Mem
 
 template<typename MeshAttributeType>
 inline 
-int_max MembraneMesh<MeshAttributeType>::GetCellIDByEdge(const DenseVector<Handle_Of_Edge_Of_MembraneMesh>& EdgeHandleList) const
+int_max MembraneMesh<MeshAttributeType>::GetFaceIDByEdge(const DenseVector<Handle_Of_Edge_Of_MembraneMesh>& EdgeHandleList) const
 {
-    auto CellHandle = this->GetCellHandleByEdge(EdgeHandleList);
-    return this->GetCellIDByHandle(CellHandle);
+    auto FaceHandle = this->GetFaceHandleByEdge(EdgeHandleList);
+    return this->GetFaceIDByHandle(FaceHandle);
 }
 
 template<typename MeshAttributeType>
 inline
-int_max MembraneMesh<MeshAttributeType>::GetCellIDByEdge(const DenseVector<int_max>& EdgeIDList) const
+int_max MembraneMesh<MeshAttributeType>::GetFaceIDByEdge(const DenseVector<int_max>& EdgeIDList) const
 {
     DenseVector<EdgeHandleType> EdgeHandleList;
     EdgeHandleList.Resize(EdgeIDList.GetLength());
@@ -1733,7 +1733,7 @@ int_max MembraneMesh<MeshAttributeType>::GetCellIDByEdge(const DenseVector<int_m
         EdgeHandleList[k] = this->GetEdgeHandle(EdgeIDList[k]);
     }
 
-    return this->GetCellIDByEdge(EdgeHandleList);
+    return this->GetFaceIDByEdge(EdgeHandleList);
 }
 
 //------------- Iterator --------------------------------------------------------------//
@@ -1788,23 +1788,23 @@ const Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttributeType> MembraneMesh<M
 
 template<typename MeshAttributeType>
 inline
-Iterator_Of_Cell_Of_MembraneMesh<MeshAttributeType> MembraneMesh<MeshAttributeType>::GetIteratorOfCell()
+Iterator_Of_Face_Of_MembraneMesh<MeshAttributeType> MembraneMesh<MeshAttributeType>::GetIteratorOfFace()
 {
-    Iterator_Of_Cell_Of_MembraneMesh<MeshAttributeType> it(*this);
+    Iterator_Of_Face_Of_MembraneMesh<MeshAttributeType> it(*this);
     return it;
 }
 
 template<typename MeshAttributeType>
 inline
-const Iterator_Of_Cell_Of_MembraneMesh<MeshAttributeType> MembraneMesh<MeshAttributeType>::GetIteratorOfCell() const
+const Iterator_Of_Face_Of_MembraneMesh<MeshAttributeType> MembraneMesh<MeshAttributeType>::GetIteratorOfFace() const
 {
-    Iterator_Of_Cell_Of_MembraneMesh<MeshAttributeType> it(*this);
+    Iterator_Of_Face_Of_MembraneMesh<MeshAttributeType> it(*this);
     return it;
 }
 
 //------------ SetCapacity, ReleaseUnusedCapacity -------------------------------------//
 template<typename MeshAttributeType>
-void MembraneMesh<MeshAttributeType>::SetCapacity(int_max PointCount, int_max EdgeCount, int_max CellCount)
+void MembraneMesh<MeshAttributeType>::SetCapacity(int_max PointCount, int_max EdgeCount, int_max FaceCount)
 {
 	if (this->IsPureEmpty() == true)
 	{
@@ -1816,8 +1816,8 @@ void MembraneMesh<MeshAttributeType>::SetCapacity(int_max PointCount, int_max Ed
 	m_MeshData->PointValidityFlagList.SetCapacity(PointCount);
 	m_MeshData->EdgeList.SetCapacity(EdgeCount);
 	m_MeshData->EdgeValidityFlagList.SetCapacity(EdgeCount);
-	m_MeshData->CellList.SetCapacity(CellCount);
-	m_MeshData->CellValidityFlagList.SetCapacity(CellCount);
+	m_MeshData->FaceList.SetCapacity(FaceCount);
+	m_MeshData->FaceValidityFlagList.SetCapacity(FaceCount);
 }
 
 
@@ -1834,8 +1834,8 @@ void MembraneMesh<MeshAttributeType>::ReleaseUnusedCapacity()
 	m_MeshData->PointValidityFlagList->ReleaseUnusedCapacity();
 	m_MeshData->EdgeList->ReleaseUnusedCapacity();
 	m_MeshData->EdgeValidityFlagList->ReleaseUnusedCapacity();
-	m_MeshData->CellList->ReleaseUnusedCapacity();
-	m_MeshData->CellValidityFlagList->ReleaseUnusedCapacity();
+	m_MeshData->FaceList->ReleaseUnusedCapacity();
+	m_MeshData->FaceValidityFlagList->ReleaseUnusedCapacity();
 }
 
 //------------------------------ Add Mesh Item -------------------------------------------------------------------------//
@@ -2060,7 +2060,7 @@ Handle_Of_Edge_Of_MembraneMesh MembraneMesh<MeshAttributeType>::AddEdge(int_max 
 
 
 template<typename MeshAttributeType>
-Handle_Of_Cell_Of_MembraneMesh MembraneMesh<MeshAttributeType>::AddCellByEdge(const DenseVector<Handle_Of_Edge_Of_MembraneMesh>& EdgeHandleList)
+Handle_Of_Face_Of_MembraneMesh MembraneMesh<MeshAttributeType>::AddFaceByEdge(const DenseVector<Handle_Of_Edge_Of_MembraneMesh>& EdgeHandleList)
 {
     // Input: the input EdgeIndexList must have been ordered
     // the order determine the direction/sign of the normal vector
@@ -2068,31 +2068,31 @@ Handle_Of_Cell_Of_MembraneMesh MembraneMesh<MeshAttributeType>::AddCellByEdge(co
     //
     // pay attention to MDK_Error or MDK_Warning, they are made on purpose
 
-    Handle_Of_Cell_Of_MembraneMesh CellHandle;
+    Handle_Of_Face_Of_MembraneMesh FaceHandle;
 
     if (EdgeHandleList.GetLength() < 2)
     {
-        MDK_Error("length of EdgeHandleList < 2 @ MembraneMesh::AddCellByEdge(...)")
-        CellHandle.SetToInvalid();
-        return CellHandle;
+        MDK_Error("length of EdgeHandleList < 2 @ MembraneMesh::AddFaceByEdge(...)")
+        FaceHandle.SetToInvalid();
+        return FaceHandle;
     }
 
     for (int_max k = 0; k < EdgeHandleList.GetLength(); ++k)
     {
         if (this->IsValidHandle(EdgeHandleList[k]) == false)
         {
-            MDK_Error("Invalid EdgeHandleList @ MembraneMesh::AddCellByEdge(...)")
-            CellHandle.SetToInvalid();
-            return CellHandle;
+            MDK_Error("Invalid EdgeHandleList @ MembraneMesh::AddFaceByEdge(...)")
+            FaceHandle.SetToInvalid();
+            return FaceHandle;
         }
     }
 
-    auto CellHandle_temp = this->GetCellHandleByEdge(EdgeHandleList);
-    if (this->IsValidHandle(CellHandle_temp) == true)
+    auto FaceHandle_temp = this->GetFaceHandleByEdge(EdgeHandleList);
+    if (this->IsValidHandle(FaceHandle_temp) == true)
     {
-        //MDK_Warning("The cell has been added already @ MembraneMesh::AddCellByEdge(...)")
-        CellHandle = CellHandle_temp;
-        return CellHandle;
+        //MDK_Warning("The cell has been added already @ MembraneMesh::AddFaceByEdge(...)")
+        FaceHandle = FaceHandle_temp;
+        return FaceHandle;
     }
 
     DenseVector<int_max> EdgeIndexList;
@@ -2106,9 +2106,9 @@ Handle_Of_Cell_Of_MembraneMesh MembraneMesh<MeshAttributeType>::AddCellByEdge(co
     auto tempList_unique = EdgeIndexList.FindUnique();
     if (tempList_unique.GetLength() != EdgeHandleList.GetLength())
     {
-        MDK_Error("EdgeHandleList is invalid : more than one copy of a handle @ MembraneMesh::AddCellByEdge(...)")
-        CellHandle.SetToInvalid();
-        return CellHandle;
+        MDK_Error("EdgeHandleList is invalid : more than one copy of a handle @ MembraneMesh::AddFaceByEdge(...)")
+        FaceHandle.SetToInvalid();
+        return FaceHandle;
     }
 
     // get PointIndexList from EdgeIndexList ---------------------------------------------------------------------------//
@@ -2146,14 +2146,14 @@ Handle_Of_Cell_Of_MembraneMesh MembraneMesh<MeshAttributeType>::AddCellByEdge(co
         }
         else
         {
-            MDK_Error("EdgeIndexList is not ordered or invalid @ MembraneMesh::AddCellByEdge(...)")
-            CellHandle.SetIndex(-1);
-            return CellHandle;
+            MDK_Error("EdgeIndexList is not ordered or invalid @ MembraneMesh::AddFaceByEdge(...)")
+            FaceHandle.SetIndex(-1);
+            return FaceHandle;
         }
     }
 
     // create DirectedEdge  -------------------------------------------------------
-    auto CellIndex = m_MeshData->CellList.GetLength();
+    auto FaceIndex = m_MeshData->FaceList.GetLength();
 
     DenseVector<DirectedEdgeIndex_Of_MembraneMesh> DirectedEdgeIndexList;
     DirectedEdgeIndexList.Resize(EdgeIndexList.GetLength());
@@ -2176,7 +2176,7 @@ Handle_Of_Cell_Of_MembraneMesh MembraneMesh<MeshAttributeType>::AddCellByEdge(co
         // attention: auto& will get reference, auto will copy
 		auto& tempDirectedEdge = m_MeshData->EdgeList[tempEdgeIndex].DirectedEdgeList()[tempRelativeIndex];
 		tempDirectedEdge.SetIndex(tempEdgeIndex, tempRelativeIndex);
-        tempDirectedEdge.SetCellIndex(CellIndex);
+        tempDirectedEdge.SetFaceIndex(FaceIndex);
         tempDirectedEdge.SetStartPointIndex(PointIndexList[k]);
 
         if (k < DirectedEdgeIndexList.GetLength() - 1)
@@ -2209,13 +2209,13 @@ Handle_Of_Cell_Of_MembraneMesh MembraneMesh<MeshAttributeType>::AddCellByEdge(co
 
     // create cell --------------------------------------------------------------------------------------------------
 
-    Cell_Of_MembraneMesh<MeshAttributeType> Cell;
-    Cell.SetParentMesh(*this);
-    Cell.SetIndex(CellIndex);
-    Cell.DirectedEdgeIndexList() = DirectedEdgeIndexList;
+    Face_Of_MembraneMesh<MeshAttributeType> Face;
+    Face.SetParentMesh(*this);
+    Face.SetIndex(FaceIndex);
+    Face.DirectedEdgeIndexList() = DirectedEdgeIndexList;
 
-    m_MeshData->CellList.Append(std::move(Cell));
-    m_MeshData->CellValidityFlagList.Append(1);
+    m_MeshData->FaceList.Append(std::move(Face));
+    m_MeshData->FaceValidityFlagList.Append(1);
 
     // update information in m_MeshData->PointList ------------------------------------------------------------------
 
@@ -2230,16 +2230,16 @@ Handle_Of_Cell_Of_MembraneMesh MembraneMesh<MeshAttributeType>::AddCellByEdge(co
 
     for (int_max k = 0; k < PointIndexList.GetLength(); ++k)
     {
-        m_MeshData->PointList[PointIndexList[k]].AdjacentCellIndexList().Append(CellIndex);
+        m_MeshData->PointList[PointIndexList[k]].AdjacentFaceIndexList().Append(FaceIndex);
     }
 
     //-----------------------------
-    CellHandle.SetIndex(CellIndex);
-    return CellHandle;
+    FaceHandle.SetIndex(FaceIndex);
+    return FaceHandle;
 }
 
 template<typename MeshAttributeType>
-Handle_Of_Cell_Of_MembraneMesh MembraneMesh<MeshAttributeType>::AddCellByEdge(const DenseVector<int_max>& EdgeIDList)
+Handle_Of_Face_Of_MembraneMesh MembraneMesh<MeshAttributeType>::AddFaceByEdge(const DenseVector<int_max>& EdgeIDList)
 {
     DenseVector<Handle_Of_Edge_Of_MembraneMesh> EdgeHandleList;
     EdgeHandleList.Resize(EdgeIDList.GetLength());
@@ -2248,19 +2248,19 @@ Handle_Of_Cell_Of_MembraneMesh MembraneMesh<MeshAttributeType>::AddCellByEdge(co
         EdgeHandleList[k] = this->GetEdgeHandle(EdgeIDList[k]);
     }
 
-    return this->AddCellByEdge(EdgeIDList);    
+    return this->AddFaceByEdge(EdgeIDList);    
 }
 
 
 template<typename MeshAttributeType>
-Handle_Of_Cell_Of_MembraneMesh MembraneMesh<MeshAttributeType>::AddCellByPoint(const DenseVector<Handle_Of_Point_Of_MembraneMesh>& PointHandleList)
+Handle_Of_Face_Of_MembraneMesh MembraneMesh<MeshAttributeType>::AddFaceByPoint(const DenseVector<Handle_Of_Point_Of_MembraneMesh>& PointHandleList)
 {
     if (PointHandleList.GetLength() < 3)
     {        
-        MDK_Error("PointHandleList length < 3 @ MembraneMesh::AddCellByPoint(...)")
-        Handle_Of_Cell_Of_MembraneMesh CellHandle;
-        CellHandle.SetToInvalid();
-        return CellHandle;
+        MDK_Error("PointHandleList length < 3 @ MembraneMesh::AddFaceByPoint(...)")
+        Handle_Of_Face_Of_MembraneMesh FaceHandle;
+        FaceHandle.SetToInvalid();
+        return FaceHandle;
     }
 
     DenseVector<Handle_Of_Edge_Of_MembraneMesh> EdgeHandleList;
@@ -2277,12 +2277,12 @@ Handle_Of_Cell_Of_MembraneMesh MembraneMesh<MeshAttributeType>::AddCellByPoint(c
         }
     }
 
-    return this->AddCellByEdge(EdgeHandleList);
+    return this->AddFaceByEdge(EdgeHandleList);
 }
 
 
 template<typename MeshAttributeType>
-Handle_Of_Cell_Of_MembraneMesh MembraneMesh<MeshAttributeType>::AddCellByPoint(const DenseVector<int_max>& PointIDList)
+Handle_Of_Face_Of_MembraneMesh MembraneMesh<MeshAttributeType>::AddFaceByPoint(const DenseVector<int_max>& PointIDList)
 {
     DenseVector<Handle_Of_Point_Of_MembraneMesh> PointHandleList;
     PointHandleList.Resize(PointIDList.GetLength());
@@ -2291,30 +2291,30 @@ Handle_Of_Cell_Of_MembraneMesh MembraneMesh<MeshAttributeType>::AddCellByPoint(c
 		PointHandleList[k] = this->GetPointHandleByID(PointIDList[k]);
     }
 
-    return this->AddCellByPoint(PointHandleList);
+    return this->AddFaceByPoint(PointHandleList);
 }
 
 //------------------- Delete Mesh Item ----------------------------------------------------------------------------//
 
 template<typename MeshAttributeType>
-void MembraneMesh<MeshAttributeType>::DeleteCell(Handle_Of_Cell_Of_MembraneMesh CellHandle)
+void MembraneMesh<MeshAttributeType>::DeleteFace(Handle_Of_Face_Of_MembraneMesh FaceHandle)
 {
-    // this function will modify each DirectedEdge of the Cell, and modify any information related to the cell
-    // CellHandle and CellID of the cell become invalid after the cell is deleted
+    // this function will modify each DirectedEdge of the Face, and modify any information related to the cell
+    // FaceHandle and FaceID of the cell become invalid after the cell is deleted
 
     // check input 
-    if (this->IsValidHandle(CellHandle) == false)
+    if (this->IsValidHandle(FaceHandle) == false)
     {
-        MDK_Warning("Invalid CellHandle @ MembraneMesh::DeleteCell(...)")
+        MDK_Warning("Invalid FaceHandle @ MembraneMesh::DeleteFace(...)")
         return;
     }
 
     //--------------------------------------------------------------------------------------
-    auto CellIndex = CellHandle.GetIndex();
+    auto FaceIndex = FaceHandle.GetIndex();
 
     // auto& will get reference
-    const auto& DirectedEdgeIndexList = m_MeshData->CellList[CellIndex].DirectedEdgeIndexList();
-    const auto& PointIndexList = m_MeshData->CellList[CellIndex].GetPointIndexList();
+    const auto& DirectedEdgeIndexList = m_MeshData->FaceList[FaceIndex].DirectedEdgeIndexList();
+    const auto& PointIndexList = m_MeshData->FaceList[FaceIndex].GetPointIndexList();
 
     // update information in m_MeshData->PointList ------------------------------------------------------------------
 
@@ -2334,8 +2334,8 @@ void MembraneMesh<MeshAttributeType>::DeleteCell(Handle_Of_Cell_Of_MembraneMesh 
 
     for (int_max k = 0; k < PointIndexList.GetLength(); ++k)
     {
-        auto tempIndex = m_MeshData->PointList[PointIndexList[k]].AdjacentCellIndexList().ExactMatch(CellIndex);
-        m_MeshData->PointList[PointIndexList[k]].AdjacentCellIndexList().Delete(tempIndex);
+        auto tempIndex = m_MeshData->PointList[PointIndexList[k]].AdjacentFaceIndexList().ExactMatch(FaceIndex);
+        m_MeshData->PointList[PointIndexList[k]].AdjacentFaceIndexList().Delete(tempIndex);
     }
 
     // delete DirectedEdge
@@ -2344,16 +2344,16 @@ void MembraneMesh<MeshAttributeType>::DeleteCell(Handle_Of_Cell_Of_MembraneMesh 
 		this->InternalFuction_DeleteDirectedEdge(DirectedEdgeIndexList[k]);
     }
 
-    // delete Cell
-    this->InternalFuction_DeleteCell(CellIndex);
+    // delete Face
+    this->InternalFuction_DeleteFace(FaceIndex);
 }
 
 
 template<typename MeshAttributeType>
-void MembraneMesh<MeshAttributeType>::DeleteCell(int_max CellID)
+void MembraneMesh<MeshAttributeType>::DeleteFace(int_max FaceID)
 {
-    auto CellHandle = this->GetCellHandle(CellID);
-    return this->DeleteCell(CellHandle);
+    auto FaceHandle = this->GetFaceHandle(FaceID);
+    return this->DeleteFace(FaceHandle);
 }
 
 
@@ -2366,14 +2366,14 @@ void MembraneMesh<MeshAttributeType>::DeleteEdge(Handle_Of_Edge_Of_MembraneMesh 
         return true;
     }
 
-    // check AdjacentCell: the edge can not be deleted if any adjacent cell exit
+    // check AdjacentFace: the edge can not be deleted if any adjacent cell exit
 
     auto EdgeIndex = EdgeHandle.GetIndex();
 
-    auto AdjacentCellCount = m_MeshData->EdgeList[EdgeIndex].GetAdjacentCellCount();
-    if (AdjacentCellCount > 0)
+    auto AdjacentFaceCount = m_MeshData->EdgeList[EdgeIndex].GetAdjacentFaceCount();
+    if (AdjacentFaceCount > 0)
     {
-        MDK_Error("AdjacentCellIndexList is not empty, so this edge can not be deleted @ MembraneMesh::DeleteEdge(...)")
+        MDK_Error("AdjacentFaceIndexList is not empty, so this edge can not be deleted @ MembraneMesh::DeleteEdge(...)")
         return false;
     }
     // -------------------------------------------------------------------------------
@@ -2466,7 +2466,7 @@ void MembraneMesh<MeshAttributeType>::DeletePoint(const DenseVector<int_max>& Po
     }
 }
 
-//----------------- remove deleted item from Point/Edge/DirectedEdgeList/Cell list ----------------------------------------------------------//
+//----------------- remove deleted item from Point/Edge/DirectedEdgeList/Face list ----------------------------------------------------------//
 // attention: 
 // after CleanDataStructure() is called, the size of each list will change, index and handle may become invalid,
 // but every valid ID will still be valid
@@ -2621,16 +2621,16 @@ void MembraneMesh<MeshAttributeType>::CleanDataStructure()
                     AdjacentEdgeIndexList_n[tempIndex[0]] = EdgeIndex_k_new;
                 }
 
-                // modify DirectedEdgeIndex.EdgeIndex in m_MeshData->CellList
+                // modify DirectedEdgeIndex.EdgeIndex in m_MeshData->FaceList
 				for (int_max n = 0; n < m_MeshData->EdgeList[k].DirectedEdgeList().GetLength(); ++n)
                 {
 					if (m_MeshData->EdgeList[k].DirectedEdgeList()[n].IsValid() == true)
 					{
-						auto CellIndex_n = m_MeshData->EdgeList[k].DirectedEdgeList()[n].GetCellIndex();
-						if (CellIndex_n >= 0)
+						auto FaceIndex_n = m_MeshData->EdgeList[k].DirectedEdgeList()[n].GetFaceIndex();
+						if (FaceIndex_n >= 0)
 						{
 							// auto& : get reference and modify
-							auto& DirectedEdgeIndexList_n = m_MeshData->CellList[CellIndex_n].DirectedEdgeIndexList();
+							auto& DirectedEdgeIndexList_n = m_MeshData->FaceList[FaceIndex_n].DirectedEdgeIndexList();
 							auto tempIndex = DirectedEdgeIndexList_n.Find([&](DirectedEdgeIndex_Of_MembraneMesh Index) {return Index.EdgeIndex == k; });
 							if (tempIndex.GetLength() != 1)
 							{
@@ -2692,76 +2692,76 @@ void MembraneMesh<MeshAttributeType>::CleanDataStructure()
 
     //---- done clean EdgeList and update Map_EdgeID_to_EdgeIndex and Map_DirectedEdgeID_to_DirectedEdgeIndex --------//
 
-    //------------------ clean CellList and Update Map_CellID_to_CellIndex ---------------------------------------------------------------------//
+    //------------------ clean FaceList and Update Map_FaceID_to_FaceIndex ---------------------------------------------------------------------//
 
-    DenseVector<int_max> ValidCellIndexList;
-    ValidCellIndexList.SetCapacity(m_MeshData->CellList.GetLength());
+    DenseVector<int_max> ValidFaceIndexList;
+    ValidFaceIndexList.SetCapacity(m_MeshData->FaceList.GetLength());
 
-    for (int_max k = 0; k < m_MeshData->CellList.GetLength(); ++k) // k is CellIndex
+    for (int_max k = 0; k < m_MeshData->FaceList.GetLength(); ++k) // k is FaceIndex
     {
-        if (m_MeshData->CellValidityFlagList[k] == 1)
+        if (m_MeshData->FaceValidityFlagList[k] == 1)
         {
-            ValidCellIndexList.Append(k);
+            ValidFaceIndexList.Append(k);
 
-            auto CellIndex_k_new = ValidCellIndexList.GetLength() - 1;
-            if (CellIndex_k_new != k)// need to modify information related to the cell
+            auto FaceIndex_k_new = ValidFaceIndexList.GetLength() - 1;
+            if (FaceIndex_k_new != k)// need to modify information related to the cell
             {
-                // modify AdjacentCell information in m_MeshData->PointList
-                auto PointIndexList_k = m_MeshData->CellList[k].GetPointIndexList();
+                // modify AdjacentFace information in m_MeshData->PointList
+                auto PointIndexList_k = m_MeshData->FaceList[k].GetPointIndexList();
                 for (int_max n = 0; n < PointIndexList_k.GetLength(); ++n)
                 {
                     // auto& : get reference and modify
-                    auto& tempAdjacentCellIndexList = m_MeshData->PointList[PointIndexList_k[n]].AdjacentCellIndexList();
-                    auto tempIndex = tempAdjacentCellIndexList.Find([&](int_max Index) {return Index == k; });
+                    auto& tempAdjacentFaceIndexList = m_MeshData->PointList[PointIndexList_k[n]].AdjacentFaceIndexList();
+                    auto tempIndex = tempAdjacentFaceIndexList.Find([&](int_max Index) {return Index == k; });
                     if (tempIndex.GetLength() != 1)
                     {
-                        MDK_Error("Something is wrong about AdjacentCellIndexList @ MembraneMesh::CleanDataStructure()")
+                        MDK_Error("Something is wrong about AdjacentFaceIndexList @ MembraneMesh::CleanDataStructure()")
                         return;
                     }
-                    tempAdjacentCellIndexList[tempIndex[0]] = CellIndex_k_new;
+                    tempAdjacentFaceIndexList[tempIndex[0]] = FaceIndex_k_new;
                 }
 
-                // modify CellIndex Information in m_MeshData->EdgeList.DirectedEdgeList() 
-                const auto& DirectedEdgeIndexList_k = m_MeshData->CellList[k].DirectedEdgeIndexList();
+                // modify FaceIndex Information in m_MeshData->EdgeList.DirectedEdgeList() 
+                const auto& DirectedEdgeIndexList_k = m_MeshData->FaceList[k].DirectedEdgeIndexList();
                 for (int_max n = 0; n < DirectedEdgeIndexList_k.GetLength(); ++n)
                 {
                     auto EdgeIndex_n = DirectedEdgeIndexList_k[n].EdgeIndex;
                     auto RelativeIndex_n = DirectedEdgeIndexList_k[n].RelativeIndex;
-					m_MeshData->EdgeList[EdgeIndex_n].DirectedEdgeList()[RelativeIndex_n].SetCellIndex(CellIndex_k_new);
+					m_MeshData->EdgeList[EdgeIndex_n].DirectedEdgeList()[RelativeIndex_n].SetFaceIndex(FaceIndex_k_new);
                 }
             }
         }
-    }// for each CellIndex k
+    }// for each FaceIndex k
 
-    // remove deleted item from CellList
-    if (ValidCellIndexList.GetLength() != m_MeshData->CellList.GetLength())
+    // remove deleted item from FaceList
+    if (ValidFaceIndexList.GetLength() != m_MeshData->FaceList.GetLength())
     {
-		CellListType CellList_new;
-        CellList_new.Resize(ValidCellIndexList.GetLength());
-        for (int_max k = 0; k < ValidCellIndexList.GetLength(); ++k)
+		FaceListType FaceList_new;
+        FaceList_new.Resize(ValidFaceIndexList.GetLength());
+        for (int_max k = 0; k < ValidFaceIndexList.GetLength(); ++k)
         {
-            CellList_new[k] = std::move(m_MeshData->CellList[ValidCellIndexList[k]]);
-            CellList_new[k].SetIndex(k);
+            FaceList_new[k] = std::move(m_MeshData->FaceList[ValidFaceIndexList[k]]);
+            FaceList_new[k].SetIndex(k);
         }
-        m_MeshData->CellList = std::move(CellList_new);
+        m_MeshData->FaceList = std::move(FaceList_new);
 
-        m_MeshData->CellValidityFlagList.FastResize(ValidCellIndexList.GetLength());
-        m_MeshData->CellValidityFlagList.Fill(1);
+        m_MeshData->FaceValidityFlagList.FastResize(ValidFaceIndexList.GetLength());
+        m_MeshData->FaceValidityFlagList.Fill(1);
 
-        // update Map_CellID_to_CellIndex
-        m_MeshData->Map_CellID_to_CellIndex.clear();
-        for (int_max k = 0; k < m_MeshData->CellList.GetLength(); ++k)
+        // update Map_FaceID_to_FaceIndex
+        m_MeshData->Map_FaceID_to_FaceIndex.clear();
+        for (int_max k = 0; k < m_MeshData->FaceList.GetLength(); ++k)
         {
-            auto CellID_k = m_MeshData->CellList[k].GetID();
-            if (CellID_k >= 0) // ID is invalid if < 0 
+            auto FaceID_k = m_MeshData->FaceList[k].GetID();
+            if (FaceID_k >= 0) // ID is invalid if < 0 
             {
-				m_MeshData->Map_CellID_to_CellIndex[CellID_k] = k;
+				m_MeshData->Map_FaceID_to_FaceIndex[FaceID_k] = k;
             }
         }
     }
-    //ValidCellIndexList.Clear();
+    //ValidFaceIndexList.Clear();
 
-    //--------------- done clean CellList and Update Map_CellID_to_CellIndex ----------------------------------------------------//
+    //--------------- done clean FaceList and Update Map_FaceID_to_FaceIndex ----------------------------------------------------//
 
 	//--------------- clean DirectedEdgeList and update Map_DirectedEdgeID_to_DirectedEdgeIndex ---------------------------------//
 
@@ -2820,11 +2820,11 @@ void MembraneMesh<MeshAttributeType>::CleanDataStructure()
 						auto tempRelativeIndex_b = PreviousDirectedEdgeIndex.RelativeIndex;
 						m_MeshData->EdgeList[tempEdgeIndex_b].DirectedEdgeList()[tempRelativeIndex_b].SetNextDirectedEdgeIndex(DirectedEdgeIndex_new);
 					}
-					// modify information in m_MeshData->CellList
+					// modify information in m_MeshData->FaceList
 					{
-						auto CellIndex_n = DirectedEdgeList_old[n].GetCellIndex();
+						auto FaceIndex_n = DirectedEdgeList_old[n].GetFaceIndex();
 						// auto& take reference
-						auto& DirectedEdgeIndexList = m_MeshData->CellList[CellIndex_n].DirectedEdgeIndexList();
+						auto& DirectedEdgeIndexList = m_MeshData->FaceList[FaceIndex_n].DirectedEdgeIndexList();
 						auto tempIndex_m = DirectedEdgeIndexList.ExactMatch("first", DirectedEdgeIndex_old);
 						DirectedEdgeIndexList[tempIndex_m] = DirectedEdgeIndex_new;
 					}
@@ -2837,7 +2837,7 @@ void MembraneMesh<MeshAttributeType>::CleanDataStructure()
 			// remove deleted item
 			DirectedEdgeListType DirectedEdgeList_new;
 			DirectedEdgeList_new.Resize(ValidDirectedEdgeRelativeIndexList.GetLength());
-			for (int_max n = 0; n < ValidCellIndexList.GetLength(); ++n)
+			for (int_max n = 0; n < ValidFaceIndexList.GetLength(); ++n)
 			{
 				DirectedEdgeList_new[n] = std::move(DirectedEdgeList_old[ValidDirectedEdgeRelativeIndexList[n]]);
 				DirectedEdgeList_new[n].SetIndex(k, n);// EdgeIndex is k, RelativeIndex is n
@@ -2863,9 +2863,9 @@ void MembraneMesh<MeshAttributeType>::CleanDataStructure()
 template<typename MeshAttributeType>
 bool MembraneMesh<MeshAttributeType>::Check_If_DataStructure_is_Clean() const
 {
-	auto Count1 = this->GetInvalidPointHandleCount();
-	auto Count2 = this->GetInvalidEdgeHandleCount();
-	auto Count3 = this->GetInvalidCellHandleCount();
+	auto Count1 = this->GetDeletedPointHandleCount();
+	auto Count2 = this->GetDeletedEdgeHandleCount();
+	auto Count3 = this->GetDeletedFaceHandleCount();
 	return (Count1 + Count2 + Count3 == 0);
 }
 
@@ -2888,37 +2888,37 @@ int_max MembraneMesh<MeshAttributeType>::GetDeletedEdgeHandleCount() const
 }
 
 template<typename MeshAttributeType>
-int_max MembraneMesh<MeshAttributeType>::GetDeletedCellHandleCount() const
+int_max MembraneMesh<MeshAttributeType>::GetDeletedFaceHandleCount() const
 {
-	auto ValidCellCount = this->GetCellCount();
-	auto CellCountOfList = m_MeshData->CellList.GetLength();
-	return  CellCountOfList - ValidCellCount;
+	auto ValidFaceCount = this->GetFaceCount();
+	auto FaceCountOfList = m_MeshData->FaceList.GetLength();
+	return  FaceCountOfList - ValidFaceCount;
 }
 
-//-------------------- get a sub mesh by CellHandleList or CellIDList -----------------------------------------//
+//-------------------- get a sub mesh by FaceHandleList or FaceIDList -----------------------------------------//
 
 template<typename MeshAttributeType>
 MembraneMesh<MeshAttributeType> 
-MembraneMesh<MeshAttributeType>::GetSubMeshByCell(const DenseVector<Handle_Of_Cell_Of_MembraneMesh>& CellHandleList) const
+MembraneMesh<MeshAttributeType>::GetSubMeshByFace(const DenseVector<Handle_Of_Face_Of_MembraneMesh>& FaceHandleList) const
 {
     MembraneMesh<MeshAttributeType> OutputMesh;
     
-    if (CellHandleList.IsEmpty() == true)
+    if (FaceHandleList.IsEmpty() == true)
     {
         return OutputMesh;
     }
 
     if (this->IsEmpty() == true)
     {
-        MDK_Error("Self is empty @ MembraneMesh::GetSubMeshByCell(...)")
+        MDK_Error("Self is empty @ MembraneMesh::GetSubMeshByFace(...)")
         return OutputMesh;
     }
 
-    for (int_max k = 0; k < CellHandleList.GetLength(); ++k)
+    for (int_max k = 0; k < FaceHandleList.GetLength(); ++k)
     {
-        if (this->IsValidHandle(CellHandleList[k]) == false)
+        if (this->IsValidHandle(FaceHandleList[k]) == false)
         {
-            MDK_Error("CellHandleList is invalid @ MembraneMesh::GetSubMeshByCell(...)")
+            MDK_Error("FaceHandleList is invalid @ MembraneMesh::GetSubMeshByFace(...)")
             return OutputMesh;
         }
     }
@@ -2930,13 +2930,13 @@ MembraneMesh<MeshAttributeType>::GetSubMeshByCell(const DenseVector<Handle_Of_Ce
     std::unordered_map<int_max, int_max> Map_EdgeIndex_OuputIndex;
 
     // add cell one by one
-    for (int_max k = 0; k < CellHandleList.GetLength(); ++k)
+    for (int_max k = 0; k < FaceHandleList.GetLength(); ++k)
     {
-        auto CellID_k = this->Cell(CellHandleList[k]).GetID();
-        const auto& CellAttribute_k = this->Cell(CellHandleList[k]).Attribute();
-        auto PointHandleList_k = this->Cell(CellHandleList[k]).GetPointHandleList();
-        auto EdgeHandleList_k = this->Cell(CellHandleList[k]).GetEdgeHandleList();
-        auto DirectedEdgeHandleList_k = this->Cell(CellHandleList[k]).GetDirectedEdgeHandleList();
+        auto FaceID_k = this->Face(FaceHandleList[k]).GetID();
+        const auto& FaceAttribute_k = this->Face(FaceHandleList[k]).Attribute();
+        auto PointHandleList_k = this->Face(FaceHandleList[k]).GetPointHandleList();
+        auto EdgeHandleList_k = this->Face(FaceHandleList[k]).GetEdgeHandleList();
+        auto DirectedEdgeHandleList_k = this->Face(FaceHandleList[k]).GetDirectedEdgeHandleList();
 
         // add point
         DenseVector<PointHandleType> PointHandleList_OutputMesh;
@@ -2973,17 +2973,17 @@ MembraneMesh<MeshAttributeType>::GetSubMeshByCell(const DenseVector<Handle_Of_Ce
         }
 
         // add cell
-        auto CellHandle_OutputMesh = OutputMesh.AddCellByPoint(PointHandleList_OutputMesh);
+        auto FaceHandle_OutputMesh = OutputMesh.AddFaceByPoint(PointHandleList_OutputMesh);
         // copy cell ID if it is valid
-        if (CellID_k >= 0)
+        if (FaceID_k >= 0)
         {
-            OutputMesh.Cell(CellHandle_OutputMesh).SetID(CellID_k);
+            OutputMesh.Face(FaceHandle_OutputMesh).SetID(FaceID_k);
         }
         // copy Attribute
-        OutputMesh.Cell(CellHandle_OutputMesh).Attribute() = CellAttribute_k;
+        OutputMesh.Face(FaceHandle_OutputMesh).Attribute() = FaceAttribute_k;
 
         // copy Edge ID and Attribute
-        auto EdgeHandleList_OutputMesh = OutputMesh.Cell(CellHandle_OutputMesh).GetEdgeHandleList();
+        auto EdgeHandleList_OutputMesh = OutputMesh.Face(FaceHandle_OutputMesh).GetEdgeHandleList();
         for (int_max n = 0; n < EdgeHandleList_k.GetLength(); ++n)
         {
             // check if the edge has already been added to OutputMesh
@@ -3007,7 +3007,7 @@ MembraneMesh<MeshAttributeType>::GetSubMeshByCell(const DenseVector<Handle_Of_Ce
         }
 
         // copy DirectedEdge ID and Attribute
-        auto DirectedEdgeHandleList_OutputMesh = OutputMesh.Cell(CellHandle_OutputMesh).GetDirectedEdgeHandleList();
+        auto DirectedEdgeHandleList_OutputMesh = OutputMesh.Face(FaceHandle_OutputMesh).GetDirectedEdgeHandleList();
         for (int_max n = 0; n < DirectedEdgeHandleList_k.GetLength(); ++n)
         {
             auto DirectedEdgeID_n = this->DirectedEdge(DirectedEdgeHandleList_k[n]).GetID();
@@ -3027,30 +3027,30 @@ MembraneMesh<MeshAttributeType>::GetSubMeshByCell(const DenseVector<Handle_Of_Ce
 
 template<typename MeshAttributeType>
 MembraneMesh<MeshAttributeType> 
-MembraneMesh<MeshAttributeType>::GetSubMeshByCell(const DenseVector<int_max>& CellIDList) const
+MembraneMesh<MeshAttributeType>::GetSubMeshByFace(const DenseVector<int_max>& FaceIDList) const
 {
-    DenseVector<Handle_Of_Cell_Of_MembraneMesh> CellHandleList;
-    for (int_max k = 0; k < CellIDList.GetLength(); ++k)
+    DenseVector<Handle_Of_Face_Of_MembraneMesh> FaceHandleList;
+    for (int_max k = 0; k < FaceIDList.GetLength(); ++k)
     {
-        CellHandleList[k] = this->GetCellHandle(CellIDList[k]);
+        FaceHandleList[k] = this->GetFaceHandle(FaceIDList[k]);
     }
-    return this->GetSubMeshByCell(CellHandleList);
+    return this->GetSubMeshByFace(FaceHandleList);
 }
 
 
 // Change Topology ----------------------------------------------------------------------------------------
 
 template<typename MeshAttributeType>
-Handle_Of_Cell_Of_MembraneMesh MembraneMesh<MeshAttributeType>::DilatePointToCell(Handle_Of_Point_Of_MembraneMesh PointHandle)
+Handle_Of_Face_Of_MembraneMesh MembraneMesh<MeshAttributeType>::DilatePointToFace(Handle_Of_Point_Of_MembraneMesh PointHandle)
 {
 }
 
 
 template<typename MeshAttributeType>
-Handle_Of_Cell_Of_MembraneMesh MembraneMesh<MeshAttributeType>::DilatePointToCell(int_max PointID)
+Handle_Of_Face_Of_MembraneMesh MembraneMesh<MeshAttributeType>::DilatePointToFace(int_max PointID)
 {
     auto PointHandle = this->GetPointHandleByID(PointID);
-    return this->DilatePointToCell(PointHandle);
+    return this->DilatePointToFace(PointHandle);
 }
 
 
@@ -3074,25 +3074,25 @@ Handle_Of_Point_Of_MembraneMesh MembraneMesh<MeshAttributeType>::ShrinkEdgeToPoi
     DirectedEdgeIndex1.EdgeIndex = EdgeIndex;
     DirectedEdgeIndex1.RelativeIndex = 1;
 
-    // get AdjacentCellIndexList
-    auto AdjacentCellIndexList = m_MeshData->EdgeList[EdgeHandle.GetIndex()].GetAdjacentCellIndexList();
-    int_max CellIndex0 = -1;
-    int_max CellIndex1 = -1;    
-    if (AdjacentCellIndexList.GetLength() == 2)
+    // get AdjacentFaceIndexList
+    auto AdjacentFaceIndexList = m_MeshData->EdgeList[EdgeHandle.GetIndex()].GetAdjacentFaceIndexList();
+    int_max FaceIndex0 = -1;
+    int_max FaceIndex1 = -1;    
+    if (AdjacentFaceIndexList.GetLength() == 2)
     {
-        CellIndex0 = AdjacentCellIndexList[0];
-        CellIndex1 = AdjacentCellIndexList[1];
+        FaceIndex0 = AdjacentFaceIndexList[0];
+        FaceIndex1 = AdjacentFaceIndexList[1];
     }
-    else if (AdjacentCellIndexList.GetLength() == 1)
+    else if (AdjacentFaceIndexList.GetLength() == 1)
     {
-        CellIndex0 = AdjacentCellIndexList[0];
+        FaceIndex0 = AdjacentFaceIndexList[0];
     }
 
-    for (int_max k = 0; k < AdjacentCellIndexList.GetLength(); ++k)
+    for (int_max k = 0; k < AdjacentFaceIndexList.GetLength(); ++k)
     {
-        if (m_MeshData->CellList[AdjacentCellIndexList[k]].GetEdgeCount() <= 3)
+        if (m_MeshData->FaceList[AdjacentFaceIndexList[k]].GetEdgeCount() <= 3)
         {
-            MDK_Error("EdgeCount <= 3 in AdjacentCell @ MembraneMesh::ShrinkEdgeToPoint(...)")
+            MDK_Error("EdgeCount <= 3 in AdjacentFace @ MembraneMesh::ShrinkEdgeToPoint(...)")
             PointHandle.SetToInvalid();
             return PointHandle;
         }
@@ -3117,19 +3117,19 @@ Handle_Of_Point_Of_MembraneMesh MembraneMesh<MeshAttributeType>::ShrinkEdgeToPoi
     const auto& AdjacentEdgeIndexList0 = m_MeshData->PointList[PointIndex0].AdjacentEdgeIndexList();
     const auto& OutgoingDirectedEdgeIndexList0 = m_MeshData->PointList[PointIndex0].OutgoingDirectedEdgeIndexList();
     const auto& IncomingDirectedEdgeIndexList0 = m_MeshData->PointList[PointIndex0].IncomingDirectedEdgeIndexList();
-    const auto& AdjacentCellIndexList0 = m_MeshData->PointList[PointIndex0].AdjacentCellIndexList();
+    const auto& AdjacentFaceIndexList0 = m_MeshData->PointList[PointIndex0].AdjacentFaceIndexList();
     //----------
     const auto& AdjacentPointIndexList1 = m_MeshData->PointList[PointIndex1].AdjacentPointIndexList();
     const auto& AdjacentEdgeIndexList1 = m_MeshData->PointList[PointIndex1].AdjacentEdgeIndexList();
     const auto& OutgoingDirectedEdgeIndexList1 = m_MeshData->PointList[PointIndex1].OutgoingDirectedEdgeIndexList();
     const auto& IncomingDirectedEdgeIndexList1 = m_MeshData->PointList[PointIndex1].IncomingDirectedEdgeIndexList();
-    const auto& AdjacentCellIndexList1 = m_MeshData->PointList[PointIndex1].AdjacentCellIndexList();
+    const auto& AdjacentFaceIndexList1 = m_MeshData->PointList[PointIndex1].AdjacentFaceIndexList();
     //--------------------------------------------------------------------------------------------------------
 	auto& AdjacentPointIndexList = m_MeshData->PointList[MiddlePointIndex].AdjacentPointIndexList();
 	auto& AdjacentEdgeIndexList = m_MeshData->PointList[MiddlePointIndex].AdjacentEdgeIndexList();
 	auto& OutgoingDirectedEdgeIndexList = m_MeshData->PointList[MiddlePointIndex].OutgoingDirectedEdgeIndexList();
 	auto& IncomingDirectedEdgeIndexList = m_MeshData->PointList[MiddlePointIndex].IncomingDirectedEdgeIndexList();
-	auto& AdjacentCellIndexList = m_MeshData->PointList[MiddlePointIndex].AdjacentCellIndexList();
+	auto& AdjacentFaceIndexList = m_MeshData->PointList[MiddlePointIndex].AdjacentFaceIndexList();
 
     AdjacentPointIndexList = {&AdjacentPointIndexList0, &AdjacentPointIndexList1};    
     {
@@ -3157,10 +3157,10 @@ Handle_Of_Point_Of_MembraneMesh MembraneMesh<MeshAttributeType>::ShrinkEdgeToPoi
         IncomingDirectedEdgeIndexList.Delete(tempList);
     }
 
-    AdjacentCellIndexList = { &AdjacentCellIndexList0, &AdjacentCellIndexList1 };
+    AdjacentFaceIndexList = { &AdjacentFaceIndexList0, &AdjacentFaceIndexList1 };
     {
-        auto tempList = AdjacentCellIndexList.FindUnique();
-		AdjacentCellIndexList = AdjacentCellIndexList.GetSubSet(tempList);
+        auto tempList = AdjacentFaceIndexList.FindUnique();
+		AdjacentFaceIndexList = AdjacentFaceIndexList.GetSubSet(tempList);
     }
 
     //------------------------------------------------------------
@@ -3206,9 +3206,9 @@ Handle_Of_Point_Of_MembraneMesh MembraneMesh<MeshAttributeType>::ShrinkEdgeToPoi
 		tempDirectedEdge.SetEndPointIndex(MiddlePointIndex);
     }
     //---------------------------------------------------------------
-    for (int_max k = 0; k < AdjacentCellIndexList.GetLength(); ++k)
+    for (int_max k = 0; k < AdjacentFaceIndexList.GetLength(); ++k)
     {
-        auto& DirectedEdgeIndexList_k = m_MeshData->CellList[AdjacentCellIndexList[k]].DirectedEdgeIndexList();
+        auto& DirectedEdgeIndexList_k = m_MeshData->FaceList[AdjacentFaceIndexList[k]].DirectedEdgeIndexList();
         auto tempList = DirectedEdgeIndexList_k.Find([&](DirectedEdgeIndex_Of_MembraneMesh Index)
                                                      {return Index == DirectedEdgeIndex0|| Index == DirectedEdgeIndex1;});
         DirectedEdgeIndexList_k.Delete(tempList);
@@ -3276,64 +3276,64 @@ Handle_Of_Edge_Of_MembraneMesh MembraneMesh<MeshAttributeType>::MergeTwoAdjacent
     auto EdgeIndexA = EdgeHandleA.GetIndex();
     auto EdgeIndexB = EdgeHandleB.GetIndex();
 
-    auto AdjacentCellIndexListA = m_MeshData->EdgeList[EdgeIndexA].GetAdjacentCellIndexList();
-    auto AdjacentCellIndexListB = m_MeshData->EdgeList[EdgeIndexB].GetAdjacentCellIndexList();
+    auto AdjacentFaceIndexListA = m_MeshData->EdgeList[EdgeIndexA].GetAdjacentFaceIndexList();
+    auto AdjacentFaceIndexListB = m_MeshData->EdgeList[EdgeIndexB].GetAdjacentFaceIndexList();
 
-    if (AdjacentCellIndexListA.GetLength() != AdjacentCellIndexListB.GetLength())
+    if (AdjacentFaceIndexListA.GetLength() != AdjacentFaceIndexListB.GetLength())
     {
-		MDK_Error("AdjacentCellCount is not the same @ MembraneMesh::MergeTwoAdjacentEdge(...)")
+		MDK_Error("AdjacentFaceCount is not the same @ MembraneMesh::MergeTwoAdjacentEdge(...)")
         EdgeHandle_new.SetToInvalid();
         return EdgeHandle_new;
     }
 
-    // get AdjacentCellIndexList
-    int_max CellIndex0 = -1;
-    int_max CellIndex1 = -1;
+    // get AdjacentFaceIndexList
+    int_max FaceIndex0 = -1;
+    int_max FaceIndex1 = -1;
 
-    if (AdjacentCellIndexListA.GetLength() == 1)
+    if (AdjacentFaceIndexListA.GetLength() == 1)
     {
-        if (AdjacentCellIndexListA[0] != AdjacentCellIndexListB[0])
+        if (AdjacentFaceIndexListA[0] != AdjacentFaceIndexListB[0])
         {
-			MDK_Error("AdjacentCellIndex is not the same @ MembraneMesh::MergeTwoAdjacentEdge(...)")
+			MDK_Error("AdjacentFaceIndex is not the same @ MembraneMesh::MergeTwoAdjacentEdge(...)")
             EdgeHandle_new.SetToInvalid();
             return EdgeHandle_new;
         }
 
-        CellIndex0 = AdjacentCellIndexListA[0];
+        FaceIndex0 = AdjacentFaceIndexListA[0];
     }
-    else if (AdjacentCellIndexListA.GetLength() == 2)
+    else if (AdjacentFaceIndexListA.GetLength() == 2)
     {
         bool tempFlag = false;
 
-        if ((AdjacentCellIndexListA[0] == AdjacentCellIndexListB[0] && AdjacentCellIndexListA[1] == AdjacentCellIndexListB[1])
-            || (AdjacentCellIndexListA[0] == AdjacentCellIndexListB[1] && AdjacentCellIndexListA[1] == AdjacentCellIndexListB[0]))
+        if ((AdjacentFaceIndexListA[0] == AdjacentFaceIndexListB[0] && AdjacentFaceIndexListA[1] == AdjacentFaceIndexListB[1])
+            || (AdjacentFaceIndexListA[0] == AdjacentFaceIndexListB[1] && AdjacentFaceIndexListA[1] == AdjacentFaceIndexListB[0]))
         {
             tempFlag = true;
         }
 
         if (tempFlag == false)
         {
-			MDK_Error("AdjacentCellIndex is not the same @ MembraneMesh::MergeTwoAdjacentEdge(...)")
+			MDK_Error("AdjacentFaceIndex is not the same @ MembraneMesh::MergeTwoAdjacentEdge(...)")
             EdgeHandle.SetToInvalid();
             return EdgeHandle;
         }
 
-        CellIndex0 = AdjacentCellIndexListA[0];
-        CellIndex1 = AdjacentCellIndexListA[1];
+        FaceIndex0 = AdjacentFaceIndexListA[0];
+        FaceIndex1 = AdjacentFaceIndexListA[1];
     }
 
-	// check if AdjacentCell is triangle
-	if (m_MeshData->CellList[CellIndex0].GetEdgeCount() <= 3)
+	// check if AdjacentFace is triangle
+	if (m_MeshData->FaceList[FaceIndex0].GetEdgeCount() <= 3)
 	{
-		MDK_Error("EdgeCount <= 3 in AdjacentCell: CellIndex0 @ MembraneMesh::MergeTwoAdjacentEdge(...)")
+		MDK_Error("EdgeCount <= 3 in AdjacentFace: FaceIndex0 @ MembraneMesh::MergeTwoAdjacentEdge(...)")
 		EdgeHandle.SetToInvalid();
 		return EdgeHandle;
 	}
-	if (CellIndex1 >= 0)
+	if (FaceIndex1 >= 0)
 	{
-		if (m_MeshData->CellList[CellIndex1].GetEdgeCount() <= 3)
+		if (m_MeshData->FaceList[FaceIndex1].GetEdgeCount() <= 3)
 		{
-			MDK_Error("EdgeCount <= 3 in AdjacentCell: CellIndex1 @ MembraneMesh::MergeTwoAdjacentEdge(...)")
+			MDK_Error("EdgeCount <= 3 in AdjacentFace: FaceIndex1 @ MembraneMesh::MergeTwoAdjacentEdge(...)")
 			EdgeHandle.SetToInvalid();
 			return EdgeHandle;
 		}
@@ -3394,15 +3394,15 @@ Handle_Of_Edge_Of_MembraneMesh MembraneMesh<MeshAttributeType>::MergeTwoAdjacent
 		auto& DirectedEdge_k = m_MeshData->EdgeList[EdgeIndex_new].DirectedEdgeList()[k];
 		if (DirectedEdge_k.IsValid() == true)
 		{
-			DirectedEdge_k.SetCellIndex(CellIndex0);
+			DirectedEdge_k.SetFaceIndex(FaceIndex0);
 		}
-		DirectedEdge0_new.SetCellIndex(CellIndex0);
+		DirectedEdge0_new.SetFaceIndex(FaceIndex0);
 	}
     auto& DirectedEdge0_new = m_MeshData->EdgeList[EdgeIndex_new].DirectedEdgePair()[0];
-    DirectedEdge0_new.SetCellIndex(CellIndex0);
+    DirectedEdge0_new.SetFaceIndex(FaceIndex0);
 
     auto& DirectedEdge1_new = m_MeshData->EdgeList[EdgeIndex_new].DirectedEdgePair()[1];
-    DirectedEdge1_new.SetCellIndex(CellIndex1);
+    DirectedEdge1_new.SetFaceIndex(FaceIndex1);
 
     //----------
     auto& AdjacentPointIndexList0 = m_MeshData->PointList[PointIndex0].AdjacentPointIndexList();
@@ -3426,13 +3426,13 @@ Handle_Of_Edge_Of_MembraneMesh MembraneMesh<MeshAttributeType>::MergeTwoAdjacent
         OutgoingDirectedEdgeIndexList0.Delete(tempIndex);
 
 		const auto& tempDirectedEdge = m_MeshData->EdgeList[tempDirectedEdgeIndex.EdgeIndex].DirectedEdgeList()[tempDirectedEdgeIndex.RelativeIndex];
-        if (tempDirectedEdge.GetCellIndex() >= 0)
+        if (tempDirectedEdge.GetFaceIndex() >= 0)
         {
-            if (tempDirectedEdge.GetCellIndex() == CellIndex0)
+            if (tempDirectedEdge.GetFaceIndex() == FaceIndex0)
             {
                 OutgoingDirectedEdgeIndexList0.Append(DirectedEdgeIndex0_new);
             }
-            else if (tempDirectedEdge.GetCellIndex() == CellIndex1)
+            else if (tempDirectedEdge.GetFaceIndex() == FaceIndex1)
             {
                 OutgoingDirectedEdgeIndexList0.Append(DirectedEdgeIndex1_new);
             }
@@ -3447,13 +3447,13 @@ Handle_Of_Edge_Of_MembraneMesh MembraneMesh<MeshAttributeType>::MergeTwoAdjacent
         IncomingDirectedEdgeIndexList0.Delete(tempIndex);
 
 		const auto& tempDirectedEdge = m_MeshData->EdgeList[tempDirectedEdgeIndex.EdgeIndex].DirectedEdgeList()[tempDirectedEdgeIndex.RelativeIndex];
-        if (tempDirectedEdge.GetCellIndex() >= 0)
+        if (tempDirectedEdge.GetFaceIndex() >= 0)
         {
-            if (tempDirectedEdge.GetCellIndex() == CellIndex0)
+            if (tempDirectedEdge.GetFaceIndex() == FaceIndex0)
             {
                 IncomingDirectedEdgeIndexList0.Append(DirectedEdgeIndex0_new);
             }
-            else if (tempDirectedEdge.GetCellIndex() == CellIndex1)
+            else if (tempDirectedEdge.GetFaceIndex() == FaceIndex1)
             {
                 IncomingDirectedEdgeIndexList0.Append(DirectedEdgeIndex1_new);
             }
@@ -3483,13 +3483,13 @@ Handle_Of_Edge_Of_MembraneMesh MembraneMesh<MeshAttributeType>::MergeTwoAdjacent
         OutgoingDirectedEdgeIndexList1.Delete(tempIndex);
 
 		const auto& tempDirectedEdge = m_MeshData->EdgeList[tempDirectedEdgeIndex.EdgeIndex].DirectedEdgeList()[tempDirectedEdgeIndex.RelativeIndex];
-        if (tempDirectedEdge.GetCellIndex() >= 0)
+        if (tempDirectedEdge.GetFaceIndex() >= 0)
         {
-            if (tempDirectedEdge.GetCellIndex() == CellIndex0)
+            if (tempDirectedEdge.GetFaceIndex() == FaceIndex0)
             {
                 OutgoingDirectedEdgeIndexList1.Append(DirectedEdgeIndex0_new);
             }
-            else if (tempDirectedEdge.GetCellIndex() == CellIndex1)
+            else if (tempDirectedEdge.GetFaceIndex() == FaceIndex1)
             {
                 OutgoingDirectedEdgeIndexList1.Append(DirectedEdgeIndex1_new);
             }
@@ -3504,13 +3504,13 @@ Handle_Of_Edge_Of_MembraneMesh MembraneMesh<MeshAttributeType>::MergeTwoAdjacent
         IncomingDirectedEdgeIndexList1.Delete(tempIndex);
 
 		const auto& tempDirectedEdge = m_MeshData->EdgeList[tempDirectedEdgeIndex.EdgeIndex].DirectedEdgeList()[tempDirectedEdgeIndex.RelativeIndex];
-        if (tempDirectedEdge.GetCellIndex() >= 0)
+        if (tempDirectedEdge.GetFaceIndex() >= 0)
         {
-            if (tempDirectedEdge.GetCellIndex() == CellIndex0)
+            if (tempDirectedEdge.GetFaceIndex() == FaceIndex0)
             {
                 IncomingDirectedEdgeIndexList1.Append(DirectedEdgeIndex0_new);
             }
-            else if (tempDirectedEdge.GetCellIndex() == CellIndex1)
+            else if (tempDirectedEdge.GetFaceIndex() == FaceIndex1)
             {
                 IncomingDirectedEdgeIndexList1.Append(DirectedEdgeIndex1_new);
             }
@@ -3518,18 +3518,18 @@ Handle_Of_Edge_Of_MembraneMesh MembraneMesh<MeshAttributeType>::MergeTwoAdjacent
     }
     //--------------------------------------------------------------
 
-    for (int_max k = 0; k < AdjacentCellIndexListA.GetLength(); ++k)
+    for (int_max k = 0; k < AdjacentFaceIndexListA.GetLength(); ++k)
     {
-        auto AdjacentCellIndex_k = AdjacentCellIndexListA[k];
+        auto AdjacentFaceIndex_k = AdjacentFaceIndexListA[k];
 
-        auto& DirectedEdgeIndexList_k = m_MeshData->CellList[AdjacentCellIndexListA[k]].DirectedEdgeIndexList();
+        auto& DirectedEdgeIndexList_k = m_MeshData->FaceList[AdjacentFaceIndexListA[k]].DirectedEdgeIndexList();
         
         auto tempIndex_replace = DirectedEdgeIndexList_k.Match([&](DirectedEdgeIndex_Of_MembraneMesh Index) {return Index.EdgeIndex == EdgeIndexA; });        
-        if (AdjacentCellIndex_k == CellIndex0)
+        if (AdjacentFaceIndex_k == FaceIndex0)
         {
             DirectedEdgeIndexList_k[tempIndex_replace] = DirectedEdgeIndex0_new;
         }
-        else if(AdjacentCellIndex_k == CellIndex1)
+        else if(AdjacentFaceIndex_k == FaceIndex1)
         {
             DirectedEdgeIndexList_k[tempIndex_replace] = DirectedEdgeIndex1_new;
         }
@@ -3581,11 +3581,11 @@ Handle_Of_Edge_Of_MembraneMesh MembraneMesh<MeshAttributeType>::MergeTwoAdjacent
 
                 if (tempEdgeIndex_next == EdgeIndexA || tempEdgeIndex_next == EdgeIndexB)
                 {
-                    if (AdjacentCellIndex_k == CellIndex0)
+                    if (AdjacentFaceIndex_k == FaceIndex0)
                     {
                         tempDirectedEdge.SetNextDirectedEdgeIndex(DirectedEdgeIndex0_new);
                     }
-                    else if (AdjacentCellIndex_k == CellIndex1)
+                    else if (AdjacentFaceIndex_k == FaceIndex1)
                     {
                         tempDirectedEdge.SetNextDirectedEdgeIndex(DirectedEdgeIndex1_new);
                     }
@@ -3593,11 +3593,11 @@ Handle_Of_Edge_Of_MembraneMesh MembraneMesh<MeshAttributeType>::MergeTwoAdjacent
 
                 if (tempEdgeIndex_prev == EdgeIndexA || tempEdgeIndex_prev == EdgeIndexB)
                 {
-                    if (AdjacentCellIndex_k == CellIndex0)
+                    if (AdjacentFaceIndex_k == FaceIndex0)
                     {
                         tempDirectedEdge.SetPreviousDirectedEdgeIndex(DirectedEdgeIndex0_new);
                     }
-                    else if (AdjacentCellIndex_k == CellIndex1)
+                    else if (AdjacentFaceIndex_k == FaceIndex1)
                     {
                         tempDirectedEdge.SetPreviousDirectedEdgeIndex(DirectedEdgeIndex1_new);
                     }
@@ -3630,7 +3630,7 @@ std::pair<Handle_Of_Edge_Of_MembraneMesh, Handle_Of_Edge_Of_MembraneMesh> Membra
 
     if (this->IsValidHandle(PointHandle) == false)
     {
-		MDK_Error("Invalid PointHandle @ MembraneMesh::SplitCellByEdge(...)")
+		MDK_Error("Invalid PointHandle @ MembraneMesh::SplitFaceByEdge(...)")
 		EdgeHandlePair.first.SetToInvalid();
 		EdgeHandlePair.second.SetToInvalid();        
 		return EdgeHandlePair;
@@ -3649,47 +3649,47 @@ std::pair<Handle_Of_Edge_Of_MembraneMesh, Handle_Of_Edge_Of_MembraneMesh> Membra
 
 
 template<typename MeshAttributeType>
-Handle_Of_Point_Of_MembraneMesh MembraneMesh<MeshAttributeType>::ShrinkCellToPoint(Handle_Of_Cell_Of_MembraneMesh CellHandle)
+Handle_Of_Point_Of_MembraneMesh MembraneMesh<MeshAttributeType>::ShrinkFaceToPoint(Handle_Of_Face_Of_MembraneMesh FaceHandle)
 {
 
 }
 
 
 template<typename MeshAttributeType>
-Handle_Of_Point_Of_MembraneMesh MembraneMesh<MeshAttributeType>::ShrinkCellToPoint(int_max CellID)
+Handle_Of_Point_Of_MembraneMesh MembraneMesh<MeshAttributeType>::ShrinkFaceToPoint(int_max FaceID)
 {
-	auto CellHandle = this->GetCellHandleByID(CellID);
-	return this->ShrinkCellToPoint(CellHandle);
+	auto FaceHandle = this->GetFaceHandleByID(FaceID);
+	return this->ShrinkFaceToPoint(FaceHandle);
 }
 
 
 template<typename MeshAttributeType>
-Handle_Of_Cell_Of_MembraneMesh MembraneMesh<MeshAttributeType>::MergeTwoAdjacentCell(Handle_Of_Cell_Of_MembraneMesh CellHandleA, 
-                                                                                     Handle_Of_Cell_Of_MembraneMesh CellHandleB)
-{
-
-}
-
-
-template<typename MeshAttributeType>
-Handle_Of_Cell_Of_MembraneMesh MembraneMesh<MeshAttributeType>::MergeTwoAdjacentCell(int_max CellIDA, int_max CellIDB)
+Handle_Of_Face_Of_MembraneMesh MembraneMesh<MeshAttributeType>::MergeTwoAdjacentFace(Handle_Of_Face_Of_MembraneMesh FaceHandleA, 
+                                                                                     Handle_Of_Face_Of_MembraneMesh FaceHandleB)
 {
 
 }
 
 
 template<typename MeshAttributeType>
-std::pair<Handle_Of_Cell_Of_MembraneMesh, Handle_Of_Cell_Of_MembraneMesh> 
-MembraneMesh<MeshAttributeType>::SplitCellByTwoPoint(PointHandleType PointHandleA, PointHandleType PointHandleB)
+Handle_Of_Face_Of_MembraneMesh MembraneMesh<MeshAttributeType>::MergeTwoAdjacentFace(int_max FaceIDA, int_max FaceIDB)
 {
-	std::pair<CellHandleType, CellHandleType> CellHandlePair;
-     return CellHandlePair;
+
 }
 
 
 template<typename MeshAttributeType>
-std::pair<Handle_Of_Cell_Of_MembraneMesh, Handle_Of_Cell_Of_MembraneMesh> 
-MembraneMesh<MeshAttributeType>::SplitCellByTwoPoint(int_max PointIDA, int_max PointIDB)
+std::pair<Handle_Of_Face_Of_MembraneMesh, Handle_Of_Face_Of_MembraneMesh> 
+MembraneMesh<MeshAttributeType>::SplitFaceByTwoPoint(PointHandleType PointHandleA, PointHandleType PointHandleB)
+{
+	std::pair<FaceHandleType, FaceHandleType> FaceHandlePair;
+     return FaceHandlePair;
+}
+
+
+template<typename MeshAttributeType>
+std::pair<Handle_Of_Face_Of_MembraneMesh, Handle_Of_Face_Of_MembraneMesh> 
+MembraneMesh<MeshAttributeType>::SplitFaceByTwoPoint(int_max PointIDA, int_max PointIDB)
 {
 }
 
@@ -3756,18 +3756,18 @@ void MembraneMesh<MeshAttributeType>::InternalFuction_DeleteDirectedEdge(Directe
 
 
 template<typename MeshAttributeType>
-void MembraneMesh<MeshAttributeType>::InternalFuction_DeleteCell(int_max CellIndex)
+void MembraneMesh<MeshAttributeType>::InternalFuction_DeleteFace(int_max FaceIndex)
 {
-    // delete CellID record if the map has it 
-    auto it = m_MeshData->Map_CellID_to_CellIndex.find(m_MeshData->CellList[CellIndex].GetID());
-    if (it != m_MeshData->Map_CellID_to_CellIndex.end())
+    // delete FaceID record if the map has it 
+    auto it = m_MeshData->Map_FaceID_to_FaceIndex.find(m_MeshData->FaceList[FaceIndex].GetID());
+    if (it != m_MeshData->Map_FaceID_to_FaceIndex.end())
     {
-        m_MeshData->Map_CellID_to_CellIndex.erase(it);
+        m_MeshData->Map_FaceID_to_FaceIndex.erase(it);
     }
 
-    // Delete Cell : only clear memory, not remove from CellList
-	m_MeshData->CellList[CellIndex].Clear(MDK_PURE_EMPTY);
-    m_MeshData->CellValidityFlagList[CellIndex] = 0;
+    // Delete Face : only clear memory, not remove from FaceList
+	m_MeshData->FaceList[FaceIndex].Clear(MDK_PURE_EMPTY);
+    m_MeshData->FaceValidityFlagList[FaceIndex] = 0;
 }
 
 }// namespace mdk

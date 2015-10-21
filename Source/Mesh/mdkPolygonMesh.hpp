@@ -52,17 +52,17 @@ void PolygonMesh<MeshAttributeType>::operator=(PolygonMesh<MeshAttributeType>&& 
 
 template<typename MeshAttributeType>
 void PolygonMesh<MeshAttributeType>::Construct(DenseMatrix<ScalarType> InputPointPositionMatrix,
-                                               const ObjectArray<DenseVector<int_max>>& InputCellTable)
+                                               const ObjectArray<DenseVector<int_max>>& InputFaceTable)
 {
-	if (InputPointPositionMatrix.IsEmpty() == true || InputCellTable.IsEmpty() == true)
+	if (InputPointPositionMatrix.IsEmpty() == true || InputFaceTable.IsEmpty() == true)
     {
-        MDK_Error("InputPointPositionMatrix or InputCellTable is empty @ PolygonMesh::Construct(...)")
+        MDK_Error("InputPointPositionMatrix or InputFaceTable is empty @ PolygonMesh::Construct(...)")
         return;
     }
 
-	if (InputPointPositionMatrix.GetRowCount() != 3 || 3 * InputCellTable.GetElementCount() < InputPointPositionMatrix.GetColCount())
+	if (InputPointPositionMatrix.GetRowCount() != 3 || 3 * InputFaceTable.GetElementCount() < InputPointPositionMatrix.GetColCount())
     {
-        MDK_Error("InputPointPositionMatrix or InputCellTable is invalid @ PolygonMesh::Construct(...)")
+        MDK_Error("InputPointPositionMatrix or InputFaceTable is invalid @ PolygonMesh::Construct(...)")
         return;
     }
     //--------------------------------------------------------------------------------------------------
@@ -79,10 +79,10 @@ void PolygonMesh<MeshAttributeType>::Construct(DenseMatrix<ScalarType> InputPoin
         }
     }
 
-    for (int_max k = 0; k < InputCellTable.GetLength(); ++k)
+    for (int_max k = 0; k < InputFaceTable.GetLength(); ++k)
     {        
-        auto PointHandleList_k = PointHandleList.GetSubSet(InputCellTable[k]);
-        this->AddCellByPoint(PointHandleList_k);
+        auto PointHandleList_k = PointHandleList.GetSubSet(InputFaceTable[k]);
+        this->AddFaceByPoint(PointHandleList_k);
     }
 }
 
@@ -98,10 +98,10 @@ void PolygonMesh<MeshAttributeType>::Construct(MembraneMesh<MeshAttributeType> I
 template<typename MeshAttributeType>
 inline
 std::pair<DenseMatrix<typename MeshAttributeType::ScalarType>, ObjectArray<DenseVector<int_max>>>
-PolygonMesh<MeshAttributeType>::GetPointPositionMatrixAndCellTable() const
+PolygonMesh<MeshAttributeType>::GetPointPositionMatrixAndFaceTable() const
 {
 	std::pair<DenseMatrix<ScalarType>, ObjectArray<DenseVector<int_max>>> Output;
-    this->GetPointPositionMatrixAndCellTable(Output.first, Output.second);
+    this->GetPointPositionMatrixAndFaceTable(Output.first, Output.second);
     return Output;
 }
 
@@ -109,14 +109,14 @@ PolygonMesh<MeshAttributeType>::GetPointPositionMatrixAndCellTable() const
 template<typename MeshAttributeType>
 inline
 void PolygonMesh<MeshAttributeType>::
-GetPointPositionMatrixAndCellTable(DenseMatrix<typename MeshAttributeType::ScalarType>& PointPositionTable,
-                                   ObjectArray<DenseVector<int_max>>& CellTable) const
+GetPointPositionMatrixAndFaceTable(DenseMatrix<typename MeshAttributeType::ScalarType>& PointPositionTable,
+                                   ObjectArray<DenseVector<int_max>>& FaceTable) const
 {
     auto PointCount = this->GetPointCount();
-    auto CellCount = this->GetCellCount();
+    auto FaceCount = this->GetFaceCount();
 
     PointPositionTable.FastResize(3, PointCount);    
-    CellTable.FastResize(CellCount);
+    FaceTable.FastResize(FaceCount);
 
     // Map PointIndex (PointHandle.GetIndex()) to OutputIndex (col index) in PointPositionTable
     std::unordered_map<int_max, int_max> Map_PointIndex_to_OutputIndex; 
@@ -131,43 +131,43 @@ GetPointPositionMatrixAndCellTable(DenseMatrix<typename MeshAttributeType::Scala
         PointCounter += 1;
     }
 
-    int_max CellCounter = 0;
+    int_max FaceCounter = 0;
 
-    for(auto it = this->GetIteratorOfCell(); it.IsNotEnd(); ++it)
+    for(auto it = this->GetIteratorOfFace(); it.IsNotEnd(); ++it)
     {
-        auto PointHandleList = it.Cell().GetPointHandleList();
-        CellTable[CellCounter].FastResize(PointHandleList.GetLength());
+        auto PointHandleList = it.Face().GetPointHandleList();
+        FaceTable[FaceCounter].FastResize(PointHandleList.GetLength());
         for (int_max k = 0; k < PointHandleList.GetLength(); ++k)
         {
             auto tempPointIndex = PointHandleList[k].GetIndex();   
             auto it_map = Map_PointIndex_to_OutputIndex.find(tempPointIndex);
             if (it_map != Map_PointIndex_to_OutputIndex.end())
             {
-                CellTable[CellCounter][k] = it_map->second;
+                FaceTable[FaceCounter][k] = it_map->second;
             }
             else
             {
-                MDK_Error("tempPointIndex is invalid @ PolygonMesh::GetPointPositionTableAndCellTable(...)")
+                MDK_Error("tempPointIndex is invalid @ PolygonMesh::GetPointPositionTableAndFaceTable(...)")
                 return;
             }
         }
-        CellCounter += 1;
+        FaceCounter += 1;
     }
 }
 
 template<typename MeshAttributeType>
-PolygonMesh<MeshAttributeType> PolygonMesh<MeshAttributeType>::GetSubMeshByCell(const DenseVector<CellHandleType>& CellHandleList) const
+PolygonMesh<MeshAttributeType> PolygonMesh<MeshAttributeType>::GetSubMeshByFace(const DenseVector<FaceHandleType>& FaceHandleList) const
 {
     PolygonMesh<MeshAttributeType> OutputMesh;
-    OutputMesh.Construct(this->MembraneMesh::GetSubMeshByCell(CellHandleList));
+    OutputMesh.Construct(this->MembraneMesh::GetSubMeshByFace(FaceHandleList));
     return OutputMesh;
 }
 
 template<typename MeshAttributeType>
-PolygonMesh<MeshAttributeType> PolygonMesh<MeshAttributeType>::GetSubMeshByCell(const DenseVector<int_max>& CellIDList) const
+PolygonMesh<MeshAttributeType> PolygonMesh<MeshAttributeType>::GetSubMeshByFace(const DenseVector<int_max>& FaceIDList) const
 {
     PolygonMesh<MeshAttributeType> OutputMesh;
-    OutputMesh.Construct(this->MembraneMesh::GetSubMeshByCell(CellIDList));
+    OutputMesh.Construct(this->MembraneMesh::GetSubMeshByFace(FaceIDList));
     return OutputMesh;
 }
 

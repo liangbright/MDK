@@ -608,11 +608,11 @@ void Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttribute>::SetToBegin() const
     m_DirectedEdgeHandle.SetIndex(-1, -1);
 }
 
-//================================================= Iterator_Of_Cell_Of_MembraneMesh ==================================//
+//================================================= Iterator_Of_Face_Of_MembraneMesh ==================================//
 
 template<typename MeshAttribute>
 inline 
-Iterator_Of_Cell_Of_MembraneMesh<MeshAttribute>::Iterator_Of_Cell_Of_MembraneMesh(const MembraneMesh<MeshAttribute>& ParentMesh)
+Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::Iterator_Of_Face_Of_MembraneMesh(const MembraneMesh<MeshAttribute>& ParentMesh)
 : m_Mesh(MDK_PURE_EMPTY)
 {
     m_Mesh.ForceShare(ParentMesh);
@@ -621,7 +621,7 @@ Iterator_Of_Cell_Of_MembraneMesh<MeshAttribute>::Iterator_Of_Cell_Of_MembraneMes
 
 template<typename MeshAttribute>
 inline
-Iterator_Of_Cell_Of_MembraneMesh<MeshAttribute>::Iterator_Of_Cell_Of_MembraneMesh(const Iterator_Of_Cell_Of_MembraneMesh<MeshAttribute>& InputIterator)
+Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::Iterator_Of_Face_Of_MembraneMesh(const Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>& InputIterator)
 : m_Mesh(MDK_PURE_EMPTY)
 {
     (*this) = InputIterator;
@@ -629,50 +629,50 @@ Iterator_Of_Cell_Of_MembraneMesh<MeshAttribute>::Iterator_Of_Cell_Of_MembraneMes
 
 template<typename MeshAttribute>
 inline
-Iterator_Of_Cell_Of_MembraneMesh<MeshAttribute>::~Iterator_Of_Cell_Of_MembraneMesh() 
+Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::~Iterator_Of_Face_Of_MembraneMesh() 
 {
 }
 
 template<typename MeshAttribute>
 inline
-void Iterator_Of_Cell_Of_MembraneMesh<MeshAttribute>::operator=(const Iterator_Of_Cell_Of_MembraneMesh<MeshAttribute>& InputIterator) const
+void Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::operator=(const Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>& InputIterator) const
 {
     m_Mesh.ForceShare(InputIterator.m_Mesh);
-    m_CellHandle = InputIterator.m_CellHandle;
+    m_FaceHandle = InputIterator.m_FaceHandle;
     this->SetToBegin();
 }
 
 template<typename MeshAttribute>
 inline
-Handle_Of_Cell_Of_MembraneMesh Iterator_Of_Cell_Of_MembraneMesh<MeshAttribute>::GetCellHandle() const
+Handle_Of_Face_Of_MembraneMesh Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::GetFaceHandle() const
 {
-    return m_CellHandle;
+    return m_FaceHandle;
 }
 
 template<typename MeshAttribute>
 inline
-int_max Iterator_Of_Cell_Of_MembraneMesh<MeshAttribute>::GetCellID() const
+int_max Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::GetFaceID() const
 {
-    return m_Mesh.GetCellID(m_CellHandle);
+    return m_Mesh.GetFaceID(m_FaceHandle);
 }
 
 template<typename MeshAttribute>
 inline
-Cell_Of_MembraneMesh<MeshAttribute>& Iterator_Of_Cell_Of_MembraneMesh<MeshAttribute>::Cell()
+Face_Of_MembraneMesh<MeshAttribute>& Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::Face()
 {
-    return m_Mesh.Cell(m_CellHandle);
+    return m_Mesh.Face(m_FaceHandle);
 }
 
 template<typename MeshAttribute>
 inline
-const Cell_Of_MembraneMesh<MeshAttribute>& Iterator_Of_Cell_Of_MembraneMesh<MeshAttribute>::Cell() const
+const Face_Of_MembraneMesh<MeshAttribute>& Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::Face() const
 {
-    return m_Mesh.Cell(m_CellHandle);
+    return m_Mesh.Face(m_FaceHandle);
 }
 
 template<typename MeshAttribute>
 inline
-void Iterator_Of_Cell_Of_MembraneMesh<MeshAttribute>::operator+=(int_max Offset) const
+void Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::operator+=(int_max Offset) const
 {
     if (Offset == 0)
     {
@@ -680,113 +680,113 @@ void Iterator_Of_Cell_Of_MembraneMesh<MeshAttribute>::operator+=(int_max Offset)
     }
     else if (Offset > 0)
     {
-        auto CellIndex = m_CellHandle.GetIndex();
+        auto FaceIndex = m_FaceHandle.GetIndex();
 
-        if (CellIndex + Offset >= m_Mesh.m_MeshData->CellList.GetLength())
+        if (FaceIndex + Offset >= m_Mesh.m_MeshData->FaceList.GetLength())
         {
-            m_CellHandle.SetIndex(-1);
+            m_FaceHandle.SetIndex(-1);
             return;
         }
 
         int_max Counter = 0;
-        for (int_max k = CellIndex + 1; k < m_Mesh.m_MeshData->CellList.GetLength(); ++k)
+        for (int_max k = FaceIndex + 1; k < m_Mesh.m_MeshData->FaceList.GetLength(); ++k)
         {
-            if (m_Mesh.m_MeshData->CellList[k].IsValid() == true)
+            if (m_Mesh.m_MeshData->FaceList[k].IsValid() == true)
             {
                 Counter += 1;
             }
 
             if (Counter == Offset)
             {
-                m_CellHandle.SetIndex(k);
+                m_FaceHandle.SetIndex(k);
                 return;
             }
 
             if (Counter > Offset)
             {
-                m_CellHandle.SetIndex(-1);
+                m_FaceHandle.SetIndex(-1);
                 return;
             }
         }
 
-        m_CellHandle.SetIndex(-1);
+        m_FaceHandle.SetIndex(-1);
     }
     else // Offset < 0
     {
-        auto CellIndex = m_CellHandle.GetIndex();
+        auto FaceIndex = m_FaceHandle.GetIndex();
 
-        if (CellIndex + Offset < 0)
+        if (FaceIndex + Offset < 0)
         {
-            m_CellHandle.SetIndex(-1);
+            m_FaceHandle.SetIndex(-1);
             return;
         }
 
         int_max Counter = 0;
-        for (int_max k = CellIndex - 1; k >= 0; --k)
+        for (int_max k = FaceIndex - 1; k >= 0; --k)
         {
-            if (m_Mesh.m_MeshData->CellList[k].IsValid() == true)
+            if (m_Mesh.m_MeshData->FaceList[k].IsValid() == true)
             {
                 Counter += 1;
             }
 
             if (Counter == -Offset)
             {
-                m_CellHandle.SetIndex(k);
+                m_FaceHandle.SetIndex(k);
                 return;
             }
 
             if (Counter > -Offset)
             {
-                m_CellHandle.SetIndex(-1);
+                m_FaceHandle.SetIndex(-1);
                 return;
             }
         }
-        m_CellHandle.SetIndex(-1);
+        m_FaceHandle.SetIndex(-1);
     }
 }
 
 template<typename MeshAttribute>
 inline
-void Iterator_Of_Cell_Of_MembraneMesh<MeshAttribute>::operator-=(int_max Offset) const
+void Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::operator-=(int_max Offset) const
 {
     this->operator+=(-Offset);
 }
 
 template<typename MeshAttribute>
 inline
-void Iterator_Of_Cell_Of_MembraneMesh<MeshAttribute>::operator++() const
+void Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::operator++() const
 {
     (*this) += 1;
 }
 
 template<typename MeshAttribute>
 inline
-void Iterator_Of_Cell_Of_MembraneMesh<MeshAttribute>::operator--() const
+void Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::operator--() const
 {
     (*this) -= 1;
 }
 
 template<typename MeshAttribute>
 inline
-bool Iterator_Of_Cell_Of_MembraneMesh<MeshAttribute>::IsNotEnd() const
+bool Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::IsNotEnd() const
 {
-    auto CellIndex = m_CellHandle.GetIndex();
-    return (CellIndex >= 0 && CellIndex < m_Mesh.m_MeshData->CellList.GetLength());
+    auto FaceIndex = m_FaceHandle.GetIndex();
+    return (FaceIndex >= 0 && FaceIndex < m_Mesh.m_MeshData->FaceList.GetLength());
 }
 
 template<typename MeshAttribute>
 inline
-void Iterator_Of_Cell_Of_MembraneMesh<MeshAttribute>::SetToBegin() const
+void Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::SetToBegin() const
 {
-    for (int_max k = 0; k < m_Mesh.m_MeshData->CellList.GetLength(); ++k)
+    for (int_max k = 0; k < m_Mesh.m_MeshData->FaceList.GetLength(); ++k)
     {
-        if (m_Mesh.m_MeshData->CellList[k].IsValid() == true)
+        if (m_Mesh.m_MeshData->FaceList[k].IsValid() == true)
         {
-            m_CellHandle.SetIndex(k);
+            m_FaceHandle.SetIndex(k);
             return;
         }
     }
-    m_CellHandle.SetIndex(-1);
+    m_FaceHandle.SetIndex(-1);
 }
 
 }// namespace mdk

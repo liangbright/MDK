@@ -14,11 +14,11 @@ PolygonMesh<MeshAttributeType> SubdivideQuadMesh_Linear(const PolygonMesh<MeshAt
 	
 	auto PointCount_input = InputMesh.GetPointCount();
 	auto EdgeCount_input = InputMesh.GetEdgeCount();
-	auto CellCount_input = InputMesh.GetCellCount();
-	auto PointCount = PointCount_input + EdgeCount_input + CellCount_input;
+	auto FaceCount_input = InputMesh.GetFaceCount();
+	auto PointCount = PointCount_input + EdgeCount_input + FaceCount_input;
 	auto EdgeCount = EdgeCount_input * 2;
-	auto CellCount = CellCount_input * 4;
-	OutputMesh.SetCapacity(PointCount, EdgeCount, CellCount);
+	auto FaceCount = FaceCount_input * 4;
+	OutputMesh.SetCapacity(PointCount, EdgeCount, FaceCount);
 
 	//------- add initial point by copying all point of InputMesh ----------------//
 	DenseVector<int_max> PointIndexMap_init;
@@ -56,10 +56,10 @@ PolygonMesh<MeshAttributeType> SubdivideQuadMesh_Linear(const PolygonMesh<MeshAt
 	}
 
 	//------- add new cell by splitting each cell of InputMesh and add center point ----------------//   
-	for (auto it = InputMesh.GetIteratorOfCell(); it.IsNotEnd(); ++it)
+	for (auto it = InputMesh.GetIteratorOfFace(); it.IsNotEnd(); ++it)
 	{
-		auto PointHandleList_input = it.Cell().GetPointHandleList(); // P0, P1, P2, P3
-		auto EdgeHandleList_input = it.Cell().GetEdgeHandleList();   // P0-P1, P1-P2, P2-P3, P3-P0
+		auto PointHandleList_input = it.Face().GetPointHandleList(); // P0, P1, P2, P3
+		auto EdgeHandleList_input = it.Face().GetEdgeHandleList();   // P0-P1, P1-P2, P2-P3, P3-P0
 		if (PointHandleList_input.GetLength() != 4)
 		{
 			MDK_Error("Input is NOT QuadMesh @ SubdivideQuadMesh_Linear(...)")
@@ -104,10 +104,10 @@ PolygonMesh<MeshAttributeType> SubdivideQuadMesh_Linear(const PolygonMesh<MeshAt
 		PointHandleList_b = {H4, H1, H5, H8};
 		PointHandleList_c = {H8, H5, H2, H6};
 		PointHandleList_d = {H7, H8, H6, H3};
-		OutputMesh.AddCellByPoint(PointHandleList_a);
-		OutputMesh.AddCellByPoint(PointHandleList_b);
-		OutputMesh.AddCellByPoint(PointHandleList_c);
-		OutputMesh.AddCellByPoint(PointHandleList_d);
+		OutputMesh.AddFaceByPoint(PointHandleList_a);
+		OutputMesh.AddFaceByPoint(PointHandleList_b);
+		OutputMesh.AddFaceByPoint(PointHandleList_c);
+		OutputMesh.AddFaceByPoint(PointHandleList_d);
 	}
 	//--------------------------------------------------------------------------//
 	return OutputMesh;

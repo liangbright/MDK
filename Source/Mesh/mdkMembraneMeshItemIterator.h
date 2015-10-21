@@ -114,31 +114,31 @@ public:
     inline bool IsNotEnd() const;
 };
 
-//================================================= Iterator_Of_Cell_Of_MembraneMesh ==================================//
+//================================================= Iterator_Of_Face_Of_MembraneMesh ==================================//
 
 template<typename MeshAttribute>
-struct Iterator_Of_Cell_Of_MembraneMesh
+struct Iterator_Of_Face_Of_MembraneMesh
 {
 private:
     mutable MembraneMesh<MeshAttribute> m_Mesh;
-    mutable Handle_Of_Cell_Of_MembraneMesh m_CellHandle;
+    mutable Handle_Of_Face_Of_MembraneMesh m_FaceHandle;
 
     //----------------------------------
 private:
-    Iterator_Of_Cell_Of_MembraneMesh() = delete;
+    Iterator_Of_Face_Of_MembraneMesh() = delete;
 public:
-    inline Iterator_Of_Cell_Of_MembraneMesh(const MembraneMesh<MeshAttribute>& ParentMesh);
-    inline Iterator_Of_Cell_Of_MembraneMesh(const Iterator_Of_Cell_Of_MembraneMesh& InputIterator);
-    inline ~Iterator_Of_Cell_Of_MembraneMesh();
+    inline Iterator_Of_Face_Of_MembraneMesh(const MembraneMesh<MeshAttribute>& ParentMesh);
+    inline Iterator_Of_Face_Of_MembraneMesh(const Iterator_Of_Face_Of_MembraneMesh& InputIterator);
+    inline ~Iterator_Of_Face_Of_MembraneMesh();
 
-    inline void operator=(const Iterator_Of_Cell_Of_MembraneMesh& InputIterator) const;
+    inline void operator=(const Iterator_Of_Face_Of_MembraneMesh& InputIterator) const;
 
-    inline Handle_Of_Cell_Of_MembraneMesh GetCellHandle() const;
+    inline Handle_Of_Face_Of_MembraneMesh GetFaceHandle() const;
 
-    inline int_max GetCellID() const;
+    inline int_max GetFaceID() const;
 
-    inline Cell_Of_MembraneMesh<MeshAttribute>& Cell();
-    inline const Cell_Of_MembraneMesh<MeshAttribute>& Cell() const;
+    inline Face_Of_MembraneMesh<MeshAttribute>& Face();
+    inline const Face_Of_MembraneMesh<MeshAttribute>& Face() const;
 
     inline void operator+=(int_max Offset) const;
     inline void operator-=(int_max Offset) const;

@@ -15,7 +15,7 @@ struct TriangleMeshEmptyAttributeType
 	typedef StandardAttribute_Of_Point_Of_MembraneMesh<ScalarType>          PointAttributeType;
 	typedef StandardAttribute_Of_Edge_Of_MembraneMesh<ScalarType>           EdgeAttributeType;
 	typedef StandardAttribute_Of_DirectedEdge_Of_MembraneMesh<ScalarType>   DirectedEdgeAttributeType;
-	typedef StandardAttribute_Of_Cell_Of_MembraneMesh<ScalarType>           CellAttributeType;
+	typedef StandardAttribute_Of_Face_Of_MembraneMesh<ScalarType>           FaceAttributeType;
 };
 //---------------------------------------------------------------------------------------------------------//
 
@@ -28,7 +28,7 @@ struct TriangleMeshStandardAttributeType
 	typedef StandardAttribute_Of_Point_Of_TriangleMesh<ScalarType>          PointAttributeType;
 	typedef StandardAttribute_Of_Edge_Of_TriangleMesh<ScalarType>           EdgeAttributeType;
 	typedef StandardAttribute_Of_DirectedEdge_Of_TriangleMesh<ScalarType>   DirectedEdgeAttributeType;
-	typedef StandardAttribute_Of_Cell_Of_TriangleMesh<ScalarType>           CellAttributeType;
+	typedef StandardAttribute_Of_Face_Of_TriangleMesh<ScalarType>           FaceAttributeType;
 };
 //---------------------------------------------------------------------------------------------------------//
 
@@ -46,22 +46,22 @@ public:
     typedef typename MeshAttributeType::PointAttributeType          PointAttributeType;
     typedef typename MeshAttributeType::EdgeAttributeType           EdgeAttributeType;
     typedef typename MeshAttributeType::DirectedEdgeAttributeType   DirectedEdgeAttributeType;
-    typedef typename MeshAttributeType::CellAttributeType           CellAttributeType;
+    typedef typename MeshAttributeType::FaceAttributeType           FaceAttributeType;
 
     typedef Point_Of_MembraneMesh<MeshAttributeType>           PointType;
     typedef Edge_Of_MembraneMesh<MeshAttributeType>            EdgeType;
     typedef DirectedEdge_Of_MembraneMesh<MeshAttributeType>    DirectedEdgeType;
-    typedef Cell_Of_MembraneMesh<MeshAttributeType>            CellType;
+    typedef Face_Of_MembraneMesh<MeshAttributeType>            FaceType;
 
     typedef Handle_Of_Point_Of_MembraneMesh          PointHandleType;
     typedef Handle_Of_Edge_Of_MembraneMesh           EdgeHandleType;
     typedef Handle_Of_DirectedEdge_Of_MembraneMesh   DirectedEdgeHandleType;
-    typedef Handle_Of_Cell_Of_MembraneMesh           CellHandleType;
+    typedef Handle_Of_Face_Of_MembraneMesh           FaceHandleType;
 
     typedef Iterator_Of_Point_Of_MembraneMesh<MeshAttributeType>         PointIteratorType;
     typedef Iterator_Of_Edge_Of_MembraneMesh<MeshAttributeType>          EdgeIteratorType;
     typedef Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttributeType>  DirectedEdgeIteratorType;
-    typedef Iterator_Of_Cell_Of_MembraneMesh<MeshAttributeType>          CellIteratorType;
+    typedef Iterator_Of_Face_Of_MembraneMesh<MeshAttributeType>          FaceIteratorType;
 
 public:
     TriangleMesh();
@@ -72,17 +72,17 @@ public:
     inline void operator=(const TriangleMesh& InputMesh);
     inline void operator=(TriangleMesh&& InputMesh);
 
-    //------------------------ Add Cell ---------------------------------------//
-    using PolygonMesh::AddCellByEdge;
-    using PolygonMesh::AddCellByPoint;
+    //------------------------ Add Face ---------------------------------------//
+    using PolygonMesh::AddFaceByEdge;
+    using PolygonMesh::AddFaceByPoint;
 
     // direction of DirectedEdge: 0->1->2
-    inline CellHandleType AddCellByEdge(EdgeHandleType EdgeHandle0, EdgeHandleType EdgeHandle1, EdgeHandleType EdgeHandle2);
-    inline CellHandleType AddCellByEdge(int_max EdgeID0, int_max EdgeID1, int_max EdgeID2);
+    inline FaceHandleType AddFaceByEdge(EdgeHandleType EdgeHandle0, EdgeHandleType EdgeHandle1, EdgeHandleType EdgeHandle2);
+    inline FaceHandleType AddFaceByEdge(int_max EdgeID0, int_max EdgeID1, int_max EdgeID2);
 
     // direction of DirectedEdge: 0->1->2
-    inline CellHandleType AddCellByPoint(PointHandleType PointHandle0, PointHandleType PointHandle1, PointHandleType PointHandle2);
-    inline CellHandleType AddCellByPoint(int_max PointID0, int_max PointID1, int_max PointID2);
+    inline FaceHandleType AddFaceByPoint(PointHandleType PointHandle0, PointHandleType PointHandle1, PointHandleType PointHandle2);
+    inline FaceHandleType AddFaceByPoint(int_max PointID0, int_max PointID1, int_max PointID2);
 
     //------------ Construct from input data ------------------------------------//
 
@@ -93,35 +93,35 @@ public:
     //--- check --------------------------//
     bool CheckIfTriangleMesh() const;
 
-    // get a sub mesh by CellHandleList or CellIDList ----------------------------//
-    TriangleMesh<MeshAttributeType> GetSubMeshByCell(const DenseVector<CellHandleType>& CellHandleList) const;
-    TriangleMesh<MeshAttributeType> GetSubMeshByCell(const DenseVector<int_max>& CellIDList) const;
+    // get a sub mesh by FaceHandleList or FaceIDList ----------------------------//
+    TriangleMesh<MeshAttributeType> GetSubMeshByFace(const DenseVector<FaceHandleType>& FaceHandleList) const;
+    TriangleMesh<MeshAttributeType> GetSubMeshByFace(const DenseVector<int_max>& FaceIDList) const;
 
     //------------- Function optimized For TriangleMesh --------------------------------------------------//
 
-	void UpdateNormalAtCell(const MDK_Symbol_ALL&);
-    void UpdateNormalAtCell(CellHandleType CellHandle);
-    void UpdateNormalAtCell(int_max CellID);
+	void UpdateNormalAtFace(const MDK_Symbol_ALL&);
+    void UpdateNormalAtFace(FaceHandleType FaceHandle);
+    void UpdateNormalAtFace(int_max FaceID);
 
-	void UpdateAreaOfCell(const MDK_Symbol_ALL&);
-    void UpdateAreaOfCell(CellHandleType CellHandle);
-    void UpdateAreaOfCell(int_max CellID);
+	void UpdateAreaOfFace(const MDK_Symbol_ALL&);
+    void UpdateAreaOfFace(FaceHandleType FaceHandle);
+    void UpdateAreaOfFace(int_max FaceID);
 
-	void UpdateCornerAngleOfCell(const MDK_Symbol_ALL&);
-    void UpdateCornerAngleOfCell(CellHandleType CellHandle);
-    void UpdateCornerAngleOfCell(int_max CellID);
+	void UpdateCornerAngleOfFace(const MDK_Symbol_ALL&);
+    void UpdateCornerAngleOfFace(FaceHandleType FaceHandle);
+    void UpdateCornerAngleOfFace(int_max FaceID);
 
-	// CellNormal must be available: call UpdateNormalAtCell() and UpdateCornerAngleOfCell()
+	// FaceNormal must be available: call UpdateNormalAtFace() and UpdateCornerAngleOfFace()
 	void UpdateAngleWeightedNormalAtPoint(const MDK_Symbol_ALL&);
 	void UpdateAngleWeightedNormalAtPoint(PointHandleType PointHandle);
 	void UpdateAngleWeightedNormalAtPoint(int_max PointID);
 
-	// run UpdateCornerAngleOfCell and UpdateAreaOfCell first
+	// run UpdateCornerAngleOfFace and UpdateAreaOfFace first
 	void UpdateGaussianCurvatureAtPoint(const MDK_Symbol_ALL&);
     void UpdateGaussianCurvatureAtPoint(PointHandleType PointHandle);
     void UpdateGaussianCurvatureAtPoint(int_max PointID);
 
-	// run UpdateAreaOfCell() first
+	// run UpdateAreaOfFace() first
 	void UpdateMeanCurvatureAtPoint(const MDK_Symbol_ALL&);
     void UpdateMeanCurvatureAtPoint(PointHandleType PointHandle);
     void UpdateMeanCurvatureAtPoint(int_max PointID);

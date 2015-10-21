@@ -37,11 +37,11 @@ TriangleMesh<MeshAttributeType> SubdivideTriangleMesh_Linear(const TriangleMesh<
 	
 	auto PointCount_input = InputMesh.GetPointCount();
 	auto EdgeCount_input = InputMesh.GetEdgeCount();
-	auto CellCount_input = InputMesh.GetCellCount();
+	auto FaceCount_input = InputMesh.GetFaceCount();
 	auto PointCount = PointCount_input + EdgeCount_input;
 	auto EdgeCount = EdgeCount_input * 2;
-	auto CellCount = CellCount_input * 4;
-	OutputMesh.SetCapacity(PointCount, EdgeCount, CellCount);
+	auto FaceCount = FaceCount_input * 4;
+	OutputMesh.SetCapacity(PointCount, EdgeCount, FaceCount);
 
 	//------- add initial point by copying all point of InputMesh ----------------//
 	DenseVector<int_max> PointIndexMap_init;
@@ -79,10 +79,10 @@ TriangleMesh<MeshAttributeType> SubdivideTriangleMesh_Linear(const TriangleMesh<
 	}
 
 	//------- add new cell by splitting each cell of InputMesh ----------------//   
-	for (auto it = InputMesh.GetIteratorOfCell(); it.IsNotEnd(); ++it)
+	for (auto it = InputMesh.GetIteratorOfFace(); it.IsNotEnd(); ++it)
 	{
-		auto PointHandleList_input = it.Cell().GetPointHandleList(); // P0, P1, P2
-		auto EdgeHandleList_input = it.Cell().GetEdgeHandleList();   // P0-P1, P1-P2, P2-P1
+		auto PointHandleList_input = it.Face().GetPointHandleList(); // P0, P1, P2
+		auto EdgeHandleList_input = it.Face().GetEdgeHandleList();   // P0-P1, P1-P2, P2-P1
 		//-----------------
 		//      0
 		//    3    5
@@ -94,10 +94,10 @@ TriangleMesh<MeshAttributeType> SubdivideTriangleMesh_Linear(const TriangleMesh<
 		auto H3 = PointHandleList_new[PointIndexMap_new[EdgeHandleList_input[0].GetIndex()]];
 		auto H4 = PointHandleList_new[PointIndexMap_new[EdgeHandleList_input[1].GetIndex()]];
 		auto H5 = PointHandleList_new[PointIndexMap_new[EdgeHandleList_input[2].GetIndex()]];
-		OutputMesh.AddCellByPoint(H0, H3, H5);
-		OutputMesh.AddCellByPoint(H3, H1, H4);
-		OutputMesh.AddCellByPoint(H3, H4, H5);
-		OutputMesh.AddCellByPoint(H5, H4, H2);
+		OutputMesh.AddFaceByPoint(H0, H3, H5);
+		OutputMesh.AddFaceByPoint(H3, H1, H4);
+		OutputMesh.AddFaceByPoint(H3, H4, H5);
+		OutputMesh.AddFaceByPoint(H5, H4, H2);
 	}
 	//--------------------------------------------------------------------------//
 	return OutputMesh;
@@ -176,8 +176,8 @@ void SmoothTriangleMeshByMeanCurvature(TriangleMesh<MeshAttributeType>& TargetMe
 
 	if (Flag_UpdateAttribute == true)
 	{
-		TargetMesh.UpdateCornerAngleOfCell();
-		TargetMesh.UpdateAreaOfCell();
+		TargetMesh.UpdateCornerAngleOfFace();
+		TargetMesh.UpdateAreaOfFace();
 		TargetMesh.UpdateMeanCurvatureAtPoint();
 	}
 
@@ -198,8 +198,8 @@ void SmoothTriangleMeshByGaussianCurvature(TriangleMesh<MeshAttributeType>& Targ
 
 	if (Flag_UpdateAttribute == true)
 	{
-		TargetMesh.UpdateCornerAngleOfCell();
-		TargetMesh.UpdateAreaOfCell();
+		TargetMesh.UpdateCornerAngleOfFace();
+		TargetMesh.UpdateAreaOfFace();
 		TargetMesh.UpdateGaussianCurvatureAtPoint();
 		TargetMesh.UpdateMeanCurvatureAtPoint();
 	}

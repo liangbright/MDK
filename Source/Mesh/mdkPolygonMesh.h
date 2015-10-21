@@ -20,7 +20,7 @@ struct PolygonMeshEmptyAttributeType
 	typedef StandardAttribute_Of_Point_Of_MembraneMesh<ScalarType>          PointAttributeType;
 	typedef StandardAttribute_Of_Edge_Of_MembraneMesh<ScalarType>           EdgeAttributeType;
 	typedef StandardAttribute_Of_DirectedEdge_Of_MembraneMesh<ScalarType>   DirectedEdgeAttributeType;
-	typedef StandardAttribute_Of_Cell_Of_MembraneMesh<ScalarType>           CellAttributeType;
+	typedef StandardAttribute_Of_Face_Of_MembraneMesh<ScalarType>           FaceAttributeType;
 };
 //---------------------------------------------------------------------------------------------------------//
 
@@ -33,7 +33,7 @@ struct PolygonMeshStandardAttributeType
 	typedef StandardAttribute_Of_Point_Of_PolygonMesh<ScalarType>          PointAttributeType;
 	typedef StandardAttribute_Of_Edge_Of_PolygonMesh<ScalarType>           EdgeAttributeType;
 	typedef StandardAttribute_Of_DirectedEdge_Of_PolygonMesh<ScalarType>   DirectedEdgeAttributeType;
-	typedef StandardAttribute_Of_Cell_Of_PolygonMesh<ScalarType>           CellAttributeType;
+	typedef StandardAttribute_Of_Face_Of_PolygonMesh<ScalarType>           FaceAttributeType;
 };
 //------------------------------------------------------------------------------------------------//
 
@@ -50,22 +50,22 @@ public:
     typedef typename MeshAttributeType::PointAttributeType          PointAttributeType;
     typedef typename MeshAttributeType::EdgeAttributeType           EdgeAttributeType;
     typedef typename MeshAttributeType::DirectedEdgeAttributeType   DirectedEdgeAttributeType;
-    typedef typename MeshAttributeType::CellAttributeType           CellAttributeType;
+    typedef typename MeshAttributeType::FaceAttributeType           FaceAttributeType;
 
     typedef Point_Of_MembraneMesh<MeshAttributeType>           PointType;
     typedef Edge_Of_MembraneMesh<MeshAttributeType>            EdgeType;
     typedef DirectedEdge_Of_MembraneMesh<MeshAttributeType>    DirectedEdgeType;
-    typedef Cell_Of_MembraneMesh<MeshAttributeType>            CellType;
+    typedef Face_Of_MembraneMesh<MeshAttributeType>            FaceType;
 
     typedef Handle_Of_Point_Of_MembraneMesh          PointHandleType;
     typedef Handle_Of_Edge_Of_MembraneMesh           EdgeHandleType;
     typedef Handle_Of_DirectedEdge_Of_MembraneMesh   DirectedEdgeHandleType;
-    typedef Handle_Of_Cell_Of_MembraneMesh           CellHandleType;
+    typedef Handle_Of_Face_Of_MembraneMesh           FaceHandleType;
 
     typedef Iterator_Of_Point_Of_MembraneMesh<MeshAttributeType>         PointIteratorType;
     typedef Iterator_Of_Edge_Of_MembraneMesh<MeshAttributeType>          EdgeIteratorType;
     typedef Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttributeType>  DirectedEdgeIteratorType;
-    typedef Iterator_Of_Cell_Of_MembraneMesh<MeshAttributeType>          CellIteratorType;
+    typedef Iterator_Of_Face_Of_MembraneMesh<MeshAttributeType>          FaceIteratorType;
 
 public:
     PolygonMesh();
@@ -78,34 +78,34 @@ public:
 
     //------------ Construct from input data ------------------------------------//
 
-	void Construct(DenseMatrix<ScalarType> InputPointPositionMatrix, const ObjectArray<DenseVector<int_max>>& InputCellTable);
+	void Construct(DenseMatrix<ScalarType> InputPointPositionMatrix, const ObjectArray<DenseVector<int_max>>& InputFaceTable);
     // index order in each PointIndexList should be consistent
 
     void Construct(MembraneMesh<MeshAttributeType> InputMembraneMesh);
 
-    // get a sub mesh by CellHandleList or CellIDList ----------------------------//
-    PolygonMesh<MeshAttributeType> GetSubMeshByCell(const DenseVector<CellHandleType>& CellHandleList) const;
-    PolygonMesh<MeshAttributeType> GetSubMeshByCell(const DenseVector<int_max>& CellIDList) const;
+    // get a sub mesh by FaceHandleList or FaceIDList ----------------------------//
+    PolygonMesh<MeshAttributeType> GetSubMeshByFace(const DenseVector<FaceHandleType>& FaceHandleList) const;
+    PolygonMesh<MeshAttributeType> GetSubMeshByFace(const DenseVector<int_max>& FaceIDList) const;
 
     //--------------------- output -------------------------------------------------//
 
-    std::pair<DenseMatrix<ScalarType>, ObjectArray<DenseVector<int_max>>> GetPointPositionMatrixAndCellTable() const;
+    std::pair<DenseMatrix<ScalarType>, ObjectArray<DenseVector<int_max>>> GetPointPositionMatrixAndFaceTable() const;
 
-	void GetPointPositionMatrixAndCellTable(DenseMatrix<ScalarType>& PointPositionTable, ObjectArray<DenseVector<int_max>>& CellTable) const;
+	void GetPointPositionMatrixAndFaceTable(DenseMatrix<ScalarType>& PointPositionTable, ObjectArray<DenseVector<int_max>>& FaceTable) const;
 
     //------------- Mesh Attribute --------------------------------------------------//
 	/*
-    void UpdateNormalAtCell(); // all
-    void UpdateNormalAtCell(CellHandleType CellHandle);
-    void UpdateNormalAtCell(int_max CellID);
+    void UpdateNormalAtFace(); // all
+    void UpdateNormalAtFace(FaceHandleType FaceHandle);
+    void UpdateNormalAtFace(int_max FaceID);
 
-    void UpdateAreaOfCell(); // all
-    void UpdateAreaOfCell(CellHandleType CellHandle);
-    void UpdateAreaOfCell(int_max CellID);
+    void UpdateAreaOfFace(); // all
+    void UpdateAreaOfFace(FaceHandleType FaceHandle);
+    void UpdateAreaOfFace(int_max FaceID);
 
-    void UpdateCornerAngleOfCell(); // all
-    void UpdateCornerAngleOfCell(CellHandleType CellHandle);
-    void UpdateCornerAngleOfCell(int_max CellID);
+    void UpdateCornerAngleOfFace(); // all
+    void UpdateCornerAngleOfFace(FaceHandleType FaceHandle);
+    void UpdateCornerAngleOfFace(int_max FaceID);
 
 	void UpdateAngleWeightedNormalAtPoint(); // all
 	void UpdateAngleWeightedNormalAtPoint(PointHandleType PointHandle);

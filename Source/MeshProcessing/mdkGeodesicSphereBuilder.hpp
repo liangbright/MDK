@@ -76,13 +76,13 @@ void GeodesicSphereBuilder<ScalarType>::BuildInitialSphere()
 		PointHandleList[k] = m_SphereList[0].AddPoint(vdata[k]);				
 	}
 
-	m_SphereList[0].ReserveCapacity(12, 30, 20);
+	m_SphereList[0].SetCapacity(12, 30, 20);
 	for (int_max k = 0; k < 20; ++k)
 	{
 		auto H0 = PointHandleList[edata[k][0]];
 		auto H1 = PointHandleList[edata[k][1]];
 		auto H2 = PointHandleList[edata[k][2]];
-		m_SphereList[0].AddCellByPoint(H0, H1, H2);
+		m_SphereList[0].AddFaceByPoint(H0, H1, H2);
 	}
 }
 
@@ -92,11 +92,11 @@ void GeodesicSphereBuilder<ScalarType>::BuildSphereAtDepth(int_max Depth)
 {
 	auto PointCount_prev = m_SphereList[Depth - 1].GetPointCount();
 	auto EdgeCount_prev = m_SphereList[Depth - 1].GetEdgeCount();
-	auto CellCount_prev = m_SphereList[Depth - 1].GetCellCount();
+	auto FaceCount_prev = m_SphereList[Depth - 1].GetFaceCount();
 	auto PointCount = PointCount_prev + EdgeCount_prev;
 	auto EdgeCount  = EdgeCount_prev*2;
-	auto CellCount = CellCount_prev * 4;
-	m_SphereList[Depth].ReserveCapacity(PointCount, EdgeCount, CellCount);
+	auto FaceCount = FaceCount_prev * 4;
+	m_SphereList[Depth].ReserveCapacity(PointCount, EdgeCount, FaceCount);
 	
 	//------- add initial point by copying all point of previous Sphere ----------------//
 	DenseVector<Handle_Of_Point_Of_MembraneMesh> PointHandleList_init;
@@ -121,11 +121,11 @@ void GeodesicSphereBuilder<ScalarType>::BuildSphereAtDepth(int_max Depth)
 		PointHandleList_new.Append(H3);
 	}
 
-	//------- add cell to currrent Sphere by splitting each cell of previous Sphere ----//   
-	for (auto it = m_SphereList[Depth - 1].GetIteratorOfCell(); it.IsNotEnd(); ++it)
+	//------- add cell to current Sphere by splitting each cell of previous Sphere ----//   
+	for (auto it = m_SphereList[Depth - 1].GetIteratorOfFace(); it.IsNotEnd(); ++it)
 	{
-		auto PointHandleList_prev = it.Cell().GetPointHandleList(); // P0, P1, P2
-		auto EdgeHandleList_prev = it.Cell().GetEdgeHandleList();   // P0-P1, P1-P2, P2-P1
+		auto PointHandleList_prev = it.Face().GetPointHandleList(); // P0, P1, P2
+		auto EdgeHandleList_prev = it.Face().GetEdgeHandleList();   // P0-P1, P1-P2, P2-P1
 		//-----------------
 		//      0
 		//    3    5
@@ -137,10 +137,10 @@ void GeodesicSphereBuilder<ScalarType>::BuildSphereAtDepth(int_max Depth)
 		auto H3 = PointHandleList_new[EdgeHandleList_prev[0].GetIndex()];
 		auto H4 = PointHandleList_new[EdgeHandleList_prev[1].GetIndex()];
 		auto H5 = PointHandleList_new[EdgeHandleList_prev[2].GetIndex()];
-		m_SphereList[Depth].AddCellByPoint(H0, H3, H5);
-		m_SphereList[Depth].AddCellByPoint(H3, H1, H4);
-		m_SphereList[Depth].AddCellByPoint(H3, H4, H5);
-		m_SphereList[Depth].AddCellByPoint(H5, H4, H2);
+		m_SphereList[Depth].AddFaceByPoint(H0, H3, H5);
+		m_SphereList[Depth].AddFaceByPoint(H3, H1, H4);
+		m_SphereList[Depth].AddFaceByPoint(H3, H4, H5);
+		m_SphereList[Depth].AddFaceByPoint(H5, H4, H2);
 	}
 }
 

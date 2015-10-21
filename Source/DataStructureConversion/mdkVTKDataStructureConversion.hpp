@@ -537,11 +537,11 @@ bool ConvertMDKPolygonMeshToVTKPolyData(const PolygonMesh<MeshAttributeType>& MD
 	auto ScalarTypeName = GetScalarTypeName(ReferenceScalar);
 
     DenseMatrix<ScalarType> PointPositionTable;
-	ObjectArray<DenseVector<int_max>> CellTable;
-    MDKMesh.GetPointPositionMatrixAndCellTable(PointPositionTable, CellTable);
+	ObjectArray<DenseVector<int_max>> FaceTable;
+    MDKMesh.GetPointPositionMatrixAndFaceTable(PointPositionTable, FaceTable);
 
     int_max PointCount = PointPositionTable.GetColCount();
-    int_max CellCount = CellTable.GetLength();
+    int_max FaceCount = FaceTable.GetLength();
 
     auto PointData = vtkSmartPointer<vtkPoints>::New();
 
@@ -594,15 +594,15 @@ bool ConvertMDKPolygonMeshToVTKPolyData(const PolygonMesh<MeshAttributeType>& MD
 
     auto CellData = vtkSmartPointer<vtkCellArray>::New();
 
-    for (int i = 0; i < CellCount; ++i)
+    for (int i = 0; i < FaceCount; ++i)
     {
-        auto PointNumberInCell = CellTable[i].GetElementCount();
+        auto PointCount_i = FaceTable[i].GetElementCount();
 
-        CellData->InsertNextCell(PointNumberInCell);
+		CellData->InsertNextCell(PointCount_i);
 
-        for (int n = 0; n < PointNumberInCell; ++n)
+		for (int n = 0; n < PointCount_i; ++n)
         {
-            auto PointIndex = CellTable[i][n];
+            auto PointIndex = FaceTable[i][n];
 
             CellData->InsertCellPoint(PointIndex);
         }
@@ -645,21 +645,20 @@ bool ConvertVTKPolyDataToMDKPolygonMesh(vtkPolyData* VTKMesh, PolygonMesh<MeshAt
 
 	auto CellCount = int_max(VTKMesh->GetNumberOfCells());
 
-	ObjectArray<DenseVector<int_max>> CellData;
-    CellData.FastResize(CellCount);
+	ObjectArray<DenseVector<int_max>> FaceData;
+    FaceData.FastResize(CellCount);
 
     for (int_max k = 0; k < CellCount; ++k)
     {
 		auto Cell = VTKMesh->GetCell(k);
-        auto PointNumberInCell = int_max(Cell->GetNumberOfPoints());
-
-        for (int_max n = 0; n < PointNumberInCell; ++n)
+        auto PointCount_k = int_max(Cell->GetNumberOfPoints());
+		for (int_max n = 0; n < PointCount_k; ++n)
         {
-            CellData[k].Append(int_max(Cell->GetPointId(n)));
+            FaceData[k].Append(int_max(Cell->GetPointId(n)));
         }
     }
 
-	MDKMesh.Construct(std::move(PointData), CellData);
+	MDKMesh.Construct(std::move(PointData), FaceData);
 
     return true;
 }
@@ -690,11 +689,11 @@ bool ConvertMDKTriangleMeshToVTKPolyData(const TriangleMesh<MeshAttributeType>& 
 	auto ScalarTypeName = GetScalarTypeName(ReferenceScalar);
 
 	DenseMatrix<ScalarType> PointPositionTable;
-	ObjectArray<DenseVector<int_max>> CellTable;
-	MDKMesh.GetPointPositionMatrixAndCellTable(PointPositionTable, CellTable);
+	ObjectArray<DenseVector<int_max>> FaceTable;
+	MDKMesh.GetPointPositionMatrixAndFaceTable(PointPositionTable, FaceTable);
 
 	int_max PointCount = PointPositionTable.GetColCount();
-	int_max CellCount = CellTable.GetLength();
+	int_max CellCount = FaceTable.GetLength();
 
 	auto PointData = vtkSmartPointer<vtkPoints>::New();
 
@@ -749,14 +748,11 @@ bool ConvertMDKTriangleMeshToVTKPolyData(const TriangleMesh<MeshAttributeType>& 
 
 	for (int i = 0; i < CellCount; ++i)
 	{
-		auto PointNumberInCell = CellTable[i].GetElementCount();
-
-		CellData->InsertNextCell(PointNumberInCell);
-
-		for (int n = 0; n < PointNumberInCell; ++n)
+		auto PointCount_i = FaceTable[i].GetElementCount();
+		CellData->InsertNextCell(PointCount_i);
+		for (int n = 0; n < PointCount_i; ++n)
 		{
-			auto PointIndex = CellTable[i][n];
-
+			auto PointIndex = FaceTable[i][n];
 			CellData->InsertCellPoint(PointIndex);
 		}
 	}
@@ -801,22 +797,20 @@ bool ConvertVTKPolyDataToMDKTriangleMesh(vtkPolyData* VTKMesh, TriangleMesh<Mesh
 		PointData.SetCol(k, pos);
 	}
 
-	auto CellCount = VTKTriangleMesh->GetNumberOfCells();
+	auto FaceCount = VTKTriangleMesh->GetNumberOfCells();
 
-	ObjectArray<DenseVector<int_max>> CellData;
-	CellData.FastResize(CellCount);
+	ObjectArray<DenseVector<int_max>> FaceData;
+	FaceData.FastResize(FaceCount);
 
-	for (int_max k = 0; k < CellCount; ++k)
+	for (int_max k = 0; k < FaceCount; ++k)
 	{
 		auto Cell = VTKTriangleMesh->GetCell(k);
-
-		CellData[k].Append(int_max(Cell->GetPointId(0)));
-		CellData[k].Append(int_max(Cell->GetPointId(1)));
-		CellData[k].Append(int_max(Cell->GetPointId(2)));
+		FaceData[k].Append(int_max(Cell->GetPointId(0)));
+		FaceData[k].Append(int_max(Cell->GetPointId(1)));
+		FaceData[k].Append(int_max(Cell->GetPointId(2)));
 	}
 
-	MDKMesh.Construct(PointData, CellData);
-
+	MDKMesh.Construct(PointData, FaceData);
 	return true;
 }
 
