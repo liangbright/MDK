@@ -221,7 +221,8 @@ bool SavePolygonMeshAsVTKFile(const PolygonMesh<MeshAttributeType>& InputMesh, c
 	auto writer = vtkSmartPointer<vtkPolyDataWriter>::New();
 	writer->SetFileName(FilePathAndName.StdString().c_str());
 	writer->SetInputData(VTKMesh);
-
+	writer->SetFileTypeToASCII();
+	
 	try
 	{
 		writer->Write();

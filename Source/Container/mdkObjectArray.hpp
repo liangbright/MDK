@@ -1115,7 +1115,7 @@ ObjectArray<ElementType> ObjectArray<ElementType>::GetSubSet(int_max Index_start
 
 	for (int_max i = Index_start; i <= Index_end; ++i)
     {
-        Subset[i - Index_end] = (*this)[i];
+		Subset[i - Index_start] = (*this)[i];
     }
 
     return Subset;

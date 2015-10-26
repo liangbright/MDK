@@ -759,7 +759,7 @@ StdObjectVector<ElementType> StdObjectVector<ElementType>::GetSubSet(int_max Ind
 
 	for (int_max i = Index_start; i <= Index_end; ++i)
 	{
-		Subset[i - Index_end] = m_StdVector[i];
+		Subset[i - Index_start] = m_StdVector[i];
 	}
 
 	return Subset;
