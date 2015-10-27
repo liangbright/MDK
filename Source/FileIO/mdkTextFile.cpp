@@ -22,6 +22,11 @@ TextFile::~TextFile()
 {
 }
 
+bool TextFile::Clear()
+{
+	return m_QFile->resize(0);
+}
+
 TextFile& TextFile::operator<<(char InputChar)
 {
 	*m_QTextStream << InputChar;

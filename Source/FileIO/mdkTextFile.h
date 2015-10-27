@@ -24,11 +24,12 @@ private:
 public:
 	TextFile(const String& FilePathAndName);
 	~TextFile();
+	bool Clear();//clear anything in file
 
 	TextFile& operator<<(char InputChar);
 	TextFile& operator<<(const char* InputString);
 	TextFile& operator<<(const String& InputString);
-
+	
 	void Close();
 
 private:
