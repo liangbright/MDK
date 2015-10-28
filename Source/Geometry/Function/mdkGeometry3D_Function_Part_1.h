@@ -37,8 +37,28 @@ DenseVector<ScalarType, 3> ProjectPointToPlane(const DenseVector<ScalarType, 3>&
 template<typename ScalarType>
 DenseVector<ScalarType, 3> ProjectPointToPlane(const ScalarType* Point, const ScalarType* PlaneOrigin, const ScalarType* PlaneNormal);
 
+//return point index on curve
 template<typename ScalarType>
 int_max FindNearestPointOnCurve(const DenseMatrix<ScalarType>& Curve, const DenseVector<ScalarType, 3>& Point_ref);
+
+template<typename ScalarType>
+ScalarType Compute3DCurveLength(const DenseMatrix<ScalarType>& Curve);
+
+template<typename ScalarType>
+DenseVector<ScalarType> ComputeCumulative3DCurveLengthList(const DenseMatrix<ScalarType>& Curve);
+
+template<typename ScalarType>
+DenseMatrix<ScalarType> Subdivide3DCurve_Linear(const DenseMatrix<ScalarType>& Curve, int_max SubdivisionNumber = 1);
+
+template<typename ScalarType>
+DenseMatrix<ScalarType> Resample3DCurveWithBoundedSegmentLength(const DenseMatrix<ScalarType>& Curve, ScalarType MaxSegmentLength);
+
+template<typename ScalarType>
+DenseMatrix<ScalarType> Resample3DCurveWithEqualSegmentLength(const DenseMatrix<ScalarType>& Curve, int_max PointCount_resampled, int_max MaxIterCount = 10, double Tolerance = 0.01);
+
+template<typename ScalarType>
+DenseMatrix<ScalarType> Resample3DCurve(const DenseMatrix<ScalarType>& Curve, const DenseVector<ScalarType>& SegmentRelativeLengthList_resampled, int_max MaxIterCount = 10, double Tolerance = 0.01);
+
 
 }// namespace mdk
 
