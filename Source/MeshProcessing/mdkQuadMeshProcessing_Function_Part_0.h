@@ -3,6 +3,7 @@
 
 #include "mdkDenseMatrix.h"
 #include "mdkPolygonMesh.h"
+#include "mdkTriangleMesh.h"
 
 namespace mdk
 {
@@ -12,6 +13,10 @@ PolygonMesh<MeshAttributeType> SubdivideQuadMesh_Linear(const PolygonMesh<MeshAt
 
 template<typename MeshAttributeType>
 PolygonMesh<MeshAttributeType> SubdivideQuadMesh_Linear(const PolygonMesh<MeshAttributeType>& InputMesh, int_max SubdivisionNumber);
+
+template<typename MeshAttributeTypeA, typename MeshAttributeTypeB>
+void ConvertQuadMeshToTriangleMesh(const PolygonMesh<MeshAttributeTypeA>& InputMesh, TriangleMesh<MeshAttributeTypeB>& OutputMesh);
+
 
 }//namespace mdk
 

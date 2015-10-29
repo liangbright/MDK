@@ -133,6 +133,60 @@ PolygonMesh<MeshAttributeType> SubdivideQuadMesh_Linear(const PolygonMesh<MeshAt
 	return OutputMesh;
 }
 
+
+template<typename MeshAttributeTypeA, typename MeshAttributeTypeB>
+void ConvertQuadMeshToTriangleMesh(const PolygonMesh<MeshAttributeTypeA>& InputMesh, TriangleMesh<MeshAttributeTypeB>& OutputMesh)
+{	
+	OutputMesh.Clear();
+
+	auto PointCount_input = InputMesh.GetPointCount();
+	auto EdgeCount_input = InputMesh.GetEdgeCount();
+	auto FaceCount_input = InputMesh.GetFaceCount();
+	auto PointCount = PointCount_input;
+	auto EdgeCount = EdgeCount_input + FaceCount_input;
+	auto FaceCount = FaceCount_input * 2;
+	OutputMesh.SetCapacity(PointCount, EdgeCount, FaceCount);
+
+	//------- add initial point by copying all point of InputMesh ----------------//
+	DenseVector<int_max> PointIndexMap;
+	PointIndexMap.Resize(PointCount_input + InputMesh.GetDeletedPointHandleCount());
+	PointIndexMap.Fill(-1);
+	DenseVector<Handle_Of_Point_Of_MembraneMesh> PointHandleList;
+	PointHandleList.SetCapacity(PointCount_input);
+	int_max PointIndex_output = -1;
+	for (auto it = InputMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	{
+		auto Pos = it.Point().GetPosition();
+		PointHandleList.Append(OutputMesh.AddPoint(Pos));
+		PointIndex_output += 1;
+		PointIndexMap[it.GetPointHandle().GetIndex()] = PointIndex_output;
+	}
+
+	//------- add new cell by splitting each cell of InputMesh ----------------//   
+	for (auto it = InputMesh.GetIteratorOfFace(); it.IsNotEnd(); ++it)
+	{
+		auto PointHandleList_input = it.Face().GetPointHandleList(); // P0, P1, P2, P3
+		auto EdgeHandleList_input = it.Face().GetEdgeHandleList();   // P0-P1, P1-P2, P2-P3, P3-P0
+		if (PointHandleList_input.GetLength() != 4)
+		{
+			MDK_Error("Input is NOT QuadMesh @ ConvertQuadMeshToTriangleMesh(...)")			
+			return;
+		}
+		//-----------------
+		// 3    2 
+		//  
+		// 0    1
+		//-----------------		
+		auto H0 = PointHandleList[PointIndexMap[PointHandleList_input[0].GetIndex()]];
+		auto H1 = PointHandleList[PointIndexMap[PointHandleList_input[1].GetIndex()]];
+		auto H2 = PointHandleList[PointIndexMap[PointHandleList_input[2].GetIndex()]];
+		auto H3 = PointHandleList[PointIndexMap[PointHandleList_input[3].GetIndex()]];
+
+		OutputMesh.AddFaceByPoint(H0, H1, H2);
+		OutputMesh.AddFaceByPoint(H0, H2, H3);
+	}
+}
+
 }//namespace mdk
 
 
