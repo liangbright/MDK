@@ -2303,6 +2303,7 @@ void Face_Of_MembraneMesh<MeshAttributeType>::GetPointIDList(DenseVector<Handle_
     }
 }
 
+/*
 template<typename MeshAttributeType>
 inline
 int_max Face_Of_MembraneMesh<MeshAttributeType>::GetRelativeIndexOfPoint(Handle_Of_Point_Of_MembraneMesh PointHandle) const
@@ -2318,8 +2319,8 @@ int_max Face_Of_MembraneMesh<MeshAttributeType>::GetRelativeIndexOfPoint(Handle_
 
     return -1;
 }
-
-
+*/
+/*
 template<typename MeshAttributeType>
 inline 
 int_max Face_Of_MembraneMesh<MeshAttributeType>::GetRelativeIndexOfPoint(int_max PointID) const
@@ -2335,6 +2336,7 @@ int_max Face_Of_MembraneMesh<MeshAttributeType>::GetRelativeIndexOfPoint(int_max
 
     return -1;
 }
+*/
 
 template<typename MeshAttributeType>
 inline int_max Face_Of_MembraneMesh<MeshAttributeType>::GetEdgeCount() const

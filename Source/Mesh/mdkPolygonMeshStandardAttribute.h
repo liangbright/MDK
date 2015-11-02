@@ -11,14 +11,14 @@ namespace mdk
 enum class PolygonMeshGlobalStandardAttributeTypeEnum
 {
     MeanFaceArea,
-    MeanEdgePhysicalLength
+    MeanEdgeLength
 };
 
 template<typename ScalarType>
 struct GlobalStandardAttribute_Of_PolygonMesh : GlobalStandardAttribute_Of_MembraneMesh<ScalarType>
 {
     ScalarType MeanFaceArea;
-    ScalarType MeanEdgePhysicalLength;
+    ScalarType MeanEdgeLength;
 
 //--------------------------------------------------------------
 	GlobalStandardAttribute_Of_PolygonMesh() { this->Clear(); }
@@ -28,13 +28,13 @@ struct GlobalStandardAttribute_Of_PolygonMesh : GlobalStandardAttribute_Of_Membr
 	void operator=(const GlobalStandardAttribute_Of_PolygonMesh& InputAttribute)
     {
         MeanFaceArea = InputAttribute.MeanFaceArea;
-        MeanEdgePhysicalLength = InputAttribute.MeanFaceArea;
+        MeanEdgeLength = InputAttribute.MeanFaceArea;
     }
 
     void Clear()
     {
         MeanFaceArea = 0;
-        MeanEdgePhysicalLength = 0;
+        MeanEdgeLength = 0;
     }
 };
 
@@ -84,14 +84,14 @@ struct StandardAttribute_Of_Point_Of_PolygonMesh : StandardAttribute_Of_Point_Of
 //============================================== StandardAttribute_Of_Edge_Of_PolygonMesh ===========================================//
 enum class PolygonMeshEdgeStandardAttributeEnum
 {
-    PhysicalLength,
+    Length,
 };
 
 
 template<typename ScalarType>
 struct StandardAttribute_Of_Edge_Of_PolygonMesh : StandardAttribute_Of_Edge_Of_MembraneMesh<ScalarType>
 {
-    ScalarType PhysicalLength;
+    ScalarType Length;
 
 //----------------------------------------------------------------------
 	StandardAttribute_Of_Edge_Of_PolygonMesh() { this->Clear(); }
@@ -100,25 +100,25 @@ struct StandardAttribute_Of_Edge_Of_PolygonMesh : StandardAttribute_Of_Edge_Of_M
 
 	void operator=(const StandardAttribute_Of_Edge_Of_PolygonMesh& InputAttribute)
     {
-        PhysicalLength = InputAttribute.PhysicalLength;
+        Length = InputAttribute.Length;
     }
 
     void Clear()
     {
-        PhysicalLength = 0;
+        Length = 0;
     }
 };
 
 //============================================== StandardAttribute_Of_DirectedEdge_Of_PolygonMesh ===========================================//
 enum class PolygonMeshDirectedEdgeStandardAttributeEnum
 {
-    Orientation,
+	Direction,
 };
 
 template<typename ScalarType>
 struct StandardAttribute_Of_DirectedEdge_Of_PolygonMesh : StandardAttribute_Of_DirectedEdge_Of_MembraneMesh<ScalarType>
 {
-    DenseVector<ScalarType, 3> Orientation;
+	DenseVector<ScalarType, 3> Direction;
 //-------------------------------------------------------
 	StandardAttribute_Of_DirectedEdge_Of_PolygonMesh() { this->Clear(); }
 	StandardAttribute_Of_DirectedEdge_Of_PolygonMesh(const StandardAttribute_Of_DirectedEdge_Of_PolygonMesh& InputAttribute) { (*this) = InputAttribute; }
@@ -126,12 +126,12 @@ struct StandardAttribute_Of_DirectedEdge_Of_PolygonMesh : StandardAttribute_Of_D
 
 	void operator=(const StandardAttribute_Of_DirectedEdge_Of_PolygonMesh& InputAttribute)
     {
-        Orientation = InputAttribute.Orientation;
+		Direction = InputAttribute.Direction;
     }
 
     void Clear()
     {
-        Orientation.Fill(0);
+		Direction.Fill(0);
     }
 
 };

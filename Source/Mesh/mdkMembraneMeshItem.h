@@ -552,8 +552,8 @@ public:
     inline DenseVector<int_max> GetPointIDList() const;
     inline void GetPointIDList(DenseVector<Handle_Of_Point_Of_MembraneMesh>& OutputIDList) const;
 
-    inline int_max GetRelativeIndexOfPoint(Handle_Of_Point_Of_MembraneMesh PointHandle) const;
-    inline int_max GetRelativeIndexOfPoint(int_max PointID) const;
+    //inline int_max GetRelativeIndexOfPoint(Handle_Of_Point_Of_MembraneMesh PointHandle) const;
+    //inline int_max GetRelativeIndexOfPoint(int_max PointID) const;
 
 	inline int_max GetEdgeCount() const;  // the number of Edge
 
