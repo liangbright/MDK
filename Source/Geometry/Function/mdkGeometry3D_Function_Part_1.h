@@ -1,67 +1,74 @@
-﻿#ifndef mdk_Geometry3D_Function_Part_1_h
-#define mdk_Geometry3D_Function_Part_1_h
+﻿#pragma once
 
 namespace mdk
 {
-// see http://mathworld.wolfram.com/Point-PlaneDistance.html
-// PlaneNormal must have unit length
-// Output Distance may be < 0
+// compute cross product: VectorA x VectorB, right hand coordinate system
+// ref: http://mathworld.wolfram.com/CrossProduct.html
+template<typename ScalarType>
+inline DenseVector<ScalarType, 3> ComputeVectorCrossProductIn3D(const DenseMatrix<ScalarType>& VectorA, const DenseMatrix<ScalarType>& VectorB);
+
+template<typename ScalarType>
+inline DenseVector<ScalarType, 3> ComputeVectorCrossProductIn3D(const DenseVector<ScalarType, 3>& VectorA, const DenseVector<ScalarType, 3>& VectorB);
+
+template<typename ScalarType>
+inline DenseVector<ScalarType, 3> ComputeVectorCrossProductIn3D(const ScalarType* VectorA,  const ScalarType* VectorB);
+
+template<typename ScalarType>
+inline ScalarType ComputeVectorDotProductIn3D(const DenseMatrix<ScalarType>& VectorA, const DenseMatrix<ScalarType>& VectorB);
+
+template<typename ScalarType>
+inline ScalarType ComputeVectorDotProductIn3D(const DenseVector<ScalarType, 3>& VectorA, const DenseVector<ScalarType, 3>& VectorB);
+
+template<typename ScalarType>
+inline ScalarType ComputeVectorDotProductIn3D(const ScalarType* VectorA, const ScalarType* VectorB);
+
+template<typename ScalarType>
+inline ScalarType ComputeAngleBetweenTwoVectorIn3D(const DenseMatrix<ScalarType>& VectorA, const DenseMatrix<ScalarType>& VectorB);
+
+template<typename ScalarType>
+inline ScalarType ComputeAngleBetweenTwoVectorIn3D(const DenseVector<ScalarType, 3>& VectorA, const DenseVector<ScalarType, 3>& VectorB);
+
+template<typename ScalarType>
+inline ScalarType ComputeAngleBetweenTwoVectorIn3D(const ScalarType* VectorA, const ScalarType* VectorB);
+
+
+// compute normal vector of triangle in 3D
+// PointA -> PointB -> PointC : right hand coordinate system
+// PointPosition: (x, y, z)
+// ref: http://mathworld.wolfram.com/CrossProduct.html
+template<typename ScalarType>
+inline
+DenseVector<ScalarType, 3> ComputeTriangleNormalIn3D(const DenseMatrix<ScalarType>& PointA, const DenseMatrix<ScalarType>& PointB, const DenseMatrix<ScalarType>& PointC);
 
 template<typename ScalarType>
 inline
-ScalarType ComputeSignedDistanceBetweenPointAndPlane(const DenseMatrix<ScalarType>& Point,
-													 const DenseMatrix<ScalarType>& PlaneOrigin,
-													 const DenseMatrix<ScalarType>& PlaneNormal);
+DenseVector<ScalarType, 3> ComputeTriangleNormalIn3D(const DenseVector<ScalarType, 3>& PointA, const DenseVector<ScalarType, 3>& PointB, const DenseVector<ScalarType, 3>& PointC);
 
 template<typename ScalarType>
 inline
-ScalarType ComputeSignedDistanceBetweenPointAndPlane(const DenseVector<ScalarType, 3>& Point,
-											         const DenseVector<ScalarType, 3>& PlaneOrigin,
-											         const DenseVector<ScalarType, 3>& PlaneNormal);
+DenseVector<ScalarType, 3> ComputeTriangleNormalIn3D(const ScalarType* PointA, const ScalarType* PointB, const ScalarType* PointC);
 
 template<typename ScalarType>
 inline
-ScalarType ComputeSignedDistanceBetweenPointAndPlane(const ScalarType* Point, const ScalarType* PlaneOrigin, const ScalarType* PlaneNormal);
-
-
-template<typename ScalarType>
-DenseMatrix<ScalarType> ProjectPointToPlane(const DenseVector<ScalarType, 3>& Point, 
-											const DenseMatrix<ScalarType>& PlaneOrigin, 
-											const DenseMatrix<ScalarType>& PlaneNormal);
+ScalarType ComputeTriangleAreaIn3D(const DenseMatrix<ScalarType>& PointA, const DenseMatrix<ScalarType>& PointB, const DenseMatrix<ScalarType>& PointC);
 
 template<typename ScalarType>
-DenseVector<ScalarType, 3> ProjectPointToPlane(const DenseVector<ScalarType, 3>& Point, 
-											   const DenseVector<ScalarType, 3>& PlaneOrigin,
-											   const DenseVector<ScalarType, 3>& PlaneNormal);
+inline
+ScalarType ComputeTriangleAreaIn3D(const DenseVector<ScalarType, 3>& PointA, const DenseVector<ScalarType, 3>& PointB, const DenseVector<ScalarType, 3>& PointC);
 
 template<typename ScalarType>
-DenseVector<ScalarType, 3> ProjectPointToPlane(const ScalarType* Point, const ScalarType* PlaneOrigin, const ScalarType* PlaneNormal);
-
-//find index of the nearest point on curve, no curve-interpolation
-template<typename ScalarType>
-int_max FindNearestPointOnCurve(const DenseMatrix<ScalarType>& Curve, const DenseVector<ScalarType, 3>& Point_ref);
+inline
+ScalarType ComputeTriangleAreaIn3D(const ScalarType* PointA, const ScalarType* PointB, const ScalarType* PointC);
 
 template<typename ScalarType>
-ScalarType Compute3DCurveLength(const DenseMatrix<ScalarType>& Curve);
+DenseVector<ScalarType, 3> ComputeCenterOfCircumcircleOfTriangleIn3D(const DenseMatrix<ScalarType>& PointA, const DenseMatrix<ScalarType>& PointB, const DenseMatrix<ScalarType>& PointC);
 
 template<typename ScalarType>
-DenseVector<ScalarType> ComputeCumulative3DCurveLengthList(const DenseMatrix<ScalarType>& Curve);
+DenseVector<ScalarType, 3> ComputeCenterOfCircumcircleOfTriangleIn3D(const DenseVector<ScalarType, 3>& PointA, const DenseVector<ScalarType, 3>& PointB, const DenseVector<ScalarType, 3>& PointC);
 
 template<typename ScalarType>
-DenseMatrix<ScalarType> Subdivide3DCurve_Linear(const DenseMatrix<ScalarType>& Curve, int_max SubdivisionNumber = 1);
-
-template<typename ScalarType>
-DenseMatrix<ScalarType> Resample3DCurveWithBoundedSegmentLength(const DenseMatrix<ScalarType>& Curve, ScalarType MaxSegmentLength);
-
-template<typename ScalarType>
-DenseMatrix<ScalarType> Resample3DCurveWithEqualSegmentLength(const DenseMatrix<ScalarType>& Curve, int_max PointCount_resampled, int_max MaxIterCount = 10, double Tolerance = 0.01);
-
-template<typename ScalarType>
-DenseMatrix<ScalarType> Resample3DCurve(const DenseMatrix<ScalarType>& Curve, const DenseVector<ScalarType>& SegmentRelativeLengthList_resampled, int_max MaxIterCount = 10, double Tolerance = 0.01);
-
+DenseVector<ScalarType, 3> ComputeCenterOfCircumcircleOfTriangleIn3D(const ScalarType* PointA, const ScalarType* PointB, const ScalarType* PointC);
 
 }// namespace mdk
 
 #include "mdkGeometry3D_Function_Part_1.hpp"
-
-#endif
