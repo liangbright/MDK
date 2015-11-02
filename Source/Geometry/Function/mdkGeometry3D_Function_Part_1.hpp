@@ -300,7 +300,7 @@ DenseVector<ScalarType, 3> ComputeCenterOfCircumcircleOfTriangleIn3D(const Scala
 	}
 	y3 = L_DC;
 
-	DenseMatrix<ScalarType> a bx, by;
+	DenseMatrix<ScalarType> a, bx, by;
 	a = { {x1, y1, 1},
 	      {x2, y2, 1},
 		  {x3, y3, 1} };
