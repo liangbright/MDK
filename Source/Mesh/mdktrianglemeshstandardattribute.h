@@ -9,7 +9,7 @@ namespace mdk
 enum class TriangleMeshGlobalStandardAttributeTypeEnum
 {
     MeanFaceArea,
-    MeanEdgePhysicalLength
+    MeanEdgeLength
 };
 
 template<typename ScalarType>
@@ -29,8 +29,6 @@ struct GlobalStandardAttribute_Of_TriangleMesh : public GlobalStandardAttribute_
     void Clear()
     {
 		this->GlobalStandardAttribute_Of_PolygonMesh::Clear();
-        MeanFaceArea = 0;
-        MeanEdgePhysicalLength = 0;
     }
 };
 
@@ -67,7 +65,7 @@ struct StandardAttribute_Of_Point_Of_TriangleMesh : StandardAttribute_Of_Point_O
 //============================================== StandardAttribute_Of_Edge_Of_TriangleMesh ===========================================//
 enum class TriangleMeshEdgeStandardAttributeEnum
 {
-    PhysicalLength,
+    Length,
 };
 
 
@@ -93,14 +91,12 @@ struct StandardAttribute_Of_Edge_Of_TriangleMesh : public StandardAttribute_Of_E
 //============================================== StandardAttribute_Of_DirectedEdge_Of_TriangleMesh ===========================================//
 enum class TriangleMeshDirectedEdgeStandardAttributeEnum
 {
-    Orientation,
+    Direction,
 };
 
 template<typename ScalarType>
 struct StandardAttribute_Of_DirectedEdge_Of_TriangleMesh : public StandardAttribute_Of_DirectedEdge_Of_PolygonMesh<ScalarType>
 {
-    DenseVector<ScalarType, 3> Orientation;
-//-------------------------------------------------------
 	StandardAttribute_Of_DirectedEdge_Of_TriangleMesh() { this->Clear(); }
 	StandardAttribute_Of_DirectedEdge_Of_TriangleMesh(const StandardAttribute_Of_DirectedEdge_Of_TriangleMesh& InputAttribute) { (*this) = InputAttribute; }
 	~StandardAttribute_Of_DirectedEdge_Of_TriangleMesh() {}
