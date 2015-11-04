@@ -112,7 +112,7 @@ void SurfaceRemesher2<ScalarType>::GenerateCandidate()
 	// candidate must be generated in this order, so m_CandidateConflictTable can be easily constructed
 	this->GenerateTriangleCandidate_Type1();
 	this->GenerateTriangleCandidate_Type2();
-	this->GenerateQuadCandidate_Type3();
+	//this->GenerateQuadCandidate_Type3();
 	this->GenerateQuadCandidate_Type4();
 }
 
@@ -122,10 +122,12 @@ void SurfaceRemesher2<ScalarType>::GenerateTriangleCandidate_Type1()
 	int_max FaceCandidateIndex = -1;
 	for (auto it = m_InputMesh.GetIteratorOfFace(); it.IsNotEnd(); ++it)
 	{
-		m_CandidateList.Append(it.Face().GetPointHandleList);
+		m_CandidateList.Append(it.Face().GetPointHandleList());
 		m_CandidateTypeList.Append(1);
 		FaceCandidateIndex += 1;//may not be it.GetFaceHandle().GetIndex();
 		m_CandidateIndex_On_BigTriangle[FaceCandidateIndex] = FaceCandidateIndex;
+		DenseVector<int_max> Conflict;
+		m_CandidateConflictTable.Append(Conflict);
 	}
 }
 
@@ -165,7 +167,7 @@ void SurfaceRemesher2<ScalarType>::GenerateTriangleCandidate_Type2()
 		auto tempIndex1 = m_FeatureEdgeOfInputMesh.ExactMatch("first", EdgeHandleList[1]);
 		auto tempIndex2 = m_FeatureEdgeOfInputMesh.ExactMatch("first", EdgeHandleList[2]);
 
-		DenseVector<int> NewCandiateIndexList;
+		DenseVector<int_max> NewCandiateIndexList;
 		NewCandiateIndexList.SetCapacity(6);
 
 		if (tempIndex1 < 0)// no need to preserve edge P1P2
@@ -567,7 +569,7 @@ void SurfaceRemesher2<ScalarType>::GenerateQuadCandidate_Type4(EdgeHandleType Ed
 		//       P1 ---e0----P2          
 		//----------------------------
 
-		if (m_InputMesh.Point(PointH0).GetAdjacentPointCount() == 6) //add quad {P1, P2, P3, P4}
+		if (m_InputMesh.Point(PointH0).GetAdjacentPointCount() > 0)// == 6) //add quad {P1, P2, P3, P4}
 		{
 			if (PointH3.GetIndex() >= 0 && PointH4.GetIndex() >= 0)
 			{
@@ -727,8 +729,8 @@ void SurfaceRemesher2<ScalarType>::GenerateQuadCandidate_Type4(EdgeHandleType Ed
 template<typename ScalarType>
 void SurfaceRemesher2<ScalarType>::EvaluateCandidate()
 {
-	m_QuadCandidateScoreList.Clear();
-	m_QuadCandidateScoreList.Resize(m_CandidateList.GetLength());
+	m_CandidateScoreList.Clear();
+	m_CandidateScoreList.Resize(m_CandidateList.GetLength());
 	for (int_max k = 0; k < m_CandidateList.GetLength(); ++k)
 	{
 		if (m_CandidateList[k].GetLength() == 4)
@@ -760,7 +762,7 @@ void SurfaceRemesher2<ScalarType>::EvaluateCandidate()
 }
 
 template<typename ScalarType>
-void SurfaceRemesher2<ScalarType>::SelectQuadCandidate()
+void SurfaceRemesher2<ScalarType>::SelectCandidate()
 {// call Gurobi 
 
 }
@@ -854,70 +856,38 @@ CheckConflict_QuadCandidate_Type4_a(int_max QuadCandidateIndex, int_max Candidat
 		bool Flag_P3 = (PointH3 == Candidate[0]) || (PointH3 == Candidate[1]) || (PointH3 == Candidate[2]) || (PointH3 == Candidate[3]);
 		bool Flag_P4 = (PointH4 == Candidate[0]) || (PointH4 == Candidate[1]) || (PointH4 == Candidate[2]) || (PointH4 == Candidate[3]);
 		bool Flag_P5 = (PointH5 == Candidate[0]) || (PointH5 == Candidate[1]) || (PointH5 == Candidate[2]) || (PointH5 == Candidate[3]);
-		if (Flag_P0 == true && Flag_P5 == true)
+		if (Flag_P0 == true)//P0 is not in QuadCandidate
 		{
 			return true;
 		}
-		if (Flag_P0 == true && Flag_P1 == true)
-		{
-			return true;
-		}
-		if (Flag_P0 == true && Flag_P2 == true)
+		if (Flag_P5 == true)//P5 is not in QuadCandidate
 		{
 			return true;
 		}
 		if (Flag_P3 == true && Flag_P4 == true)
 		{
-			if (Flag_P1 == true || Flag_P2 == true || Flag_P5 == true)
+			if (Flag_P1 == true || Flag_P2 == true)
 			{
 				return true;
 			}
 		}
 		if (Flag_P1 == true && Flag_P2 == true)
 		{
-			if (Flag_P0 == true || Flag_P3 == true || Flag_P4 == true)
+			if (Flag_P3 == true || Flag_P4 == true)
 			{
 				return true;
 			}
 		}
 		if (Flag_P1 == true && Flag_P4 == true)
 		{
-			if (Flag_P0 == true || Flag_P2 == true || Flag_P3 == true || Flag_P5 == true)
+			if (Flag_P2 == true || Flag_P3 == true)
 			{
 				return true;
 			}
 		}
 		if (Flag_P2 == true && Flag_P3 == true)
 		{
-			if (Flag_P0 == true || Flag_P1 == true || Flag_P4 == true || Flag_P5 == true)
-			{
-				return true;
-			}
-		}
-		if (Flag_P0 == true && Flag_P4 == true)
-		{
-			if (Flag_P1 == true || Flag_P2 == true || Flag_P5 == true)
-			{
-				return true;
-			}
-		}
-		if (Flag_P0 == true && Flag_P3 == true)
-		{
-			if (Flag_P1 == true || Flag_P2 == true || Flag_P5 == true)
-			{
-				return true;
-			}
-		}
-		if (Flag_P1 == true && Flag_P5 == true)
-		{
-			if (Flag_P0 == true || Flag_P3 == true || Flag_P4 == true)
-			{
-				return true;
-			}
-		}
-		if (Flag_P2 == true && Flag_P5 == true)
-		{
-			if (Flag_P0 == true || Flag_P3 == true || Flag_P4 == true)
+			if (Flag_P1 == true || Flag_P4 == true)
 			{
 				return true;
 			}
@@ -943,6 +913,7 @@ CheckConflict_QuadCandidate_Type4_b(int_max QuadCandidateIndex, int_max Candidat
 	//     \  | /e2  e1\  |  /
 	//      \ |/        \ |/
 	//       P1 ---e0----P2          
+	//             P5
 	//----------------------------
 	//Quad is {P1, P2, P3, P0} 
 	//Candidate overlap with left/middle/right big triangle
@@ -983,8 +954,8 @@ CheckConflict_QuadCandidate_Type4_b(int_max QuadCandidateIndex, int_max Candidat
 		bool Flag_P1 = (PointH1 == Candidate[0]) || (PointH1 == Candidate[1]) || (PointH1 == Candidate[2]) || (PointH1 == Candidate[3]);
 		bool Flag_P2 = (PointH2 == Candidate[0]) || (PointH2 == Candidate[1]) || (PointH2 == Candidate[2]) || (PointH2 == Candidate[3]);
 		bool Flag_P3 = (PointH3 == Candidate[0]) || (PointH3 == Candidate[1]) || (PointH3 == Candidate[2]) || (PointH3 == Candidate[3]);
-		bool Flag_P5 = (PointH5 == Candidate[0]) || (PointH5 == Candidate[1]) || (PointH5 == Candidate[2]) || (PointH5 == Candidate[3]);
-		if (Flag_P0 == true && Flag_P5 == true)
+		bool Flag_P5 = (PointH5 == Candidate[0]) || (PointH5 == Candidate[1]) || (PointH5 == Candidate[2]) || (PointH5 == Candidate[3]);		
+		if (Flag_P5 == true)// T-junction
 		{
 			return true;
 		}
@@ -1017,20 +988,6 @@ CheckConflict_QuadCandidate_Type4_b(int_max QuadCandidateIndex, int_max Candidat
 				return true;
 			}
 		}
-		if (Flag_P1 == true && Flag_P5 == true)
-		{
-			if (Flag_P0 == true || Flag_P3 == true)
-			{
-				return true;
-			}
-		}
-		if (Flag_P2 == true && Flag_P5 == true)
-		{
-			if (Flag_P0 == true || Flag_P3 == true)
-			{
-				return true;
-			}
-		}
 		return false;
 	}
 
@@ -1052,6 +1009,7 @@ CheckConflict_QuadCandidate_Type4_c(int_max QuadCandidateIndex, int_max Candidat
 	//     \  | /e2  e1\  |  /
 	//      \ |/        \ |/
 	//       P1 ---e0----P2          
+	//             P5
 	//----------------------------
 	//Quad is quad {P1, P2, P0, P4}
 	//Candidate overlap with left/middle/right big triangle
@@ -1092,8 +1050,8 @@ CheckConflict_QuadCandidate_Type4_c(int_max QuadCandidateIndex, int_max Candidat
 		bool Flag_P1 = (PointH1 == Candidate[0]) || (PointH1 == Candidate[1]) || (PointH1 == Candidate[2]) || (PointH1 == Candidate[3]);
 		bool Flag_P2 = (PointH2 == Candidate[0]) || (PointH2 == Candidate[1]) || (PointH2 == Candidate[2]) || (PointH2 == Candidate[3]);		
 		bool Flag_P4 = (PointH4 == Candidate[0]) || (PointH4 == Candidate[1]) || (PointH4 == Candidate[2]) || (PointH4 == Candidate[3]);
-		bool Flag_P5 = (PointH5 == Candidate[0]) || (PointH5 == Candidate[1]) || (PointH5 == Candidate[2]) || (PointH5 == Candidate[3]);
-		if (Flag_P0 == true && Flag_P5 == true)
+		bool Flag_P5 = (PointH5 == Candidate[0]) || (PointH5 == Candidate[1]) || (PointH5 == Candidate[2]) || (PointH5 == Candidate[3]);		
+		if (Flag_P5 == true)// T-junction
 		{
 			return true;
 		}
@@ -1122,20 +1080,6 @@ CheckConflict_QuadCandidate_Type4_c(int_max QuadCandidateIndex, int_max Candidat
 		if (Flag_P0 == true && Flag_P4 == true)
 		{
 			if (Flag_P1 == true || Flag_P2 == true || Flag_P5 == true)
-			{
-				return true;
-			}
-		}
-		if (Flag_P1 == true && Flag_P5 == true)
-		{
-			if (Flag_P0 == true || Flag_P4 == true)
-			{
-				return true;
-			}
-		}
-		if (Flag_P2 == true && Flag_P5 == true)
-		{
-			if (Flag_P0 == true || Flag_P4 == true)
 			{
 				return true;
 			}
@@ -1209,6 +1153,7 @@ ScalarType SurfaceRemesher2<ScalarType>::EvaluateQuad(const DenseVector<ScalarTy
 	{
 		Score = 0;
 	}
+	Score = 1;
 	return Score;
 }
 
