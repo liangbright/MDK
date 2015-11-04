@@ -2863,15 +2863,15 @@ void MembraneMesh<MeshAttributeType>::CleanDataStructure()
 template<typename MeshAttributeType>
 bool MembraneMesh<MeshAttributeType>::Check_If_DataStructure_is_Clean() const
 {
-	auto Count1 = this->GetDeletedPointHandleCount();
-	auto Count2 = this->GetDeletedEdgeHandleCount();
-	auto Count3 = this->GetDeletedFaceHandleCount();
+	auto Count1 = this->GetDeletedPointCount();
+	auto Count2 = this->GetDeletedEdgeCount();
+	auto Count3 = this->GetDeletedFaceCount();
 	return (Count1 + Count2 + Count3 == 0);
 }
 
 
 template<typename MeshAttributeType>
-int_max MembraneMesh<MeshAttributeType>::GetDeletedPointHandleCount() const
+int_max MembraneMesh<MeshAttributeType>::GetDeletedPointCount() const
 {
 	auto ValidPointCount = this->GetPointCount();
 	auto PointCountOfList = m_MeshData->PointList.GetLength();
@@ -2880,7 +2880,7 @@ int_max MembraneMesh<MeshAttributeType>::GetDeletedPointHandleCount() const
 
 
 template<typename MeshAttributeType>
-int_max MembraneMesh<MeshAttributeType>::GetDeletedEdgeHandleCount() const
+int_max MembraneMesh<MeshAttributeType>::GetDeletedEdgeCount() const
 {
 	auto ValidEdgeCount = this->GetEdgeCount();
 	auto EdgeCountOfList = m_MeshData->EdgeList.GetLength();
@@ -2888,7 +2888,7 @@ int_max MembraneMesh<MeshAttributeType>::GetDeletedEdgeHandleCount() const
 }
 
 template<typename MeshAttributeType>
-int_max MembraneMesh<MeshAttributeType>::GetDeletedFaceHandleCount() const
+int_max MembraneMesh<MeshAttributeType>::GetDeletedFaceCount() const
 {
 	auto ValidFaceCount = this->GetFaceCount();
 	auto FaceCountOfList = m_MeshData->FaceList.GetLength();

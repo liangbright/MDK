@@ -2492,6 +2492,32 @@ const typename MeshAttributeType::FaceAttributeType& Face_Of_MembraneMesh<MeshAt
     return m_Data->Attribute;
 }
 
+template<typename MeshAttributeType>
+inline
+Handle_Of_Edge_Of_MembraneMesh Face_Of_MembraneMesh<MeshAttributeType>::GetEdgeHandleBetweenPoint(Handle_Of_Point_Of_MembraneMesh PointHandleA, Handle_Of_Point_Of_MembraneMesh PointHandleB) const
+{
+	Handle_Of_Edge_Of_MembraneMesh EdgeHandle;
+	EdgeHandle.SetToInvalid();
+	auto PointHandleList = this->GetPointHandleList();
+	auto tempIndexA = PointHandleList.ExactMatch("first", PointHandleA);
+	auto tempIndexB = PointHandleList.ExactMatch("first", PointHandleB);
+	if (tempIndexA < 0 || tempIndexB < 0)
+	{
+		return EdgeHandle;
+	}
+	auto EdgeHandleList = this->GetEdgeHandleList();
+	auto PointCount = PointHandleList.GetLength();
+	if (tempIndexB = tempIndexA + 1 || tempIndexB = tempIndexA + 1 - PointCount)
+	{
+		EdgeHandle = EdgeHandleList[tempIndexA];
+	}
+	else if (tempIndexA = tempIndexB + 1 || tempIndexA = tempIndexB + 1 - PointCount)
+	{
+		EdgeHandle = EdgeHandleList[tempIndexB];
+	}
+	return EdgeHandle;
+}
+
 }// namespace mdk
 
 #endif

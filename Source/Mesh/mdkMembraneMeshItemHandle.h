@@ -165,8 +165,8 @@ public:
 
     inline void SetToInvalid();
 
-    inline bool operator==(const Handle_Of_DirectedEdge_Of_MembraneMesh& InputHandle)  const;
-    inline bool operator!=(const Handle_Of_DirectedEdge_Of_MembraneMesh& InputHandle)  const;
+    inline bool operator==(const Handle_Of_DirectedEdge_Of_MembraneMesh& InputHandle) const;
+    inline bool operator!=(const Handle_Of_DirectedEdge_Of_MembraneMesh& InputHandle) const;
     inline bool operator>(const Handle_Of_DirectedEdge_Of_MembraneMesh& InputHandle) const;
     inline bool operator>=(const Handle_Of_DirectedEdge_Of_MembraneMesh& InputHandle) const;
     inline bool operator<(const Handle_Of_DirectedEdge_Of_MembraneMesh& InputHandle) const;
@@ -193,8 +193,8 @@ public:
 
     inline void SetToInvalid();
 
-    inline bool operator==(const Handle_Of_Face_Of_MembraneMesh& InputHandle)  const;
-    inline bool operator!=(const Handle_Of_Face_Of_MembraneMesh& InputHandle)  const;
+    inline bool operator==(const Handle_Of_Face_Of_MembraneMesh& InputHandle) const;
+    inline bool operator!=(const Handle_Of_Face_Of_MembraneMesh& InputHandle) const;
     inline bool operator>(const Handle_Of_Face_Of_MembraneMesh& InputHandle) const;
     inline bool operator>=(const Handle_Of_Face_Of_MembraneMesh& InputHandle) const;
     inline bool operator<(const Handle_Of_Face_Of_MembraneMesh& InputHandle) const;

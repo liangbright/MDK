@@ -36,7 +36,7 @@ struct StandardAttribute_Of_Edge_Of_MembraneMesh
 	StandardAttribute_Of_Edge_Of_MembraneMesh(const StandardAttribute_Of_Edge_Of_MembraneMesh&) {}
 	~StandardAttribute_Of_Edge_Of_MembraneMesh() {}
 	void operator=(const StandardAttribute_Of_Edge_Of_MembraneMesh) {}
-    virtual void Clear(){}
+    void Clear(){}
 };
 
 //============================================== DirectedEdgeAttribute_Of_MembraneMesh ===========================================//

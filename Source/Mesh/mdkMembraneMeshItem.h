@@ -471,6 +471,9 @@ struct Data_Of_Face_Of_MembraneMesh
 
     DenseVector<DirectedEdgeIndex_Of_MembraneMesh> DirectedEdgeIndexList;
 
+	// TODO:
+	//DenseVector<Handle_Of_Point_Of_MembraneMesh> PointHandleList;
+
     //--------------------------------------
 
     FaceAttributeType Attribute;
@@ -577,6 +580,8 @@ public:
 
     inline FaceAttributeType& Attribute();
     inline const FaceAttributeType& Attribute() const;
+
+	inline Handle_Of_Edge_Of_MembraneMesh GetEdgeHandleBetweenPoint(Handle_Of_Point_Of_MembraneMesh PointHandleA, Handle_Of_Point_Of_MembraneMesh PointHandleB) const;
 };
 
 }// namespace mdk

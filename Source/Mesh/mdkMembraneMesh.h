@@ -46,7 +46,7 @@ struct MembraneMeshData
     // row_0: x
     // row_1: y
     // row_2: z
-    // a point is a  of an Edge or a point on Edge Edge
+    // a point may or may not connect to other point by edge
 
 	StdObjectVector<Point_Of_MembraneMesh<MeshAttributeType>> PointList;
 
@@ -420,9 +420,9 @@ public:
     // use this function when InvalidPointHandleCount/ValidPointCount( GetPointCount() ) > 0.5
     void CleanDataStructure();	
 	bool Check_If_DataStructure_is_Clean() const;//true: clean, false: invalid handle exit
-    int_max GetDeletedPointHandleCount() const; // the number of Deleted point handles
-	int_max GetDeletedEdgeHandleCount() const; // the number of Deleted edge handles
-	int_max GetDeletedFaceHandleCount() const; // the number of Deleted cell handles
+    int_max GetDeletedPointCount() const; // the number of Deleted points
+	int_max GetDeletedEdgeCount() const; // the number of Deleted edges
+	int_max GetDeletedFaceCount() const; // the number of Deleted cells
 
     //---------------------------------------------------------------------------------------------------
 
