@@ -43,15 +43,20 @@ public:
 	// 3: one quad from only two big triangle
 	// 4: one quad from small and big triangle
 
-	ObjectArray<DenseVector<int_max>> m_CandidateIndexSet_At_SmallTriangle;
-	// candidate contain SmallTriangle-k: splitted from input triangle
+	ObjectArray<DenseVector<int_max>> m_CandidateIndexSet_Overlap_SmallTriangle;
+	// candidate contain SmallTriangle-k(splitted from input triangle)
 
-	ObjectArray<DenseVector<int_max>> m_CandidateIndexSet_At_BigTriangle;
-	// candidate contain BigTriangle-k: input triangle
+	ObjectArray<DenseVector<int_max>> m_QuadCandidateIndexSet_At_SmallTriangle;
+	// quad-candidate contain SmallTriangle-k(splitted from input triangle) at object boundary
 
-	ObjectArray<ObjectArray<DenseVector<int_max>>> m_CandidateConflictTable_TJunction;
-    //m_CandidateConflictTable_TJunction[k][0]: candidate share the same input edge-k
-	//m_CandidateConflictTable_TJunction[k][1]: candidate share the same middle point of input edge-k
+	ObjectArray<DenseVector<int_max>> m_QuadCandidateIndexSet_At_BigTriangle;
+	// quad-candidate contain BigTriangle-k: input triangle
+
+	ObjectArray<DenseVector<int_max>> m_CandidateConflictTable_Overlap;
+	//m_CandidateConflictTable_TJunction[k]: other candidate overlap candidate-k at small triangle
+
+	ObjectArray<DenseVector<int_max>> m_CandidateConflictTable_TJunction;
+    //m_CandidateConflictTable_TJunction[k]: other candidate touch candidate-k at TJunction and no overlap
 
 	DenseVector<ScalarType> m_CandidateScoreList;
 	//m_CandidateScoreList[k]: score of candidate-k
@@ -79,6 +84,9 @@ public:
 	void GenerateQuadCandidate_Type3(EdgeHandleType EdgeHandle_input);
 	void GenerateQuadCandidate_Type4();
 	void GenerateQuadCandidate_Type4(EdgeHandleType EdgeHandle_input);
+	void Build_CandidateConflictTable_Overlap();
+	void Build_CandidateConflictTable_TJunction();
+	void Preserve_FeatureEdge();
 	void EvaluateCandidate();
 	void SelectCandidate();
 	void BuildOutputMesh();
@@ -86,9 +94,6 @@ public:
 
 	DenseVector<int_max> ConvertHandleToIndex(const DenseVector<PointHandleType>& HandleList);
 	DenseVector<int_max> ConvertHandleToIndex(const DenseVector<FaceHandleType>& HandleList);
-
-	void Build_CandidateConflictTable_TJunction();
-	void Preserve_FeatureEdge();
 
 	DenseVector<int_max> FindCandidate_Conflict_with_QuadCandidate_Type4_b(int_max CandidateIndex, PointHandleType PointH0, EdgeHandleType EdgeH0, EdgeHandleType EdgeH1, EdgeHandleType EdgeH2, EdgeHandleType EdgeH3, EdgeHandleType EdgeH4);
 	DenseVector<int_max> FindCandidate_Conflict_with_QuadCandidate_Type4_c(int_max CandidateIndex, PointHandleType PointH0, EdgeHandleType EdgeH0, EdgeHandleType EdgeH1, EdgeHandleType EdgeH2, EdgeHandleType EdgeH3, EdgeHandleType EdgeH4);

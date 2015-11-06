@@ -33,8 +33,9 @@ void SurfaceRemesher3<ScalarType>::ClearInternalData()
 	m_CandidateMesh.Clear();
 	m_MiddlePointList_on_CandidateMesh.Clear();
 	m_CandidateTypeList.Clear();
-	m_CandidateIndexSet_At_SmallTriangle.Clear();
-	m_CandidateIndexSet_At_BigTriangle.Clear();
+	m_CandidateIndexSet_Overlap_SmallTriangle.Clear();
+	m_QuadCandidateIndexSet_At_SmallTriangle.Clear();
+	m_QuadCandidateIndexSet_At_BigTriangle.Clear();
 	m_CandidateConflictTable_TJunction.Clear();
 	m_CandidateScoreList.Clear();
 	m_CandidateIndicatorList.Clear();
@@ -113,11 +114,14 @@ void SurfaceRemesher3<ScalarType>::GenerateCandidate()
 	m_CandidateTypeList.Clear();
 	m_CandidateTypeList.SetCapacity(CandidateCount_output_max);
 
-	m_CandidateIndexSet_At_BigTriangle.Clear();
-	m_CandidateIndexSet_At_BigTriangle.Resize(FaceCount_input);
+	m_QuadCandidateIndexSet_At_BigTriangle.Clear();
+	m_QuadCandidateIndexSet_At_BigTriangle.Resize(FaceCount_input);
 
-	m_CandidateIndexSet_At_SmallTriangle.Clear();
-	m_CandidateIndexSet_At_SmallTriangle.SetCapacity(6 * FaceCount_input);
+	m_QuadCandidateIndexSet_At_SmallTriangle.Clear();
+	m_QuadCandidateIndexSet_At_SmallTriangle.Resize(6 * FaceCount_input);
+
+	m_CandidateIndexSet_Overlap_SmallTriangle.Clear();
+	m_CandidateIndexSet_Overlap_SmallTriangle.Resize(6 * FaceCount_input);
 
 	m_CandidateConflictTable_TJunction.Clear();
 	m_CandidateConflictTable_TJunction.SetCapacity(10 * CandidateCount_output_max);
@@ -126,8 +130,8 @@ void SurfaceRemesher3<ScalarType>::GenerateCandidate()
 	this->GenerateTriangleCandidate_Type1();
 	this->GenerateTriangleCandidate_Type2();
 	this->GenerateQuadCandidate_Type3();
-	//this->GenerateQuadCandidate_Type4();
-
+	this->GenerateQuadCandidate_Type4();
+	this->Build_CandidateConflictTable_Overlap();
 	this->Build_CandidateConflictTable_TJunction();
 	this->Preserve_FeatureEdge();
 }
@@ -140,7 +144,6 @@ void SurfaceRemesher3<ScalarType>::GenerateTriangleCandidate_Type1()
 		auto EdgeHandleList = it.Face().GetEdgeHandleList();
 		auto PointHandleList = it.Face().GetPointHandleList();
 		m_CandidateTypeList.Append(1); 
-		m_CandidateIndexSet_At_BigTriangle[it.GetFaceHandle().GetIndex()] = it.GetFaceHandle().GetIndex();
 	}
 	m_BigTriangleCandidateCount = m_InputMesh.GetFaceCount();
 }
@@ -189,12 +192,24 @@ void SurfaceRemesher3<ScalarType>::GenerateTriangleCandidate_Type2()
 		m_CandidateTypeList.Append(2);
 		m_CandidateTypeList.Append(2);
 		m_CandidateTypeList.Append(2);
-		m_CandidateIndexSet_At_SmallTriangle.Append(CandidateHandle0.GetIndex());
-		m_CandidateIndexSet_At_SmallTriangle.Append(CandidateHandle1.GetIndex());
-		m_CandidateIndexSet_At_SmallTriangle.Append(CandidateHandle2.GetIndex());
-		m_CandidateIndexSet_At_SmallTriangle.Append(CandidateHandle3.GetIndex());
-		m_CandidateIndexSet_At_SmallTriangle.Append(CandidateHandle4.GetIndex());
-		m_CandidateIndexSet_At_SmallTriangle.Append(CandidateHandle5.GetIndex());
+
+		m_CandidateIndexSet_Overlap_SmallTriangle[CandidateHandle0.GetIndex() - m_BigTriangleCandidateCount].Append(BigTriangleCandidateIndex);
+		m_CandidateIndexSet_Overlap_SmallTriangle[CandidateHandle0.GetIndex() - m_BigTriangleCandidateCount].Append(CandidateHandle0.GetIndex());
+
+		m_CandidateIndexSet_Overlap_SmallTriangle[CandidateHandle1.GetIndex() - m_BigTriangleCandidateCount].Append(BigTriangleCandidateIndex);
+		m_CandidateIndexSet_Overlap_SmallTriangle[CandidateHandle1.GetIndex() - m_BigTriangleCandidateCount].Append(CandidateHandle1.GetIndex());
+
+		m_CandidateIndexSet_Overlap_SmallTriangle[CandidateHandle2.GetIndex() - m_BigTriangleCandidateCount].Append(BigTriangleCandidateIndex);
+		m_CandidateIndexSet_Overlap_SmallTriangle[CandidateHandle2.GetIndex() - m_BigTriangleCandidateCount].Append(CandidateHandle2.GetIndex());
+
+		m_CandidateIndexSet_Overlap_SmallTriangle[CandidateHandle3.GetIndex() - m_BigTriangleCandidateCount].Append(BigTriangleCandidateIndex);
+		m_CandidateIndexSet_Overlap_SmallTriangle[CandidateHandle3.GetIndex() - m_BigTriangleCandidateCount].Append(CandidateHandle3.GetIndex());
+
+		m_CandidateIndexSet_Overlap_SmallTriangle[CandidateHandle4.GetIndex() - m_BigTriangleCandidateCount].Append(BigTriangleCandidateIndex);
+		m_CandidateIndexSet_Overlap_SmallTriangle[CandidateHandle4.GetIndex() - m_BigTriangleCandidateCount].Append(CandidateHandle4.GetIndex());
+
+		m_CandidateIndexSet_Overlap_SmallTriangle[CandidateHandle5.GetIndex() - m_BigTriangleCandidateCount].Append(BigTriangleCandidateIndex);
+		m_CandidateIndexSet_Overlap_SmallTriangle[CandidateHandle5.GetIndex() - m_BigTriangleCandidateCount].Append(CandidateHandle5.GetIndex());
 	}
 }
 
@@ -300,8 +315,14 @@ void SurfaceRemesher3<ScalarType>::GenerateQuadCandidate_Type3(EdgeHandleType Ed
 	auto CandidateHandle = m_CandidateMesh.AddFaceByPoint(Candidate); 	
 	m_CandidateTypeList.Append(3);	
 
-	m_CandidateIndexSet_At_BigTriangle[FaceH_a.GetIndex()].Append(CandidateHandle.GetIndex());
-	m_CandidateIndexSet_At_BigTriangle[FaceH_b.GetIndex()].Append(CandidateHandle.GetIndex());
+	m_QuadCandidateIndexSet_At_BigTriangle[FaceH_a.GetIndex()].Append(CandidateHandle.GetIndex());
+	m_QuadCandidateIndexSet_At_BigTriangle[FaceH_b.GetIndex()].Append(CandidateHandle.GetIndex());
+
+	for (int_max k = 0; k < 6; ++k)
+	{
+		m_CandidateIndexSet_Overlap_SmallTriangle[6*FaceH_a.GetIndex()+k].Append(CandidateHandle.GetIndex());
+		m_CandidateIndexSet_Overlap_SmallTriangle[6*FaceH_b.GetIndex()+k].Append(CandidateHandle.GetIndex());
+	}
 }
 
 
@@ -505,7 +526,7 @@ void SurfaceRemesher3<ScalarType>::GenerateQuadCandidate_Type4(EdgeHandleType Ed
 
 		auto AdjacentPointCount_P0 = m_InputMesh.Point(PointH0).GetAdjacentPointCount();
 
-		//if (AdjacentPointCount_P0 == 6) //add quad {P1, P2, P3, P4}
+		//if (AdjacentPointCount_P0 == 6) //add quad {P1, P2, P3, P4} = {P1 P5 P2 P3 P0 P4}
 		{
 			if (PointH3.GetIndex() >= 0 && PointH4.GetIndex() >= 0)
 			{
@@ -520,25 +541,32 @@ void SurfaceRemesher3<ScalarType>::GenerateQuadCandidate_Type4(EdgeHandleType Ed
 					//       P1 ---e0----P2     
 					//             P5
 					//----------------------------
-					DenseVector<PointHandleType, 4> Candidate = { PointH1, PointH2, PointH3, PointH4 };
+					DenseVector<PointHandleType> Candidate = { PointH1, PointH5, PointH2, PointH3, PointH0 ,PointH4 };
 					auto CandidateHandle = m_CandidateMesh.AddFaceByPoint(Candidate);					
 					m_CandidateTypeList.Append(4);
 
 					DenseVector<PointHandleType> Triangle_P1P0P4 = { PointH1, PointH0, PointH4 };
-					auto SmallTriangleHandle_P1P0P4 = m_CandidateMesh.GetFaceHandleByPoint(Triangle_P1P0P4);
-					m_CandidateIndexSet_At_SmallTriangle[SmallTriangleHandle_P1P0P4.GetIndex() - m_BigTriangleCandidateCount].Append(CandidateHandle.GetIndex());
+					auto TriangleH_P1P0P4 = m_CandidateMesh.GetFaceHandleByPoint(Triangle_P1P0P4);
+					m_QuadCandidateIndexSet_At_SmallTriangle[TriangleH_P1P0P4.GetIndex() - m_BigTriangleCandidateCount].Append(CandidateHandle.GetIndex());
 
-					DenseVector<PointHandleType> Triangle_P0P2P3 = { PointH0, PointH2, PointH3 };
-					auto SmallTriangleHandle_P0P2P3 = m_CandidateMesh.GetFaceHandleByPoint(Triangle_P0P2P3);
-					m_CandidateIndexSet_At_SmallTriangle[SmallTriangleHandle_P0P2P3.GetIndex() - m_BigTriangleCandidateCount].Append(CandidateHandle.GetIndex());
+					DenseVector<PointHandleType> Triangle_P2P3P0 = { PointH2, PointH3, PointH0 };
+					auto TriangleH_P2P3P0 = m_CandidateMesh.GetFaceHandleByPoint(Triangle_P2P3P0);
+					m_QuadCandidateIndexSet_At_SmallTriangle[TriangleH_P2P3P0.GetIndex() - m_BigTriangleCandidateCount].Append(CandidateHandle.GetIndex());
 
-					m_CandidateIndexSet_At_BigTriangle[FaceH_middle.GetIndex()].Append(CandidateHandle.GetIndex());
+					m_QuadCandidateIndexSet_At_BigTriangle[FaceH_middle.GetIndex()].Append(CandidateHandle.GetIndex());
+
+					for (int_max k = 0; k < 6; ++k)
+					{
+						m_CandidateIndexSet_Overlap_SmallTriangle[6*FaceH_middle.GetIndex() + k].Append(CandidateHandle.GetIndex());
+					}
+					m_CandidateIndexSet_Overlap_SmallTriangle[TriangleH_P1P0P4.GetIndex() - m_BigTriangleCandidateCount].Append(CandidateHandle.GetIndex());
+					m_CandidateIndexSet_Overlap_SmallTriangle[TriangleH_P2P3P0.GetIndex() - m_BigTriangleCandidateCount].Append(CandidateHandle.GetIndex());
 				}
 			}
 		}
 		//else
 		{
-			if (PointH3.GetIndex() >= 0)//add quad {P1, P2, P3, P0} 
+			if (PointH3.GetIndex() >= 0)//add quad {P1, P2, P3, P0} ={P1 P5 P2 P3 P0}
 			{
 				if (Flag_Edge1_preserved == false && Flag_Edge3_preserved == false)
 				{
@@ -551,18 +579,24 @@ void SurfaceRemesher3<ScalarType>::GenerateQuadCandidate_Type4(EdgeHandleType Ed
 					//       P1 ---e0----P2     
 					//             P5
 					//----------------------------
-					DenseVector<PointHandleType, 4> Candidate = { PointH1, PointH2, PointH3, PointH0 };
+					DenseVector<PointHandleType> Candidate = { PointH1, PointH5, PointH2, PointH3, PointH0 };
 					auto CandidateHandle = m_CandidateMesh.AddFaceByPoint(Candidate);
 					m_CandidateTypeList.Append(4);
 
-					DenseVector<PointHandleType> Triangle_P0P2P3 = { PointH0, PointH2, PointH3 };
-					auto SmallTriangleHandle_P0P2P3 = m_CandidateMesh.GetFaceHandleByPoint(Triangle_P0P2P3);
-					m_CandidateIndexSet_At_SmallTriangle[SmallTriangleHandle_P0P2P3.GetIndex() - m_BigTriangleCandidateCount].Append(CandidateHandle.GetIndex());
+					DenseVector<PointHandleType> Triangle_P2P3P0 = { PointH2, PointH3, PointH0 };
+					auto TriangleH_P2P3P0 = m_CandidateMesh.GetFaceHandleByPoint(Triangle_P2P3P0);
+					m_QuadCandidateIndexSet_At_SmallTriangle[TriangleH_P2P3P0.GetIndex() - m_BigTriangleCandidateCount].Append(CandidateHandle.GetIndex());
 
-					m_CandidateIndexSet_At_BigTriangle[FaceH_middle.GetIndex()].Append(CandidateHandle.GetIndex());
+					m_QuadCandidateIndexSet_At_BigTriangle[FaceH_middle.GetIndex()].Append(CandidateHandle.GetIndex());
+
+					for (int_max k = 0; k < 6; ++k)
+					{
+						m_CandidateIndexSet_Overlap_SmallTriangle[6*FaceH_middle.GetIndex() + k].Append(CandidateHandle.GetIndex());
+					}
+					m_CandidateIndexSet_Overlap_SmallTriangle[TriangleH_P2P3P0.GetIndex() - m_BigTriangleCandidateCount].Append(CandidateHandle.GetIndex());
 				}
 			}
-			if (PointH4.GetIndex() >= 0)//add quad {P1, P2, P0, P4}
+			if (PointH4.GetIndex() >= 0)//add quad {P1, P2, P0, P4} = {P1 P5 P2 P0 P4}
 			{
 				if (Flag_Edge2_preserved == false && Flag_Edge4_preserved == false)
 				{
@@ -575,16 +609,280 @@ void SurfaceRemesher3<ScalarType>::GenerateQuadCandidate_Type4(EdgeHandleType Ed
 					//       P1 ---e0----P2     
 					//             P5
 					//----------------------------
-					DenseVector<PointHandleType, 4> Candidate = { PointH1, PointH2, PointH0, PointH4 };
+					DenseVector<PointHandleType> Candidate = { PointH1, PointH5, PointH2, PointH0, PointH4 };
 					auto CandidateHandle = m_CandidateMesh.AddFaceByPoint(Candidate);
 					m_CandidateTypeList.Append(4);
 
 					DenseVector<PointHandleType> Triangle_P1P0P4 = { PointH1, PointH0, PointH4 };
-					auto SmallTriangleHandle_P1P0P4 = m_CandidateMesh.GetFaceHandleByPoint(Triangle_P1P0P4);
-					m_CandidateIndexSet_At_SmallTriangle[SmallTriangleHandle_P1P0P4.GetIndex() - m_BigTriangleCandidateCount].Append(CandidateHandle.GetIndex());
+					auto TriangleH_P1P0P4 = m_CandidateMesh.GetFaceHandleByPoint(Triangle_P1P0P4);
+					m_QuadCandidateIndexSet_At_SmallTriangle[TriangleH_P1P0P4.GetIndex() - m_BigTriangleCandidateCount].Append(CandidateHandle.GetIndex());
 
-					m_CandidateIndexSet_At_BigTriangle[FaceH_middle.GetIndex()].Append(CandidateHandle.GetIndex());
+					m_QuadCandidateIndexSet_At_BigTriangle[FaceH_middle.GetIndex()].Append(CandidateHandle.GetIndex());
+
+					for (int_max k = 0; k < 6; ++k)
+					{
+						m_CandidateIndexSet_Overlap_SmallTriangle[6*FaceH_middle.GetIndex() + k].Append(CandidateHandle.GetIndex());
+					}
+					m_CandidateIndexSet_Overlap_SmallTriangle[TriangleH_P1P0P4.GetIndex() - m_BigTriangleCandidateCount].Append(CandidateHandle.GetIndex());
 				}
+			}
+		}
+	}
+}
+
+
+
+template<typename ScalarType>
+void SurfaceRemesher3<ScalarType>::Build_CandidateConflictTable_Overlap()
+{
+	auto PointCount_input = m_InputMesh.GetPointCount();
+	auto EdgeCount_input = m_InputMesh.GetEdgeCount();
+	auto CandidateCount = m_CandidateMesh.GetFaceCount();
+	m_CandidateConflictTable_Overlap.Clear();
+	m_CandidateConflictTable_Overlap.Resize(CandidateCount);
+
+	for (int_max k = 0; k < CandidateCount; ++k)
+	{
+		FaceHandleType CandidateHandle;
+		CandidateHandle.SetIndex(k);
+		auto Candidate = m_CandidateMesh.Face(CandidateHandle).GetPointHandleList();
+		auto EdgeHandleList = m_CandidateMesh.Face(CandidateHandle).GetEdgeHandleList();
+		DenseVector<int_max> CandidateIndexList_Overlap;
+		if (Candidate.GetLength() == 3)//small triangle or big triangle
+		{
+			if (m_CandidateTypeList[k] == 1)//big
+			{
+				for (int_max n = 0; n < 6; ++n)
+				{
+					CandidateIndexList_Overlap.Append(m_CandidateIndexSet_Overlap_SmallTriangle[6 * k + n]);
+				}
+				CandidateIndexList_Overlap = CandidateIndexList_Overlap.GetSubSet(CandidateIndexList_Overlap.FindUnique());
+			}
+			else//small
+			{
+				CandidateIndexList_Overlap = m_CandidateIndexSet_Overlap_SmallTriangle[k - m_BigTriangleCandidateCount];
+			}
+			CandidateIndexList_Overlap = CandidateIndexList_Overlap.GetSubSet(CandidateIndexList_Overlap.FindUnique());
+		}
+		else if (Candidate.GetLength() == 4)//quad from two big-triangle
+		{
+			auto BigTriangleHa = m_CandidateMesh.GetFaceHandleByPoint({ Candidate[0], Candidate[1], Candidate[3] });
+			auto BigTriangleHb = m_CandidateMesh.GetFaceHandleByPoint({ Candidate[1], Candidate[2], Candidate[3] });
+			for (int_max n = 0; n < 6; ++n)
+			{
+				CandidateIndexList_Overlap.Append(m_CandidateIndexSet_Overlap_SmallTriangle[BigTriangleHa.GetIndex() * 6 + n]);
+				CandidateIndexList_Overlap.Append(m_CandidateIndexSet_Overlap_SmallTriangle[BigTriangleHb.GetIndex() * 6 + n]);
+			}
+			CandidateIndexList_Overlap = CandidateIndexList_Overlap.GetSubSet(CandidateIndexList_Overlap.FindUnique());
+		}
+		else if (Candidate.GetLength() == 5)//quad from one big-triangle + one small-triangle
+		{
+			//----------------------------	
+			//       P4          P3   
+			//   ----e4--- P0 ---e3------
+			//    \   |  /    \   |   /
+			//     \  | /e2  e1\  |  /
+			//      \ |/        \ |/
+			//       P1 ---e0----P2     
+			//             P5
+			//----------------------------
+			auto PointH_0_or_3 = Candidate[3];//PointH0 or PointH3
+			if (PointH_0_or_3.GetIndex() >= PointCount_input)
+			{//PointH3, quad{P1 P2 P3 P0}={P1 P5 P2 P3 P0}
+				auto SmallTriangleH_P2P3P0 = m_CandidateMesh.GetFaceHandleByPoint({ Candidate[2], Candidate[3], Candidate[4] });
+				auto BigTriangleH = m_CandidateMesh.GetFaceHandleByPoint({ Candidate[0], Candidate[2], Candidate[4] });
+				CandidateIndexList_Overlap.Append(m_CandidateIndexSet_Overlap_SmallTriangle[SmallTriangleH_P2P3P0.GetIndex() - m_BigTriangleCandidateCount]);
+				for (int_max n = 0; n < 6; ++n)
+				{
+					CandidateIndexList_Overlap.Append(m_CandidateIndexSet_Overlap_SmallTriangle[BigTriangleH.GetIndex() * 6 + n]);
+				}
+				CandidateIndexList_Overlap = CandidateIndexList_Overlap.GetSubSet(CandidateIndexList_Overlap.FindUnique());
+			}
+			else
+			{//PointH0, quad{P1 P2 P0 P4}={P1 P5 P2 P0 P4}
+				auto SmallTriangleH_P1P0P4 = m_CandidateMesh.GetFaceHandleByPoint({ Candidate[0], Candidate[3], Candidate[4] });
+				auto BigTriangleH = m_CandidateMesh.GetFaceHandleByPoint({ Candidate[0], Candidate[2], Candidate[3] });
+				CandidateIndexList_Overlap.Append(m_CandidateIndexSet_Overlap_SmallTriangle[SmallTriangleH_P1P0P4.GetIndex() - m_BigTriangleCandidateCount]);
+				for (int_max n = 0; n < 6; ++n)
+				{
+					CandidateIndexList_Overlap.Append(m_CandidateIndexSet_Overlap_SmallTriangle[BigTriangleH.GetIndex() * 6 + n]);
+				}
+				CandidateIndexList_Overlap = CandidateIndexList_Overlap.GetSubSet(CandidateIndexList_Overlap.FindUnique());
+			}
+		}
+		else if (Candidate.GetLength() == 6)//quad from one big-triangle + two small-triangle
+		{
+			//----------------------------	
+			//       P4          P3   
+			//   ----e4--- P0 ---e3------
+			//    \   |  /    \   |   /
+			//     \  | /e2  e1\  |  /
+			//      \ |/        \ |/
+			//       P1 ---e0----P2     
+			//             P5
+			//----------------------------
+			// quad{P1 P2 P3 P4}={P1 P5 P2 P3 P0 P4}
+			auto SmallTriangleH_P1P0P4 = m_CandidateMesh.GetFaceHandleByPoint({ Candidate[0], Candidate[4], Candidate[5] });
+			auto SmallTriangleH_P2P3P0 = m_CandidateMesh.GetFaceHandleByPoint({ Candidate[2], Candidate[3], Candidate[4] });
+			auto BigTriangleH = m_CandidateMesh.GetFaceHandleByPoint({ Candidate[0], Candidate[2], Candidate[4] });
+			CandidateIndexList_Overlap.Append(m_CandidateIndexSet_Overlap_SmallTriangle[SmallTriangleH_P1P0P4.GetIndex() - m_BigTriangleCandidateCount]);
+			CandidateIndexList_Overlap.Append(m_CandidateIndexSet_Overlap_SmallTriangle[SmallTriangleH_P2P3P0.GetIndex() - m_BigTriangleCandidateCount]);
+			for (int_max n = 0; n < 6; ++n)
+			{
+				CandidateIndexList_Overlap.Append(m_CandidateIndexSet_Overlap_SmallTriangle[BigTriangleH.GetIndex() * 6 + n]);
+			}
+			CandidateIndexList_Overlap = CandidateIndexList_Overlap.GetSubSet(CandidateIndexList_Overlap.FindUnique());
+		}
+		else
+		{
+			MDK_Error("somthing is wrong @ SurfaceRemesher3::Build_CandidateConflictTable_Overlap() ")
+		}
+
+		for (int_max n = 0; n < CandidateIndexList_Overlap.GetLength(); ++n)
+		{
+			if (CandidateIndexList_Overlap[n] == k)
+			{
+				CandidateIndexList_Overlap.Delete(n);
+				break;
+			}
+		}
+
+		m_CandidateConflictTable_Overlap[k] = CandidateIndexList_Overlap;
+	}
+}
+
+
+template<typename ScalarType>
+void SurfaceRemesher3<ScalarType>::Build_CandidateConflictTable_TJunction()
+{
+	auto PointCount_input = m_InputMesh.GetPointCount();
+	auto EdgeCount_input = m_InputMesh.GetEdgeCount();
+	auto CandidateCount = m_CandidateMesh.GetFaceCount();
+	m_CandidateConflictTable_TJunction.Clear();
+	m_CandidateConflictTable_TJunction.Resize(CandidateCount);
+
+	for (int_max k = 0; k < CandidateCount; ++k)
+	{
+		FaceHandleType CandidateHandle;
+		CandidateHandle.SetIndex(k);
+		auto Candidate = m_CandidateMesh.Face(CandidateHandle).GetPointHandleList();
+		auto EdgeHandleList = m_CandidateMesh.Face(CandidateHandle).GetEdgeHandleList();
+		DenseVector<int_max> CandidateIndexList_Conflict;
+		if (Candidate.GetLength() == 3)//small triangle or big triangle
+		{
+			if (m_CandidateTypeList[k] == 1)//big
+			{
+				for (int_max n = 0; n < EdgeHandleList.GetLength(); ++n)
+				{
+					auto MiddlePointH = m_MiddlePointList_on_CandidateMesh[EdgeHandleList[n].GetIndex()];
+					auto IndexList = this->ConvertHandleToIndex(m_CandidateMesh.Point(MiddlePointH).GetAdjacentFaceHandleList());
+					CandidateIndexList_Conflict.Append(IndexList);
+				}
+				CandidateIndexList_Conflict = CandidateIndexList_Conflict.GetSubSet(CandidateIndexList_Conflict.FindUnique());
+			}
+			else//small
+			{
+				for (int_max n = 0; n < EdgeHandleList.GetLength(); ++n)
+				{
+					if (EdgeHandleList[n].GetIndex() < EdgeCount_input)
+					{
+						auto MiddlePointH = m_MiddlePointList_on_CandidateMesh[EdgeHandleList[n].GetIndex()];
+						auto IndexList = this->ConvertHandleToIndex(m_CandidateMesh.Point(MiddlePointH).GetAdjacentFaceHandleList());
+						CandidateIndexList_Conflict.Append(IndexList);
+					}
+				}
+				CandidateIndexList_Conflict = CandidateIndexList_Conflict.GetSubSet(CandidateIndexList_Conflict.FindUnique());
+			}
+		}
+		else if (Candidate.GetLength() == 4)//quad from two big-triangle
+		{
+			for (int_max n = 0; n < EdgeHandleList.GetLength(); ++n)
+			{
+				auto MiddlePointH = m_MiddlePointList_on_CandidateMesh[EdgeHandleList[n].GetIndex()];
+				auto IndexList = this->ConvertHandleToIndex(m_CandidateMesh.Point(MiddlePointH).GetAdjacentFaceHandleList());
+				CandidateIndexList_Conflict.Append(IndexList);
+			}
+			CandidateIndexList_Conflict = CandidateIndexList_Conflict.GetSubSet(CandidateIndexList_Conflict.FindUnique());
+		}
+		else if (Candidate.GetLength() == 5)//quad from one big-triangle + one small-triangle
+		{
+			auto PointH5 = Candidate[1];//middle point of input edge
+			auto IndexList_PointH5 = this->ConvertHandleToIndex(m_CandidateMesh.Point(PointH5).GetAdjacentFaceHandleList());
+			CandidateIndexList_Conflict.Append(IndexList_PointH5);
+			auto PointH_0_or_3 = Candidate[3];//PointH0 or PointH3
+			if (PointH_0_or_3.GetIndex() >= PointCount_input)
+			{//PointH3
+				auto EdgeH_P0P1 = EdgeHandleList[4];
+				auto MiddlePointH = m_MiddlePointList_on_CandidateMesh[EdgeH_P0P1.GetIndex()];
+				auto IndexList = this->ConvertHandleToIndex(m_CandidateMesh.Point(MiddlePointH).GetAdjacentFaceHandleList());
+				CandidateIndexList_Conflict.Append(IndexList);
+			}
+			else
+			{//PointH0
+				auto Edge_P2P0 = EdgeHandleList[2];
+				auto MiddlePointH = m_MiddlePointList_on_CandidateMesh[Edge_P2P0.GetIndex()];
+				auto IndexList = this->ConvertHandleToIndex(m_CandidateMesh.Point(MiddlePointH).GetAdjacentFaceHandleList());
+				CandidateIndexList_Conflict.Append(IndexList);
+			}
+			CandidateIndexList_Conflict = CandidateIndexList_Conflict.GetSubSet(CandidateIndexList_Conflict.FindUnique());
+		}
+		else if (Candidate.GetLength() == 6)//quad from one big-triangle + two small-triangle
+		{			
+			auto PointH5 = Candidate[1];//middle point of input edge
+			auto PointH0 = Candidate[4];//middle point of input edge
+			auto IndexList_PointH5 = this->ConvertHandleToIndex(m_CandidateMesh.Point(PointH5).GetAdjacentFaceHandleList());
+			auto IndexList_PointH0 = this->ConvertHandleToIndex(m_CandidateMesh.Point(PointH0).GetAdjacentFaceHandleList());
+			CandidateIndexList_Conflict.Append(IndexList_PointH5);
+			CandidateIndexList_Conflict.Append(IndexList_PointH0);
+			CandidateIndexList_Conflict = CandidateIndexList_Conflict.GetSubSet(CandidateIndexList_Conflict.FindUnique());
+			for (int_max n = 0; n < CandidateIndexList_Conflict.GetLength(); ++n)
+			{
+				if (CandidateIndexList_Conflict[n] == k)
+				{
+					CandidateIndexList_Conflict.Delete(n);
+					break;
+				}
+			}			
+		}
+		else
+		{
+			MDK_Error("somthing is wrong @ SurfaceRemesher3::EvaluateCandidate() ")
+		}
+
+		const auto& CandidateIndexList_Overlap = m_CandidateConflictTable_Overlap[k];
+		for (int_max n = 0; n < CandidateIndexList_Conflict.GetLength(); ++n)
+		{
+			auto tempIndex = CandidateIndexList_Overlap.ExactMatch("first", CandidateIndexList_Conflict[n]);
+			if (tempIndex < 0)
+			{// no overlap					
+				m_CandidateConflictTable_TJunction[k].Append(CandidateIndexList_Conflict[n]);
+			}
+		}
+	}
+}
+
+
+template<typename ScalarType>
+void SurfaceRemesher3<ScalarType>::Preserve_FeatureEdge()
+{
+	// only need to check small triangle : may split feature edge
+	// quad candidate, that could split feature edge, is not generated
+
+	m_CandidateIndicatorList.Clear();
+	m_CandidateIndicatorList.Resize(m_CandidateMesh.GetFaceCount());
+	m_CandidateIndicatorList.Fill(-1);
+
+	for (int_max k = 0; k < m_FeatureEdgeOfInputMesh.GetLength(); ++k)
+	{
+		auto EdgeIndex = m_FeatureEdgeOfInputMesh[k].GetIndex();
+		auto MiddlePointH = m_MiddlePointList_on_CandidateMesh[EdgeIndex];
+		auto CandidateHandleList_k = m_CandidateMesh.Point(MiddlePointH).GetAdjacentFaceHandleList();
+		for (int_max n = 0; n < CandidateHandleList_k.GetLength(); ++n)
+		{
+			auto CandidateIndex = CandidateHandleList_k[n].GetIndex();
+			if (m_CandidateTypeList[CandidateIndex] == 2)//small triangle candidate
+			{
+				m_CandidateIndicatorList[CandidateIndex] = 0;
 			}
 		}
 	}
@@ -601,16 +899,8 @@ void SurfaceRemesher3<ScalarType>::EvaluateCandidate()
 		FaceHandleType CandidateHandle;
 		CandidateHandle.SetIndex(k);
 		auto Candidate = m_CandidateMesh.Face(CandidateHandle).GetPointHandleList();
-		if (m_CandidateTypeList[k] >= 3)//quad
+		if (Candidate.GetLength() == 3)//triangle
 		{			
-			auto Point0 = m_CandidateMesh.GetPointPosition(Candidate[0]);
-			auto Point1 = m_CandidateMesh.GetPointPosition(Candidate[1]);
-			auto Point2 = m_CandidateMesh.GetPointPosition(Candidate[2]);
-			auto Point3 = m_CandidateMesh.GetPointPosition(Candidate[3]);
-			m_CandidateScoreList[k] = this->EvaluateQuad(Point0, Point1, Point2, Point3);
-		}
-		else //m_CandidateTypeList[k] is 1 (big triangle) or 2 (small triangle)
-		{
 			auto Point0 = m_CandidateMesh.GetPointPosition(Candidate[0]);
 			auto Point1 = m_CandidateMesh.GetPointPosition(Candidate[1]);
 			auto Point2 = m_CandidateMesh.GetPointPosition(Candidate[2]);
@@ -625,6 +915,34 @@ void SurfaceRemesher3<ScalarType>::EvaluateCandidate()
 			}
 			Score *= ScalarType(0.1);//quad is preferred
 			m_CandidateScoreList[k] = Score;
+		}
+		else if (Candidate.GetLength() == 4)//quad from two big-triangle
+		{
+			auto Point0 = m_CandidateMesh.GetPointPosition(Candidate[0]);
+			auto Point1 = m_CandidateMesh.GetPointPosition(Candidate[1]);
+			auto Point2 = m_CandidateMesh.GetPointPosition(Candidate[2]);
+			auto Point3 = m_CandidateMesh.GetPointPosition(Candidate[3]);
+			m_CandidateScoreList[k] = this->EvaluateQuad(Point0, Point1, Point2, Point3);
+		}
+		else if (Candidate.GetLength() == 5)//quad from one big-triangle + one small-triangle
+		{
+			auto Point0 = m_CandidateMesh.GetPointPosition(Candidate[0]);
+			auto Point1 = m_CandidateMesh.GetPointPosition(Candidate[2]);
+			auto Point2 = m_CandidateMesh.GetPointPosition(Candidate[3]);
+			auto Point3 = m_CandidateMesh.GetPointPosition(Candidate[4]);
+			m_CandidateScoreList[k] = this->EvaluateQuad(Point0, Point1, Point2, Point3);
+		}
+		else if (Candidate.GetLength() == 6)//quad from one big-triangle + two small-triangle
+		{
+			auto Point0 = m_CandidateMesh.GetPointPosition(Candidate[0]);
+			auto Point1 = m_CandidateMesh.GetPointPosition(Candidate[2]);
+			auto Point2 = m_CandidateMesh.GetPointPosition(Candidate[3]);
+			auto Point3 = m_CandidateMesh.GetPointPosition(Candidate[5]);
+			m_CandidateScoreList[k] = this->EvaluateQuad(Point0, Point1, Point2, Point3);
+		}
+		else
+		{
+			MDK_Error("somthing is wrong @ SurfaceRemesher3::EvaluateCandidate() ")
 		}
 	}
 }
@@ -703,53 +1021,6 @@ DenseVector<int_max> SurfaceRemesher3<ScalarType>::ConvertHandleToIndex(const De
 	return IndexList;
 }
 
-
-template<typename ScalarType>
-void SurfaceRemesher3<ScalarType>::Build_CandidateConflictTable_TJunction()
-{
-	auto EdgeCount_input = m_InputMesh.GetEdgeCount();
-	m_CandidateConflictTable_TJunction.Clear();
-	m_CandidateConflictTable_TJunction.Resize(EdgeCount_input);
-
-	for (int_max k = 0; k < EdgeCount_input; ++k)
-	{		
-		EdgeHandleType EdgeHandle;
-		EdgeHandle.SetIndex(k);
-		auto MiddlePointH = m_MiddlePointList_on_CandidateMesh[k];
-		ObjectArray<DenseVector<int_max>> Conflict;
-		Conflict.Resize(2);
-		Conflict[0] = this->ConvertHandleToIndex(m_CandidateMesh.Edge(EdgeHandle).GetAdjacentFaceHandleList());
-		Conflict[1] = this->ConvertHandleToIndex(m_CandidateMesh.Point(MiddlePointH).GetAdjacentFaceHandleList());
-		m_CandidateConflictTable_TJunction[k] = std::move(Conflict);
-	}
-}
-
-
-template<typename ScalarType>
-void SurfaceRemesher3<ScalarType>::Preserve_FeatureEdge()
-{
-	// only need to check small triangle : may split feature edge
-	// quad candidate, that could split feature edge, is not generated
-
-	m_CandidateIndicatorList.Clear();
-	m_CandidateIndicatorList.Resize(m_CandidateMesh.GetFaceCount());
-	m_CandidateIndicatorList.Fill(-1);
-
-	for (int_max k = 0; k < m_FeatureEdgeOfInputMesh.GetLength(); ++k)
-	{
-		auto EdgeIndex = m_FeatureEdgeOfInputMesh[k].GetIndex();
-		auto MiddlePointH = m_MiddlePointList_on_CandidateMesh[EdgeIndex];
-		auto CandidateHandleList_k = m_CandidateMesh.Point(MiddlePointH).GetAdjacentFaceHandleList();
-		for (int_max n = 0; n < CandidateHandleList_k.GetLength(); ++n)
-		{
-			auto CandidateIndex = CandidateHandleList_k[n].GetIndex();
-			if (m_CandidateTypeList[CandidateIndex] == 2)//small triangle candidate
-			{
-				m_CandidateIndicatorList[CandidateIndex] = 0;
-			}
-		}
-	}
-}
 
 template<typename ScalarType>
 ScalarType SurfaceRemesher3<ScalarType>::EvaluateQuad(const DenseVector<ScalarType, 3>& Point0, const DenseVector<ScalarType, 3>& Point1, const DenseVector<ScalarType, 3>& Point2, const DenseVector<ScalarType, 3>& Point3)
