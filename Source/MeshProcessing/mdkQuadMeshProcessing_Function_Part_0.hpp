@@ -22,7 +22,7 @@ PolygonMesh<MeshAttributeType> SubdivideQuadMesh_Linear(const PolygonMesh<MeshAt
 
 	//------- add initial point by copying all point of InputMesh ----------------//
 	DenseVector<int_max> PointIndexMap_init;
-	PointIndexMap_init.Resize(PointCount_input + InputMesh.GetDeletedPointHandleCount());
+	PointIndexMap_init.Resize(PointCount_input + InputMesh.GetDeletedPointCount());
 	PointIndexMap_init.Fill(-1);
 	DenseVector<Handle_Of_Point_Of_MembraneMesh> PointHandleList_init;
 	PointHandleList_init.SetCapacity(PointCount_input);
@@ -37,7 +37,7 @@ PolygonMesh<MeshAttributeType> SubdivideQuadMesh_Linear(const PolygonMesh<MeshAt
 
 	//------- add new point by splitting each edge of InputMesh -----------------//   
 	DenseVector<int_max> PointIndexMap_new;
-	PointIndexMap_new.Resize(EdgeCount_input + InputMesh.GetDeletedEdgeHandleCount());
+	PointIndexMap_new.Resize(EdgeCount_input + InputMesh.GetDeletedEdgeCount());
 	PointIndexMap_new.Fill(-1);
 	DenseVector<Handle_Of_Point_Of_MembraneMesh> PointHandleList_new;
 	PointHandleList_new.SetCapacity(EdgeCount_input);
