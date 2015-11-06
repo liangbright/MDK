@@ -6,7 +6,7 @@ namespace mdk
 {
 
 template<typename Scalar_Type>
-class SurfaceRemesher2 : public Object
+class SurfaceRemesher3 : public Object
 {
 public:
 	typedef Scalar_Type ScalarType;
@@ -29,12 +29,13 @@ public:
 
 	//------------------- internal ------------------------------------//
 	TriangleMesh<MeshAttributeType> m_CandidateMesh;
+	//m_CandidateMesh.Face(k) is Candidate-k
+	// FaceList: {{BigTriangleCandidate} {SmallTriangleCandidate} {QuadCandidate}}
+
+	int_max m_BigTriangleCandidateCount;
 
 	DenseVector<PointHandleType> m_MiddlePointList_on_CandidateMesh;
-
-	ObjectArray<DenseVector<PointHandleType>> m_CandidateList;
-	//m_CandidateList = { m_CandidateList_big_triangle, m_CandidateList_small_triangle, m_CandidateList_quad}
-	// m_CandidateList[k]: PointIndexList of the candidate
+	//m_MiddlePointList_on_CandidateMesh[EdgeIndex]
 
 	DenseVector<int> m_CandidateTypeList;
 	// 1: one big triangle (input triangle)
@@ -42,9 +43,15 @@ public:
 	// 3: one quad from only two big triangle
 	// 4: one quad from small and big triangle
 
-	ObjectArray<DenseVector<int_max>> m_CandidateConflictTable;
-	// Candidate-k can not co-exist with some other Candidate (IndexList is m_CandiateConflictTable[k])
-	// if Candidate-k is small triangle, then m_CandidateConflictTable[k][0] is the index of the big-triangle containing the small triangle
+	ObjectArray<DenseVector<int_max>> m_CandidateIndexSet_At_SmallTriangle;
+	// candidate contain SmallTriangle-k: splitted from input triangle
+
+	ObjectArray<DenseVector<int_max>> m_CandidateIndexSet_At_BigTriangle;
+	// candidate contain BigTriangle-k: input triangle
+
+	ObjectArray<ObjectArray<DenseVector<int_max>>> m_CandidateConflictTable_TJunction;
+    //m_CandidateConflictTable_TJunction[k][0]: candidate share the same input edge-k
+	//m_CandidateConflictTable_TJunction[k][1]: candidate share the same middle point of input edge-k
 
 	DenseVector<ScalarType> m_CandidateScoreList;
 	//m_CandidateScoreList[k]: score of candidate-k
@@ -56,8 +63,8 @@ public:
 	PolygonMesh<MeshAttributeType> m_OutputMesh;
 
 public:
-	SurfaceRemesher2();
-	~SurfaceRemesher2();
+	SurfaceRemesher3();
+	~SurfaceRemesher3();
 	void Clear();
 	void Update();
 
@@ -80,17 +87,19 @@ public:
 	DenseVector<int_max> ConvertHandleToIndex(const DenseVector<PointHandleType>& HandleList);
 	DenseVector<int_max> ConvertHandleToIndex(const DenseVector<FaceHandleType>& HandleList);
 
-	DenseVector<int_max> FindCandidate_Conflict_with_QuadCandidate_Type4_a(int_max CandidateIndex, PointHandleType PointH0, EdgeHandleType EdgeH0, EdgeHandleType EdgeH1, EdgeHandleType EdgeH2, EdgeHandleType EdgeH3, EdgeHandleType EdgeH4);
+	void Build_CandidateConflictTable_TJunction();
+	void Preserve_FeatureEdge();
+
 	DenseVector<int_max> FindCandidate_Conflict_with_QuadCandidate_Type4_b(int_max CandidateIndex, PointHandleType PointH0, EdgeHandleType EdgeH0, EdgeHandleType EdgeH1, EdgeHandleType EdgeH2, EdgeHandleType EdgeH3, EdgeHandleType EdgeH4);
 	DenseVector<int_max> FindCandidate_Conflict_with_QuadCandidate_Type4_c(int_max CandidateIndex, PointHandleType PointH0, EdgeHandleType EdgeH0, EdgeHandleType EdgeH1, EdgeHandleType EdgeH2, EdgeHandleType EdgeH3, EdgeHandleType EdgeH4);
 
 	ScalarType EvaluateQuad(const DenseVector<ScalarType, 3>& Point0, const DenseVector<ScalarType, 3>& Point1, const DenseVector<ScalarType, 3>& Point2, const DenseVector<ScalarType, 3>& Point3);
 	ScalarType EvaluateTriangle(const DenseVector<ScalarType, 3>& Point0, const DenseVector<ScalarType, 3>& Point1, const DenseVector<ScalarType, 3>& Point2);
 private:
-	SurfaceRemesher2(const SurfaceRemesher2&) = delete;
-	void operator=(const SurfaceRemesher2&) = delete;
+	SurfaceRemesher3(const SurfaceRemesher3&) = delete;
+	void operator=(const SurfaceRemesher3&) = delete;
 };
 
 }//namespace
 
-#include "SurfaceRemesher2.hpp"
+#include "SurfaceRemesher3.hpp"

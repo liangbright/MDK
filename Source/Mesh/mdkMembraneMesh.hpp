@@ -1303,49 +1303,40 @@ Handle_Of_Face_Of_MembraneMesh MembraneMesh<MeshAttributeType>::GetFaceHandleByE
         }
     }
 
-    DenseVector<int_max> FaceIndexList;
-    FaceIndexList.Resize(EdgeHandleList.GetLength());
-    FaceIndexList.Fill(-1);
+	//---------------------------------------------------------------------------------------------------
+	auto TempFunction_Intersect = [](const DenseVector<int_max>& ListA, const DenseVector<int_max>& ListB)
+	{
+		DenseVector<int_max> ListC;
+		ListC.SetCapacity(ListA.GetLength());
+		for (int_max n = 0; n < ListA.GetLength(); ++n)
+		{
+			for (int_max m = 0; m < ListB.GetLength(); ++m)
+			{
+				if (ListA[n] == ListB[m])
+				{
+					ListC.Append(ListA[n]);
+				}
+			}
+		}
+		return ListC;
+	};
+	//---------------------------------------------------------------------------------------------------
+	DenseVector<int_max> FaceIndexList = m_MeshData->EdgeList[EdgeHandleList[0].GetIndex()].GetAdjacentFaceIndexList();
+	for (int_max k = 1; k < EdgeHandleList.GetLength(); ++k)
+	{
+		auto AdjacentFaceIndexList_k = m_MeshData->EdgeList[EdgeHandleList[k].GetIndex()].GetAdjacentFaceIndexList();
+		FaceIndexList=TempFunction_Intersect(FaceIndexList, AdjacentFaceIndexList_k);
+	}
+	//----------------------
+	if (FaceIndexList.GetLength() != 1)
+	{
+		//MDK_Warning("EdgeHandleList is invalid @ MembraneMesh::GetFaceHandleByEdge(...)")
+		FaceHandle.SetToInvalid();
+		return FaceHandle;
+	}
 
-    for (int_max k = 0; k < EdgeHandleList.GetLength() - 1; ++k)
-    {
-        auto AdjacentFaceIndexList_a = m_MeshData->EdgeList[EdgeHandleList[k].GetIndex()].GetAdjacentFaceIndexList();
-        auto AdjacentFaceIndexList_b = m_MeshData->EdgeList[EdgeHandleList[k + 1].GetIndex()].GetAdjacentFaceIndexList();
-
-        int_max Counter = 0;
-
-        for (int_max n = 0; n < AdjacentFaceIndexList_a.GetLength(); ++n)
-        {            
-            for (int_max m = 0; m < AdjacentFaceIndexList_b.GetLength(); ++m)
-            {
-                if (AdjacentFaceIndexList_a[n] == AdjacentFaceIndexList_b[m])
-                {
-                    FaceIndexList[k] = AdjacentFaceIndexList_a[n];
-                    Counter += 1;
-                }
-            }
-        }
-
-        if (Counter > 1)
-        {
-            MDK_Warning("EdgeHandleList is invalid : more than one copy of a handle @ MembraneMesh::GetFaceHandle(...)")
-            FaceHandle.SetToInvalid();
-            return FaceHandle;
-        }
-    }
-
-    auto tempList = FaceIndexList.FindUnique();
-    if (tempList.GetLength() != 1)
-    {
-        //MDK_Warning("EdgeHandleList is invalid @ MembraneMesh::GetFaceHandleByEdge(...)")
-        FaceHandle.SetToInvalid();
-        return FaceHandle;
-    }
-    else
-    {
-        FaceHandle.SetIndex(FaceIndexList[tempList[0]]);
-        return FaceHandle;
-    }
+	FaceHandle.SetIndex(FaceIndexList[0]);
+	return FaceHandle;
 }
 
 template<typename MeshAttributeType>
@@ -1387,50 +1378,28 @@ MembraneMesh<MeshAttributeType>::GetFaceHandleByPoint(const DenseVector<Handle_O
         }
     }
 
-    DenseVector<int_max> FaceIndexList;
-    FaceIndexList.Resize(PointHandleList.GetLength());
-    FaceIndexList.Fill(-1);
-
-    for (int_max k = 0; k < PointHandleList.GetLength() - 1; ++k)
-    {
-        const auto& AdjacentFaceIndexList_a = m_MeshData->PointList[PointHandleList[k].GetIndex()].AdjacentFaceIndexList();
-        const auto& AdjacentFaceIndexList_b = m_MeshData->PointList[PointHandleList[k + 1].GetIndex()].AdjacentFaceIndexList();
-
-        int_max Counter = 0;
-
-        for (int_max n = 0; n < AdjacentFaceIndexList_a.GetLength(); ++n)
-        {
-            for (int_max m = 0; m < AdjacentFaceIndexList_b.GetLength(); ++m)
-            {
-                if (AdjacentFaceIndexList_a[n] == AdjacentFaceIndexList_b[m])
-                {
-                    FaceIndexList[k] = AdjacentFaceIndexList_a[n];
-                    Counter += 1;
-                }
-            }
-        }
-
-        if (Counter > 1)
-        {
-            MDK_Warning("PointHandleList is invalid : more than one copy of a handle @ MembraneMesh::GetFaceHandleByPoint(...)")
-            FaceHandle.SetToInvalid();
-            return FaceHandle;
-        }
-    }
-
-    auto tempList = FaceIndexList.FindUnique();
-    if (tempList.GetLength() != 1)
-    {
-        //MDK_Warning("PointHandleList is invalid @ MembraneMesh::GetFaceHandleByPoint(...)")
-        FaceHandle.SetToInvalid();
-        return FaceHandle;
-    }
-    else
-    {
-        FaceHandle.SetIndex(FaceIndexList[tempList[0]]);
-        return FaceHandle;
-    }
+	DenseVector<EdgeHandleType> EdgeHandleList;
+	EdgeHandleList.Resize(PointHandleList.GetLength());
+	for (int_max k = 0; k < PointHandleList.GetLength(); ++k)
+	{
+		if (k < PointHandleList.GetLength() - 1)
+		{
+			EdgeHandleList[k] = this->GetEdgeHandleByPoint(PointHandleList[k], PointHandleList[k + 1]);
+		}
+		else
+		{
+			EdgeHandleList[k] = this->GetEdgeHandleByPoint(PointHandleList[k], PointHandleList[0]);
+		}
+		if (EdgeHandleList[k].GetIndex() < 0)
+		{
+			//MDK_Warning("PointHandleList is invalid @ MembraneMesh::GetFaceHandleByPoint(...)")
+			FaceHandle.SetToInvalid();
+			return FaceHandle;
+		}
+	}
+	return this->GetFaceHandleByEdge(EdgeHandleList);
 }
+
 
 template<typename MeshAttributeType>
 inline 

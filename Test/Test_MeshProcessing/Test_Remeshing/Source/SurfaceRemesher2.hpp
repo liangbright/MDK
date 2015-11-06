@@ -20,6 +20,9 @@ void SurfaceRemesher2<ScalarType>::Clear()
 	m_InputMesh.Clear();
 	m_FeatureEdgeOfInputMesh.Clear();
 	m_FeaturePointOfInputMesh.Clear();
+	m_Threshold_Quad_WarpAngleScore = 0.9659; // 15/360
+	m_Threshold_Quad_EdgeAngleScore = 0.2929; // 45/360
+	m_Threshold_Quad_AspectScore = 0.2;       // 1/5		
 	this->ClearInternalData();
 	m_OutputMesh.Clear();
 }
@@ -27,10 +30,10 @@ void SurfaceRemesher2<ScalarType>::Clear()
 template<typename ScalarType>
 void SurfaceRemesher2<ScalarType>::ClearInternalData()
 {
-	m_MiddlePointOfEdgeOfInputMesh.Clear();
+	m_CandidateMesh.Clear();
+	m_MiddlePointList_on_CandidateMesh.Clear();
 	m_CandidateList.Clear();
 	m_CandidateTypeList.Clear();
-	m_CandidateIndex_On_BigTriangle.Clear();
 	m_CandidateConflictTable.Clear();
 	m_CandidateScoreList.Clear();
 	m_CandidateIndicatorList.Clear();
@@ -42,6 +45,12 @@ bool SurfaceRemesher2<ScalarType>::CheckInput()
 	if (m_InputMesh.CheckIfTriangleMesh() == false)
 	{
 		MDK_Error("m_InputMesh is NOT TriangleMesh @ SurfaceRemesher2::CheckInput()")
+		return false;
+	}
+
+	if (m_InputMesh.Check_If_DataStructure_is_Clean() == false)
+	{
+		MDK_Error("m_InputMesh DataStructure is NOT Clean @ SurfaceRemesher2::CheckInput()")
 		return false;
 	}
 
@@ -73,27 +82,30 @@ void SurfaceRemesher2<ScalarType>::Update()
 }
 
 template<typename ScalarType>
-void SurfaceRemesher2<ScalarType>::FindMiddlePointOfEdgeOfInputMesh()
+void SurfaceRemesher2<ScalarType>::InitilizeCandidateMesh()
 {// add middle point of each edge
-	m_MiddlePointOfEdgeOfInputMesh.Clear();
-	m_MiddlePointOfEdgeOfInputMesh.Resize(m_InputMesh.GetEdgeCount() + m_InputMesh.GetDeletedEdgeCount());
+
+	m_CandidateMesh = m_InputMesh;
+
+	m_MiddlePointList_on_CandidateMesh.Clear();
+	m_MiddlePointList_on_CandidateMesh.Resize(m_InputMesh.GetEdgeCount());
 
 	for (auto it = m_InputMesh.GetIteratorOfEdge(); it.IsNotEnd(); ++it)
 	{
 		auto PointHandleList = it.Edge().GetPointHandleList();
-		auto Point0 = m_InputMesh.GetPointPosition(PointHandleList[0]);
-		auto Point1 = m_InputMesh.GetPointPosition(PointHandleList[1]);
+		auto Point0 = m_CandidateMesh.GetPointPosition(PointHandleList[0]);
+		auto Point1 = m_CandidateMesh.GetPointPosition(PointHandleList[1]);
 		auto PointM = (Point0 + Point1) / ScalarType(2);
 
 		auto EdgeIndex = it.GetEdgeHandle().GetIndex();
-		m_MiddlePointOfEdgeOfInputMesh[EdgeIndex] = m_InputMesh.AddPoint(PointM);
+		m_MiddlePointList_on_CandidateMesh[EdgeIndex] = m_CandidateMesh.AddPoint(PointM);
 	}
 }
 
 template<typename ScalarType>
 void SurfaceRemesher2<ScalarType>::GenerateCandidate()
 {
-	auto FaceCount_input = m_InputMesh.GetFaceCount();
+	auto FaceCount_input = m_CandidateMesh.GetFaceCount();
 
 	auto CandidateCount_output_max = FaceCount_input + 6*FaceCount_input + FaceCount_input;
 
@@ -104,37 +116,32 @@ void SurfaceRemesher2<ScalarType>::GenerateCandidate()
 	m_CandidateTypeList.SetCapacity(CandidateCount_output_max);
 
 	m_CandidateConflictTable.Clear();
-	m_CandidateConflictTable.Resize(10*CandidateCount_output_max);
-
-	m_CandidateIndex_On_BigTriangle.Clear();
-	m_CandidateIndex_On_BigTriangle.Resize(FaceCount_input + m_InputMesh.GetDeletedFaceCount());
+	m_CandidateConflictTable.SetCapacity(10 * CandidateCount_output_max);
 
 	// candidate must be generated in this order, so m_CandidateConflictTable can be easily constructed
 	this->GenerateTriangleCandidate_Type1();
 	this->GenerateTriangleCandidate_Type2();
-	//this->GenerateQuadCandidate_Type3();
+	this->GenerateQuadCandidate_Type3();
 	this->GenerateQuadCandidate_Type4();
 }
 
 template<typename ScalarType>
 void SurfaceRemesher2<ScalarType>::GenerateTriangleCandidate_Type1()
 {
-	int_max FaceCandidateIndex = -1;
 	for (auto it = m_InputMesh.GetIteratorOfFace(); it.IsNotEnd(); ++it)
 	{
-		m_CandidateList.Append(it.Face().GetPointHandleList());
+		auto EdgeHandleList = it.Face().GetEdgeHandleList();
+		auto PointHandleList = it.Face().GetPointHandleList();
+		m_CandidateList.Append(PointHandleList);
 		m_CandidateTypeList.Append(1);
-		FaceCandidateIndex += 1;//may not be it.GetFaceHandle().GetIndex();
-		m_CandidateIndex_On_BigTriangle[FaceCandidateIndex] = FaceCandidateIndex;
 		DenseVector<int_max> Conflict;
-		m_CandidateConflictTable.Append(Conflict);
+		m_CandidateConflictTable.Append(Conflict);	   
 	}
 }
 
 template<typename ScalarType>
 void SurfaceRemesher2<ScalarType>::GenerateTriangleCandidate_Type2()
 {
-	int_max FaceCandidateIndex = -1;
 	for (auto it = m_InputMesh.GetIteratorOfFace(); it.IsNotEnd(); ++it)
 	{   //-------------------------
 		//        P0
@@ -144,16 +151,16 @@ void SurfaceRemesher2<ScalarType>::GenerateTriangleCandidate_Type2()
 		//   P1---Pb----P2
 		//-------------------------		
 
-		FaceCandidateIndex += 1;//may not be it.GetFaceHandle().GetIndex();
+		auto FaceCandidateIndex = it.GetFaceHandle().GetIndex();
 
-		auto PointHandleList = it.Face().GetPointHandleList();
 		auto EdgeHandleList = it.Face().GetEdgeHandleList();
+		auto PointHandleList = it.Face().GetPointHandleList();		
 		auto PointH0 = PointHandleList[0];
 		auto PointH1 = PointHandleList[1];
 		auto PointH2 = PointHandleList[2];
-		auto PointHa = m_MiddlePointOfEdgeOfInputMesh[EdgeHandleList[0].GetIndex()];
-		auto PointHb = m_MiddlePointOfEdgeOfInputMesh[EdgeHandleList[1].GetIndex()];
-		auto PointHc = m_MiddlePointOfEdgeOfInputMesh[EdgeHandleList[2].GetIndex()];
+		auto PointHa = m_MiddlePointList_on_CandidateMesh[EdgeHandleList[0].GetIndex()];
+		auto PointHb = m_MiddlePointList_on_CandidateMesh[EdgeHandleList[1].GetIndex()];
+		auto PointHc = m_MiddlePointList_on_CandidateMesh[EdgeHandleList[2].GetIndex()];
 
 		DenseVector<PointHandleType> Candidate0, Candidate1, Candidate2, Candidate3, Candidate4, Candidate5;
 		Candidate0 = { PointH0, PointH1, PointHb };
@@ -170,37 +177,47 @@ void SurfaceRemesher2<ScalarType>::GenerateTriangleCandidate_Type2()
 		DenseVector<int_max> NewCandiateIndexList;
 		NewCandiateIndexList.SetCapacity(6);
 
-		if (tempIndex1 < 0)// no need to preserve edge P1P2
+		if (tempIndex1 < 0)// no need to preserve edge1 P1P2
 		{
+			m_CandidateMesh.AddFaceByPoint(Candidate0);
+			m_CandidateMesh.AddFaceByPoint(Candidate1);
 			m_CandidateList.Append(Candidate0);		
-			NewCandiateIndexList.Append(m_CandidateList.GetLength()-1);
+			auto NewCandiateIndex0 = m_CandidateList.GetLength() - 1;
+			NewCandiateIndexList.Append(NewCandiateIndex0);
 			m_CandidateList.Append(Candidate1);
-			NewCandiateIndexList.Append(m_CandidateList.GetLength() - 1);
+			auto NewCandiateIndex1 = m_CandidateList.GetLength() - 1;
+			NewCandiateIndexList.Append(NewCandiateIndex1);
 			m_CandidateTypeList.Append(2);
 			m_CandidateTypeList.Append(2);
 		}
 
-		if (tempIndex2 < 0)// no need to preserve edge P2P0
+		if (tempIndex2 < 0)// no need to preserve edge2 P2P0
 		{
+			m_CandidateMesh.AddFaceByPoint(Candidate2);
+			m_CandidateMesh.AddFaceByPoint(Candidate3);
 			m_CandidateList.Append(Candidate2);
-			NewCandiateIndexList.Append(m_CandidateList.GetLength() - 1);
+			auto NewCandiateIndex2 = m_CandidateList.GetLength() - 1;
+			NewCandiateIndexList.Append(NewCandiateIndex2);
 			m_CandidateList.Append(Candidate3);
-			NewCandiateIndexList.Append(m_CandidateList.GetLength() - 1);
+			auto NewCandiateIndex3 = m_CandidateList.GetLength() - 1;
+			NewCandiateIndexList.Append(NewCandiateIndex3);
 			m_CandidateTypeList.Append(2);
 			m_CandidateTypeList.Append(2);
 		}
 
-		if (tempIndex0 < 0)// no need to preserve edge P0P1
+		if (tempIndex0 < 0)// no need to preserve edge0 P0P1
 		{
+			m_CandidateMesh.AddFaceByPoint(Candidate4);
+			m_CandidateMesh.AddFaceByPoint(Candidate5);
 			m_CandidateList.Append(Candidate4);
-			NewCandiateIndexList.Append(m_CandidateList.GetLength() - 1);
+			auto NewCandiateIndex4 = m_CandidateList.GetLength() - 1;
+			NewCandiateIndexList.Append(NewCandiateIndex4);
 			m_CandidateList.Append(Candidate5);
-			NewCandiateIndexList.Append(m_CandidateList.GetLength() - 1);
+			auto NewCandiateIndex5 = m_CandidateList.GetLength() - 1;
+			NewCandiateIndexList.Append(NewCandiateIndex5);
 			m_CandidateTypeList.Append(2);
 			m_CandidateTypeList.Append(2);
 		}
-
-		m_CandidateIndex_On_BigTriangle[FaceCandidateIndex].Append(NewCandiateIndexList);
 
 		if (tempIndex1 < 0 && tempIndex2 < 0 && tempIndex0 < 0)
 		{// all six candidate added
@@ -295,25 +312,33 @@ template<typename ScalarType>
 void SurfaceRemesher2<ScalarType>::GenerateQuadCandidate_Type3(EdgeHandleType EdgeHandle_input)
 {
 	auto AdjacentFaceHandleList = m_InputMesh.Edge(EdgeHandle_input).GetAdjacentFaceHandleList();
-	if (AdjacentFaceHandleList.GetLength() <= 1)
+	if (AdjacentFaceHandleList.GetLength() != 2)
 	{
 		return;
 	}
 
-	//----------------------------	
+	//-----------------------------------------------------------	
 	//         P0
 	//       / a  \
     //     P1-----P2
 	//       \ b  /
 	//         P3
-	// Triangle Normal:(P0, P1, P2), (P1, P3, P2)
-	//----------------------------
+	//
+	// assume  P0->P1->P2->P0 order in Face_a 
+	// in Face_b, order may be P1->P3->P2->P3 or P1->P2->P3->P1
+	//----------------------------------------------------------
 	auto FaceH_a = AdjacentFaceHandleList[0];
-	auto FaceH_b = AdjacentFaceHandleList[1];
+	auto EdgeHandleList_a = m_InputMesh.Face(FaceH_a).GetEdgeHandleList();
 	auto PointHandleList_a = m_InputMesh.Face(FaceH_a).GetPointHandleList();
+
+	auto FaceH_b = AdjacentFaceHandleList[1];
+	auto EdgeHandleList_b = m_InputMesh.Face(FaceH_b).GetEdgeHandleList();
 	auto PointHandleList_b = m_InputMesh.Face(FaceH_b).GetPointHandleList();
 
-	PointHandleType PointH0;
+	PointHandleType PointH0, PointH1, PointH2, PointH3;
+	EdgeHandleType EdgeH_P0P1, EdgeH_P1P2, EdgeH_P2P0, EdgeH_P1P3, EdgeH_P3P2;
+
+	//get PointH0
 	for (int_max k = 0; k < 3; ++k)
 	{
 		if (PointHandleList_a[k] != PointHandleList_b[0] && PointHandleList_a[k] != PointHandleList_b[1] && PointHandleList_a[k] != PointHandleList_b[2])
@@ -323,7 +348,7 @@ void SurfaceRemesher2<ScalarType>::GenerateQuadCandidate_Type3(EdgeHandleType Ed
 		}
 	}
 
-	PointHandleType PointH1, PointH2;
+	//get PointH1, PointH2, EdgeH_P0P1, EdgeH_P1P2, EdgeH_P2P0
 	for (int_max k = 0; k < 3; ++k)
 	{
 		if (PointHandleList_a[k] == PointH0)
@@ -340,11 +365,14 @@ void SurfaceRemesher2<ScalarType>::GenerateQuadCandidate_Type3(EdgeHandleType Ed
 			}
 			PointH1 = PointHandleList_a[Index1];
 			PointH2 = PointHandleList_a[Index2];
+			EdgeH_P0P1 = EdgeHandleList_a[k];
+			EdgeH_P1P2 = EdgeHandleList_a[Index1];
+			EdgeH_P2P0 = EdgeHandleList_a[Index2];
 			break;
 		}
 	}
 
-	PointHandleType PointH3;
+	//get PointH3
 	for (int_max k = 0; k < 3; ++k)
 	{
 		if (PointHandleList_b[k] != PointHandleList_a[0] && PointHandleList_b[k] != PointHandleList_a[1] && PointHandleList_b[k] != PointHandleList_a[2])
@@ -354,15 +382,44 @@ void SurfaceRemesher2<ScalarType>::GenerateQuadCandidate_Type3(EdgeHandleType Ed
 		}
 	}
 
-	DenseVector<PointHandleType, 4> Candidate = { PointH0, PointH1, PointH3, PointH2 };
+	EdgeH_P1P3 = m_InputMesh.GetEdgeHandleByPoint(PointH1, PointH3);//same as using m_CandidateMesh
+	EdgeH_P3P2 = m_InputMesh.GetEdgeHandleByPoint(PointH3, PointH2);//same as using m_CandidateMesh
+	
+	// middle point on each edge
+	auto PointH_m_P0P1 = m_MiddlePointList_on_CandidateMesh[EdgeH_P0P1.GetIndex()];
+	auto PointH_m_P1P2 = m_MiddlePointList_on_CandidateMesh[EdgeH_P1P2.GetIndex()];
+	auto PointH_m_P2P0 = m_MiddlePointList_on_CandidateMesh[EdgeH_P2P0.GetIndex()];
+	auto PointH_m_P1P3 = m_MiddlePointList_on_CandidateMesh[EdgeH_P1P3.GetIndex()];
+	auto PointH_m_P3P2 = m_MiddlePointList_on_CandidateMesh[EdgeH_P3P2.GetIndex()];
+
+	// small triangle candidate index list
+	auto CandidateIndexList_m_P0P1 = this->ConvertHandleToIndex(m_CandidateMesh.Point(PointH_m_P0P1).GetAdjacentFaceHandleList());
+	auto CandidateIndexList_m_P1P2 = this->ConvertHandleToIndex(m_CandidateMesh.Point(PointH_m_P1P2).GetAdjacentFaceHandleList());	
+	auto CandidateIndexList_m_P2P0 = this->ConvertHandleToIndex(m_CandidateMesh.Point(PointH_m_P2P0).GetAdjacentFaceHandleList());
+	auto CandidateIndexList_m_P1P3 = this->ConvertHandleToIndex(m_CandidateMesh.Point(PointH_m_P1P3).GetAdjacentFaceHandleList());
+	auto CandidateIndexList_m_P3P2 = this->ConvertHandleToIndex(m_CandidateMesh.Point(PointH_m_P3P2).GetAdjacentFaceHandleList());
+
+	// candidate touch edge P1P2
+	auto CandidateIndexList_P1P2 = this->ConvertHandleToIndex(m_CandidateMesh.Edge(EdgeH_P1P2).GetAdjacentFaceHandleList());
+
+	DenseVector<PointHandleType, 4> Candidate = { PointH0, PointH1, PointH3, PointH2 };	
 	m_CandidateList.Append(Candidate);	
 	m_CandidateTypeList.Append(3);	
 	auto CandidateIndex = m_CandidateList.GetLength() - 1;
 
-	//update m_CandidateConflictTable
+	//find  Conflict
 	DenseVector<int_max> Conflict;
-	Conflict.Append(m_CandidateIndex_On_BigTriangle[FaceH_a.GetIndex()]);
-	Conflict.Append(m_CandidateIndex_On_BigTriangle[FaceH_b.GetIndex()]);
+	Conflict.SetCapacity(20);
+	Conflict.Append(FaceH_a.GetIndex());
+	Conflict.Append(FaceH_b.GetIndex());
+	Conflict.Append(CandidateIndexList_m_P0P1);//T-Junction
+	Conflict.Append(CandidateIndexList_m_P1P2);//T-Junction
+	Conflict.Append(CandidateIndexList_m_P2P0);//T-Junction
+	Conflict.Append(CandidateIndexList_m_P1P3);//T-Junction
+	Conflict.Append(CandidateIndexList_m_P3P2);//T-Junction
+	Conflict.Append(CandidateIndexList_P1P2);// quad
+	Conflict = Conflict.GetSubSet(Conflict.FindUnique());
+	//update ConflictTable
 	for (int_max k = 0; k < Conflict.GetLength(); ++k)
 	{
 		m_CandidateConflictTable[Conflict[k]].Append(CandidateIndex);
@@ -370,8 +427,7 @@ void SurfaceRemesher2<ScalarType>::GenerateQuadCandidate_Type3(EdgeHandleType Ed
 	m_CandidateConflictTable.Append(Conflict);
 	
 	// the last thing
-	m_CandidateIndex_On_BigTriangle[FaceH_a.GetIndex()].Append(CandidateIndex);
-	m_CandidateIndex_On_BigTriangle[FaceH_b.GetIndex()].Append(CandidateIndex);
+	m_CandidateMesh.AddFaceByPoint(Candidate);
 }
 
 
@@ -399,11 +455,12 @@ void SurfaceRemesher2<ScalarType>::GenerateQuadCandidate_Type4(EdgeHandleType Ed
 	}
 
 	// split and merge many triangle to get a quad
-	for (int_max k = 0; k < AdjacentFaceHandleList.GetLength(); ++k)
+	for (int_max i = 0; i < AdjacentFaceHandleList.GetLength(); ++i)
 	{
 		//----------------------------	
 		// P3: middle point of edge e3
 		// P4: middle point of edge e4
+		// P5: middle point of edge e0
 		//
 		//       P4          P3   
 		//   ----e4--- P0 ---e3------
@@ -411,8 +468,7 @@ void SurfaceRemesher2<ScalarType>::GenerateQuadCandidate_Type4(EdgeHandleType Ed
 		//     \  | /e2  e1\  |  /
 		//      \ |/        \ |/
 		//       P1 ---e0----P2          
-		//
-		// Triangle Normal:(P0, P1, P2)
+        //
 		//----------------------------
 
 		EdgeHandleType EdgeH0, EdgeH1, EdgeH2, EdgeH3, EdgeH4;
@@ -420,7 +476,7 @@ void SurfaceRemesher2<ScalarType>::GenerateQuadCandidate_Type4(EdgeHandleType Ed
 
 		EdgeH0 = EdgeHandle_input;
 
-		auto FaceH_middle = AdjacentFaceHandleList[k];
+		auto FaceH_middle = AdjacentFaceHandleList[i];
 		{
 			auto tempPointHandleList = m_InputMesh.Face(FaceH_middle).GetPointHandleList();
 			auto tempEdgeHandleList = m_InputMesh.Face(FaceH_middle).GetEdgeHandleList();
@@ -526,12 +582,12 @@ void SurfaceRemesher2<ScalarType>::GenerateQuadCandidate_Type4(EdgeHandleType Ed
 		PointH3.SetToInvalid();
 		if (EdgeH3.GetIndex() >= 0)
 		{
-			PointH3 = m_MiddlePointOfEdgeOfInputMesh[EdgeH3.GetIndex()];
+			PointH3 = m_MiddlePointList_on_CandidateMesh[EdgeH3.GetIndex()];
 		}
 		PointH4.SetToInvalid();
 		if (EdgeH4.GetIndex() >= 0)
 		{
-			PointH4 = m_MiddlePointOfEdgeOfInputMesh[EdgeH4.GetIndex()];
+			PointH4 = m_MiddlePointList_on_CandidateMesh[EdgeH4.GetIndex()];
 		}
 
 		//check if P0 is preserved
@@ -544,10 +600,22 @@ void SurfaceRemesher2<ScalarType>::GenerateQuadCandidate_Type4(EdgeHandleType Ed
 			}
 		}
 
-		//check if e3 or e4 is preserved
+		//check if e1/e2/e3/e4 is preserved
+		bool Flag_Edge1_preserved = false;
+		bool Flag_Edge2_preserved = false;
 		bool Flag_Edge3_preserved = false;
 		bool Flag_Edge4_preserved = false;
 		{
+			auto tempIndex1 = m_FeatureEdgeOfInputMesh.ExactMatch("first", EdgeH1);
+			if (tempIndex1 >= 0)
+			{
+				Flag_Edge1_preserved = true;
+			}
+			auto tempIndex2 = m_FeatureEdgeOfInputMesh.ExactMatch("first", EdgeH2);
+			if (tempIndex2 >= 0)
+			{
+				Flag_Edge2_preserved = true;
+			}
 			auto tempIndex3 = m_FeatureEdgeOfInputMesh.ExactMatch("first", EdgeH3);
 			if (tempIndex3 >= 0)
 			{
@@ -569,63 +637,25 @@ void SurfaceRemesher2<ScalarType>::GenerateQuadCandidate_Type4(EdgeHandleType Ed
 		//       P1 ---e0----P2          
 		//----------------------------
 
-		if (m_InputMesh.Point(PointH0).GetAdjacentPointCount() > 0)// == 6) //add quad {P1, P2, P3, P4}
+		if (m_InputMesh.Point(PointH0).GetAdjacentPointCount() == 6) //add quad {P1, P2, P3, P4}
 		{
 			if (PointH3.GetIndex() >= 0 && PointH4.GetIndex() >= 0)
 			{
-				if (Flag_P0_preserved == false && Flag_Edge3_preserved == false && Flag_Edge4_preserved == false)
+				if (Flag_P0_preserved == false && Flag_Edge1_preserved == false && Flag_Edge2_preserved == false && Flag_Edge3_preserved == false && Flag_Edge4_preserved == false)
 				{
 					DenseVector<PointHandleType, 4> Candidate = { PointH1, PointH2, PointH3, PointH4 };
 					m_CandidateList.Append(Candidate);
 					auto CandidateIndex = m_CandidateList.GetLength() - 1;
 					m_CandidateTypeList.Append(4);
 					//update m_CandidateConflictTable
-					DenseVector<int_max> Conflict;
-					Conflict.SetCapacity(10);
-					{
-						auto PotentialConflict_middle = m_CandidateIndex_On_BigTriangle[FaceH_middle.GetIndex()];
-						auto PotentialConflict_left = m_CandidateIndex_On_BigTriangle[FaceH_left.GetIndex()];
-						auto PotentialConflict_right = m_CandidateIndex_On_BigTriangle[FaceH_right.GetIndex()];
-						for (int_max k = 0; k < PotentialConflict_middle.GetLength(); ++k)
-						{
-							if (this->CheckConflict_QuadCandidate_Type4_a(CandidateIndex, PotentialConflict_middle[k], 
-								                                          PointH0, PointH1, PointH2, PointH3, PointH4, 
-																		  EdgeH0, EdgeH1, EdgeH2, EdgeH3, EdgeH4,
-																		  FaceH_left, FaceH_middle, FaceH_right) == true)
-							{
-								Conflict.Append(PotentialConflict_middle[k]);
-							}
-						}
-						for (int_max k = 0; k < PotentialConflict_left.GetLength(); ++k)
-						{
-							if (this->CheckConflict_QuadCandidate_Type4_a(CandidateIndex, PotentialConflict_left[k],
-								                                          PointH0, PointH1, PointH2, PointH3, PointH4, 
-																		  EdgeH0, EdgeH1, EdgeH2, EdgeH3, EdgeH4,
-																		  FaceH_left, FaceH_middle, FaceH_right) == true)
-							{
-								Conflict.Append(PotentialConflict_left[k]);
-							}
-						}
-						for (int_max k = 0; k < PotentialConflict_right.GetLength(); ++k)
-						{
-							if (this->CheckConflict_QuadCandidate_Type4_a(CandidateIndex, PotentialConflict_right[k],
-								                                          PointH0, PointH1, PointH2, PointH3, PointH4, 
-																		  EdgeH0, EdgeH1, EdgeH2, EdgeH3, EdgeH4,
-																		  FaceH_left, FaceH_middle, FaceH_right) == true)
-							{
-								Conflict.Append(PotentialConflict_right[k]);
-							}
-						}
-					}
+					auto Conflict = this->FindCandidate_Conflict_with_QuadCandidate_Type4_a(CandidateIndex, PointH0, EdgeH0, EdgeH1, EdgeH2, EdgeH3, EdgeH4);					
 					for (int_max k = 0; k < Conflict.GetLength(); ++k)
 					{
 						m_CandidateConflictTable[Conflict[k]].Append(CandidateIndex);
 					}
 					m_CandidateConflictTable.Append(Conflict);
 					//the last thing
-					m_CandidateIndex_On_BigTriangle[FaceH_middle.GetIndex()].Append(CandidateIndex);
-					m_CandidateIndex_On_BigTriangle[FaceH_left.GetIndex()].Append(CandidateIndex);
-					m_CandidateIndex_On_BigTriangle[FaceH_right.GetIndex()].Append(CandidateIndex);					
+					m_CandidateMesh.AddFaceByPoint(Candidate);					
 				}
 			}
 		}
@@ -633,92 +663,40 @@ void SurfaceRemesher2<ScalarType>::GenerateQuadCandidate_Type4(EdgeHandleType Ed
 		{
 			if (PointH3.GetIndex() >= 0)//add quad {P1, P2, P3, P0} 
 			{
-				if (Flag_Edge3_preserved == false)
+				if (Flag_Edge1_preserved == false && Flag_Edge3_preserved == false)
 				{
 					DenseVector<PointHandleType, 4> Candidate = { PointH1, PointH2, PointH3, PointH0 };
 					m_CandidateList.Append(Candidate);
 					auto CandidateIndex = m_CandidateList.GetLength() - 1;
 					m_CandidateTypeList.Append(4);
-					//update m_CandidateConflictTable
-					DenseVector<int_max> Conflict;
-					Conflict.SetCapacity(10);
-					{
-						auto PotentialConflict_middle = m_CandidateIndex_On_BigTriangle[FaceH_middle.GetIndex()];
-						auto PotentialConflict_right = m_CandidateIndex_On_BigTriangle[FaceH_right.GetIndex()];
-						for (int_max k = 0; k < PotentialConflict_middle.GetLength(); ++k)
-						{
-							if (this->CheckConflict_QuadCandidate_Type4_b(CandidateIndex, PotentialConflict_middle[k],
-								                                          PointH0, PointH1, PointH2, PointH3, PointH4, 
-																		  EdgeH0, EdgeH1, EdgeH2, EdgeH3, EdgeH4,
-																		  FaceH_left, FaceH_middle, FaceH_right) == true)
-							{
-								Conflict.Append(PotentialConflict_middle[k]);
-							}
-						}
-						for (int_max k = 0; k < PotentialConflict_right.GetLength(); ++k)
-						{
-							if (this->CheckConflict_QuadCandidate_Type4_b(CandidateIndex, PotentialConflict_right[k],
-								                                          PointH0, PointH1, PointH2, PointH3, PointH4, 
-																		  EdgeH0, EdgeH1, EdgeH2, EdgeH3, EdgeH4,
-																		  FaceH_left, FaceH_middle, FaceH_right) == true)
-							{
-								Conflict.Append(PotentialConflict_right[k]);
-							}
-						}
-					}
+					//update m_CandidateConflictTable					
+					auto Conflict = this->FindCandidate_Conflict_with_QuadCandidate_Type4_b(CandidateIndex, PointH0, EdgeH0, EdgeH1, EdgeH2, EdgeH3, EdgeH4);
 					for (int_max k = 0; k < Conflict.GetLength(); ++k)
 					{
 						m_CandidateConflictTable[Conflict[k]].Append(CandidateIndex);
 					}
 					m_CandidateConflictTable.Append(Conflict);
 					//the last thing
-					m_CandidateIndex_On_BigTriangle[FaceH_middle.GetIndex()].Append(CandidateIndex);
-					m_CandidateIndex_On_BigTriangle[FaceH_right.GetIndex()].Append(CandidateIndex);					
+					m_CandidateMesh.AddFaceByPoint(Candidate);
 				}
 			}
 			if (PointH4.GetIndex() >= 0)//add quad {P1, P2, P0, P4}
 			{
-				if (Flag_Edge4_preserved == false)
+				if (Flag_Edge2_preserved == false && Flag_Edge4_preserved == false)
 				{
 					DenseVector<PointHandleType, 4> Candidate = { PointH1, PointH2, PointH0, PointH4 };
 					m_CandidateList.Append(Candidate);
 					auto CandidateIndex = m_CandidateList.GetLength() - 1;
 					m_CandidateTypeList.Append(4);
 					//update m_CandidateConflictTable
-					DenseVector<int_max> Conflict;
-					Conflict.SetCapacity(10);
-					{
-						auto PotentialConflict_middle = m_CandidateIndex_On_BigTriangle[FaceH_middle.GetIndex()];
-						auto PotentialConflict_left = m_CandidateIndex_On_BigTriangle[FaceH_left.GetIndex()];
-						for (int_max k = 0; k < PotentialConflict_middle.GetLength(); ++k)
-						{
-							if (this->CheckConflict_QuadCandidate_Type4_c(CandidateIndex, PotentialConflict_middle[k],
-								                                          PointH0, PointH1, PointH2, PointH3, PointH4, 
-																		  EdgeH0, EdgeH1, EdgeH2, EdgeH3, EdgeH4,
-																		  FaceH_left, FaceH_middle, FaceH_right) == true)
-							{
-								Conflict.Append(PotentialConflict_middle[k]);
-							}
-						}
-						for (int_max k = 0; k < PotentialConflict_left.GetLength(); ++k)
-						{
-							if (this->CheckConflict_QuadCandidate_Type4_c(CandidateIndex, PotentialConflict_left[k],
-								                                          PointH0, PointH1, PointH2, PointH3, PointH4, 
-																		  EdgeH0, EdgeH1, EdgeH2, EdgeH3, EdgeH4,
-																		  FaceH_left, FaceH_middle, FaceH_right) == true)
-							{
-								Conflict.Append(PotentialConflict_left[k]);
-							}
-						}
-					}
+					auto Conflict = this->FindCandidate_Conflict_with_QuadCandidate_Type4_c(CandidateIndex, PointH0, EdgeH0, EdgeH1, EdgeH2, EdgeH3, EdgeH4);											
 					for (int_max k = 0; k < Conflict.GetLength(); ++k)
 					{
 						m_CandidateConflictTable[Conflict[k]].Append(CandidateIndex);
 					}
 					m_CandidateConflictTable.Append(Conflict);
 					//the last thing
-					m_CandidateIndex_On_BigTriangle[FaceH_middle.GetIndex()].Append(CandidateIndex);
-					m_CandidateIndex_On_BigTriangle[FaceH_left.GetIndex()].Append(CandidateIndex);					
+					m_CandidateMesh.AddFaceByPoint(Candidate);
 				}
 			}
 		}
@@ -735,17 +713,17 @@ void SurfaceRemesher2<ScalarType>::EvaluateCandidate()
 	{
 		if (m_CandidateList[k].GetLength() == 4)
 		{
-			auto Point0 = m_InputMesh.GetPointPosition(m_CandidateList[k][0]);
-			auto Point1 = m_InputMesh.GetPointPosition(m_CandidateList[k][1]);
-			auto Point2 = m_InputMesh.GetPointPosition(m_CandidateList[k][2]);
-			auto Point3 = m_InputMesh.GetPointPosition(m_CandidateList[k][3]);
+			auto Point0 = m_CandidateMesh.GetPointPosition(m_CandidateList[k][0]);
+			auto Point1 = m_CandidateMesh.GetPointPosition(m_CandidateList[k][1]);
+			auto Point2 = m_CandidateMesh.GetPointPosition(m_CandidateList[k][2]);
+			auto Point3 = m_CandidateMesh.GetPointPosition(m_CandidateList[k][3]);
 			m_CandidateScoreList[k] = this->EvaluateQuad(Point0, Point1, Point2, Point3);
 		}
 		else //if (m_CandidateList[k].GetLength() == 3)
 		{
-			auto Point0 = m_InputMesh.GetPointPosition(m_CandidateList[k][0]);
-			auto Point1 = m_InputMesh.GetPointPosition(m_CandidateList[k][1]);
-			auto Point2 = m_InputMesh.GetPointPosition(m_CandidateList[k][2]);
+			auto Point0 = m_CandidateMesh.GetPointPosition(m_CandidateList[k][0]);
+			auto Point1 = m_CandidateMesh.GetPointPosition(m_CandidateList[k][1]);
+			auto Point2 = m_CandidateMesh.GetPointPosition(m_CandidateList[k][2]);
 			auto Score = this->EvaluateTriangle(Point0, Point1, Point2);
 			if (m_CandidateTypeList[k] == 1)
 			{
@@ -763,16 +741,31 @@ void SurfaceRemesher2<ScalarType>::EvaluateCandidate()
 
 template<typename ScalarType>
 void SurfaceRemesher2<ScalarType>::SelectCandidate()
-{// call Gurobi 
-
+{ 
+	auto CandidateIndexList_sort = m_CandidateScoreList.Sort("descend");
+	m_CandidateIndicatorList.Resize(m_CandidateScoreList.GetLength());
+	m_CandidateIndicatorList.Fill(-1);
+	for (int_max k = 0; k < m_CandidateScoreList.GetLength(); ++k)
+	{
+		auto Index_k = CandidateIndexList_sort[k];
+		if (m_CandidateIndicatorList[Index_k] == -1)
+		{
+			m_CandidateIndicatorList[Index_k] = 1;
+			for (int_max n = 0; n < m_CandidateConflictTable[Index_k].GetLength(); ++n)
+			{
+				auto Index_n = m_CandidateConflictTable[Index_k][n];
+				m_CandidateIndicatorList[Index_n] = 0;
+			}
+		}
+	}
 }
 
 template<typename ScalarType>
 void SurfaceRemesher2<ScalarType>::BuildOutputMesh()
 {
 	m_OutputMesh.Clear();
-	m_OutputMesh.SetCapacity(m_InputMesh.GetPointCount(), m_InputMesh.GetEdgeCount(), m_InputMesh.GetFaceCount());
-	for (auto it = m_InputMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	m_OutputMesh.SetCapacity(m_CandidateMesh.GetPointCount(), m_CandidateMesh.GetEdgeCount(), m_CandidateMesh.GetFaceCount());
+	for (auto it = m_CandidateMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
 	{
 		auto PointHandle = m_OutputMesh.AddPoint(it.Point().GetPosition());
 		auto ID = it.Point().GetID();
@@ -797,15 +790,36 @@ void SurfaceRemesher2<ScalarType>::RefineOutputMesh()
 
 }
 
+template<typename ScalarType>
+DenseVector<int_max> SurfaceRemesher2<ScalarType>::ConvertHandleToIndex(const DenseVector<PointHandleType>& HandleList)
+{
+	DenseVector<int_max> IndexList;
+	IndexList.Resize(HandleList.GetLength());
+	for (int_max k = 0; k < HandleList.GetLength(); ++k)
+	{
+		IndexList[k] = HandleList[k].GetIndex();
+	}
+	return IndexList;
+}
+
 
 template<typename ScalarType>
-bool SurfaceRemesher2<ScalarType>::
-CheckConflict_QuadCandidate_Type4_a(int_max QuadCandidateIndex, int_max CandidateIndex,
-		                            PointHandleType PointH0, PointHandleType PointH1, PointHandleType PointH2, PointHandleType PointH3, PointHandleType PointH4,
-		                            EdgeHandleType EdgeH0, EdgeHandleType EdgeH1, EdgeHandleType EdgeH2, EdgeHandleType EdgeH3, EdgeHandleType EdgeH4,
-		                            FaceHandleType FaceH_left, FaceHandleType FaceH_middle, FaceHandleType FaceH_right)
-{// true if Conflict exit, false if not 
+DenseVector<int_max> SurfaceRemesher2<ScalarType>::ConvertHandleToIndex(const DenseVector<FaceHandleType>& HandleList)
+{
+	DenseVector<int_max> IndexList;
+	IndexList.Resize(HandleList.GetLength());
+	for (int_max k = 0; k < HandleList.GetLength(); ++k)
+	{
+		IndexList[k] = HandleList[k].GetIndex();
+	}
+	return IndexList;
+}
 
+
+template<typename ScalarType>
+DenseVector<int_max> SurfaceRemesher2<ScalarType>::
+FindCandidate_Conflict_with_QuadCandidate_Type4_a(int_max CandidateIndex, PointHandleType PointH0, EdgeHandleType EdgeH0, EdgeHandleType EdgeH1, EdgeHandleType EdgeH2, EdgeHandleType EdgeH3, EdgeHandleType EdgeH4)
+{
 	//----------------------------	
 	//       P4          P3   
 	//   ----e4--- P0 ---e3------
@@ -813,283 +827,114 @@ CheckConflict_QuadCandidate_Type4_a(int_max QuadCandidateIndex, int_max Candidat
 	//     \  | /e2  e1\  |  /
 	//      \ |/        \ |/
 	//       P1 ---e0----P2          
-	//             P5
 	//----------------------------
 	// Quad is {P1, P2, P3, P4}
-	// Candidate overlap with left/middle/right big triangle
 
-	if (m_CandidateTypeList[CandidateIndex] == 1)//one big triangle
-	{
-		return true;
-	}
+	DenseVector<int_max> CandidateIndexList_conflict;
+	CandidateIndexList_conflict.SetCapacity(10);
 
-	if (m_CandidateTypeList[CandidateIndex] == 3)//one quad from two big triangle
-	{
-		return true;
-	}
+	//get middle point of e0, e1, e2: Pe0, Pe1, Pe2
+	auto PointH_e0 = m_MiddlePointList_on_CandidateMesh[EdgeH0.GetIndex()];
+	auto PointH_e1 = m_MiddlePointList_on_CandidateMesh[EdgeH1.GetIndex()];
+	auto PointH_e2 = m_MiddlePointList_on_CandidateMesh[EdgeH2.GetIndex()];
 
-	const auto& Candidate = m_CandidateList[CandidateIndex];
+	//find candidate touch P0, Pe0, Pe1, Pe2 : T-junction
+	CandidateIndexList_conflict.Append(this->ConvertHandleToIndex(m_CandidateMesh.Point(PointH0).GetAdjacentFaceHandleList()));
+	CandidateIndexList_conflict.Append(this->ConvertHandleToIndex(m_CandidateMesh.Point(PointH_e0).GetAdjacentFaceHandleList()));
+	CandidateIndexList_conflict.Append(this->ConvertHandleToIndex(m_CandidateMesh.Point(PointH_e1).GetAdjacentFaceHandleList()));
+	CandidateIndexList_conflict.Append(this->ConvertHandleToIndex(m_CandidateMesh.Point(PointH_e2).GetAdjacentFaceHandleList()));
 
-	if (m_CandidateTypeList[CandidateIndex] == 2)//one small triangle
-	{//check if the small triangle is inside the quad
-		//get middle point of e0, e1, e2
-		auto PointH_e0 = m_MiddlePointOfEdgeOfInputMesh[EdgeH0.GetIndex()];
-		auto PointH_e1 = m_MiddlePointOfEdgeOfInputMesh[EdgeH1.GetIndex()];
-		auto PointH_e2 = m_MiddlePointOfEdgeOfInputMesh[EdgeH2.GetIndex()];
-		DenseVector<PointHandleType> PointHandleList = { PointH0, PointH1, PointH2, PointH3, PointH4, PointH_e0, PointH_e1, PointH_e2 };
-		auto tempIndex0 = PointHandleList.ExactMatch("first", Candidate[0]);
-		auto tempIndex1 = PointHandleList.ExactMatch("first", Candidate[1]);
-		auto tempIndex2 = PointHandleList.ExactMatch("first", Candidate[2]);
-		if (tempIndex0 >= 0 && tempIndex1 >= 0 && tempIndex2 >= 0)
-		{
-			return true;
-		}
-		return false;
-	}
+	//find candidate touch e3, e4 : T-junction
+	CandidateIndexList_conflict.Append(this->ConvertHandleToIndex(m_CandidateMesh.Edge(EdgeH3).GetAdjacentFaceHandleList()));
+	CandidateIndexList_conflict.Append(this->ConvertHandleToIndex(m_CandidateMesh.Edge(EdgeH4).GetAdjacentFaceHandleList()));
 
-	if (m_CandidateTypeList[CandidateIndex] == 4)// one quad from small triangle + big triangle
-	{
-		auto PointH5 = m_MiddlePointOfEdgeOfInputMesh[EdgeH0.GetIndex()];
-		bool Flag_P0 = (PointH0 == Candidate[0]) || (PointH0 == Candidate[1]) || (PointH0 == Candidate[2]) || (PointH0 == Candidate[3]);
-		bool Flag_P1 = (PointH1 == Candidate[0]) || (PointH1 == Candidate[1]) || (PointH1 == Candidate[2]) || (PointH1 == Candidate[3]);
-		bool Flag_P2 = (PointH2 == Candidate[0]) || (PointH2 == Candidate[1]) || (PointH2 == Candidate[2]) || (PointH2 == Candidate[3]);
-		bool Flag_P3 = (PointH3 == Candidate[0]) || (PointH3 == Candidate[1]) || (PointH3 == Candidate[2]) || (PointH3 == Candidate[3]);
-		bool Flag_P4 = (PointH4 == Candidate[0]) || (PointH4 == Candidate[1]) || (PointH4 == Candidate[2]) || (PointH4 == Candidate[3]);
-		bool Flag_P5 = (PointH5 == Candidate[0]) || (PointH5 == Candidate[1]) || (PointH5 == Candidate[2]) || (PointH5 == Candidate[3]);
-		if (Flag_P0 == true)//P0 is not in QuadCandidate
-		{
-			return true;
-		}
-		if (Flag_P5 == true)//P5 is not in QuadCandidate
-		{
-			return true;
-		}
-		if (Flag_P3 == true && Flag_P4 == true)
-		{
-			if (Flag_P1 == true || Flag_P2 == true)
-			{
-				return true;
-			}
-		}
-		if (Flag_P1 == true && Flag_P2 == true)
-		{
-			if (Flag_P3 == true || Flag_P4 == true)
-			{
-				return true;
-			}
-		}
-		if (Flag_P1 == true && Flag_P4 == true)
-		{
-			if (Flag_P2 == true || Flag_P3 == true)
-			{
-				return true;
-			}
-		}
-		if (Flag_P2 == true && Flag_P3 == true)
-		{
-			if (Flag_P1 == true || Flag_P4 == true)
-			{
-				return true;
-			}
-		}
-		return false;
-	}
+	// remove copy of the same index
+	CandidateIndexList_conflict = CandidateIndexList_conflict.GetSubSet(CandidateIndexList_conflict.FindUnique());
 
-	MDK_Error("something is wrong here @ SurfaceRemesher2::CheckConflict_QuadCandidate_Type4_a(...)")
-	return false;
+	return CandidateIndexList_conflict;
 }
 
 
 template<typename ScalarType>
-bool SurfaceRemesher2<ScalarType>::
-CheckConflict_QuadCandidate_Type4_b(int_max QuadCandidateIndex, int_max CandidateIndex,
-		                            PointHandleType PointH0, PointHandleType PointH1, PointHandleType PointH2, PointHandleType PointH3, PointHandleType PointH4,
-		                            EdgeHandleType EdgeH0, EdgeHandleType EdgeH1, EdgeHandleType EdgeH2, EdgeHandleType EdgeH3, EdgeHandleType EdgeH4,
-		                            FaceHandleType FaceH_left, FaceHandleType FaceH_middle, FaceHandleType FaceH_right)
-{	//----------------------------	
+DenseVector<int_max> SurfaceRemesher2<ScalarType>::
+FindCandidate_Conflict_with_QuadCandidate_Type4_b(int_max CandidateIndex, PointHandleType PointH0, EdgeHandleType EdgeH0, EdgeHandleType EdgeH1, EdgeHandleType EdgeH2, EdgeHandleType EdgeH3, EdgeHandleType EdgeH4)
+{	
+	//----------------------------	
 	//       P4          P3   
 	//   ----e4--- P0 ---e3------
 	//    \   |  /    \   |   /
 	//     \  | /e2  e1\  |  /
 	//      \ |/        \ |/
 	//       P1 ---e0----P2          
-	//             P5
 	//----------------------------
 	//Quad is {P1, P2, P3, P0} 
-	//Candidate overlap with left/middle/right big triangle
 
-	if (m_CandidateTypeList[CandidateIndex] == 1)//big triangle
-	{
-		return true;
-	}
+	DenseVector<int_max> CandidateIndexList_conflict;
+	CandidateIndexList_conflict.SetCapacity(10);
 
-	if (m_CandidateTypeList[CandidateIndex] == 3)//one quad from two big triangle
-	{
-		return true;
-	}
+	//get middle point of e0, e1, e2: Pe0, Pe1, Pe2
+	auto PointH_e0 = m_MiddlePointList_on_CandidateMesh[EdgeH0.GetIndex()];
+	auto PointH_e1 = m_MiddlePointList_on_CandidateMesh[EdgeH1.GetIndex()];
+	auto PointH_e2 = m_MiddlePointList_on_CandidateMesh[EdgeH2.GetIndex()];
 
-	const auto& Candidate = m_CandidateList[CandidateIndex];
+	//find candidate touch Pe0, Pe1, Pe2 : T-junction
+	CandidateIndexList_conflict.Append(this->ConvertHandleToIndex(m_CandidateMesh.Point(PointH_e0).GetAdjacentFaceHandleList()));
+	CandidateIndexList_conflict.Append(this->ConvertHandleToIndex(m_CandidateMesh.Point(PointH_e1).GetAdjacentFaceHandleList()));
+	CandidateIndexList_conflict.Append(this->ConvertHandleToIndex(m_CandidateMesh.Point(PointH_e2).GetAdjacentFaceHandleList()));
 
-	if (m_CandidateTypeList[CandidateIndex] == 2)//one small triangle
-	{//check if the small triangle is inside the quad
-		//get middle point of e0, e1, e2
-		auto PointH_e0 = m_MiddlePointOfEdgeOfInputMesh[EdgeH0.GetIndex()];
-		auto PointH_e1 = m_MiddlePointOfEdgeOfInputMesh[EdgeH1.GetIndex()];
-		auto PointH_e2 = m_MiddlePointOfEdgeOfInputMesh[EdgeH2.GetIndex()];
-		DenseVector<PointHandleType> PointHandleList = { PointH0, PointH1, PointH2, PointH3, PointH_e0, PointH_e1, PointH_e2 };
-		auto tempIndex0 = PointHandleList.ExactMatch("first", Candidate[0]);
-		auto tempIndex1 = PointHandleList.ExactMatch("first", Candidate[1]);
-		auto tempIndex2 = PointHandleList.ExactMatch("first", Candidate[2]);
-		if (tempIndex0 >= 0 && tempIndex1 >= 0 && tempIndex2 >= 0)
-		{
-			return true;
-		}
-		return false;
-	}
+	//find candidate touch e3: T-junction
+	CandidateIndexList_conflict.Append(this->ConvertHandleToIndex(m_CandidateMesh.Edge(EdgeH3).GetAdjacentFaceHandleList()));
 
-	if (m_CandidateTypeList[CandidateIndex] == 4)// one quad from small triangle + big triangle
-	{
-		auto PointH5 = m_MiddlePointOfEdgeOfInputMesh[EdgeH0.GetIndex()];
-		bool Flag_P0 = (PointH0 == Candidate[0]) || (PointH0 == Candidate[1]) || (PointH0 == Candidate[2]) || (PointH0 == Candidate[3]);
-		bool Flag_P1 = (PointH1 == Candidate[0]) || (PointH1 == Candidate[1]) || (PointH1 == Candidate[2]) || (PointH1 == Candidate[3]);
-		bool Flag_P2 = (PointH2 == Candidate[0]) || (PointH2 == Candidate[1]) || (PointH2 == Candidate[2]) || (PointH2 == Candidate[3]);
-		bool Flag_P3 = (PointH3 == Candidate[0]) || (PointH3 == Candidate[1]) || (PointH3 == Candidate[2]) || (PointH3 == Candidate[3]);
-		bool Flag_P5 = (PointH5 == Candidate[0]) || (PointH5 == Candidate[1]) || (PointH5 == Candidate[2]) || (PointH5 == Candidate[3]);		
-		if (Flag_P5 == true)// T-junction
-		{
-			return true;
-		}
-		if (Flag_P0 == true && Flag_P1 == true)
-		{
-			return true;
-		}
-		if (Flag_P0 == true && Flag_P2 == true)
-		{
-			return true;
-		}
-		if (Flag_P1 == true && Flag_P2 == true)
-		{
-			if (Flag_P0 == true || Flag_P3 == true)
-			{
-				return true;
-			}
-		}
-		if (Flag_P2 == true && Flag_P3 == true)
-		{
-			if (Flag_P0 == true || Flag_P1 == true || Flag_P5 == true)
-			{
-				return true;
-			}
-		}
-		if (Flag_P0 == true && Flag_P3 == true)
-		{
-			if (Flag_P1 == true || Flag_P2 == true || Flag_P5 == true)
-			{
-				return true;
-			}
-		}
-		return false;
-	}
+	// find the candidate touch e1
+	CandidateIndexList_conflict.Append(this->ConvertHandleToIndex(m_CandidateMesh.Edge(EdgeH1).GetAdjacentFaceHandleList()));
 
-	MDK_Error("something is wrong here @ SurfaceRemesher2::CheckConflict_QuadCandidate_Type4_b(...)")
-	return false;
+	// remove copy of the same index
+	CandidateIndexList_conflict = CandidateIndexList_conflict.GetSubSet(CandidateIndexList_conflict.FindUnique());
+
+	return CandidateIndexList_conflict;
 }
 
 
+
 template<typename ScalarType>
-bool SurfaceRemesher2<ScalarType>::
-CheckConflict_QuadCandidate_Type4_c(int_max QuadCandidateIndex, int_max CandidateIndex,
-		                            PointHandleType PointH0, PointHandleType PointH1, PointHandleType PointH2, PointHandleType PointH3, PointHandleType PointH4,
-		                            EdgeHandleType EdgeH0, EdgeHandleType EdgeH1, EdgeHandleType EdgeH2, EdgeHandleType EdgeH3, EdgeHandleType EdgeH4,
-		                            FaceHandleType FaceH_left, FaceHandleType FaceH_middle, FaceHandleType FaceH_right)
-{	//----------------------------	
+DenseVector<int_max> SurfaceRemesher2<ScalarType>::
+FindCandidate_Conflict_with_QuadCandidate_Type4_c(int_max CandidateIndex, PointHandleType PointH0, EdgeHandleType EdgeH0, EdgeHandleType EdgeH1, EdgeHandleType EdgeH2, EdgeHandleType EdgeH3, EdgeHandleType EdgeH4)
+{
+	//----------------------------	
 	//       P4          P3   
 	//   ----e4--- P0 ---e3------
 	//    \   |  /    \   |   /
 	//     \  | /e2  e1\  |  /
 	//      \ |/        \ |/
 	//       P1 ---e0----P2          
-	//             P5
 	//----------------------------
-	//Quad is quad {P1, P2, P0, P4}
-	//Candidate overlap with left/middle/right big triangle
+	// Quad is {P1, P2, P0, P4}
 
-	if (m_CandidateTypeList[CandidateIndex] == 1)//big triangle
-	{
-		return true;
-	}
+	DenseVector<int_max> CandidateIndexList_conflict;
+	CandidateIndexList_conflict.SetCapacity(10);
 
-	if (m_CandidateTypeList[CandidateIndex] == 3)//one quad from two big triangle
-	{
-		return true;
-	}
+	//get middle point of e0, e1, e2: Pe0, Pe1, Pe2
+	auto PointH_e0 = m_MiddlePointList_on_CandidateMesh[EdgeH0.GetIndex()];
+	auto PointH_e1 = m_MiddlePointList_on_CandidateMesh[EdgeH1.GetIndex()];
+	auto PointH_e2 = m_MiddlePointList_on_CandidateMesh[EdgeH2.GetIndex()];
 
-	const auto& Candidate = m_CandidateList[CandidateIndex];
+	//find candidate touch Pe0, Pe1, Pe2 : T-junction
+	CandidateIndexList_conflict.Append(this->ConvertHandleToIndex(m_CandidateMesh.Point(PointH_e0).GetAdjacentFaceHandleList()));
+	CandidateIndexList_conflict.Append(this->ConvertHandleToIndex(m_CandidateMesh.Point(PointH_e1).GetAdjacentFaceHandleList()));
+	CandidateIndexList_conflict.Append(this->ConvertHandleToIndex(m_CandidateMesh.Point(PointH_e2).GetAdjacentFaceHandleList()));
 
-	if (m_CandidateTypeList[CandidateIndex] == 2)//one small triangle
-	{//check if the small triangle is inside the quad
-		//get middle point of e0, e1, e2
-		auto PointH_e0 = m_MiddlePointOfEdgeOfInputMesh[EdgeH0.GetIndex()];
-		auto PointH_e1 = m_MiddlePointOfEdgeOfInputMesh[EdgeH1.GetIndex()];
-		auto PointH_e2 = m_MiddlePointOfEdgeOfInputMesh[EdgeH2.GetIndex()];
-		DenseVector<PointHandleType> PointHandleList = { PointH0, PointH1, PointH2, PointH4, PointH_e0, PointH_e1, PointH_e2 };
-		auto tempIndex0 = PointHandleList.ExactMatch("first", Candidate[0]);
-		auto tempIndex1 = PointHandleList.ExactMatch("first", Candidate[1]);
-		auto tempIndex2 = PointHandleList.ExactMatch("first", Candidate[2]);
-		if (tempIndex0 >= 0 && tempIndex1 >= 0 && tempIndex2 >= 0)
-		{
-			return true;
-		}
-		return false;
-	}
+	//find candidate touch e4 : T-junction
+	CandidateIndexList_conflict.Append(this->ConvertHandleToIndex(m_CandidateMesh.Edge(EdgeH4).GetAdjacentFaceHandleList()));
 
-	if (m_CandidateTypeList[CandidateIndex] == 4)// one quad from small triangle + big triangle
-	{
-		auto PointH5 = m_MiddlePointOfEdgeOfInputMesh[EdgeH0.GetIndex()];
-		bool Flag_P0 = (PointH0 == Candidate[0]) || (PointH0 == Candidate[1]) || (PointH0 == Candidate[2]) || (PointH0 == Candidate[3]);
-		bool Flag_P1 = (PointH1 == Candidate[0]) || (PointH1 == Candidate[1]) || (PointH1 == Candidate[2]) || (PointH1 == Candidate[3]);
-		bool Flag_P2 = (PointH2 == Candidate[0]) || (PointH2 == Candidate[1]) || (PointH2 == Candidate[2]) || (PointH2 == Candidate[3]);		
-		bool Flag_P4 = (PointH4 == Candidate[0]) || (PointH4 == Candidate[1]) || (PointH4 == Candidate[2]) || (PointH4 == Candidate[3]);
-		bool Flag_P5 = (PointH5 == Candidate[0]) || (PointH5 == Candidate[1]) || (PointH5 == Candidate[2]) || (PointH5 == Candidate[3]);		
-		if (Flag_P5 == true)// T-junction
-		{
-			return true;
-		}
-		if (Flag_P0 == true && Flag_P1 == true)
-		{
-			return true;
-		}
-		if (Flag_P0 == true && Flag_P2 == true)
-		{
-			return true;
-		}
-		if (Flag_P1 == true && Flag_P2 == true)
-		{
-			if (Flag_P0 == true || Flag_P4 == true)
-			{
-				return true;
-			}
-		}
-		if (Flag_P1 == true && Flag_P4 == true)
-		{
-			if (Flag_P0 == true || Flag_P2 == true || Flag_P5 == true)
-			{
-				return true;
-			}
-		}
-		if (Flag_P0 == true && Flag_P4 == true)
-		{
-			if (Flag_P1 == true || Flag_P2 == true || Flag_P5 == true)
-			{
-				return true;
-			}
-		}
-		return false;
-	}
+	//find candidate touch e2
+	CandidateIndexList_conflict.Append(this->ConvertHandleToIndex(m_CandidateMesh.Edge(EdgeH2).GetAdjacentFaceHandleList()));
 
-	MDK_Error("something is wrong here @ SurfaceRemesher2::CheckConflict_QuadCandidate_Type4_c(...)")
-	return false;
+	// remove copy of the same index
+	CandidateIndexList_conflict = CandidateIndexList_conflict.GetSubSet(CandidateIndexList_conflict.FindUnique());
+
+	return CandidateIndexList_conflict;
 }
+
 
 template<typename ScalarType>
 ScalarType SurfaceRemesher2<ScalarType>::EvaluateQuad(const DenseVector<ScalarType, 3>& Point0, const DenseVector<ScalarType, 3>& Point1, const DenseVector<ScalarType, 3>& Point2, const DenseVector<ScalarType, 3>& Point3)
@@ -1153,7 +998,6 @@ ScalarType SurfaceRemesher2<ScalarType>::EvaluateQuad(const DenseVector<ScalarTy
 	{
 		Score = 0;
 	}
-	Score = 1;
 	return Score;
 }
 
