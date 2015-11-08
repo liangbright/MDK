@@ -5,25 +5,27 @@ CandidateConflictTable_TJunction=read_data('C:\Research\Mesh\Remeshing\TestData\
 CandidateScoreList=importdata('C:\Research\Mesh\Remeshing\TestData\candidate_score.txt');
 QuadCandidateIndexSetAtSmallTriangle=read_data('C:\Research\Mesh\Remeshing\TestData\QuadCandidateIndexSet_At_SmallTriangle.txt');
 QuadCandidateIndexSetAtBigTriangle=read_data('C:\Research\Mesh\Remeshing\TestData\QuadCandidateIndexSet_At_BigTriangle.txt');
-%%
-big_triangle_count=length(QuadCandidateIndexSetAtBigTriangle);
-small_triangle_count= 6*big_triangle_count;
-intput_edge_count= size(CandidateConflictTable_TJunction,1);
-candidate_count=length(CandidateScoreList);
-contypes=[];
 %
+big_triangle_count=length(QuadCandidateIndexSetAtBigTriangle);
+small_triangle_count= length(QuadCandidateIndexSetAtSmallTriangle);
+if small_triangle_count/big_triangle_count ~= 6
+    error('abd')
+end
+candidate_count=length(CandidateScoreList);
+%%
 A=[];
 B=[];
+contypes=[];
 % constraint: full cover
 for k=1:big_triangle_count  
     
     Set0=[k, QuadCandidateIndexSetAtBigTriangle{k}+1];
-    Set1=[big_triangle_count+6*(k-1)+1, QuadCandidateIndexSetAtSmallTriangle{6*(k-1)+1}];
-    Set2=[big_triangle_count+6*(k-1)+2, QuadCandidateIndexSetAtSmallTriangle{6*(k-1)+2}];
-    Set3=[big_triangle_count+6*(k-1)+3, QuadCandidateIndexSetAtSmallTriangle{6*(k-1)+3}];
-    Set4=[big_triangle_count+6*(k-1)+4, QuadCandidateIndexSetAtSmallTriangle{6*(k-1)+4}];
-    Set5=[big_triangle_count+6*(k-1)+5, QuadCandidateIndexSetAtSmallTriangle{6*(k-1)+5}];
-    Set6=[big_triangle_count+6*(k-1)+6, QuadCandidateIndexSetAtSmallTriangle{6*(k-1)+6}];
+    Set1=[big_triangle_count+6*(k-1)+1, QuadCandidateIndexSetAtSmallTriangle{6*(k-1)+1}+1];
+    Set2=[big_triangle_count+6*(k-1)+2, QuadCandidateIndexSetAtSmallTriangle{6*(k-1)+2}+1];
+    Set3=[big_triangle_count+6*(k-1)+3, QuadCandidateIndexSetAtSmallTriangle{6*(k-1)+3}+1];
+    Set4=[big_triangle_count+6*(k-1)+4, QuadCandidateIndexSetAtSmallTriangle{6*(k-1)+4}+1];
+    Set5=[big_triangle_count+6*(k-1)+5, QuadCandidateIndexSetAtSmallTriangle{6*(k-1)+5}+1];
+    Set6=[big_triangle_count+6*(k-1)+6, QuadCandidateIndexSetAtSmallTriangle{6*(k-1)+6}+1];
     
     constraint1=zeros(1, candidate_count);
     constraint1([Set0, Set1, Set4, Set6])=1;   
@@ -52,24 +54,30 @@ end
 %TJunction
 for k=1:length(CandidateConflictTable_TJunction)    
     Set=CandidateConflictTable_TJunction{k}+1;
-    constraint=zeros(1, candidate_count);
-    constraint(k)=1;
-    constraint(Set)=1;
-    A(:,end+1)=constraint;
-    contypes=[contypes '<'];
-    B=[B 0];
+    for n=1:length(Set)
+        constraint=zeros(1, candidate_count);
+        constraint(k)=1;
+        constraint(Set(n))=1;
+        A(:,end+1)=constraint;
+        contypes=[contypes '<'];
+        B=[B 1];
+    end
 end
 
 A=sparse(A)';
-B=B';
+B=B(:);
 C=CandidateScoreList(:);
 %%
-[X, val, exitflag, output]=MIPSolver(A, B, C, contypes, []);
-FlagList=X(1:alpha_count);
+X_init=zeros(size(C));
+X_init(1:big_triangle_count)=1;
+tic
+[X, val, exitflag, output]=MIPSolver(A, B, C, contypes, X_init);
+FlagList=X(:);
+toc
+%
+WriteDenseMatrixAsJsonDataFile(FlagList, 'C:\Research\Mesh\Remeshing\TestData\FlagList.json');
 %%
-WriteDenseMatrixAsJsonDataFile(FlagList, 'C:\Research\Mesh\Remeshing\Build\Test_SurfaceRemesher3\TestData\FlagList.json');
-%%
-figure; plot(candidatescore, 'o')
+figure; plot(CandidateScoreList, 'o')
 figure; plot(FlagList, 'o')
 %%
 Y=zeros(size(X));

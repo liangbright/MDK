@@ -6,7 +6,7 @@ namespace mdk
 {
 
 template<typename Scalar_Type>
-class SurfaceRemesher3 : public Object
+class SurfaceRemesher4 : public Object
 {
 public:
 	typedef Scalar_Type ScalarType;
@@ -18,17 +18,23 @@ public:
 public:
 	//------------------- input ------------------------------------//
 	TriangleMesh<MeshAttributeType> m_InputMesh;
-	DenseVector<EdgeHandleType> m_FeatureEdgeOfInputMesh;   // Feature Edge can not be deleted or splitted
-	DenseVector<PointHandleType> m_FeaturePointOfInputMesh; // Feature Point can not be deleted or moved
-	// m_FeaturePointOfInputMesh contain the point of m_FeatureEdgeOfInputMesh
 
-	// set candidate score to 0 if any item is below the threshold
+	DenseVector<EdgeHandleType>  m_FeatureEdgeOfInputMesh;  
+	// Feature Edge can not be deleted or splitted in m_OutputMesh_Mixed
+	// Feature Edge can not be deleted in m_OutputMesh_Mixed
+	// Feature Edge CAN be splitted in m_OutputMesh_Quad
+
+	DenseVector<PointHandleType> m_FeaturePointOfInputMesh; 
+	// Feature Point can not be deleted or moved in m_OutputMesh_Mixed and m_OutputMesh_Quad
+
+	// do not generate quad candidate if any item is below the threshold
+	// also, quad sore is 0 if any item is below the threshold
 	ScalarType m_Threshold_Quad_WarpAngleScore;//min
 	ScalarType m_Threshold_Quad_EdgeAngleScore;//min
 	ScalarType m_Threshold_Quad_AspectScore;//min
 
 	//------------------- internal ------------------------------------//
-	TriangleMesh<MeshAttributeType> m_CandidateMesh;
+	PolygonMesh<MeshAttributeType> m_CandidateMesh;
 	//m_CandidateMesh.Face(k) is Candidate-k
 	// FaceList: {{BigTriangleCandidate} {SmallTriangleCandidate} {QuadCandidate}}
 
@@ -64,15 +70,21 @@ public:
 	DenseVector<ScalarType> m_CandidateScoreList;
 	//m_CandidateScoreList[k]: score of candidate-k
 
-	DenseVector<int> m_CandidateIndicatorList;
+	DenseVector<int_max> m_CandidateIndicatorList;
 	// m_CandidateIndicatorList[k]: -1 ~ not-decided, 0 ~ rejected, 1 ~ selected, 
 
+	DenseVector<int_max> m_Map_FaceOfMixedMesh_to_Candidate;
+	//generated in BuildMixedTriQuadMesh
+	//become invalid in AdjustMixedTriQuadMesh
+	//m_Map_FaceOfMixedMesh_to_Candidate[k] is the candidate index of m_OutputMesh_Mixed.Face(k)
+
 	//------------------------ output -----------------------------------//
-	PolygonMesh<MeshAttributeType> m_OutputMesh;
+	PolygonMesh<MeshAttributeType> m_OutputMesh_Mixed;//triangle and quad 
+	PolygonMesh<MeshAttributeType> m_OutputMesh_Quad; //Quad only
 
 public:
-	SurfaceRemesher3();
-	~SurfaceRemesher3();
+	SurfaceRemesher4();
+	~SurfaceRemesher4();
 	void Clear();
 	void Update();
 
@@ -91,9 +103,10 @@ public:
 	void Build_CandidateConflictTable_TJunction();
 	void Preserve_FeatureEdge();
 	void EvaluateCandidate();
-	void SelectCandidate();
-	void BuildOutputMesh();
-	void RefineOutputMesh();
+	void SelectCandidate();	
+	void BuildMixedTriQuadMesh();
+	void AdjustMixedTriQuadMesh();
+	void BuildQuadMesh();
 
 	DenseVector<int_max> ConvertHandleToIndex(const DenseVector<PointHandleType>& HandleList);
 	DenseVector<int_max> ConvertHandleToIndex(const DenseVector<FaceHandleType>& HandleList);
@@ -101,13 +114,14 @@ public:
 	DenseVector<int_max> FindCandidate_Conflict_with_QuadCandidate_Type4_b(int_max CandidateIndex, PointHandleType PointH0, EdgeHandleType EdgeH0, EdgeHandleType EdgeH1, EdgeHandleType EdgeH2, EdgeHandleType EdgeH3, EdgeHandleType EdgeH4);
 	DenseVector<int_max> FindCandidate_Conflict_with_QuadCandidate_Type4_c(int_max CandidateIndex, PointHandleType PointH0, EdgeHandleType EdgeH0, EdgeHandleType EdgeH1, EdgeHandleType EdgeH2, EdgeHandleType EdgeH3, EdgeHandleType EdgeH4);
 
+	ScalarType EvaluateQuad(const PolygonMesh<MeshAttributeType>& TargetMesh, PointHandleType PointH0, PointHandleType PointH1, PointHandleType PointH2, PointHandleType PointH3);
 	ScalarType EvaluateQuad(const DenseVector<ScalarType, 3>& Point0, const DenseVector<ScalarType, 3>& Point1, const DenseVector<ScalarType, 3>& Point2, const DenseVector<ScalarType, 3>& Point3);
 	ScalarType EvaluateTriangle(const DenseVector<ScalarType, 3>& Point0, const DenseVector<ScalarType, 3>& Point1, const DenseVector<ScalarType, 3>& Point2);
 private:
-	SurfaceRemesher3(const SurfaceRemesher3&) = delete;
-	void operator=(const SurfaceRemesher3&) = delete;
+	SurfaceRemesher4(const SurfaceRemesher4&) = delete;
+	void operator=(const SurfaceRemesher4&) = delete;
 };
 
 }//namespace
 
-#include "SurfaceRemesher3.hpp"
+#include "SurfaceRemesher4.hpp"

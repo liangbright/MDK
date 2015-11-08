@@ -15,6 +15,10 @@ void Test_a1()
 	Remesher.InitilizeCandidateMesh();
 	Remesher.GenerateCandidate();	
 	Remesher.EvaluateCandidate();
+	Remesher.SelectCandidate();
+	Remesher.BuildOutputMesh();
+	SavePolygonMeshAsVTKFile(Remesher.m_CandidateMesh, TestDataPath + "candidate_mesh.vtk");
+	SavePolygonMeshAsVTKFile(Remesher.m_OutputMesh, TestDataPath + "outputmesh_greedy.vtk");
 
 	TextFile OutputFile_a(TestDataPath + "candidate_score.txt");
 	OutputFile_a.Clear();

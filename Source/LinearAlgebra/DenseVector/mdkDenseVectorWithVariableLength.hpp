@@ -1053,7 +1053,7 @@ bool DenseVector<ElementType>::Append(const ElementType* InputData, int_max Inpu
 {
     if (InputData == nullptr || InputLength <= 0)
     {
-        MDK_Warning("Input is empty @ DenseVector::Append(const ElementType* InputData, int_max InputLength)")
+        //MDK_Warning("Input is empty @ DenseVector::Append(const ElementType* InputData, int_max InputLength)")
         return true;
     }
 

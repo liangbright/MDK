@@ -5,15 +5,17 @@ CandidateConflictTable_TJunction=read_data('C:\Research\Mesh\Remeshing\TestData\
 CandidateScoreList=importdata('C:\Research\Mesh\Remeshing\TestData\candidate_score.txt');
 QuadCandidateIndexSetAtSmallTriangle=read_data('C:\Research\Mesh\Remeshing\TestData\QuadCandidateIndexSet_At_SmallTriangle.txt');
 QuadCandidateIndexSetAtBigTriangle=read_data('C:\Research\Mesh\Remeshing\TestData\QuadCandidateIndexSet_At_BigTriangle.txt');
-%%
-big_triangle_count=length(QuadCandidateIndexSetAtBigTriangle);
-small_triangle_count= 6*big_triangle_count;
-intput_edge_count= size(CandidateConflictTable_TJunction,1);
-candidate_count=length(CandidateScoreList);
-contypes=[];
 %
+big_triangle_count=length(QuadCandidateIndexSetAtBigTriangle);
+small_triangle_count= length(QuadCandidateIndexSetAtSmallTriangle);
+if small_triangle_count/big_triangle_count ~= 6
+    error('abd')
+end
+candidate_count=length(CandidateScoreList);
+%%
 A=[];
 B=[];
+contypes=[];
 % constraint: full cover
 for k=1:big_triangle_count  
     
@@ -50,24 +52,28 @@ for k=1:big_triangle_count
 end
 
 %TJunction
-for k=1:length(CandidateConflictTable_TJunction)    
+for k=1:candidate_count 
     Set=CandidateConflictTable_TJunction{k}+1;
-    constraint=zeros(1, candidate_count);
-    constraint(k)=1;
-    constraint(Set)=1;
-    A(:,end+1)=constraint;
+    constraint_t=zeros(1, candidate_count);
+    constraint_t(Set)=1;
+    constraint_t(k)=length(Set);
+    A(:,end+1)=constraint_t;
     contypes=[contypes '<'];
-    B=[B 0];
+    B=[B length(Set)];
 end
 
 A=sparse(A)';
-B=B';
+B=B(:);
 C=CandidateScoreList(:);
 %%
-[X, val, exitflag, output]=MIPSolver(A, B, C, contypes, []);
+X_init=zeros(size(C));
+X_init(1:big_triangle_count)=1;
+tic
+[X, val]=MIPSolver_v6(A, B, C, contypes, X_init);
 FlagList=X(:);
-%%
-WriteDenseMatrixAsJsonDataFile(FlagList, 'C:\Research\Mesh\Remeshing\Build\Test_SurfaceRemesher3\TestData\FlagList.json');
+toc
+%
+WriteDenseMatrixAsJsonDataFile(FlagList, 'C:\Research\Mesh\Remeshing\TestData\FlagList.json');
 %%
 figure; plot(CandidateScoreList, 'o')
 figure; plot(FlagList, 'o')

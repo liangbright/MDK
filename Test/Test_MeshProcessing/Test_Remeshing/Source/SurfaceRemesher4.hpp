@@ -3,19 +3,19 @@
 namespace mdk
 {
 template<typename ScalarType>
-SurfaceRemesher3<ScalarType>::SurfaceRemesher3()
+SurfaceRemesher4<ScalarType>::SurfaceRemesher4()
 {
 	this->Clear();
 }
 
 
 template<typename ScalarType>
-SurfaceRemesher3<ScalarType>::~SurfaceRemesher3()
+SurfaceRemesher4<ScalarType>::~SurfaceRemesher4()
 {
 }
 
 template<typename ScalarType>
-void SurfaceRemesher3<ScalarType>::Clear()
+void SurfaceRemesher4<ScalarType>::Clear()
 {
 	m_InputMesh.Clear();
 	m_FeatureEdgeOfInputMesh.Clear();
@@ -28,7 +28,7 @@ void SurfaceRemesher3<ScalarType>::Clear()
 }
 
 template<typename ScalarType>
-void SurfaceRemesher3<ScalarType>::ClearInternalData()
+void SurfaceRemesher4<ScalarType>::ClearInternalData()
 {
 	m_CandidateMesh.Clear();
 	m_CandidateRegionList.Clear();
@@ -43,17 +43,17 @@ void SurfaceRemesher3<ScalarType>::ClearInternalData()
 }
 
 template<typename ScalarType>
-bool SurfaceRemesher3<ScalarType>::CheckInput()
+bool SurfaceRemesher4<ScalarType>::CheckInput()
 {
 	if (m_InputMesh.CheckIfTriangleMesh() == false)
 	{
-		MDK_Error("m_InputMesh is NOT TriangleMesh @ SurfaceRemesher3::CheckInput()")
+		MDK_Error("m_InputMesh is NOT TriangleMesh @ SurfaceRemesher4::CheckInput()")
 		return false;
 	}
 
 	if (m_InputMesh.Check_If_DataStructure_is_Clean() == false)
 	{
-		MDK_Error("m_InputMesh DataStructure is NOT Clean @ SurfaceRemesher3::CheckInput()")
+		MDK_Error("m_InputMesh DataStructure is NOT Clean @ SurfaceRemesher4::CheckInput()")
 		return false;
 	}
 
@@ -61,7 +61,7 @@ bool SurfaceRemesher3<ScalarType>::CheckInput()
 	{
 		if (it.Point().GetAdjacentPointCount() >= 8)
 		{
-			MDK_Error("AdjacentPointCount >= 8 @ SurfaceRemesher3::CheckInput()")
+			MDK_Error("AdjacentPointCount >= 8 @ SurfaceRemesher4::CheckInput()")
 			return false;
 		}
 	}
@@ -70,7 +70,7 @@ bool SurfaceRemesher3<ScalarType>::CheckInput()
 
 
 template<typename ScalarType>
-void SurfaceRemesher3<ScalarType>::Update()
+void SurfaceRemesher4<ScalarType>::Update()
 {
 	if (this->CheckInput() == false)
 	{
@@ -82,10 +82,13 @@ void SurfaceRemesher3<ScalarType>::Update()
 	this->EvaluateCandidate();
 	this->SelectCandidate();
 	this->BuildOutputMesh();
+	this->BuildMixedTriQuadMesh();
+	this->AdjustMixedTriQuadMesh();
+	this->BuildQuadMesh();
 }
 
 template<typename ScalarType>
-void SurfaceRemesher3<ScalarType>::InitilizeCandidateMesh()
+void SurfaceRemesher4<ScalarType>::InitilizeCandidateMesh()
 {// add middle point of each edge
 
 	m_CandidateMesh = m_InputMesh;
@@ -106,7 +109,7 @@ void SurfaceRemesher3<ScalarType>::InitilizeCandidateMesh()
 }
 
 template<typename ScalarType>
-void SurfaceRemesher3<ScalarType>::GenerateCandidate()
+void SurfaceRemesher4<ScalarType>::GenerateCandidate()
 {
 	auto FaceCount_input = m_CandidateMesh.GetFaceCount();
 
@@ -141,7 +144,7 @@ void SurfaceRemesher3<ScalarType>::GenerateCandidate()
 }
 
 template<typename ScalarType>
-void SurfaceRemesher3<ScalarType>::GenerateTriangleCandidate_Type1()
+void SurfaceRemesher4<ScalarType>::GenerateTriangleCandidate_Type1()
 {
 	for (auto it = m_InputMesh.GetIteratorOfFace(); it.IsNotEnd(); ++it)
 	{
@@ -154,8 +157,12 @@ void SurfaceRemesher3<ScalarType>::GenerateTriangleCandidate_Type1()
 }
 
 template<typename ScalarType>
-void SurfaceRemesher3<ScalarType>::GenerateTriangleCandidate_Type2()
+void SurfaceRemesher4<ScalarType>::GenerateTriangleCandidate_Type2()
 {
+	//Attention: must generate all 6 small-triangle-candidate for each big triangle 
+	//           otherwise m_CandidateIndexSet_Overlap_SmallTriangle, m_QuadCandidateIndexSet_At_SmallTriangle will be wrong
+	//----------------------------------------------------------------------------------------------------------------------
+
 	for (auto it = m_InputMesh.GetIteratorOfFace(); it.IsNotEnd(); ++it)
 	{   //-------------------------
 		//        P0
@@ -164,6 +171,7 @@ void SurfaceRemesher3<ScalarType>::GenerateTriangleCandidate_Type2()
 		//    /         \
 		//   P1---Pb----P2
 		//-------------------------		
+		//generate small triangle candidate
 
 		auto BigTriangleCandidateIndex = it.GetFaceHandle().GetIndex();
 
@@ -175,7 +183,7 @@ void SurfaceRemesher3<ScalarType>::GenerateTriangleCandidate_Type2()
 		auto PointHa = m_MiddlePointList_on_CandidateMesh[EdgeHandleList[0].GetIndex()];
 		auto PointHb = m_MiddlePointList_on_CandidateMesh[EdgeHandleList[1].GetIndex()];
 		auto PointHc = m_MiddlePointList_on_CandidateMesh[EdgeHandleList[2].GetIndex()];
-
+		
 		//small triangle candidate
 		DenseVector<PointHandleType> Candidate0, Candidate1, Candidate2, Candidate3, Candidate4, Candidate5;
 		Candidate0 = { PointH0, PointH1, PointHb };
@@ -185,22 +193,24 @@ void SurfaceRemesher3<ScalarType>::GenerateTriangleCandidate_Type2()
 		Candidate4 = { PointH2, PointH0, PointHa };
 		Candidate5 = { PointH2, PointHa, PointH1 };
 
-		auto CandidateHandle0 = m_CandidateMesh.AddFaceByPoint(Candidate0);		
+		auto CandidateHandle0 = m_CandidateMesh.AddFaceByPoint(Candidate0);
 		auto CandidateHandle1 = m_CandidateMesh.AddFaceByPoint(Candidate1);
 		auto CandidateHandle2 = m_CandidateMesh.AddFaceByPoint(Candidate2);
 		auto CandidateHandle3 = m_CandidateMesh.AddFaceByPoint(Candidate3);
 		auto CandidateHandle4 = m_CandidateMesh.AddFaceByPoint(Candidate4);
 		auto CandidateHandle5 = m_CandidateMesh.AddFaceByPoint(Candidate5);
+
 		m_CandidateRegionList.Append(Candidate0);
 		m_CandidateRegionList.Append(Candidate1);
 		m_CandidateRegionList.Append(Candidate2);
 		m_CandidateRegionList.Append(Candidate3);
 		m_CandidateRegionList.Append(Candidate4);
 		m_CandidateRegionList.Append(Candidate5);
+
 		m_CandidateTypeList.Append(2);
+		m_CandidateTypeList.Append(2);		
 		m_CandidateTypeList.Append(2);
-		m_CandidateTypeList.Append(2);
-		m_CandidateTypeList.Append(2);
+		m_CandidateTypeList.Append(2);		
 		m_CandidateTypeList.Append(2);
 		m_CandidateTypeList.Append(2);
 
@@ -211,7 +221,7 @@ void SurfaceRemesher3<ScalarType>::GenerateTriangleCandidate_Type2()
 		m_CandidateIndexSet_Overlap_SmallTriangle[Index0].Append(CandidateHandle3.GetIndex());
 		m_CandidateIndexSet_Overlap_SmallTriangle[Index0].Append(CandidateHandle4.GetIndex());
 		m_CandidateIndexSet_Overlap_SmallTriangle[Index0].Append(CandidateHandle5.GetIndex());
-
+		
 		auto Index1 = CandidateHandle1.GetIndex() - m_BigTriangleCandidateCount;
 		m_CandidateIndexSet_Overlap_SmallTriangle[Index1].Append(BigTriangleCandidateIndex);
 		m_CandidateIndexSet_Overlap_SmallTriangle[Index1].Append(CandidateHandle1.GetIndex());
@@ -219,15 +229,15 @@ void SurfaceRemesher3<ScalarType>::GenerateTriangleCandidate_Type2()
 		m_CandidateIndexSet_Overlap_SmallTriangle[Index1].Append(CandidateHandle3.GetIndex());
 		m_CandidateIndexSet_Overlap_SmallTriangle[Index1].Append(CandidateHandle4.GetIndex());
 		m_CandidateIndexSet_Overlap_SmallTriangle[Index1].Append(CandidateHandle5.GetIndex());
-
+		
 		auto Index2 = CandidateHandle2.GetIndex() - m_BigTriangleCandidateCount;
 		m_CandidateIndexSet_Overlap_SmallTriangle[Index2].Append(BigTriangleCandidateIndex);
 		m_CandidateIndexSet_Overlap_SmallTriangle[Index2].Append(CandidateHandle2.GetIndex());
 		m_CandidateIndexSet_Overlap_SmallTriangle[Index2].Append(CandidateHandle0.GetIndex());
-		m_CandidateIndexSet_Overlap_SmallTriangle[Index2].Append(CandidateHandle1.GetIndex());
+ 	    m_CandidateIndexSet_Overlap_SmallTriangle[Index2].Append(CandidateHandle1.GetIndex());
 		m_CandidateIndexSet_Overlap_SmallTriangle[Index2].Append(CandidateHandle4.GetIndex());
 		m_CandidateIndexSet_Overlap_SmallTriangle[Index2].Append(CandidateHandle5.GetIndex());
-
+		
 		auto Index3 = CandidateHandle3.GetIndex() - m_BigTriangleCandidateCount;
 		m_CandidateIndexSet_Overlap_SmallTriangle[Index3].Append(BigTriangleCandidateIndex);
 		m_CandidateIndexSet_Overlap_SmallTriangle[Index3].Append(CandidateHandle3.GetIndex());
@@ -235,7 +245,7 @@ void SurfaceRemesher3<ScalarType>::GenerateTriangleCandidate_Type2()
 		m_CandidateIndexSet_Overlap_SmallTriangle[Index3].Append(CandidateHandle1.GetIndex());
 		m_CandidateIndexSet_Overlap_SmallTriangle[Index3].Append(CandidateHandle4.GetIndex());
 		m_CandidateIndexSet_Overlap_SmallTriangle[Index3].Append(CandidateHandle5.GetIndex());
-
+		
 		auto Index4 = CandidateHandle4.GetIndex() - m_BigTriangleCandidateCount;
 		m_CandidateIndexSet_Overlap_SmallTriangle[Index4].Append(BigTriangleCandidateIndex);
 		m_CandidateIndexSet_Overlap_SmallTriangle[Index4].Append(CandidateHandle4.GetIndex());
@@ -250,13 +260,13 @@ void SurfaceRemesher3<ScalarType>::GenerateTriangleCandidate_Type2()
 		m_CandidateIndexSet_Overlap_SmallTriangle[Index5].Append(CandidateHandle0.GetIndex());
 		m_CandidateIndexSet_Overlap_SmallTriangle[Index5].Append(CandidateHandle1.GetIndex());
 		m_CandidateIndexSet_Overlap_SmallTriangle[Index5].Append(CandidateHandle2.GetIndex());
-		m_CandidateIndexSet_Overlap_SmallTriangle[Index5].Append(CandidateHandle3.GetIndex());
+		m_CandidateIndexSet_Overlap_SmallTriangle[Index5].Append(CandidateHandle3.GetIndex());	
 	}
 }
 
 
 template<typename ScalarType>
-void SurfaceRemesher3<ScalarType>::GenerateQuadCandidate_Type3()
+void SurfaceRemesher4<ScalarType>::GenerateQuadCandidate_Type3()
 {
 	for (auto it = m_InputMesh.GetIteratorOfEdge(); it.IsNotEnd(); ++it)
 	{
@@ -269,7 +279,7 @@ void SurfaceRemesher3<ScalarType>::GenerateQuadCandidate_Type3()
 }
 
 template<typename ScalarType>
-void SurfaceRemesher3<ScalarType>::GenerateQuadCandidate_Type3(EdgeHandleType EdgeHandle_input)
+void SurfaceRemesher4<ScalarType>::GenerateQuadCandidate_Type3(EdgeHandleType EdgeHandle_input)
 {
 	auto AdjacentFaceHandleList = m_InputMesh.Edge(EdgeHandle_input).GetAdjacentFaceHandleList();
 	if (AdjacentFaceHandleList.GetLength() != 2)
@@ -342,6 +352,14 @@ void SurfaceRemesher3<ScalarType>::GenerateQuadCandidate_Type3(EdgeHandleType Ed
 		}
 	}
 
+	//------------------------- check the quality of the quad ---------------
+	auto Score = this->EvaluateQuad(m_InputMesh, PointH0, PointH1, PointH2, PointH3);
+	if (Score < 0.1)
+	{
+		return;//do not generate this quad
+	}
+	//------------------------------------------------------------------------
+
 	EdgeH_P1P3 = m_InputMesh.GetEdgeHandleByPoint(PointH1, PointH3);//same as using m_CandidateMesh
 	EdgeH_P3P2 = m_InputMesh.GetEdgeHandleByPoint(PointH3, PointH2);//same as using m_CandidateMesh
 	
@@ -369,7 +387,7 @@ void SurfaceRemesher3<ScalarType>::GenerateQuadCandidate_Type3(EdgeHandleType Ed
 
 
 template<typename ScalarType>
-void SurfaceRemesher3<ScalarType>::GenerateQuadCandidate_Type4()
+void SurfaceRemesher4<ScalarType>::GenerateQuadCandidate_Type4()
 {
 	for (auto it = m_InputMesh.GetIteratorOfEdge(); it.IsNotEnd(); ++it)
 	{
@@ -383,7 +401,7 @@ void SurfaceRemesher3<ScalarType>::GenerateQuadCandidate_Type4()
 
 
 template<typename ScalarType>
-void SurfaceRemesher3<ScalarType>::GenerateQuadCandidate_Type4(EdgeHandleType EdgeHandle_input)
+void SurfaceRemesher4<ScalarType>::GenerateQuadCandidate_Type4(EdgeHandleType EdgeHandle_input)
 {
 	auto AdjacentFaceHandleList = m_InputMesh.Edge(EdgeHandle_input).GetAdjacentFaceHandleList();
 	if (AdjacentFaceHandleList.GetLength() <= 0)
@@ -580,6 +598,15 @@ void SurfaceRemesher3<ScalarType>::GenerateQuadCandidate_Type4(EdgeHandleType Ed
 				//       P1 ---e0----P2     
 				//             P5
 				//----------------------------
+
+				//-------------------------check the quality of the quad ---------------
+				auto Score = this->EvaluateQuad(m_InputMesh, PointH1, PointH2, PointH3, PointH4);
+				if (Score < 0.1)
+				{
+					return;//do not generate this quad
+				}
+				//------------------------------------------------------------------------
+
 				DenseVector<PointHandleType> Candidate = { PointH1, PointH2, PointH3, PointH4 };
 				DenseVector<PointHandleType> CandidateRegion = { PointH1, PointH5, PointH2, PointH3, PointH0, PointH4 };
 				auto CandidateHandle = m_CandidateMesh.AddFaceByPoint(Candidate);
@@ -621,6 +648,15 @@ void SurfaceRemesher3<ScalarType>::GenerateQuadCandidate_Type4(EdgeHandleType Ed
 					//       P1 ---e0----P2     
 					//             P5
 					//----------------------------
+
+					//-------------------------check the quality of the quad ---------------
+					auto Score = this->EvaluateQuad(m_InputMesh, PointH1, PointH2, PointH3, PointH0);
+					if (Score < 0.1)
+					{
+						return;//do not generate this quad
+					}
+					//------------------------------------------------------------------------
+
 					DenseVector<PointHandleType> Candidate = { PointH1, PointH2, PointH3, PointH0 };
 					DenseVector<PointHandleType> CandidateRegion = { PointH1, PointH5, PointH2, PointH3, PointH0 };
 					auto CandidateHandle = m_CandidateMesh.AddFaceByPoint(Candidate);
@@ -653,6 +689,15 @@ void SurfaceRemesher3<ScalarType>::GenerateQuadCandidate_Type4(EdgeHandleType Ed
 					//       P1 ---e0----P2     
 					//             P5
 					//----------------------------
+
+					//-------------------------check the quality of the quad ---------------
+					auto Score = this->EvaluateQuad(m_InputMesh, PointH1, PointH2, PointH0, PointH4);
+					if (Score < 0.1)
+					{
+						return;//do not generate this quad
+					}
+					//------------------------------------------------------------------------
+
 					DenseVector<PointHandleType> Candidate = { PointH1, PointH2, PointH0, PointH4 };
 					DenseVector<PointHandleType> CandidateRegion = { PointH1, PointH5, PointH2, PointH0, PointH4 };
 					auto CandidateHandle = m_CandidateMesh.AddFaceByPoint(Candidate);
@@ -679,7 +724,7 @@ void SurfaceRemesher3<ScalarType>::GenerateQuadCandidate_Type4(EdgeHandleType Ed
 
 
 template<typename ScalarType>
-void SurfaceRemesher3<ScalarType>::Build_CandidateConflictTable_Overlap()
+void SurfaceRemesher4<ScalarType>::Build_CandidateConflictTable_Overlap()
 {
 	auto PointCount_input = m_InputMesh.GetPointCount();
 	auto EdgeCount_input = m_InputMesh.GetEdgeCount();
@@ -825,7 +870,7 @@ void SurfaceRemesher3<ScalarType>::Build_CandidateConflictTable_Overlap()
 		}
 		else
 		{
-			MDK_Error("somthing is wrong @ SurfaceRemesher3::Build_CandidateConflictTable_Overlap() ")
+			MDK_Error("somthing is wrong @ SurfaceRemesher4::Build_CandidateConflictTable_Overlap() ")
 		}
 
 		for (int_max n = 0; n < CandidateIndexList_Overlap.GetLength(); ++n)
@@ -843,7 +888,7 @@ void SurfaceRemesher3<ScalarType>::Build_CandidateConflictTable_Overlap()
 
 
 template<typename ScalarType>
-void SurfaceRemesher3<ScalarType>::Build_CandidateConflictTable_TJunction()
+void SurfaceRemesher4<ScalarType>::Build_CandidateConflictTable_TJunction()
 {
 	auto PointCount_input = m_InputMesh.GetPointCount();
 	auto EdgeCount_input = m_InputMesh.GetEdgeCount();
@@ -952,7 +997,7 @@ void SurfaceRemesher3<ScalarType>::Build_CandidateConflictTable_TJunction()
 		}
 		else
 		{
-			MDK_Error("somthing is wrong @ SurfaceRemesher3::EvaluateCandidate() ")
+			MDK_Error("somthing is wrong @ SurfaceRemesher4::EvaluateCandidate() ")
 		}
 
 		const auto& CandidateIndexList_Overlap = m_CandidateConflictTable_Overlap[k];
@@ -969,7 +1014,7 @@ void SurfaceRemesher3<ScalarType>::Build_CandidateConflictTable_TJunction()
 
 
 template<typename ScalarType>
-void SurfaceRemesher3<ScalarType>::Preserve_FeatureEdge()
+void SurfaceRemesher4<ScalarType>::Preserve_FeatureEdge()
 {
 	// only need to check small triangle : may split feature edge
 	// quad candidate, that could split feature edge, is not generated
@@ -996,7 +1041,7 @@ void SurfaceRemesher3<ScalarType>::Preserve_FeatureEdge()
 
 
 template<typename ScalarType>
-void SurfaceRemesher3<ScalarType>::EvaluateCandidate()
+void SurfaceRemesher4<ScalarType>::EvaluateCandidate()
 {
 	m_CandidateScoreList.Clear();
 	m_CandidateScoreList.Resize(m_CandidateMesh.GetFaceCount());
@@ -1053,13 +1098,13 @@ void SurfaceRemesher3<ScalarType>::EvaluateCandidate()
 		}
 		else
 		{
-			MDK_Error("somthing is wrong @ SurfaceRemesher3::EvaluateCandidate() ")
+			MDK_Error("somthing is wrong @ SurfaceRemesher4::EvaluateCandidate() ")
 		}
 	}
 }
 
 template<typename ScalarType>
-void SurfaceRemesher3<ScalarType>::SelectCandidate()
+void SurfaceRemesher4<ScalarType>::SelectCandidate()
 { 
 	auto CandidateIndexList_sort = m_CandidateScoreList.Sort("descend");
 	m_CandidateIndicatorList.Resize(m_CandidateScoreList.GetLength());
@@ -1085,13 +1130,13 @@ void SurfaceRemesher3<ScalarType>::SelectCandidate()
 }
 
 template<typename ScalarType>
-void SurfaceRemesher3<ScalarType>::BuildOutputMesh()
+void SurfaceRemesher4<ScalarType>::BuildMixedTriQuadMesh()
 {
-	m_OutputMesh.Clear();
-	m_OutputMesh.SetCapacity(m_CandidateMesh.GetPointCount(), m_CandidateMesh.GetEdgeCount(), m_CandidateMesh.GetFaceCount());
+	m_OutputMesh_Mixed.Clear();
+	m_OutputMesh_Mixed.SetCapacity(m_CandidateMesh.GetPointCount(), m_CandidateMesh.GetEdgeCount(), m_CandidateMesh.GetFaceCount());
 	for (auto it = m_CandidateMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
 	{
-		auto PointHandle = m_OutputMesh.AddPoint(it.Point().GetPosition());
+		auto PointHandle = m_OutputMesh_Mixed.AddPoint(it.Point().GetPosition());
 		auto ID = it.Point().GetID();
 		if (ID >= 0)
 		{
@@ -1099,36 +1144,96 @@ void SurfaceRemesher3<ScalarType>::BuildOutputMesh()
 		}
 	}
 
-	for (int_max k = 0; k < m_CandidateIndicatorList.GetLength(); ++k)
+	auto SelectedCandidateCount = m_CandidateIndicatorList.Sum();
+
+	m_Map_FaceOfMixedMesh_to_Candidate.Clear();
+	m_Map_FaceOfMixedMesh_to_Candidate.Resize(SelectedCandidateCount);
+
+	for (int_max k = 0; k < m_CandidateIndicatorList.GetLength(); ++k)//k is Candidate Index
 	{
 		if (m_CandidateIndicatorList[k] == 1)
 		{
 			FaceHandleType CandidateHandle;
 			CandidateHandle.SetIndex(k);
 			auto Candidate = m_CandidateMesh.Face(CandidateHandle).GetPointHandleList();
-			m_OutputMesh.AddFaceByPoint(Candidate);
+			auto FaceHandle = m_OutputMesh_Mixed.AddFaceByPoint(Candidate);
+			m_Map_FaceOfMixedMesh_to_Candidate[FaceHandle.GetIndex()] = k;
 		}
 	}
 	/*
-	for (auto it = m_OutputMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	for (auto it = m_OutputMesh_Mixed.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
 	{
 		if (it.Point().IsOnEdge() == false)
 		{
-			m_OutputMesh.DeletePoint(it.GetPointHandle());
+			m_OutputMesh_Mixed.DeletePoint(it.GetPointHandle());
 		}
 	}
-	m_OutputMesh.CleanDataStructure();
+	m_OutputMesh_Mixed.CleanDataStructure();
 	*/
 }
 
 template<typename ScalarType>
-void SurfaceRemesher3<ScalarType>::RefineOutputMesh()
-{//smooth the output mesh and project it to the input mesh
+void SurfaceRemesher4<ScalarType>::AdjustMixedTriQuadMesh()
+{
+	// merge small-triangle-pair on m_OutputMesh_Mixed
+	//----------------------------------   
+	//   P1__P2
+	//    |\ |
+	//    |_\|
+	//   P4  P3
+	//---------------
+	// P1P3 is an edge of input mesh
+	//-------------------------
+
+	// merge small-triangle-pair on m_OutputMesh_Mixed
+	//-------------------------------------------------------------
+	//  quad, small triangle  to quad, big triangle   to all quad
+	//  quad, small triangle     quad, big triangle      
+	//     ____              ____            ____
+	//     |__|_\       to  |__/_\    to    |__/ \   
+	//     |__|/            |__\ / 	        |__\ / 
+	//----------------------------------------------------------      
+	//    P7___P3      
+	//     |__|_\      
+	//     P6 P1 P2 
+	//     |__|/          
+	//    P5  P4
+	//------------------------
+	// move P1 toward P6
+	// P1 is not on input mesh, so it can not be a feature point
+	//------------------------------
+
+	// adjust small-triangle (surrounded by quad) on m_OutputMesh_Mixed
+	//-------------------------------------------------------------
+	//  quad, small triangle 
+	//  quad, quad triangle   
+	//     ____              ____  
+	//     |__|_\       to   |_/_\ 
+	//     |__|_|            |_\_|
+	//----------------------------------------------------------      
+	//    P4___P3      
+	//     |__|_\      
+	//     P5 P1 P2 
+	//     |__|__|          
+	//    P6  P7 P8
+	//------------------------
+	// move P1 toward P5
+	// P1 is not on input mesh, so it can not be a feature point
+	//------------------------------
+
+}
+
+
+template<typename ScalarType>
+void SurfaceRemesher4<ScalarType>::BuildQuadMesh()
+{	// subdivide m_OutputMesh_Mixed to get m_OutputMesh_Quad
+
+
 
 }
 
 template<typename ScalarType>
-DenseVector<int_max> SurfaceRemesher3<ScalarType>::ConvertHandleToIndex(const DenseVector<PointHandleType>& HandleList)
+DenseVector<int_max> SurfaceRemesher4<ScalarType>::ConvertHandleToIndex(const DenseVector<PointHandleType>& HandleList)
 {
 	DenseVector<int_max> IndexList;
 	IndexList.Resize(HandleList.GetLength());
@@ -1141,7 +1246,7 @@ DenseVector<int_max> SurfaceRemesher3<ScalarType>::ConvertHandleToIndex(const De
 
 
 template<typename ScalarType>
-DenseVector<int_max> SurfaceRemesher3<ScalarType>::ConvertHandleToIndex(const DenseVector<FaceHandleType>& HandleList)
+DenseVector<int_max> SurfaceRemesher4<ScalarType>::ConvertHandleToIndex(const DenseVector<FaceHandleType>& HandleList)
 {
 	DenseVector<int_max> IndexList;
 	IndexList.Resize(HandleList.GetLength());
@@ -1154,7 +1259,17 @@ DenseVector<int_max> SurfaceRemesher3<ScalarType>::ConvertHandleToIndex(const De
 
 
 template<typename ScalarType>
-ScalarType SurfaceRemesher3<ScalarType>::EvaluateQuad(const DenseVector<ScalarType, 3>& Point0, const DenseVector<ScalarType, 3>& Point1, const DenseVector<ScalarType, 3>& Point2, const DenseVector<ScalarType, 3>& Point3)
+ScalarType SurfaceRemesher4<ScalarType>::EvaluateQuad(const PolygonMesh<MeshAttributeType>& TargetMesh, PointHandleType PointH0, PointHandleType PointH1, PointHandleType PointH2, PointHandleType PointH3)
+{
+	auto Point0 = TargetMesh.GetPointPosition(PointH0);
+	auto Point1 = TargetMesh.GetPointPosition(PointH1);
+	auto Point2 = TargetMesh.GetPointPosition(PointH2);
+	auto Point3 = TargetMesh.GetPointPosition(PointH3);
+	return this->EvaluateQuad(Point0, Point1, Point2, Point3);
+}
+
+template<typename ScalarType>
+ScalarType SurfaceRemesher4<ScalarType>::EvaluateQuad(const DenseVector<ScalarType, 3>& Point0, const DenseVector<ScalarType, 3>& Point1, const DenseVector<ScalarType, 3>& Point2, const DenseVector<ScalarType, 3>& Point3)
 {
 	//================
 	//  P3 -  P2 
@@ -1219,7 +1334,7 @@ ScalarType SurfaceRemesher3<ScalarType>::EvaluateQuad(const DenseVector<ScalarTy
 }
 
 template<typename ScalarType>
-ScalarType SurfaceRemesher3<ScalarType>::EvaluateTriangle(const DenseVector<ScalarType, 3>& Point0, const DenseVector<ScalarType, 3>& Point1, const DenseVector<ScalarType, 3>& Point2)
+ScalarType SurfaceRemesher4<ScalarType>::EvaluateTriangle(const DenseVector<ScalarType, 3>& Point0, const DenseVector<ScalarType, 3>& Point1, const DenseVector<ScalarType, 3>& Point2)
 {
 	//================
 	//  P0  ---- P2 
