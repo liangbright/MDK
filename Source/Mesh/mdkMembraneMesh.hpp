@@ -2274,7 +2274,7 @@ void MembraneMesh<MeshAttributeType>::DeleteFace(Handle_Of_Face_Of_MembraneMesh 
     // check input 
     if (this->IsValidHandle(FaceHandle) == false)
     {
-        MDK_Warning("Invalid FaceHandle @ MembraneMesh::DeleteFace(...)")
+        //MDK_Warning("Invalid FaceHandle @ MembraneMesh::DeleteFace(...)")
         return;
     }
 
@@ -2322,7 +2322,7 @@ template<typename MeshAttributeType>
 void MembraneMesh<MeshAttributeType>::DeleteFace(int_max FaceID)
 {
     auto FaceHandle = this->GetFaceHandle(FaceID);
-    return this->DeleteFace(FaceHandle);
+    this->DeleteFace(FaceHandle);
 }
 
 
@@ -2331,8 +2331,8 @@ void MembraneMesh<MeshAttributeType>::DeleteEdge(Handle_Of_Edge_Of_MembraneMesh 
 {    
     if (this->IsValidHandle(EdgeHandle) == false)
     {
-        MDK_Warning("Invalid EdgeHandle @ MembraneMesh::DeleteEdge(...)")
-        return true;
+        //MDK_Warning("Invalid EdgeHandle @ MembraneMesh::DeleteEdge(...)")
+        return;
     }
 
     // check AdjacentFace: the edge can not be deleted if any adjacent cell exit
@@ -2343,7 +2343,7 @@ void MembraneMesh<MeshAttributeType>::DeleteEdge(Handle_Of_Edge_Of_MembraneMesh 
     if (AdjacentFaceCount > 0)
     {
         MDK_Error("AdjacentFaceIndexList is not empty, so this edge can not be deleted @ MembraneMesh::DeleteEdge(...)")
-        return false;
+        return;
     }
     // -------------------------------------------------------------------------------
 
@@ -2386,7 +2386,7 @@ void MembraneMesh<MeshAttributeType>::DeletePoint(Handle_Of_Point_Of_MembraneMes
 {
     if (this->IsValidHandle(PointHandle) == false)
     {
-        MDK_Warning("Invalid PointHandle @ MembraneMesh::DeletePoint(...)")
+        //MDK_Warning("Invalid PointHandle @ MembraneMesh::DeletePoint(...)")
         return;
     }
 
