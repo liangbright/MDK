@@ -57,8 +57,8 @@ void Test_3D()
 
 	RotationTransform3D<double> Transform;
 
-	String File_Source = "C:/Research/MDK/MDK_Build/Test/Test_Geometry/Test_CoordinateTransform/Test_RotationTransform/TestData/Source.json";
-	String File_Target = "C:/Research/MDK/MDK_Build/Test/Test_Geometry/Test_CoordinateTransform/Test_RotationTransform/TestData/Target.json";
+	String File_Source = "C:/Research/MDK/MDK_Build/Test/Test_Geometry/Test_CoordinateTransform/Test_RotationTransform/TestData/Source3D.json";
+	String File_Target = "C:/Research/MDK/MDK_Build/Test/Test_Geometry/Test_CoordinateTransform/Test_RotationTransform/TestData/Target3D.json";
 
 	DenseMatrix<double> SourceControlPointSet, TargetControlPointSet;
 	LoadDenseMatrixFromJsonDataFile(SourceControlPointSet, File_Source);

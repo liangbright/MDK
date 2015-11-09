@@ -47,5 +47,5 @@ Target=R*Source;
 %Tareget=Tareget+ 0.01*rand(size(Tareget));
 %
 FilePath='C:/Research/MDK/MDK_Build/Test/Test_Geometry/Test_CoordinateTransform/Test_RotationTransform/TestData/';
-WriteDenseMatrixAsJsonDataFile(Source, [FilePath 'Source.json']);
-WriteDenseMatrixAsJsonDataFile(Target, [FilePath 'Target.json']);
+WriteDenseMatrixAsJsonDataFile(Source, [FilePath 'Source3D.json']);
+WriteDenseMatrixAsJsonDataFile(Target, [FilePath 'Target3D.json']);

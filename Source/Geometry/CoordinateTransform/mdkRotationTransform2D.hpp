@@ -26,6 +26,7 @@ void RotationTransform2D<ScalarType>::Clear()
 	m_Rotation.FillDiagonal(1);
 	m_Rotation.FixSize();
 	m_RotationCenter.Fill(0);
+	m_Translation_AfterRotation.Fill(0);
 }
 
 template<typename ScalarType>
@@ -50,6 +51,12 @@ void RotationTransform2D<ScalarType>::SetRotationMatrix(const DenseMatrix<Scalar
 		return;
 	}
 	m_Rotation = Rotation;
+
+	//T=C-R*C
+	const auto& C = Center;
+	const auto R = m_Rotation.GetElementPointer();
+	m_Translation_AfterRotation[0] = C[0] - (R[0] * C[0] + R[2] * C[1]);
+	m_Translation_AfterRotation[1] = C[1] - (R[1] * C[0] + R[3] * C[1]);
 }
 
 
@@ -64,6 +71,12 @@ template<typename ScalarType>
 void RotationTransform2D<ScalarType>::SetRotationCenter(const DenseVector<ScalarType, 2>& Center)
 {
 	m_RotationCenter = Center;
+
+	//T=C-R*C
+	const auto& C = Center;
+	const auto R = m_Rotation.GetElementPointer();
+	m_Translation_AfterRotation[0] = C[0] - (R[0] * C[0] + R[2] * C[1]);
+	m_Translation_AfterRotation[1] = C[1] - (R[1] * C[0] + R[3] * C[1]);
 }
 
 
@@ -172,8 +185,9 @@ void RotationTransform2D<ScalarType>::EstimateParameter()
 	ImiusR(0, 0) += 1;
 	ImiusR(1, 1) += 1;
 	Yc.Reshape(2, 1);
-	DenseMatrix<ScalarType> Translation_AfterRotation = Yc - m_Rotation*Xc;
-	m_RotationCenter = ImiusR.PInv()*Translation_AfterRotation;
+	DenseMatrix<ScalarType> Translation = Yc - m_Rotation*Xc;
+	m_RotationCenter = ImiusR.PInv()*Translation;
+	m_Translation_AfterRotation = Translation;
 }
 
 
@@ -181,14 +195,11 @@ template<typename ScalarType>
 inline 
 DenseVector<ScalarType, 2> RotationTransform2D<ScalarType>::TransformPoint(ScalarType x, ScalarType y) const
 {
-	auto temp_x = x - m_RotationCenter[0];
-	auto temp_y = y - m_RotationCenter[1];
-	
 	const auto R = m_Rotation.GetElementPointer();
 
 	DenseVector<ScalarType, 2> NewPosition;
-	NewPosition[0] = m_RotationCenter[0] + R[0] * temp_x + R[2] * temp_y;
-	NewPosition[1] = m_RotationCenter[1] + R[1] * temp_x + R[3] * temp_y;
+	NewPosition[0] = m_Translation_AfterRotation[0] + R[0] * x + R[2] * y;
+	NewPosition[1] = m_Translation_AfterRotation[1] + R[1] * x + R[3] * y;
 	return NewPosition;
 }
 

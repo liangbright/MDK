@@ -6,10 +6,8 @@
 
 namespace mdk
 {
-// TargetPoint = SimilarityTransform(SourcePoint)
-//	           = Scale*RotationMatrix*SourcePoint+Translation
-//             = Scale*RotationMatrix*(SourcePoint-RotationCenter) + RotationCenter
-// Y = sRX+T <=> Y=s*R(X-C)+C, s is scaling, C is rotation center and C = pinv(I-s*R)*(Yc-s*R*Xc), Yc=mean(Y), Xc=mean(X)
+// TargetPoint = SimilarityTransform(SourcePoint) = Scale*RotationMatrix*SourcePoint+Translation
+// Y = sRX+T : s is scaling, R is rotation, T is translation
 //
 // use right-hand coordinate system
 // Reference: Least-squares Estimation of Transformation Parameters Between Two Point Patterns, 1991

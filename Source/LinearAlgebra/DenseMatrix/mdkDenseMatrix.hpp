@@ -6462,7 +6462,7 @@ void DenseMatrix<ElementType>::SetDiagonal(const DenseMatrix<ElementType_Input>&
 {
     auto InputSize = DiagonalData.GetSize();
 
-    if (InputSize.ColCount != 1 || InputSize.RowCount != 1)
+    if (InputSize.ColCount != 1 && InputSize.RowCount != 1)
     {
         MDK_Error("Invalid Input @ DenseMatrix::SetDiagonal(DenseMatrix)")
         return;

@@ -7,7 +7,7 @@
 namespace mdk
 {
 // TargetPoint = RotationTransform(SourcePoint)= RotationMatrix*(SourcePoint-RotationCenter)+RotationCenter
-// Y = RX+T <=> Y=R(X-C)+C , C is rotation center and C = pinv(I-R)*(Yc-R*Xc), Yc=mean(Y), Xc=mean(X)
+// Y = RX+T => Y=R(X-C)+C if pure rotation, C is rotation center and C = pinv(I-R)*(Yc-R*Xc), Yc=mean(Y), Xc=mean(X)
 //
 // RotationMatrix: rotate a-angle around X-axis, Y-axis, Z-axis
 // Rx = [1,      0,  0
@@ -38,6 +38,7 @@ private:
 
 	DenseMatrix<ScalarType> m_Rotation;
 	DenseVector<ScalarType, 3> m_RotationCenter;
+	DenseVector<ScalarType, 3> m_Translation_AfterRotation;
 
 public:
 	RotationTransform3D();

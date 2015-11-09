@@ -318,9 +318,9 @@ DenseVector<ScalarType, 3> ComputeCenterOfCircumcircleOfTriangleIn3D(const Scala
 	y0 = -by_det / (2 * a_det);
 
 	DenseVector<ScalarType, 3> Center;
-	Center[0] = x0*DirectionX[0] + y0*DirectionY[0];
-	Center[1] = x0*DirectionX[1] + y0*DirectionY[1];
-	Center[2] = x0*DirectionX[2] + y0*DirectionY[2];
+	Center[0] = PointA[0] + x0*DirectionX[0] + y0*DirectionY[0];
+	Center[1] = PointA[1] + x0*DirectionX[1] + y0*DirectionY[1];
+	Center[2] = PointA[2] + x0*DirectionX[2] + y0*DirectionY[2];
 
 	return Center;
 }

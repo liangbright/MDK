@@ -26,6 +26,7 @@ void RotationTransform3D<ScalarType>::Clear()
 	m_Rotation.FillDiagonal(1);
 	m_Rotation.FixSize();
 	m_RotationCenter.Fill(0);
+	m_Translation_AfterRotation.Fill(0);
 }
 
 template<typename ScalarType>
@@ -50,6 +51,13 @@ void RotationTransform3D<ScalarType>::SetRotationMatrix(const DenseMatrix<Scalar
 		return;
 	}
 	m_Rotation = Rotation;
+
+	//T=C-R*C
+	const auto& C = Center;
+	const auto R = m_Rotation.GetElementPointer();
+	m_Translation_AfterRotation[0] = C[0] - (R[0] * C[0] + R[3] * C[1] + R[6] * C[2]);
+	m_Translation_AfterRotation[1] = C[1] - (R[1] * C[0] + R[4] * C[1] + R[7] * C[2]);
+	m_Translation_AfterRotation[2] = C[2] - (R[2] * C[0] + R[5] * C[1] + R[8] * C[2]);
 }
 
 
@@ -64,6 +72,13 @@ template<typename ScalarType>
 void RotationTransform3D<ScalarType>::SetRotationCenter(const DenseVector<ScalarType, 3>& Center)
 {
 	m_RotationCenter = Center;
+
+	//T=C-R*C
+	const auto& C = Center;
+	const auto R = m_Rotation.GetElementPointer();
+	m_Translation_AfterRotation[0] = C[0] - (R[0] * C[0] + R[3] * C[1] + R[6] * C[2]);
+	m_Translation_AfterRotation[1] = C[1] - (R[1] * C[0] + R[4] * C[1] + R[7] * C[2]);
+	m_Translation_AfterRotation[2] = C[2] - (R[2] * C[0] + R[5] * C[1] + R[8] * C[2]);
 }
 
 
@@ -174,25 +189,22 @@ void RotationTransform3D<ScalarType>::EstimateParameter()
 	ImiusR(1, 1) += 1;
 	ImiusR(2, 2) += 1;
 	Yc.Reshape(3, 1);
-	DenseMatrix<ScalarType> Translation_AfterRotation = Yc - m_Rotation*Xc;
-	m_RotationCenter = ImiusR.PInv()*Translation_AfterRotation;
+	DenseMatrix<ScalarType> Translation = Yc - m_Rotation*Xc;
+	m_RotationCenter = ImiusR.PInv()*Translation;
+	m_Translation_AfterRotation = Translation;
 }
 
 
 template<typename ScalarType>
 inline 
 DenseVector<ScalarType, 3> RotationTransform3D<ScalarType>::TransformPoint(ScalarType x, ScalarType y, ScalarType z) const
-{
-	auto temp_x = x - m_RotationCenter[0];
-	auto temp_y = y - m_RotationCenter[1];
-	auto temp_z = z - m_RotationCenter[2];
-	
+{	
 	const auto R = m_Rotation.GetElementPointer();
 
 	DenseVector<ScalarType, 3> NewPosition;
-	NewPosition[0] = m_RotationCenter[0] + R[0] * temp_x + R[3] * temp_y + R[6] * temp_z;
-	NewPosition[1] = m_RotationCenter[1] + R[1] * temp_x + R[4] * temp_y + R[7] * temp_z;
-	NewPosition[2] = m_RotationCenter[2] + R[2] * temp_x + R[5] * temp_y + R[8] * temp_z;
+	NewPosition[0] = m_Translation_AfterRotation[0] + R[0] * x + R[3] * y + R[6] * z;
+	NewPosition[1] = m_Translation_AfterRotation[1] + R[1] * x + R[4] * y + R[7] * z;
+	NewPosition[2] = m_Translation_AfterRotation[2] + R[2] * x + R[5] * y + R[8] * z;
 	return NewPosition;
 }
 

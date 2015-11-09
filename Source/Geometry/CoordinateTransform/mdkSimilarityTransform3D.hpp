@@ -111,7 +111,7 @@ void SimilarityTransform3D<ScalarType>::EstimateParameter()
 
 	auto SVDResult = H.SVD();
 	auto& U = SVDResult.U;
-	auto& S = SVDResult.S;
+	auto& S = SVDResult.S;//vector
 	auto& V = SVDResult.V;	
 	auto Vt = SVDResult.V.Transpose();
 	auto H_det = H.Det();
@@ -120,6 +120,19 @@ void SimilarityTransform3D<ScalarType>::EstimateParameter()
 	D.Fill(0);
 	D(0, 0) = 1;
 	D(1, 1) = 1;
+	auto U_det = U.Det();
+	auto V_det = V.Det();
+	if (U_det*V_det > 0)
+	{
+		D(2, 2) = 1;
+	}
+	else
+	{
+		D(2, 2) = -1;
+	}
+	
+	// this is useless
+	/*
 	if (H_det > 0)
 	{
 		D(2, 2) = 1;
@@ -128,10 +141,14 @@ void SimilarityTransform3D<ScalarType>::EstimateParameter()
 	{
 		D(2, 2) = -1;
 	}
+	*/
 
-	DenseMatrix<ScalarType> R = U * D * Vt;
+	DenseMatrix<ScalarType> S_Matrix(S.GetElementCount(), S.GetElementCount());
+	S_Matrix.Fill(0);
+	S_Matrix.SetDiagonal(S);
 
-	DenseMatrix<ScalarType> SD = S*D;
+	DenseMatrix<ScalarType> R = U * D * Vt;	
+	DenseMatrix<ScalarType> SD = S_Matrix*D;
 	ScalarType trace_SD = SD.GetDiagonal().Sum();
 	ScalarType s = trace_SD / SigmaX_sq;
 
