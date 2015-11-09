@@ -74,6 +74,9 @@ private:
     template<typename T>
     friend class MembraneMesh;
 
+	template<typename T>
+	friend class Face_Of_MembraneMesh;
+
 public:
 	inline Point_Of_MembraneMesh();
     inline Point_Of_MembraneMesh(const Point_Of_MembraneMesh<MeshAttributeType>& InputPoint);
@@ -555,9 +558,6 @@ public:
     inline DenseVector<int_max> GetPointIDList() const;
     inline void GetPointIDList(DenseVector<Handle_Of_Point_Of_MembraneMesh>& OutputIDList) const;
 
-    //inline int_max GetRelativeIndexOfPoint(Handle_Of_Point_Of_MembraneMesh PointHandle) const;
-    //inline int_max GetRelativeIndexOfPoint(int_max PointID) const;
-
 	inline int_max GetEdgeCount() const;  // the number of Edge
 
     inline DenseVector<Handle_Of_Edge_Of_MembraneMesh> GetEdgeHandleList() const;
@@ -569,14 +569,21 @@ public:
     inline DenseVector<int_max> GetEdgeRelativeIndexList() const;
     inline void GetEdgeRelativeIndexList(DenseVector<int_max>& RelativeIndexList) const;
 
-	inline int_max GetAdjacentFaceCount() const;
+	inline int_max GetAdjacentFaceCount() const;// share an edge
 
-    // Face share any Edge of this cell, not include this cell
     inline DenseVector<Handle_Of_Face_Of_MembraneMesh> GetAdjacentFaceHandleList() const;
     inline void GetAdjacentFaceHandleList(DenseVector<Handle_Of_Face_Of_MembraneMesh>& OutputHandleList) const;
 
     inline DenseVector<int_max> GetAdjacentFaceIDList() const;
     inline void GetAdjacentFaceIDList(DenseVector<int_max>& OutputIDList) const;
+
+	inline int_max GetNeighbourFaceCount() const;// share a vertex point
+
+	inline DenseVector<Handle_Of_Face_Of_MembraneMesh> GetNeighbourFaceHandleList() const;
+	inline void GetNeighbourFaceHandleList(DenseVector<Handle_Of_Face_Of_MembraneMesh>& OutputHandleList) const;
+
+	inline DenseVector<int_max> GetNeighbourFaceIDList() const;
+	inline void GetNeighbourFaceIDList(DenseVector<int_max>& OutputIDList) const;
 
     inline FaceAttributeType& Attribute();
     inline const FaceAttributeType& Attribute() const;

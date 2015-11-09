@@ -1206,9 +1206,13 @@ template<typename MeshAttributeType>
 inline
 int_max Edge_Of_MembraneMesh<MeshAttributeType>::GetNeighbourFaceCount() const
 {
-	auto Counter0 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex0].GetAdjacentFaceCount();
-	auto Counter1 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex0].GetAdjacentFaceCount();
-	return Counter0 + Counter1 - 2;
+	// wrong, may share more than 2 face
+	//auto Counter0 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex0].GetAdjacentFaceCount();
+	//auto Counter1 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex0].GetAdjacentFaceCount();
+	//return Counter0 + Counter1 - 2;
+
+	auto HandleList = this->GetNeighbourFaceHandleList();
+	return HandleList.GetLength();
 }
 
 template<typename MeshAttributeType>
@@ -2303,40 +2307,6 @@ void Face_Of_MembraneMesh<MeshAttributeType>::GetPointIDList(DenseVector<Handle_
     }
 }
 
-/*
-template<typename MeshAttributeType>
-inline
-int_max Face_Of_MembraneMesh<MeshAttributeType>::GetRelativeIndexOfPoint(Handle_Of_Point_Of_MembraneMesh PointHandle) const
-{
-    DenseVector<int_max> PointIndexList = this->GetPointIndexList();
-    for (int_max k = 0; k < PointIndexList.GetLength(); ++k)
-    {
-        if (PointIndexList[k] == PointHandle.GetIndex())
-        {
-            return k;
-        }
-    }
-
-    return -1;
-}
-*/
-/*
-template<typename MeshAttributeType>
-inline 
-int_max Face_Of_MembraneMesh<MeshAttributeType>::GetRelativeIndexOfPoint(int_max PointID) const
-{
-    DenseVector<int_max> PointIDList = this->GetPointIDList();
-    for (int_max k = 0; k < PointIDList.GetLength(); ++k)
-    {
-        if (PointIDList[k] == PointID)
-        {
-            return k;
-        }
-    }
-
-    return -1;
-}
-*/
 
 template<typename MeshAttributeType>
 inline int_max Face_Of_MembraneMesh<MeshAttributeType>::GetEdgeCount() const
@@ -2440,8 +2410,6 @@ void Face_Of_MembraneMesh<MeshAttributeType>::GetAdjacentFaceHandleList(DenseVec
 		}
 	}
 	//OutputHandleList.ReleaseUnusedCapacity();
-
-	return OutputHandleList;
 }
 
 template<typename MeshAttributeType>
@@ -2474,9 +2442,76 @@ void Face_Of_MembraneMesh<MeshAttributeType>::GetAdjacentFaceIDList(DenseVector<
 		}
 	}
 	//OutputIDList.ReleaseUnusedCapacity();
-
-	return OutputIDList;
 }
+
+
+template<typename MeshAttributeType>
+inline
+int_max Face_Of_MembraneMesh<MeshAttributeType>::GetNeighbourFaceCount() const
+{// share a vertex point
+	auto HandleList = this->GetNeighbourFaceHandleList();
+	return HandleList.GetLength();
+}
+
+
+template<typename MeshAttributeType>
+inline
+DenseVector<Handle_Of_Face_Of_MembraneMesh> Face_Of_MembraneMesh<MeshAttributeType>::GetNeighbourFaceHandleList() const
+{
+	DenseVector<Handle_Of_Face_Of_MembraneMesh> HandleList;
+	this->GetNeighbourFaceHandleList(HandleList);
+	return HandleList;
+}
+
+
+template<typename MeshAttributeType>
+inline 
+void Face_Of_MembraneMesh<MeshAttributeType>::GetNeighbourFaceHandleList(DenseVector<Handle_Of_Face_Of_MembraneMesh>& OutputHandleList) const
+{
+	OutputHandleList.FastResize(0);
+	OutputHandleList.SetCapacity(6);
+	Handle_Of_Face_Of_MembraneMesh FaceHandle;
+	auto PointIndexList = this->GetPointIndexList();
+	for (int_max k = 0; k < PointIndexList.GetLength(); ++k)
+	{
+		const auto& FaceIndexList_k = m_Data->Mesh.m_MeshData->PointList[PointIndexList[k]].AdjacentFaceIndexList();
+		for (int_max n = 0; n < FaceIndexList_k.GetLength(); ++n)
+		{
+			FaceHandle.SetIndex(FaceIndexList_k[n]);
+			OutputHandleList.Append(FaceHandle);
+		}
+	}
+
+	OutputHandleList = OutputHandleList.GetSubSet(OutputHandleList.FindUnique());
+}
+
+
+template<typename MeshAttributeType>
+inline
+DenseVector<int_max> Face_Of_MembraneMesh<MeshAttributeType>::GetNeighbourFaceIDList() const
+{
+	DenseVector<int_max> IDList;
+	this->GetNeighbourFaceIDList(IDList);
+	return IDList;
+}
+
+
+template<typename MeshAttributeType>
+inline 
+void Face_Of_MembraneMesh<MeshAttributeType>::GetNeighbourFaceIDList(DenseVector<int_max>& OutputIDList) const
+{
+	OutputIDList.FastResize(0);
+	OutputIDList.SetCapacity(6);
+	auto PointIndexList = this->GetPointIndexList();
+	for (int_max k = 0; k < PointIndexList.GetLength(); ++k)
+	{
+		auto FaceIDList_k = m_Data->Mesh.m_MeshData->PointList[PointIndexList[k]].GetAdjacentFaceIDList();
+		OutputIDList.Append(FaceIDList_k);
+	}
+
+	OutputIDList = OutputIDList.GetSubSet(OutputIDList.FindUnique());
+}
+
 
 template<typename MeshAttributeType>
 inline 

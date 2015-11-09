@@ -810,11 +810,16 @@ inline
 DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(const DenseVector<int_max, LengthParameter>& IndexList) const
 {
     DenseVector<ElementType> SubSet;
-    
-    auto SelfLength = this->GetLength();
 
 	auto InputLength = IndexList.GetLength();
 
+	if (InputLength == 0)
+	{
+		return SubSet;
+	}
+
+    auto SelfLength = this->GetLength();
+	
     if (InputLength > SelfLength)
     {
         MDK_Error("InputLength > SelfLength @ DenseVector::GetSubSet(...)")

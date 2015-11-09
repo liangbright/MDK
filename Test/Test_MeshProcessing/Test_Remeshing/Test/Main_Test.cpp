@@ -1,4 +1,4 @@
-#include "Test_SurfaceRemesher3.h"
+#include "Test_SurfaceRemesher6.h"
 
 void main()
 {

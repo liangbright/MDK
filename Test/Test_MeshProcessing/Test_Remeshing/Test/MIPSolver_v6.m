@@ -22,7 +22,7 @@ params.Display = 1;
 params.DisplayInterval=1;
 params.OutputFlag=1;
 
-params.IterationLimit = 1e5;
+params.IterationLimit = 1e6;
 params.FeasibilityTol = 1e-6;
 %params.IntFeasTol = 1e-5;
 params.IntFeasTol = 1e-2;
