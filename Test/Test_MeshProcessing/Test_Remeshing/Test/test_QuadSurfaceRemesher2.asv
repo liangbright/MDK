@@ -1,0 +1,59 @@
+%%
+clear
+clc
+CandidateConflictTable=read_data('C:\Research\Mesh\Remeshing\TestData\candidate_conflict_table.txt');
+CandidateScoreList=importdata('C:\Research\Mesh\Remeshing\TestData\candidate_score.txt');
+CandidateIndicator=importdata('C:\Research\Mesh\Remeshing\TestData\candidate_indicator.txt');
+
+ObjMin=sum(CandidateIndicator.*CandidateScoreList);
+
+candidate_count=length(CandidateScoreList);
+
+ConflictTable_Count=length(CandidateConflictTable);
+if ConflictTable_Count ~=  candidate_count
+   error('abc') 
+end
+%%
+RowIndexList=[];
+ColIndexList=[];
+ValueList=[];
+% A=sparse(RowIndexList, ColIndexList, ValueList, candidate_count, candidate_count)
+% A(RowIndexList(k), ColIndexList(k)) is ValueList(k)
+%{
+for k=1:candidate_count    
+    Set=CandidateConflictTable{k}+1;
+    constraint=zeros(1, candidate_count);
+    constraint(Set)=1;
+    constraint(k)=1;
+    tempColIndexList_b=find(constraint>0);
+    tempRowIndexList_b=k*ones(1, length(tempColIndexList_b));    
+    RowIndexList=[RowIndexList, tempRowIndexList_b];
+    ColIndexList=[ColIndexList, tempColIndexList_b];
+    ValueList=[ValueList constraint(tempColIndexList_b)];
+end
+A=sparse(RowIndexList, ColIndexList, ValueList, candidate_count, candidate_count);
+%}
+A=zeros(candidate_count,candidate_count);
+for k=1:candidate_count    
+    Set=CandidateConflictTable{k}+1;
+    A(k,Set)=1;
+end
+A=sparse(A);
+B=ones(candidate_count,1);
+C=CandidateScoreList(:);
+contypes='<';
+%%
+tic
+[X, val, result]=MIPSolver_v6(A, B, C, contypes, []);
+toc
+%
+WriteDenseMatrixAsJsonDataFile(X, 'C:\Research\Mesh\Remeshing\TestData\FlagList.json');
+%%
+figure; plot(CandidateScoreList, 'o')
+figure; plot(X, 'o')
+%%
+Y=CandidateIndicator;
+figure; plot(1:candidate_count, A*Y-B, 'o');
+%%
+a8=full(A(8,:));
+y=Y(a8>0);

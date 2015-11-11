@@ -22,14 +22,14 @@ params.Display = 1;
 params.DisplayInterval=1;
 params.OutputFlag=1;
 
-params.IterationLimit = 1e6;
+%params.IterationLimit = 1e6;
 params.FeasibilityTol = 1e-6;
-%params.IntFeasTol = 1e-5;
-params.IntFeasTol = 1e-2;
-%params.OptimalityTol = 1e-6;
-params.OptimalityTol = 1e-2;
+params.IntFeasTol = 1e-5;
+%params.IntFeasTol = 1e-2;
+params.OptimalityTol = 1e-6;
+%params.OptimalityTol = 1e-2;
 params.Method = 1; % 0 - primal, 1 - dual
-params.Presolve = 2; % -1 - auto, 0 - no, 1 - conserv, 2 - aggressive
+params.Presolve = -1; % -1 - auto, 0 - no, 1 - conserv, 2 - aggressive
 %params.LogFile = 'MIPSolver.log';
 %params.WriteToFile = 'MIPSolver.mps';
 
