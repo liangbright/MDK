@@ -252,6 +252,7 @@ DenseVector<ScalarType, 3> ComputeCenterOfCircumcircleOfTriangleIn3D(const Scala
 	//  |  \| 
 	//  D---A--------B ------> X
 
+
 	DenseVector<ScalarType, 3> AB, DirectionX;
 	AB[0] = PointB[0] - PointA[0];
 	AB[1] = PointB[1] - PointA[1];
@@ -281,6 +282,17 @@ DenseVector<ScalarType, 3> ComputeCenterOfCircumcircleOfTriangleIn3D(const Scala
 	DirectionY[0] = DC[0] / L_DC;
 	DirectionY[1] = DC[1] / L_DC;
 	DirectionY[2] = DC[2] / L_DC;
+
+	//------------- special case when A, B, C in a line ---------------------------
+
+	if (L_DC <= std::numeric_limits<ScalarType>::epsilon())
+	{		
+		auto inf = std::numeric_limits<ScalarType>::infinity();
+		DenseVector<ScalarType, 3> Center = { inf, inf, inf };
+		return Center;
+	}
+
+	//-------------- general case when A, B, C not in a line --------------------
 
 	// convter PointA PointB PointC to the plane
 	// PointA -> x1, y1; PointB->x2, y2; PointC->x3,y3
