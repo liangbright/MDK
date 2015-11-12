@@ -1,6 +1,6 @@
-#include "Test_QuadSurfaceRemesher2.h"
+#include "Test_QuadSurfaceRemesher3.h"
 
 void main()
 {
-	Test_QuadSurfaceRemesher2();
+	Test_QuadSurfaceRemesher3();
 }
