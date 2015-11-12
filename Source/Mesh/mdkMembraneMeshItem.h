@@ -77,6 +77,9 @@ private:
 	template<typename T>
 	friend class Face_Of_MembraneMesh;
 
+	template<typename T>
+	friend class Edge_Of_MembraneMesh;
+
 public:
 	inline Point_Of_MembraneMesh();
     inline Point_Of_MembraneMesh(const Point_Of_MembraneMesh<MeshAttributeType>& InputPoint);
@@ -588,7 +591,17 @@ public:
     inline FaceAttributeType& Attribute();
     inline const FaceAttributeType& Attribute() const;
 
-	inline Handle_Of_Edge_Of_MembraneMesh GetEdgeHandleBetweenPoint(Handle_Of_Point_Of_MembraneMesh PointHandleA, Handle_Of_Point_Of_MembraneMesh PointHandleB) const;
+	inline Handle_Of_Edge_Of_MembraneMesh GetEdgeHandleByPoint(Handle_Of_Point_Of_MembraneMesh PointHandleA, Handle_Of_Point_Of_MembraneMesh PointHandleB) const;
+
+	//Direction: A -> B
+	Handle_Of_DirectedEdge_Of_MembraneMesh GetDirectedEdgeHandleByPoint(Handle_Of_Point_Of_MembraneMesh PointHandleA, Handle_Of_Point_Of_MembraneMesh PointHandleB) const;
+
+	// output handle list {PointHandleA, ...}
+	inline DenseVector<Handle_Of_Point_Of_MembraneMesh> GetPointHandleList_LeadBy(Handle_Of_Point_Of_MembraneMesh PointHandleA) const;
+
+	// output handle list {PointHandleA, PointHandleB, ...}
+	inline DenseVector<Handle_Of_Point_Of_MembraneMesh> GetPointHandleList_LeadBy(Handle_Of_Point_Of_MembraneMesh PointHandleA, Handle_Of_Point_Of_MembraneMesh PointHandleB) const;
+
 };
 
 }// namespace mdk
