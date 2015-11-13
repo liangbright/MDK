@@ -631,13 +631,157 @@ void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh()
 {
 	m_OutputMesh_Mixed.Clear();
 	m_OutputMesh_Mixed = m_CandidateMesh;
+	this->BuildMixedTriQuadMesh_5PointStarRegionA();	
 	this->BuildMixedTriQuadMesh_CollapseTwoAdjacentSmallTriangle();
+	this->BuildMixedTriQuadMesh_CollapseTwoAdjacentTriangle_Special();
 }
 
 
 template<typename ScalarType>
-void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_CollapseTwoAdjacentSmallTriangle()
-{// Collapse two small triangle surrounded by quad
+void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_5PointStarRegionA()
+{
+	auto PointCount_input = m_InputMesh.GetPointCount();
+	auto FaceCount_input = m_InputMesh.GetFaceCount();
+
+	for (auto it = m_InputMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	{
+		auto PointHandle = it.GetPointHandle();
+		if (it.Point().IsOnBoundaryEdge() == false && it.Point().GetAdjacentPointCount() == 5 && PointHandle.GetIndex() < PointCount_input)
+		{// check if 4 small triangle and 1 big triangle on m_OutputMesh_Mixed		
+			auto AdjacentFaceHandleList = m_OutputMesh_Mixed.Point(PointHandle).GetAdjacentFaceHandleList();
+			int_max Counter_tri = 0;
+			int_max Counter_quad = 0;
+			for (int_max k = 0; k < AdjacentFaceHandleList.GetLength(); ++k)
+			{
+				auto PointCount_k = m_OutputMesh_Mixed.Face(AdjacentFaceHandleList[k]).GetPointCount();
+				if (PointCount_k == 3)
+				{
+					Counter_tri += 1;
+				}
+				else if (PointCount_k == 4)
+				{
+					Counter_quad += 1;
+				}
+			}
+
+			if (Counter_tri == 5 && Counter_quad == 0)
+			{
+				auto AdjacentPointHandleList = m_OutputMesh_Mixed.Point(PointHandle).GetAdjacentPointHandleList();
+				int_max Counter_a = 0;
+				int_max Counter_b = 0;
+				for (int_max k = 0; k < AdjacentPointHandleList.GetLength(); ++k)
+				{
+					auto PointIndex_k = AdjacentPointHandleList[k].GetIndex();
+					if (PointIndex_k < PointCount_input)
+					{
+						Counter_a += 1;//input point on big triangle
+					}
+					else if (PointIndex_k >= PointCount_input && PointIndex_k < 6 * FaceCount_input)
+					{
+						Counter_b += 1; //middle point
+					}
+				}
+
+				if (Counter_a == 3 && Counter_b == 2)
+				{
+					this->BuildMixedTriQuadMesh_5PointStarRegionA(PointHandle, PointCount_input);
+				}
+			}
+		}
+	}
+}
+
+
+template<typename ScalarType>
+void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_5PointStarRegionA(PointHandleType PointHandle_center, int_max PointCount_input)
+{
+// 5PointStar Region-A: 
+//--------------------------------------
+//       P1
+//      /|\
+//     / | \
+// P2 /__P0_\P5
+//    | / \ |
+//    |/___\|
+//    P3    P4
+//--------------------------------------
+// P0 is PointHandle_center
+//--------------------------------------
+
+	PointHandleType P0, P1, P2, P3, P4, P5;
+	P0 = PointHandle_center;
+	auto AdjacentPointHandleList_P0 = m_OutputMesh_Mixed.Point(P0).GetAdjacentPointHandleList();
+    // get P2, P5
+	auto PointCount_input_and_middle = PointCount_input + m_MiddlePointHandleList_on_CandidateMesh.GetLength();
+	for (int_max k = 0; k < AdjacentPointHandleList_P0.GetLength(); ++k)
+	{
+		auto PointIndex_k = AdjacentPointHandleList_P0[k].GetIndex();
+		if (PointIndex_k >= PointCount_input && PointIndex_k < PointCount_input_and_middle)
+		{// PointIndex_k is P2 or P5
+			if (P2.GetIndex() < 0)
+			{
+				P2.SetIndex(PointIndex_k);
+			}
+			else
+			{
+				P5.SetIndex(PointIndex_k);
+			}
+		}
+	}
+	// re-check to make sure P0->P5 define the tirangle normal
+	auto tempHandleList = m_OutputMesh_Mixed.GetDirectedEdgeHandleByPoint(P0, P5);
+	if (tempHandleList.IsEmpty() == true)
+	{
+		auto temp = P2;
+		P2 = P5;
+		P5 = temp;
+	}
+	auto AdjacentPointHandleList_P2 = m_OutputMesh_Mixed.Point(P2).GetAdjacentPointHandleList();
+	auto AdjacentPointHandleList_P5 = m_OutputMesh_Mixed.Point(P5).GetAdjacentPointHandleList();
+
+	//get P1, P3, P4
+	auto Set02 = this->Intersect(AdjacentPointHandleList_P0, AdjacentPointHandleList_P2);//{P1, P3}
+	auto Set05 = this->Intersect(AdjacentPointHandleList_P0, AdjacentPointHandleList_P5);//{P1, P4}	
+	auto tempSet = this->Intersect(Set02, Set05);
+	P1 = tempSet[0];
+	if (Set02[0] == P1)
+	{
+		P3 = Set02[1];
+	}
+	else
+	{
+		P3 = Set02[0];
+	}
+	if (Set05[0] == P1)
+	{
+		P4 = Set05[1];
+	}
+	else
+	{
+		P4 = Set05[0];
+	}
+
+	// delete edge, face
+	auto AdjacentFaceHandleList = m_OutputMesh_Mixed.Point(P0).GetAdjacentFaceHandleList();
+	auto AdjacentEdgeHandleList = m_OutputMesh_Mixed.Point(P0).GetAdjacentEdgeHandleList();
+	for (int_max k = 0; k < AdjacentFaceHandleList.GetLength(); ++k)
+	{
+		m_OutputMesh_Mixed.DeleteFace(AdjacentFaceHandleList[k]);
+	}
+	for (int_max k = 0; k < AdjacentEdgeHandleList.GetLength(); ++k)
+	{
+		m_OutputMesh_Mixed.DeleteEdge(AdjacentEdgeHandleList[k]);
+	}
+	// do NOT delete any point here
+
+	// add  a triangle and a quad
+	m_OutputMesh_Mixed.AddFaceByPoint({ P1, P2, P5 });
+	m_OutputMesh_Mixed.AddFaceByPoint({ P2, P3, P4, P5 });
+}
+
+template<typename ScalarType>
+void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_CollapseTwoAdjacentTriangle_Special()
+{// Collapse two small/big triangle surrounded by quad
 // identify the  two small triangle: any middle point of input mesh
 
 	//---------------------------------------
@@ -658,19 +802,24 @@ void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_CollapseTwoAdjacent
 		auto PointH0 = PointHandleList_Edge[0];
 		auto PointH1 = PointHandleList_Edge[1];
 
-		bool Flag_go_on = false;
+		bool Flag_go_on = true;
 		if (it.Edge().IsBoundary() == false)
 		{			
-			if (PointH0.GetIndex() >= PointCount_input && PointH0.GetIndex() < 6 * FaceCount_input
-				|| PointH1.GetIndex() >= PointCount_input && PointH1.GetIndex() < 6 * FaceCount_input)
+			auto PointCount_input_and_middle = PointCount_input + m_MiddlePointHandleList_on_CandidateMesh.GetLength();
+			//if (PointH0.GetIndex() >= PointCount_input && PointH0.GetIndex() < PointCount_input_and_middle
+			//	|| PointH1.GetIndex() >= PointCount_input && PointH1.GetIndex() < PointCount_input_and_middle)
+			if (PointH0.GetIndex() > PointCount_input_and_middle || PointH1.GetIndex() > PointCount_input_and_middle)
 			{
-				auto AdjacentFaceHandleList = it.Edge().GetAdjacentFaceHandleList();
-				auto FaceH0 = AdjacentFaceHandleList[0];
-				auto FaceH1 = AdjacentFaceHandleList[1];				
-			    if (m_OutputMesh_Mixed.Face(FaceH0).GetPointCount() == 3 && m_OutputMesh_Mixed.Face(FaceH1).GetPointCount() == 3)
-				{					
-					Flag_go_on = true;
-				}
+				Flag_go_on = false;
+			}
+
+			auto AdjacentFaceHandleList = it.Edge().GetAdjacentFaceHandleList();
+			auto FaceH0 = AdjacentFaceHandleList[0];
+			auto FaceH1 = AdjacentFaceHandleList[1];
+
+			if (m_OutputMesh_Mixed.Face(FaceH0).GetPointCount() != 3 || m_OutputMesh_Mixed.Face(FaceH1).GetPointCount() != 3)
+			{
+				Flag_go_on = false;
 			}
 		}
 
@@ -720,14 +869,14 @@ void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_CollapseTwoAdjacent
 
 		if (Flag_go_on == true)
 		{
-			this->BuildMixedTriQuadMesh_CollapseTwoAdjacentSmallTriangle(it.GetEdgeHandle());
+			this->BuildMixedTriQuadMesh_CollapseTwoAdjacentTriangle_Special(it.GetEdgeHandle());
 		}
 	}
 }
 
 
 template<typename ScalarType>
-void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_CollapseTwoAdjacentSmallTriangle(EdgeHandleType EdgeHandle_shared)
+void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_CollapseTwoAdjacentTriangle_Special(EdgeHandleType EdgeHandle_shared)
 {// Collapse two small triangle surrounded by quad
 
 	//---------------------------------------
@@ -780,7 +929,7 @@ void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_CollapseTwoAdjacent
 
 	//get P4, P5
 	auto E03 = m_OutputMesh_Mixed.GetDirectedEdgeHandleByPoint(P0, P3);
-	auto Quad0345 = m_OutputMesh_Mixed.DirectedEdge(E03).GetFaceHandle();
+	auto Quad0345 = m_OutputMesh_Mixed.DirectedEdge(E03[0]).GetFaceHandle();
 	auto PointHandleList_Quad0345 = m_OutputMesh_Mixed.Face(Quad0345).GetPointHandleList_LeadBy(P0, P3);
 	auto PointHandleList_Quad0345_a = m_OutputMesh_Mixed.Face(Quad0345).GetPointHandleList_LeadBy(P0);
 	P4 = PointHandleList_Quad0345[2];
@@ -788,7 +937,7 @@ void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_CollapseTwoAdjacent
 
 	// get P5, P6
 	auto E20 = m_OutputMesh_Mixed.GetDirectedEdgeHandleByPoint(P2, P0);
-	auto Quad2056 = m_OutputMesh_Mixed.DirectedEdge(E20).GetFaceHandle();
+	auto Quad2056 = m_OutputMesh_Mixed.DirectedEdge(E20[0]).GetFaceHandle();
 	auto PointHandleList_Quad2056 = m_OutputMesh_Mixed.Face(Quad2056).GetPointHandleList_LeadBy(P2, P0);
 	auto PointHandleList_Quad2056_a = m_OutputMesh_Mixed.Face(Quad2056).GetPointHandleList_LeadBy(P2);
 	P5 = PointHandleList_Quad2056[2];
@@ -796,7 +945,7 @@ void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_CollapseTwoAdjacent
 
 	//get P7, P8
 	auto E12 = m_OutputMesh_Mixed.GetDirectedEdgeHandleByPoint(P1, P2);
-	auto Quad1278 = m_OutputMesh_Mixed.DirectedEdge(E12).GetFaceHandle();
+	auto Quad1278 = m_OutputMesh_Mixed.DirectedEdge(E12[0]).GetFaceHandle();
 	auto PointHandleList_Quad1278 = m_OutputMesh_Mixed.Face(Quad1278).GetPointHandleList_LeadBy(P1, P2);
 	auto PointHandleList_Quad1278_a = m_OutputMesh_Mixed.Face(Quad1278).GetPointHandleList_LeadBy(P1);
 	P7 = PointHandleList_Quad1278[2];
@@ -804,7 +953,7 @@ void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_CollapseTwoAdjacent
 
 	//get P8, P9
 	auto E31 = m_OutputMesh_Mixed.GetDirectedEdgeHandleByPoint(P3, P1);
-	auto Quad3189 = m_OutputMesh_Mixed.DirectedEdge(E31).GetFaceHandle();
+	auto Quad3189 = m_OutputMesh_Mixed.DirectedEdge(E31[0]).GetFaceHandle();
 	auto PointHandleList_Quad3189 = m_OutputMesh_Mixed.Face(Quad3189).GetPointHandleList_LeadBy(P3, P1);
 	auto PointHandleList_Quad3189_a = m_OutputMesh_Mixed.Face(Quad3189).GetPointHandleList_LeadBy(P3);
 	P8 = PointHandleList_Quad3189[2];
@@ -836,6 +985,151 @@ void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_CollapseTwoAdjacent
 	m_OutputMesh_Mixed.AddFaceByPoint({ Pm, P5, P6, P2 });
 	m_OutputMesh_Mixed.AddFaceByPoint({ Pm, P2, P7, P8 });
 	m_OutputMesh_Mixed.AddFaceByPoint({ Pm, P8, P9, P3 });
+}
+
+
+template<typename ScalarType>
+void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_CollapseTwoAdjacentSmallTriangle()
+{// Collapse two small triangle 
+
+	//---------------------------------------
+	//   _______P3________
+	//  |      / \    /  |
+	//  |___P0/___\P1/___|      
+	//  |    / \  /  \   |
+	//  |___/___\/____\__|
+	//          P2       
+	//---------------------------------------
+
+	auto PointCount_input = m_InputMesh.GetPointCount();
+	auto PointCount_input_and_middle = PointCount_input + m_MiddlePointHandleList_on_CandidateMesh.GetLength();
+
+	for (auto it = m_OutputMesh_Mixed.GetIteratorOfEdge(); it.IsNotEnd(); ++it)
+	{
+		if (it.Edge().IsBoundary() == false)
+		{
+			auto AdjacentFaceHandleList = it.Edge().GetAdjacentFaceHandleList();
+			auto FaceH0 = AdjacentFaceHandleList[0];
+			auto FaceH1 = AdjacentFaceHandleList[1];
+			if (m_OutputMesh_Mixed.Face(FaceH0).GetPointCount() == 3 && m_OutputMesh_Mixed.Face(FaceH1).GetPointCount() == 3)
+			{
+				auto PointHandleList_Edge = it.Edge().GetPointHandleList();
+				auto P0 = PointHandleList_Edge[0].GetIndex();
+				auto P1 = PointHandleList_Edge[1].GetIndex();
+				if (P0 >= PointCount_input && P0 < PointCount_input_and_middle || P1 >= PointCount_input && P1 < PointCount_input_and_middle)
+				{
+					this->BuildMixedTriQuadMesh_CollapseTwoAdjacentSmallTriangle(it.GetEdgeHandle());
+				}
+			}
+		}
+	}
+}
+
+
+template<typename ScalarType>
+void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_CollapseTwoAdjacentSmallTriangle(EdgeHandleType EdgeHandle_shared)
+{// Collapse two small triangle surrounded by many face
+
+	//---------------------------------------
+	//   _______P3________
+	//  |      / \    /  |
+	//  |___P0/___\P1/___|      
+	//  |    / \  /  \   |
+	//  |___/___\/____\__|
+	//          P2       
+	//---------------------------------------
+	// Edge P0P1 is EdgeHandle_shared
+	// Pm is middle point between P0 and P1
+	//---------------------------------------
+
+	PointHandleType P0, P1, P2, P3, Pm;
+
+	// get P0, P1
+	auto PointHandleList_E01 = m_OutputMesh_Mixed.Edge(EdgeHandle_shared).GetPointHandleList();
+	P0 = PointHandleList_E01[0];
+	P1 = PointHandleList_E01[1];
+
+	//add Pm to m_OutputMesh_Mixed
+	auto P0_Position = m_OutputMesh_Mixed.GetPointPosition(P0);
+	auto P1_Position = m_OutputMesh_Mixed.GetPointPosition(P1);
+	auto Pm_Position = (P0_Position + P1_Position) / ScalarType(2);		
+	if (m_OutputMesh_Mixed.Point(P0).IsOnBoundaryEdge() == true)
+	{// if P0 or P1 is on boundary, move Pm to P0 or P1
+		Pm_Position = P0_Position;
+	}
+	else if (m_OutputMesh_Mixed.Point(P1).IsOnBoundaryEdge() == true)
+	{
+		Pm_Position = P1_Position;
+	}
+	Pm = m_OutputMesh_Mixed.AddPoint(Pm_Position);
+
+	//get P2, P3,  order P0->P1->P3 define triangle normal
+	auto AdjacentPointHandleList_P0 = m_OutputMesh_Mixed.Point(P0).GetAdjacentPointHandleList();
+	auto AdjacentPointHandleList_P1 = m_OutputMesh_Mixed.Point(P1).GetAdjacentPointHandleList();
+	{
+		auto tempSet01 = this->Intersect(AdjacentPointHandleList_P0, AdjacentPointHandleList_P1);
+		P2 = tempSet01[0];
+		P3 = tempSet01[1];
+		auto tempTriangle013 = m_OutputMesh_Mixed.GetFaceHandleByPoint({ P0, P1, P3 });
+		if (m_OutputMesh_Mixed.Face(tempTriangle013).GetDirectedEdgeHandleByPoint(P0, P1).GetEdgeIndex() < 0)
+		{
+			P2 = tempSet01[1];
+			P3 = tempSet01[0];
+		}
+	}
+
+	auto Triangle013 = m_OutputMesh_Mixed.GetFaceHandleByPoint({ P0, P1, P3 });
+	auto Triangle021 = m_OutputMesh_Mixed.GetFaceHandleByPoint({ P0, P2, P1 });
+
+	//prepare
+	auto AdjacentFaceHandleList_P0 = m_OutputMesh_Mixed.Point(P0).GetAdjacentFaceHandleList();
+	auto AdjacentFaceHandleList_P1 = m_OutputMesh_Mixed.Point(P1).GetAdjacentFaceHandleList();
+	ObjectArray<DenseVector<PointHandleType>> PointHandleTable_FaceAdjacentToP0;
+	PointHandleTable_FaceAdjacentToP0.SetCapacity(AdjacentFaceHandleList_P0.GetLength());
+	ObjectArray<DenseVector<PointHandleType>> PointHandleTable_FaceAdjacentToP1;
+	PointHandleTable_FaceAdjacentToP1.SetCapacity(AdjacentFaceHandleList_P1.GetLength());
+	for (int_max k = 0; k < AdjacentFaceHandleList_P0.GetLength(); ++k)
+	{
+		auto FaceHandle_k = AdjacentFaceHandleList_P0[k];
+		if (FaceHandle_k != Triangle013 && FaceHandle_k != Triangle021)
+		{
+			PointHandleTable_FaceAdjacentToP0.Append(m_OutputMesh_Mixed.Face(FaceHandle_k).GetPointHandleList_LeadBy(P0));
+			PointHandleTable_FaceAdjacentToP0[PointHandleTable_FaceAdjacentToP0.GetLength()-1][0] = Pm;//move P0 to Pm
+		}
+	}
+	for (int_max k = 0; k < AdjacentFaceHandleList_P1.GetLength(); ++k)
+	{
+		auto FaceHandle_k = AdjacentFaceHandleList_P1[k];
+		if (FaceHandle_k != Triangle013 && FaceHandle_k != Triangle021)
+		{
+			PointHandleTable_FaceAdjacentToP1.Append(m_OutputMesh_Mixed.Face(FaceHandle_k).GetPointHandleList_LeadBy(P1));
+			PointHandleTable_FaceAdjacentToP1[PointHandleTable_FaceAdjacentToP1.GetLength() - 1][0] = Pm;//move P1 to Pm
+		}
+	}
+
+	// delete edge, face
+	auto NeighbourFaceHandleList = m_OutputMesh_Mixed.Edge(EdgeHandle_shared).GetNeighbourFaceHandleList();
+	auto AdjacentEdgeHandleList = m_OutputMesh_Mixed.Edge(EdgeHandle_shared).GetAdjacentEdgeHandleList();
+	for (int_max k = 0; k < NeighbourFaceHandleList.GetLength(); ++k)
+	{
+		m_OutputMesh_Mixed.DeleteFace(NeighbourFaceHandleList[k]);
+	}
+	for (int_max k = 0; k < AdjacentEdgeHandleList.GetLength(); ++k)
+	{
+		m_OutputMesh_Mixed.DeleteEdge(AdjacentEdgeHandleList[k]);
+	}
+	m_OutputMesh_Mixed.DeleteEdge(EdgeHandle_shared);
+
+	//re-create face and edge
+	for (int_max k = 0; k < PointHandleTable_FaceAdjacentToP0.GetLength(); ++k)
+	{
+		m_OutputMesh_Mixed.AddFaceByPoint(PointHandleTable_FaceAdjacentToP0[k]);
+	}
+	for (int_max k = 0; k < PointHandleTable_FaceAdjacentToP1.GetLength(); ++k)
+	{
+		m_OutputMesh_Mixed.AddFaceByPoint(PointHandleTable_FaceAdjacentToP1[k]);
+	}
+
 }
 
 

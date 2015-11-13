@@ -91,9 +91,12 @@ public:
 	void BuildCandidateMesh_AddQuad(const DenseVector<DenseVector<PointHandleType>, 2>& QuadPair, PointHandleType CenterPoint);
 	void BuildCandidateMesh_FillGap(const DenseVector<DenseVector<PointHandleType>, 4>& SmallTriangleSet_Near_QuadPair);
 	void BuildMixedTriQuadMesh();
+	void BuildMixedTriQuadMesh_5PointStarRegionA();
+	void BuildMixedTriQuadMesh_5PointStarRegionA(PointHandleType PointHandle_center, int_max PointCount_input);
+	void BuildMixedTriQuadMesh_CollapseTwoAdjacentTriangle_Special();
+	void BuildMixedTriQuadMesh_CollapseTwoAdjacentTriangle_Special(EdgeHandleType EdgeHandle_shared);
 	void BuildMixedTriQuadMesh_CollapseTwoAdjacentSmallTriangle();
 	void BuildMixedTriQuadMesh_CollapseTwoAdjacentSmallTriangle(EdgeHandleType EdgeHandle_shared);
-
 	void BuildMixedTriQuadMesh_Smooth();
 	void BuildQuadMesh();
 

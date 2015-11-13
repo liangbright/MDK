@@ -278,12 +278,18 @@ public:
     //----------- get DirectedEdgeHandle by ID, PointHandleList, PointIDList -------------------------------//
 
     inline DirectedEdgeHandleType GetDirectedEdgeHandleByID(int_max DirectedEdgeID) const;
-    inline DirectedEdgeHandleType GetDirectedEdgeHandleByPoint(PointHandleType PointHandle_start, PointHandleType PointHandle_end) const;
-    inline DirectedEdgeHandleType GetDirectedEdgeHandleByPoint(int_max PointID_start, int_max PointID_end) const;
+
+	// non-manifold is allowed: maybe more than one DirectedEdge from PointHandle_start to PointHandle_end
+	//                          there are many face containing PointHandle_start and  PointHandle_end
+	//                          each face has a DirectedEdge from PointHandle_start to PointHandle_end
+    inline DenseVector<DirectedEdgeHandleType> GetDirectedEdgeHandleByPoint(PointHandleType PointHandle_start, PointHandleType PointHandle_end) const;
+	inline DenseVector<DirectedEdgeHandleType> GetDirectedEdgeHandleByPoint(int_max PointID_start, int_max PointID_end) const;
 
     //----------- get FaceHandle by ID, PointHandleList or PointIDList EdgeHandleList or EdgeIDList ----------//
 
     inline FaceHandleType GetFaceHandleByID(int_max FaceID) const;
+
+	// PointHandleList/PointIDList/EdgeHandleList/EdgeIDList can have random point-order 
     inline FaceHandleType GetFaceHandleByPoint(const DenseVector<PointHandleType>& PointHandleList) const;
     inline FaceHandleType GetFaceHandleByPoint(const DenseVector<int_max>& PointIDList) const;
     inline FaceHandleType GetFaceHandleByEdge(const DenseVector<EdgeHandleType>& EdgeHandleList) const;

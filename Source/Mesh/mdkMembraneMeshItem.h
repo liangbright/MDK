@@ -477,7 +477,7 @@ struct Data_Of_Face_Of_MembraneMesh
 
     DenseVector<DirectedEdgeIndex_Of_MembraneMesh> DirectedEdgeIndexList;
 
-	// TODO:
+	// add this ?
 	//DenseVector<Handle_Of_Point_Of_MembraneMesh> PointHandleList;
 
     //--------------------------------------

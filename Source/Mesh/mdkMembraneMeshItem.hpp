@@ -652,7 +652,6 @@ void Edge_Of_MembraneMesh<MeshAttributeType>::ReCreate()
     m_Data->PointIndex1 = -1;
 
 	m_Data->DirectedEdgeList.Clear();
-
     m_Data->Attribute.Clear();
 }
 

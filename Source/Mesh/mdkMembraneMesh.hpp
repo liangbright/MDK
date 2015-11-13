@@ -1217,15 +1217,14 @@ Handle_Of_DirectedEdge_Of_MembraneMesh MembraneMesh<MeshAttributeType>::GetDirec
 
 template<typename MeshAttributeType>
 inline
-Handle_Of_DirectedEdge_Of_MembraneMesh MembraneMesh<MeshAttributeType>::
+DenseVector<Handle_Of_DirectedEdge_Of_MembraneMesh> MembraneMesh<MeshAttributeType>::
 GetDirectedEdgeHandleByPoint(Handle_Of_Point_Of_MembraneMesh PointHandle_start, Handle_Of_Point_Of_MembraneMesh PointHandle_end) const
 {
-    Handle_Of_DirectedEdge_Of_MembraneMesh DirectedEdgeHandle;
+	DenseVector<Handle_Of_DirectedEdge_Of_MembraneMesh> DirectedEdgeHandleList;
 
     if (this->IsValidHandle(PointHandle_start) == false || this->IsValidHandle(PointHandle_end) == false)
     {
-        DirectedEdgeHandle.SetToInvalid();
-        return DirectedEdgeHandle;
+		return DirectedEdgeHandleList;
     }
     
     auto PointIndex_start = PointHandle_start.GetIndex();
@@ -1239,18 +1238,19 @@ GetDirectedEdgeHandleByPoint(Handle_Of_Point_Of_MembraneMesh PointHandle_start, 
         auto tempPointIndex_end = m_MeshData->EdgeList[tempEdgeIndex].DirectedEdgeList()[tempRelativeIndex].GetEndPointIndex();
         if (tempPointIndex_end == PointIndex_end)
         {
-            DirectedEdgeHandle.SetIndex(tempEdgeIndex, tempRelativeIndex);
-            return DirectedEdgeHandle;
+			Handle_Of_DirectedEdge_Of_MembraneMesh tempHandle;
+			tempHandle.SetIndex(tempEdgeIndex, tempRelativeIndex);
+			DirectedEdgeHandleList.Append(tempHandle);
         }
     }
   
-    DirectedEdgeHandle.SetToInvalid();
-    return DirectedEdgeHandle;
+	return DirectedEdgeHandleList;
 }
 
 template<typename MeshAttributeType>
 inline
-Handle_Of_DirectedEdge_Of_MembraneMesh MembraneMesh<MeshAttributeType>::GetDirectedEdgeHandleByPoint(int_max PointID_start, int_max PointID_end) const
+DenseVector<Handle_Of_DirectedEdge_Of_MembraneMesh>
+MembraneMesh<MeshAttributeType>::GetDirectedEdgeHandleByPoint(int_max PointID_start, int_max PointID_end) const
 {
 	auto PointHandle_start = this->GetPointHandleByID(PointID_start);
 	auto PointHandle_end = this->GetPointHandleByID(PointID_end);
@@ -2059,7 +2059,7 @@ Handle_Of_Face_Of_MembraneMesh MembraneMesh<MeshAttributeType>::AddFaceByEdge(co
     auto FaceHandle_temp = this->GetFaceHandleByEdge(EdgeHandleList);
     if (this->IsValidHandle(FaceHandle_temp) == true)
     {
-        //MDK_Warning("The cell has been added already @ MembraneMesh::AddFaceByEdge(...)")
+        //MDK_Warning("The face has been added already @ MembraneMesh::AddFaceByEdge(...)")
         FaceHandle = FaceHandle_temp;
         return FaceHandle;
     }

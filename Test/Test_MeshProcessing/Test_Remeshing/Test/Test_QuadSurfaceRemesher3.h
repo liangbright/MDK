@@ -100,6 +100,6 @@ void Test_a2()
 
 void Test_QuadSurfaceRemesher3()
 {
-	Test_a1();
+	//Test_a1();
 	Test_a2();
 }
