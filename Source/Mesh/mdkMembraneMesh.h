@@ -289,7 +289,7 @@ public:
 
     inline FaceHandleType GetFaceHandleByID(int_max FaceID) const;
 
-	// PointHandleList/PointIDList/EdgeHandleList/EdgeIDList can have random point-order 
+	// PointHandleList/PointIDList/EdgeHandleList/EdgeIDList can have random order of point/edge
     inline FaceHandleType GetFaceHandleByPoint(const DenseVector<PointHandleType>& PointHandleList) const;
     inline FaceHandleType GetFaceHandleByPoint(const DenseVector<int_max>& PointIDList) const;
     inline FaceHandleType GetFaceHandleByEdge(const DenseVector<EdgeHandleType>& EdgeHandleList) const;

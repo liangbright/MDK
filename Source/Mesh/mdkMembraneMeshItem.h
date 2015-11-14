@@ -42,7 +42,7 @@ struct Data_Of_Point_Of_MembraneMesh
 
     int_max Index;  // PointIndex : index in Mesh.m_MeshData->PointList; it may change after Mesh.ClearDataStructure()
 
-    int_max ID; // unique identifier, it will not change after Mesh.ClearDataStructure(), must >= 0
+    int_max ID; // unique identifier (valid if >=0, invalid if < 0), it will not change after Mesh.ClearDataStructure()
 
     DenseVector<int_max> AdjacentPointIndexList;   // index in Mesh.m_MeshData->PointList
 
@@ -182,7 +182,7 @@ struct Data_Of_Edge_Of_MembraneMesh
     
     int_max Index; // EdgeIndex: index of this Edge in Mesh.MeshData->EdgeList, it may change after Mesh.ClearDataStructure()
 
-    int_max ID; // unique identifier, it will not change after Mesh.ClearDataStructure()
+    int_max ID; // unique identifier(valid if >=0, invalid if < 0), it will not change after Mesh.ClearDataStructure()
 
     int_max PointIndex0;
     int_max PointIndex1;
@@ -314,8 +314,8 @@ public:
     inline const EdgeAttributeType& Attribute() const;
 };
 
-//====================================== DirectedEdge_Of_MembraneMesh (Face Plasma Membrane) ===================================================//
-
+//====================================== DirectedEdge_Of_MembraneMesh (Face Boundary) ===================================================//
+// DirectedEdge is owned by Face: one DirectedEdge only belong to one face
 template<typename MeshAttributeType>
 struct Data_Of_DirectedEdge_Of_MembraneMesh
 {
@@ -326,9 +326,9 @@ struct Data_Of_DirectedEdge_Of_MembraneMesh
 
     DirectedEdgeIndex_Of_MembraneMesh Index; // DirectedEdgeIndex of this DirectedEdge, it may change after Mesh.ClearDataStructure()
 
-    int_max ID; // unique identifier, it will not change after Mesh.ClearDataStructure()
+    int_max ID; // unique identifier (valid if >=0, invalid if < 0), it will not change after Mesh.ClearDataStructure()
 
-    int_max FaceIndex;           // index in Mesh.m_MeshData->FaceList,  It is -1 if this is a boundary Edge
+    int_max FaceIndex;           // index in Mesh.m_MeshData->FaceList
 
     int_max PointIndex_start;   // index in Mesh.m_MeshData->PointList, the start point of the DirectedEdge 
     int_max PointIndex_end;     // index in Mesh.m_MeshData->PointList, the end point of the DirectedEdge
@@ -473,7 +473,7 @@ struct Data_Of_Face_Of_MembraneMesh
 
     int_max Index; // FaceIndex: index of the Face in Mesh.m_MeshData->FaceList, it may change after Mesh.ClearDataStructure()
 
-    int_max ID; // unique identifier, it will not change after Mesh.ClearDataStructure()
+    int_max ID; // unique identifier(valid if >=0, invalid if < 0), it will not change after Mesh.ClearDataStructure()
 
     DenseVector<DirectedEdgeIndex_Of_MembraneMesh> DirectedEdgeIndexList;
 

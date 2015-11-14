@@ -51,8 +51,7 @@ void PolygonMesh<MeshAttributeType>::operator=(PolygonMesh<MeshAttributeType>&& 
 //------------ Construct from input data ------------------------------------//
 
 template<typename MeshAttributeType>
-void PolygonMesh<MeshAttributeType>::Construct(DenseMatrix<ScalarType> InputPointPositionMatrix,
-                                               const ObjectArray<DenseVector<int_max>>& InputFaceTable)
+void PolygonMesh<MeshAttributeType>::Construct(DenseMatrix<ScalarType> InputPointPositionMatrix, const ObjectArray<DenseVector<int_max>>& InputFaceTable)
 {
 	if (InputPointPositionMatrix.IsEmpty() == true || InputFaceTable.IsEmpty() == true)
     {
@@ -109,8 +108,7 @@ PolygonMesh<MeshAttributeType>::GetPointPositionMatrixAndFaceTable() const
 template<typename MeshAttributeType>
 inline
 void PolygonMesh<MeshAttributeType>::
-GetPointPositionMatrixAndFaceTable(DenseMatrix<typename MeshAttributeType::ScalarType>& PointPositionTable,
-                                   ObjectArray<DenseVector<int_max>>& FaceTable) const
+GetPointPositionMatrixAndFaceTable(DenseMatrix<typename MeshAttributeType::ScalarType>& PointPositionTable, ObjectArray<DenseVector<int_max>>& FaceTable) const
 {
     auto PointCount = this->GetPointCount();
     auto FaceCount = this->GetFaceCount();
