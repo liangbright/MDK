@@ -95,6 +95,27 @@ void Test_a2()
 
 	SavePolygonMeshAsVTKFile(Remesher.m_CandidateMesh, TestDataPath + "QuadSurfaceRemesher3_CandidateMesh.vtk");
 	SavePolygonMeshAsVTKFile(Remesher.m_OutputMesh_Mixed, TestDataPath + "QuadSurfaceRemesher3_outputmesh_mixed.vtk");
+
+	for (auto it = Remesher.m_CandidateMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	{
+		if (it.Point().IsOnEdge() == false)
+		{
+			Remesher.m_CandidateMesh.DeletePoint(it.GetPointHandle());
+		}
+	}
+	Remesher.m_CandidateMesh.CleanDataStructure();
+	SavePolygonMeshAsVTKFile(Remesher.m_CandidateMesh, TestDataPath + "QuadSurfaceRemesher3_CandidateMesh_clean.vtk");
+
+	for (auto it = Remesher.m_OutputMesh_Mixed.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	{
+		if (it.Point().IsOnEdge() == false)
+		{
+			Remesher.m_OutputMesh_Mixed.DeletePoint(it.GetPointHandle());
+		}
+	}
+	Remesher.m_OutputMesh_Mixed.CleanDataStructure();
+	SavePolygonMeshAsVTKFile(Remesher.m_OutputMesh_Mixed, TestDataPath + "QuadSurfaceRemesher3_outputmesh_mixed_clean.vtk");
+
 }
 
 

@@ -2676,7 +2676,7 @@ Face_Of_MembraneMesh<MeshAttributeType>::GetPointHandleList_LeadBy(Handle_Of_Poi
 		PointHandleList_output.Append(PointHandleListA[0]);
 		for (int_max k = PointHandleListA.GetLength() - 1; k > 0; --k)
 		{
-			PointHandleListA.Append(PointHandleListA[k]);
+			PointHandleList_output.Append(PointHandleListA[k]);
 		}
 	}
 

@@ -93,10 +93,15 @@ public:
 	void BuildMixedTriQuadMesh();
 	void BuildMixedTriQuadMesh_5PointStarRegionA();
 	void BuildMixedTriQuadMesh_5PointStarRegionA(PointHandleType PointHandle_center, int_max PointCount_input);
+	void BuildMixedTriQuadMesh_MergeSmallTriangleAndBigTriangle();
+	void BuildMixedTriQuadMesh_MergeTwoAdjacentTriangle(EdgeHandleType EdgeHandle_shared);
 	void BuildMixedTriQuadMesh_CollapseTwoAdjacentTriangle_Special();
 	void BuildMixedTriQuadMesh_CollapseTwoAdjacentTriangle_Special(EdgeHandleType EdgeHandle_shared);
 	void BuildMixedTriQuadMesh_CollapseTwoAdjacentSmallTriangle();
 	void BuildMixedTriQuadMesh_CollapseTwoAdjacentSmallTriangle(EdgeHandleType EdgeHandle_shared);
+	void BuildMixedTriQuadMesh_CollapseTriangle_If_Necessary();
+	void BuildMixedTriQuadMesh_CollapseTriangle_If_Necessary(FaceHandleType FaceHandle);
+	void BuildMixedTriQuadMesh_CollapseTriangle(FaceHandleType Triangle_abc, PointHandleType Pa, PointHandleType Pb, PointHandleType Pc);
 	void BuildMixedTriQuadMesh_Smooth();
 	void BuildQuadMesh();
 
