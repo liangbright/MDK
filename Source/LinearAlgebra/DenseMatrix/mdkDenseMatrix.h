@@ -1146,21 +1146,21 @@ public:
 	inline DenseMatrix ElementOperation(OperationType Operation) const;
 
     inline DenseMatrix ElementOperation(const char* OperationName) const;
-    inline DenseMatrix ElementOperation(const String& OperationName) const;
+    inline DenseMatrix ElementOperation(const std::string& OperationName) const;
 
 	template<typename OperationType>
 	inline DenseMatrix ElementOperation(OperationType Operation, const DenseMatrix<ElementType>& InputMatrix) const;
 
     inline DenseMatrix ElementOperation(const char OperationName, const DenseMatrix<ElementType>& InputMatrix) const;
     inline DenseMatrix ElementOperation(const char* OperationName, const DenseMatrix<ElementType>& InputMatrix) const;
-    inline DenseMatrix ElementOperation(const String& OperationName, const DenseMatrix<ElementType>& InputMatrix) const;
+    inline DenseMatrix ElementOperation(const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix) const;
 
 	template<typename OperationType>
 	inline DenseMatrix ElementOperation(OperationType Operation, const ElementType& Element) const;
 
     inline DenseMatrix ElementOperation(const char OperationName, const ElementType& Element) const;
     inline DenseMatrix ElementOperation(const char* OperationName, const ElementType& Element) const;
-    inline DenseMatrix ElementOperation(const String& OperationName, const ElementType& Element) const;
+    inline DenseMatrix ElementOperation(const std::string& OperationName, const ElementType& Element) const;
 
     //-------------------- element operation in place : Object.ElementOperationInPlace modify the object itself ---------------//
 
@@ -1172,21 +1172,21 @@ public:
 	inline void ElementOperationInPlace(OperationType Operation);
 
     inline void ElementOperationInPlace(const char* OperationName);
-    inline void ElementOperationInPlace(const String& OperationName);
+    inline void ElementOperationInPlace(const std::string& OperationName);
 
 	template<typename OperationType>
 	inline void ElementOperationInPlace(OperationType Operation, const DenseMatrix<ElementType>& InputMatrix);
 
     inline void ElementOperationInPlace(const char OperationName, const DenseMatrix<ElementType>& InputMatrix);
     inline void ElementOperationInPlace(const char* OperationName, const DenseMatrix<ElementType>& InputMatrix);
-    inline void ElementOperationInPlace(const String& OperationName, const DenseMatrix<ElementType>& InputMatrix);
+    inline void ElementOperationInPlace(const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix);
 
 	template<typename OperationType>
 	inline void ElementOperationInPlace(OperationType Operation, const ElementType& Element);
 
 	inline void ElementOperationInPlace(const char OperationName, const ElementType& Element);
     inline void ElementOperationInPlace(const char* OperationName, const ElementType& Element);
-    inline void ElementOperationInPlace(const String& OperationName, const ElementType& Element);
+    inline void ElementOperationInPlace(const std::string& OperationName, const ElementType& Element);
 
     //--------------------------- Col operation : output a new col-matrix ------------------------------------------//
 	// OperationName: +, -, *, /, ^, abs, exp, log, sqrt, sin, cos, tan
@@ -1199,21 +1199,21 @@ public:
 	inline DenseMatrix ColOperation(int_max ColIndex, OperationType Operation) const;
 
     inline DenseMatrix ColOperation(int_max ColIndex, const char* OperationName) const;
-    inline DenseMatrix ColOperation(int_max ColIndex, const String& OperationName) const;
+    inline DenseMatrix ColOperation(int_max ColIndex, const std::string& OperationName) const;
 
 	template<typename OperationType>
 	inline DenseMatrix ColOperation(int_max ColIndex, OperationType Operation, const DenseMatrix<ElementType>& InputColMatrix) const;
 
 	inline DenseMatrix ColOperation(int_max ColIndex, const char OperationName, const DenseMatrix<ElementType>& InputColMatrix) const;
 	inline DenseMatrix ColOperation(int_max ColIndex, const char* OperationName, const DenseMatrix<ElementType>& InputColMatrix) const;
-	inline DenseMatrix ColOperation(int_max ColIndex, const String& OperationName, const DenseMatrix<ElementType>& InputColMatrix) const;
+	inline DenseMatrix ColOperation(int_max ColIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputColMatrix) const;
     
 	template<typename OperationType>
 	inline DenseMatrix ColOperation(int_max ColIndex, OperationType Operation, const ElementType& Element) const;
 
     inline DenseMatrix ColOperation(int_max ColIndex, const char OperationName, const ElementType& Element) const;
     inline DenseMatrix ColOperation(int_max ColIndex, const char* OperationName, const ElementType& Element) const;
-    inline DenseMatrix ColOperation(int_max ColIndex, const String& OperationName, const ElementType& Element) const;
+    inline DenseMatrix ColOperation(int_max ColIndex, const std::string& OperationName, const ElementType& Element) const;
 
     //------------------------- col operation in place : Object.ColOperationInPlace modify the object itself ---------------//
 
@@ -1225,21 +1225,21 @@ public:
 	inline void ColOperationInPlace(int_max ColIndex, OperationType Operation);
 
     inline void ColOperationInPlace(int_max ColIndex, const char* OperationName);
-    inline void ColOperationInPlace(int_max ColIndex, const String& OperationName);
+    inline void ColOperationInPlace(int_max ColIndex, const std::string& OperationName);
 
 	template<typename OperationType>
 	inline void ColOperationInPlace(int_max ColIndex, OperationType Operation, const DenseMatrix<ElementType>& InputColMatrix);
 
 	inline void ColOperationInPlace(int_max ColIndex, const char OperationName, const DenseMatrix<ElementType>& InputColMatrix);
 	inline void ColOperationInPlace(int_max ColIndex, const char* OperationName, const DenseMatrix<ElementType>& InputColMatrix);
-	inline void ColOperationInPlace(int_max ColIndex, const String& OperationName, const DenseMatrix<ElementType>& InputColMatrix);
+	inline void ColOperationInPlace(int_max ColIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputColMatrix);
 
 	template<typename OperationType>
 	inline void ColOperationInPlace(int_max ColIndex, OperationType Operation, const ElementType& Element);
 
     inline void ColOperationInPlace(int_max ColIndex, const char OperationName, const ElementType& Element);
     inline void ColOperationInPlace(int_max ColIndex, const char* OperationName, const ElementType& Element);
-    inline void ColOperationInPlace(int_max ColIndex, const String& OperationName, const ElementType& Element);
+    inline void ColOperationInPlace(int_max ColIndex, const std::string& OperationName, const ElementType& Element);
 
     //-------------------- general Row operation : output a new row-matrix ------------------------------------------//
 
@@ -1251,21 +1251,21 @@ public:
 	inline DenseMatrix RowOperation(int_max RowIndex, OperationType Operation) const;
 
     inline DenseMatrix RowOperation(int_max RowIndex, const char* OperationName) const;
-    inline DenseMatrix RowOperation(int_max RowIndex, const String& OperationName) const;
+    inline DenseMatrix RowOperation(int_max RowIndex, const std::string& OperationName) const;
 
 	template<typename OperationType>
 	inline DenseMatrix RowOperation(int_max RowIndex, OperationType Operation, const DenseMatrix<ElementType>& InputRowMatrix) const;
 
 	inline DenseMatrix RowOperation(int_max RowIndex, const char OperationName, const DenseMatrix<ElementType>& InputRowMatrix) const;
 	inline DenseMatrix RowOperation(int_max RowIndex, const char* OperationName, const DenseMatrix<ElementType>& InputRowMatrix) const;
-	inline DenseMatrix RowOperation(int_max RowIndex, const String& OperationName, const DenseMatrix<ElementType>& InputRowMatrix) const;
+	inline DenseMatrix RowOperation(int_max RowIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputRowMatrix) const;
 
 	template<typename OperationType>
 	inline DenseMatrix RowOperation(int_max RowIndex, OperationType Operation, const ElementType& Element) const;
 
     inline DenseMatrix RowOperation(int_max RowIndex, const char OperationName, const ElementType& Element) const;
     inline DenseMatrix RowOperation(int_max RowIndex, const char* OperationName, const ElementType& Element) const;
-    inline DenseMatrix RowOperation(int_max RowIndex, const String& OperationName, const ElementType& Element) const;
+    inline DenseMatrix RowOperation(int_max RowIndex, const std::string& OperationName, const ElementType& Element) const;
 
     //-------------------- general row operation in place : Object.RowOperationInPlace modify the object itself ---------------//
 
@@ -1273,21 +1273,21 @@ public:
 	inline void RowOperationInPlace(int_max RowIndex, OperationType Operation);
 
     inline void RowOperationInPlace(int_max RowIndex, const char* OperationName);
-    inline void RowOperationInPlace(int_max RowIndex, const String& OperationName);
+    inline void RowOperationInPlace(int_max RowIndex, const std::string& OperationName);
 
 	template<typename OperationType>
 	inline void RowOperationInPlace(int_max RowIndex, OperationType Operation, const DenseMatrix<ElementType>& InputRowMatrix);
 
 	inline void RowOperationInPlace(int_max RowIndex, const char OperationName, const DenseMatrix<ElementType>& InputRowMatrix);
 	inline void RowOperationInPlace(int_max RowIndex, const char* OperationName, const DenseMatrix<ElementType>& InputRowMatrix);
-	inline void RowOperationInPlace(int_max RowIndex, const String& OperationName, const DenseMatrix<ElementType>& InputRowMatrix);
+	inline void RowOperationInPlace(int_max RowIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputRowMatrix);
 
 	template<typename OperationType>
 	inline void RowOperationInPlace(int_max RowIndex, OperationType Operation, const ElementType& Element);
 
     inline void RowOperationInPlace(int_max RowIndex, const char OperationName, const ElementType& Element);
     inline void RowOperationInPlace(int_max RowIndex, const char* OperationName, const ElementType& Element);
-    inline void RowOperationInPlace(int_max RowIndex, const String& OperationName, const ElementType& Element);
+    inline void RowOperationInPlace(int_max RowIndex, const std::string& OperationName, const ElementType& Element);
 
     //------------------------ find element : return linear index ----------------------------//
 
@@ -1305,14 +1305,14 @@ public:
 	inline int_max Find(const char* first_or_last, MatchFunctionType MatchFunction) const;
 
 	template<typename MatchFunctionType>
-	inline int_max Find(const String& first_or_last, MatchFunctionType MatchFunction) const;
+	inline int_max Find(const std::string& first_or_last, MatchFunctionType MatchFunction) const;
 
     //-------------------- Match element (use == operater) : return linear index -----------------------------------//
 
     inline DenseMatrix<int_max> ExactMatch(const ElementType& InputElement) const;
 
     inline int_max ExactMatch(const char* first_or_last, const ElementType& InputElement) const;//first_or_last = "first" or "last"
-	inline int_max ExactMatch(const String& first_or_last, const ElementType& InputElement) const;
+	inline int_max ExactMatch(const std::string& first_or_last, const ElementType& InputElement) const;
 
     //------------------------ find col : return col index list ------------------------------------//
 
@@ -1329,7 +1329,7 @@ public:
 	inline int_max FindCol(const char* first_or_last, MatchFunctionType MatchFunction) const;//first_or_last = "first" or "last"
 
     template<typename MatchFunctionType>
-    inline int_max FindCol(const String& first_or_last, MatchFunctionType MatchFunction) const;
+    inline int_max FindCol(const std::string& first_or_last, MatchFunctionType MatchFunction) const;
 
     //----------------------- sort element : return sorted linear index list ----------//
 
@@ -1340,7 +1340,7 @@ public:
     inline DenseMatrix<int_max> Sort(int_max LinearIndex_start, int_max LinearIndex_end, CompareFunctionType CompareFunction) const;
 
     inline DenseMatrix<int_max> Sort(const char* ascend_or_descend) const;//ascend_or_descend = "ascend" or "descend"
-    inline DenseMatrix<int_max> Sort(const String& ascend_or_descend) const;
+    inline DenseMatrix<int_max> Sort(const std::string& ascend_or_descend) const;
 
     template<typename CompareFunctionType>
     inline void SortInPlace(CompareFunctionType CompareFunction);
@@ -1349,7 +1349,7 @@ public:
     inline void SortInPlace(int_max LinearIndex_start, int_max LinearIndex_end, CompareFunctionType CompareFunction);
 
     inline void SortInPlace(const char* ascend_or_descend); //ascend_or_descend = "ascend" or "descend"
-    inline void SortInPlace(const String& ascend_or_descend);
+    inline void SortInPlace(const std::string& ascend_or_descend);
 
     //----------------------- sort col : return sorted col index list ----------------------------------//
 

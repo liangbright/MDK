@@ -63,7 +63,7 @@ public:
 
 };
 
-//====================================== DirectedEdge_Of_MembraneMesh (Face Plasma Membrane) ===================================================//
+//====================================== DirectedEdge_Of_MembraneMesh (Face Boundary) ===================================================//
 
 struct DirectedEdgeIndex_Of_MembraneMesh
 {

@@ -425,6 +425,10 @@ public:
     // attention: after CleanDataStructure() is called, handle may become invalid, but, ID will not change
     // use this function when InvalidPointHandleCount/ValidPointCount( GetPointCount() ) > 0.5
     void CleanDataStructure();	
+	void CleanDataStructure(DenseVector<int_max>& PointIndexMap_Old_To_New,
+		                    DenseVector<int_max>& EdgeIndexMap_Old_To_New,
+		                    ObjectArray<DenseVector<int_max>>& DirectedEdge_RelativeIndexMap_Old_To_New,
+		                    DenseVector<int_max>& FaceIndexMap_Old_To_New);
 	bool Check_If_DataStructure_is_Clean() const;//true: clean, false: invalid handle exit
     int_max GetDeletedPointCount() const; // the number of Deleted points
 	int_max GetDeletedEdgeCount() const; // the number of Deleted edges
@@ -437,30 +441,32 @@ public:
     MembraneMesh<MeshAttributeType> GetSubMeshByFace(const DenseVector<int_max>& FaceIDList) const;
 
     // Change Topology ----------------------------------------------------------------------------------------
-
-    FaceHandleType DilatePointToFace(PointHandleType PointHandle);
-    FaceHandleType DilatePointToFace(int_max PointID);
-
+	/*
     // Position  = (Position_0 + Position_1) / 2
     PointHandleType ShrinkEdgeToPoint(EdgeHandleType EdgeHandle);
     PointHandleType ShrinkEdgeToPoint(int_max EdgeID);
 
-    //EdgeHandleType MergeTwoAdjacentEdge(EdgeHandleType EdgeHandleA, EdgeHandleType EdgeHandleB);
-    //EdgeHandleType MergeTwoAdjacentEdge(int_max EdgeIDA, int_max EdgeIDB);
+	// the connecting point is deleted
+    EdgeHandleType MergeTwoAdjacentEdge(EdgeHandleType EdgeHandleA, EdgeHandleType EdgeHandleB);
+    EdgeHandleType MergeTwoAdjacentEdge(int_max EdgeIDA, int_max EdgeIDB);
 
-    std::pair<EdgeHandleType, EdgeHandleType> SplitEdge(PointHandleType PointHandle);
-    std::pair<EdgeHandleType, EdgeHandleType> SplitEdge(int_max PointID);
+	// add a point in the middle
+    DenseVector<EdgeHandleType, 2> SplitEdgeByPoint(PointHandleType PointHandle);
+	DenseVector<EdgeHandleType, 2> SplitEdgeByPoint(int_max PointID);
 
     // MiddlePointPosition  = sum(Position_i) / sum(i)
     PointHandleType ShrinkFaceToPoint(FaceHandleType FaceHandle);
     PointHandleType ShrinkFaceToPoint(int_max FaceID);
 
-    FaceHandleType MergeTwoAdjacentFace(FaceHandleType FaceHandleA, FaceHandleType FaceHandleB);
-    FaceHandleType MergeTwoAdjacentFace(int_max FaceIDA, int_max FaceIDB);
+	DenseVector<EdgeHandleType> GetSharedEdgeHandleListBetweenTwoFace(FaceHandleType FaceHandleA, FaceHandleType FaceHandleB);
+	DenseVector<EdgeHandleType> GetSharedEdgeHandleListBetweenTwoFace(int_max FaceIDA, int_max FaceIDB);
 
-	std::pair<FaceHandleType, FaceHandleType> SplitFaceByTwoPoint(PointHandleType PointHandleA, PointHandleType PointHandleB);
-	std::pair<FaceHandleType, FaceHandleType> SplitFaceByTwoPoint(int_max PointIDA, int_max PointIDB);
+	FaceHandleType MergeTwoAdjacentFace(FaceHandleType FaceHandleA, FaceHandleType FaceHandleB);
+	FaceHandleType MergeTwoAdjacentFace(int_max FaceIDA, int_max FaceIDB);
 
+	DenseVector<FaceHandleType, 2> SplitFaceByEdge(EdgeHandleType EdgeHandle);
+	DenseVector<FaceHandleType, 2> SplitFaceByEdge(int_max EdgeID);
+	*/
     //-----------------------------------------------------------------------------------------------------
 
 private:

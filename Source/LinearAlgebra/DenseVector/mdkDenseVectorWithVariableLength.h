@@ -270,9 +270,9 @@ public:
     template<typename CompareFunctionType>
     inline DenseVector<int_max> Sort(int_max Index_start, int_max Index_end, CompareFunctionType CompareFunction) const;
 
-    inline DenseVector<int_max> Sort(const char* Order);
-    // Order: ascend or descend
-    inline DenseVector<int_max> Sort(const std::string& Order);
+	// Order: ascend or descend
+	inline DenseVector<int_max> Sort(const char* ascend_or_descend);
+	inline DenseVector<int_max> Sort(const std::string& ascend_or_descend);
 
     template<typename CompareFunctionType>
     inline void SortInPlace(CompareFunctionType CompareFunction);
@@ -280,9 +280,9 @@ public:
     template<typename CompareFunctionType>
     inline void SortInPlace(int_max Index_start, int_max Index_end, CompareFunctionType CompareFunction);
 
-    inline void SortInPlace(const char* Order);
-    // Order: ascend or descend
-    inline void SortInPlace(const std::string& Order);
+	// Order: ascend or descend
+	inline void SortInPlace(const char* ascend_or_descend);
+	inline void SortInPlace(const std::string& ascend_or_descend);
 
     //------------------------- unique --------------------------------//
     // return index list of unique element

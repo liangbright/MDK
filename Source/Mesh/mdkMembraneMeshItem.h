@@ -238,6 +238,7 @@ private:
 
     inline void SetPointIndexList(const int_max PointIndexList[2]);
     inline void SetPointIndexList(int_max PointIndex0, int_max PointIndex1);
+	inline void SetPointIndexList(const DenseVector<int_max, 2>& PointIndexList);
 
 	inline StdObjectVector<DirectedEdge_Of_MembraneMesh<MeshAttributeType>>& DirectedEdgeList();
 	inline const StdObjectVector<DirectedEdge_Of_MembraneMesh<MeshAttributeType>>& DirectedEdgeList() const;
@@ -246,6 +247,7 @@ private:
 
     inline void GetPointIndexList(int_max PointIndexList[2]) const;
     inline void GetPointIndexList(int_max& PointIndex0, int_max& PointIndex1) const;
+	inline DenseVector<int_max, 2> GetPointIndexList() const;
 
     inline DenseVector<int_max> GetAdjacentEdgeIndexList() const;
     inline void GetAdjacentEdgeIndexList(DenseVector<int_max>& OutputIndexList) const;
@@ -475,10 +477,10 @@ struct Data_Of_Face_Of_MembraneMesh
 
     int_max ID; // unique identifier(valid if >=0, invalid if < 0), it will not change after Mesh.ClearDataStructure()
 
-    DenseVector<DirectedEdgeIndex_Of_MembraneMesh> DirectedEdgeIndexList;
-
-	// add this ?
+    // do NOT need this
 	//DenseVector<Handle_Of_Point_Of_MembraneMesh> PointHandleList;
+
+    DenseVector<DirectedEdgeIndex_Of_MembraneMesh> DirectedEdgeIndexList;
 
     //--------------------------------------
 

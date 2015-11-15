@@ -736,11 +736,29 @@ void Edge_Of_MembraneMesh<MeshAttributeType>::GetPointIndexList(int_max PointInd
 }
 
 template<typename MeshAttributeType>
+inline 
+DenseVector<int_max, 2> Edge_Of_MembraneMesh<MeshAttributeType>::GetPointIndexList() const
+{
+	DenseVector<int_max, 2> PointIndexList;
+	PointIndexList[0] = m_Data->PointIndex0;
+	PointIndexList[1] = m_Data->PointIndex1;
+	return PointIndexList;
+}
+
+template<typename MeshAttributeType>
 inline
 void Edge_Of_MembraneMesh<MeshAttributeType>::SetPointIndexList(int_max PointIndex0, int_max PointIndex1)
 {
     m_Data->PointIndex0 = PointIndex0;
     m_Data->PointIndex1 = PointIndex1;
+}
+
+template<typename MeshAttributeType>
+inline 
+void Edge_Of_MembraneMesh<MeshAttributeType>::SetPointIndexList(const DenseVector<int_max, 2>& PointIndexList)
+{
+	m_Data->PointIndex0 = PointIndexList[0];
+	m_Data->PointIndex1 = PointIndexList[1];
 }
 
 template<typename MeshAttributeType>

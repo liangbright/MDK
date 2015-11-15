@@ -138,10 +138,10 @@ inline bool MatrixElementDivide(DenseMatrix<ElementType>& OutputMatrixC, const D
 // ------------------------ MatrixElementOperation on InputMatrix
 
 template<typename ElementType>
-inline DenseMatrix<ElementType> MatrixElementNamedOperation(const String& OperationName, const DenseMatrix<ElementType>& InputMatrix);
+inline DenseMatrix<ElementType> MatrixElementNamedOperation(const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType>
-inline bool MatrixElementNamedOperation(DenseMatrix<ElementType>& OutputMatrix, const String& OperationName, const DenseMatrix<ElementType>& InputMatrix);
+inline bool MatrixElementNamedOperation(DenseMatrix<ElementType>& OutputMatrix, const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix);
 
 
 template<typename ElementType, typename OperationType>
@@ -158,13 +158,13 @@ inline DenseMatrix<ElementType> MatrixElementNamedOperation(const char Operation
                                                             const DenseMatrix<ElementType>& InputMatrixB);
 
 template<typename ElementType>
-inline DenseMatrix<ElementType> MatrixElementNamedOperation(const String& OperationName,
+inline DenseMatrix<ElementType> MatrixElementNamedOperation(const std::string& OperationName,
                                                             const DenseMatrix<ElementType>& InputMatrixA,
                                                             const DenseMatrix<ElementType>& InputMatrixB);
 
 template<typename ElementType>
 inline bool MatrixElementNamedOperation(DenseMatrix<ElementType>& OutputMatrixC,
-                                        const String& OperationName,
+                                        const std::string& OperationName,
                                         const DenseMatrix<ElementType>& InputMatrixA,
                                         const DenseMatrix<ElementType>& InputMatrixB);
 
@@ -194,13 +194,13 @@ inline bool MatrixElementNamedOperation(DenseMatrix<ElementType>& OutputMatrixC,
                                         const ElementType& InputElementB);
 
 template<typename ElementType>
-inline DenseMatrix<ElementType> MatrixElementNamedOperation(const String& OperationName,
+inline DenseMatrix<ElementType> MatrixElementNamedOperation(const std::string& OperationName,
                                                             const DenseMatrix<ElementType>& InputMatrixA,
                                                             const ElementType& InputElementB);
 
 template<typename ElementType>
 inline bool MatrixElementNamedOperation(DenseMatrix<ElementType>& OutputMatrixC,
-                                        const String& OperationName,
+                                        const std::string& OperationName,
                                         const DenseMatrix<ElementType>& InputMatrixA,
                                         const ElementType& InputElementB);
 
@@ -243,13 +243,13 @@ DenseMatrix<ElementType> MatrixSqrt(const DenseMatrix<ElementType>& InputMatrix)
 // ------------------------ MatrixColOperation on InputMatrix at InputColIndex
 
 template<typename ElementType>
-inline DenseMatrix<ElementType> MatrixColNamedOperation(const String& OperationName,
+inline DenseMatrix<ElementType> MatrixColNamedOperation(const std::string& OperationName,
                                                         const DenseMatrix<ElementType>& InputMatrix, int_max InputColIndex,
                                                         const bool Enable_BoundCheck = true);
 
 template<typename ElementType>
 inline bool MatrixColNamedOperation(DenseMatrix<ElementType>& OutputMatrix, int_max OutputColIndex,
-                                    const String& OperationName, 
+                                    const std::string& OperationName, 
                                     const DenseMatrix<ElementType>& InputMatrix, int_max InputColIndex,
                                     const bool Enable_BoundCheck = true);
 
@@ -280,14 +280,14 @@ inline bool MatrixColNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int
                                     const bool Enable_BoundCheck = true);
 
 template<typename ElementType>
-inline DenseMatrix<ElementType> MatrixColNamedOperation(const String& OperationName,
+inline DenseMatrix<ElementType> MatrixColNamedOperation(const std::string& OperationName,
                                                         const DenseMatrix<ElementType>& InputMatrixA, int_max InputColIndexA,
                                                         const DenseMatrix<ElementType>& InputMatrixB,
                                                         const bool Enable_BoundCheck = true);
 
 template<typename ElementType>
 inline bool MatrixColNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int_max OutputColIndexC,
-                                    const String& OperationName,
+                                    const std::string& OperationName,
                                     const DenseMatrix<ElementType>& InputMatrixA, int_max InputColIndexA,
                                     const DenseMatrix<ElementType>& InputMatrixB,
                                     const bool Enable_BoundCheck = true);
@@ -322,14 +322,14 @@ inline bool MatrixColNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int
                                     const bool Enable_BoundCheck = true);
 
 template<typename ElementType>
-inline DenseMatrix<ElementType> MatrixColNamedOperation(const String& OperationName,
+inline DenseMatrix<ElementType> MatrixColNamedOperation(const std::string& OperationName,
                                                         const DenseMatrix<ElementType>& InputMatrixA, int_max InputColIndexA,
                                                         const ElementType& InputElementB,
                                                         const bool Enable_BoundCheck = true);
 
 template<typename ElementType>
 inline bool MatrixColNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int_max OutputColIndexC,
-                                    const String& OperationName,
+                                    const std::string& OperationName,
                                     const DenseMatrix<ElementType>& InputMatrixA, int_max InputColIndexA,
                                     const ElementType& InputElementB,
                                     const bool Enable_BoundCheck = true);
@@ -355,13 +355,13 @@ inline bool MatrixColOperation(DenseMatrix<ElementType>& OutputMatrixC, int_max 
 // ------------------------ MatrixRowOperation on InputMatrix at InputRowIndex
 
 template<typename ElementType>
-inline DenseMatrix<ElementType> MatrixRowNamedOperation(const String& OperationName,
+inline DenseMatrix<ElementType> MatrixRowNamedOperation(const std::string& OperationName,
                                                         const DenseMatrix<ElementType>& InputMatrix, int_max InputRowIndex,
                                                         const bool Enable_BoundCheck = true);
 
 template<typename ElementType>
 inline bool MatrixRowNamedOperation(DenseMatrix<ElementType>& OutputMatrix, int_max OutputRowIndex,
-                                    const String& OperationName, 
+                                    const std::string& OperationName, 
                                     const DenseMatrix<ElementType>& InputMatrix, int_max InputRowIndex,
                                     const bool Enable_BoundCheck = true);
 
@@ -393,14 +393,14 @@ inline bool MatrixRowNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int
                                     const bool Enable_BoundCheck = true);
 
 template<typename ElementType>
-inline DenseMatrix<ElementType> MatrixRowNamedOperation(const String& OperationName,
+inline DenseMatrix<ElementType> MatrixRowNamedOperation(const std::string& OperationName,
                                                         const DenseMatrix<ElementType>& InputMatrixA, int_max InputRowIndexA,
                                                         const DenseMatrix<ElementType>& InputMatrixB,
                                                         const bool Enable_BoundCheck = true);
 
 template<typename ElementType>
 inline bool MatrixRowNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int_max OutputRowIndexC,
-                                    const String& OperationName,
+                                    const std::string& OperationName,
                                     const DenseMatrix<ElementType>& InputMatrixA, int_max InputRowIndexA,
                                     const DenseMatrix<ElementType>& InputMatrixB,
                                     const bool Enable_BoundCheck = true);
@@ -435,14 +435,14 @@ inline bool MatrixRowNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int
                                     const bool Enable_BoundCheck = true);
 
 template<typename ElementType>
-inline DenseMatrix<ElementType> MatrixRowNamedOperation(const String& OperationName,
+inline DenseMatrix<ElementType> MatrixRowNamedOperation(const std::string& OperationName,
                                                         const DenseMatrix<ElementType>& InputMatrixA, int_max InputRowIndexA,
                                                         const ElementType& InputElementB,
                                                         const bool Enable_BoundCheck = true);
 
 template<typename ElementType>
 inline bool MatrixRowNamedOperation(DenseMatrix<ElementType>& OutputMatrixC, int_max OutputRowIndexC,
-                                    const String& OperationName,
+                                    const std::string& OperationName,
                                     const DenseMatrix<ElementType>& InputMatrixA, int_max InputRowIndexA,
                                     const ElementType& InputElementB,
                                     const bool Enable_BoundCheck = true);

@@ -1096,24 +1096,24 @@ DenseVector<int_max> DenseVector<ElementType, Length>::Sort(int_max Index_start,
 
 template<typename ElementType, int_max Length>
 inline
-DenseVector<int_max> DenseVector<ElementType, Length>::Sort(const char* Order)
+DenseVector<int_max> DenseVector<ElementType, Length>::Sort(const char* ascend_or_descend)
 {
-    std::string Order_str(Order);
+	std::string Order_str(ascend_or_descend);
     return this->Sort(Order_str);
 }
 
 
 template<typename ElementType, int_max Length>
 inline
-DenseVector<int_max> DenseVector<ElementType, Length>::Sort(const std::string& Order)
+DenseVector<int_max> DenseVector<ElementType, Length>::Sort(const std::string& ascend_or_descend)
 {
     // Order: ascend or descend
 
-    if (Order == "ascend")
+	if (ascend_or_descend == "ascend")
     {
         return this->Sort(0, this->GetLength() - 1, [](const ElementType& ElementA, const ElementType& ElementB) { return ElementA < ElementB; });
     }
-    else if (Order == "descend")
+	else if (ascend_or_descend == "descend")
     {
         return this->Sort(0, this->GetLength() - 1, [](const ElementType& ElementA, const ElementType& ElementB) { return ElementA > ElementB; });
     }
@@ -1156,24 +1156,24 @@ void DenseVector<ElementType, Length>::SortInPlace(int_max Index_start, int_max 
 
 template<typename ElementType, int_max Length>
 inline
-void DenseVector<ElementType, Length>::SortInPlace(const char* Order)
+void DenseVector<ElementType, Length>::SortInPlace(const char* ascend_or_descend)
 {
-    std::string Order_str(Order);
+	std::string Order_str(ascend_or_descend);
     this->SortInPlace(Order_str);
 }
 
 
 template<typename ElementType, int_max Length>
 inline 
-void DenseVector<ElementType, Length>::SortInPlace(const std::string& Order)
+void DenseVector<ElementType, Length>::SortInPlace(const std::string& ascend_or_descend)
 {
     // Order: ascend or descend
 
-    if (Order == "ascend")
+	if (ascend_or_descend == "ascend")
     {
         this->SortInPlace(0, this->GetLength() - 1, [](const ElementType& ElementA, const ElementType& ElementB) { return ElementA < ElementB; });
     }
-    else if (Order == "descend")
+	else if (ascend_or_descend == "descend")
     {
         this->SortInPlace(0, this->GetLength() - 1, [](const ElementType& ElementA, const ElementType& ElementB) { return ElementA > ElementB; });
     }
