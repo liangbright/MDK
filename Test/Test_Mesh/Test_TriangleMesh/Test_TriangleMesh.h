@@ -24,3 +24,31 @@ void Test_MeshAttribute()
 
 	auto Normal = LeafletMesh.Point(0).Attribute().AngleWeightedNormal;
 }
+
+void Test_ShrinkEdge()
+{
+	std::string FilePathAndName = "C:/Research/MDK/MDK_Build/Test/Test_Mesh/Test_TriangleMesh/TestData/Leaflet";
+
+	TriangleMesh<TriangleMeshStandardAttributeType<double>> LeafletMesh;
+	LoadTriangleMeshFromVTKFile(LeafletMesh, FilePathAndName + ".vtk");
+
+	auto EdgeHandleList = LeafletMesh.GetEdgeHandleList();
+
+	LeafletMesh.ShrinkEdgeToPoint(EdgeHandleList[0], 0);
+	SaveTriangleMeshAsVTKFile(LeafletMesh, FilePathAndName + "_ShrinkEdge.vtk");
+
+}
+
+void Test_ShrinkFace()
+{
+	std::string FilePathAndName = "C:/Research/MDK/MDK_Build/Test/Test_Mesh/Test_TriangleMesh/TestData/Leaflet";
+
+	TriangleMesh<TriangleMeshStandardAttributeType<double>> LeafletMesh;
+	LoadTriangleMeshFromVTKFile(LeafletMesh, FilePathAndName + ".vtk");
+
+	auto FaceHandleList = LeafletMesh.GetFaceHandleList();
+
+	LeafletMesh.ShrinkFaceToPoint(FaceHandleList[1], 0);
+	SaveTriangleMeshAsVTKFile(LeafletMesh, FilePathAndName + "_ShrinkFace.vtk");
+
+}

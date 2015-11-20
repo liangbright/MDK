@@ -384,8 +384,7 @@ private:
     inline void SetIndex(int_max EdgeIndex, int_max RelativeIndex);
 
     inline void SetStartPointIndex(int_max PointIndex);
-    inline void SetEndPointIndex(int_max PointIndex);
-    inline void SetEdgeIndex(int_max EdgeIndex);
+    inline void SetEndPointIndex(int_max PointIndex);    
     inline void SetFaceIndex(int_max FaceIndex);
 
     inline void SetNextDirectedEdgeIndex(DirectedEdgeIndex_Of_MembraneMesh DirectedEdgeIndex);
