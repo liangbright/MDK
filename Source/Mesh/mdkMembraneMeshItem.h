@@ -99,10 +99,19 @@ private:
     inline int_max GetIndex() const;
 
     inline DenseVector<int_max>& AdjacentPointIndexList();
+	inline const DenseVector<int_max>& AdjacentPointIndexList() const;
+
     inline DenseVector<int_max>& AdjacentEdgeIndexList();
-    inline DenseVector<DirectedEdgeIndex_Of_MembraneMesh>& OutgoingDirectedEdgeIndexList();
-    inline DenseVector<DirectedEdgeIndex_Of_MembraneMesh>& IncomingDirectedEdgeIndexList();
-    inline DenseVector<int_max>& AdjacentFaceIndexList();
+	inline const DenseVector<int_max>& AdjacentEdgeIndexList() const;
+
+	inline DenseVector<DirectedEdgeIndex_Of_MembraneMesh>& OutgoingDirectedEdgeIndexList();
+	inline const DenseVector<DirectedEdgeIndex_Of_MembraneMesh>& OutgoingDirectedEdgeIndexList() const;
+
+	inline DenseVector<DirectedEdgeIndex_Of_MembraneMesh>& IncomingDirectedEdgeIndexList();
+	inline const DenseVector<DirectedEdgeIndex_Of_MembraneMesh>& IncomingDirectedEdgeIndexList() const;
+
+	inline DenseVector<int_max>& AdjacentFaceIndexList();
+	inline const DenseVector<int_max>& AdjacentFaceIndexList() const;
 
 	inline void UpdateAdjacentPointIndexList();//given AdjacentEdgeIndexList
 	inline void UpdateAdjacentFaceIndexList();// given OutgoingDirectedEdgeIndexList
@@ -189,7 +198,7 @@ struct Data_Of_Edge_Of_MembraneMesh
     int_max PointIndex0;
     int_max PointIndex1;
 
-	StdObjectVector<DirectedEdge_Of_MembraneMesh<MeshAttributeType>> DirectedEdgeList;
+	DenseVector<DirectedEdgeIndex_Of_MembraneMesh> DirectedEdgeIndexList;
 
     //--------------------------------
 
@@ -242,8 +251,8 @@ private:
     inline void SetPointIndexList(int_max PointIndex0, int_max PointIndex1);
 	inline void SetPointIndexList(const DenseVector<int_max, 2>& PointIndexList);
 
-	inline StdObjectVector<DirectedEdge_Of_MembraneMesh<MeshAttributeType>>& DirectedEdgeList();
-	inline const StdObjectVector<DirectedEdge_Of_MembraneMesh<MeshAttributeType>>& DirectedEdgeList() const;
+	inline DenseVector<DirectedEdgeIndex_Of_MembraneMesh>& DirectedEdgeIndexList();
+	inline const DenseVector<DirectedEdgeIndex_Of_MembraneMesh>& DirectedEdgeIndexList() const;
 
     inline int_max GetIndex() const;
 
@@ -332,7 +341,7 @@ struct Data_Of_DirectedEdge_Of_MembraneMesh
 
     int_max ID; // unique identifier (valid if >=0, invalid if < 0), it will not change after Mesh.ClearDataStructure()
 
-    int_max FaceIndex;           // index in Mesh.m_MeshData->FaceList
+    int_max EdgeIndex;          // index in Mesh.m_MeshData->EdgeList
 
     int_max PointIndex_start;   // index in Mesh.m_MeshData->PointList, the start point of the DirectedEdge 
     int_max PointIndex_end;     // index in Mesh.m_MeshData->PointList, the end point of the DirectedEdge
@@ -383,17 +392,17 @@ private:
 
     inline void SetParentMesh(MembraneMesh<MeshAttributeType>& ParentMesh);
     inline void SetIndex(DirectedEdgeIndex_Of_MembraneMesh DirectedEdgeIndex);
-    inline void SetIndex(int_max EdgeIndex, int_max RelativeIndex);
+    inline void SetIndex(int_max FaceIndex, int_max RelativeIndex);
 
     inline void SetStartPointIndex(int_max PointIndex);
     inline void SetEndPointIndex(int_max PointIndex);    
-    inline void SetFaceIndex(int_max FaceIndex);
+    inline void SetEdgeIndex(int_max EdgeIndex);
 
     inline void SetNextDirectedEdgeIndex(DirectedEdgeIndex_Of_MembraneMesh DirectedEdgeIndex);
-    inline void SetNextDirectedEdgeIndex(int_max EdgeIndex, int_max RelativeIndex);
+	inline void SetNextDirectedEdgeIndex(int_max FaceIndex, int_max RelativeIndex);
     
     inline void SetPreviousDirectedEdgeIndex(DirectedEdgeIndex_Of_MembraneMesh DirectedEdgeIndex);
-    inline void SetPreviousDirectedEdgeIndex(int_max EdgeIndex, int_max RelativeIndex);
+	inline void SetPreviousDirectedEdgeIndex(int_max FaceIndex, int_max RelativeIndex);
    
     //-----------------------------------------------------------------------------------//
     inline DirectedEdgeIndex_Of_MembraneMesh GetIndex() const;
@@ -405,12 +414,14 @@ private:
 	inline DirectedEdgeIndex_Of_MembraneMesh GetNextDirectedEdgeIndex() const;
 	inline DirectedEdgeIndex_Of_MembraneMesh GetPreviousDirectedEdgeIndex() const;
 
-    inline DenseVector<DirectedEdgeIndex_Of_MembraneMesh> GetFirendDirectedEdgeIndexList() const;
-    
-	inline DenseVector<int_max> GetFirendFaceIndexList() const;
+	//friend on the same edge
+    inline DenseVector<DirectedEdgeIndex_Of_MembraneMesh> GetFriendDirectedEdgeIndexList() const;
 
+	//face share the same edge, include the face that own the directed-edge
+	inline DenseVector<int_max> GetAdjacentFaceIndexList() const;
+
+	//face share the two end point of the directed edge, include the face that own the directed-edge
     inline DenseVector<int_max> GetNeighbourFaceIndexList() const;
-    inline void GetNeighbourFaceIndexList(DenseVector<int_max>& OutputIndexList) const;
 
     //-----------------------------------------------------------------------------------//
 public:
@@ -444,21 +455,19 @@ public:
     inline Handle_Of_DirectedEdge_Of_MembraneMesh GetPreviousDirectedEdgeHandle() const;
     inline int_max GetPreviousDirectedEdgeID() const;
 
-	inline int_max GetFirendDirectedEdgeCount() const;
-	inline DenseVector<Handle_Of_DirectedEdge_Of_MembraneMesh> GetFirendDirectedEdgeHandleList() const;
-	inline DenseVector<int_max> GetFirendDirectedEdgeIDList() const;
+	inline int_max GetFriendDirectedEdgeCount() const;
+	inline DenseVector<Handle_Of_DirectedEdge_Of_MembraneMesh> GetFriendDirectedEdgeHandleList() const;
+	inline DenseVector<int_max> GetFriendDirectedEdgeIDList() const;
 
-	inline int_max GetFirendFaceCount() const;
-	inline DenseVector<Handle_Of_Face_Of_MembraneMesh> GetFirendFaceHandleList() const;
-	inline DenseVector<int_max> GetFirendFaceIDList() const;
+	inline int_max GetAdjacentFaceCount() const;
+	inline DenseVector<Handle_Of_Face_Of_MembraneMesh> GetAdjacentFaceHandleList() const;
+	inline DenseVector<int_max> GetAdjacentFaceIDList() const;
 
 	inline int_max GetNeighbourFaceCount() const;
 
 	inline DenseVector<Handle_Of_Face_Of_MembraneMesh> GetNeighbourFaceHandleList() const;
-    inline void GetNeighbourFaceHandleList(DenseVector<Handle_Of_Face_Of_MembraneMesh>& OutputHandleList) const;
 
     inline DenseVector<int_max> GetNeighbourFaceIDList() const;
-    inline void GetNeighbourFaceIDList(DenseVector<int_max>& OutputHandleList) const;
 
     inline DirectedEdgeAttributeType& Attribute();
     inline const DirectedEdgeAttributeType& Attribute() const;
@@ -481,7 +490,7 @@ struct Data_Of_Face_Of_MembraneMesh
     // do NOT need this
 	//DenseVector<Handle_Of_Point_Of_MembraneMesh> PointHandleList;
 
-    DenseVector<DirectedEdgeIndex_Of_MembraneMesh> DirectedEdgeIndexList;
+	StdObjectVector<DirectedEdge_Of_MembraneMesh<MeshAttributeType>> DirectedEdgeList;
 
     //--------------------------------------
 
@@ -520,7 +529,9 @@ private:
 
     inline void SetParentMesh(MembraneMesh<MeshAttributeType>& ParentMesh);
     inline void SetIndex(int_max FaceIndex);   
-    inline DenseVector<DirectedEdgeIndex_Of_MembraneMesh>& DirectedEdgeIndexList();
+
+	inline StdObjectVector<DirectedEdge_Of_MembraneMesh<MeshAttributeType>>& DirectedEdgeList();
+	inline const StdObjectVector<DirectedEdge_Of_MembraneMesh<MeshAttributeType>>& DirectedEdgeList() const;
 
     //----------------------------------------------------------------------------//    
     inline int_max GetIndex() const;
@@ -531,9 +542,13 @@ private:
     inline DenseVector<int_max> GetEdgeIndexList() const;
     inline void GetEdgeIndexList(DenseVector<int_max>& OutputIndexList) const;
 
-    // Face share any Edge of this cell, not include this cell
+    // Face share any Edge of this face, not include this face
     inline DenseVector<int_max> GetAdjacentFaceIndexList() const;
     inline void GetAdjacentFaceIndexList(DenseVector<int_max>& OutputIndexList) const;
+
+	// Face share any point of this face, not include this face
+	inline DenseVector<int_max> GetNeighbourFaceIndexList() const;
+	inline void GetNeighbourFaceIndexList(DenseVector<int_max>& OutputIndexList) const;
 
     //--------------------------------------------------------------------------------//
 public:

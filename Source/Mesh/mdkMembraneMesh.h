@@ -282,7 +282,7 @@ public:
 	// non-manifold is allowed: maybe more than one DirectedEdge from PointHandle_start to PointHandle_end
 	//                          there are many face containing PointHandle_start and  PointHandle_end
 	//                          each face has a DirectedEdge from PointHandle_start to PointHandle_end
-    inline DenseVector<DirectedEdgeHandleType> GetDirectedEdgeHandleByPoint(PointHandleType PointHandle_start, PointHandleType PointHandle_end) const;
+    inline DenseVector<DirectedEdgeHandleType> GetDirectedEdgeHandleListByPoint(PointHandleType PointHandle_start, PointHandleType PointHandle_end) const;
 
     //----------- get FaceHandle by ID, PointHandleList or PointIDList EdgeHandleList or EdgeIDList ----------//
 
@@ -385,8 +385,8 @@ public:
 	// EdgeHandle_input can be the handle of a deleted edge, so to reuse old EdgeIndex if necessary
 	EdgeHandleType AddEdge(PointHandleType PointHandle0, PointHandleType PointHandle1, EdgeHandleType EdgeHandle_input);
 
-    // add a cell and return FaceHandle -> FaceIndex in m_MeshData->FaceList
-    // add DirectedEdge of the cell
+    // add a face and return FaceHandle -> FaceIndex in m_MeshData->FaceList
+    // add DirectedEdge of the face
     // the order of Edge in EdgeHandleList determine the direction of each DirectedEdge and the direction/sign of the normal vector
     FaceHandleType AddFaceByEdge(const DenseVector<EdgeHandleType>& EdgeHandleList);
 
@@ -403,14 +403,14 @@ public:
     // Delete Mesh Item ----------------------------------------------------------------------------//
 
     // m_MeshData->FaceList[FaceIndex].Clear() only release memory
-    // this function will delete each DirectedEdge of the Face, and modify any information related to the cell
-    // FaceHandle and FaceID of the cell become invalid after the cell is deleted
+    // this function will delete each DirectedEdge of the Face, and modify any information related to the face
+    // FaceHandle and FaceID of the face become invalid after the face is deleted
 	void DeleteFace(FaceHandleType FaceHandle);
 
     // m_MeshData->EdgeList[EdgeIndex].Clear() only release memory
     // this function will modify any information related to the Edge
     // EdgeHandle and EdgeID of the edge become invalid after the edge is deleted
-    // Check is performed in the function to make sure an edge can not be deleted if any adjacent cell exit
+    // Check is performed in the function to make sure an edge can not be deleted if any adjacent face exit
 	//
 	// note:  Call Edge(EdgeHandle).GetAdjacentFaceCount() to check if the edge can be deleted or not
 	void DeleteEdge(EdgeHandleType EdgeHandle);
@@ -428,14 +428,11 @@ public:
     // attention: after CleanDataStructure() is called, handle may become invalid, but, ID will not change
     // use this function when InvalidPointHandleCount/ValidPointCount( GetPointCount() ) > 0.5
     void CleanDataStructure();	
-	void CleanDataStructure(DenseVector<int_max>& PointIndexMap_Old_To_New,
-		                    DenseVector<int_max>& EdgeIndexMap_Old_To_New,
-		                    ObjectArray<DenseVector<int_max>>& DirectedEdge_RelativeIndexMap_Old_To_New,
-		                    DenseVector<int_max>& FaceIndexMap_Old_To_New);
+	void CleanDataStructure(DenseVector<int_max>& PointIndexMap_Old_To_New, DenseVector<int_max>& EdgeIndexMap_Old_To_New, DenseVector<int_max>& FaceIndexMap_Old_To_New);
 	bool Check_If_DataStructure_is_Clean() const;//true: clean, false: invalid handle exit
     int_max GetDeletedPointCount() const; // the number of Deleted points
 	int_max GetDeletedEdgeCount() const; // the number of Deleted edges
-	int_max GetDeletedFaceCount() const; // the number of Deleted cells
+	int_max GetDeletedFaceCount() const; // the number of Deleted faces
 
     //---------------------------------------------------------------------------------------------------
 
@@ -493,7 +490,6 @@ public:
 private:
     void InternalFuction_DeletePoint(int_max PointIndex);
     void InternalFuction_DeleteEdge(int_max EdgeIndex);
-	void InternalFuction_DeleteDirectedEdge(DirectedEdgeIndex_Of_MembraneMesh DirectedEdgeIndex);
     void InternalFuction_DeleteFace(int_max FaceIndex);
 
 

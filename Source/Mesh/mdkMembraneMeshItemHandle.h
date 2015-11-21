@@ -67,8 +67,8 @@ public:
 
 struct DirectedEdgeIndex_Of_MembraneMesh
 {
-    int_max EdgeIndex = -1;
-    int_max RelativeIndex = -1; // 0 or 1
+    int_max FaceIndex = -1;
+    int_max RelativeIndex = -1;
 //------------------------------------------
     DirectedEdgeIndex_Of_MembraneMesh() {}
     
@@ -81,25 +81,25 @@ struct DirectedEdgeIndex_Of_MembraneMesh
 
     void operator=(const DirectedEdgeIndex_Of_MembraneMesh& InputIndex)
     {
-        EdgeIndex = InputIndex.EdgeIndex;
+		FaceIndex = InputIndex.FaceIndex;
         RelativeIndex = InputIndex.RelativeIndex;
     }
 
     bool operator==(const DirectedEdgeIndex_Of_MembraneMesh& InputIndex) const
     {
-        return (EdgeIndex == InputIndex.EdgeIndex) && (RelativeIndex == InputIndex.RelativeIndex);
+		return (FaceIndex == InputIndex.FaceIndex) && (RelativeIndex == InputIndex.RelativeIndex);
     }
 
     bool operator!=(const DirectedEdgeIndex_Of_MembraneMesh& InputIndex) const
     {
-        return (EdgeIndex != InputIndex.EdgeIndex) || (RelativeIndex == InputIndex.RelativeIndex);
+		return (FaceIndex != InputIndex.FaceIndex) || (RelativeIndex == InputIndex.RelativeIndex);
     }
 
     bool operator>(const DirectedEdgeIndex_Of_MembraneMesh& InputIndex) const
     {
-        if (EdgeIndex != InputIndex.EdgeIndex)
+		if (FaceIndex != InputIndex.FaceIndex)
         {
-            return EdgeIndex > InputIndex.EdgeIndex;
+			return FaceIndex > InputIndex.FaceIndex;
         }
         else
         {
@@ -109,9 +109,9 @@ struct DirectedEdgeIndex_Of_MembraneMesh
 
     bool operator>=(const DirectedEdgeIndex_Of_MembraneMesh& InputIndex) const
     {
-        if (EdgeIndex != InputIndex.EdgeIndex)
+		if (FaceIndex != InputIndex.FaceIndex)
         {
-            return EdgeIndex >= InputIndex.EdgeIndex;
+			return FaceIndex >= InputIndex.FaceIndex;
         }
         else
         {
@@ -121,9 +121,9 @@ struct DirectedEdgeIndex_Of_MembraneMesh
 
     bool operator<(const DirectedEdgeIndex_Of_MembraneMesh& InputIndex) const
     {
-        if (EdgeIndex != InputIndex.EdgeIndex)
+		if (FaceIndex != InputIndex.FaceIndex)
         {
-            return EdgeIndex < InputIndex.EdgeIndex;
+			return FaceIndex < InputIndex.FaceIndex;
         }
         else
         {
@@ -133,9 +133,9 @@ struct DirectedEdgeIndex_Of_MembraneMesh
 
     bool operator<=(const DirectedEdgeIndex_Of_MembraneMesh& InputIndex) const
     {
-        if (EdgeIndex != InputIndex.EdgeIndex)
+		if (FaceIndex != InputIndex.FaceIndex)
         {
-            return EdgeIndex <= InputIndex.EdgeIndex;
+			return FaceIndex <= InputIndex.FaceIndex;
         }
         else
         {
@@ -157,10 +157,10 @@ public:
     inline void operator=(const Handle_Of_DirectedEdge_Of_MembraneMesh& InputHandle);
 
     inline void SetIndex(DirectedEdgeIndex_Of_MembraneMesh DirectedEdgeIndex);
-    inline void SetIndex(int_max EdgeIndex, int_max RelativeIndex);
+	inline void SetIndex(int_max FaceIndex, int_max RelativeIndex);
 
     inline DirectedEdgeIndex_Of_MembraneMesh GetIndex() const;
-    inline int_max GetEdgeIndex() const;
+    inline int_max GetFaceIndex() const;
     inline int_max GetRelativeIndex() const;
 
     inline void SetToInvalid();
@@ -345,7 +345,7 @@ inline Handle_Of_DirectedEdge_Of_MembraneMesh::Handle_Of_DirectedEdge_Of_Membran
 
 inline Handle_Of_DirectedEdge_Of_MembraneMesh::Handle_Of_DirectedEdge_Of_MembraneMesh(const Handle_Of_DirectedEdge_Of_MembraneMesh& InputHandle)
 {
-    m_Index.EdgeIndex = InputHandle.m_Index.EdgeIndex;
+	m_Index.FaceIndex = InputHandle.m_Index.FaceIndex;
     m_Index.RelativeIndex = InputHandle.m_Index.RelativeIndex;
 }
 
@@ -355,25 +355,25 @@ inline Handle_Of_DirectedEdge_Of_MembraneMesh::~Handle_Of_DirectedEdge_Of_Membra
 
 inline void Handle_Of_DirectedEdge_Of_MembraneMesh::operator=(const Handle_Of_DirectedEdge_Of_MembraneMesh& InputHandle)
 {
-    m_Index.EdgeIndex = InputHandle.m_Index.EdgeIndex;
+	m_Index.FaceIndex = InputHandle.m_Index.FaceIndex;
     m_Index.RelativeIndex = InputHandle.m_Index.RelativeIndex;
 }
 
 inline void Handle_Of_DirectedEdge_Of_MembraneMesh::SetIndex(DirectedEdgeIndex_Of_MembraneMesh DirectedEdgeIndex)
 {
-    m_Index.EdgeIndex = DirectedEdgeIndex.EdgeIndex;
+	m_Index.FaceIndex = DirectedEdgeIndex.FaceIndex;
     m_Index.RelativeIndex = DirectedEdgeIndex.RelativeIndex;
 }
 
-inline void Handle_Of_DirectedEdge_Of_MembraneMesh::SetIndex(int_max EdgeIndex, int_max RelativeIndex)
+inline void Handle_Of_DirectedEdge_Of_MembraneMesh::SetIndex(int_max FaceIndex, int_max RelativeIndex)
 {
-    m_Index.EdgeIndex = EdgeIndex;
+	m_Index.FaceIndex = FaceIndex;
     m_Index.RelativeIndex = RelativeIndex;
 }
 
 inline void Handle_Of_DirectedEdge_Of_MembraneMesh::SetToInvalid()
 {
-    m_Index.EdgeIndex = -1;
+	m_Index.FaceIndex = -1;
     m_Index.RelativeIndex = -1;
 }
 
@@ -382,9 +382,9 @@ inline DirectedEdgeIndex_Of_MembraneMesh Handle_Of_DirectedEdge_Of_MembraneMesh:
     return m_Index;
 }
 
-inline int_max Handle_Of_DirectedEdge_Of_MembraneMesh::GetEdgeIndex() const
+inline int_max Handle_Of_DirectedEdge_Of_MembraneMesh::GetFaceIndex() const
 {
-    return m_Index.EdgeIndex;
+	return m_Index.FaceIndex;
 }
 
 inline int_max Handle_Of_DirectedEdge_Of_MembraneMesh::GetRelativeIndex() const
