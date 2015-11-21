@@ -382,14 +382,23 @@ public:
     // Check is performed in the function to ensure that an edge will not be added more than once
     EdgeHandleType AddEdge(PointHandleType PointHandle0, PointHandleType PointHandle1);
 
+	// EdgeHandle_input can be the handle of a deleted edge, so to reuse old EdgeIndex if necessary
+	EdgeHandleType AddEdge(PointHandleType PointHandle0, PointHandleType PointHandle1, EdgeHandleType EdgeHandle_input);
+
     // add a cell and return FaceHandle -> FaceIndex in m_MeshData->FaceList
     // add DirectedEdge of the cell
     // the order of Edge in EdgeHandleList determine the direction of each DirectedEdge and the direction/sign of the normal vector
     FaceHandleType AddFaceByEdge(const DenseVector<EdgeHandleType>& EdgeHandleList);
 
+	//FaceHandle_input may be the handle of a deleted face, so to reused old FaceIndex if necessary
+	FaceHandleType AddFaceByEdge(const DenseVector<EdgeHandleType>& EdgeHandleList, FaceHandleType FaceHandle_input);
+
     // Add Face with PointHandleList, Point0 <- Edge0 -> Point1 <- Edge1 -> Point2 ... Point_end <- Edge_end -> Point0
     // in this function, AddFaceByEdge() is called if necessary
     FaceHandleType AddFaceByPoint(const DenseVector<PointHandleType>& PointHandleList);
+
+	//FaceHandle_input may be the handle of a deleted face, so to reused old FaceIndex if necessary
+	FaceHandleType AddFaceByPoint(const DenseVector<PointHandleType>& PointHandleList, FaceHandleType FaceHandle_input);
 
     // Delete Mesh Item ----------------------------------------------------------------------------//
 
@@ -435,32 +444,38 @@ public:
 
     // Change Topology ----------------------------------------------------------------------------------------
 	
-	// switch PointA and PointB (Index, ID, Position, Attribute)
-	void SwitchPoint(PointHandleType PointHandleA, PointHandleType PointHandleB);
+	// swap PointA and PointB (Index, ID, Position, Attribute)
+	void SwapPoint(PointHandleType PointHandleA, PointHandleType PointHandleB);
 
-    // shrink to the first or the second point of the edge
-	// return this PointHandle if sucess
-	// RelativeIndex is 0 or 1
+	// merge PointB to PointA, then PointB become an isolated point
+	// if an edge between A and B exist, then it will be deleted
+	// return PointHandleA if success
+	// can NOT merge two point of a triangle face: return invalid handle
+	PointHandleType MergePoint(PointHandleType PointHandleA, PointHandleType PointHandleB);
+
+    // shrink to the first or the second point of the edge, determined by RelativeIndex 0 or 1
+	// return PointHandle of the input point if success
+	// can NOT shrink an edge of a triangle face: return invalid handle
 	PointHandleType ShrinkEdgeToPoint(EdgeHandleType EdgeHandle, int_max Point_RelativeIndex = 0);
 
 	// PointHandle may not be on the edge
+	// return the input PointHandle if success
 	PointHandleType ShrinkEdgeToPoint(EdgeHandleType EdgeHandle, PointHandleType PointHandle);
 
-	// add a point somewhere in the middle
 	DenseVector<EdgeHandleType, 2> SplitEdgeByPoint(EdgeHandleType EdgeHandle, PointHandleType PointHandle);
 
-	// shrink to a point of the face
-	// return this PointHandle if sucess
-	// Point_RelativeIndex is from 0 to PointCountOfFace-1
+	// shrink to a point of the face, Point_RelativeIndex is from 0 to PointCountOfFace-1
+	// return PointHandle of the input point if success	
+	// can NOT shrink if it lead to merge two point of a triangle face: return invalid handle
 	PointHandleType ShrinkFaceToPoint(FaceHandleType FaceHandle, int_max Point_RelativeIndex = 0);
 
 	// PointHandle may not be on the face
+	// return the input PointHandle if success
+	// can NOT shrink if it lead to merge two point of a triangle face: return invalid handle
 	PointHandleType ShrinkFaceToPoint(FaceHandleType FaceHandle, PointHandleType PointHandle);
 
 	/*
-	DenseVector<EdgeHandleType> GetSharedEdgeHandleListBetweenTwoFace(FaceHandleType FaceHandleA, FaceHandleType FaceHandleB);
-
-	FaceHandleType MergeTwoAdjacentFace(FaceHandleType FaceHandleA, FaceHandleType FaceHandleB);
+	FaceHandleType MergeAdjacentFace(FaceHandleType FaceHandleA, FaceHandleType FaceHandleB);
 
 	DenseVector<FaceHandleType, 2> SplitFaceByEdge(EdgeHandleType EdgeHandle);
 	*/
@@ -468,10 +483,10 @@ public:
 	//-----------------------------------------------------------------------------------------------------
 
 	template<typename ElementType>
-	DenseVector<ElementType> Intersect(const DenseVector<ElementType>& ListA, const DenseVector<ElementType>& ListB) const;
+	DenseVector<ElementType> Intersect(const DenseVector<ElementType>& SetA, const DenseVector<ElementType>& SetB) const;
 
 	template<typename ElementType>
-	DenseVector<ElementType> SetDiff(const DenseVector<ElementType>& ListA, const DenseVector<ElementType>& ListB) const;//A-B
+	DenseVector<ElementType> SetDiff(const DenseVector<ElementType>& SetA, const DenseVector<ElementType>& SetB) const;//A-B
 
 	//-----------------------------------------------------------------------------------------------------
 

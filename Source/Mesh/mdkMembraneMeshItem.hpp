@@ -149,6 +149,42 @@ DenseVector<int_max>& Point_Of_MembraneMesh<MeshAttributeType>::AdjacentFaceInde
 }
 
 template<typename MeshAttributeType>
+inline 
+void Point_Of_MembraneMesh<MeshAttributeType>::UpdateAdjacentPointIndexList()
+{
+	m_Data->AdjacentPointIndexList.Clear();
+	m_Data->AdjacentPointIndexList.Resize(m_Data->AdjacentEdgeIndexList().GetLength());
+	for (int_max k = 0; k < m_Data->AdjacentEdgeIndexList().GetLength(); ++k)
+	{
+		auto EdgeIndex_k = m_Data->AdjacentEdgeIndexList[k];
+		int_max PointIndex0, PointIndex1;
+		m_Data->Mesh.EdgeList[EdgeIndex_k].GetPointIndexList(PointIndex0, PointIndex1);
+		if (PointIndex0 == m_Data->Index)
+		{
+			m_Data->AdjacentPointIndexList[k] = PointIndex1;
+		}
+		else
+		{
+			m_Data->AdjacentPointIndexList[k] = PointIndex0;
+		}
+	}
+}
+
+template<typename MeshAttributeType>
+inline
+void Point_Of_MembraneMesh<MeshAttributeType>::UpdateAdjacentFaceIndexList()
+{
+	m_Data->AdjacentFaceIndexList.Clear();
+	m_Data->AdjacentFaceIndexList.Resize(m_Data->OutgoingDirectedEdgeIndexList.GetLength());
+	for (int_max k = 0; k < m_Data->OutgoingDirectedEdgeIndexList.GetLength(); ++k)
+	{
+		auto DirectedEdgeIndex_k = m_Data->OutgoingDirectedEdgeIndexList[k];
+		auto& DirectedEdge_k = m_Data->Mesh.EdgeList[DirectedEdgeIndex_k.EdgeIndex].DirectedEdgeList[DirectedEdgeIndex_k.RelativeIndex];
+		m_Data->AdjacentFaceIndexList[k] = DirectedEdge_k.GetFaceIndex();
+	}
+}
+
+template<typename MeshAttributeType>
 inline
 bool Point_Of_MembraneMesh<MeshAttributeType>::IsValid() const
 {
@@ -274,23 +310,21 @@ int_max Point_Of_MembraneMesh<MeshAttributeType>::GetID() const
 
 template<typename MeshAttributeType>
 inline
-void Point_Of_MembraneMesh<MeshAttributeType>::SetPosition(const DenseVector<typename MeshAttributeType::ScalarType, 3>& Pos)
+void Point_Of_MembraneMesh<MeshAttributeType>::SetPosition(const DenseVector<ScalarType, 3>& Pos)
 {
     m_Data->Mesh.m_MeshData->PointPositionTable.SetCol(m_Data->Index, Pos.GetPointer());
 }
 
 template<typename MeshAttributeType>
 inline
-void Point_Of_MembraneMesh<MeshAttributeType>::SetPosition(const typename MeshAttributeType::ScalarType Pos[3])
+void Point_Of_MembraneMesh<MeshAttributeType>::SetPosition(const ScalarType Pos[3])
 {
     m_Data->Mesh.m_MeshData->PointPositionTable.SetCol(m_Data->Index, Pos);
 }
 
 template<typename MeshAttributeType>
 inline
-void Point_Of_MembraneMesh<MeshAttributeType>::SetPosition(typename MeshAttributeType::ScalarType x,
-                                                           typename MeshAttributeType::ScalarType y, 
-                                                           typename MeshAttributeType::ScalarType z)
+void Point_Of_MembraneMesh<MeshAttributeType>::SetPosition(ScalarType x, ScalarType y, ScalarType z)
 {
     m_Data->Mesh.m_MeshData->PointPositionTable.SetCol(m_Data->Index, { x, y, z });
 }
@@ -306,8 +340,7 @@ DenseVector<typename MeshAttributeType::ScalarType, 3> Point_Of_MembraneMesh<Mes
 
 template<typename MeshAttributeType>
 inline
-void Point_Of_MembraneMesh<MeshAttributeType>::
-GetPosition(typename MeshAttributeType::ScalarType& x, typename MeshAttributeType::ScalarType& y, typename MeshAttributeType::ScalarType& z) const
+void Point_Of_MembraneMesh<MeshAttributeType>::GetPosition(ScalarType& x, ScalarType& y, ScalarType& z) const
 {
     ScalarType Pos[3] = { 0, 0, 0 };
     this->GetPosition(Pos);
@@ -318,7 +351,7 @@ GetPosition(typename MeshAttributeType::ScalarType& x, typename MeshAttributeTyp
 
 template<typename MeshAttributeType>
 inline
-void Point_Of_MembraneMesh<MeshAttributeType>::GetPosition(typename MeshAttributeType::ScalarType Pos[3]) const
+void Point_Of_MembraneMesh<MeshAttributeType>::GetPosition(ScalarType Pos[3]) const
 {
     m_Data->Mesh.m_MeshData->PointPositionTable.GetCol(m_Data->Index, Pos);
 }

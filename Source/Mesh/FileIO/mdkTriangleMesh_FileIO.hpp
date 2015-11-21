@@ -216,39 +216,15 @@ template<typename MeshAttributeType>
 bool SaveTriangleMeshAsVTKFile(const TriangleMesh<MeshAttributeType>& InputMesh, const String& FilePathAndName)
 {
     auto VTKMesh = ConvertMDKTriangleMeshToVTKPolyData(InputMesh);
-
-    auto writer = vtkSmartPointer<vtkPolyDataWriter>::New();
-    writer->SetFileName(FilePathAndName.StdString().c_str());
-    writer->SetInputData(VTKMesh);
-    try
-    {
-        writer->Write();
-    }
-    catch (...)
-    {
-        MDK_Error(" Can not write data @ SaveTriangleMeshAsVTKFile(...) ")
-        return false;
-    }    
-    return true;
+	return SaveVTKPolyDataAsVTKFile(VTKMesh, FilePathAndName);
 }
 
 
 template<typename MeshAttributeType>
 bool LoadTriangleMeshFromVTKFile(TriangleMesh<MeshAttributeType>& OutputMesh, const String& FilePathAndName)
 {
-    auto Reader = vtkSmartPointer<vtkPolyDataReader>::New();
-    Reader->SetFileName(FilePathAndName.StdString().c_str());    
-    try
-    {
-        Reader->Update();
-    }
-    catch (...)
-    {
-        MDK_Error(" Can not read data @ LoadTriangleMeshFromVTKFile(...) ")
-        return false;
-    }
-    auto VTKPolyMesh = Reader->GetOutput();
-	return ConvertVTKPolyDataToMDKTriangleMesh(VTKPolyMesh, OutputMesh);
+	auto VTKMesh = LoadVTKPolyDataFromVTKFile(FilePathAndName);
+	return ConvertVTKPolyDataToMDKTriangleMesh(VTKMesh, OutputMesh);
 }
 
 }//namespace mdk

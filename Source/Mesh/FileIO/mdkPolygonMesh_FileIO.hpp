@@ -217,45 +217,14 @@ template<typename MeshAttributeType>
 bool SavePolygonMeshAsVTKFile(const PolygonMesh<MeshAttributeType>& InputMesh, const String& FilePathAndName)
 {
 	auto VTKMesh = ConvertMDKPolygonMeshToVTKPolyData(InputMesh);
-
-	auto writer = vtkSmartPointer<vtkPolyDataWriter>::New();
-	writer->SetFileName(FilePathAndName.StdString().c_str());
-	writer->SetInputData(VTKMesh);
-	writer->SetFileTypeToASCII();
-	
-	try
-	{
-		writer->Write();
-	}
-	catch (...)
-	{
-		MDK_Error(" Can not write data @ SavePolygonMeshAsVTKFile(...) ")
-		return false;
-	}
-
-	return true;
+	return SaveVTKPolyDataAsVTKFile(VTKMesh, FilePathAndName);
 }
 
 
 template<typename MeshAttributeType>
 bool LoadPolygonMeshFromVTKFile(PolygonMesh<MeshAttributeType>& OutputMesh, const String& FilePathAndName)
 {
-	typedef MeshAttributeType::ScalarType ScalarType;
-
-	auto Reader = vtkSmartPointer<vtkPolyDataReader>::New();
-	Reader->SetFileName(FilePathAndName.StdString().c_str());
-
-	try
-	{
-		Reader->Update();
-	}
-	catch (...)
-	{
-		MDK_Error(" Can not read data @ LoadPolygonMeshFromVTKFile(...) ")
-		return false;
-	}
-
-	auto VTKMesh = Reader->GetOutput();
+	auto VTKMesh = LoadVTKPolyDataFromVTKFile(FilePathAndName);
 	return ConvertVTKPolyDataToMDKPolygonMesh(VTKMesh, OutputMesh);
 }
 

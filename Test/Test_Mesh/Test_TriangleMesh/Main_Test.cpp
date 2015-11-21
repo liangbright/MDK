@@ -8,7 +8,7 @@ int main()
 {
     //Test_MeshConstruction();
 
-	//Test_ShrinkEdge();
+	Test_ShrinkEdge();
 	Test_ShrinkFace();
 
     std::system("pause");

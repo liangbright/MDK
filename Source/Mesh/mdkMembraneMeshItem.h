@@ -44,13 +44,13 @@ struct Data_Of_Point_Of_MembraneMesh
 
     int_max ID; // unique identifier (valid if >=0, invalid if < 0), it will not change after Mesh.ClearDataStructure()
 
-    DenseVector<int_max> AdjacentPointIndexList;   // index in Mesh.m_MeshData->PointList
+    DenseVector<int_max> AdjacentPointIndexList; // index in Mesh.m_MeshData->PointList, can be derived from AdjacentEdgeIndexList
 
-    DenseVector<int_max> AdjacentEdgeIndexList;     // index in Mesh.m_MeshData->EdgeList
+    DenseVector<int_max> AdjacentEdgeIndexList;  // index in Mesh.m_MeshData->EdgeList
     DenseVector<DirectedEdgeIndex_Of_MembraneMesh> OutgoingDirectedEdgeIndexList; // index in Mesh.m_MeshData->DirectedEdgeList, this is the start point
     DenseVector<DirectedEdgeIndex_Of_MembraneMesh> IncomingDirectedEdgeIndexList; // index in Mesh.m_MeshData->DirectedEdgeList, this is the end point 
     
-    DenseVector<int_max> AdjacentFaceIndexList;     // index in Mesh.m_MeshData->FaceList
+    DenseVector<int_max> AdjacentFaceIndexList;  // index in Mesh.m_MeshData->FaceList, can be derived from OutgoingDirectedEdgeIndexList or IncomingDirectedEdgeIndexList
 
     //------------------------------------------------
 
@@ -104,6 +104,8 @@ private:
     inline DenseVector<DirectedEdgeIndex_Of_MembraneMesh>& IncomingDirectedEdgeIndexList();
     inline DenseVector<int_max>& AdjacentFaceIndexList();
 
+	inline void UpdateAdjacentPointIndexList();//given AdjacentEdgeIndexList
+	inline void UpdateAdjacentFaceIndexList();// given OutgoingDirectedEdgeIndexList
     //-------------------------------------------------------------------------------------//
 public:
     inline bool IsValid() const;

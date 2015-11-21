@@ -6,7 +6,7 @@
 #include <vtkPolyDataWriter.h>
 
 #include "mdkFileIO.h"
-#include "mdkVTKDataStructureConversion.h"
+#include "mdkVTKDataObject_FileIO.h"
 
 namespace mdk
 {
