@@ -487,11 +487,16 @@ public:
 
 	//-----------------------------------------------------------------------------------------------------
 
-private:
-    void InternalFuction_DeletePoint(int_max PointIndex);
-    void InternalFuction_DeleteEdge(int_max EdgeIndex);
-    void InternalFuction_DeleteFace(int_max FaceIndex);
-
+protected:
+    void UpdateRecord_DeletePoint(int_max PointIndex);
+    void UpdateRecord_DeleteEdge(int_max EdgeIndex);
+    void UpdateRecord_DeleteFace(int_max FaceIndex);
+	
+	// the DirectedEdge is deleted in this function
+	void UpdateRecord_DeleteDirectedEdge(DirectedEdgeIndex_Of_MembraneMesh DirectedEdgeIndex_delete);
+		
+	// DirectedEdge_insert has complete information including index, adjacency, etc
+	void UpdateRecord_InsertDirectedEdge(DirectedEdgeType DirectedEdge_insert);
 
 };
 

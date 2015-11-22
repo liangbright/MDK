@@ -44,13 +44,13 @@ struct Data_Of_Point_Of_MembraneMesh
 
     int_max ID; // unique identifier (valid if >=0, invalid if < 0), it will not change after Mesh.ClearDataStructure()
 
-    DenseVector<int_max> AdjacentPointIndexList; // index in Mesh.m_MeshData->PointList, can be derived from AdjacentEdgeIndexList
+    DenseVector<int_max> AdjacentPointIndexList; // index in Mesh.m_MeshData->PointList
 
     DenseVector<int_max> AdjacentEdgeIndexList;  // index in Mesh.m_MeshData->EdgeList
     DenseVector<DirectedEdgeIndex_Of_MembraneMesh> OutgoingDirectedEdgeIndexList; // index in Mesh.m_MeshData->DirectedEdgeList, this is the start point
     DenseVector<DirectedEdgeIndex_Of_MembraneMesh> IncomingDirectedEdgeIndexList; // index in Mesh.m_MeshData->DirectedEdgeList, this is the end point 
     
-    DenseVector<int_max> AdjacentFaceIndexList;  // index in Mesh.m_MeshData->FaceList, can be derived from OutgoingDirectedEdgeIndexList or IncomingDirectedEdgeIndexList
+    DenseVector<int_max> AdjacentFaceIndexList;  // index in Mesh.m_MeshData->FaceList
 
     //------------------------------------------------
 
@@ -113,8 +113,14 @@ private:
 	inline DenseVector<int_max>& AdjacentFaceIndexList();
 	inline const DenseVector<int_max>& AdjacentFaceIndexList() const;
 
-	inline void UpdateAdjacentPointIndexList();//given AdjacentEdgeIndexList
-	inline void UpdateAdjacentFaceIndexList();// given OutgoingDirectedEdgeIndexList
+	// Attention: assume adjacency info in m_Data->Mesh.m_MeshData->EdgeList and FaceList is correct
+	inline void Update_OtherAdjacencyRecord_Given_AdjacentEdgeIndexList();
+
+	inline void Update_AdjacentPointIndexList_Given_AdjacentEdgeIndexList();
+	inline void Update_AdjacentEdgeIndexList_Given_DirectedEdgeIndexList();
+	inline void Update_DirectedEdgeIndexList_Given_AdjacentEdgeIndexList();
+	inline void Update_AdjacentFaceIndexList_Given_OutgoingDirectedEdgeIndexList();
+	inline void Update_AdjacentFaceIndexList_Given_IncomingDirectedEdgeIndexList();
     //-------------------------------------------------------------------------------------//
 public:
     inline bool IsValid() const;
@@ -346,9 +352,6 @@ struct Data_Of_DirectedEdge_Of_MembraneMesh
     int_max PointIndex_start;   // index in Mesh.m_MeshData->PointList, the start point of the DirectedEdge 
     int_max PointIndex_end;     // index in Mesh.m_MeshData->PointList, the end point of the DirectedEdge
 
-    DirectedEdgeIndex_Of_MembraneMesh NextDirectedEdgeIndex;      // index of the Next DirectedEdge in Mesh.m_MeshData->DirectedEdgeList
-    DirectedEdgeIndex_Of_MembraneMesh PreviousDirectedEdgeIndex;  // index of the Previous DirectedEdge in Mesh.m_MeshData->DirectedEdgeList
-
     //--------------------------------------
     
     DirectedEdgeAttributeType Attribute;
@@ -367,6 +370,9 @@ public:
 
     template<typename T>
     friend class MembraneMesh;
+
+	template<typename T>
+	friend class Point_Of_MembraneMesh;
 
     template<typename T>
     friend class Edge_Of_MembraneMesh;
@@ -397,12 +403,6 @@ private:
     inline void SetStartPointIndex(int_max PointIndex);
     inline void SetEndPointIndex(int_max PointIndex);    
     inline void SetEdgeIndex(int_max EdgeIndex);
-
-    inline void SetNextDirectedEdgeIndex(DirectedEdgeIndex_Of_MembraneMesh DirectedEdgeIndex);
-	inline void SetNextDirectedEdgeIndex(int_max FaceIndex, int_max RelativeIndex);
-    
-    inline void SetPreviousDirectedEdgeIndex(DirectedEdgeIndex_Of_MembraneMesh DirectedEdgeIndex);
-	inline void SetPreviousDirectedEdgeIndex(int_max FaceIndex, int_max RelativeIndex);
    
     //-----------------------------------------------------------------------------------//
     inline DirectedEdgeIndex_Of_MembraneMesh GetIndex() const;
@@ -514,6 +514,9 @@ private:
     template<typename T>
     friend class MembraneMesh;
 
+	template<typename T>
+	friend class Point_Of_MembraneMesh;
+
 public:
 	Face_Of_MembraneMesh();
     Face_Of_MembraneMesh(const Face_Of_MembraneMesh<MeshAttributeType>& InputFace);
@@ -541,6 +544,9 @@ private:
 
     inline DenseVector<int_max> GetEdgeIndexList() const;
     inline void GetEdgeIndexList(DenseVector<int_max>& OutputIndexList) const;
+
+	inline DenseVector<DirectedEdgeIndex_Of_MembraneMesh> GetDirectedEdgeIndexList() const;
+	inline void GetDirectedEdgeIndexList(DenseVector<DirectedEdgeIndex_Of_MembraneMesh>& OutputIndexList) const;
 
     // Face share any Edge of this face, not include this face
     inline DenseVector<int_max> GetAdjacentFaceIndexList() const;

@@ -967,9 +967,42 @@ void ObjectArray<ElementType>::Delete(int_max Index_start, int_max Index_end)
 
 
 template<typename ElementType>
-inline void ObjectArray<ElementType>::Insert(int_max Index, const ElementType& Element)
+inline void ObjectArray<ElementType>::Insert(int_max Index, ElementType Element)
 {
-    this->Insert(Index, &Element, 1);
+	if (this->IsSizeFixed() == true)
+	{
+		MDK_Error("ObjectArray Size can not change @ ObjectArray::Insert(...)")
+		return;
+	}
+
+	auto SelfLength = this->GetElementCount();
+	if (SelfLength == 0)
+	{
+		if (Index != 0)
+		{
+			MDK_Error("Invalid Input @ ObjectArray::Insert(...)")
+			return;
+		}
+	}
+	else
+	{
+		if (Index >= SelfLength || Index < 0 )
+		{
+			MDK_Error("Invalid Input @ ObjectArray::Insert(...)")
+			return;
+		}
+	}
+
+	if (!m_Data)
+	{
+		this->Resize(0);
+	}
+
+	m_Data->CopyDataToStdVectorIfNecessary();
+
+	m_Data->StdVector.insert(m_Data->StdVector.begin() + Index, std::move(Element));
+	m_Data->ElementPointer = m_Data->StdVector.data();
+	m_Data->Length = SelfLength + 1;
 }
 
 
@@ -1034,10 +1067,8 @@ void ObjectArray<ElementType>::Insert(int_max Index, const ElementType* InputArr
     m_Data->CopyDataToStdVectorIfNecessary();
 
     m_Data->StdVector.insert(m_Data->StdVector.begin() + Index, InputArray, InputArray + InputLength);
-
-	m_Data->Length = SelfLength + InputLength;
-
-    m_Data->ElementPointer = m_Data->StdVector.data();
+	m_Data->ElementPointer = m_Data->StdVector.data();
+	m_Data->Length = SelfLength + InputLength;  
 }
 
 

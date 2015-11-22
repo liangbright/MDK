@@ -657,9 +657,15 @@ void StdObjectVector<ElementType>::Delete(int_max Index_start, int_max Index_end
 
 template<typename ElementType>
 inline 
-void StdObjectVector<ElementType>::Insert(int_max Index, const ElementType& Element)
+void StdObjectVector<ElementType>::Insert(int_max Index, ElementType Element)
 {
-    this->Insert(Index, &Element, 1);
+	auto SelfLength = this->GetElementCount();
+	if (Index >= SelfLength || Index < 0)
+	{
+		MDK_Error("Invalid Input @ StdObjectVector::Insert(...)")
+		return;
+	}
+	m_StdVector.insert(m_StdVector.begin() + Index, std::move(Element));
 }
 
 
