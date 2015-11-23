@@ -113,7 +113,7 @@ void Test_a2()
 			Remesher.m_OutputMesh_Mixed.DeletePoint(it.GetPointHandle());
 		}
 	}
-	Remesher.m_OutputMesh_Mixed.CleanDataStructure();
+	//Remesher.m_OutputMesh_Mixed.CleanDataStructure();
 	SavePolygonMeshAsVTKFile(Remesher.m_OutputMesh_Mixed, TestDataPath + "QuadSurfaceRemesher3_outputmesh_mixed_clean.vtk");
 
 }

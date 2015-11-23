@@ -40,6 +40,8 @@ public:
 
 	DenseVector<PointHandleType> m_MiddlePointHandleList_on_CandidateMesh;
 	//m_MiddlePointHandleList_on_CandidateMesh[EdgeIndex]
+	// EdgeIndex is the index of input mesh
+	// edge and face of m_CandidateMesh will be changed after BuildCandidateMesh
 
 	PolygonMesh<MeshAttributeType> m_SmallTriangleMesh;
 	//m_SmallTriangleMesh.Face(k) is a small triangle splitted from a big triangle m_InputMesh.Face(n)
@@ -94,6 +96,7 @@ public:
 	void BuildMixedTriQuadMesh_5PointStarRegionA();
 	void BuildMixedTriQuadMesh_5PointStarRegionA(PointHandleType PointHandle_center, int_max PointCount_input);
 	void BuildMixedTriQuadMesh_MergeSmallTriangleAndBigTriangle();
+	void BuildMixedTriQuadMesh_MergeTwoAdjacentSmallTriangle();
 	void BuildMixedTriQuadMesh_MergeTwoAdjacentTriangle(EdgeHandleType EdgeHandle_shared);
 	void BuildMixedTriQuadMesh_CollapseTwoAdjacentTriangle_Special();
 	void BuildMixedTriQuadMesh_CollapseTwoAdjacentTriangle_Special(EdgeHandleType EdgeHandle_shared);
@@ -102,6 +105,11 @@ public:
 	void BuildMixedTriQuadMesh_CollapseTriangle_If_Necessary();
 	void BuildMixedTriQuadMesh_CollapseTriangle_If_Necessary(FaceHandleType FaceHandle);
 	void BuildMixedTriQuadMesh_CollapseTriangle(FaceHandleType Triangle_abc, PointHandleType Pa, PointHandleType Pb, PointHandleType Pc);
+	void BuildMixedTriQuadMesh_ChangeSmallTriangleToBigTriangle();
+	void BuildMixedTriQuadMesh_ChangeSmallTriangleToBigTriangle(FaceHandleType SmallTriangle);
+	void BuildMixedTriQuadMesh_SplitQuadToTwoBigTriangle();
+	void BuildMixedTriQuadMesh_SplitQuadToTwoBigTriangle(FaceHandleType Quad);
+
 	void BuildMixedTriQuadMesh_Smooth();
 	void BuildQuadMesh();
 
@@ -116,9 +124,9 @@ public:
 	ScalarType EvaluateQuad(const DenseVector<ScalarType, 3>& Point0, const DenseVector<ScalarType, 3>& Point1, const DenseVector<ScalarType, 3>& Point2, const DenseVector<ScalarType, 3>& Point3);
 	ScalarType EvaluateTriangle(const DenseVector<ScalarType, 3>& Point0, const DenseVector<ScalarType, 3>& Point1, const DenseVector<ScalarType, 3>& Point2);
 
-	DenseVector<PointHandleType> Intersect(const DenseVector<PointHandleType>& HandleListA, const DenseVector<PointHandleType>& HandleListB);
-	DenseVector<FaceHandleType> Intersect(const DenseVector<FaceHandleType>& HandleListA, const DenseVector<FaceHandleType>& HandleListB);
-
+	template<typename ElementType>
+	DenseVector<ElementType> Intersect(const DenseVector<ElementType>& SetA, const DenseVector<ElementType>& SetB);
+	
 private:
 	QuadSurfaceRemesher3(const QuadSurfaceRemesher3&) = delete;
 	void operator=(const QuadSurfaceRemesher3&) = delete;

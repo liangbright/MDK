@@ -251,7 +251,7 @@ void QuadSurfaceRemesher3<ScalarType>::GenerateCandidate(PointHandleType PointHa
 		P2 = tempSet01[0];
 		P6 = tempSet01[1];
 		auto tempTriangle012 = m_InputMesh.GetFaceHandleByPoint({P0, P1, P2});
-		if (m_InputMesh.Face(tempTriangle012).GetDirectedEdgeHandleByPoint(P0, P1).GetEdgeIndex() < 0)
+		if (m_InputMesh.Face(tempTriangle012).GetDirectedEdgeHandleByPoint(P0, P1).GetFaceIndex() < 0)
 		{
 			P2 = tempSet01[1];
 			P6 = tempSet01[0];
@@ -633,10 +633,14 @@ void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh()
 	m_OutputMesh_Mixed = m_CandidateMesh;
 	// must in this order
 	this->BuildMixedTriQuadMesh_5PointStarRegionA();	
-	this->BuildMixedTriQuadMesh_MergeSmallTriangleAndBigTriangle();
-	this->BuildMixedTriQuadMesh_CollapseTwoAdjacentSmallTriangle();
+	this->BuildMixedTriQuadMesh_MergeSmallTriangleAndBigTriangle();		
+	this->BuildMixedTriQuadMesh_MergeTwoAdjacentSmallTriangle();	
+	//this->BuildMixedTriQuadMesh_CollapseTwoAdjacentSmallTriangle();
 	this->BuildMixedTriQuadMesh_CollapseTwoAdjacentTriangle_Special();
-	this->BuildMixedTriQuadMesh_CollapseTriangle_If_Necessary();
+	//this->BuildMixedTriQuadMesh_CollapseTriangle_If_Necessary();
+
+	this->BuildMixedTriQuadMesh_ChangeSmallTriangleToBigTriangle();
+
 }
 
 
@@ -732,7 +736,7 @@ void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_5PointStarRegionA(P
 		}
 	}
 	// re-check to make sure P0->P5 define the tirangle normal
-	auto tempHandleList = m_OutputMesh_Mixed.GetDirectedEdgeHandleByPoint(P0, P5);
+	auto tempHandleList = m_OutputMesh_Mixed.GetDirectedEdgeHandleListByPoint(P0, P5);
 	if (tempHandleList.IsEmpty() == true)
 	{
 		auto temp = P2;
@@ -837,6 +841,43 @@ void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_MergeSmallTriangleA
 
 
 template<typename ScalarType>
+void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_MergeTwoAdjacentSmallTriangle()
+{
+	//------------------------
+    //      P0 
+	//     /|\ 
+	//  P1/ | \P3
+	//     \|/ 
+	//      P2
+	//------------------------
+
+	auto PointCount_input = m_InputMesh.GetPointCount();
+	auto PointCount_input_and_middle = PointCount_input + m_MiddlePointHandleList_on_CandidateMesh.GetLength();
+
+	for (auto it = m_OutputMesh_Mixed.GetIteratorOfEdge(); it.IsNotEnd(); ++it)
+	{
+		if (it.Edge().IsBoundary() == false)
+		{
+			auto PointHandleList = it.Edge().GetPointHandleList();
+			if (PointHandleList[0].GetIndex() < PointCount_input && PointHandleList[1].GetIndex() < PointCount_input)
+			{ 
+				auto AdjacentPointIndexList_P0 = this->ConvertHandleToIndex(m_OutputMesh_Mixed.Point(PointHandleList[0]).GetAdjacentPointHandleList());
+				auto AdjacentPointIndexList_P1 = this->ConvertHandleToIndex(m_OutputMesh_Mixed.Point(PointHandleList[1]).GetAdjacentPointHandleList());
+				auto Set01 = this->Intersect(AdjacentPointIndexList_P0, AdjacentPointIndexList_P1);
+				if (Set01.GetLength() == 2)
+				{
+					if (Set01[0] >= PointCount_input && Set01[0] < PointCount_input_and_middle && Set01[1] >= PointCount_input && Set01[1] < PointCount_input_and_middle)
+					{
+						this->BuildMixedTriQuadMesh_MergeTwoAdjacentTriangle(it.GetEdgeHandle());
+					}
+				}
+			}
+		}
+	}
+}
+
+
+template<typename ScalarType>
 void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_MergeTwoAdjacentTriangle(EdgeHandleType EdgeHandle_shared)
 {
 	//---------------------------------------
@@ -863,7 +904,7 @@ void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_MergeTwoAdjacentTri
 
 	//check the point order
 	auto Triangle012 = m_OutputMesh_Mixed.GetFaceHandleByPoint({ P0, P1, P2 });
-	if (m_OutputMesh_Mixed.Face(Triangle012).GetDirectedEdgeHandleByPoint(P2, P0).GetEdgeIndex() < 0)
+	if (m_OutputMesh_Mixed.Face(Triangle012).GetDirectedEdgeHandleByPoint(P2, P0).GetFaceIndex() < 0)
 	{// no directed-edge from P2 to P0, then switch
 		auto temp = P0;
 		P0 = P2;
@@ -1022,7 +1063,7 @@ void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_CollapseTwoAdjacent
 		P2 = tempSet01[0];
 		P3 = tempSet01[1];
 		auto tempTriangle013 = m_OutputMesh_Mixed.GetFaceHandleByPoint({ P0, P1, P3 });
-		if (m_OutputMesh_Mixed.Face(tempTriangle013).GetDirectedEdgeHandleByPoint(P0, P1).GetEdgeIndex() < 0)
+		if (m_OutputMesh_Mixed.Face(tempTriangle013).GetDirectedEdgeHandleByPoint(P0, P1).GetFaceIndex() < 0)
 		{
 			P2 = tempSet01[1];
 			P3 = tempSet01[0];
@@ -1030,7 +1071,7 @@ void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_CollapseTwoAdjacent
 	}
 
 	//get P4, P5
-	auto E03 = m_OutputMesh_Mixed.GetDirectedEdgeHandleByPoint(P0, P3);
+	auto E03 = m_OutputMesh_Mixed.GetDirectedEdgeHandleListByPoint(P0, P3);
 	auto Quad0345 = m_OutputMesh_Mixed.DirectedEdge(E03[0]).GetFaceHandle();
 	auto PointHandleList_Quad0345 = m_OutputMesh_Mixed.Face(Quad0345).GetPointHandleList_LeadBy(P0, P3);
 	auto PointHandleList_Quad0345_a = m_OutputMesh_Mixed.Face(Quad0345).GetPointHandleList_LeadBy(P0);
@@ -1038,7 +1079,7 @@ void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_CollapseTwoAdjacent
 	P5 = PointHandleList_Quad0345[3];
 
 	// get P5, P6
-	auto E20 = m_OutputMesh_Mixed.GetDirectedEdgeHandleByPoint(P2, P0);
+	auto E20 = m_OutputMesh_Mixed.GetDirectedEdgeHandleListByPoint(P2, P0);
 	auto Quad2056 = m_OutputMesh_Mixed.DirectedEdge(E20[0]).GetFaceHandle();
 	auto PointHandleList_Quad2056 = m_OutputMesh_Mixed.Face(Quad2056).GetPointHandleList_LeadBy(P2, P0);
 	auto PointHandleList_Quad2056_a = m_OutputMesh_Mixed.Face(Quad2056).GetPointHandleList_LeadBy(P2);
@@ -1046,7 +1087,7 @@ void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_CollapseTwoAdjacent
 	P6 = PointHandleList_Quad2056[3];
 
 	//get P7, P8
-	auto E12 = m_OutputMesh_Mixed.GetDirectedEdgeHandleByPoint(P1, P2);
+	auto E12 = m_OutputMesh_Mixed.GetDirectedEdgeHandleListByPoint(P1, P2);
 	auto Quad1278 = m_OutputMesh_Mixed.DirectedEdge(E12[0]).GetFaceHandle();
 	auto PointHandleList_Quad1278 = m_OutputMesh_Mixed.Face(Quad1278).GetPointHandleList_LeadBy(P1, P2);
 	auto PointHandleList_Quad1278_a = m_OutputMesh_Mixed.Face(Quad1278).GetPointHandleList_LeadBy(P1);
@@ -1054,7 +1095,7 @@ void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_CollapseTwoAdjacent
 	P8 = PointHandleList_Quad1278[3];
 
 	//get P8, P9
-	auto E31 = m_OutputMesh_Mixed.GetDirectedEdgeHandleByPoint(P3, P1);
+	auto E31 = m_OutputMesh_Mixed.GetDirectedEdgeHandleListByPoint(P3, P1);
 	auto Quad3189 = m_OutputMesh_Mixed.DirectedEdge(E31[0]).GetFaceHandle();
 	auto PointHandleList_Quad3189 = m_OutputMesh_Mixed.Face(Quad3189).GetPointHandleList_LeadBy(P3, P1);
 	auto PointHandleList_Quad3189_a = m_OutputMesh_Mixed.Face(Quad3189).GetPointHandleList_LeadBy(P3);
@@ -1173,7 +1214,7 @@ void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_CollapseTwoAdjacent
 		P2 = tempSet01[0];
 		P3 = tempSet01[1];
 		auto tempTriangle013 = m_OutputMesh_Mixed.GetFaceHandleByPoint({ P0, P1, P3 });
-		if (m_OutputMesh_Mixed.Face(tempTriangle013).GetDirectedEdgeHandleByPoint(P0, P1).GetEdgeIndex() < 0)
+		if (m_OutputMesh_Mixed.Face(tempTriangle013).GetDirectedEdgeHandleByPoint(P0, P1).GetFaceIndex() < 0)
 		{
 			P2 = tempSet01[1];
 			P3 = tempSet01[0];
@@ -1311,22 +1352,26 @@ void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_CollapseTriangle(Fa
 	//-----Pm------
 	//-------------------------
 
+	PointHandleType Pm;
 	DenseVector<ScalarType, 3> Pm_Position;
 	auto Pb_Position = m_OutputMesh_Mixed.GetPointPosition(Pb);
 	auto Pc_Position = m_OutputMesh_Mixed.GetPointPosition(Pc);
 	if (m_OutputMesh_Mixed.Point(Pb).IsOnBoundaryEdge() == true)
 	{
-		Pm_Position = Pm_Position;
+		Pm_Position = Pb_Position;
+		Pm = Pb;
 	}
 	else if (m_OutputMesh_Mixed.Point(Pc).IsOnBoundaryEdge() == true)
 	{
 		Pm_Position = Pc_Position;
+		Pm = Pc;
 	}
 	else
 	{
 		Pm_Position = (Pb_Position + Pc_Position) / ScalarType(2);
+		Pm = m_OutputMesh_Mixed.AddPoint(Pm_Position);
 	}
-	auto Pm = m_OutputMesh_Mixed.AddPoint(Pm_Position);
+	
 
 	auto AdjacentFaceHandleList_Pb = m_OutputMesh_Mixed.Point(Pb).GetAdjacentFaceHandleList();
 	auto AdjacentFaceHandleList_Pc = m_OutputMesh_Mixed.Point(Pc).GetAdjacentFaceHandleList();
@@ -1412,6 +1457,121 @@ void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_CollapseTriangle(Fa
 	}
 }
 
+
+template<typename ScalarType>
+void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_ChangeSmallTriangleToBigTriangle()
+{
+	auto FaceCount_input = m_InputMesh.GetFaceCount();
+	for (auto it = m_OutputMesh_Mixed.GetIteratorOfFace(); it.IsNotEnd(); ++it)
+	{
+		if (it.GetFaceHandle().GetIndex() >= FaceCount_input)
+		{
+			this->BuildMixedTriQuadMesh_ChangeSmallTriangleToBigTriangle(it.GetFaceHandle());
+		}
+	}
+}
+
+template<typename ScalarType>
+void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_ChangeSmallTriangleToBigTriangle(FaceHandleType SmallTriangle)
+{
+//-----------------------------
+//	  P0 ____P4
+//     /|    | 
+// P1 /_|____|  
+//      P2   P3
+//--------------------------
+//	   P0____P4
+//     / \   |
+// P1 /___\__| 
+//        P5 P3
+//---------------------------
+// swap P2 and P5
+// P2 is the middle point on input edge P1P5
+// P5 is isolated point on m_CandidateMesh
+// P0, P1, P4 on input mesh
+// P3 may be a middle point on input edge
+// P3 may be a point created in BuildMixedTriQuadMesh_CollapseTwoAdjacentSmallTriangle
+//--------------------------
+
+	PointHandleType P0, P1, P2, P5;
+
+	auto PointHandleList = m_OutputMesh_Mixed.Face(SmallTriangle).GetPointHandleList();
+	auto EdgeHandleList = m_OutputMesh_Mixed.Face(SmallTriangle).GetEdgeHandleList();
+	//------------------- input check --------------------------------------------------//
+	auto PointCount_input = m_InputMesh.GetPointCount();
+	auto PointCount_input_and_middle = PointCount_input + m_MiddlePointHandleList_on_CandidateMesh.GetLength();
+
+	bool Flag_input = false;
+	DenseMatrix<int_max> IndexTable;
+	IndexTable = { { 0, 1, 2 }, { 0, 2, 1 }, { 1, 0, 2 }, { 1, 2, 0 }, { 2, 1, 0 }, { 2, 0, 1 } };
+	for (int_max k = 0; k < 6; ++k)
+	{
+		P0 = PointHandleList[IndexTable(k, 0)];
+		P1 = PointHandleList[IndexTable(k, 1)];
+		P2 = PointHandleList[IndexTable(k, 2)];
+		if (P0.GetIndex() < PointCount_input && P1.GetIndex() < PointCount_input && P2.GetIndex() >= PointCount_input && P2.GetIndex() < PointCount_input_and_middle)
+		{
+			Flag_input = true;
+			break;
+		}
+	}
+	if (Flag_input == false)
+	{
+		return;
+	}
+	
+	// may need to switch P0 and P1
+	auto tempEdgeIndex_P1P5 = m_MiddlePointHandleList_on_CandidateMesh.ExactMatch("first", P2);
+	if (tempEdgeIndex_P1P5 < 0)
+	{
+		return;
+	}
+	EdgeHandleType EdgeH_P1P5;
+	EdgeH_P1P5.SetIndex(tempEdgeIndex_P1P5);
+	auto PointHandleList_P1P5 = m_InputMesh.Edge(EdgeH_P1P5).GetPointHandleList();
+	if (PointHandleList_P1P5[0] == P0)
+	{
+		auto temp = P0;
+		P0 = P1;
+		P1 = temp;
+		P5 = PointHandleList_P1P5[1];
+	}
+	else if (PointHandleList_P1P5[1] == P0)
+	{
+		auto temp = P0;
+		P0 = P1;
+		P1 = temp;
+		P5 = PointHandleList_P1P5[0];
+	}
+	else if (PointHandleList_P1P5[0] == P1)
+	{
+		P5 = PointHandleList_P1P5[1];
+	}
+	else if (PointHandleList_P1P5[1] == P1)
+	{
+		P5 = PointHandleList_P1P5[0];
+	}
+	else
+	{
+		return;
+	}
+	//------------------ input check is done -------------------------------------------//
+
+	m_OutputMesh_Mixed.SwapPoint(P2, P5);
+
+}
+
+template<typename ScalarType>
+void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_SplitQuadToTwoBigTriangle()
+{
+
+}
+
+template<typename ScalarType>
+void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_SplitQuadToTwoBigTriangle(FaceHandleType Quad)
+{
+	
+}
 
 template<typename ScalarType>
 void QuadSurfaceRemesher3<ScalarType>::BuildQuadMesh()
@@ -1589,55 +1749,29 @@ ScalarType QuadSurfaceRemesher3<ScalarType>::EvaluateTriangle(const DenseVector<
 
 
 template<typename ScalarType>
-DenseVector<typename  QuadSurfaceRemesher3<ScalarType>::PointHandleType>
-QuadSurfaceRemesher3<ScalarType>::Intersect(const DenseVector<PointHandleType>& HandleListA, const DenseVector<PointHandleType>& HandleListB)
+template<typename ElementType>
+DenseVector<ElementType> QuadSurfaceRemesher3<ScalarType>::Intersect(const DenseVector<ElementType>& SetA, const DenseVector<ElementType>& SetB)
 {
-	DenseVector<PointHandleType> HandleListC;
+	DenseVector<ElementType> SetC;
 
-	if (HandleListA.IsEmpty() == true || HandleListB.IsEmpty() == true)
+	if (SetA.IsEmpty() == true || SetB.IsEmpty() == true)
 	{
-		return HandleListC;
+		return SetC;
 	}
 
-	HandleListC.SetCapacity(std::min(HandleListA.GetLength(), HandleListB.GetLength()));
+	SetC.SetCapacity(std::min(SetA.GetLength(), SetB.GetLength()));
 
-	for (int_max k = 0; k < HandleListA.GetLength(); ++k)
+	for (int_max k = 0; k < SetA.GetLength(); ++k)
 	{
-		for (int_max n = 0; n < HandleListB.GetLength(); ++n)
+		for (int_max n = 0; n < SetB.GetLength(); ++n)
 		{
-			if (HandleListA[k] == HandleListB[n])
+			if (SetA[k] == SetB[n])
 			{
-				HandleListC.Append(HandleListA[k]);
+				SetC.Append(SetA[k]);
 			}
 		}
 	}
-	return HandleListC;
-}
-
-template<typename ScalarType>
-DenseVector<typename  QuadSurfaceRemesher3<ScalarType>::FaceHandleType>
-QuadSurfaceRemesher3<ScalarType>::Intersect(const DenseVector<FaceHandleType>& HandleListA, const DenseVector<FaceHandleType>& HandleListB)
-{
-	DenseVector<FaceHandleType> HandleListC;
-
-	if (HandleListA.IsEmpty() == true || HandleListB.IsEmpty() == true)
-	{
-		return HandleListC;
-	}
-
-	HandleListC.SetCapacity(std::min(HandleListA.GetLength(), HandleListB.GetLength()));
-
-	for (int_max k = 0; k < HandleListA.GetLength(); ++k)
-	{
-		for (int_max n = 0; n < HandleListB.GetLength(); ++n)
-		{
-			if (HandleListA[k] == HandleListB[n])
-			{
-				HandleListC.Append(HandleListA[k]);
-			}
-		}
-	}
-	return HandleListC;
+	return SetC;
 }
 
 }//namespace
