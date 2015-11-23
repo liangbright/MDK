@@ -439,16 +439,37 @@ public:
     // get a sub mesh by FaceHandleList or FaceIDList
     MembraneMesh<MeshAttributeType> GetSubMeshByFace(const DenseVector<FaceHandleType>& FaceHandleList) const;
 
-    // Change Topology ----------------------------------------------------------------------------------------
+    // other basic operation ----------------------------------------------------------------------------------------
 	
-	// swap PointA and PointB (Index, ID, Position, Attribute)
+	// swap PointA and PointB: move A to B, move B to A, NOT change the mesh topology
+	//------------------------------
+	//      |  \            |  \  
+	//   ---A---B---  => ---B---A---
+	//      |   |           |   |
+	//------------------------------
 	void SwapPoint(PointHandleType PointHandleA, PointHandleType PointHandleB);
 
-	// merge PointB to PointA, then PointB become an isolated point
+	// swap the connection: NOT move A or B, Change the mesh topology
+	//------------------------
+	//   |           \ 
+	//   A  B  => A   B
+	//      |      \
+    //------------------------	
+	void SwapConnectivityOfPoint(PointHandleType PointHandleA, PointHandleType PointHandleB);
+
+	// merge PointA and PointB to a new PointC (the middle of line AB)
+	//--------------------------------
+	//    |   |         \   /
+	// ---A---B--- => ----C-----
+	//    |   |         /   \
+    //-------------------------------
+	PointHandleType MergePoint(PointHandleType PointHandleA, PointHandleType PointHandleB);
+
+	// merge the connection of PointB to the connection of PointA, then PointB become an isolated point
 	// if an edge between A and B exist, then it will be deleted
 	// return PointHandleA if success
 	// can NOT merge two point of a triangle face: return invalid handle
-	PointHandleType MergePoint(PointHandleType PointHandleA, PointHandleType PointHandleB);
+	PointHandleType MergeConnectivityOfPoint(PointHandleType PointHandleA, PointHandleType PointHandleB);
 
     // shrink to the first or the second point of the edge, determined by RelativeIndex 0 or 1
 	// return PointHandle of the input point if success

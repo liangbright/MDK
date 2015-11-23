@@ -2729,7 +2729,7 @@ MembraneMesh<MeshAttributeType>::GetSubMeshByFace(const DenseVector<FaceHandleTy
 }
 
 
-// Change Topology ----------------------------------------------------------------------------------------
+// other basic operation ----------------------------------------------------------------------------------------
 
 template<typename MeshAttributeType>
 void MembraneMesh<MeshAttributeType>::SwapPoint(PointHandleType PointHandleA, PointHandleType PointHandleB)
@@ -2742,6 +2742,194 @@ void MembraneMesh<MeshAttributeType>::SwapPoint(PointHandleType PointHandleA, Po
 	if (this->IsValidHandle(PointHandleA) == false || this->IsValidHandle(PointHandleB) == false)
 	{
 		MDK_Error("Invalid PointHandle @ MembraneMesh::SwapPoint(...)")
+		return;
+	}
+
+	auto PointIndexA = PointHandleA.GetIndex();
+	// take reference of adjacency record
+	auto& AdjacentPointIndexListA = m_MeshData->PointList[PointIndexA].AdjacentPointIndexList();
+	auto& AdjacentEdgeIndexListA = m_MeshData->PointList[PointIndexA].AdjacentEdgeIndexList();
+	auto& OutgoingDirectedEdgeIndexListA = m_MeshData->PointList[PointIndexA].OutgoingDirectedEdgeIndexList();
+	auto& IncomingDirectedEdgeIndexListA = m_MeshData->PointList[PointIndexA].IncomingDirectedEdgeIndexList();
+	auto& AdjacentFaceIndexListA = m_MeshData->PointList[PointIndexA].AdjacentFaceIndexList();
+
+	auto PointIndexB = PointHandleB.GetIndex();
+	// take reference of adjacency record
+	auto& AdjacentPointIndexListB = m_MeshData->PointList[PointIndexB].AdjacentPointIndexList();
+	auto& AdjacentEdgeIndexListB = m_MeshData->PointList[PointIndexB].AdjacentEdgeIndexList();
+	auto& OutgoingDirectedEdgeIndexListB = m_MeshData->PointList[PointIndexB].OutgoingDirectedEdgeIndexList();
+	auto& IncomingDirectedEdgeIndexListB = m_MeshData->PointList[PointIndexB].IncomingDirectedEdgeIndexList();
+	auto& AdjacentFaceIndexListB = m_MeshData->PointList[PointIndexB].AdjacentFaceIndexList();
+
+	//---------------- update adjacent point and edge ----------------------------------------------------
+
+	auto tempPointIndexA = m_MeshData->PointList.GetLength();
+
+	//change PointIndexA -> tempPointIndexA
+	for (int_max k = 0; k < AdjacentPointIndexListA.GetLength(); ++k)
+	{
+		auto& AdjacentPointIndexList_k = m_MeshData->PointList[AdjacentPointIndexListA[k]].AdjacentPointIndexList();
+		auto tempIndex = AdjacentPointIndexList_k.ExactMatch("first", PointIndexA);
+		AdjacentPointIndexList_k[tempIndex] = tempPointIndexA;
+	}
+	for (int_max k = 0; k < AdjacentEdgeIndexListA.GetLength(); ++k)
+	{
+		auto PointIndexList_k = m_MeshData->EdgeList[AdjacentEdgeIndexListA[k]].GetPointIndexList();
+		if (PointIndexList_k[0] == PointIndexA)
+		{
+			m_MeshData->EdgeList[AdjacentEdgeIndexListA[k]].SetPointIndexList(tempPointIndexA, PointIndexList_k[1]);
+		}
+		else
+		{
+			m_MeshData->EdgeList[AdjacentEdgeIndexListA[k]].SetPointIndexList(PointIndexList_k[0], tempPointIndexA);
+		}
+	}
+
+	//change  PointIndexB -> PointIndexA
+	for (int_max k = 0; k < AdjacentPointIndexListB.GetLength(); ++k)
+	{
+		auto& AdjacentPointIndexList_k = m_MeshData->PointList[AdjacentPointIndexListB[k]].AdjacentPointIndexList();
+		auto tempIndex = AdjacentPointIndexList_k.ExactMatch("first", PointIndexB);
+		AdjacentPointIndexList_k[tempIndex] = PointIndexA;
+	}
+	for (int_max k = 0; k < AdjacentEdgeIndexListB.GetLength(); ++k)
+	{
+		auto PointIndexList_k = m_MeshData->EdgeList[AdjacentEdgeIndexListB[k]].GetPointIndexList();
+		if (PointIndexList_k[0] == PointIndexB)
+		{
+			m_MeshData->EdgeList[AdjacentEdgeIndexListB[k]].SetPointIndexList(PointIndexA, PointIndexList_k[1]);
+		}
+		else
+		{
+			m_MeshData->EdgeList[AdjacentEdgeIndexListB[k]].SetPointIndexList(PointIndexList_k[0], PointIndexA);
+		}
+	}
+
+	//change tempPointIndexA -> PointIndexB
+	for (int_max k = 0; k < AdjacentPointIndexListA.GetLength(); ++k)
+	{
+		auto& AdjacentPointIndexList_k = m_MeshData->PointList[AdjacentPointIndexListA[k]].AdjacentPointIndexList();
+		auto tempIndex = AdjacentPointIndexList_k.ExactMatch("first", tempPointIndexA);
+		AdjacentPointIndexList_k[tempIndex] = PointIndexB;
+	}
+	for (int_max k = 0; k < AdjacentEdgeIndexListA.GetLength(); ++k)
+	{
+		auto PointIndexList_k = m_MeshData->EdgeList[AdjacentEdgeIndexListA[k]].GetPointIndexList();
+		if (PointIndexList_k[0] == tempPointIndexA)
+		{
+			m_MeshData->EdgeList[AdjacentEdgeIndexListA[k]].SetPointIndexList(PointIndexB, PointIndexList_k[1]);
+		}
+		else
+		{
+			m_MeshData->EdgeList[AdjacentEdgeIndexListA[k]].SetPointIndexList(PointIndexList_k[0], PointIndexB);
+		}
+	}
+
+	//change PointIndexA -> PointIndexB for DirectedEdge
+	for (int_max k = 0; k < OutgoingDirectedEdgeIndexListA.GetLength(); ++k)
+	{
+		auto FaceIndex_k = OutgoingDirectedEdgeIndexListA[k].FaceIndex;
+		auto RelativeIndex_k = OutgoingDirectedEdgeIndexListA[k].RelativeIndex;
+		m_MeshData->FaceList[FaceIndex_k].DirectedEdgeList()[RelativeIndex_k].SetStartPointIndex(PointIndexB);
+	}
+	for (int_max k = 0; k < IncomingDirectedEdgeIndexListA.GetLength(); ++k)
+	{
+		auto FaceIndex_k = IncomingDirectedEdgeIndexListA[k].FaceIndex;
+		auto RelativeIndex_k = IncomingDirectedEdgeIndexListA[k].RelativeIndex;
+		m_MeshData->FaceList[FaceIndex_k].DirectedEdgeList()[RelativeIndex_k].SetEndPointIndex(PointIndexB);
+	}
+
+	//change PointIndexB -> PointIndexA for DirectedEdge
+	for (int_max k = 0; k < OutgoingDirectedEdgeIndexListB.GetLength(); ++k)
+	{
+		auto FaceIndex_k = OutgoingDirectedEdgeIndexListB[k].FaceIndex;
+		auto RelativeIndex_k = OutgoingDirectedEdgeIndexListB[k].RelativeIndex;
+		m_MeshData->FaceList[FaceIndex_k].DirectedEdgeList()[RelativeIndex_k].SetStartPointIndex(PointIndexA);
+	}
+	for (int_max k = 0; k < IncomingDirectedEdgeIndexListB.GetLength(); ++k)
+	{
+		auto FaceIndex_k = IncomingDirectedEdgeIndexListB[k].FaceIndex;
+		auto RelativeIndex_k = IncomingDirectedEdgeIndexListB[k].RelativeIndex;
+		m_MeshData->FaceList[FaceIndex_k].DirectedEdgeList()[RelativeIndex_k].SetEndPointIndex(PointIndexA);
+	}
+
+	//------------------------------- swap A and B : index, ID, Position, Adjacency -----------------------------------//
+
+	// swap index and ID
+	auto PointID_A = m_MeshData->PointList[PointIndexA].GetID();
+	auto PointID_B = m_MeshData->PointList[PointIndexB].GetID();
+	m_MeshData->PointList[PointIndexA].SetIndex(PointIndexB);
+	if (PointID_B >= 0)
+	{
+		m_MeshData->PointList[PointIndexA].SetID(PointID_B);
+	}
+	m_MeshData->PointList[PointIndexB].SetIndex(PointIndexA);
+	if (PointID_A >= 0)
+	{
+		m_MeshData->PointList[PointIndexB].SetID(PointID_A);
+	}
+
+	//swap Position
+	auto PositionA = m_MeshData->PointList[PointIndexA].GetPosition();
+	auto PositionB = m_MeshData->PointList[PointIndexB].GetPosition();
+	m_MeshData->PointList[PointIndexA].SetPosition(PositionB);
+	m_MeshData->PointList[PointIndexB].SetPosition(PositionA);
+
+	//swap Attribute
+	auto Attribute_A = m_MeshData->PointList[PointIndexA].Attribute();
+	auto Attribute_B = m_MeshData->PointList[PointIndexB].Attribute();
+	m_MeshData->PointList[PointIndexA].Attribute() = std::move(Attribute_B);
+	m_MeshData->PointList[PointIndexB].Attribute() = std::move(Attribute_A);
+
+	//swap AdjacentPointIndexListA
+	{
+		auto tempIndex_a = AdjacentPointIndexListA.ExactMatch("first", PointIndexB);
+		if (tempIndex_a >= 0)
+		{
+			AdjacentPointIndexListA[tempIndex_a] = PointIndexA;
+		}
+
+		auto tempIndex_b = AdjacentPointIndexListB.ExactMatch("first", PointIndexA);
+		if (tempIndex_b >= 0)
+		{
+			AdjacentPointIndexListB[tempIndex_b] = PointIndexB;
+		}
+
+		auto tempList = AdjacentPointIndexListA;
+		AdjacentPointIndexListA = AdjacentPointIndexListB;
+		AdjacentPointIndexListB = tempList;
+	}
+
+	//swap other Adjacency info
+	{
+		auto tempList = AdjacentEdgeIndexListA;
+		AdjacentEdgeIndexListA = AdjacentEdgeIndexListB;
+		AdjacentEdgeIndexListB = tempList;
+	}
+	{
+		auto tempList = OutgoingDirectedEdgeIndexListA;
+		OutgoingDirectedEdgeIndexListA = OutgoingDirectedEdgeIndexListB;
+		OutgoingDirectedEdgeIndexListB = tempList;
+	}
+	{
+		auto tempList = IncomingDirectedEdgeIndexListA;
+		IncomingDirectedEdgeIndexListA = IncomingDirectedEdgeIndexListB;
+		IncomingDirectedEdgeIndexListB = tempList;
+	}
+}
+
+
+template<typename MeshAttributeType>
+void MembraneMesh<MeshAttributeType>::SwapConnectivityOfPoint(PointHandleType PointHandleA, PointHandleType PointHandleB)
+{
+	if (PointHandleA == PointHandleB)
+	{
+		return;
+	}
+
+	if (this->IsValidHandle(PointHandleA) == false || this->IsValidHandle(PointHandleB) == false)
+	{
+		MDK_Error("Invalid PointHandle @ MembraneMesh::SwapConnectivityOfPoint(...)")
 		return;
 	}
 
@@ -3110,7 +3298,7 @@ Handle_Of_Point_Of_MembraneMesh MembraneMesh<MeshAttributeType>::ShrinkEdgeToPoi
 	else
 	{
 		auto PointHandle0 = this->ShrinkEdgeToPoint(EdgeHandle, 0);
-		this->SwapPoint(PointHandle0, PointHandle);
+		this->SwapConnectivityOfPoint(PointHandle0, PointHandle);
 	}
 }
 
@@ -3267,7 +3455,7 @@ Handle_Of_Point_Of_MembraneMesh MembraneMesh<MeshAttributeType>::ShrinkFaceToPoi
 		this->MergePoint(PointHandleList[0], PointHandleList[k]);
 	}
 
-	this->SwapPoint(PointHandleList[0], PointHandleList[Point_RelativeIndex]);
+	this->SwapConnectivityOfPoint(PointHandleList[0], PointHandleList[Point_RelativeIndex]);
 
 	return PointHandleList[Point_RelativeIndex];
 }
@@ -3299,7 +3487,7 @@ Handle_Of_Point_Of_MembraneMesh MembraneMesh<MeshAttributeType>::ShrinkFaceToPoi
 	else
 	{
 		auto PointHandle0 = this->ShrinkFaceToPoint(FaceHandle, 0);
-		this->SwapPoint(PointHandle0, PointHandle);
+		this->SwapConnectivityOfPoint(PointHandle0, PointHandle);
 	}
 }
 
