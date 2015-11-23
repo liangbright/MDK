@@ -40,9 +40,9 @@ struct Data_Of_Point_Of_MembraneMesh
 
     MembraneMesh<MeshAttributeType> Mesh;
 
-    int_max Index;  // PointIndex : index in Mesh.m_MeshData->PointList; it may change after Mesh.ClearDataStructure()
+    int_max Index;  // PointIndex : index in Mesh.m_MeshData->PointList; it may change after Mesh.CleanDataStructure()
 
-    int_max ID; // unique identifier (valid if >=0, invalid if < 0), it will not change after Mesh.ClearDataStructure()
+    int_max ID; // unique identifier (valid if >=0, invalid if < 0), it will not change after Mesh.CleanDataStructure()
 
     DenseVector<int_max> AdjacentPointIndexList; // index in Mesh.m_MeshData->PointList
 
@@ -197,9 +197,9 @@ struct Data_Of_Edge_Of_MembraneMesh
 
     MembraneMesh<MeshAttributeType> Mesh;
     
-    int_max Index; // EdgeIndex: index of this Edge in Mesh.MeshData->EdgeList, it may change after Mesh.ClearDataStructure()
+    int_max Index; // EdgeIndex: index of this Edge in Mesh.MeshData->EdgeList, it may change after Mesh.CleanDataStructure()
 
-    int_max ID; // unique identifier(valid if >=0, invalid if < 0), it will not change after Mesh.ClearDataStructure()
+    int_max ID; // unique identifier(valid if >=0, invalid if < 0), it will not change after Mesh.CleanDataStructure()
 
     int_max PointIndex0;
     int_max PointIndex1;
@@ -343,9 +343,9 @@ struct Data_Of_DirectedEdge_Of_MembraneMesh
 
     MembraneMesh<MeshAttributeType> Mesh;
 
-    DirectedEdgeIndex_Of_MembraneMesh Index; // DirectedEdgeIndex of this DirectedEdge, it may change after Mesh.ClearDataStructure()
+    DirectedEdgeIndex_Of_MembraneMesh Index; // DirectedEdgeIndex of this DirectedEdge, it may change after Mesh.CleanDataStructure()
 
-    int_max ID; // unique identifier (valid if >=0, invalid if < 0), it will not change after Mesh.ClearDataStructure()
+    int_max ID; // unique identifier (valid if >=0, invalid if < 0), it will not change after Mesh.CleanDataStructure()
 
     int_max EdgeIndex;          // index in Mesh.m_MeshData->EdgeList
 
@@ -483,9 +483,9 @@ struct Data_Of_Face_Of_MembraneMesh
 
     MembraneMesh<MeshAttributeType> Mesh;
 
-    int_max Index; // FaceIndex: index of the Face in Mesh.m_MeshData->FaceList, it may change after Mesh.ClearDataStructure()
+    int_max Index; // FaceIndex: index of the Face in Mesh.m_MeshData->FaceList, it may change after Mesh.CleanDataStructure()
 
-    int_max ID; // unique identifier(valid if >=0, invalid if < 0), it will not change after Mesh.ClearDataStructure()
+    int_max ID; // unique identifier(valid if >=0, invalid if < 0), it will not change after Mesh.CleanDataStructure()
 
     // do NOT need this
 	//DenseVector<Handle_Of_Point_Of_MembraneMesh> PointHandleList;
@@ -585,16 +585,15 @@ public:
     inline DenseVector<int_max> GetPointIDList() const;
     inline void GetPointIDList(DenseVector<Handle_Of_Point_Of_MembraneMesh>& OutputIDList) const;
 
-	inline int_max GetEdgeCount() const;  // the number of Edge
+	inline int_max GetRelativeIndexOfPoint(Handle_Of_Point_Of_MembraneMesh PointHandle) const;
+
+	inline int_max GetEdgeCount() const; // the number of Edge
 
     inline DenseVector<Handle_Of_Edge_Of_MembraneMesh> GetEdgeHandleList() const;
     inline void GetEdgeHandleList(DenseVector<Handle_Of_Edge_Of_MembraneMesh>& OutputHandleList) const;
 
     inline DenseVector<int_max> GetEdgeIDList() const;
     inline void GetEdgeIDList(DenseVector<int_max>& OutputIDList) const;
-
-    inline DenseVector<int_max> GetEdgeRelativeIndexList() const;
-    inline void GetEdgeRelativeIndexList(DenseVector<int_max>& RelativeIndexList) const;
 
 	inline int_max GetAdjacentFaceCount() const;// share an edge
 
@@ -620,10 +619,10 @@ public:
 	//Direction: A -> B
 	Handle_Of_DirectedEdge_Of_MembraneMesh GetDirectedEdgeHandleByPoint(Handle_Of_Point_Of_MembraneMesh PointHandleA, Handle_Of_Point_Of_MembraneMesh PointHandleB) const;
 
-	// output handle list {PointHandleA, ...}
+	// output handle list {PointHandleA, ...}, the point-order determine face normal (right hand rule) 
 	inline DenseVector<Handle_Of_Point_Of_MembraneMesh> GetPointHandleList_LeadBy(Handle_Of_Point_Of_MembraneMesh PointHandleA) const;
 
-	// output handle list {PointHandleA, PointHandleB, ...}
+	// output handle list {PointHandleA, PointHandleB, ...}, the point-order may determine the opposite of face normal 
 	inline DenseVector<Handle_Of_Point_Of_MembraneMesh> GetPointHandleList_LeadBy(Handle_Of_Point_Of_MembraneMesh PointHandleA, Handle_Of_Point_Of_MembraneMesh PointHandleB) const;
 
 };

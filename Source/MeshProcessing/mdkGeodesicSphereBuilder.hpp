@@ -96,7 +96,7 @@ void GeodesicSphereBuilder<ScalarType>::BuildSphereAtDepth(int_max Depth)
 	auto PointCount = PointCount_prev + EdgeCount_prev;
 	auto EdgeCount  = EdgeCount_prev*2;
 	auto FaceCount = FaceCount_prev * 4;
-	m_SphereList[Depth].ReserveCapacity(PointCount, EdgeCount, FaceCount);
+	m_SphereList[Depth].SetCapacity(PointCount, EdgeCount, FaceCount);
 	
 	//------- add initial point by copying all point of previous Sphere ----------------//
 	DenseVector<Handle_Of_Point_Of_MembraneMesh> PointHandleList_init;

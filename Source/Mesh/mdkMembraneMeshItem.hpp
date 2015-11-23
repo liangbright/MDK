@@ -1272,7 +1272,7 @@ void Edge_Of_MembraneMesh<MeshAttributeType>::GetAdjacentFaceHandleList(DenseVec
 	OutputHandleList.FastResize(m_Data->DirectedEdgeIndexList.GetLength());
 	for (int_max k = 0; k < m_Data->DirectedEdgeIndexList.GetLength(); ++k)
 	{				
-		OutputHandleList[k].SetIndex(m_Data->DirectedEdgeIndexList[k].GetFaceIndex());
+		OutputHandleList[k].SetIndex(m_Data->DirectedEdgeIndexList[k].FaceIndex);
 	}
 }
 
@@ -2358,6 +2358,19 @@ void Face_Of_MembraneMesh<MeshAttributeType>::GetPointIDList(DenseVector<Handle_
     }
 }
 
+template<typename MeshAttributeType>
+inline 
+int_max Face_Of_MembraneMesh<MeshAttributeType>::GetRelativeIndexOfPoint(Handle_Of_Point_Of_MembraneMesh PointHandle) const
+{
+	for (int_max k = 0; k < m_Data->DirectedEdgeList.GetLength(); ++k)
+	{
+		if (m_Data->DirectedEdgeList[k].GetStartPointHandle() == PointHandle)
+		{
+			return k;
+		}
+	}
+	return -1;
+}
 
 template<typename MeshAttributeType>
 inline int_max Face_Of_MembraneMesh<MeshAttributeType>::GetEdgeCount() const
