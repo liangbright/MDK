@@ -107,8 +107,8 @@ public:
 	void BuildMixedTriQuadMesh_CollapseTriangle(FaceHandleType Triangle_abc, PointHandleType Pa, PointHandleType Pb, PointHandleType Pc);
 	void BuildMixedTriQuadMesh_ChangeSmallTriangleToBigTriangle();
 	void BuildMixedTriQuadMesh_ChangeSmallTriangleToBigTriangle(FaceHandleType SmallTriangle);
-	void BuildMixedTriQuadMesh_SplitQuadToTwoBigTriangle();
-	void BuildMixedTriQuadMesh_SplitQuadToTwoBigTriangle(FaceHandleType Quad);
+	void BuildMixedTriQuadMesh_SplitQuadToTwoBigTriangle_If_necessary();	
+	void BuildMixedTriQuadMesh_MergeTwoBigTriangle_If_necessary();
 
 	void BuildMixedTriQuadMesh_Smooth();
 	void BuildQuadMesh();
@@ -127,6 +127,9 @@ public:
 	template<typename ElementType>
 	DenseVector<ElementType> Intersect(const DenseVector<ElementType>& SetA, const DenseVector<ElementType>& SetB);
 	
+	template<typename ElementType>
+	DenseVector<ElementType> SetDiff(const DenseVector<ElementType>& SetA, const DenseVector<ElementType>& SetB) const;//A-B
+
 private:
 	QuadSurfaceRemesher3(const QuadSurfaceRemesher3&) = delete;
 	void operator=(const QuadSurfaceRemesher3&) = delete;

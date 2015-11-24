@@ -638,9 +638,10 @@ void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh()
 	//this->BuildMixedTriQuadMesh_CollapseTwoAdjacentSmallTriangle();
 	this->BuildMixedTriQuadMesh_CollapseTwoAdjacentTriangle_Special();
 	//this->BuildMixedTriQuadMesh_CollapseTriangle_If_Necessary();
-
 	this->BuildMixedTriQuadMesh_ChangeSmallTriangleToBigTriangle();
 
+	this->BuildMixedTriQuadMesh_MergeTwoBigTriangle_If_necessary();
+	this->BuildMixedTriQuadMesh_SplitQuadToTwoBigTriangle_If_necessary();
 }
 
 
@@ -1485,7 +1486,7 @@ void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_ChangeSmallTriangle
 // P1 /___\__| 
 //        P5 P3
 //---------------------------
-// swap P2 and P5
+// merge connectivity of P2 to connectivity of P5
 // P2 is the middle point on input edge P1P5
 // P5 is isolated point on m_CandidateMesh
 // P0, P1, P4 on input mesh
@@ -1557,21 +1558,103 @@ void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_ChangeSmallTriangle
 	}
 	//------------------ input check is done -------------------------------------------//
 
-	m_OutputMesh_Mixed.SwapPoint(P2, P5);
+	m_OutputMesh_Mixed.MergeConnectivityOfPoint(P5, P2);
 
 }
+
 
 template<typename ScalarType>
-void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_SplitQuadToTwoBigTriangle()
-{
+void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_SplitQuadToTwoBigTriangle_If_necessary()
+{// Quad Score <= 0.5 then split
+	auto PointCount_input = m_InputMesh.GetPointCount();
 
+	for (auto it = m_OutputMesh_Mixed.GetIteratorOfFace(); it.IsNotEnd(); ++it)
+	{
+		if (it.Face().GetPointCount() == 4)
+		{
+			auto PointHandleList = it.Face().GetPointHandleList();
+			if (PointHandleList[0].GetIndex() < PointCount_input && PointHandleList[1].GetIndex() < PointCount_input
+				&& PointHandleList[2].GetIndex() < PointCount_input && PointHandleList[3].GetIndex() < PointCount_input)
+			{
+				auto Score = this->EvaluateQuad(m_OutputMesh_Mixed, PointHandleList[0], PointHandleList[1], PointHandleList[2], PointHandleList[3]);
+				if (Score < 0.5)
+				{
+					m_OutputMesh_Mixed.DeleteFace(it.GetFaceHandle());
+					m_OutputMesh_Mixed.AddFaceByPoint({ PointHandleList[0], PointHandleList[1], PointHandleList[2] });
+					m_OutputMesh_Mixed.AddFaceByPoint({ PointHandleList[0], PointHandleList[2], PointHandleList[3] });
+				}
+			}
+		}
+	}
 }
+
 
 template<typename ScalarType>
-void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_SplitQuadToTwoBigTriangle(FaceHandleType Quad)
-{
-	
+void QuadSurfaceRemesher3<ScalarType>::BuildMixedTriQuadMesh_MergeTwoBigTriangle_If_necessary()
+{// Quad Score > 0.5 then merge
+
+	auto PointCount_input = m_InputMesh.GetPointCount();
+
+	DenseVector<EdgeHandleType> CandidateList_Edge;
+	DenseVector<DenseVector<FaceHandleType, 2>> CandidateList_TrianglePair;
+	DenseVector<DenseVector<PointHandleType>> CandidateList_Quad;
+
+	DenseVector<ScalarType> ScoreList;
+
+	for (auto it = m_OutputMesh_Mixed.GetIteratorOfEdge(); it.IsNotEnd(); ++it)
+	{
+		auto AdjacentFaceHandleList = it.Edge().GetAdjacentFaceHandleList();
+		if (AdjacentFaceHandleList.GetLength() == 2)
+		{
+			auto FaceH0 = AdjacentFaceHandleList[0];
+			auto FaceH1 = AdjacentFaceHandleList[1];
+			if (m_OutputMesh_Mixed.Face(FaceH0).GetPointCount() == 3 && m_OutputMesh_Mixed.Face(FaceH1).GetPointCount() == 3)
+			{
+				DenseVector<PointHandleType> PointHandleList0 = m_OutputMesh_Mixed.Face(FaceH0).GetPointHandleList();
+				DenseVector<PointHandleType> PointHandleList1 = m_OutputMesh_Mixed.Face(FaceH1).GetPointHandleList();
+				if (PointHandleList0[0].GetIndex() < PointCount_input && PointHandleList0[1].GetIndex() < PointCount_input && PointHandleList0[2].GetIndex() < PointCount_input
+					&&PointHandleList1[0].GetIndex() < PointCount_input && PointHandleList1[1].GetIndex() < PointCount_input && PointHandleList1[2].GetIndex() < PointCount_input)
+				{				
+					DenseVector<PointHandleType> PointHandleList_Edge = it.Edge().GetPointHandleList();
+					auto Set0 = this->SetDiff(PointHandleList0, PointHandleList_Edge);
+					auto P0 = Set0[0];					
+					auto PointHandleList_012 = m_OutputMesh_Mixed.Face(FaceH0).GetPointHandleList_LeadBy(P0);
+					auto P1 = PointHandleList_012[1];
+					auto P2 = PointHandleList_012[2];
+					auto Set3 = this->SetDiff(PointHandleList1, PointHandleList_Edge);
+					auto P3 = Set3[0];
+					auto Score = this->EvaluateQuad(m_OutputMesh_Mixed, P0, P1, P3, P2);
+					ScoreList.Append(Score);
+					CandidateList_Edge.Append(it.GetEdgeHandle());
+					CandidateList_TrianglePair.Append({ FaceH0, FaceH1 });
+					CandidateList_Quad.Append({ P0, P1, P3, P2 });
+				}
+			}
+		}
+	}
+
+	auto IndexList_sort = ScoreList.Sort("descend");
+	for (int_max k = 0; k < IndexList_sort.GetLength(); ++k)
+	{
+		auto Index = IndexList_sort[k];
+		if (ScoreList[Index] > 0.5)
+		{
+			auto EdgeH = CandidateList_Edge[Index];
+			if (m_OutputMesh_Mixed.IsValidHandle(EdgeH) == true)
+			{
+				auto TrianglePair = CandidateList_TrianglePair[Index];
+				if (m_OutputMesh_Mixed.IsValidHandle(TrianglePair[0]) == true && m_OutputMesh_Mixed.IsValidHandle(TrianglePair[1]) == true)
+				{
+					m_OutputMesh_Mixed.DeleteFace(TrianglePair[0]);
+					m_OutputMesh_Mixed.DeleteFace(TrianglePair[1]);
+					m_OutputMesh_Mixed.DeleteEdge(EdgeH);
+					m_OutputMesh_Mixed.AddFaceByPoint(CandidateList_Quad[Index]);
+				}
+			}
+		}
+	}
 }
+
 
 template<typename ScalarType>
 void QuadSurfaceRemesher3<ScalarType>::BuildQuadMesh()
@@ -1657,17 +1740,14 @@ ScalarType QuadSurfaceRemesher3<ScalarType>::EvaluateQuad(const DenseVector<Scal
 
 	//warp angle
 	ScalarType WarpAngleScore = 0;
-	{
-		auto Normal_023 = ComputeTriangleNormalIn3D(Point0, Point2, Point3);
-		auto Normal_012 = ComputeTriangleNormalIn3D(Point0, Point1, Point2);
-		auto CosAngle_023_012 = std::abs(ComputeVectorDotProductIn3D(Normal_012, Normal_023));
-
-		auto Normal_013 = ComputeTriangleNormalIn3D(Point0, Point1, Point3);
-		auto Normal_123 = ComputeTriangleNormalIn3D(Point1, Point2, Point3);
-		auto CosAngle_013_123 = std::abs(ComputeVectorDotProductIn3D(Normal_013, Normal_123));
-
-		WarpAngleScore = std::min(CosAngle_023_012, CosAngle_013_123);
-	}
+	auto Normal_023 = ComputeTriangleNormalIn3D(Point0, Point2, Point3);
+	auto Normal_012 = ComputeTriangleNormalIn3D(Point0, Point1, Point2);
+	auto CosAngle_023_012 = std::abs(ComputeVectorDotProductIn3D(Normal_012, Normal_023));
+	auto Normal_013 = ComputeTriangleNormalIn3D(Point0, Point1, Point3);
+	auto Normal_123 = ComputeTriangleNormalIn3D(Point1, Point2, Point3);
+	auto CosAngle_013_123 = std::abs(ComputeVectorDotProductIn3D(Normal_013, Normal_123));
+	WarpAngleScore = std::min(CosAngle_023_012, CosAngle_013_123);
+	
 
 	auto P0P1 = Point1 - Point0;
 	auto P1P2 = Point2 - Point1;
@@ -1769,6 +1849,38 @@ DenseVector<ElementType> QuadSurfaceRemesher3<ScalarType>::Intersect(const Dense
 			{
 				SetC.Append(SetA[k]);
 			}
+		}
+	}
+	return SetC;
+}
+
+template<typename ScalarType>
+template<typename ElementType>
+DenseVector<ElementType> QuadSurfaceRemesher3<ScalarType>::SetDiff(const DenseVector<ElementType>& SetA, const DenseVector<ElementType>& SetB) const
+{// in A, NOT in B
+
+	if (SetB.IsEmpty() == true)
+	{
+		return SetA;
+	}
+
+	DenseVector<ElementType> SetC;
+	SetC.SetCapacity(SetA.GetLength());
+
+	for (int_max k = 0; k < SetA.GetLength(); ++k)
+	{
+		bool Flag = false;
+		for (int_max n = 0; n < SetB.GetLength(); ++n)
+		{
+			if (SetA[k] == SetB[n])
+			{
+				Flag = true;
+				break;
+			}
+		}
+		if (Flag == false)
+		{
+			SetC.Append(SetA[k]);
 		}
 	}
 	return SetC;

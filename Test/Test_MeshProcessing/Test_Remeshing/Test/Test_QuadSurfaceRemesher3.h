@@ -116,6 +116,8 @@ void Test_a2()
 	//Remesher.m_OutputMesh_Mixed.CleanDataStructure();
 	SavePolygonMeshAsVTKFile(Remesher.m_OutputMesh_Mixed, TestDataPath + "QuadSurfaceRemesher3_outputmesh_mixed_clean.vtk");
 
+	auto QuadMesh = SubdivideMixedTriangleQuadMeshToQuadMesh_Linear(Remesher.m_OutputMesh_Mixed);
+	SavePolygonMeshAsVTKFile(QuadMesh, TestDataPath + "QuadSurfaceRemesher3_outputmesh_mixed_clean_all_quad.vtk");
 }
 
 

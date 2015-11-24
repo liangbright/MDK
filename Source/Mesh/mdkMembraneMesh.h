@@ -442,55 +442,48 @@ public:
     // other basic operation ----------------------------------------------------------------------------------------
 	
 	// swap PointA and PointB: move A to B, move B to A, NOT change the mesh topology
-	//------------------------------
-	//      |  \            |  \  
-	//   ---A---B---  => ---B---A---
-	//      |   |           |   |
-	//------------------------------
-	void SwapPoint(PointHandleType PointHandleA, PointHandleType PointHandleB);
+	// A, B, C, D are point ID/name
+	//------------------------
+	//   C          C
+	//   |          |    
+	//   A   B  =>  B   A
+	//       |          |
+	//       D          D
+    //------------------------	
+	bool SwapPoint(PointHandleType PointHandleA, PointHandleType PointHandleB);
 
 	// swap the connection: NOT move A or B, Change the mesh topology
+	// A, B, C, D are point ID/name
 	//------------------------
+	//   C         C 
 	//   |           \ 
-	//   A  B  => A   B
-	//      |      \
+	//   A   B  => A   B
+	//       |       \
+	//       D         D
     //------------------------	
-	void SwapConnectivityOfPoint(PointHandleType PointHandleA, PointHandleType PointHandleB);
-
-	// merge PointA and PointB to a new PointC (the middle of line AB)
-	//--------------------------------
-	//    |   |         \   /
-	// ---A---B--- => ----C-----
-	//    |   |         /   \
-    //-------------------------------
-	PointHandleType MergePoint(PointHandleType PointHandleA, PointHandleType PointHandleB);
+	bool SwapConnectivityOfPoint(PointHandleType PointHandleA, PointHandleType PointHandleB);
 
 	// merge the connection of PointB to the connection of PointA, then PointB become an isolated point
 	// if an edge between A and B exist, then it will be deleted
-	// return PointHandleA if success
-	// can NOT merge two point of a triangle face: return invalid handle
-	PointHandleType MergeConnectivityOfPoint(PointHandleType PointHandleA, PointHandleType PointHandleB);
-
-    // shrink to the first or the second point of the edge, determined by RelativeIndex 0 or 1
-	// return PointHandle of the input point if success
-	// can NOT shrink an edge of a triangle face: return invalid handle
-	PointHandleType ShrinkEdgeToPoint(EdgeHandleType EdgeHandle, int_max Point_RelativeIndex = 0);
+	// return true if success
+	// can NOT merge two point of a triangle face: return false
+	//--------------------------------
+	//    |   |          | /
+	// ---A---B =>    ---A   B
+	//    |   |          | \
+    //-------------------------------
+	bool MergeConnectivityOfPoint(PointHandleType PointHandleA, PointHandleType PointHandleB);
 
 	// PointHandle may not be on the edge
-	// return the input PointHandle if success
-	PointHandleType ShrinkEdgeToPoint(EdgeHandleType EdgeHandle, PointHandleType PointHandle);
+	// return true if success
+	bool ShrinkEdgeToPoint(EdgeHandleType EdgeHandle, PointHandleType PointHandle);
 
 	DenseVector<EdgeHandleType, 2> SplitEdgeByPoint(EdgeHandleType EdgeHandle, PointHandleType PointHandle);
 
-	// shrink to a point of the face, Point_RelativeIndex is from 0 to PointCountOfFace-1
-	// return PointHandle of the input point if success	
-	// can NOT shrink if it lead to merge two point of a triangle face: return invalid handle
-	PointHandleType ShrinkFaceToPoint(FaceHandleType FaceHandle, int_max Point_RelativeIndex = 0);
-
 	// PointHandle may not be on the face
-	// return the input PointHandle if success
-	// can NOT shrink if it lead to merge two point of a triangle face: return invalid handle
-	PointHandleType ShrinkFaceToPoint(FaceHandleType FaceHandle, PointHandleType PointHandle);
+	// return true if success
+	// can NOT shrink if it lead to merge of two point of a triangle face: return false
+	bool ShrinkFaceToPoint(FaceHandleType FaceHandle, PointHandleType PointHandle);
 
 	/*
 	FaceHandleType MergeAdjacentFace(FaceHandleType FaceHandleA, FaceHandleType FaceHandleB);

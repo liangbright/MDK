@@ -29,8 +29,8 @@ void Test_ShrinkEdge()
 	LoadPolygonMeshFromVTKFile(LeafletMesh, FilePathAndName + ".vtk");
 
 	auto EdgeHandleList = LeafletMesh.GetEdgeHandleList();
-
-	LeafletMesh.ShrinkEdgeToPoint(EdgeHandleList[0], 0);
+	auto PointIndexList_Edge = LeafletMesh.Edge(EdgeHandleList[0]).GetPointHandleList();
+	LeafletMesh.ShrinkEdgeToPoint(EdgeHandleList[0], PointIndexList_Edge[0]);
 	SavePolygonMeshAsVTKFile(LeafletMesh, FilePathAndName + "_ShrinkEdge.vtk");
 
 }
@@ -60,8 +60,8 @@ void Test_ShrinkFace()
 	LoadPolygonMeshFromVTKFile(LeafletMesh, FilePathAndName + ".vtk");
 
 	auto FaceHandleList = LeafletMesh.GetFaceHandleList();
-
-	LeafletMesh.ShrinkFaceToPoint(FaceHandleList[0], 0);
+	auto PointHandleList_Face = LeafletMesh.Face(FaceHandleList[0]).GetPointHandleList();
+	LeafletMesh.ShrinkFaceToPoint(FaceHandleList[0], PointHandleList_Face[0]);
 	SavePolygonMeshAsVTKFile(LeafletMesh, FilePathAndName + "_ShrinkFace.vtk");
 
 }
