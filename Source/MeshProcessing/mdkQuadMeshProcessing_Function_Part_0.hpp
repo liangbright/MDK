@@ -268,7 +268,7 @@ PolygonMesh<MeshAttributeType> SubdivideMixedTriangleQuadMeshToQuadMesh_Linear(c
 				auto Point3 = OutputMesh.GetPointPosition(H3);
 				auto L02 = (Point2 - Point0).L2Norm();
 				auto L13 = (Point3 - Point1).L2Norm();
-				if (L02 < L13)
+				if (L02 < L13)// this is good
 				{
 					Point8 = (Point2 + Point0) / ScalarType(2);
 				}

@@ -1209,7 +1209,7 @@ GetDirectedEdgeHandleListByPoint(PointHandleType PointHandle_start, PointHandleT
     auto PointIndex_start = PointHandle_start.GetIndex();
     auto PointIndex_end = PointHandle_end.GetIndex();
 
-    const auto& OutgoingDirectedEdgeIndexList_s = m_MeshData->PointList[PointIndex_start].OutgoingDirectedEdgeIndexList();
+    auto OutgoingDirectedEdgeIndexList_s = m_MeshData->PointList[PointIndex_start].GetOutgoingDirectedEdgeIndexList();
 	for (int_max k = 0; k < OutgoingDirectedEdgeIndexList_s.GetLength(); ++k)
     {
 		auto tempFaceIndex = OutgoingDirectedEdgeIndexList_s[k].FaceIndex;
@@ -1816,7 +1816,7 @@ MembraneMesh<MeshAttributeType>::AddPoint(ScalarType x, ScalarType y, ScalarType
 
 
 template<typename MeshAttributeType>
-DenseVector<Handle_Of_Point_Of_MembraneMesh> MembraneMesh<MeshAttributeType>::AddPointSet(const DenseMatrix<ScalarType>& PointSet)
+DenseVector<Handle_Of_Point_Of_MembraneMesh> MembraneMesh<MeshAttributeType>::AddPoint_batch(const DenseMatrix<ScalarType>& PointSet)
 {
 	DenseVector<PointHandleType> PointHandleList;
 
@@ -1824,7 +1824,7 @@ DenseVector<Handle_Of_Point_Of_MembraneMesh> MembraneMesh<MeshAttributeType>::Ad
     {
         if (PointSet.GetElementCount() != 3)
         {
-            MDK_Error("PointSet is a vector but length != 3 @ MembraneMesh::AddPointSet(...)")
+            MDK_Error("PointSet is a vector but length != 3 @ MembraneMesh::AddPoint_batch(...)")
             return PointHandleList;
         }
 
@@ -1835,7 +1835,7 @@ DenseVector<Handle_Of_Point_Of_MembraneMesh> MembraneMesh<MeshAttributeType>::Ad
 
     if (PointSet.GetRowCount() != 3)
     {
-        MDK_Error("PointSet is a matrix but RowCount != 3 @ MembraneMesh::AddPointSet(...)")
+        MDK_Error("PointSet is a matrix but RowCount != 3 @ MembraneMesh::AddPoint_batch(...)")
         return PointHandleList;
     }
 
@@ -1849,7 +1849,7 @@ DenseVector<Handle_Of_Point_Of_MembraneMesh> MembraneMesh<MeshAttributeType>::Ad
 
 
 template<typename MeshAttributeType>
-DenseVector<Handle_Of_Point_Of_MembraneMesh> MembraneMesh<MeshAttributeType>::AddPointSet(DenseMatrix<ScalarType>&& PointSet)
+DenseVector<Handle_Of_Point_Of_MembraneMesh> MembraneMesh<MeshAttributeType>::AddPoint_batch(DenseMatrix<ScalarType>&& PointSet)
 {
 	DenseVector<PointHandleType> PointHandleList;
 
@@ -1857,7 +1857,7 @@ DenseVector<Handle_Of_Point_Of_MembraneMesh> MembraneMesh<MeshAttributeType>::Ad
 	{
 		if (PointSet.GetElementCount() != 3)
 		{
-			MDK_Error("PointSet is a vector but length != 3 @ MembraneMesh::AddPointSet(...)")
+			MDK_Error("PointSet is a vector but length != 3 @ MembraneMesh::AddPoint_batch(...)")
 			return PointHandleList;
 		}
 
@@ -1868,7 +1868,7 @@ DenseVector<Handle_Of_Point_Of_MembraneMesh> MembraneMesh<MeshAttributeType>::Ad
 
 	if (PointSet.GetRowCount() != 3)
 	{
-		MDK_Error("PointSet is a matrix but RowCount != 3 @ MembraneMesh::AddPointSet(...)")
+		MDK_Error("PointSet is a matrix but RowCount != 3 @ MembraneMesh::AddPoint_batch(...)")
 		return PointHandleList;
 	}
 
@@ -2169,14 +2169,6 @@ Handle_Of_Face_Of_MembraneMesh MembraneMesh<MeshAttributeType>::AddFaceByEdge(co
 	}
 
     // update information in m_MeshData->PointList ------------------------------------------------------------------
-
-	for (int_max k = 0; k < Face.DirectedEdgeList().GetLength(); ++k)
-    {
-		const auto& DirectedEdge_k = Face.DirectedEdgeList()[k];
-		m_MeshData->PointList[DirectedEdge_k.GetStartPointIndex()].OutgoingDirectedEdgeIndexList().Append(DirectedEdge_k.GetIndex());
-		m_MeshData->PointList[DirectedEdge_k.GetEndPointIndex()].IncomingDirectedEdgeIndexList().Append(DirectedEdge_k.GetIndex());
-    }
-
     for (int_max k = 0; k < PointIndexList.GetLength(); ++k)
     {
         m_MeshData->PointList[PointIndexList[k]].AdjacentFaceIndexList().Append(FaceIndex);
@@ -2496,30 +2488,6 @@ void MembraneMesh<MeshAttributeType>::CleanDataStructure(DenseVector<int_max>& P
 		}
 		m_MeshData->PointList[PointIndex_new].AdjacentEdgeIndexList() = std::move(AdjacentEdgeIndexList_new);
 
-		const auto& OutgoingDirectedEdgeIndexList_old = m_MeshData->PointList[PointIndex_new].OutgoingDirectedEdgeIndexList();
-		DenseVector<DirectedEdgeIndex_Of_MembraneMesh> OutgoingDirectedEdgeIndexList_new;
-		for (int_max n = 0; n < OutgoingDirectedEdgeIndexList_old.GetLength(); ++n)
-		{
-			auto Index_old = OutgoingDirectedEdgeIndexList_old[n];
-			auto Index_new = Index_old;
-			Index_new.FaceIndex = FaceIndexMap_Old_To_New[Index_old.FaceIndex];
-			//Index_new.RelativeIndex will not change
-			OutgoingDirectedEdgeIndexList_new.Append(Index_new);
-		}
-		m_MeshData->PointList[PointIndex_new].OutgoingDirectedEdgeIndexList() = std::move(OutgoingDirectedEdgeIndexList_new);
-
-		const auto& IncomingDirectedEdgeIndexList_old = m_MeshData->PointList[PointIndex_new].IncomingDirectedEdgeIndexList();
-		DenseVector<DirectedEdgeIndex_Of_MembraneMesh> IncomingDirectedEdgeIndexList_new;
-		for (int_max n = 0; n < IncomingDirectedEdgeIndexList_old.GetLength(); ++n)
-		{
-			auto Index_old = IncomingDirectedEdgeIndexList_old[n];
-			auto Index_new = Index_old;
-			Index_new.FaceIndex = FaceIndexMap_Old_To_New[Index_old.FaceIndex];
-			//Index_new.RelativeIndex will not change
-			IncomingDirectedEdgeIndexList_new.Append(Index_new);
-		}
-		m_MeshData->PointList[PointIndex_new].IncomingDirectedEdgeIndexList() = std::move(IncomingDirectedEdgeIndexList_new);
-
 		const auto& AdjacentFaceIdnexList_old = m_MeshData->PointList[PointIndex_new].AdjacentFaceIndexList();
 		DenseVector<int_max> AdjacentFaceIdnexList_new;
 		for (int_max n = 0; n < AdjacentFaceIdnexList_old.GetLength(); ++n)
@@ -2769,19 +2737,17 @@ bool MembraneMesh<MeshAttributeType>::SwapConnectivityOfPoint(PointHandleType Po
 		return false;
 	}
 
-	auto PointIndexA = PointHandleA.GetIndex();
-	// take reference of adjacency record
-	auto& AdjacentPointIndexListA = m_MeshData->PointList[PointIndexA].AdjacentPointIndexList();
-	auto& AdjacentEdgeIndexListA = m_MeshData->PointList[PointIndexA].AdjacentEdgeIndexList();
-	auto& OutgoingDirectedEdgeIndexListA = m_MeshData->PointList[PointIndexA].OutgoingDirectedEdgeIndexList();
-	auto& IncomingDirectedEdgeIndexListA = m_MeshData->PointList[PointIndexA].IncomingDirectedEdgeIndexList();
+	auto PointIndexA = PointHandleA.GetIndex();	
+	auto& AdjacentPointIndexListA = m_MeshData->PointList[PointIndexA].AdjacentPointIndexList();//to be updated
+	auto& AdjacentEdgeIndexListA = m_MeshData->PointList[PointIndexA].AdjacentEdgeIndexList();//to be updated
+	auto OutgoingDirectedEdgeIndexListA = m_MeshData->PointList[PointIndexA].GetOutgoingDirectedEdgeIndexList();
+	auto IncomingDirectedEdgeIndexListA = m_MeshData->PointList[PointIndexA].GetIncomingDirectedEdgeIndexList();
 
 	auto PointIndexB = PointHandleB.GetIndex();
-	// take reference of adjacency record
-	auto& AdjacentPointIndexListB = m_MeshData->PointList[PointIndexB].AdjacentPointIndexList();
-	auto& AdjacentEdgeIndexListB = m_MeshData->PointList[PointIndexB].AdjacentEdgeIndexList();
-	auto& OutgoingDirectedEdgeIndexListB = m_MeshData->PointList[PointIndexB].OutgoingDirectedEdgeIndexList();
-	auto& IncomingDirectedEdgeIndexListB = m_MeshData->PointList[PointIndexB].IncomingDirectedEdgeIndexList();
+	auto& AdjacentPointIndexListB = m_MeshData->PointList[PointIndexB].AdjacentPointIndexList();//to be updated
+	auto& AdjacentEdgeIndexListB = m_MeshData->PointList[PointIndexB].AdjacentEdgeIndexList();//to be updated
+	auto OutgoingDirectedEdgeIndexListB = m_MeshData->PointList[PointIndexB].GetOutgoingDirectedEdgeIndexList();
+	auto IncomingDirectedEdgeIndexListB = m_MeshData->PointList[PointIndexB].GetIncomingDirectedEdgeIndexList();
 
 	//---------------- update adjacent point and edge ----------------------------------------------------
 
@@ -2853,7 +2819,7 @@ bool MembraneMesh<MeshAttributeType>::SwapConnectivityOfPoint(PointHandleType Po
 		}
 	}
 
-	//change PointIndexA -> PointIndexB for DirectedEdge
+	//change PointIndexA -> PointIndexB for DirectedEdge	
 	for (int_max k = 0; k < OutgoingDirectedEdgeIndexListA.GetLength(); ++k)
 	{
 		auto FaceIndex_k = OutgoingDirectedEdgeIndexListA[k].FaceIndex;
@@ -2907,18 +2873,7 @@ bool MembraneMesh<MeshAttributeType>::SwapConnectivityOfPoint(PointHandleType Po
 		AdjacentEdgeIndexListB = tempList;
 	}
 
-	{
-		auto tempList = OutgoingDirectedEdgeIndexListA;
-		OutgoingDirectedEdgeIndexListA = OutgoingDirectedEdgeIndexListB;
-		OutgoingDirectedEdgeIndexListB = tempList;
-    }
-
-	{
-		auto tempList = IncomingDirectedEdgeIndexListA;
-		IncomingDirectedEdgeIndexListA = IncomingDirectedEdgeIndexListB;
-		IncomingDirectedEdgeIndexListB = tempList;
-	}
-
+    //swap AdjacentFaceIndexList
 	auto& AdjacentFaceIndexListA = m_MeshData->PointList[PointIndexA].AdjacentFaceIndexList();
 	auto& AdjacentFaceIndexListB = m_MeshData->PointList[PointIndexB].AdjacentFaceIndexList();
 	{
@@ -3004,8 +2959,9 @@ bool MembraneMesh<MeshAttributeType>::MergeConnectivityOfPoint(PointHandleType P
 
 	const auto& AdjacentPointIndexListB = m_MeshData->PointList[PointIndexB].AdjacentPointIndexList();
 	const auto& AdjacentEdgeIndexListB = m_MeshData->PointList[PointIndexB].AdjacentEdgeIndexList();
-	const auto& OutgoingDirectedEdgeIndexListB = m_MeshData->PointList[PointIndexB].OutgoingDirectedEdgeIndexList();
-	const auto& IncomingDirectedEdgeIndexListB = m_MeshData->PointList[PointIndexB].IncomingDirectedEdgeIndexList();
+	auto OutgoingDirectedEdgeIndexListB = m_MeshData->PointList[PointIndexB].GetOutgoingDirectedEdgeIndexList();
+	auto IncomingDirectedEdgeIndexListB = m_MeshData->PointList[PointIndexB].GetIncomingDirectedEdgeIndexList();
+
 	//update point adjacent to B
 	for (int_max k = 0; k < AdjacentPointIndexListB.GetLength(); ++k)
 	{
@@ -3026,14 +2982,14 @@ bool MembraneMesh<MeshAttributeType>::MergeConnectivityOfPoint(PointHandleType P
 			m_MeshData->EdgeList[AdjacentEdgeIndexListB[k]].SetPointIndexList(PointIndexList_k[0], PointIndexA);
 		}
 	}
-	//update OutgoingDirectedEdgeIndexListB
+	//update OutgoingDirectedEdge of PointB
 	for (int_max k = 0; k < OutgoingDirectedEdgeIndexListB.GetLength(); ++k)
 	{
 		auto DirectedEdgeIndex_k = OutgoingDirectedEdgeIndexListB[k];
 		auto& DirectedEdge_k = m_MeshData->FaceList[DirectedEdgeIndex_k.FaceIndex].DirectedEdgeList()[DirectedEdgeIndex_k.RelativeIndex];
 		DirectedEdge_k.SetStartPointIndex(PointIndexA);
 	}
-	//update IncomingDirectedEdgeIndexListB
+	//update IncomingDirectedEdge of PointB
 	for (int_max k = 0; k < IncomingDirectedEdgeIndexListB.GetLength(); ++k)
 	{
 		auto DirectedEdgeIndex_k = IncomingDirectedEdgeIndexListB[k];
@@ -3046,13 +3002,12 @@ bool MembraneMesh<MeshAttributeType>::MergeConnectivityOfPoint(PointHandleType P
 	AdjacentEdgeIndexListA = { &AdjacentEdgeIndexListA, &AdjacentEdgeIndexListB };
 	auto tempIndexList_edge_delete = AdjacentEdgeIndexListA.ExactMatch(EdgeHandle_AB.GetIndex());
 	AdjacentEdgeIndexListA.Delete(tempIndexList_edge_delete);
-	m_MeshData->PointList[PointIndexA].Update_OtherAdjacencyRecord_Given_AdjacentEdgeIndexList();
+	m_MeshData->PointList[PointIndexA].Update_AdjacentPointIndexList_Given_AdjacentEdgeIndexList();
+	m_MeshData->PointList[PointIndexA].Update_AdjacentFaceIndexList_Given_AdjacentEdgeIndexList();
 
 	//delete any adjacency info of B
 	m_MeshData->PointList[PointIndexB].AdjacentPointIndexList().Clear();
 	m_MeshData->PointList[PointIndexB].AdjacentEdgeIndexList().Clear();
-	m_MeshData->PointList[PointIndexB].OutgoingDirectedEdgeIndexList().Clear();
-	m_MeshData->PointList[PointIndexB].IncomingDirectedEdgeIndexList().Clear();
 	m_MeshData->PointList[PointIndexB].AdjacentFaceIndexList().Clear();
 
 	//---------------------------------------------------------------	
@@ -3408,20 +3363,6 @@ void MembraneMesh<MeshAttributeType>::UpdateRecord_DeleteFace(int_max FaceIndex)
 	const auto& PointIndexList = m_MeshData->FaceList[FaceIndex].GetPointIndexList();
 
 	// update information in m_MeshData->PointList ------------------------------------------------------------------
-
-	for (int_max k = 0; k < DirectedEdgeList.GetLength(); ++k)
-	{
-		auto DirectedEdge_k = DirectedEdgeList[k];
-		auto tempPointIndex_start = DirectedEdge_k.GetStartPointIndex();
-		auto tempPointIndex_end = DirectedEdge_k.GetEndPointIndex();
-
-		auto tempIndex_s = m_MeshData->PointList[tempPointIndex_start].OutgoingDirectedEdgeIndexList().ExactMatch(DirectedEdge_k.GetIndex());
-		m_MeshData->PointList[tempPointIndex_start].OutgoingDirectedEdgeIndexList().Delete(tempIndex_s);
-	
-		auto tempIndex_e = m_MeshData->PointList[tempPointIndex_end].IncomingDirectedEdgeIndexList().ExactMatch(DirectedEdge_k.GetIndex());
-		m_MeshData->PointList[tempPointIndex_end].IncomingDirectedEdgeIndexList().Delete(tempIndex_e);
-	}
-
 	for (int_max k = 0; k < PointIndexList.GetLength(); ++k)
 	{
 		auto tempIndex = m_MeshData->PointList[PointIndexList[k]].AdjacentFaceIndexList().ExactMatch(FaceIndex);		
@@ -3505,18 +3446,6 @@ void MembraneMesh<MeshAttributeType>::UpdateRecord_DeleteDirectedEdge(DirectedEd
 		m_MeshData->EdgeList[EdgeIndex].DirectedEdgeIndexList().Delete(tempIndex_e);
 	}
 	
-	if (m_MeshData->PointValidityFlagList[PointIndex_start] == 1)
-	{
-		auto tempIndex_ps = m_MeshData->PointList[PointIndex_start].OutgoingDirectedEdgeIndexList().ExactMatch(DirectedEdgeIndex_delete);
-		m_MeshData->PointList[PointIndex_start].OutgoingDirectedEdgeIndexList().Delete(tempIndex_ps);
-	}
-
-	if (m_MeshData->PointValidityFlagList[PointIndex_end] == 1)
-	{
-		auto tempIndex_pe = m_MeshData->PointList[PointIndex_end].IncomingDirectedEdgeIndexList().ExactMatch(DirectedEdgeIndex_delete);
-		m_MeshData->PointList[PointIndex_end].IncomingDirectedEdgeIndexList().Delete(tempIndex_pe);
-	}
-
 	auto& DirectedEdgeList = m_MeshData->FaceList[FaceIndex].DirectedEdgeList();
 	for (int_max n = 0; n < DirectedEdgeList.GetLength(); ++n)
 	{
@@ -3526,14 +3455,6 @@ void MembraneMesh<MeshAttributeType>::UpdateRecord_DeleteDirectedEdge(DirectedEd
 			auto EdgeIndex_n = DirectedEdgeList[n].GetEdgeIndex();
 			auto tempIndex_e = m_MeshData->EdgeList[EdgeIndex_n].DirectedEdgeIndexList().ExactMatch("first", DirectedEdgeIndex_old);
 			m_MeshData->EdgeList[EdgeIndex_n].DirectedEdgeIndexList()[tempIndex_e].RelativeIndex = n;
-
-			auto PointIndex_s = DirectedEdgeList[n].GetStartPointIndex();
-			auto tempIndex_ps = m_MeshData->PointList[PointIndex_s].OutgoingDirectedEdgeIndexList().ExactMatch("first", DirectedEdgeIndex_old);
-			m_MeshData->PointList[PointIndex_s].OutgoingDirectedEdgeIndexList()[tempIndex_ps].RelativeIndex = n;
-
-			auto PointIndex_e = DirectedEdgeList[n].GetEndPointIndex();
-			auto tempIndex_pe = m_MeshData->PointList[PointIndex_e].IncomingDirectedEdgeIndexList().ExactMatch("first", DirectedEdgeIndex_old);
-			m_MeshData->PointList[PointIndex_e].IncomingDirectedEdgeIndexList()[tempIndex_pe].RelativeIndex = n;
 
 			DirectedEdgeList[n].SetIndex(FaceIndex, n);
 		}
@@ -3570,21 +3491,11 @@ void MembraneMesh<MeshAttributeType>::UpdateRecord_InsertDirectedEdge(DirectedEd
 			auto tempIndex_e = m_MeshData->EdgeList[EdgeIndex_n].DirectedEdgeIndexList().ExactMatch("first", DirectedEdgeIndex_old);
 			m_MeshData->EdgeList[EdgeIndex_n].DirectedEdgeIndexList()[tempIndex_e].RelativeIndex = n;
 
-			auto PointIndex_s = DirectedEdgeList[n].GetStartPointIndex();
-			auto tempIndex_ps = m_MeshData->PointList[PointIndex_s].OutgoingDirectedEdgeIndexList().ExactMatch("first", DirectedEdgeIndex_old);
-			m_MeshData->PointList[PointIndex_s].OutgoingDirectedEdgeIndexList()[tempIndex_ps].RelativeIndex = n;
-
-			auto PointIndex_e = DirectedEdgeList[n].GetEndPointIndex();
-			auto tempIndex_pe = m_MeshData->PointList[PointIndex_e].IncomingDirectedEdgeIndexList().ExactMatch("first", DirectedEdgeIndex_old);
-			m_MeshData->PointList[PointIndex_e].IncomingDirectedEdgeIndexList()[tempIndex_pe].RelativeIndex = n;
-
 			DirectedEdgeList[n].SetIndex(FaceIndex, n);
 		}
 	}
 
 	m_MeshData->EdgeList[EdgeIndex].DirectedEdgeIndexList().Append(DirectedEdgeIndex_insert);
-	m_MeshData->PointList[PointIndex_start].OutgoingDirectedEdgeIndexList().Append(DirectedEdgeIndex_insert);
-	m_MeshData->PointList[PointIndex_end].IncomingDirectedEdgeIndexList().Append(DirectedEdgeIndex_insert);
 }
 
 }// namespace mdk

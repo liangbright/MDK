@@ -45,11 +45,7 @@ struct Data_Of_Point_Of_MembraneMesh
     int_max ID; // unique identifier (valid if >=0, invalid if < 0), it will not change after Mesh.CleanDataStructure()
 
     DenseVector<int_max> AdjacentPointIndexList; // index in Mesh.m_MeshData->PointList
-
-    DenseVector<int_max> AdjacentEdgeIndexList;  // index in Mesh.m_MeshData->EdgeList
-    DenseVector<DirectedEdgeIndex_Of_MembraneMesh> OutgoingDirectedEdgeIndexList; // index in Mesh.m_MeshData->DirectedEdgeList, this is the start point
-    DenseVector<DirectedEdgeIndex_Of_MembraneMesh> IncomingDirectedEdgeIndexList; // index in Mesh.m_MeshData->DirectedEdgeList, this is the end point 
-    
+    DenseVector<int_max> AdjacentEdgeIndexList;  // index in Mesh.m_MeshData->EdgeList   
     DenseVector<int_max> AdjacentFaceIndexList;  // index in Mesh.m_MeshData->FaceList
 
     //------------------------------------------------
@@ -104,24 +100,17 @@ private:
     inline DenseVector<int_max>& AdjacentEdgeIndexList();
 	inline const DenseVector<int_max>& AdjacentEdgeIndexList() const;
 
-	inline DenseVector<DirectedEdgeIndex_Of_MembraneMesh>& OutgoingDirectedEdgeIndexList();
-	inline const DenseVector<DirectedEdgeIndex_Of_MembraneMesh>& OutgoingDirectedEdgeIndexList() const;
-
-	inline DenseVector<DirectedEdgeIndex_Of_MembraneMesh>& IncomingDirectedEdgeIndexList();
-	inline const DenseVector<DirectedEdgeIndex_Of_MembraneMesh>& IncomingDirectedEdgeIndexList() const;
-
 	inline DenseVector<int_max>& AdjacentFaceIndexList();
 	inline const DenseVector<int_max>& AdjacentFaceIndexList() const;
 
-	// Attention: assume adjacency info in m_Data->Mesh.m_MeshData->EdgeList and FaceList is correct
-	inline void Update_OtherAdjacencyRecord_Given_AdjacentEdgeIndexList();
+	inline const DenseVector<DirectedEdgeIndex_Of_MembraneMesh> GetOutgoingDirectedEdgeIndexList() const;
+	inline const DenseVector<DirectedEdgeIndex_Of_MembraneMesh> GetIncomingDirectedEdgeIndexList() const;
 
+	// Attention: assume adjacency info in m_Data->Mesh.m_MeshData->EdgeList and FaceList is correct
 	inline void Update_AdjacentPointIndexList_Given_AdjacentEdgeIndexList();
-	inline void Update_AdjacentEdgeIndexList_Given_DirectedEdgeIndexList();
-	inline void Update_DirectedEdgeIndexList_Given_AdjacentEdgeIndexList();
-	inline void Update_AdjacentFaceIndexList_Given_OutgoingDirectedEdgeIndexList();
-	inline void Update_AdjacentFaceIndexList_Given_IncomingDirectedEdgeIndexList();
-    //-------------------------------------------------------------------------------------//
+	inline void Update_AdjacentFaceIndexList_Given_AdjacentEdgeIndexList();
+
+	//-------------------------------------------------------------------------------------//
 public:
     inline bool IsValid() const;
     bool IsOnEdge() const;

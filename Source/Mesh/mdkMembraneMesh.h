@@ -374,8 +374,8 @@ public:
     PointHandleType AddPoint(ScalarType x, ScalarType y, ScalarType z);
     
     // add a set of points and return PointHandleList
-    DenseVector<PointHandleType> AddPointSet(const DenseMatrix<ScalarType>& PointSet);
-	DenseVector<PointHandleType> AddPointSet(DenseMatrix<ScalarType>&& PointSet);
+    DenseVector<PointHandleType> AddPoint_batch(const DenseMatrix<ScalarType>& PointSet);
+	DenseVector<PointHandleType> AddPoint_batch(DenseMatrix<ScalarType>&& PointSet);
 
     // add an Edge and return EdgeHandle -> EdgeIndex in m_MeshData->EdgeList
     // also create invalid DirectedEdge to hold place at m_MeshData->DirectedEdgeList[EdgeIndex]
