@@ -422,7 +422,7 @@ void MembraneMesh<MeshAttributeType>::GetPointPositionMatrix(DenseMatrix<ScalarT
 	}
 }
 
-//---- Get/Set 3D Position by PointHandle or PointID --------------------------------------------------------------------------//
+//---- Get/Set 3D Position by PointHandle --------------------------------------------------------------------------//
 
 template<typename MeshAttributeType>
 inline
@@ -437,23 +437,6 @@ inline
 void MembraneMesh<MeshAttributeType>::SetPointPosition(PointHandleType PointHandle, const ScalarType Position[3])
 {
     m_MeshData->PointPositionTable.SetCol(PointHandle.GetIndex(), Position);
-}
-
-template<typename MeshAttributeType>
-inline 
-void MembraneMesh<MeshAttributeType>::
-SetPointPosition(int_max PointID, ScalarType x, ScalarType y, ScalarType z)
-{
-	auto PointHandle = this->GetPointHandleByID(PointID);
-    this->SetPointPosition(PointHandle, x, y, z);
-}
-
-template<typename MeshAttributeType>
-inline
-void MembraneMesh<MeshAttributeType>::SetPointPosition(int_max PointID, const ScalarType Position[3])
-{
-	auto PointHandle = this->GetPointHandleByID(PointID);
-    this->SetPointPosition(PointHandle, Position);
 }
 
 template<typename MeshAttributeType>
@@ -485,30 +468,6 @@ void MembraneMesh<MeshAttributeType>::GetPointPosition(PointHandleType PointHand
     m_MeshData->PointPositionTable.GetCol(PointHandle.GetIndex(), Position);
 }
 
-template<typename MeshAttributeType>
-inline
-DenseVector<typename MeshAttributeType::ScalarType, 3>
-MembraneMesh<MeshAttributeType>::GetPointPosition(int_max PointID) const
-{
-    auto PointHandle = this->GetPointHandleByID(PointID);
-    return this->GetPointPosition(PointHandle);
-}
-
-template<typename MeshAttributeType>
-inline 
-void MembraneMesh<MeshAttributeType>::GetPointPosition(int_max PointID, ScalarType& x, ScalarType& y, ScalarType& z) const
-{
-	auto PointHandle = this->GetPointHandleByID(PointID);
-    this->GetPointPosition(PointHandle, x, y, z);
-}
-
-template<typename MeshAttributeType>
-inline 
-void MembraneMesh<MeshAttributeType>::GetPointPosition(int_max PointID, ScalarType Position[3]) const
-{
-	auto PointHandle = this->GetPointHandleByID(PointID);
-    this->GetPointPosition(PointHandle, Position);
-}
 
 template<typename MeshAttributeType>
 inline
@@ -541,34 +500,6 @@ SetPointPosition(const DenseVector<PointHandleType>& PointHandleList, const Dens
 
         m_MeshData->PointPositionTable.SetCol(PointIndex, PointPositionMatrix.GetPointerOfCol(k));
     }
-}
-
-
-template<typename MeshAttributeType>
-inline
-void MembraneMesh<MeshAttributeType>::
-SetPointPosition(const DenseVector<int_max>& PointIDList, const DenseMatrix<ScalarType>& PointPositionMatrix)
-{
-    if (PointIDList.IsEmpty() == true)
-    {
-        MDK_Error("Empty PointIDList @ MembraneMesh::SetPointPosition(...)")
-        return;
-    }
-
-	DenseVector<PointHandleType> PointHandleList;
-    PointHandleList.Resize(PointIDList.GetLength());
-    for (int_max k = 0; k < PointIDList.GetLength(); ++k)
-    {
-		PointHandleList[k] = this->GetPointHandleByID(PointIDList[k]);
-
-        if (this->IsValidHandle(PointHandleList[k]) == false)
-        {
-            MDK_Error("Invalid PointIDList @ MembraneMesh::SetPointPosition(...)")
-            return;
-        }
-    }
-
-    this->SetPointPosition(PointHandleList, PointPositionMatrix);
 }
 
 
@@ -608,45 +539,6 @@ GetPointPosition(const DenseVector<PointHandleType>& PointHandleList, DenseMatri
     }
 }
 
-
-template<typename MeshAttributeType>
-inline
-DenseMatrix<typename MeshAttributeType::ScalarType>
-MembraneMesh<MeshAttributeType>::GetPointPosition(const DenseVector<int_max>& PointIDList) const
-{
-    DenseMatrix<ScalarType> PointPositionMatrix;
-    this->GetPointPosition(PointIDList, PointPositionMatrix);
-    return PointPositionMatrix;
-}
-
-
-template<typename MeshAttributeType>
-inline
-void MembraneMesh<MeshAttributeType>::
-GetPointPosition(const DenseVector<int_max>& PointIDList, DenseMatrix<ScalarType>& PointPositionMatrix) const
-{
-    if (PointIDList.IsEmpty() == true)
-    {
-        PointPositionMatrix.FastResize(0, 0);
-        return;
-    }
-
-	DenseVector<PointHandleType> PointHandleList;
-    PointHandleList.Resize(PointIDList.GetLength());
-    for (int_max k = 0; k < PointIDList.GetLength(); ++k)
-    {
-		PointHandleList[k] = this->GetPointHandleByID(PointIDList[k]);
-
-        if (this->IsValidHandle(PointHandleList[k]) == false)
-        {
-            MDK_Error("Invalid PointIDList @ MembraneMesh::GetPointPosition(...)")
-            return;
-        }
-    }
-
-    this->GetPointPosition(PointPositionMatrix, PointHandleList);
-}
-
 //------------------------- Mesh Element ----------------------------------------------
 
 template<typename MeshAttributeType>
@@ -665,22 +557,6 @@ const Point_Of_MembraneMesh<MeshAttributeType>& MembraneMesh<MeshAttributeType>:
 
 template<typename MeshAttributeType>
 inline
-Point_Of_MembraneMesh<MeshAttributeType>& MembraneMesh<MeshAttributeType>::Point(int_max PointID)
-{
-	auto PointHandle = this->GetPointHandleByID(PointID);
-	return this->Point(PointHandle);
-}
-
-template<typename MeshAttributeType>
-inline
-const Point_Of_MembraneMesh<MeshAttributeType>& MembraneMesh<MeshAttributeType>::Point(int_max PointID) const
-{
-	auto PointHandle = this->GetPointHandleByID(PointID);
-	return this->Point(PointHandle);
-}
-
-template<typename MeshAttributeType>
-inline
 Edge_Of_MembraneMesh<MeshAttributeType>& MembraneMesh<MeshAttributeType>::Edge(EdgeHandleType EdgeHandle)
 {
     return m_MeshData->EdgeList[EdgeHandle.GetIndex()];
@@ -692,23 +568,6 @@ const Edge_Of_MembraneMesh<MeshAttributeType>& MembraneMesh<MeshAttributeType>::
 {
     return m_MeshData->EdgeList[EdgeHandle.GetIndex()];
 }
-
-template<typename MeshAttributeType>
-inline
-Edge_Of_MembraneMesh<MeshAttributeType>& MembraneMesh<MeshAttributeType>::Edge(int_max EdgeID)
-{
-	auto EdgeHandle = this->GetEdgeHandleByID(EdgeID);
-	return this->Edge(EdgeHandle);
-}
-
-template<typename MeshAttributeType>
-inline
-const Edge_Of_MembraneMesh<MeshAttributeType>& MembraneMesh<MeshAttributeType>::Edge(int_max EdgeID) const
-{
-	auto EdgeHandle = this->GetEdgeHandleByID(EdgeID);
-	return this->Edge(EdgeHandle);
-}
-
 
 template<typename MeshAttributeType>
 inline
@@ -731,22 +590,6 @@ MembraneMesh<MeshAttributeType>::DirectedEdge(DirectedEdgeHandleType DirectedEdg
 
 template<typename MeshAttributeType>
 inline
-DirectedEdge_Of_MembraneMesh<MeshAttributeType>& MembraneMesh<MeshAttributeType>::DirectedEdge(int_max DirectedEdgeID)
-{
-	auto DirectedEdgeHandle = this->GetDirectedEdgeHandleByID(DirectedEdgeID);
-	return this->DirectedEdge(DirectedEdgeHandle);
-}
-
-template<typename MeshAttributeType>
-inline
-const DirectedEdge_Of_MembraneMesh<MeshAttributeType>& MembraneMesh<MeshAttributeType>::DirectedEdge(int_max DirectedEdgeID) const
-{
-	auto DirectedEdgeHandle = this->GetDirectedEdgeHandleByID(DirectedEdgeID);
-	return this->DirectedEdge(DirectedEdgeHandle);
-}
-
-template<typename MeshAttributeType>
-inline
 Face_Of_MembraneMesh<MeshAttributeType>& MembraneMesh<MeshAttributeType>::Face(FaceHandleType FaceHandle)
 {
     return m_MeshData->FaceList[FaceHandle.GetIndex()];
@@ -757,22 +600,6 @@ inline
 const Face_Of_MembraneMesh<MeshAttributeType>& MembraneMesh<MeshAttributeType>::Face(FaceHandleType FaceHandle) const
 {
     return m_MeshData->FaceList[FaceHandle.GetIndex()];
-}
-
-template<typename MeshAttributeType>
-inline
-Face_Of_MembraneMesh<MeshAttributeType>& MembraneMesh<MeshAttributeType>::Face(int_max FaceID)
-{
-	auto FaceHandle = this->GetFaceHandleByID(FaceID);
-	return this->Face(FaceHandle)
-}
-
-template<typename MeshAttributeType>
-inline
-const Face_Of_MembraneMesh<MeshAttributeType>& MembraneMesh<MeshAttributeType>::Face(int_max FaceID) const
-{
-	auto FaceHandle = this->GetFaceHandleByID(FaceID);
-	return this->Face(FaceHandle)
 }
 
 //-------------- check handle -------------------------------------------------------//
@@ -2698,6 +2525,50 @@ MembraneMesh<MeshAttributeType>::GetSubMeshByFace(const DenseVector<FaceHandleTy
 
 
 // other basic operation ----------------------------------------------------------------------------------------
+
+template<typename MeshAttributeType>
+void MembraneMesh<MeshAttributeType>::ReversePointOrderOfFace(FaceHandleType FaceHandle)
+{
+	if (this->IsValidHandle(FaceHandle) == false)
+	{
+		MDK_Error("Invalid FaceHandle @ MembraneMesh::ReversePointOrderOfFace(...)")
+		return;
+	}
+	
+	auto&  DirectedEdgeList = m_MeshData->FaceList[FaceHandle.GetIndex()].DirectedEdgeList();
+	for (int_max k = 0; k < DirectedEdgeList.GetLength(); ++k)
+	{
+		auto PointIndex_start = DirectedEdgeList[k].GetStartPointIndex();
+		auto PointIndex_end = DirectedEdgeList[k].GetEndPointIndex();
+		DirectedEdgeList[k].SetStartPointIndex(PointIndex_end);
+		DirectedEdgeList[k].SetEndPointIndex(PointIndex_start);
+	}
+
+	StdObjectVector<DirectedEdge_Of_MembraneMesh<MeshAttributeType>> DirectedEdgeList_new;
+	DirectedEdgeList_new.Resize(DirectedEdgeList.GetLength());
+	for (int_max k = 0; k < DirectedEdgeList.GetLength(); ++k)// k is RelativeIndex_old
+	{
+		int_max RelativeIndex_new = -1;
+		if (k == DirectedEdgeList.GetLength() - 1)
+		{
+			RelativeIndex_new = k;
+		}
+		else
+		{
+			RelativeIndex_new = DirectedEdgeList.GetLength() - 2 - k;
+		}
+
+		//update adjacency info
+		auto EdgeIndex_k = DirectedEdgeList[k].GetEdgeIndex();
+		auto tempIndex = m_MeshData->EdgeList[EdgeIndex_k].DirectedEdgeIndexList().ExactMatch("first", DirectedEdgeList[k].GetIndex());
+		m_MeshData->EdgeList[EdgeIndex_k].DirectedEdgeIndexList()[tempIndex].RelativeIndex = RelativeIndex_new;
+		
+		DirectedEdgeList_new[RelativeIndex_new] = std::move(DirectedEdgeList[k]);
+	}
+
+	DirectedEdgeList = std::move(DirectedEdgeList_new);	
+}
+
 
 template<typename MeshAttributeType>
 bool MembraneMesh<MeshAttributeType>::SwapPoint(PointHandleType PointHandleA, PointHandleType PointHandleB)

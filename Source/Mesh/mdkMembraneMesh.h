@@ -173,9 +173,8 @@ public:
     inline int_max GetFaceCount() const;
  
 	inline int_max GetMaxValueOfPointIndex() const;// the maximum value of PointHanlde.GetIndex()
-	inline int_max GetMaxValueOfEdgeIndex() const;// the maximum value of EdgeHanlde.GetIndex()
-	//inline int_max GetMaxValueOfDirectedEdgeIndex() const;// the maximum value of DirectedEdgeHanlde.GetIndex()
-	inline int_max GetMaxValueOfFaceIndex() const;// the maximum value of FaceHanlde.GetIndex()
+	inline int_max GetMaxValueOfEdgeIndex() const; // the maximum value of EdgeHanlde.GetIndex()	
+	inline int_max GetMaxValueOfFaceIndex() const; // the maximum value of FaceHanlde.GetIndex()
 
     //------ Get/Set GlobalAttribute -----------------------------------//
 
@@ -186,57 +185,33 @@ public:
 	inline DenseMatrix<ScalarType> GetPointPositionMatrix() const;
 	inline void GetPointPositionMatrix(DenseMatrix<ScalarType>& PositionMatrix) const;
 
-    // Get/Set 3D Position by PointHandle or PointID --------------------------------------------------------------------------//
+    // Get/Set 3D Position by PointHandle --------------------------------------------------------------------------//
 
     inline void SetPointPosition(PointHandleType PointHandle, ScalarType x, ScalarType y, ScalarType z);
     inline void SetPointPosition(PointHandleType PointHandle, const ScalarType Position[3]);
-
-    inline void SetPointPosition(int_max PointID, ScalarType x, ScalarType y, ScalarType z);
-    inline void SetPointPosition(int_max PointID, const ScalarType Position[3]);
 
     inline DenseVector<ScalarType, 3> GetPointPosition(PointHandleType PointHandle) const;
     inline void GetPointPosition(PointHandleType PointHandle, ScalarType& x, ScalarType& y, ScalarType& z) const;
     inline void GetPointPosition(PointHandleType PointHandle, ScalarType Position[3]) const;
 
-    inline DenseVector<ScalarType, 3> GetPointPosition(int_max PointID) const;
-    inline void GetPointPosition(int_max PointID, ScalarType& x, ScalarType& y, ScalarType& z) const;
-    inline void GetPointPosition(int_max PointID, ScalarType Position[3]) const;
-
     inline void SetPointPosition(const DenseVector<PointHandleType>& PointHandleList, const DenseMatrix<ScalarType>& PointPositionMatrix);
-
-    inline void SetPointPosition(const DenseVector<int_max>& PointIDList, const DenseMatrix<ScalarType>& PointPositionMatrix);
 
     inline DenseMatrix<ScalarType> GetPointPosition(const DenseVector<PointHandleType>& PointHandleList) const;
     inline void GetPointPosition(const DenseVector<PointHandleType>& PointHandleList, DenseMatrix<ScalarType>& PointPositionMatrix) const;
-
-    inline DenseMatrix<ScalarType> GetPointPosition(const DenseVector<int_max>& PointIDList) const;
-    inline void GetPointPosition(const DenseVector<int_max>& PointIDList, DenseMatrix<ScalarType>& PointPositionMatrix) const;
     
-    //----- Get/Set Mesh Item {Point, , Edge, DirectedEdge, Face} by using Handle or ID ------//
+    //----- Get/Set Mesh Item {Point, , Edge, DirectedEdge, Face} by using Handle ------//
 
     inline PointType& Point(PointHandleType PointHandle);
     inline const PointType& Point(PointHandleType PointHandle) const;
 
-    inline PointType& Point(int_max PointID);
-    inline const PointType& Point(int_max PointID) const;
-
     inline EdgeType& Edge(EdgeHandleType EdgeHandle);
     inline const EdgeType& Edge(EdgeHandleType EdgeHandle) const;
-
-    inline EdgeType& Edge(int_max EdgeID);
-    inline const EdgeType& Edge(int_max EdgeID) const;
 
     inline DirectedEdgeType& DirectedEdge(DirectedEdgeHandleType DirectedEdgeHandle);
     inline const DirectedEdgeType& DirectedEdge(DirectedEdgeHandleType DirectedEdgeHandle) const;
 
-    inline DirectedEdgeType& DirectedEdge(int_max DirectedEdgeID);
-    inline const DirectedEdgeType& DirectedEdge(int_max DirectedEdgeID) const;
-
     inline FaceType& Face(FaceHandleType FaceHandle);
     inline const FaceType& Face(FaceHandleType FaceHandle) const;
-
-    inline FaceType& Face(int_max FaceID);
-    inline const FaceType& Face(int_max FaceID) const;
 
     //-------------- check handle -------------------------------------------------------//
 
@@ -436,11 +411,15 @@ public:
 
     //---------------------------------------------------------------------------------------------------
 
-    // get a sub mesh by FaceHandleList or FaceIDList
+    // get a sub mesh by FaceHandleList
     MembraneMesh<MeshAttributeType> GetSubMeshByFace(const DenseVector<FaceHandleType>& FaceHandleList) const;
 
     // other basic operation ----------------------------------------------------------------------------------------
 	
+	// change P0->P1->P2->...->Pn to Pn->...->P2->P1
+	// change AddFaceByPoint({P0, P1, P2,...,Pn}) to AddFaceByPoint({Pn,..., P2, P1, P0})
+	void ReversePointOrderOfFace(FaceHandleType FaceHandle);
+
 	// swap PointA and PointB: move A to B, move B to A, NOT change the mesh topology
 	// A, B, C, D are point ID/name
 	//------------------------

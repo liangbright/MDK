@@ -161,14 +161,6 @@ PolygonMesh<MeshAttributeType> PolygonMesh<MeshAttributeType>::GetSubMeshByFace(
     return OutputMesh;
 }
 
-template<typename MeshAttributeType>
-PolygonMesh<MeshAttributeType> PolygonMesh<MeshAttributeType>::GetSubMeshByFace(const DenseVector<int_max>& FaceIDList) const
-{
-    PolygonMesh<MeshAttributeType> OutputMesh;
-    OutputMesh.Construct(this->MembraneMesh::GetSubMeshByFace(FaceIDList));
-    return OutputMesh;
-}
-
 }// namespace mdk
 
 #endif

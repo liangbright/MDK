@@ -85,7 +85,6 @@ public:
 
     // get a sub mesh by FaceHandleList or FaceIDList ----------------------------//
     PolygonMesh<MeshAttributeType> GetSubMeshByFace(const DenseVector<FaceHandleType>& FaceHandleList) const;
-    PolygonMesh<MeshAttributeType> GetSubMeshByFace(const DenseVector<int_max>& FaceIDList) const;
 
     //--------------------- output -------------------------------------------------//
 

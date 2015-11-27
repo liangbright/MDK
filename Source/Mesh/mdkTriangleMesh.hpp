@@ -50,9 +50,7 @@ void TriangleMesh<MeshAttributeType>::operator=(TriangleMesh<MeshAttributeType>&
 template<typename MeshAttributeType>
 inline 
 Handle_Of_Face_Of_MembraneMesh
-TriangleMesh<MeshAttributeType>::AddFaceByEdge(Handle_Of_Edge_Of_MembraneMesh EdgeHandle0,
-                                               Handle_Of_Edge_Of_MembraneMesh EdgeHandle1, 
-                                               Handle_Of_Edge_Of_MembraneMesh EdgeHandle2)
+TriangleMesh<MeshAttributeType>::AddFaceByEdge(EdgeHandleType EdgeHandle0, EdgeHandleType EdgeHandle1, EdgeHandleType EdgeHandle2)
 {
     DenseVector<EdgeHandleType> EdgeHandleList = { EdgeHandle0, EdgeHandle1, EdgeHandle2 };
     return this->PolygonMesh::AddFaceByEdge(EdgeHandleList);
@@ -61,30 +59,10 @@ TriangleMesh<MeshAttributeType>::AddFaceByEdge(Handle_Of_Edge_Of_MembraneMesh Ed
 template<typename MeshAttributeType>
 inline
 Handle_Of_Face_Of_MembraneMesh
-TriangleMesh<MeshAttributeType>::AddFaceByEdge(int_max EdgeID0, int_max EdgeID1, int_max EdgeID2)
-{
-    DenseVector<int_max> EdgeIDList = { EdgeID0, EdgeID1, EdgeID2 };
-    return this->PolygonMesh::AddFaceByEdge(EdgeIDList);
-}
-
-template<typename MeshAttributeType>
-inline
-Handle_Of_Face_Of_MembraneMesh
-TriangleMesh<MeshAttributeType>::AddFaceByPoint(Handle_Of_Point_Of_MembraneMesh PointHandle0,
-                                                Handle_Of_Point_Of_MembraneMesh PointHandle1, 
-                                                Handle_Of_Point_Of_MembraneMesh PointHandle2)
+TriangleMesh<MeshAttributeType>::AddFaceByPoint(PointHandleType PointHandle0, PointHandleType PointHandle1, PointHandleType PointHandle2)
 {
     DenseVector<PointHandleType> PointHandleList = { PointHandle0, PointHandle1, PointHandle2 };
     return this->PolygonMesh::AddFaceByPoint(PointHandleList);
-}
-
-template<typename MeshAttributeType>
-inline
-Handle_Of_Face_Of_MembraneMesh
-TriangleMesh<MeshAttributeType>::AddFaceByPoint(int_max PointID0, int_max PointID1, int_max PointID2)
-{
-    DenseVector<int_max> PointIDList = { PointID0, PointID1, PointID2 };
-    return this->PolygonMesh::AddFaceByPoint(PointIDList);
 }
 
 template<typename MeshAttributeType>
@@ -93,7 +71,6 @@ void TriangleMesh<MeshAttributeType>::Construct(PolygonMesh<MeshAttributeType> I
     auto InputMeshPtr = static_cast<TriangleMesh<MeshAttributeType>*>(&InputPolygonMesh);
     m_MeshData = std::move(InputMeshPtr->m_MeshData);
 }
-
 
 template<typename MeshAttributeType>
 bool TriangleMesh<MeshAttributeType>::CheckIfTriangleMesh() const
@@ -123,14 +100,6 @@ TriangleMesh<MeshAttributeType> TriangleMesh<MeshAttributeType>::GetSubMeshByFac
 {
     TriangleMesh<MeshAttributeType> OutputMesh;
     OutputMesh.Construct(this->PolygonMesh<MeshAttributeType>::GetSubMeshByFace(FaceHandleList));
-    return OutputMesh;
-}
-
-template<typename MeshAttributeType>
-TriangleMesh<MeshAttributeType> TriangleMesh<MeshAttributeType>::GetSubMeshByFace(const DenseVector<int_max>& FaceIDList) const
-{
-    TriangleMesh<MeshAttributeType> OutputMesh;
-    OutputMesh.Construct(this->PolygonMesh<MeshAttributeType>::GetSubMeshByFace(FaceIDList));
     return OutputMesh;
 }
 
@@ -171,13 +140,6 @@ void TriangleMesh<MeshAttributeType>::UpdateNormalAtFace(FaceHandleType FaceHand
 
 
 template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateNormalAtFace(int_max FaceID)
-{
-    this->UpdateNormalAtFace(this->GetFaceHandleByID(FaceID));
-}
-
-
-template<typename MeshAttributeType>
 void TriangleMesh<MeshAttributeType>::UpdateAreaOfFace(const MDK_Symbol_ALL&)
 {
     for (auto it = this->GetIteratorOfFace(); it.IsNotEnd(); ++it)
@@ -202,13 +164,6 @@ void TriangleMesh<MeshAttributeType>::UpdateAreaOfFace(FaceHandleType FaceHandle
 	auto PointPositionC = this->GetPointPosition(PointHandleList[2]);
 	auto Area = ComputeTriangleAreaIn3D(PointPositionA, PointPositionB, PointPositionC);
 	this->Face(FaceHandle).Attribute().Area = Area;
-}
-
-
-template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateAreaOfFace(int_max FaceID)
-{
-    this->UpdateAreaOfFace(this->GetFaceHandleByID(FaceID));
 }
 
 
@@ -252,13 +207,6 @@ void TriangleMesh<MeshAttributeType>::UpdateCornerAngleOfFace(FaceHandleType Fac
     //---------------------------------
 
     this->Face(FaceHandle).Attribute().CornerAngle = CornerAngle;
-}
-
-
-template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateCornerAngleOfFace(int_max FaceID)
-{
-    this->UpdateCornerAngleOfFace(this->GetFaceHandleByID(FaceID));
 }
 
 
@@ -338,13 +286,6 @@ void TriangleMesh<MeshAttributeType>::UpdateAngleWeightedNormalAtPoint(PointHand
 	{
 		this->Point(PointHandle).Attribute().AngleWeightedNormal = this->Face(AdjacentFaceHandleList[0]).Attribute().Normal;
 	}    
-}
-
-
-template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateAngleWeightedNormalAtPoint(int_max PointID)
-{
-    this->UpdateAngleWeightedNormalAtPoint(this->GetPointHandleByID(PointID));
 }
 
 
@@ -448,13 +389,6 @@ void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint(PointHandle
     //------------------------------
 	this->Point(PointHandle).Attribute().GaussianCurvature = GaussianCurvature;
 	this->Point(PointHandle).Attribute().WeightedGaussianCurvature = WeightedGaussianCurvature;
-}
-
-
-template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint(int_max PointID)
-{// run UpdateCornerAngleOfFace and UpdateAreaOfFace first
-    this->UpdateGaussianCurvatureAtPoint(this->GetPointHandleByID(PointID));
 }
 
 
@@ -595,13 +529,6 @@ void TriangleMesh<MeshAttributeType>::UpdateMeanCurvatureAtPoint(PointHandleType
         this->Point(PointHandle).Attribute().MeanCurvatureNormal.Fill(0);
         this->Point(PointHandle).Attribute().MeanCurvature = 0;
     }
-}
-
-
-template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateMeanCurvatureAtPoint(int_max PointID)
-{// run UpdateAreaOfFace() first
-    this->UpdateMeanCurvatureAtPoint(this->GetPointHandleByID(PointID));
 }
 
 }// namespace mdk

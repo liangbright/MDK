@@ -86,22 +86,15 @@ void Iterator_Of_Point_Of_MembraneMesh<MeshAttribute>::operator+=(int_max Offset
         int_max Counter = 0;
         for (int_max k = PointIndex + 1; k < m_Mesh.m_MeshData->PointList.GetLength(); ++k)
         {
-            if (m_Mesh.m_MeshData->PointList[k].IsValid() == true)
-            {
-                Counter += 1;
-            }
-
-            if (Counter == Offset)
-            {
-                m_PointHandle.SetIndex(k);
-                return;
-            }
-
-            if (Counter > Offset)
-            {
-                m_PointHandle.SetIndex(-1);
-                return;
-            }
+			if (m_Mesh.m_MeshData->PointList[k].IsValid() == true)
+			{
+				Counter += 1;
+				if (Counter == Offset)
+				{
+					m_PointHandle.SetIndex(k);
+					return;
+				}
+			}
         }
 
         m_PointHandle.SetIndex(-1);
@@ -119,22 +112,15 @@ void Iterator_Of_Point_Of_MembraneMesh<MeshAttribute>::operator+=(int_max Offset
         int_max Counter = 0;
         for (int_max k = PointIndex - 1; k >= 0; --k)
         {
-            if (m_Mesh.m_MeshData->PointList[k].IsValid() == true)
-            {
-                Counter += 1;
-            }
-
-            if (Counter == -Offset)
-            {
-                m_PointHandle.SetIndex(k);
-                return;
-            }
-
-            if (Counter > -Offset)
-            {
-                m_PointHandle.SetIndex(-1);
-                return;
-            }
+			if (m_Mesh.m_MeshData->PointList[k].IsValid() == true)
+			{
+				Counter += 1;
+				if (Counter == -Offset)
+				{
+					m_PointHandle.SetIndex(k);
+					return;
+				}
+			}
         }
         m_PointHandle.SetIndex(-1);
     }
@@ -266,22 +252,15 @@ void Iterator_Of_Edge_Of_MembraneMesh<MeshAttribute>::operator+=(int_max Offset)
         int_max Counter = 0;
         for (int_max k = EdgeIndex + 1; k < m_Mesh.m_MeshData->EdgeList.GetLength(); ++k)
         {
-            if (m_Mesh.m_MeshData->EdgeList[k].IsValid() == true)
-            {
-                Counter += 1;
-            }
-
-            if (Counter == Offset)
-            {
-                m_EdgeHandle.SetIndex(k);
-                return;
-            }
-
-            if (Counter > Offset)
-            {
-                m_EdgeHandle.SetIndex(-1);
-                return;
-            }
+			if (m_Mesh.m_MeshData->EdgeList[k].IsValid() == true)
+			{
+				Counter += 1;
+				if (Counter == Offset)
+				{
+					m_EdgeHandle.SetIndex(k);
+					return;
+				}
+			}
         }
 
         m_EdgeHandle.SetIndex(-1);
@@ -299,22 +278,15 @@ void Iterator_Of_Edge_Of_MembraneMesh<MeshAttribute>::operator+=(int_max Offset)
         int_max Counter = 0;
         for (int_max k = EdgeIndex - 1; k >= 0; --k)
         {
-            if (m_Mesh.m_MeshData->EdgeList[k].IsValid() == true)
-            {
-                Counter += 1;
-            }
-
-            if (Counter == -Offset)
-            {
-                m_EdgeHandle.SetIndex(k);
-                return;
-            }
-
-            if (Counter > -Offset)
-            {
-                m_EdgeHandle.SetIndex(-1);
-                return;
-            }
+			if (m_Mesh.m_MeshData->EdgeList[k].IsValid() == true)
+			{
+				Counter += 1;
+				if (Counter == -Offset)
+				{
+					m_EdgeHandle.SetIndex(k);
+					return;
+				}
+			}
         }
         m_EdgeHandle.SetIndex(-1);
     }
@@ -436,129 +408,69 @@ void Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttribute>::operator+=(int_max
     }
     else if (Offset > 0)
     {
-        auto EdgeIndex = m_DirectedEdgeHandle.GetEdgeIndex();
+        auto FaceIndex = m_DirectedEdgeHandle.GetFaceIndex();
         auto RelativeIndex = m_DirectedEdgeHandle.GetRelativeIndex();
 
-        if (EdgeIndex == m_Mesh.m_MeshData->DirectedEdgePairList.GetLength() - 1 && RelativeIndex == 1)
-        {
-            m_DirectedEdgeHandle.SetIndex(-1, -1);
-            return;
-        }
-
-        int_max Counter = 0;
-
-        if (RelativeIndex == 0)
-        {
-            if (m_Mesh.m_MeshData->EdgeValidityFlagList[EdgeIndex] == 1)
-            {
-                Counter += 1;
-                if (Counter == Offset)
-                {
-                    m_DirectedEdgeHandle.SetIndex(EdgeIndex, 1);
-                    return;
-                }
-            }
-        }
-        
-        for (int_max k = EdgeIndex + 1; k < m_Mesh.m_MeshData->DirectedEdgePairList.GetLength(); ++k)
-        {
-            if (m_Mesh.m_MeshData->EdgeValidityFlagList[EdgeIndex] == 1)
-            {
-                Counter += 1;
-
-                if (Counter == Offset)
-                {
-                    m_DirectedEdgeHandle.SetIndex(k, 0);
-                    return;
-                }
-            }
-
-            if (Counter > Offset)
-            {
-                m_DirectedEdgeHandle.SetIndex(-1, -1);
-                return;
-            }
-
-            if (m_Mesh.m_MeshData->EdgeValidityFlagList[EdgeIndex] == 1)
-            {
-                Counter += 1;
-
-                if (Counter == Offset)
-                {
-                    m_DirectedEdgeHandle.SetIndex(k, 1);
-                    return;
-                }
-            }
-
-            if (Counter > Offset)
-            {
-                m_DirectedEdgeHandle.SetIndex(-1, -1);
-                return;
-            }
-        }
-
-        m_DirectedEdgeHandle.SetIndex(-1, -1);
-        return;
+		int_max Counter = 0;
+		for (int_max k = FaceIndex; k < m_Mesh.m_MeshData->FaceList.GetLength(); ++k)
+		{
+			if (m_Mesh.m_MeshData->FaceValidityFlagList[k] == 1)
+			{
+				auto DirectedEdgeCount = m_Mesh.m_MeshData->FaceList[k].GetDirectedEdgeCount();
+				int_max Index_s = -1;
+				if (k == FaceIndex)
+				{
+					Index_s = RelativeIndex + 1;
+				}
+				else
+				{
+					Index_s = 0;
+				}
+				for (int_max n = Index_s; n < DirectedEdgeCount; ++n)
+				{
+					Counter += 1;
+					if (Counter == Offset)
+					{
+						m_DirectedEdgeHandle.SetIndex(k, n);
+						return;
+					}
+				}
+			}
+		}
+		m_DirectedEdgeHandle.SetIndex(-1, -1);
     }
     else // Offset < 0
     {
-        auto EdgeIndex = m_DirectedEdgeHandle.GetEdgeIndex();
-        auto RelativeIndex = m_DirectedEdgeHandle.GetRelativeIndex();
+		auto FaceIndex = m_DirectedEdgeHandle.GetFaceIndex();
+		auto RelativeIndex = m_DirectedEdgeHandle.GetRelativeIndex();
 
-        if (EdgeIndex == 0 && RelativeIndex == 0)
-        {
-            m_DirectedEdgeHandle.SetIndex(-1, 1);
-            return;
-        }
-
-        int_max Counter = 0;
-
-        if (RelativeIndex == 1)
-        {
-            if (m_Mesh.m_MeshData->EdgeValidityFlagList[EdgeIndex] == 1)
-            {
-                Counter += 1;
-                if (Counter == -Offset)
-                {
-                    m_DirectedEdgeHandle.SetIndex(EdgeIndex, 0);
-                    return;
-                }
-            }
-        }
-        
-        for (int_max k = EdgeIndex - 1; k >= 0; --k)
-        {
-            if (m_Mesh.m_MeshData->EdgeValidityFlagList[EdgeIndex] == 1)
-            {
-                Counter += 1;
-
-                if (Counter == -Offset)
-                {
-                    m_DirectedEdgeHandle.SetIndex(k, 0);
-                    return;
-                }
-            }
-
-            if (m_Mesh.m_MeshData->EdgeValidityFlagList[EdgeIndex] == 1)
-            {
-                Counter += 1;
-
-                if (Counter == -Offset)
-                {
-                    m_DirectedEdgeHandle.SetIndex(k, 1);
-                    return;
-                }
-            }
-
-            if (Counter > -Offset)
-            {
-                m_DirectedEdgeHandle.SetIndex(-1, 1);
-                return;
-            }
-        }
-
-        m_DirectedEdgeHandle.SetIndex(-1, 1);
-        return;
+		int_max Counter = 0;
+		for (int_max k = FaceIndex; k >= 0; --k)
+		{
+			if (m_Mesh.m_MeshData->FaceValidityFlagList[k] == 1)
+			{
+				auto DirectedEdgeCount = m_Mesh.m_MeshData->FaceList[k].GetDirectedEdgeCount();
+				int_max Index_s = -1;
+				if (k == FaceIndex)
+				{
+					Index_s = RelativeIndex - 1;
+				}
+				else
+				{
+					Index_s = DirectedEdgeCount-1;
+				}
+				for (int_max n = Index_s; n >= 0; --n)
+				{
+					Counter += 1;
+					if (Counter == -Offset)
+					{
+						m_DirectedEdgeHandle.SetIndex(k, n);
+						return;
+					}
+				}
+			}
+		}
+		m_DirectedEdgeHandle.SetIndex(-1, -1);
     }
 }
 
@@ -587,18 +499,39 @@ template<typename MeshAttribute>
 inline
 bool Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttribute>::IsNotEnd() const
 {
-    auto EdgeIndex = m_DirectedEdgeHandle.GetEdgeIndex();
+    auto FaceIndex = m_DirectedEdgeHandle.GetFaceIndex();
     auto RelativeIndex = m_DirectedEdgeHandle.GetRelativeIndex();
-    return (EdgeIndex >= 0 && EdgeIndex < m_Mesh.m_MeshData->EdgeList.GetLength() && RelativeIndex >= 0 && RelativeIndex <= 1);
+	if (FaceIndex < 0 || FaceIndex >= m_Mesh.m_MeshData->FaceList.GetLength() || RelativeIndex < 0)
+	{
+		return false;
+	}
+
+	if (FaceIndex == m_Mesh.m_MeshData->FaceList.GetLength() - 1)
+	{
+		if (m_Mesh.m_MeshData->FaceValidityFlagList[FaceIndex] == 1)
+		{
+			auto DirectedEdgeCount = m_Mesh.m_MeshData->FaceList[FaceIndex].GetDirectedEdgeCount();
+			if (RelativeIndex >= DirectedEdgeCount)
+			{
+				return false;
+			}
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
 
 template<typename MeshAttribute>
 inline
 void Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttribute>::SetToBegin() const
 {
-    for (int_max k = 0; k < m_Mesh.m_MeshData->DirectedEdgePairList.GetLength(); ++k)
+	for (int_max k = 0; k < m_Mesh.m_MeshData->FaceList.GetLength(); ++k)
     {
-        if (m_Mesh.m_MeshData->EdgeValidityFlagList[EdgeIndex] == 1)
+        if (m_Mesh.m_MeshData->FaceValidityFlagList[k] == 1)
         {
             m_DirectedEdgeHandle.SetIndex(k, 0);
             return;
@@ -691,22 +624,15 @@ void Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::operator+=(int_max Offset)
         int_max Counter = 0;
         for (int_max k = FaceIndex + 1; k < m_Mesh.m_MeshData->FaceList.GetLength(); ++k)
         {
-            if (m_Mesh.m_MeshData->FaceList[k].IsValid() == true)
-            {
-                Counter += 1;
-            }
-
-            if (Counter == Offset)
-            {
-                m_FaceHandle.SetIndex(k);
-                return;
-            }
-
-            if (Counter > Offset)
-            {
-                m_FaceHandle.SetIndex(-1);
-                return;
-            }
+			if (m_Mesh.m_MeshData->FaceList[k].IsValid() == true)
+			{
+				Counter += 1;
+				if (Counter == Offset)
+				{
+					m_FaceHandle.SetIndex(k);
+					return;
+				}
+			}
         }
 
         m_FaceHandle.SetIndex(-1);
@@ -724,22 +650,15 @@ void Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::operator+=(int_max Offset)
         int_max Counter = 0;
         for (int_max k = FaceIndex - 1; k >= 0; --k)
         {
-            if (m_Mesh.m_MeshData->FaceList[k].IsValid() == true)
-            {
-                Counter += 1;
-            }
-
-            if (Counter == -Offset)
-            {
-                m_FaceHandle.SetIndex(k);
-                return;
-            }
-
-            if (Counter > -Offset)
-            {
-                m_FaceHandle.SetIndex(-1);
-                return;
-            }
+			if (m_Mesh.m_MeshData->FaceList[k].IsValid() == true)
+			{
+				Counter += 1;
+				if (Counter == -Offset)
+				{
+					m_FaceHandle.SetIndex(k);
+					return;
+				}
+			}
         }
         m_FaceHandle.SetIndex(-1);
     }

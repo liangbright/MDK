@@ -2674,6 +2674,12 @@ Face_Of_MembraneMesh<MeshAttributeType>::GetPointHandleList_LeadBy(Handle_Of_Poi
 	return PointHandleList_output;
 }
 
+template<typename MeshAttributeType>
+inline
+void Face_Of_MembraneMesh<MeshAttributeType>::ReversePointOrder()
+{
+	m_Data->Mesh.ReversePointOrderOfFace(this->GetHandle());
+}
 
 }// namespace mdk
 

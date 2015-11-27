@@ -614,6 +614,7 @@ public:
 	// output handle list {PointHandleA, PointHandleB, ...}, the point-order may determine the opposite of face normal 
 	inline DenseVector<Handle_Of_Point_Of_MembraneMesh> GetPointHandleList_LeadBy(Handle_Of_Point_Of_MembraneMesh PointHandleA, Handle_Of_Point_Of_MembraneMesh PointHandleB) const;
 
+	inline void ReversePointOrder();
 };
 
 }// namespace mdk

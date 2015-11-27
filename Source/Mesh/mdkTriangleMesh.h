@@ -78,12 +78,10 @@ public:
 
     // direction of DirectedEdge: 0->1->2
     inline FaceHandleType AddFaceByEdge(EdgeHandleType EdgeHandle0, EdgeHandleType EdgeHandle1, EdgeHandleType EdgeHandle2);
-    inline FaceHandleType AddFaceByEdge(int_max EdgeID0, int_max EdgeID1, int_max EdgeID2);
-
+    
     // direction of DirectedEdge: 0->1->2
     inline FaceHandleType AddFaceByPoint(PointHandleType PointHandle0, PointHandleType PointHandle1, PointHandleType PointHandle2);
-    inline FaceHandleType AddFaceByPoint(int_max PointID0, int_max PointID1, int_max PointID2);
-
+    
     //------------ Construct from input data ------------------------------------//
 
     using PolygonMesh::Construct;
@@ -93,38 +91,31 @@ public:
     //--- check --------------------------//
     bool CheckIfTriangleMesh() const;
 
-    // get a sub mesh by FaceHandleList or FaceIDList ----------------------------//
+    // get a sub mesh by FaceHandleList ----------------------------//
     TriangleMesh<MeshAttributeType> GetSubMeshByFace(const DenseVector<FaceHandleType>& FaceHandleList) const;
-    TriangleMesh<MeshAttributeType> GetSubMeshByFace(const DenseVector<int_max>& FaceIDList) const;
 
     //------------- Function optimized For TriangleMesh --------------------------------------------------//
 
 	void UpdateNormalAtFace(const MDK_Symbol_ALL&);
     void UpdateNormalAtFace(FaceHandleType FaceHandle);
-    void UpdateNormalAtFace(int_max FaceID);
 
 	void UpdateAreaOfFace(const MDK_Symbol_ALL&);
     void UpdateAreaOfFace(FaceHandleType FaceHandle);
-    void UpdateAreaOfFace(int_max FaceID);
 
 	void UpdateCornerAngleOfFace(const MDK_Symbol_ALL&);
     void UpdateCornerAngleOfFace(FaceHandleType FaceHandle);
-    void UpdateCornerAngleOfFace(int_max FaceID);
 
 	// FaceNormal must be available: call UpdateNormalAtFace() and UpdateCornerAngleOfFace()
 	void UpdateAngleWeightedNormalAtPoint(const MDK_Symbol_ALL&);
 	void UpdateAngleWeightedNormalAtPoint(PointHandleType PointHandle);
-	void UpdateAngleWeightedNormalAtPoint(int_max PointID);
 
 	// run UpdateCornerAngleOfFace and UpdateAreaOfFace first
 	void UpdateGaussianCurvatureAtPoint(const MDK_Symbol_ALL&);
     void UpdateGaussianCurvatureAtPoint(PointHandleType PointHandle);
-    void UpdateGaussianCurvatureAtPoint(int_max PointID);
 
 	// run UpdateAreaOfFace() first
 	void UpdateMeanCurvatureAtPoint(const MDK_Symbol_ALL&);
     void UpdateMeanCurvatureAtPoint(PointHandleType PointHandle);
-    void UpdateMeanCurvatureAtPoint(int_max PointID);
 
 };
 

@@ -10,7 +10,7 @@ int main()
 	Test_ShrinkEdge();
 	Test_SplitEdge();
 	Test_ShrinkFace();
-
+	Test_ReversePointOrder();
     std::system("pause");
 
     return 1;
