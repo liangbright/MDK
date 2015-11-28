@@ -95,6 +95,13 @@ inline DenseVector<ElementType>::DenseVector(const std::initializer_list<const D
 
 
 template<typename ElementType>
+inline DenseVector<ElementType>::DenseVector(const std::initializer_list<DenseVector<ElementType>>& InputList)
+{
+	(*this) = InputList;
+}
+
+
+template<typename ElementType>
 inline
 DenseVector<ElementType>::~DenseVector()
 {
@@ -151,7 +158,7 @@ void DenseVector<ElementType>::operator=(const std::initializer_list<const Dense
 
     if (InputVectorNumber <= 0)
     {
-        MDK_Error("Input is empty @ DenseVector::operator=(initializer_list of DenseVector pointer)")
+		this->Clear();
         return;
     }
 
@@ -173,7 +180,7 @@ void DenseVector<ElementType>::operator=(const std::initializer_list<const Dense
 
     if (TotalElementNumber <= 0)
     {
-        MDK_Error("TotalElementNumber is 0 @ DenseVector::operator=(initializer_list of DenseVector pointer)")
+		this->Clear();
         return;
     }
 
@@ -181,7 +188,8 @@ void DenseVector<ElementType>::operator=(const std::initializer_list<const Dense
 
     if (IsSelfInInputList == false)
     {
-        m_StdVector.clear();
+		this->Clear();
+		this->SetCapacity(TotalElementNumber);
 
         for (int_max k = 0; k < InputVectorNumber; k++)
         {            
@@ -205,10 +213,50 @@ void DenseVector<ElementType>::operator=(const std::initializer_list<const Dense
         {
             DenseVector<ElementType> tempVector;            
             tempVector = InputList;
-
             m_StdVector = std::move(tempVector.m_StdVector);
         }
     }
+}
+
+
+template<typename ElementType>
+inline
+void DenseVector<ElementType>::operator=(const std::initializer_list<DenseVector<ElementType>>& InputList)
+{
+	auto InputVectorNumber = int_max(InputList.size());
+
+	if (InputVectorNumber <= 0)
+	{
+		this->Clear();
+		return;
+	}
+
+	int_max TotalElementNumber = 0;
+
+	for (int_max k = 0; k < InputVectorNumber; k++)
+	{
+		const auto& InputVector = InputList.begin()[k];
+		TotalElementNumber += InputVector.GetElementCount();
+	}
+
+	if (TotalElementNumber <= 0)
+	{
+		this->Clear();
+		return;
+	}
+
+	this->Clear();
+	this->SetCapacity(TotalElementNumber);
+
+	for (int_max k = 0; k < InputVectorNumber; k++)
+	{
+		const auto& InputVector = InputList.begin()[k];
+		auto DataPtr = InputVector.GetElementPointer();
+		if (DataPtr != nullptr)
+		{
+			this->Append(DataPtr, InputVector.GetElementCount());
+		}
+	}
 }
 
 

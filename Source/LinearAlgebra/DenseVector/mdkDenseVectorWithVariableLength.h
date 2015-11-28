@@ -53,6 +53,8 @@ public:
 
 	inline DenseVector(const std::initializer_list<const DenseVector<ElementType>*>& InputList);
 
+	inline DenseVector(const std::initializer_list<DenseVector<ElementType>>& InputList);
+
     inline ~DenseVector();
 
     //------------------------------------------------------------
@@ -71,6 +73,8 @@ public:
 	//inline void operator=(const std::initializer_list<const DenseVector<ElementType, LengthParameter>*>& InputList);
 
 	inline void operator=(const std::initializer_list<const DenseVector<ElementType>*>& InputList);
+
+	inline void operator=(const std::initializer_list<DenseVector<ElementType>>& InputList);
 
     inline void operator=(const std::initializer_list<ElementType>& InputVector);
 

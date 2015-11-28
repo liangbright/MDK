@@ -102,16 +102,16 @@ void MembraneMesh<MeshAttributeType>::Copy(const MembraneMesh<MeshAttributeType>
 		return;
 	}
 
+	if (this->IsPureEmpty() == true)
+	{
+		this->Recreate();
+	}
+
 	if (InputMesh.IsEmpty() == true)
     {
 		this->Clear();
         return;
     }
-
-	if (this->IsPureEmpty() == true)
-	{
-		this->Recreate();
-	}
 
     m_MeshData->PointPositionTable = InputMesh.m_MeshData->PointPositionTable;
     m_MeshData->PointValidityFlagList = InputMesh.m_MeshData->PointValidityFlagList;
@@ -163,16 +163,16 @@ void MembraneMesh<MeshAttributeType>::Copy(MembraneMesh<MeshAttributeType>&& Inp
 		return;
 	}
 
+	if (this->IsPureEmpty() == true)
+	{
+		this->Recreate();
+	}
+
 	if (InputMesh.IsEmpty() == true)
 	{
 		this->Clear();
 		return;
 	}
-
-	if (this->IsPureEmpty() == true)
-	{
-		this->Recreate();
-	}	
 
 	m_MeshData->PointPositionTable = std::move(InputMesh.m_MeshData->PointPositionTable);
 	m_MeshData->PointValidityFlagList = std::move(InputMesh.m_MeshData->PointValidityFlagList);
