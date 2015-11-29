@@ -51,9 +51,7 @@ void Point_Of_MembraneMesh<MeshAttributeType>::operator=(const Point_Of_Membrane
     m_Data->Mesh.ForceShare(InputPoint.m_Data->Mesh);
     m_Data->Index = InputPoint.m_Data->Index; 
     m_Data->ID = InputPoint.m_Data->ID;
-    m_Data->AdjacentPointIndexList = InputPoint.m_Data->AdjacentPointIndexList;
     m_Data->AdjacentEdgeIndexList = InputPoint.m_Data->AdjacentEdgeIndexList;
-    m_Data->AdjacentFaceIndexList = InputPoint.m_Data->AdjacentFaceIndexList;
     m_Data->Attribute = InputPoint.m_Data->Attribute;
 }
 
@@ -75,9 +73,7 @@ void Point_Of_MembraneMesh<MeshAttributeType>::ReCreate()
 
     m_Data->Index = -1;
     m_Data->ID = -1;
-    m_Data->AdjacentPointIndexList.Clear();
     m_Data->AdjacentEdgeIndexList.Clear();
-    m_Data->AdjacentFaceIndexList.Clear();
     m_Data->Attribute.Clear();
 }
 
@@ -111,20 +107,6 @@ int_max Point_Of_MembraneMesh<MeshAttributeType>::GetIndex() const
 
 template<typename MeshAttributeType>
 inline 
-DenseVector<int_max>& Point_Of_MembraneMesh<MeshAttributeType>::AdjacentPointIndexList()
-{
-    return m_Data->AdjacentPointIndexList;
-}
-
-template<typename MeshAttributeType>
-inline
-const DenseVector<int_max>& Point_Of_MembraneMesh<MeshAttributeType>::AdjacentPointIndexList() const
-{
-	return m_Data->AdjacentPointIndexList;
-}
-
-template<typename MeshAttributeType>
-inline 
 DenseVector<int_max>& Point_Of_MembraneMesh<MeshAttributeType>::AdjacentEdgeIndexList()
 {
     return m_Data->AdjacentEdgeIndexList;
@@ -139,21 +121,48 @@ const DenseVector<int_max>& Point_Of_MembraneMesh<MeshAttributeType>::AdjacentEd
 
 template<typename MeshAttributeType>
 inline
-DenseVector<int_max>& Point_Of_MembraneMesh<MeshAttributeType>::AdjacentFaceIndexList()
+DenseVector<int_max> Point_Of_MembraneMesh<MeshAttributeType>::GetAdjacentPointIndexList() const
 {
-    return m_Data->AdjacentFaceIndexList;
+	DenseVector<int_max> AdjacentPointIndexList;
+	AdjacentPointIndexList.Resize(m_Data->AdjacentEdgeIndexList.GetLength());
+	for (int_max k = 0; k < m_Data->AdjacentEdgeIndexList.GetLength(); ++k)
+	{
+		auto EdgeIndex_k = m_Data->AdjacentEdgeIndexList[k];
+		int_max PointIndex0, PointIndex1;
+		m_Data->Mesh.m_MeshData->EdgeList[EdgeIndex_k].GetPointIndexList(PointIndex0, PointIndex1);
+		if (PointIndex0 == m_Data->Index)
+		{
+			AdjacentPointIndexList[k] = PointIndex1;
+		}
+		else if (PointIndex1 == m_Data->Index)
+		{
+			AdjacentPointIndexList[k] = PointIndex0;
+		}
+		else
+		{
+			MDK_Error("Wrong @ Point_Of_MembraneMesh::GetAdjacentPointIndexList()")
+		}
+	}
+	return AdjacentPointIndexList;
 }
 
 template<typename MeshAttributeType>
 inline
-const DenseVector<int_max>& Point_Of_MembraneMesh<MeshAttributeType>::AdjacentFaceIndexList() const
+DenseVector<int_max> Point_Of_MembraneMesh<MeshAttributeType>::GetAdjacentFaceIndexList() const
 {
-	return m_Data->AdjacentFaceIndexList;
+	DenseVector<int_max> AdjacentFaceIndexList;
+	auto OutgoingDirectedEdgeIndexList = this->GetOutgoingDirectedEdgeIndexList();
+	AdjacentFaceIndexList.Resize(OutgoingDirectedEdgeIndexList.GetLength());
+	for (int_max k = 0; k < OutgoingDirectedEdgeIndexList.GetLength(); ++k)
+	{
+		AdjacentFaceIndexList[k] = OutgoingDirectedEdgeIndexList[k].FaceIndex;
+	}
+	return AdjacentFaceIndexList;
 }
 
 template<typename MeshAttributeType>
 inline
-const DenseVector<DirectedEdgeIndex_Of_MembraneMesh> Point_Of_MembraneMesh<MeshAttributeType>::GetOutgoingDirectedEdgeIndexList() const
+DenseVector<DirectedEdgeIndex_Of_MembraneMesh> Point_Of_MembraneMesh<MeshAttributeType>::GetOutgoingDirectedEdgeIndexList() const
 {
 	DenseVector<DirectedEdgeIndex_Of_MembraneMesh> OutgoingDirectedEdgeIndexList;
 	OutgoingDirectedEdgeIndexList.SetCapacity(m_Data->AdjacentEdgeIndexList.GetLength());
@@ -176,7 +185,7 @@ const DenseVector<DirectedEdgeIndex_Of_MembraneMesh> Point_Of_MembraneMesh<MeshA
 
 template<typename MeshAttributeType>
 inline
-const DenseVector<DirectedEdgeIndex_Of_MembraneMesh> Point_Of_MembraneMesh<MeshAttributeType>::GetIncomingDirectedEdgeIndexList() const
+DenseVector<DirectedEdgeIndex_Of_MembraneMesh> Point_Of_MembraneMesh<MeshAttributeType>::GetIncomingDirectedEdgeIndexList() const
 {
 	DenseVector<DirectedEdgeIndex_Of_MembraneMesh> IncomingDirectedEdgeIndexList;
 	IncomingDirectedEdgeIndexList.SetCapacity(m_Data->AdjacentEdgeIndexList.GetLength());
@@ -195,45 +204,6 @@ const DenseVector<DirectedEdgeIndex_Of_MembraneMesh> Point_Of_MembraneMesh<MeshA
 		}
 	}
 	return IncomingDirectedEdgeIndexList;
-}
-
-template<typename MeshAttributeType>
-inline
-void Point_Of_MembraneMesh<MeshAttributeType>::Update_AdjacentPointIndexList_Given_AdjacentEdgeIndexList()
-{
-	m_Data->AdjacentPointIndexList.Clear();
-	m_Data->AdjacentPointIndexList.Resize(m_Data->AdjacentEdgeIndexList.GetLength());
-	for (int_max k = 0; k < m_Data->AdjacentEdgeIndexList.GetLength(); ++k)
-	{
-		auto EdgeIndex_k = m_Data->AdjacentEdgeIndexList[k];
-		int_max PointIndex0, PointIndex1;
-		m_Data->Mesh.m_MeshData->EdgeList[EdgeIndex_k].GetPointIndexList(PointIndex0, PointIndex1);
-		if (PointIndex0 == m_Data->Index)
-		{
-			m_Data->AdjacentPointIndexList[k] = PointIndex1;
-		}
-		else if (PointIndex1 == m_Data->Index)
-		{
-			m_Data->AdjacentPointIndexList[k] = PointIndex0;
-		}
-		else
-		{
-			MDK_Error("Wrong @ Point_Of_MembraneMesh::Update_AdjacentPointIndexList_Given_AdjacentEdgeIndexList()")
-		}
-	}
-}
-
-template<typename MeshAttributeType>
-inline
-void Point_Of_MembraneMesh<MeshAttributeType>::Update_AdjacentFaceIndexList_Given_AdjacentEdgeIndexList()
-{
-	auto OutgoingDirectedEdgeIndexList = this->GetOutgoingDirectedEdgeIndexList();
-	m_Data->AdjacentFaceIndexList.Clear();
-	m_Data->AdjacentFaceIndexList.Resize(OutgoingDirectedEdgeIndexList.GetLength());
-	for (int_max k = 0; k < OutgoingDirectedEdgeIndexList.GetLength(); ++k)
-	{
-		m_Data->AdjacentFaceIndexList[k] = OutgoingDirectedEdgeIndexList[k].FaceIndex;
-	}
 }
 
 template<typename MeshAttributeType>
@@ -413,7 +383,7 @@ template<typename MeshAttributeType>
 inline
 int_max Point_Of_MembraneMesh<MeshAttributeType>::GetAdjacentPointCount() const
 {
-	return m_Data->AdjacentPointIndexList.GetLength();
+	return m_Data->AdjacentEdgeIndexList.GetLength();
 }
 
 
@@ -430,10 +400,11 @@ template<typename MeshAttributeType>
 inline
 void Point_Of_MembraneMesh<MeshAttributeType>::GetAdjacentPointHandleList(DenseVector<Handle_Of_Point_Of_MembraneMesh>& OutputHandleList) const
 {
-    OutputHandleList.FastResize(m_Data->AdjacentPointIndexList.GetLength());
-    for (int_max k = 0; k < m_Data->AdjacentPointIndexList.GetLength(); ++k)
+	auto AdjacentPointIndexList = this->GetAdjacentPointIndexList();
+    OutputHandleList.FastResize(AdjacentPointIndexList.GetLength());
+    for (int_max k = 0; k < AdjacentPointIndexList.GetLength(); ++k)
     {
-        OutputHandleList[k].SetIndex(m_Data->AdjacentPointIndexList[k]);
+        OutputHandleList[k].SetIndex(AdjacentPointIndexList[k]);
     }
 }
 
@@ -450,10 +421,11 @@ template<typename MeshAttributeType>
 inline
 void Point_Of_MembraneMesh<MeshAttributeType>::GetAdjacentPointIDList(DenseVector<int_max>& OutputIDList) const
 {
-	OutputIDList.FastResize(m_Data->AdjacentPointIndexList.GetLength());
-    for (int_max k = 0; k < m_Data->AdjacentPointIndexList.GetLength(); ++k)
+	auto AdjacentPointIndexList = this->GetAdjacentPointIndexList();
+	OutputIDList.FastResize(AdjacentPointIndexList.GetLength());
+    for (int_max k = 0; k < AdjacentPointIndexList.GetLength(); ++k)
     {
-        OutputIDList[k] = m_Data->Mesh.m_MeshData->PointList[m_Data->AdjacentPointIndexList[k]].GetID();
+        OutputIDList[k] = m_Data->Mesh.m_MeshData->PointList[AdjacentPointIndexList[k]].GetID();
     }
 }
 
@@ -612,7 +584,8 @@ template<typename MeshAttributeType>
 inline
 int_max Point_Of_MembraneMesh<MeshAttributeType>::GetAdjacentFaceCount() const
 {
-	return m_Data->AdjacentFaceIndexList.GetLength();
+	auto AdjacentFaceIndexList = this->GetAdjacentFaceIndexList();
+	return AdjacentFaceIndexList.GetLength();
 }
 
 template<typename MeshAttributeType>
@@ -628,10 +601,11 @@ template<typename MeshAttributeType>
 inline
 void Point_Of_MembraneMesh<MeshAttributeType>::GetAdjacentFaceHandleList(DenseVector<Handle_Of_Face_Of_MembraneMesh>& OutputHandleList) const
 {
-    OutputHandleList.FastResize(m_Data->AdjacentFaceIndexList.GetLength());
-    for (int_max k = 0; k < m_Data->AdjacentFaceIndexList.GetLength(); ++k)
+	auto AdjacentFaceIndexList = this->GetAdjacentFaceIndexList();
+    OutputHandleList.FastResize(AdjacentFaceIndexList.GetLength());
+    for (int_max k = 0; k < AdjacentFaceIndexList.GetLength(); ++k)
     {
-        OutputHandleList[k].SetIndex(m_Data->AdjacentFaceIndexList[k]);
+        OutputHandleList[k].SetIndex(AdjacentFaceIndexList[k]);
     }
 }
 
@@ -1276,8 +1250,8 @@ template<typename MeshAttributeType>
 inline
 void Edge_Of_MembraneMesh<MeshAttributeType>::GetNeighbourFaceHandleList(DenseVector<Handle_Of_Face_Of_MembraneMesh>& OutputHandleList) const
 {
-    const auto& AdjacentFaceIndexList0 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex0].AdjacentFaceIndexList();
-    const auto& AdjacentFaceIndexList1 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex1].AdjacentFaceIndexList();
+    const auto& AdjacentFaceIndexList0 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex0].GetAdjacentFaceIndexList();
+    const auto& AdjacentFaceIndexList1 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex1].GetAdjacentFaceIndexList();
 
     OutputHandleList.FastResize(0);
 

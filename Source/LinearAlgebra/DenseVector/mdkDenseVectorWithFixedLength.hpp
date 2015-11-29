@@ -1405,12 +1405,6 @@ template<typename ElementType, int_max Length>
 inline
 ElementType DenseVector<ElementType, Length>::Sum() const
 {
-    if (Length <= 0)
-    {
-        MDK_Error("Self is empty @ DenseVector::Sum()")
-        return 0;
-    }
-
     auto Value = ElementType(0);
 
     for (int_max i = 0; i < Length; ++i)

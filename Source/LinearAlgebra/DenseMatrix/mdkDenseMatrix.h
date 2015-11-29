@@ -10,7 +10,6 @@
 #include <limits> 
 
 #include "mdkString.h"
-#include "mdkLinearAlgebraConfig.h"
 #include "mdkMatrix_Common.h"
 #include "mdkObjectArray.h"
 #include "mdkStdObjectVector.h"
@@ -37,6 +36,11 @@ namespace mdk
 // Compare to Armadillo  (a linear algebra library, and it uses column major matrix)
 // DenseMatrix API better than Armadillo
 //
+
+//------------------------------------------------------------------------------------------------------------------//
+#if defined MDK_DEBUG_MODE
+    #define  MDK_DEBUG_DenseMatrix_Operator_CheckBound
+#endif
 
 // ----------------------------- DenseMatrixData struct -------------------------------------------------------------//
 

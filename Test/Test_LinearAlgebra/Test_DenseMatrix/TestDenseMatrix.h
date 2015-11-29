@@ -618,7 +618,7 @@ void Test_ElementOperation()
 
     auto A2 = A.ElementOperation("*", 1);
 
-    auto A3 = A.ElementOperation(String("*"), 1);
+    auto A3 = A.ElementOperation(std::string("*"), 1);
 
     auto B = A.ElementOperation("sqrt");
 

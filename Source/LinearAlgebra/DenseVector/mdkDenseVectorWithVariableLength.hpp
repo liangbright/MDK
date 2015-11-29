@@ -1307,7 +1307,7 @@ bool DenseVector<ElementType>::Insert(int_max Index, const ElementType* InputDat
     }
     else
     {
-        if (Index >= SelfLength || Index < 0 || InputData == nullptr || InputLength <= 0)
+        if (Index >= SelfLength+1 || Index < 0 || InputData == nullptr || InputLength <= 0)
         {
             MDK_Error("Invalid Input @ DenseVector::Insert(Index, const ElementType* InputData, int_max InputLength)")
             return false;

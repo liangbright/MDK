@@ -298,7 +298,7 @@ void SparseVector<ElementType>::Resize(int_max InputLength)
 
 	if (InputLength < m_Data->Length)
     {
-		auto RecordedElementNumber = int_max(m_Data->IndexList.size());
+		auto RecordedElementNumber = int_max(m_Data->IndexList.GetLength());
 
         auto StartIndex_erase = RecordedElementNumber;
 

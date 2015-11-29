@@ -63,7 +63,7 @@ DenseMatrix<int_max> FindElementInMatrix(const DenseMatrix<ElementType>& InputMa
         return LinearIndexList;
     }
 
-    LinearIndexList.ReserveCapacity(MaxOutputNumber);
+    LinearIndexList.SetCapacity(MaxOutputNumber);
 
     for (int_max i = LinearIndex_start; i <= LinearIndex_end; ++i)
     {
@@ -192,7 +192,7 @@ DenseMatrix<int_max> FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix
         return ColIndexList;
     }
 
-    ColIndexList.ReserveCapacity(MaxOutputColCount);
+    ColIndexList.SetCapacity(MaxOutputColCount);
 
     DenseMatrix<ElementType> ColVector;
 
@@ -356,7 +356,7 @@ DenseMatrix<int_max> FindUniqueElementInMatrix(const DenseMatrix<ElementType>& I
 
     auto LinearIndexList_sort = InputMatrix.Sort([](const ElementType& a, const ElementType& b){ return a < b; });
 
-    LinearIndexList_unique.ReserveCapacity(LinearIndexList_sort.GetElementCount());
+    LinearIndexList_unique.SetCapacity(LinearIndexList_sort.GetElementCount());
 
     LinearIndexList_unique.Append(LinearIndexList_sort[0]);
 
@@ -401,7 +401,7 @@ DenseMatrix<int_max> FindUniqueElementInMatrix(const DenseMatrix<ElementType>& I
         return (Result < 0);
     });
 
-    LinearIndexList_unique.ReserveCapacity(LinearIndexList_sort.GetElementCount());
+    LinearIndexList_unique.SetCapacity(LinearIndexList_sort.GetElementCount());
 
     LinearIndexList_unique.Append(LinearIndexList_sort[0]);
 
@@ -455,7 +455,7 @@ DenseMatrix<int_max> FindUniqueColInMatrix(const DenseMatrix<ElementType>& Input
 
     auto ColIndexList_sort = SortColInMatrix(InputMatrix, TempFunction_CompareCol);
 
-    ColIndexList_unique.ReserveCapacity(ColIndexList_sort.GetElementCount());
+    ColIndexList_unique.SetCapacity(ColIndexList_sort.GetElementCount());
 
     ColIndexList_unique.Append(ColIndexList_sort[0]);
 
@@ -502,7 +502,7 @@ DenseMatrix<int_max> FindUniqueColInMatrix(const DenseMatrix<ElementType>& Input
         return (Result < 0);
     });
 
-    ColIndexList_unique.ReserveCapacity(ColIndexList_sort.GetElementCount());
+    ColIndexList_unique.SetCapacity(ColIndexList_sort.GetElementCount());
 
     ColIndexList_unique.Append(ColIndexList_sort[0]);
 
@@ -1370,7 +1370,7 @@ DenseMatrixEigenResult<std::complex<ElementType>> NonSymmetricRealMatrixEigen(co
 
 template<typename ElementType>
 inline 
-DenseMatrixEigenResult<ElementType> RealSymmetricMatrixEigen(const DenseMatrix<ElementType>& InputMatrix, bool CheckIfSymmetric = false)
+DenseMatrixEigenResult<ElementType> SymmetricRealMatrixEigen(const DenseMatrix<ElementType>& InputMatrix, bool CheckIfSymmetric)
 {
     DenseMatrixEigenResult<ElementType> Result;
 
@@ -1378,14 +1378,14 @@ DenseMatrixEigenResult<ElementType> RealSymmetricMatrixEigen(const DenseMatrix<E
 
     if (Size.RowCount == 0)
     {
-        MDK_Error("Matrix is empty matrix @ mdkLinearAlgebra_DenseMatrix MatrixEigen(InputMatrix)")
+        MDK_Error("Matrix is empty matrix @ mdkLinearAlgebra_DenseMatrix SymmetricRealMatrixEigen(...)")
 
         return Result;
     }
 
     if (Size.RowCount != Size.ColCount)
     {
-        MDK_Error("Matrix is not square @ mdkLinearAlgebra_DenseMatrix MatrixEigen(InputMatrix)")
+        MDK_Error("Matrix is not square @ mdkLinearAlgebra_DenseMatrix SymmetricRealMatrixEigen(...)")
 
         return Result;
     }
@@ -1397,10 +1397,10 @@ DenseMatrixEigenResult<ElementType> RealSymmetricMatrixEigen(const DenseMatrix<E
         tempMatrix_2.ElementOperationInPlace("abs");
 
         double tempsum = double(tempMatrix_2.Sum());
-
-        if (std::abs(tempsum) > EPS(tempsum))
+		auto EPS = std::numeric_limits<ElementType>::epsilon();
+        if (std::abs(tempsum) > EPS)
         {
-            MDK_Error("Matrix is not Symmetric, try to generate result @ mdkLinearAlgebra_DenseMatrix MatrixEigen(InputMatrix)")
+            MDK_Error("Matrix is not Symmetric, try to generate result @ mdkLinearAlgebra_DenseMatrix SymmetricRealMatrixEigen(...)")
         }
     }
   

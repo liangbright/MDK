@@ -9,10 +9,10 @@
 #include <cmath>
 #include <algorithm>
 
-#include "mdkObject.h"
-#include "mdkLinearAlgebraConfig.h"
+//#include "mdkObject.h"
 #include "mdkMatrix_Common.h"
 #include "mdkDenseVector.h"
+#include "mdkDenseMatrix.h"
 
 namespace mdk
 {
@@ -21,9 +21,15 @@ namespace mdk
 // It can be used as Pixel in Image: some pixel can be pure empty to save memory
 
 //forward declare --------------------------
-template<typename ElementType>
-class DenseMatrix;
+//template<typename ElementType>
+//class DenseMatrix;
 //----------------------------------------
+
+//-----------------------------------------------------------------------------------------------//
+#if defined MDK_DEBUG_MODE
+    #define  MDK_DEBUG_SparseVector_Operator_CheckBound
+#endif
+//-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
 struct SparseVectorData

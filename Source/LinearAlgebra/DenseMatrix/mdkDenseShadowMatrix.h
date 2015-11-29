@@ -7,7 +7,7 @@
 #include <cmath>
 #include <algorithm>
 
-//#include "mdkMatrix_Common.h"
+#include "mdkMatrix_Common.h"
 #include "mdkDenseMatrix.h"
 
 namespace mdk

@@ -22,6 +22,13 @@ inline DenseVector<int_max> FindUniqueElementInVector(const DenseVector<ElementT
 template<typename ElementType, int_max L, typename SpecialCompareFunctionType>
 inline DenseVector<int_max> FindUniqueElementInVector(const DenseVector<ElementType, L>& InputVector, SpecialCompareFunctionType SpecialCompareFunction);
 
+template<typename ElementType, int_max A, int_max B>
+DenseVector<ElementType> Intersect(const DenseVector<ElementType, A>& SetA, const DenseVector<ElementType, B>& SetB);
+
+//in A, NOT in B
+template<typename ElementType, int_max A, int_max B>
+DenseVector<ElementType> SetDiff(const DenseVector<ElementType, A>& SetA, const DenseVector<ElementType, B>& SetB);
+
 }// namespace mdk
 
 #include "mdkLinearAlgebra_Function_DenseVector_Part_1.hpp"

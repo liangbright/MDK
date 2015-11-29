@@ -99,6 +99,65 @@ DenseVector<int_max> FindUniqueElementInVector(const DenseVector<ElementType, L>
     return IndexList_unique;
 }
 
+
+template<typename ElementType, int_max A, int_max B>
+inline DenseVector<ElementType> Intersect(const DenseVector<ElementType, A>& SetA, const DenseVector<ElementType, B>& SetB)
+{
+	DenseVector<ElementType> SetC;
+
+	if (SetA.IsEmpty() == true || SetB.IsEmpty() == true)
+	{
+		return SetC;
+	}
+
+	SetC.SetCapacity(std::min(SetA.GetLength(), SetB.GetLength()));
+
+	for (int_max k = 0; k < SetA.GetLength(); ++k)
+	{
+		for (int_max n = 0; n < SetB.GetLength(); ++n)
+		{
+			if (SetA[k] == SetB[n])
+			{
+				SetC.Append(SetA[k]);
+			}
+		}
+	}
+	return SetC;
 }
+
+
+template<typename ElementType, int_max A, int_max B>
+DenseVector<ElementType> SetDiff(const DenseVector<ElementType, A>& SetA, const DenseVector<ElementType, B>& SetB)
+{// in A, NOT in B
+
+	if (SetB.IsEmpty() == true)
+	{
+		return SetA;
+	}
+
+	DenseVector<ElementType> SetC;
+	SetC.SetCapacity(SetA.GetLength());
+
+	for (int_max k = 0; k < SetA.GetLength(); ++k)
+	{
+		bool Flag = false;
+		for (int_max n = 0; n < SetB.GetLength(); ++n)
+		{
+			if (SetA[k] == SetB[n])
+			{
+				Flag = true;
+				break;
+			}
+		}
+		if (Flag == false)
+		{
+			SetC.Append(SetA[k]);
+		}
+	}
+	return SetC;
+}
+
+
+}//namespace
 
 #endif
