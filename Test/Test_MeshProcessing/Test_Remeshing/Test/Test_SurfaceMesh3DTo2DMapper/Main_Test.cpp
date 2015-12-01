@@ -153,9 +153,81 @@ void test2()
 	}
 }
 
+void test3()
+{
+	String TestDataPath = "C:/Research/Mesh/Remeshing/Build/Test_SurfaceMesh3DTo2DMapper/TestData/Leaflet/";
+	for (int_max k = 0; k < 10; ++k)
+	{
+		for (int_max n = 0; n < 3; ++n)
+		{
+			String File_InputMesh = TestDataPath + "Model_" + std::to_string(k) + "/Leaflet_" + std::to_string(n) + "_PCH17.vtk";
+			String File_TemplateMesh = TestDataPath + "TemplateMesh.vtk";
+			String File_UVTableOfBoundary = TestDataPath + "UVTableOfBoundary.json";
+			String File_OutputMesh_MeanValue2D = TestDataPath + "LeafletRemesh_2D_mean_value" + std::to_string(k) + std::to_string(n) + ".vtk";
+			String File_OutputMesh_MeanValue3D = TestDataPath + "LeafletRemesh_3D_mean_value" + std::to_string(k) + std::to_string(n) + ".vtk";
+			String File_OutputMesh_MinStretch2D = TestDataPath + "LeafletRemesh_2D_min_stretch" + std::to_string(k) + std::to_string(n) + ".vtk";
+			String File_OutputMesh_MinStretch3D = TestDataPath + "LeafletRemesh_3D_min_stretch" + std::to_string(k) + std::to_string(n) + ".vtk";
+
+			PolygonMesh<PolygonMeshStandardAttributeType<double>> TemplateMesh;
+			LoadPolygonMeshFromVTKFile(TemplateMesh, File_TemplateMesh);
+
+			SurfaceMesh3DTo2DMapper1<double> MeshMapper;
+			LoadDenseMatrixFromJsonDataFile(MeshMapper.m_UVTableOfBoundary, File_UVTableOfBoundary);
+			LoadPolygonMeshFromVTKFile(MeshMapper.m_InputMesh, File_InputMesh);
+
+			typedef SurfaceMesh3DTo2DMapper1<double>::PointHandleType PointHandleType;
+			PointHandleType PointHandle0;
+			PointHandle0.SetIndex(0);
+			MeshMapper.m_BoundaryPointHandleList = TraceMeshBoundaryCurve(MeshMapper.m_InputMesh, PointHandle0);
+
+			MeshMapper.Preprocess();
+
+			MeshMapper.ApplyMeanValueBasedParameterization();
+			SavePolygonMeshAsVTKFile(MeshMapper.m_OutputMesh, File_OutputMesh_MeanValue2D);
+			{
+				PolygonMesh<PolygonMeshStandardAttributeType<double>> Leaflet_quad;
+				auto PointPosition_3D = MeshMapper.m_InputMesh.GetPointPositionMatrix();
+				auto PoingPosition_2D = MeshMapper.m_OutputMesh.GetPointPositionMatrix();
+				ThinPlateSplineTransform3D<double> TPSTransform;
+				TPSTransform.SetSourceLandmarkPointSet(&PoingPosition_2D);
+				TPSTransform.SetTargetLandmarkPointSet(&PointPosition_3D);
+				TPSTransform.EstimateParameter();
+				Leaflet_quad = TemplateMesh;
+				for (auto it = Leaflet_quad.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+				{
+					auto Pos = it.Point().GetPosition();
+					auto Pos_new = TPSTransform.TransformPoint(Pos);
+					it.Point().SetPosition(Pos_new);
+				}
+				SavePolygonMeshAsVTKFile(Leaflet_quad, File_OutputMesh_MeanValue3D);
+			}
+
+			MeshMapper.ApplyStretchMinimizationBasedParameterization();
+			SavePolygonMeshAsVTKFile(MeshMapper.m_OutputMesh, File_OutputMesh_MinStretch2D);
+			{
+				PolygonMesh<PolygonMeshStandardAttributeType<double>> Leaflet_quad;
+				auto PointPosition_3D = MeshMapper.m_InputMesh.GetPointPositionMatrix();
+				auto PoingPosition_2D = MeshMapper.m_OutputMesh.GetPointPositionMatrix();
+				ThinPlateSplineTransform3D<double> TPSTransform;
+				TPSTransform.SetSourceLandmarkPointSet(&PoingPosition_2D);
+				TPSTransform.SetTargetLandmarkPointSet(&PointPosition_3D);
+				TPSTransform.EstimateParameter();
+				Leaflet_quad = TemplateMesh;
+				for (auto it = Leaflet_quad.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+				{
+					auto Pos = it.Point().GetPosition();
+					auto Pos_new = TPSTransform.TransformPoint(Pos);
+					it.Point().SetPosition(Pos_new);
+				}
+				SavePolygonMeshAsVTKFile(Leaflet_quad, File_OutputMesh_MinStretch3D);
+			}
+		}
+	}
+}
 
 void main()
 {
 	//test1();
-	test2();
+	//test2();
+	test3();
 }

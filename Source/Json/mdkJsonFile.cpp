@@ -14,6 +14,7 @@ JsonFile::JsonFile(const String& FilePathAndName)
 		MDK_Error("Couldn't open file @ JsonFile::JsonFile(...)")
 		return;
 	}
+	m_QFile->resize(0);//clear the file just in case it already exist
 	m_QTextStream = std::make_unique<QTextStream>(m_QFile.get());
 }
 

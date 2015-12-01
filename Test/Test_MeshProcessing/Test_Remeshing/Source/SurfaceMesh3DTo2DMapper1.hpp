@@ -366,7 +366,7 @@ DenseMatrix<ScalarType> SurfaceMesh3DTo2DMapper1<ScalarType>::ComputeUV_Given_We
 
 	//-------------------------------------------------------------//
 	typedef Eigen::Matrix<ScalarType, Eigen::Dynamic, 1> EigenVector;
-	typedef Eigen::SparseMatrix<ScalarType> EigenSparseMatrix;
+	typedef Eigen::SparseMatrix<ScalarType,0,int_max> EigenSparseMatrix;
 	EigenSparseMatrix A(PointCount_inner, PointCount_inner);
 	A.setFromTriplets(CoefList.begin(), CoefList.end());
 	//solve
