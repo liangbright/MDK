@@ -41,6 +41,12 @@ TriangleMesh<MeshAttributeType> SimplifyTriangleMeshByVTKQuadricDecimation(const
 template<typename MeshAttributeType>
 void SmoothTriangleMeshByGaussianCurvature(TriangleMesh<MeshAttributeType>& TargetMesh, double MaxDisplacement, bool Flag_UpdateAttribute = true);
 
+template<typename MeshAttributeType>
+TriangleMesh<MeshAttributeType> SmoothMeshByVTKSmoothPolyDataFilter(const TriangleMesh<MeshAttributeType>& InputMesh, int_max Iter, bool Flag_FeatureEdgeSmoothing = true, bool Flag_BoundarySmoothing = true);
+
+template<typename MeshAttributeType>
+TriangleMesh<MeshAttributeType> SmoothMeshByVTKWindowedSincPolyDataFilter(const TriangleMesh<MeshAttributeType>& InputMesh, double PassBand, int_max Iter, bool Flag_FeatureEdgeSmoothing = true, bool Flag_BoundarySmoothing = true);
+
 }//namespace mdk
 
 #include "mdkTriangleMeshProcessing_Function_Part_0.hpp"

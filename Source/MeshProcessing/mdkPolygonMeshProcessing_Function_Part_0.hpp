@@ -171,8 +171,7 @@ ObjectArray<DenseVector<Handle_Of_Point_Of_MembraneMesh>> TraceMeshBoundaryCurve
 
 
 template<typename MeshAttributeType>
-Handle_Of_Point_Of_MembraneMesh FindNearestPointOnMesh(const PolygonMesh<MeshAttributeType>& TargetMesh,
-                                                       const DenseVector<typename MeshAttributeType::ScalarType, 3>& PointPosition)
+Handle_Of_Point_Of_MembraneMesh FindNearestPointOnMesh(const PolygonMesh<MeshAttributeType>& TargetMesh, const DenseVector<typename MeshAttributeType::ScalarType, 3>& PointPosition)
 {
     typedef Handle_Of_Point_Of_MembraneMesh PointHandleType;
     typedef typename MeshAttributeType::ScalarType ScalarType;
@@ -208,6 +207,78 @@ Handle_Of_Point_Of_MembraneMesh FindNearestPointOnMesh(const PolygonMesh<MeshAtt
 
     return OutputPointHandle;
 }
+
+
+template<typename MeshAttributeType>
+PolygonMesh<MeshAttributeType> SmoothMeshByVTKSmoothPolyDataFilter(const PolygonMesh<MeshAttributeType>& InputMesh, int_max Iter, bool Flag_FeatureEdgeSmoothing, bool Flag_BoundarySmoothing)
+{
+	auto VTKMesh = ConvertMDKPolygonMeshToVTKPolyData(InputMesh);
+
+	auto SmoothFilter =	vtkSmartPointer<vtkSmoothPolyDataFilter>::New();
+	SmoothFilter->SetInputData(VTKMesh);
+	SmoothFilter->SetNumberOfIterations(Iter);
+	SmoothFilter->SetRelaxationFactor(0.01);
+	SmoothFilter->SetConvergence(0.001);
+	if (Flag_FeatureEdgeSmoothing == true)
+	{
+		SmoothFilter->FeatureEdgeSmoothingOn();
+	}
+	else
+	{
+		SmoothFilter->FeatureEdgeSmoothingOff();
+	}
+	if (Flag_BoundarySmoothing == true)
+	{
+		SmoothFilter->BoundarySmoothingOn();
+	}
+	else
+	{
+		SmoothFilter->BoundarySmoothingOff();
+	}
+	SmoothFilter->Update();
+
+	//double a = SmoothFilter->GetFeatureAngle();
+
+	PolygonMesh<MeshAttributeType> OutputMesh;
+	ConvertVTKPolyDataToMDKPolygonMesh(SmoothFilter->GetOutput(), OutputMesh);
+	return OutputMesh;
+}
+
+
+template<typename MeshAttributeType>
+PolygonMesh<MeshAttributeType> SmoothMeshByVTKWindowedSincPolyDataFilter(const PolygonMesh<MeshAttributeType>& InputMesh, double PassBand, int_max Iter, bool Flag_FeatureEdgeSmoothing, bool Flag_BoundarySmoothing)
+{
+	auto VTKMesh = ConvertMDKPolygonMeshToVTKPolyData(InputMesh);
+
+	auto SmoothFilter = vtkSmartPointer<vtkWindowedSincPolyDataFilter>::New();
+	SmoothFilter->SetInputData(VTKMesh);
+	SmoothFilter->SetPassBand(PassBand);
+	SmoothFilter->SetNumberOfIterations(Iter);	
+	if (Flag_FeatureEdgeSmoothing == true)
+	{
+		SmoothFilter->FeatureEdgeSmoothingOn();
+	}
+	else
+	{
+		SmoothFilter->FeatureEdgeSmoothingOff();
+	}
+	if (Flag_BoundarySmoothing == true)
+	{
+		SmoothFilter->BoundarySmoothingOn();
+	}
+	else
+	{
+		SmoothFilter->BoundarySmoothingOff();
+	}
+	SmoothFilter->NonManifoldSmoothingOn();
+	SmoothFilter->NormalizeCoordinatesOn();	
+	SmoothFilter->Update();
+
+	PolygonMesh<MeshAttributeType> OutputMesh;
+	ConvertVTKPolyDataToMDKPolygonMesh(SmoothFilter->GetOutput(), OutputMesh);
+	return OutputMesh;
+}
+
 
 }//namespace mdk
 
