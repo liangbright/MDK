@@ -222,7 +222,10 @@ template<typename MeshAttributeType>
 TriangleMesh<MeshAttributeType> SmoothMeshByVTKSmoothPolyDataFilter(const TriangleMesh<MeshAttributeType>& InputMesh, int_max Iter, bool Flag_FeatureEdgeSmoothing, bool Flag_BoundarySmoothing)
 {
 	const PolygonMesh<MeshAttributeType>& InputMesh_ref = InputMesh;
-	return SmoothMeshByVTKSmoothPolyDataFilter(InputMesh_ref, Iter,Flag_FeatureEdgeSmoothing, Flag_BoundarySmoothing);
+	auto OutputMesh = SmoothMeshByVTKSmoothPolyDataFilter(InputMesh_ref, Iter, Flag_FeatureEdgeSmoothing, Flag_BoundarySmoothing);
+	TriangleMesh<MeshAttributeType> OutputMesh_tri;
+	OutputMesh_tri.Construct(std::move(OutputMesh));
+	return OutputMesh_tri;
 }
 
 
@@ -230,7 +233,10 @@ template<typename MeshAttributeType>
 TriangleMesh<MeshAttributeType> SmoothMeshByVTKWindowedSincPolyDataFilter(const TriangleMesh<MeshAttributeType>& InputMesh, double PassBand, int_max Iter, bool Flag_FeatureEdgeSmoothing, bool Flag_BoundarySmoothing)
 {
 	const PolygonMesh<MeshAttributeType>& InputMesh_ref = InputMesh;
-	return SmoothMeshByVTKSmoothPolyDataFilter(InputMesh_ref, PassBand, Iter, Flag_FeatureEdgeSmoothing, Flag_BoundarySmoothing);
+	auto OutputMesh = SmoothMeshByVTKWindowedSincPolyDataFilter(InputMesh_ref, PassBand, Iter, Flag_FeatureEdgeSmoothing, Flag_BoundarySmoothing);
+	TriangleMesh<MeshAttributeType> OutputMesh_tri;
+	OutputMesh_tri.Construct(std::move(OutputMesh));
+	return OutputMesh_tri;
 }
 
 }//namespace mdk
