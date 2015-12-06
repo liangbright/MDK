@@ -9,5 +9,6 @@
 #include "mdkTriangleMeshProcessing_Function_Part_0.h"
 //---------------------------------------------------//
 #include "mdkGeodesicSphereBuilder.h"
+#include "mdkTemplateBasedSurfaceRemesher.h"
 
 #endif

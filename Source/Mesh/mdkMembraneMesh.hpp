@@ -391,17 +391,17 @@ const typename MeshAttributeType::GlobalAttribute& MembraneMesh<MeshAttributeTyp
 template<typename MeshAttributeType>
 inline 
 DenseMatrix<typename MeshAttributeType::ScalarType> 
-MembraneMesh<MeshAttributeType>::GetPointPositionMatrix() const
+MembraneMesh<MeshAttributeType>::GetPointPosition(const MDK_Symbol_ALL&) const
 {
 	DenseMatrix<ScalarType> PointPositionMatrix;
-	this->GetPointPositionMatrix(PointPositionMatrix);
+	this->GetPointPosition(ALL, PointPositionMatrix);
 	return PointPositionMatrix;
 }
 
 
 template<typename MeshAttributeType>
 inline
-void MembraneMesh<MeshAttributeType>::GetPointPositionMatrix(DenseMatrix<ScalarType>& PositionMatrix) const
+void MembraneMesh<MeshAttributeType>::GetPointPosition(const MDK_Symbol_ALL&, DenseMatrix<ScalarType>& PositionMatrix) const
 {
 	if (this->IsEmpty() == true)
 	{

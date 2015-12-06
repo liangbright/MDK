@@ -5,6 +5,7 @@
 
 namespace mdk
 {
+
 //============================================== GlobalStandardAttribute_Of_TriangleMesh ===========================================//
 enum class TriangleMeshGlobalStandardAttributeTypeEnum
 {

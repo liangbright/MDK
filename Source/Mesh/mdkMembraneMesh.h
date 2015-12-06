@@ -182,8 +182,9 @@ public:
     inline const GlobalAttribute& Attribute() const;
 
 	//------------- Get All the position (valid point) --------------------------------//
-	inline DenseMatrix<ScalarType> GetPointPositionMatrix() const;
-	inline void GetPointPositionMatrix(DenseMatrix<ScalarType>& PositionMatrix) const;
+
+	inline DenseMatrix<ScalarType> GetPointPosition(const MDK_Symbol_ALL&) const;
+	inline void GetPointPosition(const MDK_Symbol_ALL&, DenseMatrix<ScalarType>& PositionMatrix) const;
 
     // Get/Set 3D Position by PointHandle --------------------------------------------------------------------------//
 
