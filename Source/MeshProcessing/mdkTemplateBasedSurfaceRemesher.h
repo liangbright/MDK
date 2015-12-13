@@ -69,8 +69,9 @@ public:
  
 	void Clear();
 	void Update();
-	
-	DenseVector<PointHandleType> ConvertIndexToHandle(const DenseVector<int_max>& IndexList);
+
+	PointHandleType ConvertPointIndexToPointHandle(int_max Index);
+	DenseVector<PointHandleType> ConvertPointIndexToPointHandle(const DenseVector<int_max>& IndexList);
 
 private:
 	bool CheckInput();

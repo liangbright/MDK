@@ -20,12 +20,12 @@ void Test_0()
 	LowerBounary_template = { span(25, 65), span(768, 729) };
 
 	Remesher.BoundarySegmentListOfInputMesh().Resize(2);
-	Remesher.BoundarySegmentListOfInputMesh()[0] = Remesher.ConvertIndexToHandle(UpperBoundary_input);
-	Remesher.BoundarySegmentListOfInputMesh()[1] = Remesher.ConvertIndexToHandle(LowerBoundary_input);
+	Remesher.BoundarySegmentListOfInputMesh()[0] = Remesher.ConvertPointIndexToPointHandle(UpperBoundary_input);
+	Remesher.BoundarySegmentListOfInputMesh()[1] = Remesher.ConvertPointIndexToPointHandle(LowerBoundary_input);
 
 	Remesher.BoundarySegmentListOfTemplateMesh().Resize(2);
-	Remesher.BoundarySegmentListOfTemplateMesh()[0] = Remesher.ConvertIndexToHandle(UpperBoundary_template);
-	Remesher.BoundarySegmentListOfTemplateMesh()[1] = Remesher.ConvertIndexToHandle(LowerBounary_template);
+	Remesher.BoundarySegmentListOfTemplateMesh()[0] = Remesher.ConvertPointIndexToPointHandle(UpperBoundary_template);
+	Remesher.BoundarySegmentListOfTemplateMesh()[1] = Remesher.ConvertPointIndexToPointHandle(LowerBounary_template);
 
 	Remesher.Update();
 
@@ -48,12 +48,12 @@ void Test_1()
 	LowerBounary_template = {span(25,65), span(768, 729)};
 
 	Remesher.BoundarySegmentListOfInputMesh().Resize(2);
-	Remesher.BoundarySegmentListOfInputMesh()[0] = Remesher.ConvertIndexToHandle(UpperBoundary_input);
-	Remesher.BoundarySegmentListOfInputMesh()[1] = Remesher.ConvertIndexToHandle(LowerBoundary_input);
+	Remesher.BoundarySegmentListOfInputMesh()[0] = Remesher.ConvertPointIndexToPointHandle(UpperBoundary_input);
+	Remesher.BoundarySegmentListOfInputMesh()[1] = Remesher.ConvertPointIndexToPointHandle(LowerBoundary_input);
 
 	Remesher.BoundarySegmentListOfTemplateMesh().Resize(2);
-	Remesher.BoundarySegmentListOfTemplateMesh()[0] = Remesher.ConvertIndexToHandle(UpperBoundary_template);
-	Remesher.BoundarySegmentListOfTemplateMesh()[1] = Remesher.ConvertIndexToHandle(LowerBounary_template);
+	Remesher.BoundarySegmentListOfTemplateMesh()[0] = Remesher.ConvertPointIndexToPointHandle(UpperBoundary_template);
+	Remesher.BoundarySegmentListOfTemplateMesh()[1] = Remesher.ConvertPointIndexToPointHandle(LowerBounary_template);
 
 	Remesher.Update();
 
@@ -75,12 +75,12 @@ void Test_2()
 	LowerBounary_template = { span(25, 65), span(768, 729) };
 
 	Remesher.BoundarySegmentListOfInputMesh().Resize(2);
-	Remesher.BoundarySegmentListOfInputMesh()[0] = Remesher.ConvertIndexToHandle(UpperBoundary_input);
-	Remesher.BoundarySegmentListOfInputMesh()[1] = Remesher.ConvertIndexToHandle(LowerBoundary_input);
+	Remesher.BoundarySegmentListOfInputMesh()[0] = Remesher.ConvertPointIndexToPointHandle(UpperBoundary_input);
+	Remesher.BoundarySegmentListOfInputMesh()[1] = Remesher.ConvertPointIndexToPointHandle(LowerBoundary_input);
 
 	Remesher.BoundarySegmentListOfTemplateMesh().Resize(2);
-	Remesher.BoundarySegmentListOfTemplateMesh()[0] = Remesher.ConvertIndexToHandle(UpperBoundary_template);
-	Remesher.BoundarySegmentListOfTemplateMesh()[1] = Remesher.ConvertIndexToHandle(LowerBounary_template);
+	Remesher.BoundarySegmentListOfTemplateMesh()[0] = Remesher.ConvertPointIndexToPointHandle(UpperBoundary_template);
+	Remesher.BoundarySegmentListOfTemplateMesh()[1] = Remesher.ConvertPointIndexToPointHandle(LowerBounary_template);
 
 	Remesher.Update();
 
@@ -125,12 +125,12 @@ void Test_a()
 	}
 	
 	Remesher.BoundarySegmentListOfInputMesh().Resize(2);
-	Remesher.BoundarySegmentListOfInputMesh()[0] = Remesher.ConvertIndexToHandle(UpperBoundary_input);
-	Remesher.BoundarySegmentListOfInputMesh()[1] = Remesher.ConvertIndexToHandle(LowerBoundary_input);
+	Remesher.BoundarySegmentListOfInputMesh()[0] = Remesher.ConvertPointIndexToPointHandle(UpperBoundary_input);
+	Remesher.BoundarySegmentListOfInputMesh()[1] = Remesher.ConvertPointIndexToPointHandle(LowerBoundary_input);
 
 	Remesher.BoundarySegmentListOfTemplateMesh().Resize(2);
-	Remesher.BoundarySegmentListOfTemplateMesh()[0] = Remesher.ConvertIndexToHandle(UpperBoundary_template);
-	Remesher.BoundarySegmentListOfTemplateMesh()[1] = Remesher.ConvertIndexToHandle(LowerBounary_template);
+	Remesher.BoundarySegmentListOfTemplateMesh()[0] = Remesher.ConvertPointIndexToPointHandle(UpperBoundary_template);
+	Remesher.BoundarySegmentListOfTemplateMesh()[1] = Remesher.ConvertPointIndexToPointHandle(LowerBounary_template);
 
 	Remesher.Update();
 

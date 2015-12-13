@@ -2,34 +2,15 @@
 #define mdk_TriangleMesh_h
 
 #include "mdkPolygonMesh.h"
-#include "mdkTriangleMeshStandardAttribute.h"
 
 namespace mdk
 {
-//------------------------------- Empty MeshAttributeType -------------------------------//
+//---------------------------------- MeshAttributeType ------------------------------------------------------//
 template<typename ScalarType>
-struct TriangleMeshEmptyAttributeType
-{
-    typedef ScalarType  ScalarType;
-	typedef GlobalStandardAttribute_Of_MembraneMesh<ScalarType>             GlobalAttribute;
-	typedef StandardAttribute_Of_Point_Of_MembraneMesh<ScalarType>          PointAttributeType;
-	typedef StandardAttribute_Of_Edge_Of_MembraneMesh<ScalarType>           EdgeAttributeType;
-	typedef StandardAttribute_Of_DirectedEdge_Of_MembraneMesh<ScalarType>   DirectedEdgeAttributeType;
-	typedef StandardAttribute_Of_Face_Of_MembraneMesh<ScalarType>           FaceAttributeType;
-};
-//---------------------------------------------------------------------------------------------------------//
+using TriangleMeshEmptyAttributeType = PolygonMeshEmptyAttributeType<ScalarType>;
 
-//------------------------------- standard/default MeshAttributeType -------------------------------//
 template<typename ScalarType>
-struct TriangleMeshStandardAttributeType
-{
-    typedef ScalarType  ScalarType;
-	typedef GlobalStandardAttribute_Of_TriangleMesh<ScalarType>             GlobalAttribute;
-	typedef StandardAttribute_Of_Point_Of_TriangleMesh<ScalarType>          PointAttributeType;
-	typedef StandardAttribute_Of_Edge_Of_TriangleMesh<ScalarType>           EdgeAttributeType;
-	typedef StandardAttribute_Of_DirectedEdge_Of_TriangleMesh<ScalarType>   DirectedEdgeAttributeType;
-	typedef StandardAttribute_Of_Face_Of_TriangleMesh<ScalarType>           FaceAttributeType;
-};
+using TriangleMeshStandardAttributeType = PolygonMeshStandardAttributeType<ScalarType>;
 //---------------------------------------------------------------------------------------------------------//
 
 template<typename MeshAttribute_Type>

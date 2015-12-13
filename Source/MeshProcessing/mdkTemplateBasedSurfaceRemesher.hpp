@@ -344,9 +344,19 @@ DenseVector<ScalarType> TemplateBasedSurfaceRemesher<ScalarType>::ComputeCumulat
 	return CL_relative;
 }
 
+
+template<typename ScalarType>
+typename TemplateBasedSurfaceRemesher<ScalarType>::PointHandleType
+TemplateBasedSurfaceRemesher<ScalarType>::ConvertPointIndexToPointHandle(int_max Index)
+{
+	PointHandleType P;
+	P.SetIndex(Index);
+	return P;
+}
+
 template<typename ScalarType>
 DenseVector<typename TemplateBasedSurfaceRemesher<ScalarType>::PointHandleType> 
-TemplateBasedSurfaceRemesher<ScalarType>::ConvertIndexToHandle(const DenseVector<int_max>& IndexList)
+TemplateBasedSurfaceRemesher<ScalarType>::ConvertPointIndexToPointHandle(const DenseVector<int_max>& IndexList)
 {
 	DenseVector<PointHandleType> HandleList;
 	HandleList.Resize(IndexList.GetLength());
