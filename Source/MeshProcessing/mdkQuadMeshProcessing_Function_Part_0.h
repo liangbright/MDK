@@ -20,6 +20,10 @@ void ConvertQuadMeshToTriangleMesh(const PolygonMesh<MeshAttributeTypeA>& InputM
 template<typename MeshAttributeType>
 PolygonMesh<MeshAttributeType> SubdivideMixedTriangleQuadMeshToQuadMesh_Linear(const PolygonMesh<MeshAttributeType>& InputMesh);
 
+//EdgeLength is 1
+template<typename MeshAttributeType = PolygonMeshStandardAttributeType<double>>
+PolygonMesh<MeshAttributeType> CreateQuadMeshOfRectangularFlatSurface(int_max Lx, int_max Ly);
+
 }//namespace mdk
 
 #include "mdkQuadMeshProcessing_Function_Part_0.hpp"

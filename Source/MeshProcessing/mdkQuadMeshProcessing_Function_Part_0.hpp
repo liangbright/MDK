@@ -380,6 +380,55 @@ void ConvertMixedTriangleQuadMeshToTriangleMesh(const PolygonMesh<MeshAttributeT
 	}
 }
 
+
+template<typename MeshAttributeType>
+PolygonMesh<MeshAttributeType> CreateQuadMeshOfRectangularFlatSurface(int_max Lx, int_max Ly)
+{
+	typedef PolygonMesh<MeshAttributeType>::PointHandleType PointHandleType;
+	typedef PolygonMesh<MeshAttributeType>::ScalarType ScalarType;
+
+	PolygonMesh<MeshAttributeType> OutputMesh;
+
+	if (Lx <= 0 || Ly <= 0)
+	{
+		MDK_Error("invalid input @ CreateQuadMeshOfRectangularFlatSurface(...)")
+		return OutputMesh;
+	}
+
+	OutputMesh.SetCapacity(Lx*Ly, Lx*Ly / 2, Lx*Ly / 4 + 4);
+
+	DenseVector<PointHandleType> PointHandleList_a, PointHandleList_b;
+	PointHandleList_a.Resize(Lx);
+	PointHandleList_b.Resize(Lx);
+	for (int_max x = 0; x < Lx; ++x)
+	{
+		PointHandleList_a[x] = OutputMesh.AddPoint(ScalarType(x), ScalarType(0), ScalarType(0));
+	}
+	PointHandleList_b = PointHandleList_a;
+
+	for (int_max y = 1; y < Ly; ++y)
+	{
+		for (int_max x = 0; x < Lx; ++x)
+		{
+			PointHandleList_a[x] = OutputMesh.AddPoint(ScalarType(x), ScalarType(y), ScalarType(0));
+		}
+
+		for (int_max x = 0; x < Lx - 1; ++x)
+		{
+			auto P0 = PointHandleList_b[x];
+			auto P1 = PointHandleList_b[x+1];
+			auto P2 = PointHandleList_a[x+1];
+			auto P3 = PointHandleList_a[x];
+			OutputMesh.AddFaceByPoint({ P0, P1, P2, P3 });
+		}
+
+		PointHandleList_b = PointHandleList_a;
+	}
+
+	return OutputMesh;
+}
+
+
 }//namespace mdk
 
 
