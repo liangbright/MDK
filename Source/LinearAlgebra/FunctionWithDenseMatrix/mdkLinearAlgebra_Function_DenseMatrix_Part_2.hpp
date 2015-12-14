@@ -765,7 +765,7 @@ DenseMatrix<ElementType> MatrixMaxOfEachRow(const DenseMatrix<ElementType>& Inpu
         return tempMatrix;
     }
 
-    tempMatrix.Resize(InputSize.ColCount, 1);
+	tempMatrix.Resize(InputSize.RowCount, 1);
 
     auto tempRawPointer = tempMatrix.GetElementPointer();
 
@@ -893,7 +893,7 @@ DenseMatrix<ElementType> MatrixMinOfEachRow(const DenseMatrix<ElementType>& Inpu
         return tempMatrix;
     }
 
-    tempMatrix.Resize(InputSize.ColCount, 1);
+	tempMatrix.Resize(InputSize.RowCount, 1);
 
     auto tempRawPointer = tempMatrix.GetElementPointer();
 
