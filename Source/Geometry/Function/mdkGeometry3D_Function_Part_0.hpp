@@ -368,7 +368,7 @@ DenseMatrix<ScalarType> Resample3DCurveWithEqualSegmentLength(const DenseMatrix<
 	//------------------------------------------------------------------------//
 	auto UnitLength_input = CurveLength_input / ScalarType(PointCount_resampled - 1);
 
-	auto Curve_Interpolated = Resample3DCurveWithBoundedSegmentLength(Curve, UnitLength_input*Tolerance); // InterpolateCurve input curve
+	auto Curve_Interpolated = Resample3DCurveWithBoundedSegmentLength(Curve, UnitLength_input*Tolerance*0.5); // InterpolateCurve input curve
 
 	auto PointCount_Interpolated = Curve_Interpolated.GetColCount();
 
@@ -382,8 +382,9 @@ DenseMatrix<ScalarType> Resample3DCurveWithEqualSegmentLength(const DenseMatrix<
 	    int_max PointIndex_n = 1;
 		for (int_max n = 1; n < PointCount_resampled-1; ++n)
 		{
-			auto Length_n = ScalarType(0.99)*UnitLength_input*n;
-			for (int_max k = PointIndex_n; k <= PointCount_Interpolated - 2; ++k)
+			//auto Length_n = ScalarType(1-Tolerance)*UnitLength_input*n;
+			auto Length_n = UnitLength_input*n;
+			for (int_max k = PointIndex_n+1; k < PointCount_Interpolated-1; ++k)
 			{
 				if (Length_n >= CumulativeCurveLengthList_Interpolated[k - 1] && Length_n <= CumulativeCurveLengthList_Interpolated[k])
 				{
@@ -398,6 +399,7 @@ DenseMatrix<ScalarType> Resample3DCurveWithEqualSegmentLength(const DenseMatrix<
 	//----------------------------- Iteration to refine --------------------------------------------------------------------//
 	// find the optimal UnitLength
 	ScalarType UnitLength = Compute3DCurveLength(Curve_resampled) / ScalarType(PointCount_resampled - 1);
+	auto Curve_resampled_prev = Curve_resampled;
 	for (int_max IterIndex = 1; IterIndex <= MaxIterCount; ++IterIndex)
 	{
 		int_max PointIndex_n = 1;	
@@ -407,7 +409,7 @@ DenseMatrix<ScalarType> Resample3DCurveWithEqualSegmentLength(const DenseMatrix<
 			DenseVector<ScalarType, 3> Pos_n1;
 			Curve_resampled.GetCol(n - 1, Pos_n1);
 			bool Flag_n = false;
-			for (int_max k = PointIndex_n; k <= PointCount_Interpolated - 2; ++k)
+			for (int_max k = PointIndex_n+1; k < PointCount_Interpolated-1; ++k)
 			{
 				DenseVector<ScalarType, 3> Pos_k;
 				Curve_Interpolated.GetCol(k, Pos_k);
@@ -426,6 +428,7 @@ DenseMatrix<ScalarType> Resample3DCurveWithEqualSegmentLength(const DenseMatrix<
 			}
 			else
 			{
+				Curve_resampled = Curve_resampled_prev;
 				Flag = false;
 				break;
 			}
@@ -433,7 +436,7 @@ DenseMatrix<ScalarType> Resample3DCurveWithEqualSegmentLength(const DenseMatrix<
 
 		if (Flag == false)
 		{// UnitLength is too large, can not construct a full resample curve
-			UnitLength *= 0.9;
+			UnitLength *= 1 - Tolerance;
 		}
 		else
 		{//check Curve_resampled to decide wheter to increase or decrease UnitLength: only need to check the distance between last two point -> usually the largest error is in it
@@ -447,6 +450,13 @@ DenseMatrix<ScalarType> Resample3DCurveWithEqualSegmentLength(const DenseMatrix<
 				break;//iteration
 			}
 			UnitLength = Compute3DCurveLength(Curve_resampled) / ScalarType(PointCount_resampled - 1);
+
+			if (IterIndex == MaxIterCount && Ratio > Tolerance)
+			{
+				//MDK_Warning(" output is inacurate @ Resample3DCurveWithEqualSegmentLength")
+			}
+
+			Curve_resampled_prev = Curve_resampled;
 		}
 	}
 
