@@ -1,6 +1,6 @@
 #pragma once
 
-#include "mdkTriangleMeshProcessing.h"
+#include "mdkPolygonMeshProcessing.h"
 
 using namespace mdk;
 

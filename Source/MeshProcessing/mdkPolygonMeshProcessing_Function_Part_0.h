@@ -9,7 +9,7 @@
 
 namespace mdk
 {
-
+//no double count
 template<typename MeshAttributeType>
 DenseVector<Handle_Of_Point_Of_MembraneMesh> TraceMeshBoundaryCurve(const PolygonMesh<MeshAttributeType>& TargetMesh, Handle_Of_Point_Of_MembraneMesh PointHandle_start);
 
