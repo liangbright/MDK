@@ -69,6 +69,7 @@ DenseVector<ScalarType, 3> ComputeCenterOfCircumcircleOfTriangleIn3D(const Dense
 template<typename ScalarType>
 DenseVector<ScalarType, 3> ComputeCenterOfCircumcircleOfTriangleIn3D(const ScalarType* PointA, const ScalarType* PointB, const ScalarType* PointC);
 
+
 }// namespace mdk
 
 #include "mdkGeometry3D_Function_Part_1.hpp"

@@ -53,6 +53,8 @@ private:
 
 	TriangleMesh<InputMeshAttribute> m_TransfromedInputMesh;//2D mesh
 
+	bool m_Flag_Use_TPS_Transform = true;
+
 	//------------------- output -----------------------------//
 	// OutputMesh is Transformed TemplateMesh from 2D to 3D
 	PolygonMesh<OutputMeshAttribute> m_OutputMesh;
@@ -67,6 +69,8 @@ public:
 	ObjectArray<DenseVector<PointHandleType>>& BoundarySegmentListOfTemplateMesh() { return m_BoundarySegmentListOfTemplateMesh; }
 	PolygonMesh<OutputMeshAttribute>& OutputMesh() { return m_OutputMesh; }
  
+	void EnableTPSTransformOfTemplateMesh(bool Flag = true) { m_Flag_Use_TPS_Transform = Flag; }
+
 	void Clear();
 	void Update();
 
@@ -80,11 +84,19 @@ private:
 	bool CheckBoundaryConstraint();
 	void TransformInputMeshFrom3DTo2D();
 	void TransfromTemplateMeshFrom2Dto3D();
+	void TransfromTemplateMeshFrom2Dto3D_Method0_TPS();
+	void TransfromTemplateMeshFrom2Dto3D_Method1_Interpolation();
 
 	DenseVector<ScalarType> ComputeCumulativeCurveLength(const DenseMatrix<ScalarType>& CurvePosition);
 
 	// relative length is from 0 to 1
 	DenseVector<ScalarType> ComputeCumulativeCurveLength_Relative(const DenseMatrix<ScalarType>& CurvePosition);
+
+	DenseVector<int_max> FindNearestPoint(const DenseVector<ScalarType, 3> Point, const DenseMatrix<ScalarType>& PointSet, int_max OutputPointCount);
+
+	DenseVector<int_max> Find3PointOfNearestFace(const DenseVector<ScalarType, 3> Point, const TriangleMesh<InputMeshAttribute>& TargetMesh);
+
+	ScalarType ComputeSignedTriangleAreaIn2D(const DenseVector<ScalarType, 3> PointA, const DenseVector<ScalarType, 3> PointB, const DenseVector<ScalarType, 3> PointC);
 
 private:
 	TemplateBasedSurfaceRemesher(const TemplateBasedSurfaceRemesher&) = delete;
