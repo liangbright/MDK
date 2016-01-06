@@ -88,6 +88,39 @@ bool TemplateBasedSurfaceRemesher<ScalarType>::CheckInput()
 		}
 	}
 
+	//check if all the boundary point of inputmesh included in m_BoundarySegmentListOfInputMesh
+	/*
+	auto BoundarySet_input = TraceMeshBoundaryCurve(m_InputMesh);
+	bool Flag_all_in = true;
+	for (int_max k = 0; k < BoundarySet_input.GetLength(); ++k)
+	{
+		const auto& Boundary_k = BoundarySet_input[k];
+		for (int_max n = 0; n < Boundary_k.GetLength(); ++n)
+		{
+			bool Flag_n_in = false;
+			for (int_max m = 0; m < m_BoundarySegmentListOfInputMesh.GetLength(); ++m)
+			{
+				auto tempIndex = m_BoundarySegmentListOfInputMesh[m].ExactMatch("first", Boundary_k[n]);
+				if (tempIndex >= 0)
+				{
+					Flag_n_in = true;
+					break;
+				}
+			}
+			if (Flag_n_in == false)
+			{
+				Flag_all_in = false;
+				break;
+			}
+		}
+	}
+	if (Flag_all_in == false)
+	{
+		MDK_Error("Some Boundary Point NOT included in BoundarySegmentListOfInputMesh @ TemplateBasedSurfaceRemesher::CheckInput()")
+		return false;
+	}
+	*/
+
 	return true;
 }
 
