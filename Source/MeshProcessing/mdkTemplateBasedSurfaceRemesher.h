@@ -53,7 +53,7 @@ private:
 
 	TriangleMesh<InputMeshAttribute> m_TransfromedInputMesh;//2D mesh
 
-	bool m_Flag_Use_TPS_Transform = true;
+	bool m_Flag_Use_TPS_Transform = false;
 
 	//------------------- output -----------------------------//
 	// OutputMesh is Transformed TemplateMesh from 2D to 3D
@@ -92,12 +92,8 @@ private:
 	// relative length is from 0 to 1
 	DenseVector<ScalarType> ComputeCumulativeCurveLength_Relative(const DenseMatrix<ScalarType>& CurvePosition);
 
-	DenseVector<int_max> FindNearestPoint(const DenseVector<ScalarType, 3> Point, const DenseMatrix<ScalarType>& PointSet, int_max OutputPointCount);
-
-	DenseVector<int_max> Find3PointOfNearestFace(const DenseVector<ScalarType, 3> Point, const TriangleMesh<InputMeshAttribute>& TargetMesh);
-
-	ScalarType ComputeSignedTriangleAreaIn2D(const DenseVector<ScalarType, 3> PointA, const DenseVector<ScalarType, 3> PointB, const DenseVector<ScalarType, 3> PointC);
-
+	DenseVector<PointHandleType, 3> Find3PointOfNearestFace(const DenseVector<ScalarType, 3>& Point, const TriangleMesh<InputMeshAttribute>& TargetMesh);
+	
 private:
 	TemplateBasedSurfaceRemesher(const TemplateBasedSurfaceRemesher&) = delete;
 	void operator=(const TemplateBasedSurfaceRemesher&) = delete;

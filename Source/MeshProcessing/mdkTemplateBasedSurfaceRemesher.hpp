@@ -356,9 +356,6 @@ void TemplateBasedSurfaceRemesher<ScalarType>::TransfromTemplateMeshFrom2Dto3D_M
 template<typename ScalarType>
 void TemplateBasedSurfaceRemesher<ScalarType>::TransfromTemplateMeshFrom2Dto3D_Method1_Interpolation()
 {
-	auto PointSet3D_input = m_InputMesh.GetPointPosition(ALL);
-	auto PointSet2D_input = m_TransfromedInputMesh.GetPointPosition(ALL);
-
 	m_OutputMesh.Clear();
 	m_OutputMesh = m_TemplateMesh;
 	for (auto it = m_OutputMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
@@ -373,17 +370,14 @@ void TemplateBasedSurfaceRemesher<ScalarType>::TransfromTemplateMeshFrom2Dto3D_M
 		else
 		{
 			auto Pos2D = it.Point().GetPosition();
-
-			auto PointIndexList = this->Find3PointOfNearestFace(Pos2D, m_TransfromedInputMesh);
-			//auto PointIndexList = this->FindNearestPoint(Pos2D, PointSet2D_input, 3);
+			auto PointHandleList_nearest = this->Find3PointOfNearestFace(Pos2D, m_TransfromedInputMesh);
 
 			DenseVector<ScalarType, 3> Weight;
 			Weight.Fill(0);
 			{
-				DenseVector<ScalarType, 3> Point0, Point1, Point2;
-				PointSet2D_input.GetCol(PointIndexList[0], Point0);
-				PointSet2D_input.GetCol(PointIndexList[1], Point1);
-				PointSet2D_input.GetCol(PointIndexList[2], Point2);
+				auto Point0 = m_TransfromedInputMesh.GetPointPosition(PointHandleList_nearest[0]);
+				auto Point1 = m_TransfromedInputMesh.GetPointPosition(PointHandleList_nearest[1]);
+				auto Point2 = m_TransfromedInputMesh.GetPointPosition(PointHandleList_nearest[2]);
 
 				auto x = Pos2D[0];
 				auto y = Pos2D[1];
@@ -413,12 +407,10 @@ void TemplateBasedSurfaceRemesher<ScalarType>::TransfromTemplateMeshFrom2Dto3D_M
 				
 			}
 
-			DenseVector<ScalarType, 3> Pos3D, Point0, Point1, Point2;
-			PointSet3D_input.GetCol(PointIndexList[0], Point0);
-			PointSet3D_input.GetCol(PointIndexList[1], Point1);
-			PointSet3D_input.GetCol(PointIndexList[2], Point2);
-			Pos3D = Weight[0] * Point0 + Weight[1] * Point1 + Weight[2] * Point2;
-
+			auto Point0 = m_InputMesh.GetPointPosition(PointHandleList_nearest[0]);
+			auto Point1 = m_InputMesh.GetPointPosition(PointHandleList_nearest[1]);
+			auto Point2 = m_InputMesh.GetPointPosition(PointHandleList_nearest[2]);
+			auto Pos3D = Weight[0] * Point0 + Weight[1] * Point1 + Weight[2] * Point2;
 			it.Point().SetPosition(Pos3D);
 		}
 	}
@@ -479,66 +471,94 @@ TemplateBasedSurfaceRemesher<ScalarType>::ConvertPointIndexToPointHandle(int_max
 
 
 template<typename ScalarType>
-DenseVector<int_max> TemplateBasedSurfaceRemesher<ScalarType>::FindNearestPoint(const DenseVector<ScalarType, 3> Point, const DenseMatrix<ScalarType>& PointSet, int_max OutputPointCount)
+DenseVector<typename TemplateBasedSurfaceRemesher<ScalarType>::PointHandleType, 3>
+TemplateBasedSurfaceRemesher<ScalarType>::Find3PointOfNearestFace(const DenseVector<ScalarType, 3>& Point, const TriangleMesh<InputMeshAttribute>& TargetMesh)
 {
-	//---------------------------------------------------------------------------------------------
-	DenseVector<ScalarType> DistanceList;
-	DistanceList.Resize(PointSet.GetColCount());
-	for (int_max k = 0; k < PointSet.GetColCount(); ++k)
+	DenseVector<PointHandleType, 3> PointHandleList_nearest;
+    //-----------------------------------------------//
+	DenseVector<FaceHandleType> FaceHandleList_nearest;
+	PointHandleType PointHanle_nearest;
+	DenseVector<ScalarType, 3> PointPosition_nearest;
 	{
-		DenseVector<ScalarType, 3> Pos_k;
-		PointSet.GetCol(k, Pos_k);
-		DistanceList[k] = (Point - Pos_k).L2Norm();
-	}
-	auto IndexList_sort = DistanceList.Sort("ascend");	
-	return IndexList_sort.GetSubSet(0, OutputPointCount-1);
-}
-
-
-template<typename ScalarType>
-DenseVector<int_max> TemplateBasedSurfaceRemesher<ScalarType>::Find3PointOfNearestFace(const DenseVector<ScalarType, 3> Point, const TriangleMesh<InputMeshAttribute>& TargetMesh)
-{
-	DenseVector<ScalarType> DistanceList;
-	DistanceList.SetCapacity(TargetMesh.GetFaceCount());
-	for (auto it = TargetMesh.GetIteratorOfFace(); it.IsNotEnd(); ++it)
-	{
-		auto PointHandleList = it.Face().GetPointHandleList();
-		ScalarType Distance = 0;
-		for (int_max k = 0; k < PointHandleList.GetLength(); ++k)
+		DenseVector<ScalarType> DistanceList;
+		DistanceList.SetCapacity(TargetMesh.GetFaceCount());
+		for (auto it = TargetMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
 		{
-			auto Pos_k = TargetMesh.Point(PointHandleList[k]).GetPosition();
-			Distance += (Pos_k - Point).L2Norm();
+			auto Pos = it.Point().GetPosition();
+			auto Distance = (Point - Pos).L2Norm();
+			DistanceList.Append(Distance);
 		}
-		DistanceList.Append(Distance);
+		auto PointIndexList_sort = DistanceList.Sort("ascend");
+		for (int_max k = 0; k < 3; ++k)
+		{
+			PointHandleType PointHandle_k;
+			PointHandle_k.SetIndex(PointIndexList_sort[k]);
+			auto AdjFaceHandleList = TargetMesh.Point(PointHandle_k).GetAdjacentFaceHandleList();
+			FaceHandleList_nearest.Append(AdjFaceHandleList);
+		}
+		FaceHandleList_nearest = FaceHandleList_nearest.GetSubSet(FaceHandleList_nearest.FindUnique());
+		PointHanle_nearest.SetIndex(PointIndexList_sort[0]);		
+		PointPosition_nearest = TargetMesh.GetPointPosition(PointHanle_nearest);
 	}
+	
+	auto EPS = std::numeric_limits<ScalarType>::epsilon();
 
-	auto FaceIndex_min = DistanceList.IndexOfMin();
-	FaceHandleType FaceHandle_min;
-	FaceHandle_min.SetIndex(FaceIndex_min);
-
-	DenseVector<int_max> IndexList;
-	IndexList.SetCapacity(3);
-	auto PointHandleList = TargetMesh.Face(FaceHandle_min).GetPointHandleList();
-	for (int_max k = 0; k < PointHandleList.GetLength(); ++k)
+	auto PointDistance_nearest = (PointPosition_nearest - Point).L2Norm();
+	if (PointDistance_nearest <= EPS)
 	{
-		IndexList.Append(PointHandleList[k].GetIndex());
+		PointHandleList_nearest = TargetMesh.Face(FaceHandleList_nearest[0]).GetPointHandleList();
+		return PointHandleList_nearest;
 	}
-	return IndexList;
-}
 
+	auto TempFunction_det = [](const DenseVector<ScalarType, 3>& U, const DenseVector<ScalarType, 3>& V)
+	{
+		return U[0] * V[1] - U[1] * V[0];
+	};
 
-template<typename ScalarType>
-ScalarType TemplateBasedSurfaceRemesher<ScalarType>::ComputeSignedTriangleAreaIn2D(const DenseVector<ScalarType, 3> PointA, const DenseVector<ScalarType, 3> PointB, const DenseVector<ScalarType, 3> PointC)
-{
-	auto x1 = PointA[0];
-	auto y1 = PointA[1];
-	auto x2 = PointB[0];
-	auto y2 = PointB[1];
-	auto x3 = PointC[0];
-	auto y3 = PointC[1];
+	auto FaceHandle_nearest = FaceHandleList_nearest[0];
+	bool Flag = false;
+	for (int_max k = 0; k < FaceHandleList_nearest.GetLength(); ++k)
+	{
+		auto PointHandleList_k = TargetMesh.Face(FaceHandleList_nearest[k]).GetPointHandleList();//triangle: 3 point
+		auto Point0 = TargetMesh.GetPointPosition(PointHandleList_k[0]);
+		auto Point1 = TargetMesh.GetPointPosition(PointHandleList_k[1]);
+		auto Point2 = TargetMesh.GetPointPosition(PointHandleList_k[2]);
+		//http://mathworld.wolfram.com/TriangleInterior.html
+		//auto V = Point;
+		//auto V0 = Point0;		
+		//auto V1 = Point1 - Point0;
+		//auto V2 = Point2 - Point0;
+		//auto a = (TempFunction_det(V, V2) - TempFunction_det(V0, V2)) / TempFunction_det(V1, V2);
+		//auto b = (TempFunction_det(V, V1) - TempFunction_det(V0, V1)) / TempFunction_det(V2, V1);
 
-	auto Area = 0.5*(-x2*y1+x3*y1+x1*y2-x3*y2-x1*y3+x2*y3);
-	return Area;
+		//http://stackoverflow.com/questions/2049582/how-to-determine-a-point-in-a-2d-triangle
+		auto x = Point[0];
+		auto y = Point[1];
+		auto x0 = Point0[0];
+		auto y0 = Point0[1];
+		auto x1 = Point1[0];
+		auto y1 = Point1[1];
+		auto x2 = Point2[0];
+		auto y2 = Point2[1];
+		auto Area = 0.5*(-y1*x2 + y0*(-x1 + x2) + x0*(y1 - y2) + x1*y2);
+		auto a = 1/(2*Area)*(y0*x2 - x0*y2 + (y2 - y0)*x + (x0 - x2)*y);
+		auto b = 1/(2*Area)*(x0*y1 - y0*x1 + (y0 - y1)*x + (x1 - x0)*y);
+
+		if (a >= -0.0001 && b >= -0.0001 && a+b <= 1.0001)
+		{
+			FaceHandle_nearest = FaceHandleList_nearest[k];
+			Flag = true;
+			break;
+		}
+
+	}
+	PointHandleList_nearest = TargetMesh.Face(FaceHandle_nearest).GetPointHandleList();
+
+	if (Flag == false)
+	{
+		Flag = false;
+	}
+	return PointHandleList_nearest;
 }
 
 }//namespace mdk
