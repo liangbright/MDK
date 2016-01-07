@@ -476,7 +476,7 @@ TemplateBasedSurfaceRemesher<ScalarType>::Find3PointOfNearestFace(const DenseVec
 {
 	DenseVector<PointHandleType, 3> PointHandleList_nearest;
     //-----------------------------------------------//
-	DenseVector<FaceHandleType> FaceHandleList_nearest;
+	DenseVector<FaceHandleType> CandidateFaceHandleList;
 	PointHandleType PointHanle_nearest;
 	DenseVector<ScalarType, 3> PointPosition_nearest;
 	{
@@ -488,38 +488,48 @@ TemplateBasedSurfaceRemesher<ScalarType>::Find3PointOfNearestFace(const DenseVec
 			auto Distance = (Point - Pos).L2Norm();
 			DistanceList.Append(Distance);
 		}
-		auto PointIndexList_sort = DistanceList.Sort("ascend");
-		for (int_max k = 0; k < 3; ++k)
-		{
-			PointHandleType PointHandle_k;
-			PointHandle_k.SetIndex(PointIndexList_sort[k]);
-			auto AdjFaceHandleList = TargetMesh.Point(PointHandle_k).GetAdjacentFaceHandleList();
-			FaceHandleList_nearest.Append(AdjFaceHandleList);
-		}
-		FaceHandleList_nearest = FaceHandleList_nearest.GetSubSet(FaceHandleList_nearest.FindUnique());
-		PointHanle_nearest.SetIndex(PointIndexList_sort[0]);		
+		auto PointIndexList_sort = DistanceList.Sort("ascend");		
+		auto PointIndexList_nearest = PointIndexList_sort[0];
+		auto PointIndex_nearest = DistanceList.IndexOfMin();
+		PointHanle_nearest.SetIndex(PointIndex_nearest);
 		PointPosition_nearest = TargetMesh.GetPointPosition(PointHanle_nearest);
+
+		for (int_max n = 0; n < 3; ++n)
+		{
+			PointHandleType PointHandle_n;
+			PointHandle_n.SetIndex(PointIndexList_sort[n]);
+			auto AdjPointHandleList = TargetMesh.Point(PointHandle_n).GetAdjacentPointHandleList();
+			AdjPointHandleList.Insert(0, PointHandle_n);
+			for (int_max k = 0; k < AdjPointHandleList.GetLength(); ++k)
+			{
+				auto AdjFaceHandleList = TargetMesh.Point(AdjPointHandleList[k]).GetAdjacentFaceHandleList();
+				CandidateFaceHandleList.Append(AdjFaceHandleList);
+			}
+		}
+		CandidateFaceHandleList = CandidateFaceHandleList.GetSubSet(CandidateFaceHandleList.FindUnique());
 	}
 	
+	//-------------------------------------------------------------------
 	auto EPS = std::numeric_limits<ScalarType>::epsilon();
-
 	auto PointDistance_nearest = (PointPosition_nearest - Point).L2Norm();
 	if (PointDistance_nearest <= EPS)
 	{
-		PointHandleList_nearest = TargetMesh.Face(FaceHandleList_nearest[0]).GetPointHandleList();
+		auto AdjFaceHandleList = TargetMesh.Point(PointHanle_nearest).GetAdjacentFaceHandleList();
+		PointHandleList_nearest = TargetMesh.Face(AdjFaceHandleList[0]).GetPointHandleList();
 		return PointHandleList_nearest;
 	}
+	//-------------------------------------------------------------------
 
 	auto TempFunction_det = [](const DenseVector<ScalarType, 3>& U, const DenseVector<ScalarType, 3>& V)
 	{
 		return U[0] * V[1] - U[1] * V[0];
 	};
 
-	auto FaceHandle_nearest = FaceHandleList_nearest[0];
-	bool Flag = false;
-	for (int_max k = 0; k < FaceHandleList_nearest.GetLength(); ++k)
+	auto FaceHandle_nearest = CandidateFaceHandleList[0];
+	bool Flag = false;	
+	for (int_max k = 0; k < CandidateFaceHandleList.GetLength(); ++k)
 	{
-		auto PointHandleList_k = TargetMesh.Face(FaceHandleList_nearest[k]).GetPointHandleList();//triangle: 3 point
+		auto PointHandleList_k = TargetMesh.Face(CandidateFaceHandleList[k]).GetPointHandleList();//triangle: 3 point
 		auto Point0 = TargetMesh.GetPointPosition(PointHandleList_k[0]);
 		auto Point1 = TargetMesh.GetPointPosition(PointHandleList_k[1]);
 		auto Point2 = TargetMesh.GetPointPosition(PointHandleList_k[2]);
@@ -546,18 +556,19 @@ TemplateBasedSurfaceRemesher<ScalarType>::Find3PointOfNearestFace(const DenseVec
 
 		if (a >= -0.0001 && b >= -0.0001 && a+b <= 1.0001)
 		{
-			FaceHandle_nearest = FaceHandleList_nearest[k];
+			FaceHandle_nearest = CandidateFaceHandleList[k];
 			Flag = true;
 			break;
 		}
 
 	}
-	PointHandleList_nearest = TargetMesh.Face(FaceHandle_nearest).GetPointHandleList();
 
 	if (Flag == false)
 	{
-		Flag = false;
+		MDK_Warning("Flag == false @ TemplateBasedSurfaceRemesher::Find3PointOfNearestFace(...)")
 	}
+
+	PointHandleList_nearest = TargetMesh.Face(FaceHandle_nearest).GetPointHandleList();
 	return PointHandleList_nearest;
 }
 
