@@ -334,9 +334,9 @@ DenseMatrix<ScalarType> Resample3DCurveWithEqualSegmentLength(const DenseMatrix<
         return Curve_resampled;
 	}
 
-	if (MaxIterCount < 1)
+	if (MaxIterCount < 0)
 	{
-		MDK_Error("MaxIterCount < 1 @ Resample3DCurveWithEqualSegmentLength(...)")
+		MDK_Error("MaxIterCount < 0 @ Resample3DCurveWithEqualSegmentLength(...)")
 		return Curve_resampled;
 	}
 
@@ -374,7 +374,7 @@ DenseMatrix<ScalarType> Resample3DCurveWithEqualSegmentLength(const DenseMatrix<
 
 	auto CumulativeCurveLengthList_Interpolated = ComputeCumulative3DCurveLengthList(Curve_Interpolated);
 
-	//----------------------------- Initilization ------------------------------------------------------------//
+	//----------------------------- Initialization ------------------------------------------------------------//
 	Curve_resampled.Resize(3, PointCount_resampled);
 	Curve_resampled.SetCol(0, Curve_Interpolated.GetPointerOfCol(0));
 	Curve_resampled.SetCol(PointCount_resampled-1, Curve_Interpolated.GetPointerOfCol(PointCount_Interpolated - 1));
@@ -396,6 +396,12 @@ DenseMatrix<ScalarType> Resample3DCurveWithEqualSegmentLength(const DenseMatrix<
 			PointIndex_n += 1;
 		}		
 	}
+
+	if (MaxIterCount <= 0)
+	{
+		return Curve_resampled;
+	}
+
 	//----------------------------- Iteration to refine --------------------------------------------------------------------//
 	// find the optimal UnitLength
 	ScalarType UnitLength = Compute3DCurveLength(Curve_resampled) / ScalarType(PointCount_resampled - 1);
