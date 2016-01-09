@@ -218,7 +218,7 @@ PolygonMesh<MeshAttributeType> SmoothMeshByVTKSmoothPolyDataFilter(const Polygon
 	SmoothFilter->SetInputData(VTKMesh);
 	SmoothFilter->SetNumberOfIterations(Iter);
 	SmoothFilter->SetRelaxationFactor(0.01);
-	SmoothFilter->SetConvergence(0.001);
+	SmoothFilter->SetConvergence(0.0);
 	if (Flag_FeatureEdgeSmoothing == true)
 	{
 		SmoothFilter->FeatureEdgeSmoothingOn();
