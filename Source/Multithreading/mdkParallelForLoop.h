@@ -22,7 +22,7 @@ namespace mdk
 //	{
 //      DoSomething(k);
 //	};
-//  ParallelForLoop(TempFunction, 0, L-1);
+//  ParallelForLoop(TempFunction, 0, L-1, MaxThreadCount);
 //
 // for performance reason, no input check
 //

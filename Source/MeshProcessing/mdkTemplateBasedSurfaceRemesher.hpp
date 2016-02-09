@@ -49,15 +49,21 @@ bool TemplateBasedSurfaceRemesher<ScalarType>::CheckInput()
 		return false;
 	}
 
-	if (m_InputMesh.Check_If_DataStructure_is_Clean() == false)
-	{
-		MDK_Error("m_InputMesh DataStructure is NOT Clean @ TemplateBasedSurfaceRemesher::CheckInput()")
-		return false;
-	}
-
 	if (m_InputMesh.GetPointCount() < 3)
 	{
 		MDK_Error("InputMesh PointCount < 3 @ TemplateBasedSurfaceRemesher::CheckInput()")
+			return false;
+	}
+
+	if (m_InputMesh.Check_If_DataStructure_is_Clean() == false)
+	{
+		MDK_Error("InputMesh DataStructure is NOT Clean @ TemplateBasedSurfaceRemesher::CheckInput()")
+		return false;
+	}
+
+	if (m_InputMesh.CheckIfTriangleMesh() == false)
+	{
+		MDK_Error("InputMesh is NOT TriangleMesh @ TemplateBasedSurfaceRemesher::CheckInput()")
 		return false;
 	}
 
