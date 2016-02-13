@@ -1148,6 +1148,7 @@ public:
 	// ElementOperation can be replaced by ranged for loop 
 	// DenseMatrix<double> A(10,10); 
 	// A.ElementOperation("abs"); <=> for(auto& i : A) { i = std::abs(i);}
+	// supported :  abs, exp, log, sqrt, sin, cos, tan
 
 	template<typename OperationType>
 	inline void ElementOperation(OperationType Operation);

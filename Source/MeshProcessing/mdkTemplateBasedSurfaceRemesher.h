@@ -42,6 +42,9 @@ private:
 	//BoundarySegment[k] overlap with BoundarySegment[k-1] and BoundarySegment[k+1] at start/end point
 	//m_BoundarySegmentListOfOutputMesh[k] ~ m_BoundaryListOfInputMesh[k] 
 
+	//Parameter to MinimumStretchBasedTriangleMesh3DTo2DMapper
+	ScalarType m_DiffusionCoefficient;
+	int_max m_MaxInteration;
 	//-------------------- internal ---------------------------//
 
 	DenseVector<PointHandleType> m_BoundaryPointHandleListOfInputMesh;
@@ -68,7 +71,8 @@ public:
 	PolygonMesh<TemplateMeshAttribute>& TemplateMesh() { return m_TemplateMesh; }
 	ObjectArray<DenseVector<PointHandleType>>& BoundarySegmentListOfTemplateMesh() { return m_BoundarySegmentListOfTemplateMesh; }
 	PolygonMesh<OutputMeshAttribute>& OutputMesh() { return m_OutputMesh; }
- 
+	void SetDiffusionCoefficientOfMeshParameterization(ScalarType Coef) { m_DiffusionCoefficient = Coef; }
+	void SetMaxIterationOfMeshParameterization(int_max MaxIter) { m_MaxInteration = MaxIter; }
 	void EnableTPSTransformOfTemplateMesh(bool Flag = true) { m_Flag_Use_TPS_Transform = Flag; }
 
 	void Clear();

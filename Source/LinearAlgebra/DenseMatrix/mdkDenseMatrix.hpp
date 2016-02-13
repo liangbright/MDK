@@ -6984,104 +6984,12 @@ DenseMatrix<ElementType> DenseMatrix<ElementType>::ElementMultiply(const DenseGl
     return tempMatrix;
 }
 
-//-------------------- general element operation : output a new matrix ------------------------------------------//
+//-------------------- element operation : Object.ElementOperation update the current data of the object ---------------//
 
 template<typename ElementType>
 template<typename OperationType>
 inline
-DenseMatrix<ElementType> DenseMatrix<ElementType>::ElementOperation(OperationType Operation) const
-{
-	return MatrixElementOperation(Operation, *this);
-}
-
-
-template<typename ElementType>
-inline
-DenseMatrix<ElementType> DenseMatrix<ElementType>::ElementOperation(const char* OperationName) const
-{
-    return MatrixElementNamedOperation(OperationName, *this);
-}
-
-
-template<typename ElementType>
-inline 
-DenseMatrix<ElementType> DenseMatrix<ElementType>::ElementOperation(const std::string& OperationName) const
-{
-    return MatrixElementNamedOperation(OperationName, *this);
-}
-
-
-template<typename ElementType>
-template<typename OperationType>
-inline
-DenseMatrix<ElementType> DenseMatrix<ElementType>::ElementOperation(OperationType Operation, const DenseMatrix<ElementType>& InputMatrix) const
-{
-	return MatrixElementOperation(Operation, *this, InputMatrix);
-}
-
-
-template<typename ElementType>
-inline
-DenseMatrix<ElementType> DenseMatrix<ElementType>::ElementOperation(const char OperationName, const DenseMatrix<ElementType>& InputMatrix) const
-{
-    return MatrixElementNamedOperation(OperationName, *this, InputMatrix);
-}
-
-
-template<typename ElementType>
-inline
-DenseMatrix<ElementType> DenseMatrix<ElementType>::ElementOperation(const char* OperationName, const DenseMatrix<ElementType>& InputMatrix) const
-{
-    return MatrixElementNamedOperation(OperationName, *this, InputMatrix);
-}
-
-
-template<typename ElementType>
-inline
-DenseMatrix<ElementType> DenseMatrix<ElementType>::ElementOperation(const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix) const
-{
-    return MatrixElementNamedOperation(OperationName, *this, InputMatrix);
-}
-
-
-template<typename ElementType>
-template<typename OperationType>
-inline
-DenseMatrix<ElementType> DenseMatrix<ElementType>::ElementOperation(OperationType Operation, const ElementType& Element) const
-{
-	return MatrixElementOperation(Operation, *this, Element);
-}
-
-
-template<typename ElementType>
-inline
-DenseMatrix<ElementType> DenseMatrix<ElementType>::ElementOperation(const char OperationName, const ElementType& Element) const
-{
-    return MatrixElementNamedOperation(OperationName, *this, Element);
-}
-
-
-template<typename ElementType>
-inline
-DenseMatrix<ElementType> DenseMatrix<ElementType>::ElementOperation(const char* OperationName, const ElementType& Element) const
-{
-    return MatrixElementNamedOperation(OperationName, *this, Element);
-}
-
-
-template<typename ElementType>
-inline
-DenseMatrix<ElementType> DenseMatrix<ElementType>::ElementOperation(const std::string& OperationName, const ElementType& Element) const
-{
-    return MatrixElementNamedOperation(OperationName, *this, Element);
-}
-
-//-------------------- element operation in place : Object.ElementOperationInPlace update the current data of the object ---------------//
-
-template<typename ElementType>
-template<typename OperationType>
-inline
-void DenseMatrix<ElementType>::ElementOperationInPlace(OperationType Operation)
+void DenseMatrix<ElementType>::ElementOperation(OperationType Operation)
 {
 	MatrixElementOperation(*this, Operation, *this);
 }
@@ -7089,7 +6997,7 @@ void DenseMatrix<ElementType>::ElementOperationInPlace(OperationType Operation)
 
 template<typename ElementType>
 inline
-void DenseMatrix<ElementType>::ElementOperationInPlace(const char* OperationName)
+void DenseMatrix<ElementType>::ElementOperation(const char* OperationName)
 {
     MatrixElementNamedOperation(*this, OperationName, *this);
 }
@@ -7097,7 +7005,7 @@ void DenseMatrix<ElementType>::ElementOperationInPlace(const char* OperationName
 
 template<typename ElementType>
 inline
-void DenseMatrix<ElementType>::ElementOperationInPlace(const std::string& OperationName)
+void DenseMatrix<ElementType>::ElementOperation(const std::string& OperationName)
 {
     MatrixElementNamedOperation(*this, OperationName, *this);
 }
@@ -7106,7 +7014,7 @@ void DenseMatrix<ElementType>::ElementOperationInPlace(const std::string& Operat
 template<typename ElementType>
 template<typename OperationType>
 inline
-void DenseMatrix<ElementType>::ElementOperationInPlace(OperationType Operation, const DenseMatrix<ElementType>& InputMatrix)
+void DenseMatrix<ElementType>::ElementOperation(OperationType Operation, const DenseMatrix<ElementType>& InputMatrix)
 {
 	MatrixElementOperation(*this, Operation, *this, InputMatrix);
 }
@@ -7114,7 +7022,7 @@ void DenseMatrix<ElementType>::ElementOperationInPlace(OperationType Operation, 
 
 template<typename ElementType>
 inline
-void DenseMatrix<ElementType>::ElementOperationInPlace(const char OperationName, const DenseMatrix<ElementType>& InputMatrix)
+void DenseMatrix<ElementType>::ElementOperation(const char OperationName, const DenseMatrix<ElementType>& InputMatrix)
 {
     MatrixElementNamedOperation(*this, OperationName, *this, InputMatrix);
 }
@@ -7122,7 +7030,7 @@ void DenseMatrix<ElementType>::ElementOperationInPlace(const char OperationName,
 
 template<typename ElementType>
 inline
-void DenseMatrix<ElementType>::ElementOperationInPlace(const char* OperationName, const DenseMatrix<ElementType>& InputMatrix)
+void DenseMatrix<ElementType>::ElementOperation(const char* OperationName, const DenseMatrix<ElementType>& InputMatrix)
 {
     MatrixElementNamedOperation(*this, OperationName, *this, InputMatrix);
 }
@@ -7130,7 +7038,7 @@ void DenseMatrix<ElementType>::ElementOperationInPlace(const char* OperationName
 
 template<typename ElementType>
 inline
-void DenseMatrix<ElementType>::ElementOperationInPlace(const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix)
+void DenseMatrix<ElementType>::ElementOperation(const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix)
 {
     MatrixElementNamedOperation(*this, OperationName, *this, InputMatrix);
 }
@@ -7139,7 +7047,7 @@ void DenseMatrix<ElementType>::ElementOperationInPlace(const std::string& Operat
 template<typename ElementType>
 template<typename OperationType>
 inline
-void DenseMatrix<ElementType>::ElementOperationInPlace(OperationType Operation, const ElementType& Element)
+void DenseMatrix<ElementType>::ElementOperation(OperationType Operation, const ElementType& Element)
 {
 	MatrixElementOperation(*this, Operation, *this, Element);
 }
@@ -7147,7 +7055,7 @@ void DenseMatrix<ElementType>::ElementOperationInPlace(OperationType Operation, 
 
 template<typename ElementType>
 inline
-void DenseMatrix<ElementType>::ElementOperationInPlace(const char OperationName, const ElementType& Element)
+void DenseMatrix<ElementType>::ElementOperation(const char OperationName, const ElementType& Element)
 {
     MatrixElementNamedOperation(*this, OperationName, *this, Element);
 }
@@ -7155,7 +7063,7 @@ void DenseMatrix<ElementType>::ElementOperationInPlace(const char OperationName,
 
 template<typename ElementType>
 inline
-void DenseMatrix<ElementType>::ElementOperationInPlace(const char* OperationName, const ElementType& Element)
+void DenseMatrix<ElementType>::ElementOperation(const char* OperationName, const ElementType& Element)
 {
     MatrixElementNamedOperation(*this, OperationName, *this, Element);
 }
@@ -7163,120 +7071,17 @@ void DenseMatrix<ElementType>::ElementOperationInPlace(const char* OperationName
 
 template<typename ElementType>
 inline
-void DenseMatrix<ElementType>::ElementOperationInPlace(const std::string& OperationName, const ElementType& Element)
+void DenseMatrix<ElementType>::ElementOperation(const std::string& OperationName, const ElementType& Element)
 {
     MatrixElementNamedOperation(*this, OperationName, *this, Element);
 }
 
-//-------------------- general Col operation : output a new col-matrix ------------------------------------------//
+//-------------------- general col operation : Object.ColOperation modify the object itself ---------------//
 
 template<typename ElementType>
 template<typename OperationType>
 inline
-DenseMatrix<ElementType>
-DenseMatrix<ElementType>::ColOperation(int_max ColIndex, OperationType Operation) const
-{
-	return MatrixColOperation(OperationName, *this, ColIndex, true);
-}
-
-
-template<typename ElementType>
-inline
-DenseMatrix<ElementType>
-DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const char* OperationName) const
-{
-    return MatrixColNamedOperation(OperationName, *this, ColIndex, true);
-}
-
-
-template<typename ElementType>
-inline
-DenseMatrix<ElementType>
-DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const std::string& OperationName) const
-{    
-    return MatrixColNamedOperation(OperationName, *this, ColIndex, true);
-}
-
-
-template<typename ElementType>
-template<typename OperationType>
-inline
-DenseMatrix<ElementType>
-DenseMatrix<ElementType>::ColOperation(int_max ColIndex, OperationType Operation, const DenseMatrix<ElementType>& InputMatrix) const
-{
-	return MatrixColOperation(Operation, *this, ColIndex, InputMatrix, true);
-}
-
-
-template<typename ElementType>
-inline
-DenseMatrix<ElementType>
-DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const char OperationName, const DenseMatrix<ElementType>& InputMatrix) const
-{
-    return MatrixColNamedOperation(OperationName, *this, ColIndex, InputMatrix, true);
-}
-
-
-template<typename ElementType>
-inline
-DenseMatrix<ElementType>
-DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const char* OperationName, const DenseMatrix<ElementType>& InputMatrix) const
-{
-    return MatrixColNamedOperation(OperationName, *this, ColIndex, InputMatrix, true);
-}
-
-
-template<typename ElementType>
-inline 
-DenseMatrix<ElementType>
-DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix) const
-{
-    return MatrixColNamedOperation(OperationName, *this, ColIndex, InputMatrix, true);
-}
-
-
-template<typename ElementType>
-template<typename OperationType>
-inline
-DenseMatrix<ElementType>
-DenseMatrix<ElementType>::ColOperation(int_max ColIndex, OperationType Operation, const ElementType& Element) const
-{
-	return MatrixColOperation(Operation, *this, ColIndex, Element, true);
-}
-
-
-template<typename ElementType>
-inline 
-DenseMatrix<ElementType> 
-DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const char OperationName, const ElementType& Element) const
-{
-    return MatrixColNamedOperation(OperationName, *this, ColIndex, Element, true);
-}
-
-
-template<typename ElementType>
-inline
-DenseMatrix<ElementType>
-DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const char* OperationName, const ElementType& Element) const
-{
-    return MatrixColNamedOperation(OperationName, *this, ColIndex, Element, true);
-}
-
-
-template<typename ElementType>
-inline
-DenseMatrix<ElementType> 
-DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const std::string& OperationName, const ElementType& Element) const
-{
-    return MatrixColNamedOperation(OperationName, *this, ColIndex, Element, true);
-}
-
-//-------------------- general col operation in place : Object.ColOperationInPlace modify the object itself ---------------//
-
-template<typename ElementType>
-template<typename OperationType>
-inline
-void DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, OperationType Operation)
+void DenseMatrix<ElementType>::ColOperation(int_max ColIndex, OperationType Operation)
 {
 	MatrixColOperation(*this, ColIndex, Operation, *this, ColIndex, true);
 }
@@ -7284,7 +7089,7 @@ void DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, OperationTy
 
 template<typename ElementType>
 inline
-void DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const char* OperationName)
+void DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const char* OperationName)
 {
     MatrixColNamedOperation(*this, ColIndex, OperationName, *this, ColIndex, true);
 }
@@ -7292,7 +7097,7 @@ void DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const char*
 
 template<typename ElementType>
 inline 
-void DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const std::string& OperationName)
+void DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const std::string& OperationName)
 {
     MatrixColNamedOperation(*this, ColIndex, OperationName, *this, ColIndex, true);
 }
@@ -7301,7 +7106,7 @@ void DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const std::
 template<typename ElementType>
 template<typename OperationType>
 inline
-void DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, OperationType Operation, const DenseMatrix<ElementType>& InputMatrix)
+void DenseMatrix<ElementType>::ColOperation(int_max ColIndex, OperationType Operation, const DenseMatrix<ElementType>& InputMatrix)
 {
 	MatrixColOperation(*this, ColIndex, Operation, *this, ColIndex, InputMatrix, true);
 }
@@ -7309,7 +7114,7 @@ void DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, OperationTy
 
 template<typename ElementType>
 inline 
-void DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const char OperationName, const DenseMatrix<ElementType>& InputMatrix)
+void DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const char OperationName, const DenseMatrix<ElementType>& InputMatrix)
 {
     MatrixColNamedOperation(*this, ColIndex, OperationName, *this, ColIndex, InputMatrix, true);
 }
@@ -7317,7 +7122,7 @@ void DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const char 
 
 template<typename ElementType>
 inline
-void DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const char* OperationName, const DenseMatrix<ElementType>& InputMatrix)
+void DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const char* OperationName, const DenseMatrix<ElementType>& InputMatrix)
 {
     MatrixColNamedOperation(*this, ColIndex, OperationName, *this, ColIndex, InputMatrix, true);
 }
@@ -7325,7 +7130,7 @@ void DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const char*
 
 template<typename ElementType>
 inline
-void DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix)
+void DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputMatrix)
 {
     MatrixColNamedOperation(*this, ColIndex, OperationName, *this, ColIndex, InputMatrix, true);
 }
@@ -7334,7 +7139,7 @@ void DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const std::
 template<typename ElementType>
 template<typename OperationType>
 inline
-void DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, OperationType Operation, const ElementType& Element)
+void DenseMatrix<ElementType>::ColOperation(int_max ColIndex, OperationType Operation, const ElementType& Element)
 {
 	MatrixColOperation(*this, ColIndex, Operation, *this, ColIndex, Element, true);
 }
@@ -7342,7 +7147,7 @@ void DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, OperationTy
 
 template<typename ElementType>
 inline 
-void DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const char OperationName, const ElementType& Element)
+void DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const char OperationName, const ElementType& Element)
 {
     MatrixColNamedOperation(*this, ColIndex, OperationName, *this, ColIndex, Element, true);
 }
@@ -7350,7 +7155,7 @@ void DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const char 
 
 template<typename ElementType>
 inline
-void DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const char* OperationName, const ElementType& Element)
+void DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const char* OperationName, const ElementType& Element)
 {
     MatrixColNamedOperation(*this, ColIndex, OperationName, *this, ColIndex, Element, true);
 }
@@ -7358,120 +7163,17 @@ void DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const char*
 
 template<typename ElementType>
 inline
-void DenseMatrix<ElementType>::ColOperationInPlace(int_max ColIndex, const std::string& OperationName, const ElementType& Element)
+void DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const std::string& OperationName, const ElementType& Element)
 {
     MatrixColNamedOperation(*this, ColIndex, OperationName, *this, ColIndex, Element, true);
 }
 
-//-------------------- general Row operation : output a new row-matrix ------------------------------------------//
+//-------------------- general row operation : Object.RowOperation modify the object itself ---------------//
 
 template<typename ElementType>
 template<typename OperationType>
 inline
-DenseMatrix<ElementType>
-DenseMatrix<ElementType>::RowOperation(int_max RowIndex, OperationType Operation) const
-{
-	return MatrixRowOperation(Operation, *this, RowIndex, true);
-}
-
-
-template<typename ElementType>
-inline
-DenseMatrix<ElementType>
-DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const char* OperationName) const
-{
-    return MatrixRowNamedOperation(OperationName, *this, RowIndex, true);
-}
-
-
-template<typename ElementType>
-inline 
-DenseMatrix<ElementType>
-DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const std::string& OperationName) const
-{
-    return MatrixRowNamedOperation(OperationName, *this, RowIndex, true);
-}
-
-
-template<typename ElementType>
-template<typename OperationType>
-inline
-DenseMatrix<ElementType>
-DenseMatrix<ElementType>::RowOperation(int_max RowIndex, OperationType Operation, const DenseMatrix<ElementType>& InputRowMatrix) const
-{
-	return MatrixRowOperation(Operation, *this, RowIndex, InputRowMatrix, true);
-}
-
-
-template<typename ElementType>
-inline 
-DenseMatrix<ElementType>
-DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const char OperationName, const DenseMatrix<ElementType>& InputRowMatrix) const
-{
-	return MatrixRowNamedOperation(OperationName, *this, RowIndex, InputRowMatrix, true);
-}
-
-
-template<typename ElementType>
-inline
-DenseMatrix<ElementType>
-DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const char* OperationName, const DenseMatrix<ElementType>& InputRowMatrix) const
-{
-	return MatrixRowNamedOperation(OperationName, *this, RowIndex, InputRowMatrix, true);
-}
-
-
-template<typename ElementType>
-inline 
-DenseMatrix<ElementType>
-DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputRowMatrix) const
-{
-	return MatrixRowNamedOperation(OperationName, *this, RowIndex, InputRowMatrix, true);
-}
-
-
-template<typename ElementType>
-template<typename OperationType>
-inline
-DenseMatrix<ElementType>
-DenseMatrix<ElementType>::RowOperation(int_max RowIndex, OperationType Operation, const ElementType& Element) const
-{
-	return MatrixRowOperation(Operation, *this, RowIndex, Element, true);
-}
-
-
-template<typename ElementType>
-inline 
-DenseMatrix<ElementType> 
-DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const char OperationName, const ElementType& Element) const
-{
-    return MatrixRowNamedOperation(OperationName, *this, RowIndex, Element, true);
-}
-
-
-template<typename ElementType>
-inline
-DenseMatrix<ElementType>
-DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const char* OperationName, const ElementType& Element) const
-{
-    return MatrixRowNamedOperation(OperationName, *this, RowIndex, Element, true);
-}
-
-
-template<typename ElementType>
-inline 
-DenseMatrix<ElementType> 
-DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const std::string& OperationName, const ElementType& Element) const
-{
-    return MatrixRowNamedOperation(OperationName, *this, RowIndex, Element, true);
-}
-
-//-------------------- general row operation in place : Object.RowOperationInPlace modify the object itself ---------------//
-
-template<typename ElementType>
-template<typename OperationType>
-inline
-void DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, OperationType Operation)
+void DenseMatrix<ElementType>::RowOperation(int_max RowIndex, OperationType Operation)
 {
 	MatrixRowOperation(*this, RowIndex, Operation, *this, RowIndex, true);
 }
@@ -7479,7 +7181,7 @@ void DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, OperationTy
 
 template<typename ElementType>
 inline
-void DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const char* OperationName)
+void DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const char* OperationName)
 {
     MatrixRowNamedOperation(*this, RowIndex, OperationName, *this, RowIndex, true);
 }
@@ -7487,7 +7189,7 @@ void DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const char*
 
 template<typename ElementType>
 inline 
-void DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const std::string& OperationName)
+void DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const std::string& OperationName)
 {
     MatrixRowNamedOperation(*this, RowIndex, OperationName, *this, RowIndex, true);
 }
@@ -7496,7 +7198,7 @@ void DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const std::
 template<typename ElementType>
 template<typename OperationType>
 inline
-void DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, OperationType Operation, const DenseMatrix<ElementType>& InputRowMatrix)
+void DenseMatrix<ElementType>::RowOperation(int_max RowIndex, OperationType Operation, const DenseMatrix<ElementType>& InputRowMatrix)
 {
 	MatrixRowOperation(*this, RowIndex, Operation, *this, RowIndex, InputRowMatrix, true);
 }
@@ -7504,7 +7206,7 @@ void DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, OperationTy
 
 template<typename ElementType>
 inline 
-void DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const char OperationName, const DenseMatrix<ElementType>& InputRowMatrix)
+void DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const char OperationName, const DenseMatrix<ElementType>& InputRowMatrix)
 {
 	MatrixRowNamedOperation(*this, RowIndex, OperationName, *this, RowIndex, InputRowMatrix, true);
 }
@@ -7512,7 +7214,7 @@ void DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const char 
 
 template<typename ElementType>
 inline
-void DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const char* OperationName, const DenseMatrix<ElementType>& InputRowMatrix)
+void DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const char* OperationName, const DenseMatrix<ElementType>& InputRowMatrix)
 {
 	MatrixRowNamedOperation(*this, RowIndex, OperationName, *this, RowIndex, InputRowMatrix, true);
 }
@@ -7520,7 +7222,7 @@ void DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const char*
 
 template<typename ElementType>
 inline 
-void DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputRowMatrix)
+void DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const std::string& OperationName, const DenseMatrix<ElementType>& InputRowMatrix)
 {
 	MatrixRowNamedOperation(*this, RowIndex, OperationName, *this, RowIndex, InputRowMatrix, true);
 }
@@ -7530,7 +7232,7 @@ template<typename ElementType>
 template<typename OperationType>
 inline
 void
-DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, OperationType Operation, const ElementType& Element)
+DenseMatrix<ElementType>::RowOperation(int_max RowIndex, OperationType Operation, const ElementType& Element)
 {
 	MatrixRowOperation(*this, RowIndex, Operation, *this, RowIndex, Element, true);
 }
@@ -7538,7 +7240,7 @@ DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, OperationType Op
 
 template<typename ElementType>
 inline 
-void DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const char OperationName, const ElementType& Element)
+void DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const char OperationName, const ElementType& Element)
 {
     MatrixRowNamedOperation(*this, RowIndex, OperationName, *this, RowIndex, Element, true);
 }
@@ -7546,7 +7248,7 @@ void DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const char 
 
 template<typename ElementType>
 inline
-void DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const char* OperationName, const ElementType& Element)
+void DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const char* OperationName, const ElementType& Element)
 {
     MatrixRowNamedOperation(*this, RowIndex, OperationName, *this, RowIndex, Element, true);
 }
@@ -7555,7 +7257,7 @@ void DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const char*
 template<typename ElementType>
 inline 
 void
-DenseMatrix<ElementType>::RowOperationInPlace(int_max RowIndex, const std::string& OperationName, const ElementType& Element)
+DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const std::string& OperationName, const ElementType& Element)
 {
     MatrixRowNamedOperation(*this, RowIndex, OperationName, *this, RowIndex, Element, true);
 }
@@ -7570,7 +7272,6 @@ DenseMatrix<ElementType>::Find(MatchFunctionType MatchFunction) const
 {
     return FindElementInMatrix(*this, MatchFunction);
 }
-
 
 
 template<typename ElementType>

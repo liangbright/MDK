@@ -24,6 +24,9 @@ void TemplateBasedSurfaceRemesher<ScalarType>::Clear()
 	m_BoundaryPointHandleListOfInputMesh.Clear();
 	m_UVTalbleOfBoundaryOfInputMesh.Clear();
 
+	m_DiffusionCoefficient = 0.5;
+	m_MaxInteration = 10;
+
 	this->ClearInternalData();
 
 	m_OutputMesh.Clear();
@@ -52,7 +55,7 @@ bool TemplateBasedSurfaceRemesher<ScalarType>::CheckInput()
 	if (m_InputMesh.GetPointCount() < 3)
 	{
 		MDK_Error("InputMesh PointCount < 3 @ TemplateBasedSurfaceRemesher::CheckInput()")
-			return false;
+		return false;
 	}
 
 	if (m_InputMesh.Check_If_DataStructure_is_Clean() == false)
@@ -98,6 +101,18 @@ bool TemplateBasedSurfaceRemesher<ScalarType>::CheckInput()
 			MDK_Error("BoundarySegment is empty @ TemplateBasedSurfaceRemesher::CheckInput()")
 			return false;
 		}
+	}
+
+	if (m_DiffusionCoefficient < 0 || m_DiffusionCoefficient > 1)
+	{
+		MDK_Error("DiffusionCoefficient is out of range [0, 1] @ TemplateBasedSurfaceRemesher::CheckInput()")
+		return false;
+	}
+
+	if (m_MaxInteration <= 0)
+	{
+		MDK_Error("MaxInteration <= 0 @ TemplateBasedSurfaceRemesher::CheckInput()")
+		return false;
 	}
 
 	//check if all the boundary point of inputmesh included in m_BoundarySegmentListOfInputMesh
@@ -316,6 +331,7 @@ void TemplateBasedSurfaceRemesher<ScalarType>::TransformInputMeshFrom3DTo2D()
 	Mapper.InputMesh().Share(m_InputMesh);
 	Mapper.BoundaryPointHandleList() = m_BoundaryPointHandleListOfInputMesh;
 	Mapper.UVTableOfBoundary() = m_UVTalbleOfBoundaryOfInputMesh;
+	Mapper.SetDiffusionCoefficient(m_DiffusionCoefficient);
 	Mapper.Update();
 	m_TransfromedInputMesh = std::move(Mapper.OutputMesh());
 }
@@ -475,6 +491,18 @@ TemplateBasedSurfaceRemesher<ScalarType>::ConvertPointIndexToPointHandle(int_max
 	return P;
 }
 
+template<typename ScalarType>
+DenseVector<typename TemplateBasedSurfaceRemesher<ScalarType>::PointHandleType> 
+TemplateBasedSurfaceRemesher<ScalarType>::ConvertPointIndexToPointHandle(const DenseVector<int_max>& IndexList)
+{
+	DenseVector<PointHandleType> HandleList;
+	HandleList.Resize(IndexList.GetLength());
+	for (int_max k = 0; k < HandleList.GetLength(); ++k)
+	{
+		HandleList[k].SetIndex(IndexList[k]);
+	}
+	return HandleList;
+}
 
 template<typename ScalarType>
 DenseVector<typename TemplateBasedSurfaceRemesher<ScalarType>::PointHandleType, 3>

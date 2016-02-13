@@ -605,7 +605,7 @@ void Test_Mutiplication_Speed()
 
 void Test_ElementOperation()
 {
-	DenseMatrix<double> A;
+	DenseMatrix<double> A, B;
 
     A.Resize(2, 4);
 
@@ -614,28 +614,24 @@ void Test_ElementOperation()
 
     DisplayMatrix("A", A);
 
-    auto A1 = A.ElementOperation('*', 1);
+    A.ElementOperation('*', 2);
 
-    auto A2 = A.ElementOperation("*", 1);
+    A.ElementOperation("*", 3);
 
-    auto A3 = A.ElementOperation(std::string("*"), 1);
+    A.ElementOperation(std::string("*"), 1);
 
-    auto B = A.ElementOperation("sqrt");
+	B = A;
+	B.ElementOperation("sqrt");
 
     DisplayMatrix("B = A.ElementOperation(\"sqrt\")", B);
 
-    B = A.ElementOperation('+', 1);
+    B.ElementOperation('+', 1);
 
-    DisplayMatrix("B = A.ElementOperation('+', 1)", B);
+    DisplayMatrix("B.ElementOperation('+', 1)", B);
 
     auto C = A^10.0;
 
     DisplayMatrix("C=A^10.0", C);
-
-
-    A.ElementOperationInPlace('+', 1);
-
-    DisplayMatrix(" A.ElementOperationInPlace('+', 1)", A);
 
 }
 
@@ -650,19 +646,14 @@ void Test_ColOperation()
 
     DisplayMatrix("A", A);
 
-    auto B = A.ColOperation(0, "sqrt");
+	auto B = A.GetCol(0);
+    B.ColOperation(0, "sqrt");
 
-    DisplayMatrix("B = A.ColOperation(0, \"sqrt\")", B);
+    DisplayMatrix("B.ColOperation(0, \"sqrt\")", B);
 
-    B = A.ColOperation(0, '+', 1);
+    B.ColOperation(0, '+', 1);
 
-    DisplayMatrix("B = A.ColOperation(0, '+', 1)", B);
-
-
-    A.ColOperationInPlace(0, '+', 1);
-
-    DisplayMatrix(" A.ColOperationInPlace(0, '+', 1", A);
-
+    DisplayMatrix("B.ColOperation(0, '+', 1)", B);
 }
 
 
@@ -1870,7 +1861,7 @@ void Test_MatrixMutiply()
     //DisplayMatrix("C2", C2);
 
     DenseMatrix<double> C_diff = C2 - C2;
-    C_diff.ElementOperationInPlace("abs");
+    C_diff.ElementOperation("abs");
     auto diff = C_diff.Sum();
     std::cout << "diff  = " << diff << '\n';
 }
