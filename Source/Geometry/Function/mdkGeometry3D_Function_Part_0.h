@@ -45,7 +45,7 @@ template<typename ScalarType>
 DenseMatrix<ScalarType> Resample3DCurveWithBoundedSegmentLength(const DenseMatrix<ScalarType>& Curve, ScalarType MaxSegmentLength);
 
 template<typename ScalarType>
-DenseMatrix<ScalarType> Resample3DCurveWithEqualSegmentLength(const DenseMatrix<ScalarType>& Curve, int_max PointCount_resampled, int_max MaxIterCount = 10, double Tolerance = 0.01);
+DenseMatrix<ScalarType> Resample3DCurveWithEqualSegmentLength(const DenseMatrix<ScalarType>& Curve, int_max PointCount_resampled, int_max MaxIterCount = 0, double Tolerance = 0.01);
 
 template<typename ScalarType>
 DenseMatrix<ScalarType> Resample3DCurve(const DenseMatrix<ScalarType>& Curve, const DenseVector<ScalarType>& SegmentRelativeLengthList_resampled, int_max MaxIterCount = 10, double Tolerance = 0.01);
