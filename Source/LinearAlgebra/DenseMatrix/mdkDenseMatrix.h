@@ -89,7 +89,7 @@ struct DenseMatrixData
             {
                 if (RowCount != 0 || ColCount != 0 || StdVector.data() != nullptr || StdVector.size() != 0)
                 {
-                    MDK_Error("ElementPointer is nullptr but Self is not empty matrix @ DenseMatrixData::CopyDataToInternalArrayIfNecessary()")
+                    MDK_Error("ElementPointer is nullptr but InternalArray is not empty @ DenseMatrixData::CopyDataToInternalArrayIfNecessary()")
                 }
                 return;
             }
@@ -348,6 +348,8 @@ public:
     // It can be used to share a Matrix in eigen library
     // It can be used to share a col of a MDK Matrix (RefCol(...) is better)
     // do not use this Share() to share a MDK Matrix
+	// set IsSizeFixed to true, so the size of the matrix can not be changed
+	// The input IsSizeFixed serve as a reminder, do not change the default value  
 
     inline void Share(ElementType* InputElementPointer, int_max InputRowCount, int_max InputColCount, bool IsSizeFixed = true);
     inline void ForceShare(const ElementType* InputElementPointer, int_max InputRowCount, int_max InputColCount, bool IsSizeFixed = true);
@@ -392,6 +394,8 @@ public:
 
 	inline void SetCapacity(int_max InputElementNumber); // reserve memory, current matrix size do not change
 
+	inline int_max GetCapacity() const;
+
     inline void ReleaseUnusedCapacity();
 
     inline void FixSize();
@@ -407,7 +411,7 @@ public:
     inline bool IsSharedWith(const DenseMatrix& InputMatrix) const;
 	
     inline bool IsDataInInternalArray() const;
-	//attention: error if self is pure_empty
+	//attention: error if self is pure_empty, always use IsDataInInternalArray() before the following two funciton
 	inline std::vector<ElementType>& InternalArray();
 	inline const std::vector<ElementType>& InternalArray() const;
 
@@ -886,15 +890,12 @@ public:
     template<typename ElementType_Input, int_max TemplateVectorLength>
     inline void AppendCol(const DenseVector<ElementType_Input, TemplateVectorLength>& ColVectorData);
 
-	// Attention: ColVectorData must NOT point to memory of this because size may change, pointed memory will be invalide
     template<typename ElementType_Input>
     inline void AppendCol(const DenseMatrix<ElementType_Input>& ColVectorData);// Input is Vector, NOT matrix
 
-	// Attention: ColVectorData must NOT point to memory of this because size may change, pointed memory will be invalide
     template<typename ElementType_Input>
     inline void AppendCol(const ElementType_Input* ColVectorData, int_max Length);
 
-	// Attention: ColVectorData must NOT point to memory of this because size may change, pointed memory will be invalide
     template<typename ElementType_Input>
     inline void AppendCol(const ElementType_Input* ColVectorData);
 
@@ -902,14 +903,11 @@ public:
 
     inline void DeleteCol(const std::initializer_list<int_max>& ColIndexList);
 
-	// Attention: ColIndexList must NOT point to memory of this because size may change, pointed memory will be invalide
     template<int_max TemplateVectorLength>
     inline void DeleteCol(const DenseVector<int_max, TemplateVectorLength>& ColIndexList);
 
-	// Attention: ColIndexList must NOT point to memory of this because size may change, pointed memory will be invalide
     inline void DeleteCol(const DenseMatrix<int_max>& ColIndexList);
 
-	// Attention: ColIndexList must NOT point to memory of this because size may change, pointed memory will be invalide
     inline void DeleteCol(const int_max* ColIndexList, int_max ListLength);
 
     template<typename ElementType_Input>
@@ -918,15 +916,12 @@ public:
     template<typename ElementType_Input, int_max TemplateVectorLength>
     inline void InsertCol(int_max ColIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& ColVectorData);
 
-	// Attention: ColVectorData must NOT point to memory of this because size may change, pointed memory will be invalide
     template<typename ElementType_Input>
     inline void InsertCol(int_max ColIndex, const DenseMatrix<ElementType_Input>& ColVectorData);
 
-	// Attention: ColVectorData must NOT point to memory of this because size may change, pointed memory will be invalide
     template<typename ElementType_Input>
     inline void InsertCol(int_max ColIndex, const ElementType_Input* ColVectorData, int_max Length);
 
-	// Attention: ColVectorData must NOT point to memory of this because size may change, pointed memory will be invalide
     template<typename ElementType_Input>
     inline void InsertCol(int_max ColIndex, const ElementType_Input* ColVectorData);
 
@@ -967,15 +962,12 @@ public:
     template<typename ElementType_Input, int_max TemplateVectorLength>
     inline void AppendRow(const DenseVector<ElementType_Input, TemplateVectorLength>& RowVectorData);
 
-	// Attention: RowVectorData must NOT point to memory of this because size may change, pointed memory will be invalide
     template<typename ElementType_Input>
     inline void AppendRow(const DenseMatrix<ElementType_Input>& RowVectorData);
 
-	// Attention: RowVectorData must NOT point to memory of this because size may change, pointed memory will be invalide
     template<typename ElementType_Input>
     inline void AppendRow(const ElementType_Input* RowVectorData, int_max Length);
 
-	// Attention: RowVectorData must NOT point to memory of this because size may change, pointed memory will be invalide
     template<typename ElementType_Input>
     inline void AppendRow(const ElementType_Input* RowVectorData);
 
@@ -986,10 +978,8 @@ public:
     template<int_max TemplateVectorLength>
     inline void DeleteRow(const DenseVector<int_max, TemplateVectorLength>& RowIndexList);
 
-	// Attention: RowIndexList must NOT point to memory of this because size may change, pointed memory will be invalide
     inline void DeleteRow(const DenseMatrix<int_max>& RowIndexList);
 
-	// Attention: RowIndexList must NOT point to memory of this because size may change, pointed memory will be invalide
     inline void DeleteRow(const int_max* RowIndexList, int_max ListLength);
 
     template<typename ElementType_Input>
@@ -998,20 +988,17 @@ public:
     template<typename ElementType_Input, int_max TemplateVectorLength>
     inline void InsertRow(int_max RowIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& RowVectorData);
 
-	// Attention: RowVectorData must NOT point to memory of this because size may change, pointed memory will be invalide
     template<typename ElementType_Input>
     inline void InsertRow(int_max RowIndex, const DenseMatrix<ElementType_Input>& RowVectorData);
 
-	// Attention: RowVectorData must NOT point to memory of this because size may change, pointed memory will be invalide
     template<typename ElementType_Input>
     inline void InsertRow(int_max RowIndex, const ElementType_Input* RowVectorData, int_max Length);
 
-	// Attention: RowVectorData must NOT point to memory of this because size may change, pointed memory will be invalide
     template<typename ElementType_Input>
     inline void InsertRow(int_max RowIndex, const ElementType_Input* RowVectorData);
 
     //---------------------- Append, delete, insert element when matrix is vector -----------------//
-    // if matrix is empty or has one element, then it will become row vector
+    // if matrix is empty or has one element, then it will become row vector (just like Matlab)
     // if matrix is not vector, then MDK_Error
 
     inline void Append(ElementType Element);
@@ -1022,11 +1009,9 @@ public:
     template<typename ElementType_Input, int_max TemplateVectorLength>
     inline void Append(const DenseVector<ElementType_Input, TemplateVectorLength>& ElementData);
 
-	// Attention: ElementData must NOT point to memory of this because size may change, pointed memory will be invalide
     template<typename ElementType_Input>
     inline void Append(const DenseMatrix<ElementType_Input>& ElementData);
-
-	// Attention: ElementData must NOT point to memory of this because size may change, pointed memory will be invalide
+	
     template<typename ElementType_Input>
     inline void Append(const ElementType_Input* ElementData, int_max Length);
 
@@ -1037,10 +1022,8 @@ public:
     template<int_max TemplateVectorLength>
     inline void Delete(const DenseVector<int_max, TemplateVectorLength>& LinearIndexList);
 
-	// Attention: LinearIndexList must NOT point to memory of this because size may change, pointed memory will be invalide
     inline void Delete(const DenseMatrix<int_max>& LinearIndexList);
 
-	// Attention: LinearIndexList must NOT point to memory of this because size may change, pointed memory will be invalide
     inline void Delete(const int_max* LinearIndexList, int_max ListLength);
 
     inline void Insert(int_max LinearIndex, ElementType Element);
@@ -1051,11 +1034,9 @@ public:
     template<typename ElementType_Input, int_max TemplateVectorLength>
     inline void Insert(int_max LinearIndex, const DenseVector<ElementType_Input, TemplateVectorLength>& ElementData);
 
-	// Attention: ElementData must NOT point to memory of this because size may change, pointed memory will be invalide
     template<typename ElementType_Input>
     inline void Insert(int_max LinearIndex, const DenseMatrix<ElementType_Input>& ElementData);
 
-	// Attention: ElementData must NOT point to memory of this because size may change, pointed memory will be invalide
     template<typename ElementType_Input>
     inline void Insert(int_max LinearIndex, const ElementType_Input* ElementData, int_max Length);
 
@@ -1125,9 +1106,9 @@ public:
 
     //-------------------- special element operation {^} -----------------------------------------------------------//
 
-    inline DenseMatrix operator^(const ElementType& Element);// Element=2, A.^2 in Matlab
+    inline DenseMatrix operator^(const ElementType& Element);// Element=2, B=A.^2 in Matlab
 
-    inline void operator^=(const ElementType& Element);// Element=2, A=A.^2 in Matlab
+    inline void operator^=(const ElementType& Element);// Element=2, A^=2 same as A=A.^2 in Matlab
 
     //------------------------ A.ElementMultiply(B) is A.*B in Matlab -----------------------------------------------------------//
 

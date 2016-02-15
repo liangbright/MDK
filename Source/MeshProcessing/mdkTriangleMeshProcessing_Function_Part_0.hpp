@@ -4,6 +4,28 @@
 namespace mdk
 {
 
+template<typename MeshAttributeTypeA, typename MeshAttributeTypeB>
+void ConvertPolygonMeshToTriangleMesh(const PolygonMesh<MeshAttributeTypeA>& InputMesh, TriangleMesh<MeshAttributeTypeB>& OutputMesh)
+{
+	if (InputMesh.IsEmpty() == true)
+	{
+		OutputMesh.Clear();
+		return;
+	}
+
+	if (InputMesh.CheckIfTriangleMesh() == true)
+	{
+		DenseMatrix<ScalarType> PointPositionMatrix;
+		ObjectArray<DenseVector<int_max>> FaceTable;
+		InputMesh.GetPointPositionMatrixAndFaceTable(PointPositionMatrix, FaceTable);
+		OutputMesh.Construct(std::move(PointPositionMatrix), FaceTable);
+		return;
+	}
+
+	auto VTKMesh = ConvertMDKPolygonMeshToVTKPolyData(InputMesh);
+	ConvertVTKPolyDataToMDKTriangleMesh(VTKMesh, OutputMesh);
+}
+
 template<typename MeshAttributeType>
 DenseVector<Handle_Of_Point_Of_MembraneMesh> TraceMeshBoundaryCurve(const TriangleMesh<MeshAttributeType>& TargetMesh,
                                                                     Handle_Of_Point_Of_MembraneMesh PointHandle_start)

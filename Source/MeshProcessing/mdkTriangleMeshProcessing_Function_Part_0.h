@@ -11,6 +11,9 @@
 namespace mdk
 {
 
+template<typename MeshAttributeTypeA, typename MeshAttributeTypeB>
+void ConvertPolygonMeshToTriangleMesh(const PolygonMesh<MeshAttributeTypeA>& InputMesh, TriangleMesh<MeshAttributeTypeB>& OutputMesh);
+
 template<typename MeshAttributeType>
 DenseVector<Handle_Of_Point_Of_MembraneMesh> TraceMeshBoundaryCurve(const TriangleMesh<MeshAttributeType>& TargetMesh,
                                                                     Handle_Of_Point_Of_MembraneMesh PointHandle_start);

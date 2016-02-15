@@ -1608,6 +1608,19 @@ catch (...)
 
 
 template<typename ElementType>
+inline 
+int_max DenseMatrix<ElementType>::GetCapacity() const
+{
+	if (!m_MatrixData)
+	{
+		return 0;
+	}
+
+	return m_MatrixData->StdVector.capacity();
+}
+
+
+template<typename ElementType>
 inline
 void DenseMatrix<ElementType>::ReleaseUnusedCapacity()
 {
@@ -5198,14 +5211,6 @@ template<typename ElementType_Input>
 inline 
 void DenseMatrix<ElementType>::AppendCol(const ElementType_Input* ColVectorData, int_max Length)
 {
-	//Attention:
-	// ColVectorData must NOT point to memory of this
-	// example:
-	// DenseMatrix<double> M(3, 99);
-	// M.AppendCol(M.GetPointerOf(98));
-	// then, the result is Wrong!!!
-	//---------------------------------------------------------------------------
-
 	if (ColVectorData == nullptr || Length <= 0)
 	{
 		MDK_Warning("Input is empty @ DenseMatrix::AppendCol(const ElementType_Input* ColVectorData, int_max Length)")
@@ -5219,6 +5224,7 @@ void DenseMatrix<ElementType>::AppendCol(const ElementType_Input* ColVectorData,
     }
 
     auto SelfSize = this->GetSize();
+	auto SelfElementCount = SelfSize.RowCount*SelfSize.ColCount;
 
     if (SelfSize.RowCount > 0 && Length != SelfSize.RowCount)
     {
@@ -5226,15 +5232,35 @@ void DenseMatrix<ElementType>::AppendCol(const ElementType_Input* ColVectorData,
         return;
     }
 
-    // for reference
-    //if (SelfSize.RowCount == 0)
-    //{
-    //   SelfSize.RowCount = Length;
-    //}
+	if (this->GetCapacity() >= SelfElementCount + SelfSize.RowCount)
+	{// no memory allocation
+		this->Resize(Length, SelfSize.ColCount + 1);
+		this->SetCol(SelfSize.ColCount, ColVectorData);
+	}
+	else
+	{
+		// must do in this way
+		// ColVectorData may point to memory of this, and it will become invalid after memory allocation
+		// example:
+		// DenseMatrix<double> M(3, 10);
+		// M.AppendCol(M.GetPointerOf(0));
+		// then, the result is Wrong!!!
 
-    this->Resize(Length, SelfSize.ColCount + 1);
-
-    this->SetCol(SelfSize.ColCount, ColVectorData);
+		DenseMatrix<ElementType> tempMatrix;
+		tempMatrix.Resize(SelfSize.RowCount, SelfSize.ColCount + 1);
+		auto PointerToTemp = tempMatrix.GetElementPointer();
+		auto PointerToSelf = this->GetElementPointer();	
+		for (int_max k = 0; k < SelfElementCount; ++k)
+		{
+			PointerToTemp[k] = std::move(PointerToSelf[k]);
+		}
+		for (int_max k = 0; k < SelfSize.RowCount; ++k)
+		{
+			PointerToTemp[k + SelfElementCount] = ColVectorData[k];
+		}
+		this->Clear();
+		this->Copy(std::move(tempMatrix));
+	}
 }
 
 
@@ -5329,6 +5355,8 @@ void DenseMatrix<ElementType>::DeleteCol(const int_max* ColIndexList, int_max Li
 
     m_MatrixData->CopyDataToInternalArrayIfNecessary();
 
+	//---------------------------------------------------------------
+	//note: ColIndexList may pointer to memory of this
     std::vector<int_max> ColIndexList_max_to_min(ListLength);
 
     for (int_max i = 0; i < ListLength; ++i)
@@ -5337,6 +5365,7 @@ void DenseMatrix<ElementType>::DeleteCol(const int_max* ColIndexList, int_max Li
     }
 
     std::sort(ColIndexList_max_to_min.begin(), ColIndexList_max_to_min.end(), [](int_max a, int_max b) { return a > b; });
+	//-----------------------------------------------------------------
 
     int_max Index_prev = -1;
 
@@ -5431,15 +5460,28 @@ void DenseMatrix<ElementType>::InsertCol(int_max ColIndex, const ElementType_Inp
 		this->Resize(0, 0);
 	}
 
-    m_MatrixData->CopyDataToInternalArrayIfNecessary();
+	m_MatrixData->CopyDataToInternalArrayIfNecessary();
 
-    m_MatrixData->StdVector.insert(m_MatrixData->StdVector.begin() + ColIndex*SelfSize.RowCount, ColVectorData, ColVectorData + Length);
+	if (this->GetCapacity() >= this->GetElementCount() + SelfSize.RowCount)
+	{// no new memory allocation
+		m_MatrixData->StdVector.insert(m_MatrixData->StdVector.begin() + ColIndex*SelfSize.RowCount, ColVectorData, ColVectorData + Length);
+	}
+	else
+	{
+		// if ColVectorData point to memory of this, it will be invalid after memory allocation
 
-    m_MatrixData->RowCount = Length;
-
-    m_MatrixData->ColCount += 1;
-
-    m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
+		DenseVector<ElementType> tempColVector;
+		tempColVector.Resize(SelfSize.RowCount);
+		auto PointerToTemp = tempColVector.GetElementPointer();		
+		for (int_max k = 0; k < SelfSize.RowCount; ++k)
+		{
+			PointerToTemp[k] = ColVectorData[k];
+		}
+		m_MatrixData->StdVector.insert(m_MatrixData->StdVector.begin() + ColIndex*SelfSize.RowCount, PointerToTemp, PointerToTemp + Length);
+	}
+	m_MatrixData->RowCount = Length;
+	m_MatrixData->ColCount += 1;
+	m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
 }
 
 
@@ -5704,15 +5746,19 @@ void DenseMatrix<ElementType>::AppendRow(const ElementType_Input* RowVectorData,
         return;
     }
 
-    // for reference
-    //if (SelfSize.ColCount <= 0)
-    //{
-    //    SelfSize.ColCount = Length;
-    //}
+	// RowVectorData may point to memory of this
+	// even capacity is enough, resize will re-arrange the element then RowVectorData will be invalid
 
-    this->Resize(SelfSize.RowCount + 1, Length);
+	DenseVector<ElementType> tempColVector;
+	tempColVector.Resize(SelfSize.ColCount);
+	auto PointerToTemp = tempColVector.GetElementPointer();
+	for (int_max k = 0; k < SelfSize.ColCount; ++k)
+	{
+		PointerToTemp[k] = RowVectorData[k];
+	}
 
-    this->SetRow(SelfSize.RowCount, RowVectorData);
+	this->Resize(SelfSize.RowCount + 1, Length);
+	this->SetRow(SelfSize.RowCount, PointerToTemp);
 }
 
 
@@ -5804,6 +5850,8 @@ void DenseMatrix<ElementType>::DeleteRow(const int_max* RowIndexList, int_max Li
             return;
         }
     }
+
+	// RowIndexList may pointer to memory of this
 
     DenseVector<int_max> CounterList(SelfSize.RowCount);
 	CounterList.Fill(0);
@@ -5962,12 +6010,12 @@ void DenseMatrix<ElementType>::Append(ElementType Element)
 
     auto SelfSize = this->GetSize();
 
-    if (this->IsRowVector() == true)
+	if (SelfSize.RowCount == 1)// RowVector
     {
         this->Resize(1, SelfSize.ColCount + 1);
         (*this)[SelfSize.ColCount] = std::move(Element);
     }
-	else if (this->IsColVector() == true)
+	else if (SelfSize.ColCount == 1)//ColVector
     {
         this->Resize(SelfSize.RowCount + 1, 1);
         (*this)[SelfSize.RowCount] = std::move(Element);
@@ -6904,7 +6952,6 @@ void DenseMatrix<ElementType>::operator/=(const ElementType& Element)
     MatrixElementDivide(*this, *this, Element);
 }
 
-
 //-------------------- element operation {^} -----------------------------------------------------------//
 
 template<typename ElementType>
@@ -6921,7 +6968,6 @@ inline void DenseMatrix<ElementType>::operator^=(const ElementType& Element)
 {
     MatrixElementNamedOperation(*this, '^', *this, Element);
 }
-
 
 //-------------------- special element operation ( .* in matlab ) ------------------------------------------//
 

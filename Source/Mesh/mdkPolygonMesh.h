@@ -84,6 +84,9 @@ public:
 
 	void GetPointPositionMatrixAndFaceTable(DenseMatrix<ScalarType>& PointPositionTable, ObjectArray<DenseVector<int_max>>& FaceTable) const;
 
+	//--- check --------------------------//
+	bool CheckIfTriangleMesh() const;
+
     //------------- Mesh Attribute --------------------------------------------------//
 	/*
     void UpdateNormalAtFace(); // all

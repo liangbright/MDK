@@ -161,6 +161,28 @@ PolygonMesh<MeshAttributeType> PolygonMesh<MeshAttributeType>::GetSubMeshByFace(
     return OutputMesh;
 }
 
+
+template<typename MeshAttributeType>
+bool PolygonMesh<MeshAttributeType>::CheckIfTriangleMesh() const
+{
+	if (this->IsEmpty() == true)
+	{
+		return false;
+	}
+
+	for (auto it = this->GetIteratorOfFace(); it.IsNotEnd(); ++it)
+	{
+		auto FaceHandle = it.GetFaceHandle();
+		auto PointCount = this->Face(FaceHandle).GetPointCount();
+		if (PointCount != 3)
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
 }// namespace mdk
 
 #endif
