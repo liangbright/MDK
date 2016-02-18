@@ -54,11 +54,11 @@ private:
 	DenseMatrix<ScalarType> m_BoundaryPositionOfTemplateMesh;// each col is [u,v,0]
 	DenseMatrix<ScalarType> m_BoundaryPositionOfOutputMesh;  // each col is [x,y,z]
 
-	TriangleMesh<InputMeshAttribute> m_TransfromedInputMesh;//2D mesh
-
 	bool m_Flag_Use_TPS_Transform = false;
 
 	//------------------- output -----------------------------//
+	TriangleMesh<InputMeshAttribute> m_TransfromedInputMesh;//2D mesh
+
 	// OutputMesh is Transformed TemplateMesh from 2D to 3D
 	PolygonMesh<OutputMeshAttribute> m_OutputMesh;
 
@@ -71,6 +71,7 @@ public:
 	PolygonMesh<TemplateMeshAttribute>& TemplateMesh() { return m_TemplateMesh; }
 	ObjectArray<DenseVector<PointHandleType>>& BoundarySegmentListOfTemplateMesh() { return m_BoundarySegmentListOfTemplateMesh; }
 	PolygonMesh<OutputMeshAttribute>& OutputMesh() { return m_OutputMesh; }
+	TriangleMesh<InputMeshAttribute>& TransfromedInputMesh() { return m_TransfromedInputMesh; }
 	void SetDiffusionCoefficientOfMeshParameterization(ScalarType Coef) { m_DiffusionCoefficient = Coef; }
 	void SetMaxIterationOfMeshParameterization(int_max MaxIter) { m_MaxInteration = MaxIter; }
 	void EnableTPSTransformOfTemplateMesh(bool Flag = true) { m_Flag_Use_TPS_Transform = Flag; }
