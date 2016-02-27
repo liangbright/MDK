@@ -428,10 +428,10 @@ void TriangleMesh<MeshAttributeType>::UpdateMeanCurvatureAtPoint(PointHandleType
     MeanCurvatureNormal.Fill(0);
 
     DenseVector<ScalarType> AreaList;
-    AreaList.ReserveCapacity(AdjacentPointCount);
+    AreaList.SetCapacity(AdjacentPointCount);
 
 	DenseVector<ScalarType> CotSumList;
-	CotSumList.ReserveCapacity(AdjacentPointCount);
+	CotSumList.SetCapacity(AdjacentPointCount);
 
     auto AdjacentEdgeHandleList = this->Point(PointHandle).GetAdjacentEdgeHandleList();
     for (int_max k = 0; k < AdjacentEdgeHandleList.GetLength(); ++k)
