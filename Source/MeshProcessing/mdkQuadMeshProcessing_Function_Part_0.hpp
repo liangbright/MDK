@@ -382,43 +382,102 @@ void ConvertMixedTriangleQuadMeshToTriangleMesh(const PolygonMesh<MeshAttributeT
 
 
 template<typename MeshAttributeType>
-PolygonMesh<MeshAttributeType> CreateQuadMeshOfRectangularFlatSurface(int_max Lx, int_max Ly)
+PolygonMesh<MeshAttributeType> CreateQuadMeshOfRectangularFlatSurface(int_max PointCount_x, int_max PointCount_y, double Spacing_x, double Spacing_y)
 {
 	typedef PolygonMesh<MeshAttributeType>::PointHandleType PointHandleType;
 	typedef PolygonMesh<MeshAttributeType>::ScalarType ScalarType;
 
 	PolygonMesh<MeshAttributeType> OutputMesh;
 
-	if (Lx <= 0 || Ly <= 0)
+	if (PointCount_x <= 0 || PointCount_y <= 0)
 	{
 		MDK_Error("invalid input @ CreateQuadMeshOfRectangularFlatSurface(...)")
 		return OutputMesh;
 	}
-
-	OutputMesh.SetCapacity(Lx*Ly, Lx*Ly / 2, Lx*Ly / 4 + 4);
+	int_max PointCount = PointCount_x*PointCount_y;
+	OutputMesh.SetCapacity(PointCount, PointCount / 2, PointCount / 4 + 4);
 
 	DenseVector<PointHandleType> PointHandleList_a, PointHandleList_b;
-	PointHandleList_a.Resize(Lx);
-	PointHandleList_b.Resize(Lx);
-	for (int_max x = 0; x < Lx; ++x)
+	PointHandleList_a.Resize(PointCount_x);
+	PointHandleList_b.Resize(PointCount_x);
+	for (int_max x = 0; x < PointCount_x; ++x)
 	{
-		PointHandleList_a[x] = OutputMesh.AddPoint(ScalarType(x), ScalarType(0), ScalarType(0));
+		PointHandleList_a[x] = OutputMesh.AddPoint(ScalarType(x)*Spacing_x, ScalarType(0), ScalarType(0));
 	}
 	PointHandleList_b = PointHandleList_a;
 
-	for (int_max y = 1; y < Ly; ++y)
+	for (int_max y = 1; y < PointCount_y; ++y)
 	{
-		for (int_max x = 0; x < Lx; ++x)
+		for (int_max x = 0; x < PointCount_x; ++x)
 		{
-			PointHandleList_a[x] = OutputMesh.AddPoint(ScalarType(x), ScalarType(y), ScalarType(0));
+			PointHandleList_a[x] = OutputMesh.AddPoint(ScalarType(x)*Spacing_x, ScalarType(y)*Spacing_y, ScalarType(0));
 		}
 
-		for (int_max x = 0; x < Lx - 1; ++x)
+		for (int_max x = 0; x < PointCount_x - 1; ++x)
 		{
 			auto P0 = PointHandleList_b[x];
 			auto P1 = PointHandleList_b[x+1];
 			auto P2 = PointHandleList_a[x+1];
 			auto P3 = PointHandleList_a[x];
+			OutputMesh.AddFaceByPoint({ P0, P1, P2, P3 });
+		}
+
+		PointHandleList_b = PointHandleList_a;
+	}
+
+	return OutputMesh;
+}
+
+
+template<typename MeshAttributeType>
+PolygonMesh<MeshAttributeType> CreateQuadMeshOfCylinderSurface(int_max PointCountPerRing, int_max RingCount, double Radius, double Height)
+{
+	typedef PolygonMesh<MeshAttributeType>::PointHandleType PointHandleType;
+	typedef PolygonMesh<MeshAttributeType>::ScalarType ScalarType;
+
+	PolygonMesh<MeshAttributeType> OutputMesh;
+
+	if (PointCountPerRing <= 2 || RingCount <= 0)
+	{
+		MDK_Error("invalid input @ CreateQuadMeshOfCylinderSurface(...)")
+		return OutputMesh;
+	}
+
+	auto PointCount = PointCountPerRing*RingCount;
+	OutputMesh.SetCapacity(PointCount, PointCount / 2, PointCount / 4 + 4);
+
+	DenseVector<PointHandleType> PointHandleList_a, PointHandleList_b;
+	PointHandleList_a.Resize(PointCountPerRing+1);
+	PointHandleList_b.Resize(PointCountPerRing+1);
+	
+	double theta = 2*3.141592654 / double(PointCountPerRing);
+
+	for (int_max k = 0; k < PointCountPerRing; ++k)
+	{
+		ScalarType x = Radius*std::cos(theta*k);
+		ScalarType y = Radius*std::sin(theta*k);
+		PointHandleList_a[k] = OutputMesh.AddPoint(x, y, ScalarType(0));
+	}
+	PointHandleList_a[PointCountPerRing] = PointHandleList_a[0];
+	PointHandleList_b = PointHandleList_a;
+
+	for (int_max n = 1; n < RingCount; ++n)
+	{
+		for (int_max k = 0; k < PointCountPerRing; ++k)
+		{
+			ScalarType x = Radius*std::cos(theta*k);
+			ScalarType y = Radius*std::sin(theta*k);
+			ScalarType z = (Height / ScalarType(RingCount-1))*ScalarType(n);
+			PointHandleList_a[k] = OutputMesh.AddPoint(x, y, z);
+		}
+		PointHandleList_a[PointCountPerRing] = PointHandleList_a[0];
+
+		for (int_max k = 0; k < PointCountPerRing; ++k)
+		{
+			auto P0 = PointHandleList_b[k];
+			auto P1 = PointHandleList_b[k + 1];
+			auto P2 = PointHandleList_a[k + 1];
+			auto P3 = PointHandleList_a[k];
 			OutputMesh.AddFaceByPoint({ P0, P1, P2, P3 });
 		}
 
