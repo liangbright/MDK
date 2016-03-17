@@ -52,8 +52,8 @@ void Test_SubMatrix_simple()
 
     DisplayMatrix("A", A);
 
-    // aa is scalar
-    auto aa = A({  });
+    // aa is scalar in vs2013	
+    //auto aa = A({  });
 
     //this can not be compiled
     //auto bb = A({0});

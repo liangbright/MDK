@@ -192,7 +192,7 @@ public:
     inline DenseMatrix(const DenseMatrix<ElementType>& InputMatrix);
 
     // move constructor
-    inline DenseMatrix(DenseMatrix<ElementType>&& InputMatrix) noexcept;
+    inline DenseMatrix(DenseMatrix<ElementType>&& InputMatrix);
 
     inline DenseMatrix(const DenseShadowMatrix<ElementType>& ShadowMatrix);
 

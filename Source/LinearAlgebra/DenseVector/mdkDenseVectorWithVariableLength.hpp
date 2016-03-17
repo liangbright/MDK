@@ -81,6 +81,23 @@ DenseVector<ElementType>::DenseVector(const DenseVector<ElementType, LengthParam
 
 template<typename ElementType>
 inline
+DenseVector<ElementType>::DenseVector(const DenseVector<ElementType>& InputVector)
+{
+	auto InputLength = InputVector.GetLength();
+	if (InputLength > 0)
+	{
+		m_StdVector.resize(InputLength);
+
+		for (int_max i = 0; i < InputLength; ++i)
+		{
+			m_StdVector[i] = InputVector[i];
+		}
+	}
+}
+
+
+template<typename ElementType>
+inline
 DenseVector<ElementType>::DenseVector(DenseVector<ElementType>&& InputVector)
 {
     m_StdVector = std::move(InputVector.m_StdVector);

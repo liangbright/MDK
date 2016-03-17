@@ -49,6 +49,8 @@ public:
 	template<int_max LengthParameter>
 	inline DenseVector(const DenseVector<ElementType, LengthParameter>& InputVector);
 
+	inline DenseVector(const DenseVector<ElementType>& InputVector);
+
     inline DenseVector(DenseVector<ElementType>&& InputVector);
 
 	inline DenseVector(const std::initializer_list<const DenseVector<ElementType>*>& InputList);

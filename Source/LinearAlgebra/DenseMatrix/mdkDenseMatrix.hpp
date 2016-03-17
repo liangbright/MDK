@@ -163,7 +163,7 @@ DenseMatrix<ElementType>::DenseMatrix(const DenseMatrix<ElementType>& InputMatri
 // move constructor
 template<typename ElementType>
 inline
-DenseMatrix<ElementType>::DenseMatrix(DenseMatrix<ElementType>&& InputMatrix) noexcept
+DenseMatrix<ElementType>::DenseMatrix(DenseMatrix<ElementType>&& InputMatrix)
 {
 	m_MatrixData = std::move(InputMatrix.m_MatrixData);
 }
@@ -4221,7 +4221,7 @@ inline
 const DenseShadowMatrix<ElementType>
 DenseMatrix<ElementType>::Col(DenseVector<int_max> ColIndexList) const
 {
-    return (*this)(ALL, std::move(ColIndexList));
+    return const_cast<DenseShadowMatrix<ElementType>&&>((*this)(ALL, std::move(ColIndexList)));
 }
 
 

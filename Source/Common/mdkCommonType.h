@@ -8,12 +8,6 @@
 namespace mdk
 {
 
-//---------------------------------------------
-#if defined(OS_Windows_x64)
-  #ifdef _MSC_VER
-    #define noexcept throw() 
-  #endif
-#endif
 //-------------------------------------------------------------//
 // use stdint.h
 typedef int8_t  int8;
