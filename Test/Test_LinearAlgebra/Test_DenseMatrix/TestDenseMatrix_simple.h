@@ -53,6 +53,7 @@ void Test_SubMatrix_simple()
     DisplayMatrix("A", A);
 
     // aa is scalar in vs2013	
+	// can not be compiled in vs2015
     //auto aa = A({  });
 
     //this can not be compiled
