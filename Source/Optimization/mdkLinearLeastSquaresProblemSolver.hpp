@@ -1,5 +1,4 @@
-﻿#ifndef mdk_LinearLeastSquaresProblemSolver_hpp
-#define mdk_LinearLeastSquaresProblemSolver_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -885,5 +884,3 @@ LinearLeastSquaresProblemSolver<ElementType>::Apply(const DenseMatrix<ElementTyp
 }
 
 }//namespace mdk
-
-#endif

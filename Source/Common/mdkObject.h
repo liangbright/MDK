@@ -1,5 +1,4 @@
-﻿#ifndef mdk_Object_h
-#define mdk_Object_h
+﻿#pragma once
 
 namespace mdk
 {
@@ -13,4 +12,3 @@ public:
 
 }//end namespace mdk
 
-#endif

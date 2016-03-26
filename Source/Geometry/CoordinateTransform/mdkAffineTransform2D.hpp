@@ -1,5 +1,4 @@
-﻿#ifndef mdk_AffineTransform2D_hpp
-#define mdk_AffineTransform2D_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -158,4 +157,3 @@ DenseVector<ScalarType, 2> AffineTransform2D<ScalarType>::TransformPoint(ScalarT
 
 }//namespace mdk
 
-#endif

@@ -1,5 +1,4 @@
-﻿#ifndef mdk_VTKDataObject_FileIO_h
-#define mdk_VTKDataObject_FileIO_h
+﻿#pragma once
 
 #include <vtkSmartPointer.h>
 #include <vtkPolyData.h>
@@ -40,5 +39,3 @@ bool LoadVTKUnstructuredGridFromVTKFile(vtkUnstructuredGrid* OutputVTKMesh, cons
 //bool LoadVTK3DScalarImageFromJsonDataFile(vtkImageData* OutputVTKImage, VTKDataTypeEnum OutputPixelType, const String& FilePathAndName);
 
 }// namespace mdk
-
-#endif

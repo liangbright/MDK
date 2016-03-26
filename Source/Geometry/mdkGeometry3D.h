@@ -1,5 +1,4 @@
-﻿#ifndef mdk_Geometry3D_h
-#define mdk_Geometry3D_h
+﻿#pragma once
 
 #include "mdkLinearAlgebra.h"
 
@@ -13,5 +12,3 @@
 
 #include "mdkGeometry3D_Function_Part_0.h"
 #include "mdkGeometry3D_Function_Part_1.h"
-
-#endif

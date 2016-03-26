@@ -1,5 +1,4 @@
-﻿#ifndef mdk_String_hpp
-#define mdk_String_hpp
+﻿#pragma once
 
 #include "mdkDenseMatrix.h"
 
@@ -883,5 +882,3 @@ inline void String::operator+=(const String& InputString)
 
 
 }//end namespace mdk
-
-#endif

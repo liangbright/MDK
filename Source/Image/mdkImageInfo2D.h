@@ -1,5 +1,4 @@
-﻿#ifndef mdk_ImageInfo2D_h
-#define mdk_ImageInfo2D_h
+﻿#pragma once
 
 #include <memory>
 
@@ -261,5 +260,3 @@ inline DenseVector<ScalarType, 2> ImageCoordinateTransform_3DWorldPositionTo2DPo
 }//namespace mdk
 
 #include "mdkImageInfo2D.hpp"
-
-#endif

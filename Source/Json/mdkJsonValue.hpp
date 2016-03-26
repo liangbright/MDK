@@ -1,6 +1,4 @@
-﻿#ifndef mdk_JsonValue_hpp
-#define mdk_JsonValue_hpp
-
+﻿#pragma once
 
 namespace mdk
 {
@@ -211,5 +209,3 @@ DenseMatrix<ScalarType> JsonValue::ToScalarArray(const DenseMatrix<ScalarType>& 
 }
 
 }//namespace mdk
-
-#endif

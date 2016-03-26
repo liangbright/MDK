@@ -1,5 +1,4 @@
-﻿#ifndef mdk_LocalCoordinateSystem3D_h
-#define mdk_LocalCoordinateSystem3D_h
+﻿#pragma once
 
 namespace mdk
 {
@@ -106,5 +105,3 @@ inline DenseVector<ScalarType, 3> ConvertPointCoordinateFromGlobalToLocal(const 
 }// namespace mdk
 
 #include "mdkLocalCoordinateSystem3D.hpp"
-
-#endif

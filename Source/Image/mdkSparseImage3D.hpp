@@ -1,5 +1,4 @@
-﻿#ifndef mdk_SparseImage3D_hpp
-#define mdk_SparseImage3D_hpp
+﻿#pragma once
 
 
 namespace mdk
@@ -1098,5 +1097,3 @@ GetPixelAt3DPhysicalPosition(const DenseVector<ScalarType, 3>& Position, const I
 
 
 }//end namespace mdk
-
-#endif

@@ -1,5 +1,4 @@
-﻿#ifndef mdk_TriangleMeshProcessing_Function_Part_0_hpp
-#define mdk_TriangleMeshProcessing_Function_Part_0_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -27,23 +26,21 @@ void ConvertPolygonMeshToTriangleMesh(const PolygonMesh<MeshAttributeTypeA>& Inp
 }
 
 template<typename MeshAttributeType>
-DenseVector<Handle_Of_Point_Of_MembraneMesh> TraceMeshBoundaryCurve(const TriangleMesh<MeshAttributeType>& TargetMesh,
-                                                                    Handle_Of_Point_Of_MembraneMesh PointHandle_start)
+DenseVector<Handle_Of_Point_Of_PolygonMesh> TraceMeshBoundaryCurve(const TriangleMesh<MeshAttributeType>& TargetMesh, Handle_Of_Point_Of_PolygonMesh PointHandle_start)
 {
     const PolygonMesh<MeshAttributeType>& TargetMesh_ref = TargetMesh;
     return TraceMeshBoundaryCurve(TargetMesh_ref, PointHandle_start);
 }
 
 template<typename MeshAttributeType>
-ObjectArray<DenseVector<Handle_Of_Point_Of_MembraneMesh>> TraceMeshBoundaryCurve(const TriangleMesh<MeshAttributeType>& TargetMesh)
+ObjectArray<DenseVector<Handle_Of_Point_Of_PolygonMesh>> TraceMeshBoundaryCurve(const TriangleMesh<MeshAttributeType>& TargetMesh)
 {
     const PolygonMesh<MeshAttributeType>& TargetMesh_ref = TargetMesh;
     return TraceMeshBoundaryCurve(TargetMesh_ref);
 }
 
 template<typename MeshAttributeType>
-Handle_Of_Point_Of_MembraneMesh FindNearestPointOnMesh(const TriangleMesh<MeshAttributeType>& TargetMesh, 
-                                                       const DenseVector<typename MeshAttributeType::ScalarType, 3>& PointPosition)
+Handle_Of_Point_Of_PolygonMesh FindNearestPointOnMesh(const TriangleMesh<MeshAttributeType>& TargetMesh, const DenseVector<typename MeshAttributeType::ScalarType, 3>& PointPosition)
 {
     const PolygonMesh<MeshAttributeType>& TargetMesh_ref = TargetMesh;
     return FindNearestPointOnMesh(TargetMesh_ref, PointPosition);
@@ -69,7 +66,7 @@ TriangleMesh<MeshAttributeType> SubdivideTriangleMesh_Linear(const TriangleMesh<
 	DenseVector<int_max> PointIndexMap_init;
 	PointIndexMap_init.Resize(PointCount_input + InputMesh.GetDeletedPointCount());
 	PointIndexMap_init.Fill(-1);
-	DenseVector<Handle_Of_Point_Of_MembraneMesh> PointHandleList_init;
+	DenseVector<Handle_Of_Point_Of_PolygonMesh> PointHandleList_init;
 	PointHandleList_init.SetCapacity(PointCount_input);
 	int_max PointIndex_output_init = -1;
 	for (auto it = InputMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
@@ -84,7 +81,7 @@ TriangleMesh<MeshAttributeType> SubdivideTriangleMesh_Linear(const TriangleMesh<
 	DenseVector<int_max> PointIndexMap_new;
 	PointIndexMap_new.Resize(EdgeCount_input + InputMesh.GetDeletedEdgeCount());
 	PointIndexMap_new.Fill(-1);
-	DenseVector<Handle_Of_Point_Of_MembraneMesh> PointHandleList_new;
+	DenseVector<Handle_Of_Point_Of_PolygonMesh> PointHandleList_new;
 	PointHandleList_new.SetCapacity(EdgeCount_input);
 	int_max PointIndex_output_new = -1;
 	for (auto it = InputMesh.GetIteratorOfEdge(); it.IsNotEnd(); ++it)
@@ -262,6 +259,3 @@ TriangleMesh<MeshAttributeType> SmoothMeshByVTKWindowedSincPolyDataFilter(const 
 }
 
 }//namespace mdk
-
-
-#endif

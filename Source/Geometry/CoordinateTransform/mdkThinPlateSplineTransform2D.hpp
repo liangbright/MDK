@@ -1,5 +1,4 @@
-﻿#ifndef mdk_ThinPlateSplineTransform2D_hpp
-#define mdk_ThinPlateSplineTransform2D_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -331,6 +330,3 @@ DenseVector<ScalarType, 2> ThinPlateSplineTransform2D<ScalarType>::TransformPoin
 }
 
 }//namespace mdk
-
-
-#endif

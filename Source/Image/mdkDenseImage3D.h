@@ -1,5 +1,4 @@
-﻿#ifndef mdk_DenseImage3D_h
-#define mdk_DenseImage3D_h
+﻿#pragma once
 
 #include <memory>
 #include <cstdlib>
@@ -462,5 +461,3 @@ public:
 }//end namespace mdk
 
 #include "mdkDenseImage3D.hpp"
-
-#endif

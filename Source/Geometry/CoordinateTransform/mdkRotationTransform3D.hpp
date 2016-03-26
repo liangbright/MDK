@@ -1,5 +1,4 @@
-﻿#ifndef mdk_RotationTransform3D_hpp
-#define mdk_RotationTransform3D_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -314,4 +313,3 @@ DenseVector<ScalarType, 3> RotationTransform3D<ScalarType>::RotatePoint(const De
 
 }//namespace mdk
 
-#endif

@@ -1,5 +1,4 @@
-#ifndef mdk_GeodesicSphereBuilder_h
-#define mdk_GeodesicSphereBuilder_h
+#pragma once
 
 #include "mdkTriangleMesh.h"
 
@@ -41,5 +40,3 @@ private:
 }//namespace mdk
 
 #include "mdkGeodesicSphereBuilder.hpp"
-
-#endif

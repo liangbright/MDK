@@ -1,5 +1,4 @@
-﻿#ifndef mdk_RotationTransform2D_h
-#define mdk_RotationTransform2D_h
+﻿#pragma once
 
 #include "mdkCoordinateTransform2D.h"
 #include "mdkDenseMatrix.h"
@@ -72,5 +71,3 @@ private:
 }//namespace mdk
 
 #include "mdkRotationTransform2D.hpp"
-
-#endif

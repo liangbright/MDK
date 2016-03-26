@@ -1,5 +1,4 @@
-﻿#ifndef mdk_TypeInference_hpp
-#define mdk_TypeInference_hpp
+﻿#pragma once
 
 
 namespace mdk
@@ -248,4 +247,3 @@ String GetTemplateClassName(const TemplateClassType& TemplateClassObject)
 
 }//end namespace mdk
 
-#endif

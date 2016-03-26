@@ -1,5 +1,4 @@
-﻿#ifndef mdk_StringOperator_hpp
-#define mdk_StringOperator_hpp
+﻿#pragma once
 
 namespace mdk
 {

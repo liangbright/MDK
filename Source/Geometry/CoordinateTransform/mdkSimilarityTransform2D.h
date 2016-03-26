@@ -1,5 +1,4 @@
-﻿#ifndef mdk_SimilarityTransform2D_h
-#define mdk_SimilarityTransform2D_h
+﻿#pragma once
 
 #include "mdkCoordinateTransform2D.h"
 #include "mdkDenseMatrix.h"
@@ -62,5 +61,3 @@ private:
 }//namespace mdk
 
 #include "mdkSimilarityTransform2D.hpp"
-
-#endif

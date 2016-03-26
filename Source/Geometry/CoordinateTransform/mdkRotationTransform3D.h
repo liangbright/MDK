@@ -1,5 +1,4 @@
-﻿#ifndef mdk_RotationTransform3D_h
-#define mdk_RotationTransform3D_h
+﻿#pragma once
 
 #include "mdkCoordinateTransform3D.h"
 #include "mdkDenseMatrix.h"
@@ -84,4 +83,3 @@ private:
 
 #include "mdkRotationTransform3D.hpp"
 
-#endif

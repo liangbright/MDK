@@ -1,5 +1,4 @@
-﻿#ifndef mdk_VolumeSplineTransform3D_h
-#define mdk_VolumeSplineTransform3D_h
+﻿#pragma once
 
 #include "mdkCoordinateTransform3D.h"
 #include "mdkDenseMatrix.h"
@@ -55,5 +54,3 @@ private:
 }//namespace mdk
 
 #include "mdkVolumeSplineTransform3D.hpp"
-
-#endif

@@ -1,5 +1,4 @@
-﻿#ifndef mdk_TriangleMeshProcessing_Function_Part_0_h
-#define mdk_TriangleMeshProcessing_Function_Part_0_h
+﻿#pragma once
 
 #include <vtkLinearSubdivisionFilter.h>
 #include <vtkQuadricDecimation.h>
@@ -15,15 +14,15 @@ template<typename MeshAttributeTypeA, typename MeshAttributeTypeB>
 void ConvertPolygonMeshToTriangleMesh(const PolygonMesh<MeshAttributeTypeA>& InputMesh, TriangleMesh<MeshAttributeTypeB>& OutputMesh);
 
 template<typename MeshAttributeType>
-DenseVector<Handle_Of_Point_Of_MembraneMesh> TraceMeshBoundaryCurve(const TriangleMesh<MeshAttributeType>& TargetMesh,
-                                                                    Handle_Of_Point_Of_MembraneMesh PointHandle_start);
+DenseVector<Handle_Of_Point_Of_PolygonMesh> TraceMeshBoundaryCurve(const TriangleMesh<MeshAttributeType>& TargetMesh,
+                                                                   Handle_Of_Point_Of_PolygonMesh PointHandle_start);
 
 template<typename MeshAttributeType>
-ObjectArray<DenseVector<Handle_Of_Point_Of_MembraneMesh>> TraceMeshBoundaryCurve(const TriangleMesh<MeshAttributeType>& TargetMesh);
+ObjectArray<DenseVector<Handle_Of_Point_Of_PolygonMesh>> TraceMeshBoundaryCurve(const TriangleMesh<MeshAttributeType>& TargetMesh);
 
 template<typename MeshAttributeType>
-Handle_Of_Point_Of_MembraneMesh FindNearestPointOnMesh(const TriangleMesh<MeshAttributeType>& TargetMesh, 
-                                                       const DenseVector<typename MeshAttributeType::ScalarType, 3>& PointPosition);
+Handle_Of_Point_Of_PolygonMesh FindNearestPointOnMesh(const TriangleMesh<MeshAttributeType>& TargetMesh, 
+                                                      const DenseVector<typename MeshAttributeType::ScalarType, 3>& PointPosition);
 
 template<typename MeshAttributeType>
 TriangleMesh<MeshAttributeType> SubdivideTriangleMesh_Linear(const TriangleMesh<MeshAttributeType>& InputMesh);// divide once only
@@ -53,5 +52,3 @@ TriangleMesh<MeshAttributeType> SmoothMeshByVTKWindowedSincPolyDataFilter(const 
 }//namespace mdk
 
 #include "mdkTriangleMeshProcessing_Function_Part_0.hpp"
-
-#endif

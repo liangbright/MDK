@@ -1,5 +1,4 @@
-﻿#ifndef mdk_SimilarityTransform2D_hpp
-#define mdk_SimilarityTransform2D_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -159,5 +158,3 @@ DenseVector<ScalarType, 2> SimilarityTransform2D<ScalarType>::TransformPoint(Sca
 }
 
 }//namespace mdk
-
-#endif

@@ -1,5 +1,4 @@
-﻿#ifndef mdk_DenseImage2D_FileIO_h
-#define mdk_DenseImage2D_FileIO_h
+﻿#pragma once
 
 #include <itkGDCMImageIO.h>
 #include <itkGDCMSeriesFileNames.h>
@@ -15,7 +14,7 @@ namespace mdk
 {
 // forward declare ---------------
 template<typename PixelType>
-class DenseImage2D;
+class DenseImage3D;
 //---------------------------------
 
 // can not Save/Load DenseImage or SparseImage use the same function
@@ -29,16 +28,17 @@ class DenseImage2D;
 // data is saved in SomeImage.json.data
 
 template<typename PixelType>
-bool Save2DScalarImageAsJsonDataFile(const DenseImage2D<PixelType>& InputImage, const String& FilePathAndName);
+bool Save3DScalarImageAsJsonDataFile(const DenseImage3D<PixelType>& InputImage, const String& FilePathAndName);
 
 template<typename PixelType>
-bool Load2DScalarImageFromJsonDataFile(DenseImage2D<PixelType>& OutputImage, const String& FilePathAndName);
+bool Load3DScalarImageFromJsonDataFile(DenseImage3D<PixelType>& OutputImage, const String& FilePathAndName);
 
 template<typename PixelType>
-bool Load2DScalarImageFromSingleDICOMFile(DenseImage2D<PixelType>& OutputImage, const String& FilePathAndName);
+bool Load3DScalarImageFromDICOMSeries(DenseImage3D<PixelType>& OutputImage, const String& FilePath);
+
+template<typename PixelType>
+bool Load3DScalarImageFromSingleDICOMFile(DenseImage3D<PixelType>& OutputImage, const String& FilePathAndName);
 
 }// namespace mdk
 
-#include "mdkDenseImage2D_FileIO.hpp"
-
-#endif
+#include "mdkDenseImage3D_FileIO.hpp"

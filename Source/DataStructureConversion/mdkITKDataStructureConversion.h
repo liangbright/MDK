@@ -1,5 +1,4 @@
-﻿#ifndef mdk_ITKDataStructureConversion_h
-#define mdk_ITKDataStructureConversion_h
+﻿#pragma once
 
 #include <itkImportImageFilter.h>
 #include <itkImageDuplicator.h>
@@ -81,5 +80,3 @@ bool ConvertITK3DScalarImageSliceToMDK2DScalarImage(const itk::Image<PixelType, 
 }// namespace mdk
 
 #include "mdkITKDataStructureConversion.hpp"
-
-#endif

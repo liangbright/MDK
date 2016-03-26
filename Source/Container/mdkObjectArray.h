@@ -1,5 +1,4 @@
-﻿#ifndef mdk_ObjectArray_h
-#define mdk_ObjectArray_h
+﻿#pragma once
 
 #include <vector>
 #include <memory>
@@ -567,4 +566,3 @@ private:
 
 #include "mdkObjectArray.hpp"
 
-#endif

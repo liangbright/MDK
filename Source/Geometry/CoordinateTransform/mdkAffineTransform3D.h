@@ -1,5 +1,4 @@
-﻿#ifndef mdk_AffineTransform3D_h
-#define mdk_AffineTransform3D_h
+﻿#pragma once
 
 #include "mdkCoordinateTransform3D.h"
 #include "mdkDenseMatrix.h"
@@ -74,4 +73,3 @@ private:
 
 #include "mdkAffineTransform3D.hpp"
 
-#endif

@@ -1,5 +1,4 @@
-﻿#ifndef mdk_Symbol_h
-#define mdk_Symbol_h
+﻿#pragma once
 
 #include  <string>
 
@@ -108,4 +107,3 @@ static MDK_Symbol_Empty StaticGlobalObject_MDK_Symbol_Empty(This_Is_InputStruct_
 
 }// namespace mdk
 
-#endif

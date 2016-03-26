@@ -1,5 +1,4 @@
-﻿#ifndef mdk_StringOperator_h
-#define mdk_StringOperator_h
+﻿#pragma once
 
 #include <functional>
 #include <vector>
@@ -47,4 +46,3 @@ inline std::basic_ostream<char, Traits>&  operator<<(std::basic_ostream<char, Tr
 
 #include "mdkStringOperator.hpp"
 
-#endif

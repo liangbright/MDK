@@ -1,5 +1,4 @@
-﻿#ifndef mdk_JsonFile_cpp
-#define mdk_JsonFile_cpp
+﻿#pragma once
 
 #include "mdkJsonFile.h"
 
@@ -614,5 +613,3 @@ bool JsonFile::SaveJsonValue(const JsonObject& JObject, JsonFile& OutputFile, in
 }
 //==========================================================================================================================//
 }//namespace mdk
-
-#endif

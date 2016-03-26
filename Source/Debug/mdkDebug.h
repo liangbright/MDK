@@ -1,5 +1,4 @@
-﻿#ifndef mdk_Debug_h
-#define mdk_Debug_h
+﻿#pragma once
 
 namespace mdk
 {
@@ -11,5 +10,3 @@ inline void MDK_Pause_Here_To_Debug()
 }
 
 }// namespace mdk
-
-#endif

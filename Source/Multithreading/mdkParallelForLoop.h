@@ -1,5 +1,4 @@
-﻿#ifndef mdk_ParallelForLoop_h
-#define mdk_ParallelForLoop_h
+﻿#pragma once
 
 #include <vector>
 #include <thread>
@@ -99,5 +98,3 @@ inline void DivideData_For_ParallelBlock(std::vector<int_max>& DataIndexList_sta
 }//namespace mdk
 
 #include "mdkParallelForLoop.hpp"
-
-#endif

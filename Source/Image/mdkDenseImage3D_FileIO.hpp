@@ -1,22 +1,21 @@
-﻿#ifndef mdk_DenseImage2D_FileIO_hpp
-#define mdk_DenseImage2D_FileIO_hpp
+﻿#pragma once
 
 namespace mdk
 {
 
 template<typename PixelType>
-bool Save2DScalarImageAsJsonDataFile(const DenseImage2D<PixelType>& InputImage, const String& FilePathAndName)
+bool Save3DScalarImageAsJsonDataFile(const DenseImage3D<PixelType>& InputImage, const String& FilePathAndName)
 {
 	int_max ByteCount = GetByteCountOfScalar(PixelType(0));
     if (ByteCount <= 0)
     {
-        MDK_Error("Unknown type of image @ Save2DScalarImageAsJsonDataFile(...)")
+        MDK_Error("Unknown type of image @ Save3DScalarImageAsJsonDataFile(...)")
         return false;
     }
     //-------------------------------------------------------------------------------------
 	JsonObject JObject;
 
-	JObject["ObjectType"] = "DenseImage2D";
+	JObject["ObjectType"] = "DenseImage3D";
 	JObject["PixelType"] = GetScalarTypeName(PixelType(0));
 
     DenseVector<int_max> Size = InputImage.GetSize();
@@ -49,18 +48,18 @@ bool Save2DScalarImageAsJsonDataFile(const DenseImage2D<PixelType>& InputImage, 
 
 
 template<typename PixelType>
-bool Load2DScalarImageFromJsonDataFile(DenseImage2D<PixelType>& OutputImage, const String& FilePathAndName)
+bool Load3DScalarImageFromJsonDataFile(DenseImage3D<PixelType>& OutputImage, const String& FilePathAndName)
 {
 	JsonObject JObject;
 	if (JsonFile::Load(JObject, FilePathAndName) == false)
 	{
-		MDK_Error("Json file is invalid @ Load2DScalarImageFromJsonDataFile(...)")
+		MDK_Error("Json file is invalid @ Load3DScalarImageFromJsonDataFile(...)")
 		return false;
 	}
 
 	if (JObject.IsEmpty() == true)
 	{
-		MDK_Warning("Json file is empty @ Load2DScalarImageFromJsonDataFile(...)")
+		MDK_Warning("Json file is empty @ Load3DScalarImageFromJsonDataFile(...)")
 		return true;
 	}
 	//---------------------------------------------
@@ -68,15 +67,15 @@ bool Load2DScalarImageFromJsonDataFile(DenseImage2D<PixelType>& OutputImage, con
 	if (it != JObject.end())
     {
 		auto ObjectType = it->second.GetString();
-		if (ObjectType != "DenseImage2D")
+		if (ObjectType != "DenseImage3D")
         {
-            MDK_Error("ObjectType is not DenseImage2D @ Load2DScalarImageFromJsonDataFile(...)")
+            MDK_Error("ObjectType is not DenseImage3D @ Load3DScalarImageFromJsonDataFile(...)")
 			return false;
         }
     }
     else
     {
-        MDK_Error("Couldn't get ObjectType @ Load2DScalarImageFromJsonDataFile(...)")
+        MDK_Error("Couldn't get ObjectType @ Load3DScalarImageFromJsonDataFile(...)")
 		return false;
     }
     //---------------------------------------------------
@@ -88,45 +87,47 @@ bool Load2DScalarImageFromJsonDataFile(DenseImage2D<PixelType>& OutputImage, con
     }
     else
     {
-        MDK_Error("Couldn't get PixelType @ Load2DScalarImageFromJsonDataFile(...)")
+        MDK_Error("Couldn't get PixelType @ Load3DScalarImageFromJsonDataFile(...)")
 		return false;
     }
     //---------------------------------------------------
-	DenseVector<int_max, 2> Size;
+	DenseVector<int_max, 3> Size;
 	it = JObject.find("Size");
 	if (it != JObject.end())
     {
         auto tempArray = it->second.ToScalarArray<int_max>();
-		if (tempArray.GetElementCount() != 2)
+		if (tempArray.GetElementCount() != 3)
 		{
-			MDK_Error("Size vector is wrong @ Load2DScalarImageFromJsonDataFile(...)")
+			MDK_Error("Size vector is wrong @ Load3DScalarImageFromJsonDataFile(...)")
 			return false;
 		}
 		Size[0] = tempArray[0];
 		Size[1] = tempArray[1];
+		Size[2] = tempArray[2];
     }
     else
     {
-        MDK_Error("Couldn't get Size @ Load2DScalarImageFromJsonDataFile(...)")
+        MDK_Error("Couldn't get Size @ Load3DScalarImageFromJsonDataFile(...)")
 		return false;
     }
     //---------------------------------------------
-	DenseVector<double, 2> Spacing;
+	DenseVector<double, 3> Spacing;
 	it = JObject.find("Spacing");
 	if (it != JObject.end())
     {
 		auto tempArray = it->second.ToScalarArray<double>();
-		if (tempArray.GetElementCount() != 2)
+		if (tempArray.GetElementCount() != 3)
 		{
-			MDK_Error("Spacing vector is wrong @ Load2DScalarImageFromJsonDataFile(...)")
+			MDK_Error("Spacing vector is wrong @ Load3DScalarImageFromJsonDataFile(...)")
 			return false;
 		}
 		Spacing[0] = tempArray[0];
 		Spacing[1] = tempArray[1];
+		Spacing[2] = tempArray[2];
     }
     else
     {
-        MDK_Error("Couldn't get Spacing @ Load2DScalarImageFromJsonDataFile(...)")
+        MDK_Error("Couldn't get Spacing @ Load3DScalarImageFromJsonDataFile(...)")
 		return false;
     }
 	//--------------------------------------
@@ -137,7 +138,7 @@ bool Load2DScalarImageFromJsonDataFile(DenseImage2D<PixelType>& OutputImage, con
 		auto tempArray = it->second.ToScalarArray<double>();
 		if (tempArray.GetElementCount() != 3)
 		{
-			MDK_Error("Origin vector is wrong @ Load2DScalarImageFromJsonDataFile(...)")
+			MDK_Error("Origin vector is wrong @ Load3DScalarImageFromJsonDataFile(...)")
 			return false;
 		}
 		Origin[0] = tempArray[0];
@@ -146,7 +147,7 @@ bool Load2DScalarImageFromJsonDataFile(DenseImage2D<PixelType>& OutputImage, con
     }
     else
     {
-        MDK_Error("Couldn't get Origin @ Load2DScalarImageFromJsonDataFile(...)")
+        MDK_Error("Couldn't get Origin @ Load3DScalarImageFromJsonDataFile(...)")
 		return false;
     }
 	//------------------------------------
@@ -157,7 +158,7 @@ bool Load2DScalarImageFromJsonDataFile(DenseImage2D<PixelType>& OutputImage, con
 		auto tempOrientation = it->second.ToScalarArray<double>();
 		if (tempOrientation.GetElementCount() != 9)
 		{
-			MDK_Error("Orientation size is wrong @ Load2DScalarImageFromJsonDataFile(...)")
+			MDK_Error("Orientation size is wrong @ Load3DScalarImageFromJsonDataFile(...)")
 			return false;
 		}
 		Orientation = tempOrientation;
@@ -165,7 +166,7 @@ bool Load2DScalarImageFromJsonDataFile(DenseImage2D<PixelType>& OutputImage, con
     }
     else
     {
-        MDK_Error("Couldn't get Orientation @ Load2DScalarImageFromJsonDataFile(...)")
+        MDK_Error("Couldn't get Orientation @ Load3DScalarImageFromJsonDataFile(...)")
 		return false;
     }
     
@@ -179,11 +180,12 @@ bool Load2DScalarImageFromJsonDataFile(DenseImage2D<PixelType>& OutputImage, con
 	}
 	else
 	{
-		MDK_Error("Couldn't get PixelArray @ Load2DScalarImageFromJsonDataFile(...)")
+		MDK_Error("Couldn't get PixelArray @ Load3DScalarImageFromJsonDataFile(...)")
 		return false;
 	}
 
-	OutputImage.SetSize(Size);	// allocate memory
+	// allocate memory
+	OutputImage.SetSize(Size);
 	OutputImage.SetSpacing(Spacing);
 	OutputImage.SetOrigin(Origin);
 	OutputImage.SetOrientation(Orientation);
@@ -198,7 +200,41 @@ bool Load2DScalarImageFromJsonDataFile(DenseImage2D<PixelType>& OutputImage, con
 
 
 template<typename PixelType>
-bool Load2DScalarImageFromSingleDICOMFile(DenseImage2D<PixelType>& OutputImage, const String& FilePathAndName)
+bool Load3DScalarImageFromDICOMSeries(DenseImage3D<PixelType>& OutputImage, const String& FilePath)
+{
+    typedef itk::Image< PixelType, 3 >                ITKImageType;
+    typedef itk::ImageSeriesReader< ITKImageType >    ITKImageReaderType;
+    typedef itk::GDCMImageIO                          ImageIOType;
+    typedef itk::GDCMSeriesFileNames                  InputNamesGeneratorType;
+
+    ImageIOType::Pointer gdcmIO = ImageIOType::New();
+    InputNamesGeneratorType::Pointer inputNames = InputNamesGeneratorType::New();
+    inputNames->SetInputDirectory(FilePath.StdString());
+
+    const ITKImageReaderType::FileNamesContainer & filenames = inputNames->GetInputFileNames();
+
+    ITKImageReaderType::Pointer ITKImageReader = ITKImageReaderType::New();
+
+    ITKImageReader->SetImageIO(gdcmIO);
+    ITKImageReader->SetFileNames(filenames);
+
+    try
+    {
+        ITKImageReader->Update();
+    }
+    catch (itk::ExceptionObject &excp)
+    {
+        std::cerr << "Exception thrown while reading the DICOM series @ Load3DScalarImageFromDICOMSeries(...)" << std::endl;
+        std::cerr << excp << std::endl;
+        return false;
+    }
+
+	return ConvertITK3DScalarImageToMDK3DScalarImage(ITKImageReader->GetOutput(), OutputImage);
+}
+
+
+template<typename PixelType>
+bool Load3DScalarImageFromSingleDICOMFile(DenseImage3D<PixelType>& OutputImage, const String& FilePathAndName)
 {
     typedef itk::Image<PixelType, 3>  ITKImageType;
 	typedef itk::ImageFileReader<ITKImageType> ITKImageReaderType;
@@ -213,14 +249,12 @@ bool Load2DScalarImageFromSingleDICOMFile(DenseImage2D<PixelType>& OutputImage, 
     }
     catch (itk::ExceptionObject & err)
     {
-        std::cerr << "ExceptionObject caught while reading the DICOM file @ Load2DScalarImageFromSingleDICOMFile(...)" << std::endl;
+        std::cerr << "ExceptionObject caught while reading the dicom file @ Load3DScalarImageFromSingleDICOMFile(...)" << std::endl;
         std::cerr << err << std::endl;
         return false;
     }
 
-	return ConvertITK3DScalarImageSliceToMDK2DScalarImage(ITKImageReader->GetOutput(), OutputImage);
+	return ConvertITK3DScalarImageToMDK3DScalarImage(ITKImageReader->GetOutput(), OutputImage);
 }
 
 }//namespace mdk
-
-#endif

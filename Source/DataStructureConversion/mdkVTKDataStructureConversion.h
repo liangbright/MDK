@@ -1,5 +1,4 @@
-﻿#ifndef mdk_VTKDataStructureConversion_h
-#define mdk_VTKDataStructureConversion_h
+﻿#pragma once
 
 #include <vtkSmartPointer.h>
 #include <vtkPolyData.h>
@@ -125,5 +124,3 @@ bool ConvertVTKPolyDataToMDKTriangleMesh(vtkPolyData* VTKMesh, TriangleMesh<Mesh
 }// namespace mdk
 
 #include "mdkVTKDataStructureConversion.hpp"
-
-#endif

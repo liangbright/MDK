@@ -1,5 +1,4 @@
-﻿#ifndef mdk_JsonFile_h
-#define mdk_JsonFile_h
+﻿#pragma once
 
 #include <memory>
 
@@ -82,5 +81,3 @@ private:
 };
 
 }//namespace mdk
-
-#endif

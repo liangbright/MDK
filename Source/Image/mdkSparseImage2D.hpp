@@ -1,5 +1,4 @@
-﻿#ifndef mdk_SparseImage2D_hpp
-#define mdk_SparseImage2D_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -827,5 +826,3 @@ inline bool SparseImage2D<PixelType>::SetPixelAt2DIndex(int_max xIndex, int_max 
 }
 
 }//end namespace mdk
-
-#endif

@@ -1,5 +1,4 @@
-﻿#ifndef mdk_CoordinateTransform3D_h
-#define mdk_CoordinateTransform3D_h
+﻿#pragma once
 
 #include "mdkDenseMatrix.h"
 
@@ -34,5 +33,3 @@ private:
 };
 
 }
-
-#endif

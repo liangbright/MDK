@@ -1,5 +1,4 @@
-﻿#ifndef mdk_SimilarityTransform3D_h
-#define mdk_SimilarityTransform3D_h
+﻿#pragma once
 
 #include "mdkCoordinateTransform3D.h"
 #include "mdkDenseMatrix.h"
@@ -61,4 +60,3 @@ private:
 
 #include "mdkSimilarityTransform3D.hpp"
 
-#endif

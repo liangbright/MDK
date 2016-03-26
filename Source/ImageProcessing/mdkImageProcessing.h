@@ -1,5 +1,4 @@
-#ifndef mdk_ImageProcessing_h
-#define mdk_ImageProcessing_h
+#pragma once
 
 //2D
 
@@ -28,5 +27,3 @@
 #include "mdkImageInterpolation3D.h"
 #include "mdkDenseImageResampler3D.h"
 #include "mdkHistogram.h"
-
-#endif

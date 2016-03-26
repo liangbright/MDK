@@ -1,5 +1,4 @@
-﻿#ifndef mdk_SparseImage3D_h
-#define mdk_SparseImage3D_h
+﻿#pragma once
 
 #include <vector>
 #include <memory>
@@ -307,5 +306,3 @@ public:
 }//end namespace mdk
 
 #include "mdkSparseImage3D.hpp"
-
-#endif

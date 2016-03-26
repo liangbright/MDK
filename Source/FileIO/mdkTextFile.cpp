@@ -1,5 +1,4 @@
-#ifndef mdk_TextFile_cpp
-#define mdk_TextFile_cpp
+#pragma once
 
 #include "mdkTextFile.h"
 
@@ -77,6 +76,4 @@ bool TextFile::Load(String& OutputText, const String& FilePathAndName)
 	return true;
 }
 
-}
-
-#endif
+}//namespace mdk

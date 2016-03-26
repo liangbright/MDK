@@ -1,5 +1,4 @@
-﻿#ifndef mdk_ITKDataStructureConversion_hpp
-#define mdk_ITKDataStructureConversion_hpp
+﻿#pragma once
 
 
 namespace mdk
@@ -479,6 +478,3 @@ bool ConvertITK3DScalarImageSliceToMDK2DScalarImage(const itk::Image<PixelType, 
 }
 
 }// namespace mdk
-
-
-#endif

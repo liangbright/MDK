@@ -1,5 +1,4 @@
-﻿#ifndef mdk_DenseImage3D_hpp
-#define mdk_DenseImage3D_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -2216,5 +2215,3 @@ DenseImage3D<PixelType>::UnPad(int_max Pad_Lx, int_max Pad_Ly, int_max Pad_Lz) c
 }
 
 }//end namespace mdk
-
-#endif

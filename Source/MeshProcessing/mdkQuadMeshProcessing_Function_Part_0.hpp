@@ -1,5 +1,4 @@
-﻿#ifndef mdk_QuadMeshProcessing_Function_Part_0_hpp
-#define mdk_QuadMeshProcessing_Function_Part_0_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -8,7 +7,7 @@ template<typename MeshAttributeType>
 PolygonMesh<MeshAttributeType> SubdivideQuadMesh_Linear(const PolygonMesh<MeshAttributeType>& InputMesh)
 {
 	typedef typename MeshAttributeType::ScalarType ScalarType;
-	typedef Handle_Of_Point_Of_MembraneMesh PointHandleType;
+	typedef Handle_Of_Point_Of_PolygonMesh PointHandleType;
 	//----------------------------------------------------------------------------//
 	PolygonMesh<MeshAttributeType> OutputMesh;
 	
@@ -24,7 +23,7 @@ PolygonMesh<MeshAttributeType> SubdivideQuadMesh_Linear(const PolygonMesh<MeshAt
 	DenseVector<int_max> PointIndexMap_init;
 	PointIndexMap_init.Resize(PointCount_input + InputMesh.GetDeletedPointCount());
 	PointIndexMap_init.Fill(-1);
-	DenseVector<Handle_Of_Point_Of_MembraneMesh> PointHandleList_init;
+	DenseVector<Handle_Of_Point_Of_PolygonMesh> PointHandleList_init;
 	PointHandleList_init.SetCapacity(PointCount_input);
 	int_max PointIndex_output_init = -1;
 	for (auto it = InputMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
@@ -39,7 +38,7 @@ PolygonMesh<MeshAttributeType> SubdivideQuadMesh_Linear(const PolygonMesh<MeshAt
 	DenseVector<int_max> PointIndexMap_new;
 	PointIndexMap_new.Resize(EdgeCount_input + InputMesh.GetDeletedEdgeCount());
 	PointIndexMap_new.Fill(-1);
-	DenseVector<Handle_Of_Point_Of_MembraneMesh> PointHandleList_new;
+	DenseVector<Handle_Of_Point_Of_PolygonMesh> PointHandleList_new;
 	PointHandleList_new.SetCapacity(EdgeCount_input);
 	int_max PointIndex_output_new = -1;
 	for (auto it = InputMesh.GetIteratorOfEdge(); it.IsNotEnd(); ++it)
@@ -151,7 +150,7 @@ void ConvertQuadMeshToTriangleMesh(const PolygonMesh<MeshAttributeTypeA>& InputM
 	DenseVector<int_max> PointIndexMap;
 	PointIndexMap.Resize(PointCount_input + InputMesh.GetDeletedPointCount());
 	PointIndexMap.Fill(-1);
-	DenseVector<Handle_Of_Point_Of_MembraneMesh> PointHandleList;
+	DenseVector<Handle_Of_Point_Of_PolygonMesh> PointHandleList;
 	PointHandleList.SetCapacity(PointCount_input);
 	int_max PointIndex_output = -1;
 	for (auto it = InputMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
@@ -191,7 +190,7 @@ template<typename MeshAttributeType>
 PolygonMesh<MeshAttributeType> SubdivideMixedTriangleQuadMeshToQuadMesh_Linear(const PolygonMesh<MeshAttributeType>& InputMesh)
 {
 	typedef typename MeshAttributeType::ScalarType ScalarType;
-	typedef Handle_Of_Point_Of_MembraneMesh PointHandleType;
+	typedef Handle_Of_Point_Of_PolygonMesh PointHandleType;
 	//----------------------------------------------------------------------------//
 	PolygonMesh<MeshAttributeType> OutputMesh;
 
@@ -207,7 +206,7 @@ PolygonMesh<MeshAttributeType> SubdivideMixedTriangleQuadMeshToQuadMesh_Linear(c
 	DenseVector<int_max> PointIndexMap_init;
 	PointIndexMap_init.Resize(PointCount_input + InputMesh.GetDeletedPointCount());
 	PointIndexMap_init.Fill(-1);
-	DenseVector<Handle_Of_Point_Of_MembraneMesh> PointHandleList_init;
+	DenseVector<Handle_Of_Point_Of_PolygonMesh> PointHandleList_init;
 	PointHandleList_init.SetCapacity(PointCount_input);
 	int_max PointIndex_output_init = -1;
 	for (auto it = InputMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
@@ -222,7 +221,7 @@ PolygonMesh<MeshAttributeType> SubdivideMixedTriangleQuadMeshToQuadMesh_Linear(c
 	DenseVector<int_max> PointIndexMap_new;
 	PointIndexMap_new.Resize(EdgeCount_input + InputMesh.GetDeletedEdgeCount());
 	PointIndexMap_new.Fill(-1);
-	DenseVector<Handle_Of_Point_Of_MembraneMesh> PointHandleList_new;
+	DenseVector<Handle_Of_Point_Of_PolygonMesh> PointHandleList_new;
 	PointHandleList_new.SetCapacity(EdgeCount_input);
 	int_max PointIndex_output_new = -1;
 	for (auto it = InputMesh.GetIteratorOfEdge(); it.IsNotEnd(); ++it)
@@ -337,7 +336,7 @@ void ConvertMixedTriangleQuadMeshToTriangleMesh(const PolygonMesh<MeshAttributeT
 	DenseVector<int_max> PointIndexMap;
 	PointIndexMap.Resize(PointCount_input + InputMesh.GetDeletedPointCount());
 	PointIndexMap.Fill(-1);
-	DenseVector<Handle_Of_Point_Of_MembraneMesh> PointHandleList;
+	DenseVector<Handle_Of_Point_Of_PolygonMesh> PointHandleList;
 	PointHandleList.SetCapacity(PointCount_input);
 	int_max PointIndex_output = -1;
 	for (auto it = InputMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
@@ -489,6 +488,3 @@ PolygonMesh<MeshAttributeType> CreateQuadMeshOfCylinderSurface(int_max PointCoun
 
 
 }//namespace mdk
-
-
-#endif

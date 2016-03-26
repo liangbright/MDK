@@ -1,5 +1,4 @@
-﻿#ifndef mdk_FileIO_Common_hpp
-#define mdk_FileIO_Common_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -242,7 +241,3 @@ bool LoadScalarArrayFromDataFile(ScalarType* ScalarArray, int_max ArrayLength, c
 }
 
 }//namespace mdk
-
-#include "mdkFileIO_Common.hpp"
-
-#endif

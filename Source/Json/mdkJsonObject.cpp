@@ -1,5 +1,4 @@
-﻿#ifndef mdk_JsonObject_cpp
-#define mdk_JsonObject_cpp
+﻿#pragma once
 
 #include "mdkJsonObject.h"
 #include "mdkJsonValue.h"
@@ -57,5 +56,3 @@ JsonValue& JsonObject::operator[](const String& Name)
 }
 
 }//namespace mdk
-
-#endif

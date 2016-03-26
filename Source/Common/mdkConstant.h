@@ -1,5 +1,4 @@
-﻿#ifndef mdk_Constant_h
-#define mdk_Constant_h
+﻿#pragma once
 
 #include <limits>
 
@@ -20,4 +19,3 @@ ElementType GetNaNElement(const ElementType& ReferenceElement);
 
 #include "mdkConstant.hpp"
 
-#endif

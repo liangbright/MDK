@@ -1,5 +1,4 @@
-﻿#ifndef mdk_FileIO_Common_h
-#define mdk_FileIO_Common_h
+﻿#pragma once
 
 #include <QString>
 #include <QFile>
@@ -44,4 +43,3 @@ bool LoadScalarArrayFromDataFile(ScalarType* ScalarArray, int_max ArrayLength, c
 
 #include "mdkFileIO_Common.hpp"
 
-#endif

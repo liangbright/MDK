@@ -1,5 +1,4 @@
-﻿#ifndef mdk_ITKDataObject_FileIO_hpp
-#define mdk_ITKDataObject_FileIO_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -185,6 +184,3 @@ bool LoadITK3DScalarImageFromJsonDataFile(itk::Image<PixelType, 3>* OutputITKIma
 */
 
 }// namespace mdk
-
-
-#endif

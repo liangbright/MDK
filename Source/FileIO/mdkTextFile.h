@@ -1,5 +1,4 @@
-#ifndef mdk_TextFile_h
-#define mdk_TextFile_h
+#pragma once
 
 #include <memory>
 
@@ -40,6 +39,4 @@ public:
 	static bool Load(String& OutputText, const String& FilePathAndName);
 };
 
-}
-
-#endif
+}//namespace mdk

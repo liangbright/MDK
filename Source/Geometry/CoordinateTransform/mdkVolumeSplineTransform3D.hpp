@@ -1,5 +1,4 @@
-﻿#ifndef mdk_VolumeSplineTransform3D_hpp
-#define mdk_VolumeSplineTransform3D_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -247,6 +246,3 @@ DenseVector<ScalarType, 3> VolumeSplineTransform3D<ScalarType>::TransformPoint(S
 }
 
 }//namespace mdk
-
-
-#endif

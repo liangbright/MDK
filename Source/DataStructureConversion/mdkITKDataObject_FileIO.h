@@ -1,5 +1,4 @@
-﻿#ifndef mdk_ITKDataObject_FileIO_h
-#define mdk_ITKDataObject_FileIO_h
+﻿#pragma once
 
 #include <itkImage.h>
 
@@ -20,5 +19,3 @@ bool SaveITK3DScalarImageAsJsonDataFile(itk::Image<PixelType, 3>* OutputITKImage
 }// namespace mdk
 
 #include "mdkITKDataObject_FileIO.hpp"
-
-#endif

@@ -1,5 +1,4 @@
-﻿#ifndef mdk_SparseImage2D_h
-#define mdk_SparseImage2D_h
+﻿#pragma once
 
 #include <vector>
 #include <memory>
@@ -257,5 +256,3 @@ public:
 }//end namespace mdk
 
 #include "mdkSparseImage2D.hpp"
-
-#endif

@@ -1,5 +1,4 @@
-﻿#ifndef mdk_CommonType_h
-#define mdk_CommonType_h
+﻿#pragma once
 
 #include <stdint.h>
 
@@ -39,4 +38,3 @@ enum struct ScalarTypeEnum
 
 }//end namespace mdk
 
-#endif

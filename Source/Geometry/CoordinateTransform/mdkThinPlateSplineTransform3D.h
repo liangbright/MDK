@@ -1,5 +1,4 @@
-﻿#ifndef mdk_ThinPlateSplineTransform3D_h
-#define mdk_ThinPlateSplineTransform3D_h
+﻿#pragma once
 
 #include "mdkCoordinateTransform3D.h"
 #include "mdkDenseMatrix.h"
@@ -55,5 +54,3 @@ private:
 }//namespace mdk
 
 #include "mdkThinPlateSplineTransform3D.hpp"
-
-#endif

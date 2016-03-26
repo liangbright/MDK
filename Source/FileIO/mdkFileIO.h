@@ -1,6 +1,4 @@
-﻿#ifndef mdk_FileIO_h
-#define mdk_FileIO_h
+﻿#pragma once
 
 #include "mdkFileIO_Common.h"
 
-#endif

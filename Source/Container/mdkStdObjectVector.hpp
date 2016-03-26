@@ -1,5 +1,4 @@
-﻿#ifndef mdk_StdObjectVector_hpp
-#define mdk_StdObjectVector_hpp
+﻿#pragma once
 
 
 namespace mdk
@@ -1139,5 +1138,3 @@ void StdObjectVector<ElementType>::SortInPlace(int_max Index_start, int_max Inde
 }
 
 }//end namespace mdk
-
-#endif

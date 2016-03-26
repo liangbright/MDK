@@ -1,5 +1,4 @@
-﻿#ifndef mdk_JsonValue_h
-#define mdk_JsonValue_h
+﻿#pragma once
 
 #include <memory>
 
@@ -237,4 +236,3 @@ public:
 
 #include "mdkJsonValue.hpp"
 
-#endif

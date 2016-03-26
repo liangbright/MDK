@@ -1,5 +1,4 @@
-﻿#ifndef mdk_QuadraticProgrammingSolver_h
-#define mdk_QuadraticProgrammingSolver_h
+﻿#pragma once
 
 #include <string>
 #include <memory>
@@ -316,5 +315,3 @@ private:
 }//namespace mdk
 
 #include "mdkQuadraticProgrammingSolver.hpp"
-
-#endif

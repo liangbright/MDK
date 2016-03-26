@@ -1,5 +1,4 @@
-﻿#ifndef mdk_ObjectArray_hpp
-#define mdk_ObjectArray_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -1579,5 +1578,3 @@ void ObjectArray<ElementType>::SortInPlace(const String& Order)
 }
 
 }//end namespace mdk
-
-#endif

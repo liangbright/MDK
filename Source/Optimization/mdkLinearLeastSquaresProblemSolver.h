@@ -1,5 +1,4 @@
-﻿#ifndef mdk_LinearLeastSquaresProblemSolver_h
-#define mdk_LinearLeastSquaresProblemSolver_h
+﻿#pragma once
 
 #include <string>
 #include <memory>
@@ -229,5 +228,3 @@ private:
 }//namespace mdk
 
 #include "mdkLinearLeastSquaresProblemSolver.hpp"
-
-#endif

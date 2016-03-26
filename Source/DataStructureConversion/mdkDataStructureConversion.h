@@ -1,7 +1,4 @@
-﻿#ifndef mdk_DataStructureConversion_h
-#define mdk_DataStructureConversion_h
+﻿#pragma once
 
 #include "mdkVTKDataStructureConversion.h"
 #include "mdkITKDataStructureConversion.h"
-
-#endif

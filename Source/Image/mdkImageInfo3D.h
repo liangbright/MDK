@@ -1,5 +1,4 @@
-﻿#ifndef mdk_ImageInfo3D_h
-#define mdk_ImageInfo3D_h
+﻿#pragma once
 
 #include "mdkZeroPixel.h"
 
@@ -297,5 +296,3 @@ inline DenseVector<ScalarType, 3> ImageCoordinateTransform_3DWorldPositionTo3DPo
 }//namespace mdk
 
 #include "mdkImageInfo3D.hpp"
-
-#endif

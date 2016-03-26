@@ -1,5 +1,4 @@
-#ifndef mdk_GeodesicSphereBuilder_hpp
-#define mdk_GeodesicSphereBuilder_hpp
+#pragma once
 
 namespace mdk
 {
@@ -181,7 +180,4 @@ ObjectArray<TriangleMesh<TriangleMeshEmptyAttributeType<ScalarType>>>* GeodesicS
 	return &m_SphereList;
 }
 
-
 }//namespace mdk
-
-#endif

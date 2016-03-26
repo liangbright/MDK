@@ -1,13 +1,12 @@
-﻿#ifndef mdk_PolygonMeshProcessing_Function_Part_0_hpp
-#define mdk_PolygonMeshProcessing_Function_Part_0_hpp
+﻿#pragma once
 
 namespace mdk
 {
 
 template<typename MeshAttributeType>
-DenseVector<Handle_Of_Point_Of_MembraneMesh> TraceMeshBoundaryCurve(const PolygonMesh<MeshAttributeType>& TargetMesh, Handle_Of_Point_Of_MembraneMesh PointHandle_start)
+DenseVector<Handle_Of_Point_Of_PolygonMesh> TraceMeshBoundaryCurve(const PolygonMesh<MeshAttributeType>& TargetMesh, Handle_Of_Point_Of_PolygonMesh PointHandle_start)
 {
-    typedef Handle_Of_Point_Of_MembraneMesh PointHandleType;
+    typedef Handle_Of_Point_Of_PolygonMesh PointHandleType;
 
     DenseVector<PointHandleType> PointHandleListOfBoundaryCurve;
 
@@ -113,9 +112,9 @@ DenseVector<Handle_Of_Point_Of_MembraneMesh> TraceMeshBoundaryCurve(const Polygo
 
 
 template<typename MeshAttributeType>
-ObjectArray<DenseVector<Handle_Of_Point_Of_MembraneMesh>> TraceMeshBoundaryCurve(const PolygonMesh<MeshAttributeType>& TargetMesh)
+ObjectArray<DenseVector<Handle_Of_Point_Of_PolygonMesh>> TraceMeshBoundaryCurve(const PolygonMesh<MeshAttributeType>& TargetMesh)
 {
-    typedef Handle_Of_Point_Of_MembraneMesh PointHandleType;
+    typedef Handle_Of_Point_Of_PolygonMesh PointHandleType;
 
     // find boundary point
     DenseVector<PointHandleType> BoundaryPointHandleList;
@@ -171,9 +170,9 @@ ObjectArray<DenseVector<Handle_Of_Point_Of_MembraneMesh>> TraceMeshBoundaryCurve
 
 
 template<typename MeshAttributeType>
-Handle_Of_Point_Of_MembraneMesh FindNearestPointOnMesh(const PolygonMesh<MeshAttributeType>& TargetMesh, const DenseVector<typename MeshAttributeType::ScalarType, 3>& PointPosition)
+Handle_Of_Point_Of_PolygonMesh FindNearestPointOnMesh(const PolygonMesh<MeshAttributeType>& TargetMesh, const DenseVector<typename MeshAttributeType::ScalarType, 3>& PointPosition)
 {
-    typedef Handle_Of_Point_Of_MembraneMesh PointHandleType;
+    typedef Handle_Of_Point_Of_PolygonMesh PointHandleType;
     typedef typename MeshAttributeType::ScalarType ScalarType;
 
     PointHandleType OutputPointHandle;
@@ -281,6 +280,3 @@ PolygonMesh<MeshAttributeType> SmoothMeshByVTKWindowedSincPolyDataFilter(const P
 
 
 }//namespace mdk
-
-
-#endif

@@ -1,5 +1,4 @@
-﻿#ifndef mdk_JsonValue_cpp
-#define mdk_JsonValue_cpp
+﻿#pragma once
 
 #include "mdkJsonValue.h"
 #include "mdkJsonObject.h"
@@ -852,5 +851,3 @@ JsonObject JsonValue::GetJsonObject(const JsonObject& DefaultValue) const
 }
 
 }//namespace mdk
-
-#endif

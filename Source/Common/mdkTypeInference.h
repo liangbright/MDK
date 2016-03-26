@@ -1,5 +1,4 @@
-﻿#ifndef mdk_TypeInference_h
-#define mdk_TypeInference_h
+﻿#pragma once
 
 #include <typeinfo>
 
@@ -29,4 +28,3 @@ String GetTemplateClassName(const TemplateClassType& TemplateClassObject);
 
 #include "mdkTypeInference.hpp"
 
-#endif

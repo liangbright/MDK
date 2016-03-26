@@ -1,5 +1,4 @@
-#ifndef mdk_ZeroPixel_h
-#define mdk_ZeroPixel_h
+#pragma once
 
 namespace mdk
 {
@@ -41,5 +40,3 @@ template<typename ScalarType, int_max Length>
 inline DenseVector<ScalarType, Length>  GetZeroPixel() { DenseVector<ScalarType, Length> ZeroPixel = 0; return ZeroPixel; }
 
 }//namespace mdk
-
-#endif

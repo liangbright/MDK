@@ -1,5 +1,4 @@
-﻿#ifndef mdk_TypeToOpenCVTranslation_h
-#define mdk_TypeToOpenCVTranslation_h
+﻿#pragma once
 
 #include <opencv2/core/types_c.h>
 
@@ -37,4 +36,3 @@ OpenCVSingleChannelMatrixElementTypeEnum GetOpenCVSingleChannelMatrixElementType
 
 #include "mdkTypeToOpenCVTranslation.hpp"
 
-#endif

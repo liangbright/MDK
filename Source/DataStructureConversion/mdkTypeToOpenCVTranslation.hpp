@@ -1,5 +1,4 @@
-﻿#ifndef mdk_TypeTranslation_hpp
-#define mdk_TypeTranslation_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -49,5 +48,3 @@ OpenCVSingleChannelMatrixElementTypeEnum GetOpenCVSingleChannelMatrixElementType
 
 }//end namespace mdk
 
-
-#endif

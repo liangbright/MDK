@@ -1,5 +1,4 @@
-﻿#ifndef mdk_VTKDataStructureConversion_hpp
-#define mdk_VTKDataStructureConversion_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -816,6 +815,3 @@ bool ConvertVTKPolyDataToMDKTriangleMesh(vtkPolyData* VTKMesh, TriangleMesh<Mesh
 
 
 }// namespace mdk
-
-
-#endif

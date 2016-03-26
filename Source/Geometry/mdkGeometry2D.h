@@ -1,5 +1,4 @@
-﻿#ifndef mdk_Geometry2D_h
-#define mdk_Geometry2D_h
+﻿#pragma once
 
 #include "mdkLinearAlgebra.h"
 
@@ -10,5 +9,3 @@
 
 #include "mdkGeometry2D_Function_Part_0.h"
 #include "mdkGeometry2D_Function_Part_1.h"
-
-#endif

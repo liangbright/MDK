@@ -1,5 +1,4 @@
-﻿#ifndef mdk_QuadraticProgrammingSolver_hpp
-#define mdk_QuadraticProgrammingSolver_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -1559,5 +1558,3 @@ Solution_Of_QuadraticProgramming<ElementType> QuadraticProgrammingSolver<Element
 }
 
 }//namespace mdk
-
-#endif

@@ -1,5 +1,4 @@
-﻿#ifndef mdk_StdObjectVector_h
-#define mdk_StdObjectVector_h
+﻿#pragma once
 
 #include <vector>
 #include <memory>
@@ -211,4 +210,3 @@ private:
 
 #include "mdkStdObjectVector.hpp"
 
-#endif

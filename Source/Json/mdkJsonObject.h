@@ -1,5 +1,4 @@
-﻿#ifndef mdk_JsonObject_h
-#define mdk_JsonObject_h
+﻿#pragma once
 
 #include <unordered_map>
 #include <vector>
@@ -65,5 +64,3 @@ private:
 };
 
 }//namespace mdk
-
-#endif

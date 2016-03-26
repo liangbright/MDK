@@ -1,5 +1,4 @@
-﻿#ifndef mdk_QTDataStructureConversion_cpp
-#define mdk_QTDataStructureConversion_cpp
+﻿#pragma once
 
 #include "mdkQTDataStructureConversion.h"
 
@@ -287,4 +286,3 @@ JsonArray ConvertQTJsonArrayToMDKJsonArray(const QJsonArray& QJArray)
 
 }
 
-#endif

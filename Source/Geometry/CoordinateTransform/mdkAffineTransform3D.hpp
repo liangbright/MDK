@@ -1,5 +1,4 @@
-﻿#ifndef mdk_AffineTransform3D_hpp
-#define mdk_AffineTransform3D_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -164,4 +163,3 @@ DenseVector<ScalarType, 3> AffineTransform3D<ScalarType>::TransformPoint(ScalarT
 
 }//namespace mdk
 
-#endif

@@ -1,5 +1,4 @@
-﻿#ifndef mdk_RotationTransform2D_hpp
-#define mdk_RotationTransform2D_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -249,5 +248,3 @@ DenseVector<ScalarType, 2> RotationTransform2D<ScalarType>::RotatePoint(const De
 }
 
 }//namespace mdk
-
-#endif

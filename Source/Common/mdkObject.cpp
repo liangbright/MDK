@@ -1,5 +1,4 @@
-﻿#ifndef mdk_Object_cpp
-#define mdk_Object_cpp
+﻿#pragma once
 
 #include "mdkObject.h"
 
@@ -16,4 +15,3 @@ Object::~Object()
 
 }//end namespace mdk
 
-#endif

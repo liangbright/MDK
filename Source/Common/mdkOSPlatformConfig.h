@@ -1,6 +1,4 @@
-﻿#ifndef mdk_OSPlatformConfig_h 
-#define mdk_OSPlatformConfig_h
-
+﻿#pragma once
 namespace mdk
 {
 
@@ -10,4 +8,3 @@ namespace mdk
 
 }
 
-#endif
