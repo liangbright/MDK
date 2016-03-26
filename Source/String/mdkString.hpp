@@ -279,6 +279,10 @@ inline void String::Swap(String& InputString)
     m_StringData.swap(InputString.m_StringData); // shared_ptr self swap check is not necessary
 }
 
+inline void String::Clear(MDK_Symbol_PureEmpty&)
+{
+	m_StringData.reset();
+}
 
 inline void String::Clear()
 {
@@ -288,6 +292,10 @@ inline void String::Clear()
 	}
 }
 
+inline void String::Recreate()
+{
+	m_StringData = std::make_shared<std::basic_string<char>>();
+}
 
 inline void String::Resize(int_max InputLength)
 {

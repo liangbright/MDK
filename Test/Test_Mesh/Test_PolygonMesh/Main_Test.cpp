@@ -7,10 +7,11 @@ using namespace mdk;
 int main()
 {
     Test_MeshConstruction();
-	//Test_ShrinkEdge();
-	//Test_SplitEdge();
-	//Test_ShrinkFace();
-	//Test_ReversePointOrder();
+	Test_ShrinkEdge();
+	Test_SplitEdge();
+	Test_ShrinkFace();
+	Test_ReversePointOrder();
+	Test_GlobalAttribute();
     std::system("pause");
 
     return 1;

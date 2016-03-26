@@ -1,6 +1,4 @@
-﻿#ifndef mdk_TriangleMesh_hpp
-#define mdk_TriangleMesh_hpp
-
+﻿#pragma once
 
 namespace mdk
 {
@@ -49,7 +47,7 @@ void TriangleMesh<MeshAttributeType>::operator=(TriangleMesh<MeshAttributeType>&
 
 template<typename MeshAttributeType>
 inline 
-Handle_Of_Face_Of_MembraneMesh
+Handle_Of_Face_Of_PolygonMesh
 TriangleMesh<MeshAttributeType>::AddFaceByEdge(EdgeHandleType EdgeHandle0, EdgeHandleType EdgeHandle1, EdgeHandleType EdgeHandle2)
 {
     DenseVector<EdgeHandleType> EdgeHandleList = { EdgeHandle0, EdgeHandle1, EdgeHandle2 };
@@ -58,7 +56,7 @@ TriangleMesh<MeshAttributeType>::AddFaceByEdge(EdgeHandleType EdgeHandle0, EdgeH
 
 template<typename MeshAttributeType>
 inline
-Handle_Of_Face_Of_MembraneMesh
+Handle_Of_Face_Of_PolygonMesh
 TriangleMesh<MeshAttributeType>::AddFaceByPoint(PointHandleType PointHandle0, PointHandleType PointHandle1, PointHandleType PointHandle2)
 {
     DenseVector<PointHandleType> PointHandleList = { PointHandle0, PointHandle1, PointHandle2 };
@@ -532,5 +530,3 @@ void TriangleMesh<MeshAttributeType>::UpdateMeanCurvatureAtPoint(PointHandleType
 }
 
 }// namespace mdk
-
-#endif

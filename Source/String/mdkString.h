@@ -1,5 +1,4 @@
-﻿#ifndef mdk_String_h
-#define mdk_String_h
+﻿#pragma once
 
 #include <functional>
 #include <vector>
@@ -72,7 +71,10 @@ public:
 
     //------------------------- Clear -------------------------------------------//
     inline void Clear();
-
+	inline void Clear(MDK_Symbol_PureEmpty&);
+	
+	//------------------------- Recreate -------------------------------------------//
+	inline void Recreate();
 	//---------------------- Set/get Size ----------------------------------------//
 
     inline void Resize(int_max InputLength); // try to keep the old data
@@ -170,4 +172,3 @@ private:
 #include "mdkString.hpp"
 #include "mdkStringOperator.h"
 
-#endif

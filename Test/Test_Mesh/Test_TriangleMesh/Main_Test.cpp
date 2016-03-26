@@ -6,11 +6,10 @@ using namespace mdk;
 
 int main()
 {
-    //Test_MeshConstruction();
-
+    Test_MeshConstruction();
 	Test_ShrinkEdge();
 	Test_ShrinkFace();
-
+	Test_GlobalAttribute();
     std::system("pause");
 
     return 1;

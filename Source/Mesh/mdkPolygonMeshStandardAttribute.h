@@ -1,41 +1,129 @@
-﻿#ifndef mdk_PolygonMeshStandardAttribute_h
-#define mdk_PolygonMeshStandardAttribute_h
+﻿#pragma once
 
 #include "mdkDenseMatrix.h"
-#include "mdkMembraneMeshStandardAttribute.h"
+#include "mdkStringHash.h"
 
 namespace mdk
 {
 
 //============================================== GlobalAttribute_Of_PolygonMesh ===========================================//
-enum class PolygonMeshGlobalStandardAttributeTypeEnum
-{
-    MeanFaceArea,
-    MeanEdgeLength
-};
 
 template<typename ScalarType>
-struct GlobalStandardAttribute_Of_PolygonMesh : GlobalStandardAttribute_Of_MembraneMesh<ScalarType>
+struct GlobalStandardAttribute_Of_PolygonMesh
 {
-    ScalarType MeanFaceArea;
-    ScalarType MeanEdgeLength;
+	int_max ID; // ID of the mesh
+	String Name;// name of the mesh
+
+	std::unordered_map<String, Handle_Of_Point_Of_PolygonMesh, StringHash<String>> Map_PointName_to_PointHandle;
+	std::unordered_map<String, Handle_Of_Face_Of_PolygonMesh, StringHash<String>>  Map_FaceName_to_FaceHandle;
+
+	StdObjectVector<DenseVector<Handle_Of_Point_Of_PolygonMesh>>  PointSetList;// PointSetList[k] is PointHandleList Of a PointSet indexed by k
+	std::unordered_map<String, int_max, StringHash<String>> Map_PointSetName_to_PointSetIndex;
+
+	StdObjectVector<DenseVector<Handle_Of_Face_Of_PolygonMesh>>  FaceSetList; // FaceSetList[k] is FaceHandleList Of a FaceSet indexed by k
+	std::unordered_map<String, int_max, StringHash<String>> Map_FaceSetName_to_FaceSetIndex;
 
 //--------------------------------------------------------------
 	GlobalStandardAttribute_Of_PolygonMesh() { this->Clear(); }
 	GlobalStandardAttribute_Of_PolygonMesh(const GlobalStandardAttribute_Of_PolygonMesh& InputAttribute) { (*this) = InputAttribute; }
+	GlobalStandardAttribute_Of_PolygonMesh(GlobalStandardAttribute_Of_PolygonMesh&& InputAttribute) { (*this) = std::move(InputAttribute); }
 	~GlobalStandardAttribute_Of_PolygonMesh() {}
 
 	void operator=(const GlobalStandardAttribute_Of_PolygonMesh& InputAttribute)
     {
-        MeanFaceArea = InputAttribute.MeanFaceArea;
-        MeanEdgeLength = InputAttribute.MeanFaceArea;
+		ID = InputAttribute.ID;
+		Name = InputAttribute.Name;
+		Map_PointName_to_PointHandle = InputAttribute.Map_PointName_to_PointHandle;
+		Map_FaceName_to_FaceHandle = InputAttribute.Map_FaceName_to_FaceHandle;
+		PointSetList = InputAttribute.PointSetList;
+		Map_PointSetName_to_PointSetIndex = InputAttribute.Map_PointSetName_to_PointSetIndex;
+		FaceSetList = InputAttribute.FaceSetList;
+		Map_FaceSetName_to_FaceSetIndex = InputAttribute.Map_FaceSetName_to_FaceSetIndex;
     }
+
+	void operator=(GlobalStandardAttribute_Of_PolygonMesh&& InputAttribute)
+	{
+		ID = InputAttribute.ID;
+		Name = InputAttribute.Name;
+		Map_PointName_to_PointHandle = std::move(InputAttribute.Map_PointName_to_PointHandle);
+		Map_FaceName_to_FaceHandle = std::move(InputAttribute.Map_FaceName_to_FaceHandle);
+		PointSetList = std::move(InputAttribute.PointSetList);
+		Map_PointSetName_to_PointSetIndex = std::move(InputAttribute.Map_PointSetName_to_PointSetIndex);
+		FaceSetList = std::move(InputAttribute.FaceSetList);
+		Map_FaceSetName_to_FaceSetIndex = std::move(InputAttribute.Map_FaceSetName_to_FaceSetIndex);
+	}
 
     void Clear()
     {
-        MeanFaceArea = 0;
-        MeanEdgeLength = 0;
+		ID = -1;
+		Name = "";
+		Map_PointName_to_PointHandle.clear();
+		Map_FaceName_to_FaceHandle.clear();
+		PointSetList.Clear();
+		Map_PointSetName_to_PointSetIndex.clear();
+		FaceSetList.Clear();
+		Map_FaceSetName_to_FaceSetIndex.clear();
     }
+
+	Handle_Of_Point_Of_PolygonMesh GetPointHandle(const String& PointName) const
+	{
+		auto it = Map_PointName_to_PointHandle.find(PointName);
+		if (it != Map_PointName_to_PointHandle.end())
+		{
+			return it->second;
+		}
+		else
+		{
+			Handle_Of_Point_Of_PolygonMesh EmptyHandle;
+			MDK_Error("Unknown PointName: " << PointName << " @ PolygonMesh::Attribute().GetPointHandle()")
+			return EmptyHandle;
+		}
+	}
+
+	DenseVector<Handle_Of_Point_Of_PolygonMesh> GetPointSet(const String& PointSetName) const
+	{
+		auto it = Map_PointSetName_to_PointSetIndex.find(PointSetName);
+		if (it != Map_PointSetName_to_PointSetIndex.end())
+		{
+			return PointSetList[it->second];
+		}
+		else
+		{
+			DenseVector<Handle_Of_Point_Of_PolygonMesh> EmptySet;
+			MDK_Error("Unknown PointSetName: " << PointSetName << " @ PolygonMesh::Attribute().GetPointSet()")
+			return EmptySet;
+		}
+	}
+
+	Handle_Of_Face_Of_PolygonMesh GetFaceHandle(const String& FaceName) const
+	{
+		auto it = Map_FaceName_to_FaceHandle.find(FaceName);
+		if (it != Map_FaceName_to_FaceHandle.end())
+		{
+			return it->second;
+		}
+		else
+		{
+			Handle_Of_Face_Of_PolygonMesh EmptyHandle;
+			MDK_Error("Unknown FaceName: " << FaceName << " @ PolygonMesh::Attribute().GetFaceHandle()")
+			return EmptyHandle;
+		}
+	}
+
+	DenseVector<Handle_Of_Face_Of_PolygonMesh> GetFaceSet(const String& FaceSetName) const
+	{
+		auto it = Map_FaceSetName_to_FaceSetIndex.find(FaceSetName);
+		if (it != Map_FaceSetName_to_FaceSetIndex.end())
+		{
+			return FaceSetList[it->second];
+		}
+		else
+		{
+			DenseVector<Handle_Of_Face_Of_PolygonMesh> EmptySet;
+			MDK_Error("Unknown FaceSetName: " << FaceSetName << " @ PolygonMesh::Attribute().GetFaceSet()")
+			return EmptySet;
+		}
+	}
 };
 
 //============================================== StandardAttribute_Of_Point_Of_PolygonMesh ===========================================//
@@ -49,7 +137,7 @@ enum class PolygonMeshPointStandardAttributeTypeEnum
 };
 
 template<typename ScalarType>
-struct StandardAttribute_Of_Point_Of_PolygonMesh : StandardAttribute_Of_Point_Of_MembraneMesh<ScalarType>
+struct StandardAttribute_Of_Point_Of_PolygonMesh
 {
     ScalarType GaussianCurvature; // [-pi, pi]
     ScalarType WeightedGaussianCurvature; //Weighted by Area
@@ -89,7 +177,7 @@ enum class PolygonMeshEdgeStandardAttributeEnum
 
 
 template<typename ScalarType>
-struct StandardAttribute_Of_Edge_Of_PolygonMesh : StandardAttribute_Of_Edge_Of_MembraneMesh<ScalarType>
+struct StandardAttribute_Of_Edge_Of_PolygonMesh
 {
     ScalarType Length;
 
@@ -116,9 +204,9 @@ enum class PolygonMeshDirectedEdgeStandardAttributeEnum
 };
 
 template<typename ScalarType>
-struct StandardAttribute_Of_DirectedEdge_Of_PolygonMesh : StandardAttribute_Of_DirectedEdge_Of_MembraneMesh<ScalarType>
+struct StandardAttribute_Of_DirectedEdge_Of_PolygonMesh
 {
-	DenseVector<ScalarType, 3> Direction;
+	DenseVector<ScalarType, 3> Direction; // [X, Y, Z]
 //-------------------------------------------------------
 	StandardAttribute_Of_DirectedEdge_Of_PolygonMesh() { this->Clear(); }
 	StandardAttribute_Of_DirectedEdge_Of_PolygonMesh(const StandardAttribute_Of_DirectedEdge_Of_PolygonMesh& InputAttribute) { (*this) = InputAttribute; }
@@ -140,10 +228,12 @@ struct StandardAttribute_Of_DirectedEdge_Of_PolygonMesh : StandardAttribute_Of_D
 enum class PolygonMeshFaceStandardAttributeEnum
 {
     Area,
+	CornerAngle,
+	Normal
 };
 
 template<typename ScalarType>
-struct StandardAttribute_Of_Face_Of_PolygonMesh : StandardAttribute_Of_Face_Of_MembraneMesh<ScalarType>
+struct StandardAttribute_Of_Face_Of_PolygonMesh
 {
     ScalarType Area;
     DenseVector<ScalarType> CornerAngle;
@@ -172,6 +262,3 @@ struct StandardAttribute_Of_Face_Of_PolygonMesh : StandardAttribute_Of_Face_Of_M
 };
 
 }// namespace mdk
-
-
-#endif

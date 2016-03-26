@@ -1,5 +1,4 @@
-﻿#ifndef mdk_StringHash_h
-#define mdk_StringHash_h
+﻿#pragma once
 
 #include "mdkString.h"
 
@@ -19,5 +18,3 @@ public:
 };
 
 }// namespace mdk
-
-#endif

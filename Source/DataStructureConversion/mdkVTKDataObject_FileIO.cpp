@@ -1,5 +1,4 @@
-﻿#ifndef mdk_VTKDataObject_FileIO_cpp
-#define mdk_VTKDataObject_FileIO_cpp
+﻿#pragma once
 
 #include "mdkVTKDataObject_FileIO.h"
 
@@ -530,6 +529,3 @@ bool LoadVTK3DScalarImageFromJsonDataFile(vtkImageData* OutputVTKImage, VTKDataT
 */
 
 }// namespace mdk
-
-
-#endif

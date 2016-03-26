@@ -16,9 +16,9 @@ TemplateBasedSurfaceRemesher<ScalarType>::~TemplateBasedSurfaceRemesher()
 template<typename ScalarType>
 void TemplateBasedSurfaceRemesher<ScalarType>::Clear()
 {
-	m_InputMesh.Clear();
+	m_InputMesh.Recreate();// dot NOT use Clear
 	m_BoundarySegmentListOfInputMesh.Clear();
-	m_TemplateMesh.Clear();
+	m_TemplateMesh.Recreate();// dot NOT use Clear
 	m_BoundarySegmentListOfTemplateMesh.Clear();
 
 	m_BoundaryPointHandleListOfInputMesh.Clear();

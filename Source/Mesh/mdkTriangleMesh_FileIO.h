@@ -1,12 +1,6 @@
-﻿#ifndef mdk_TriangleMesh_FileIO_h
-#define mdk_TriangleMesh_FileIO_h
+﻿#pragma once
 
-#include <vtkSmartPointer.h>
-#include <vtkPolyDataReader.h>
-#include <vtkPolyDataWriter.h>
-
-#include "mdkFileIO.h"
-#include "mdkVTKDataStructureConversion.h"
+#include "mdkPolygonMesh_FileIO.h"
 
 namespace mdk
 {
@@ -15,6 +9,7 @@ template<typename MeshAttributeType>
 class TriangleMesh;
 //-----------------------------------
 
+//-----------------------------  only save point and face -------------------------------------------------------
 template<typename MeshAttributeType>
 bool SaveTriangleMeshAsJsonDataFile(const TriangleMesh<MeshAttributeType>& InputMesh, const String& JsonFilePathAndName);
 
@@ -30,5 +25,3 @@ bool LoadTriangleMeshFromVTKFile(TriangleMesh<MeshAttributeType>& OutputMesh, co
 }//namespace mdk
 
 #include "mdkTriangleMesh_FileIO.hpp"
-
-#endif

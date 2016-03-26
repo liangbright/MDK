@@ -1,5 +1,4 @@
-﻿#ifndef mdk_TriangleMesh_h
-#define mdk_TriangleMesh_h
+﻿#pragma once
 
 #include "mdkPolygonMesh.h"
 
@@ -29,20 +28,20 @@ public:
     typedef typename MeshAttributeType::DirectedEdgeAttributeType   DirectedEdgeAttributeType;
     typedef typename MeshAttributeType::FaceAttributeType           FaceAttributeType;
 
-    typedef Point_Of_MembraneMesh<MeshAttributeType>           PointType;
-    typedef Edge_Of_MembraneMesh<MeshAttributeType>            EdgeType;
-    typedef DirectedEdge_Of_MembraneMesh<MeshAttributeType>    DirectedEdgeType;
-    typedef Face_Of_MembraneMesh<MeshAttributeType>            FaceType;
+    typedef Point_Of_PolygonMesh<MeshAttributeType>           PointType;
+    typedef Edge_Of_PolygonMesh<MeshAttributeType>            EdgeType;
+    typedef DirectedEdge_Of_PolygonMesh<MeshAttributeType>    DirectedEdgeType;
+    typedef Face_Of_PolygonMesh<MeshAttributeType>            FaceType;
 
-    typedef Handle_Of_Point_Of_MembraneMesh          PointHandleType;
-    typedef Handle_Of_Edge_Of_MembraneMesh           EdgeHandleType;
-    typedef Handle_Of_DirectedEdge_Of_MembraneMesh   DirectedEdgeHandleType;
-    typedef Handle_Of_Face_Of_MembraneMesh           FaceHandleType;
+    typedef Handle_Of_Point_Of_PolygonMesh          PointHandleType;
+    typedef Handle_Of_Edge_Of_PolygonMesh           EdgeHandleType;
+    typedef Handle_Of_DirectedEdge_Of_PolygonMesh   DirectedEdgeHandleType;
+    typedef Handle_Of_Face_Of_PolygonMesh           FaceHandleType;
 
-    typedef Iterator_Of_Point_Of_MembraneMesh<MeshAttributeType>         PointIteratorType;
-    typedef Iterator_Of_Edge_Of_MembraneMesh<MeshAttributeType>          EdgeIteratorType;
-    typedef Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttributeType>  DirectedEdgeIteratorType;
-    typedef Iterator_Of_Face_Of_MembraneMesh<MeshAttributeType>          FaceIteratorType;
+    typedef Iterator_Of_Point_Of_PolygonMesh<MeshAttributeType>         PointIteratorType;
+    typedef Iterator_Of_Edge_Of_PolygonMesh<MeshAttributeType>          EdgeIteratorType;
+    typedef Iterator_Of_DirectedEdge_Of_PolygonMesh<MeshAttributeType>  DirectedEdgeIteratorType;
+    typedef Iterator_Of_Face_Of_PolygonMesh<MeshAttributeType>          FaceIteratorType;
 
 public:
     TriangleMesh();
@@ -103,5 +102,4 @@ public:
 }// namespace mdk
 
 #include "mdkTriangleMesh.hpp"
-
-#endif
+#include "mdkTriangleMesh_FileIO.hpp"

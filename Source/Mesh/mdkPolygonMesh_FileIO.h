@@ -1,5 +1,4 @@
-﻿#ifndef mdk_PolygonMesh_FileIO_h
-#define mdk_PolygonMesh_FileIO_h
+﻿#pragma once
 
 #include <vtkSmartPointer.h>
 #include <vtkPolyDataReader.h>
@@ -16,13 +15,13 @@ template<typename MeshAttributeType>
 class PolygonMesh;
 //--------------------------------------
 
-// save/load PolygonMesh from Json data file or vtk file
+//------------ save/load only point and face -------------------------//
 
 template<typename MeshAttributeType>
 bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<MeshAttributeType>& InputMesh, const String& FilePathAndName);
 
 template<typename MeshAttributeType>
-bool LoadPolygonMeshFromJsonDataFile(PolygonMesh<MeshAttributeType>& OutputMesh, const String& JsonFilePathAndName);
+bool LoadPolygonMeshFromJsonDataFile(PolygonMesh<MeshAttributeType>& OutputMesh, const String& FilePathAndName);
 
 template<typename MeshAttributeType>
 bool SavePolygonMeshAsVTKFile(const PolygonMesh<MeshAttributeType>& InputMesh, const String& FilePathAndName);
@@ -30,8 +29,14 @@ bool SavePolygonMeshAsVTKFile(const PolygonMesh<MeshAttributeType>& InputMesh, c
 template<typename MeshAttributeType>
 bool LoadPolygonMeshMeshFromVTKFile(PolygonMesh<MeshAttributeType>& OutputMesh, const String& FilePathAndName);
 
+//------------------ save load with attribute  -------------------------------------------------//
+
+template<typename ScalarType>
+bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<PolygonMeshStandardAttributeType<ScalarType>>& InputMesh, const String& FilePathAndName);
+
+template<typename ScalarType>
+bool LoadPolygonMeshFromJsonDataFile(PolygonMesh<PolygonMeshStandardAttributeType<ScalarType>>& OutputMesh, const String& FilePathAndName);
+
 }//namespace mdk
 
 #include "mdkPolygonMesh_FileIO.hpp"
-
-#endif

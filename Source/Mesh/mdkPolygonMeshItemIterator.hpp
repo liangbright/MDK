@@ -1,13 +1,12 @@
-﻿#ifndef mdk_MembraneMeshItemIterator_hpp
-#define mdk_MembraneMeshItemIterator_hpp
+﻿#pragma once
 
 namespace mdk
 {
-//================================================= Iterator_Of_Point_Of_MembraneMesh ==================================//
+//================================================= Iterator_Of_Point_Of_PolygonMesh ==================================//
 
 template<typename MeshAttribute>
 inline
-Iterator_Of_Point_Of_MembraneMesh<MeshAttribute>::Iterator_Of_Point_Of_MembraneMesh(const MembraneMesh<MeshAttribute>& ParentMesh)
+Iterator_Of_Point_Of_PolygonMesh<MeshAttribute>::Iterator_Of_Point_Of_PolygonMesh(const PolygonMesh<MeshAttribute>& ParentMesh)
 : m_Mesh(MDK_PURE_EMPTY)
 {
     m_Mesh.ForceShare(ParentMesh);
@@ -16,7 +15,7 @@ Iterator_Of_Point_Of_MembraneMesh<MeshAttribute>::Iterator_Of_Point_Of_MembraneM
 
 template<typename MeshAttribute>
 inline
-Iterator_Of_Point_Of_MembraneMesh<MeshAttribute>::Iterator_Of_Point_Of_MembraneMesh(const Iterator_Of_Point_Of_MembraneMesh<MeshAttribute>& InputIterator)
+Iterator_Of_Point_Of_PolygonMesh<MeshAttribute>::Iterator_Of_Point_Of_PolygonMesh(const Iterator_Of_Point_Of_PolygonMesh<MeshAttribute>& InputIterator)
 : m_Mesh(MDK_PURE_EMPTY)
 {
     (*this) = InputIterator;
@@ -24,13 +23,13 @@ Iterator_Of_Point_Of_MembraneMesh<MeshAttribute>::Iterator_Of_Point_Of_MembraneM
 
 template<typename MeshAttribute>
 inline
-Iterator_Of_Point_Of_MembraneMesh<MeshAttribute>::~Iterator_Of_Point_Of_MembraneMesh() 
+Iterator_Of_Point_Of_PolygonMesh<MeshAttribute>::~Iterator_Of_Point_Of_PolygonMesh() 
 {
 }
 
 template<typename MeshAttribute>
 inline
-void Iterator_Of_Point_Of_MembraneMesh<MeshAttribute>::operator=(const Iterator_Of_Point_Of_MembraneMesh<MeshAttribute>& InputIterator) const
+void Iterator_Of_Point_Of_PolygonMesh<MeshAttribute>::operator=(const Iterator_Of_Point_Of_PolygonMesh<MeshAttribute>& InputIterator) const
 {
     m_Mesh.ForceShare(InputIterator.m_Mesh);
     m_PointHandle = InputIterator.m_PointHandle;
@@ -39,35 +38,35 @@ void Iterator_Of_Point_Of_MembraneMesh<MeshAttribute>::operator=(const Iterator_
 
 template<typename MeshAttribute>
 inline  
-Handle_Of_Point_Of_MembraneMesh Iterator_Of_Point_Of_MembraneMesh<MeshAttribute>::GetPointHandle() const
+Handle_Of_Point_Of_PolygonMesh Iterator_Of_Point_Of_PolygonMesh<MeshAttribute>::GetPointHandle() const
 {
      return m_PointHandle;
 }
 
 template<typename MeshAttribute>
 inline
-int_max Iterator_Of_Point_Of_MembraneMesh<MeshAttribute>::GetPointID() const
+int_max Iterator_Of_Point_Of_PolygonMesh<MeshAttribute>::GetPointID() const
 {
     return m_Mesh.GetPointID(m_PointHandle);
 }
 
 template<typename MeshAttribute>
 inline
-Point_Of_MembraneMesh<MeshAttribute>& Iterator_Of_Point_Of_MembraneMesh<MeshAttribute>::Point()
+Point_Of_PolygonMesh<MeshAttribute>& Iterator_Of_Point_Of_PolygonMesh<MeshAttribute>::Point()
 {
     return m_Mesh.Point(m_PointHandle);
 }
 
 template<typename MeshAttribute>
 inline
-const Point_Of_MembraneMesh<MeshAttribute>& Iterator_Of_Point_Of_MembraneMesh<MeshAttribute>::Point() const
+const Point_Of_PolygonMesh<MeshAttribute>& Iterator_Of_Point_Of_PolygonMesh<MeshAttribute>::Point() const
 {
     return m_Mesh.Point(m_PointHandle);
 }
 
 template<typename MeshAttribute>
 inline
-void Iterator_Of_Point_Of_MembraneMesh<MeshAttribute>::operator+=(int_max Offset) const
+void Iterator_Of_Point_Of_PolygonMesh<MeshAttribute>::operator+=(int_max Offset) const
 {
     if (Offset == 0)
     {
@@ -128,28 +127,28 @@ void Iterator_Of_Point_Of_MembraneMesh<MeshAttribute>::operator+=(int_max Offset
 
 template<typename MeshAttribute>
 inline
-void Iterator_Of_Point_Of_MembraneMesh<MeshAttribute>::operator-=(int_max Offset) const
+void Iterator_Of_Point_Of_PolygonMesh<MeshAttribute>::operator-=(int_max Offset) const
 {
     (*this) += -Offset;
 }
 
 template<typename MeshAttribute>
 inline
-void Iterator_Of_Point_Of_MembraneMesh<MeshAttribute>::operator++() const
+void Iterator_Of_Point_Of_PolygonMesh<MeshAttribute>::operator++() const
 {
     (*this) += 1;
 }
 
 template<typename MeshAttribute>
 inline
-void Iterator_Of_Point_Of_MembraneMesh<MeshAttribute>::operator--() const
+void Iterator_Of_Point_Of_PolygonMesh<MeshAttribute>::operator--() const
 {
     (*this) -= 1;
 }
 
 template<typename MeshAttribute>
 inline
-bool Iterator_Of_Point_Of_MembraneMesh<MeshAttribute>::IsNotEnd() const
+bool Iterator_Of_Point_Of_PolygonMesh<MeshAttribute>::IsNotEnd() const
 {
     auto PointIndex = m_PointHandle.GetIndex();
     return (PointIndex >= 0 && PointIndex < m_Mesh.m_MeshData->PointList.GetLength());
@@ -157,7 +156,7 @@ bool Iterator_Of_Point_Of_MembraneMesh<MeshAttribute>::IsNotEnd() const
 
 template<typename MeshAttribute>
 inline
-void Iterator_Of_Point_Of_MembraneMesh<MeshAttribute>::SetToBegin() const
+void Iterator_Of_Point_Of_PolygonMesh<MeshAttribute>::SetToBegin() const
 {
     for (int_max k = 0; k < m_Mesh.m_MeshData->PointList.GetLength(); ++k)
     {
@@ -170,10 +169,10 @@ void Iterator_Of_Point_Of_MembraneMesh<MeshAttribute>::SetToBegin() const
     m_PointHandle.SetIndex(-1);
 }
 
-//================================================= Iterator_Of_Edge_Of_MembraneMesh ==================================//
+//================================================= Iterator_Of_Edge_Of_PolygonMesh ==================================//
 
 template<typename MeshAttribute>
-inline Iterator_Of_Edge_Of_MembraneMesh<MeshAttribute>::Iterator_Of_Edge_Of_MembraneMesh(const MembraneMesh<MeshAttribute>& ParentMesh)
+inline Iterator_Of_Edge_Of_PolygonMesh<MeshAttribute>::Iterator_Of_Edge_Of_PolygonMesh(const PolygonMesh<MeshAttribute>& ParentMesh)
 : m_Mesh(MDK_PURE_EMPTY)
 {
     m_Mesh.ForceShare(ParentMesh);
@@ -182,7 +181,7 @@ inline Iterator_Of_Edge_Of_MembraneMesh<MeshAttribute>::Iterator_Of_Edge_Of_Memb
 
 template<typename MeshAttribute>
 inline
-Iterator_Of_Edge_Of_MembraneMesh<MeshAttribute>::Iterator_Of_Edge_Of_MembraneMesh(const Iterator_Of_Edge_Of_MembraneMesh<MeshAttribute>& InputIterator)
+Iterator_Of_Edge_Of_PolygonMesh<MeshAttribute>::Iterator_Of_Edge_Of_PolygonMesh(const Iterator_Of_Edge_Of_PolygonMesh<MeshAttribute>& InputIterator)
 : m_Mesh(MDK_PURE_EMPTY)
 {
     (*this) = InputIterator;
@@ -190,13 +189,13 @@ Iterator_Of_Edge_Of_MembraneMesh<MeshAttribute>::Iterator_Of_Edge_Of_MembraneMes
 
 template<typename MeshAttribute>
 inline
-Iterator_Of_Edge_Of_MembraneMesh<MeshAttribute>::~Iterator_Of_Edge_Of_MembraneMesh()
+Iterator_Of_Edge_Of_PolygonMesh<MeshAttribute>::~Iterator_Of_Edge_Of_PolygonMesh()
 {
 }
 
 template<typename MeshAttribute>
 inline
-void Iterator_Of_Edge_Of_MembraneMesh<MeshAttribute>::operator=(const Iterator_Of_Edge_Of_MembraneMesh<MeshAttribute>& InputIterator) const
+void Iterator_Of_Edge_Of_PolygonMesh<MeshAttribute>::operator=(const Iterator_Of_Edge_Of_PolygonMesh<MeshAttribute>& InputIterator) const
 {
     m_Mesh.ForceShare(InputIterator.m_Mesh);
     m_EdgeHandle = InputIterator.m_EdgeHandle;
@@ -205,35 +204,35 @@ void Iterator_Of_Edge_Of_MembraneMesh<MeshAttribute>::operator=(const Iterator_O
 
 template<typename MeshAttribute>
 inline
-Handle_Of_Edge_Of_MembraneMesh Iterator_Of_Edge_Of_MembraneMesh<MeshAttribute>::GetEdgeHandle() const
+Handle_Of_Edge_Of_PolygonMesh Iterator_Of_Edge_Of_PolygonMesh<MeshAttribute>::GetEdgeHandle() const
 {
     return m_EdgeHandle;
 }
 
 template<typename MeshAttribute>
 inline
-int_max Iterator_Of_Edge_Of_MembraneMesh<MeshAttribute>::GetEdgeID() const
+int_max Iterator_Of_Edge_Of_PolygonMesh<MeshAttribute>::GetEdgeID() const
 {
     return m_Mesh.GetEdgeID(m_EdgeHandle);
 }
 
 template<typename MeshAttribute>
 inline
-Edge_Of_MembraneMesh<MeshAttribute>& Iterator_Of_Edge_Of_MembraneMesh<MeshAttribute>::Edge()
+Edge_Of_PolygonMesh<MeshAttribute>& Iterator_Of_Edge_Of_PolygonMesh<MeshAttribute>::Edge()
 {
     return m_Mesh.Edge(m_EdgeHandle);
 }
 
 template<typename MeshAttribute>
 inline
-const Edge_Of_MembraneMesh<MeshAttribute>& Iterator_Of_Edge_Of_MembraneMesh<MeshAttribute>::Edge() const
+const Edge_Of_PolygonMesh<MeshAttribute>& Iterator_Of_Edge_Of_PolygonMesh<MeshAttribute>::Edge() const
 {
     return m_Mesh.Edge(m_EdgeHandle);
 }
 
 template<typename MeshAttribute>
 inline
-void Iterator_Of_Edge_Of_MembraneMesh<MeshAttribute>::operator+=(int_max Offset) const
+void Iterator_Of_Edge_Of_PolygonMesh<MeshAttribute>::operator+=(int_max Offset) const
 {
     if (Offset == 0)
     {
@@ -294,28 +293,28 @@ void Iterator_Of_Edge_Of_MembraneMesh<MeshAttribute>::operator+=(int_max Offset)
 
 template<typename MeshAttribute>
 inline
-void Iterator_Of_Edge_Of_MembraneMesh<MeshAttribute>::operator-=(int_max Offset) const
+void Iterator_Of_Edge_Of_PolygonMesh<MeshAttribute>::operator-=(int_max Offset) const
 {
     this->operator+=(-Offset);
 }
 
 template<typename MeshAttribute>
 inline
-void Iterator_Of_Edge_Of_MembraneMesh<MeshAttribute>::operator++() const
+void Iterator_Of_Edge_Of_PolygonMesh<MeshAttribute>::operator++() const
 {
     (*this) += 1;
 }
 
 template<typename MeshAttribute>
 inline
-void Iterator_Of_Edge_Of_MembraneMesh<MeshAttribute>::operator--() const
+void Iterator_Of_Edge_Of_PolygonMesh<MeshAttribute>::operator--() const
 {
     (*this) -= 1;
 }
 
 template<typename MeshAttribute>
 inline
-bool Iterator_Of_Edge_Of_MembraneMesh<MeshAttribute>::IsNotEnd() const
+bool Iterator_Of_Edge_Of_PolygonMesh<MeshAttribute>::IsNotEnd() const
 {
     auto EdgeIndex = m_EdgeHandle.GetIndex();
     return (EdgeIndex >= 0 && EdgeIndex < m_Mesh.m_MeshData->EdgeList.GetLength());
@@ -323,7 +322,7 @@ bool Iterator_Of_Edge_Of_MembraneMesh<MeshAttribute>::IsNotEnd() const
 
 template<typename MeshAttribute>
 inline
-void Iterator_Of_Edge_Of_MembraneMesh<MeshAttribute>::SetToBegin() const
+void Iterator_Of_Edge_Of_PolygonMesh<MeshAttribute>::SetToBegin() const
 {
     for (int_max k = 0; k < m_Mesh.m_MeshData->EdgeList.GetLength(); ++k)
     {
@@ -336,10 +335,10 @@ void Iterator_Of_Edge_Of_MembraneMesh<MeshAttribute>::SetToBegin() const
     m_EdgeHandle.SetIndex(-1);
 }
 
-//================================================= Iterator_Of_DirectedEdge_Of_MembraneMesh ==================================//
+//================================================= Iterator_Of_DirectedEdge_Of_PolygonMesh ==================================//
 
 template<typename MeshAttribute>
-inline Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttribute>::Iterator_Of_DirectedEdge_Of_MembraneMesh(const MembraneMesh<MeshAttribute>& ParentMesh)
+inline Iterator_Of_DirectedEdge_Of_PolygonMesh<MeshAttribute>::Iterator_Of_DirectedEdge_Of_PolygonMesh(const PolygonMesh<MeshAttribute>& ParentMesh)
 : m_Mesh(MDK_PURE_EMPTY)
 {
     m_Mesh.ForceShare(ParentMesh);
@@ -348,8 +347,8 @@ inline Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttribute>::Iterator_Of_Dire
 
 template<typename MeshAttribute>
 inline
-Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttribute>::
-Iterator_Of_DirectedEdge_Of_MembraneMesh(const Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttribute>& InputIterator)
+Iterator_Of_DirectedEdge_Of_PolygonMesh<MeshAttribute>::
+Iterator_Of_DirectedEdge_Of_PolygonMesh(const Iterator_Of_DirectedEdge_Of_PolygonMesh<MeshAttribute>& InputIterator)
 : m_Mesh(MDK_PURE_EMPTY)
 {
     (*this) = InputIterator;
@@ -357,13 +356,13 @@ Iterator_Of_DirectedEdge_Of_MembraneMesh(const Iterator_Of_DirectedEdge_Of_Membr
 
 template<typename MeshAttribute>
 inline
-Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttribute>::~Iterator_Of_DirectedEdge_Of_MembraneMesh()
+Iterator_Of_DirectedEdge_Of_PolygonMesh<MeshAttribute>::~Iterator_Of_DirectedEdge_Of_PolygonMesh()
 {
 }
 
 template<typename MeshAttribute>
 inline
-void Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttribute>::operator=(const Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttribute>& InputIterator) const
+void Iterator_Of_DirectedEdge_Of_PolygonMesh<MeshAttribute>::operator=(const Iterator_Of_DirectedEdge_Of_PolygonMesh<MeshAttribute>& InputIterator) const
 {
     m_Mesh.ForceShare(InputIterator.m_Mesh);
     m_DirectedEdgeHandle = InputIterator.m_DirectedEdgeHandle;
@@ -372,35 +371,35 @@ void Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttribute>::operator=(const It
 
 template<typename MeshAttribute>
 inline
-Handle_Of_DirectedEdge_Of_MembraneMesh Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttribute>::GetDirectedEdgeHandle() const
+Handle_Of_DirectedEdge_Of_PolygonMesh Iterator_Of_DirectedEdge_Of_PolygonMesh<MeshAttribute>::GetDirectedEdgeHandle() const
 {
     return m_DirectedEdgeHandle;
 }
 
 template<typename MeshAttribute>
 inline
-int_max Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttribute>::GetDirectedEdgeID() const
+int_max Iterator_Of_DirectedEdge_Of_PolygonMesh<MeshAttribute>::GetDirectedEdgeID() const
 {
     return m_Mesh.GetDirectedEdgeID(m_DirectedEdgeHandle);
 }
 
 template<typename MeshAttribute>
 inline
-DirectedEdge_Of_MembraneMesh<MeshAttribute>& Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttribute>::DirectedEdge()
+DirectedEdge_Of_PolygonMesh<MeshAttribute>& Iterator_Of_DirectedEdge_Of_PolygonMesh<MeshAttribute>::DirectedEdge()
 {
     return m_Mesh.DirectedEdge(m_DirectedEdgeHandle);
 }
 
 template<typename MeshAttribute>
 inline
-const DirectedEdge_Of_MembraneMesh<MeshAttribute>& Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttribute>::DirectedEdge() const
+const DirectedEdge_Of_PolygonMesh<MeshAttribute>& Iterator_Of_DirectedEdge_Of_PolygonMesh<MeshAttribute>::DirectedEdge() const
 {
     return m_Mesh.DirectedEdge(m_DirectedEdgeHandle);
 }
 
 template<typename MeshAttribute>
 inline
-void Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttribute>::operator+=(int_max Offset) const
+void Iterator_Of_DirectedEdge_Of_PolygonMesh<MeshAttribute>::operator+=(int_max Offset) const
 {
     if (Offset == 0)
     {
@@ -476,28 +475,28 @@ void Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttribute>::operator+=(int_max
 
 template<typename MeshAttribute>
 inline
-void Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttribute>::operator-=(int_max Offset) const
+void Iterator_Of_DirectedEdge_Of_PolygonMesh<MeshAttribute>::operator-=(int_max Offset) const
 {
     this->operator+=(-Offset);
 }
 
 template<typename MeshAttribute>
 inline
-void Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttribute>::operator++() const
+void Iterator_Of_DirectedEdge_Of_PolygonMesh<MeshAttribute>::operator++() const
 {
     (*this) += 1;
 }
 
 template<typename MeshAttribute>
 inline
-void Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttribute>::operator--() const
+void Iterator_Of_DirectedEdge_Of_PolygonMesh<MeshAttribute>::operator--() const
 {
     (*this) -= 1;
 }
 
 template<typename MeshAttribute>
 inline
-bool Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttribute>::IsNotEnd() const
+bool Iterator_Of_DirectedEdge_Of_PolygonMesh<MeshAttribute>::IsNotEnd() const
 {
     auto FaceIndex = m_DirectedEdgeHandle.GetFaceIndex();
     auto RelativeIndex = m_DirectedEdgeHandle.GetRelativeIndex();
@@ -527,7 +526,7 @@ bool Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttribute>::IsNotEnd() const
 
 template<typename MeshAttribute>
 inline
-void Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttribute>::SetToBegin() const
+void Iterator_Of_DirectedEdge_Of_PolygonMesh<MeshAttribute>::SetToBegin() const
 {
 	for (int_max k = 0; k < m_Mesh.m_MeshData->FaceList.GetLength(); ++k)
     {
@@ -541,11 +540,11 @@ void Iterator_Of_DirectedEdge_Of_MembraneMesh<MeshAttribute>::SetToBegin() const
     m_DirectedEdgeHandle.SetIndex(-1, -1);
 }
 
-//================================================= Iterator_Of_Face_Of_MembraneMesh ==================================//
+//================================================= Iterator_Of_Face_Of_PolygonMesh ==================================//
 
 template<typename MeshAttribute>
 inline 
-Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::Iterator_Of_Face_Of_MembraneMesh(const MembraneMesh<MeshAttribute>& ParentMesh)
+Iterator_Of_Face_Of_PolygonMesh<MeshAttribute>::Iterator_Of_Face_Of_PolygonMesh(const PolygonMesh<MeshAttribute>& ParentMesh)
 : m_Mesh(MDK_PURE_EMPTY)
 {
     m_Mesh.ForceShare(ParentMesh);
@@ -554,7 +553,7 @@ Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::Iterator_Of_Face_Of_MembraneMes
 
 template<typename MeshAttribute>
 inline
-Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::Iterator_Of_Face_Of_MembraneMesh(const Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>& InputIterator)
+Iterator_Of_Face_Of_PolygonMesh<MeshAttribute>::Iterator_Of_Face_Of_PolygonMesh(const Iterator_Of_Face_Of_PolygonMesh<MeshAttribute>& InputIterator)
 : m_Mesh(MDK_PURE_EMPTY)
 {
     (*this) = InputIterator;
@@ -562,13 +561,13 @@ Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::Iterator_Of_Face_Of_MembraneMes
 
 template<typename MeshAttribute>
 inline
-Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::~Iterator_Of_Face_Of_MembraneMesh() 
+Iterator_Of_Face_Of_PolygonMesh<MeshAttribute>::~Iterator_Of_Face_Of_PolygonMesh() 
 {
 }
 
 template<typename MeshAttribute>
 inline
-void Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::operator=(const Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>& InputIterator) const
+void Iterator_Of_Face_Of_PolygonMesh<MeshAttribute>::operator=(const Iterator_Of_Face_Of_PolygonMesh<MeshAttribute>& InputIterator) const
 {
     m_Mesh.ForceShare(InputIterator.m_Mesh);
     m_FaceHandle = InputIterator.m_FaceHandle;
@@ -577,35 +576,35 @@ void Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::operator=(const Iterator_O
 
 template<typename MeshAttribute>
 inline
-Handle_Of_Face_Of_MembraneMesh Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::GetFaceHandle() const
+Handle_Of_Face_Of_PolygonMesh Iterator_Of_Face_Of_PolygonMesh<MeshAttribute>::GetFaceHandle() const
 {
     return m_FaceHandle;
 }
 
 template<typename MeshAttribute>
 inline
-int_max Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::GetFaceID() const
+int_max Iterator_Of_Face_Of_PolygonMesh<MeshAttribute>::GetFaceID() const
 {
     return m_Mesh.GetFaceID(m_FaceHandle);
 }
 
 template<typename MeshAttribute>
 inline
-Face_Of_MembraneMesh<MeshAttribute>& Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::Face()
+Face_Of_PolygonMesh<MeshAttribute>& Iterator_Of_Face_Of_PolygonMesh<MeshAttribute>::Face()
 {
     return m_Mesh.Face(m_FaceHandle);
 }
 
 template<typename MeshAttribute>
 inline
-const Face_Of_MembraneMesh<MeshAttribute>& Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::Face() const
+const Face_Of_PolygonMesh<MeshAttribute>& Iterator_Of_Face_Of_PolygonMesh<MeshAttribute>::Face() const
 {
     return m_Mesh.Face(m_FaceHandle);
 }
 
 template<typename MeshAttribute>
 inline
-void Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::operator+=(int_max Offset) const
+void Iterator_Of_Face_Of_PolygonMesh<MeshAttribute>::operator+=(int_max Offset) const
 {
     if (Offset == 0)
     {
@@ -666,28 +665,28 @@ void Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::operator+=(int_max Offset)
 
 template<typename MeshAttribute>
 inline
-void Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::operator-=(int_max Offset) const
+void Iterator_Of_Face_Of_PolygonMesh<MeshAttribute>::operator-=(int_max Offset) const
 {
     this->operator+=(-Offset);
 }
 
 template<typename MeshAttribute>
 inline
-void Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::operator++() const
+void Iterator_Of_Face_Of_PolygonMesh<MeshAttribute>::operator++() const
 {
     (*this) += 1;
 }
 
 template<typename MeshAttribute>
 inline
-void Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::operator--() const
+void Iterator_Of_Face_Of_PolygonMesh<MeshAttribute>::operator--() const
 {
     (*this) -= 1;
 }
 
 template<typename MeshAttribute>
 inline
-bool Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::IsNotEnd() const
+bool Iterator_Of_Face_Of_PolygonMesh<MeshAttribute>::IsNotEnd() const
 {
     auto FaceIndex = m_FaceHandle.GetIndex();
     return (FaceIndex >= 0 && FaceIndex < m_Mesh.m_MeshData->FaceList.GetLength());
@@ -695,7 +694,7 @@ bool Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::IsNotEnd() const
 
 template<typename MeshAttribute>
 inline
-void Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::SetToBegin() const
+void Iterator_Of_Face_Of_PolygonMesh<MeshAttribute>::SetToBegin() const
 {
     for (int_max k = 0; k < m_Mesh.m_MeshData->FaceList.GetLength(); ++k)
     {
@@ -709,5 +708,3 @@ void Iterator_Of_Face_Of_MembraneMesh<MeshAttribute>::SetToBegin() const
 }
 
 }// namespace mdk
-
-#endif
