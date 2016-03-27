@@ -1,5 +1,4 @@
-﻿#ifndef __mdkDisplayMatrix_hpp
-#define __mdkDisplayMatrix_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -101,5 +100,3 @@ void DisplayVector(const std::string& Name, const SparseVector<ElementType>& Inp
 
 }//end namespace mdk
 
-
-#endif

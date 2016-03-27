@@ -1,5 +1,4 @@
-﻿#ifndef mdk_ScalarDenseImageMaxPoolingFilter2D_h
-#define mdk_ScalarDenseImageMaxPoolingFilter2D_h
+﻿#pragma once
 
 #include "mdkDebugConfig.h"
 #include "mdkScalarDenseImagePoolingFilter2D.h"
@@ -31,4 +30,3 @@ private:
 
 #include "mdkScalarDenseImageMaxPoolingFilter2D.hpp"
 
-#endif

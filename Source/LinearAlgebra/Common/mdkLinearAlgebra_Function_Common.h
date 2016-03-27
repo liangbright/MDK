@@ -1,6 +1,4 @@
-﻿#ifndef __mdkLinearAlgebra_Function_Common_h
-#define __mdkLinearAlgebra_Function_Common_h
+﻿#pragma once
 
 #include "mdkLinearAlgebra_Function_Common_Part_0.h"
 
-#endif

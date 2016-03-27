@@ -1,5 +1,4 @@
-﻿#ifndef __mdkLinearAlgebra_Function_Common_Part_0_h
-#define __mdkLinearAlgebra_Function_Common_Part_0_h
+﻿#pragma once
 
 namespace mdk
 {
@@ -33,5 +32,3 @@ bool ConvertDenseMatrixToSparseMatrix(const DenseMatrix<ElementType>& InputDense
 }
 
 #include "mdkLinearAlgebra_Function_Common_Part_0.hpp"
-
-#endif

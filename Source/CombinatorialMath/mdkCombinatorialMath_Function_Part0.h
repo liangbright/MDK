@@ -1,5 +1,4 @@
-﻿#ifndef mdk_CombinatorialMath_Function_Part0_h
-#define mdk_CombinatorialMath_Function_Part0_h
+﻿#pragma once
 
 #include "mdkObjectArray.h"
 #include "mdkDenseMatrix.h"
@@ -14,5 +13,3 @@ ObjectArray<DenseVector<int_max>> NChooseK(int_max N, int_max K);
 }//name space mdk
 
 #include "mdkCombinatorialMath_Function_Part0.hpp"
-
-#endif

@@ -1,5 +1,4 @@
-﻿#ifndef mdk_SparseImageInterpolation3D_hpp
-#define mdk_SparseImageInterpolation3D_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -299,4 +298,3 @@ OutputPixelType InterpolateImageAt3DWorldPosition_Cubic(const SparseImage3D<Inpu
 
 }// namespace mdk
 
-#endif

@@ -1,5 +1,4 @@
-﻿#ifndef mdk_Matrix_Common_h
-#define mdk_Matrix_Common_h
+﻿#pragma once
 
 //#include <vector>
 #include <iomanip>
@@ -69,4 +68,3 @@ MatrixElementTypeEnum FindMatrixElementType(ElementType Element);
 
 #include "mdkMatrix_Common.hpp"
 
-#endif

@@ -1,5 +1,4 @@
-﻿#ifndef mdk_ScalarDenseImageIsotropicLaplacianOfGaussianFilter2D_hpp
-#define mdk_ScalarDenseImageIsotropicLaplacianOfGaussianFilter2D_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -131,4 +130,3 @@ void ScalarDenseImageIsotropicLaplacianOfGaussianFilter2D<InputPixelType, Output
 
 }//end namespace mdk
 
-#endif

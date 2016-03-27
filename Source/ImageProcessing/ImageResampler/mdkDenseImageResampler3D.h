@@ -1,5 +1,4 @@
-﻿#ifndef MDK_DenseImageResampler3D_h
-#define MDK_DenseImageResampler3D_h
+﻿#pragma once
 
 #include "mdkImageFilter3D.h"
 #include "mdkIntegralImageBasedImageAverageFilter3D.h"
@@ -45,4 +44,3 @@ private:
 
 #include "mdkDenseImageResampler3D.hpp"
 
-#endif

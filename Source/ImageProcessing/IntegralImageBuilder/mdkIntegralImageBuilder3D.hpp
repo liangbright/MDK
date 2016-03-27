@@ -1,5 +1,4 @@
-﻿#ifndef mdk_IntegralImageBuilder3D_hpp
-#define mdk_IntegralImageBuilder3D_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -192,4 +191,3 @@ DenseImage3D<InputPixelType>* IntegralImageBuilder3D<InputPixelType, OutputPixel
 
 }//end namespace mdk
 
-#endif

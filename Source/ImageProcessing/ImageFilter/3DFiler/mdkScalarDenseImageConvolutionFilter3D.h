@@ -1,5 +1,4 @@
-﻿#ifndef mdk_ScalarDenseImageConvolutionFilter3D_h
-#define mdk_ScalarDenseImageConvolutionFilter3D_h
+﻿#pragma once
 
 #include <algorithm>
 
@@ -49,5 +48,3 @@ private:
 }//end namespace mdk
 
 #include "mdkScalarDenseImageConvolutionFilter3D.hpp"
-
-#endif

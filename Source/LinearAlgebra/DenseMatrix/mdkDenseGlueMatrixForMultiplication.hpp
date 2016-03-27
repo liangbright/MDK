@@ -1,5 +1,4 @@
-﻿#ifndef mdk_DenseGlueMatrixForMultiplication_hpp
-#define mdk_DenseGlueMatrixForMultiplication_hpp
+﻿#pragma once
 
 
 namespace mdk
@@ -328,5 +327,3 @@ DenseMatrix<ElementType> DenseGlueMatrixForMultiplication<ElementType>::ElementM
 
 }// end namespace mdk
 
-
-#endif

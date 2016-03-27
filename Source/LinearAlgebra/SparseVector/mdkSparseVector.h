@@ -1,5 +1,4 @@
-﻿#ifndef mdk_SparseVector_h
-#define mdk_SparseVector_h
+﻿#pragma once
 
 #include <vector>
 #include <memory>
@@ -9,7 +8,6 @@
 #include <cmath>
 #include <algorithm>
 
-//#include "mdkObject.h"
 #include "mdkMatrix_Common.h"
 #include "mdkDenseVector.h"
 #include "mdkDenseMatrix.h"
@@ -166,4 +164,3 @@ public:
 
 #include "mdkSparseVector.hpp"
 
-#endif

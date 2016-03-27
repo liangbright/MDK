@@ -1,5 +1,4 @@
-﻿#ifndef mdk_ImageFilter2D_h
-#define mdk_ImageFilter2D_h
+﻿#pragma once
 
 #include "mdkParallelForLoop.h"
 #include "mdkDenseImage2D.h"
@@ -179,4 +178,3 @@ private:
 
 #include "mdkImageFilter2D.hpp"
 
-#endif

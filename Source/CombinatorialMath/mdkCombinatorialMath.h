@@ -1,7 +1,5 @@
-﻿#ifndef mdk_CombinatorialMath_h
-#define mdk_CombinatorialMath_h
+﻿#pragma once
 
 #include "mdkCombinatorialMath_Function_Part0.h"
 
-#endif
 

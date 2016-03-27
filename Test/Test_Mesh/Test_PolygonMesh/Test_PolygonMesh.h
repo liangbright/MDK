@@ -76,29 +76,30 @@ void Test_ReversePointOrder()
 	SavePolygonMeshAsVTKFile(InputMesh, FilePathAndName + "_ReversePointOrder.vtk");
 }
 
-void Test_GlobalAttribute()
+void Test_AddtionalInfo()
 {
 	std::string FilePathAndName = "C:/Research/MDK/MDK_Build/Test/Test_Mesh/Test_PolygonMesh/TestData/Square";
 
 	PolygonMesh<PolygonMeshStandardAttributeType<double>> InputMesh, SquareMesh;	
 	LoadPolygonMeshFromVTKFile(InputMesh, FilePathAndName + ".vtk");
 
-	InputMesh.Attribute().ID = 1;
-	InputMesh.Attribute().Name = "Square";
-	InputMesh.Attribute().Map_PointName_to_PointHandle["0_name"].SetIndex(0);
-	InputMesh.Attribute().Map_PointName_to_PointHandle["1_name"].SetIndex(1);
-	InputMesh.Attribute().Map_FaceName_to_FaceHandle["0_name"].SetIndex(0);
-	InputMesh.Attribute().Map_FaceName_to_FaceHandle["1_name"].SetIndex(1);
-	InputMesh.Attribute().PointSetList.Resize(10);	
-	InputMesh.Attribute().PointSetList[0] = InputMesh.ConvertPointIndexToPointHandle({ 1, 2, 3 });
-	InputMesh.Attribute().PointSetList[1] = InputMesh.ConvertPointIndexToPointHandle({ 4, 5, 6 });
-	InputMesh.Attribute().Map_PointSetName_to_PointSetIndex["0_name"]=0;
-	InputMesh.Attribute().Map_PointSetName_to_PointSetIndex["1_name"]=1;
-	InputMesh.Attribute().FaceSetList.Resize(2);
-	InputMesh.Attribute().FaceSetList[0] = InputMesh.ConvertFaceIndexToFaceHandle({ 1, 2, 3 });
-	InputMesh.Attribute().FaceSetList[1] = InputMesh.ConvertFaceIndexToFaceHandle({ 4, 5, 6 });
-	InputMesh.Attribute().Map_FaceSetName_to_FaceSetIndex["0_name"]=0;
-	InputMesh.Attribute().Map_FaceSetName_to_FaceSetIndex["1_name"]=1;
+	PolygonMesh<PolygonMeshStandardAttributeType<double>>::PointHandleType PointHandle;
+	PolygonMesh<PolygonMeshStandardAttributeType<double>>::FaceHandleType FaceHandle;
+
+	InputMesh.SetID(1);
+	InputMesh.SetName("Square");
+	PointHandle.SetIndex(0);
+	InputMesh.SetPointName(PointHandle,"0_Name");
+	PointHandle.SetIndex(1);
+	InputMesh.SetPointName(PointHandle, "1_Name");
+	FaceHandle.SetIndex(0);
+	InputMesh.SetFaceName(FaceHandle, "0_Name");
+	FaceHandle.SetIndex(1);
+	InputMesh.SetFaceName(FaceHandle, "1_Name");
+	InputMesh.SetPointSet("0_PointSet", InputMesh.ConvertPointIndexToPointHandle({ 1, 2, 3 }));
+	InputMesh.SetPointSet("1_PointSet", InputMesh.ConvertPointIndexToPointHandle({ 4, 5, 6 }));	
+	InputMesh.SetFaceSet("0_FaceSet", InputMesh.ConvertFaceIndexToFaceHandle({ 1, 2, 3 }));
+	InputMesh.SetFaceSet("1_FaceSet", InputMesh.ConvertFaceIndexToFaceHandle({ 4, 5, 6 }));
 
 	SavePolygonMeshAsJsonDataFile(InputMesh, FilePathAndName + "_att.json");
 
@@ -106,9 +107,9 @@ void Test_GlobalAttribute()
 
 	SavePolygonMeshAsJsonDataFile(SquareMesh, FilePathAndName + "_att_re.json");
 
-	auto Set1 = InputMesh.Attribute().GetPointSet("0_name");
-	auto Set2 = InputMesh.Attribute().GetPointSet("a");
+	auto Set1 = InputMesh.GetPointSet("0_name");
+	auto Set2 = InputMesh.GetPointSet("a");
 
-	auto Set3 = InputMesh.Attribute().GetFaceSet("0_name");
-	auto Set4 = InputMesh.Attribute().GetFaceSet("b");
+	auto Set3 = InputMesh.GetFaceSet("0_name");
+	auto Set4 = InputMesh.GetFaceSet("b");
 }

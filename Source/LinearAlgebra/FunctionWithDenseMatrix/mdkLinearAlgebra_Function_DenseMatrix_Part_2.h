@@ -1,5 +1,4 @@
-﻿#ifndef mdk_LinearAlgebra_Function_DenseMatrix_Part_2_h
-#define mdk_LinearAlgebra_Function_DenseMatrix_Part_2_h
+﻿#pragma once
 
 #include <algorithm>
 #include <complex>
@@ -301,4 +300,3 @@ inline DenseMatrix<ElementType> MatrixConvolution(const DenseMatrix<ElementType>
 
 #include "mdkLinearAlgebra_Function_DenseMatrix_Part_2.hpp"
 
-#endif

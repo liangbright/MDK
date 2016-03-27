@@ -1,5 +1,4 @@
-﻿#ifndef mdk_ScalarDenseImageGradientFilter2D_hpp
-#define mdk_ScalarDenseImageGradientFilter2D_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -320,4 +319,3 @@ EvaluateAt2DPositionInInputImage_SingleLevel(int_max& MaskIndex_max, OutputPixel
 
 }//end namespace mdk
 
-#endif

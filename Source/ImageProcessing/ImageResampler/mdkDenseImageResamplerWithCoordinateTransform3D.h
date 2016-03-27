@@ -1,5 +1,4 @@
-﻿#ifndef MDK_DenseImageResamplerWithCoordinateTransform3D_h
-#define MDK_DenseImageResamplerWithCoordinateTransform3D_h
+﻿#pragma once
 
 #include "mdkImageFilter3D.h"
 #include "mdkIntegralImageBasedImageAverageFilter3D.h"
@@ -50,4 +49,3 @@ private:
 
 #include "mdkDenseImageResamplerWithCoordinateTransform3D.hpp"
 
-#endif

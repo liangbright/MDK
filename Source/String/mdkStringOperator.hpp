@@ -113,5 +113,3 @@ std::basic_ostream<char, Traits>& operator<<(std::basic_ostream<char, Traits>& o
 
 
 }//end namespace mdk
-
-#endif

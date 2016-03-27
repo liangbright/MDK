@@ -1,5 +1,4 @@
-﻿#ifndef mdk_LinearAlgebra_Function_DenseMatrix_Part_0_h
-#define mdk_LinearAlgebra_Function_DenseMatrix_Part_0_h
+﻿#pragma once
 
 #include <vector>
 #include <array>
@@ -31,4 +30,3 @@ bool Sort(const ElementType* InputDataArray, int_max Length, ElementType* Output
 
 #include "mdkLinearAlgebra_Function_DenseMatrix_Part_0.hpp"
 
-#endif

@@ -1,5 +1,4 @@
-﻿#ifndef mdk_LinearAlgebra_Function_DenseVector_Part_2_h
-#define mdk_LinearAlgebra_Function_DenseVector_Part_2_h
+﻿#pragma once
 
 #include "mdkCommonType.h"
 #include "mdkDenseVector_ForwardDeclare.h"
@@ -31,5 +30,3 @@ ElementType ComputeCorrelationBetweenTwoVector(const DenseVector<ElementType, A>
 }
 
 #include "mdkLinearAlgebra_Function_DenseVector_Part_2.hpp"
-
-#endif

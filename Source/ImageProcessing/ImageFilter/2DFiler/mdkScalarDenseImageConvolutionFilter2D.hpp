@@ -1,5 +1,4 @@
-﻿#ifndef mdk_ScalarDenseImageConvolutionFilter2D_hpp
-#define mdk_ScalarDenseImageConvolutionFilter2D_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -93,4 +92,3 @@ EvaluateAt2DPositionInInputImage(int_max PointIndex, ScalarType x0, ScalarType y
 
 }// namespace mdk
 
-#endif

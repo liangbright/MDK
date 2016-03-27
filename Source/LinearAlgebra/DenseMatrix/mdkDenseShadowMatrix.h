@@ -1,5 +1,4 @@
-﻿#ifndef mdk_DenseShadowMatrix_h
-#define mdk_DenseShadowMatrix_h
+﻿#pragma once
 
 #include <vector>
 #include <memory>
@@ -365,5 +364,3 @@ private:
 }//end namespace mdk
 
 #include "mdkDenseShadowMatrix.hpp"
-
-#endif

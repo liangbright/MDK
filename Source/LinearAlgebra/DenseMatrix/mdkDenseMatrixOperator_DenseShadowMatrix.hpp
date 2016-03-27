@@ -1,5 +1,4 @@
-﻿#ifndef mdk_DenseMatrixOperator_DenseShadowMatrix_hpp
-#define mdk_DenseMatrixOperator_DenseShadowMatrix_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -646,4 +645,3 @@ DenseMatrix<ElementType> operator/(const DenseShadowMatrix<ElementType>& ShadowM
 
 } // namespace mdk
 
-#endif

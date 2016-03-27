@@ -1,5 +1,4 @@
-﻿#ifndef mdk_SparseMatrix_h
-#define mdk_SparseMatrix_h
+﻿#pragma once
 
 #include <vector>
 #include <memory>
@@ -1065,5 +1064,3 @@ inline SparseMatrix<ElementType> operator/(const ElementType& ElementA, const Sp
 }//end namespace mdk
 
 #include "mdkSparseMatrix.hpp"
-
-#endif

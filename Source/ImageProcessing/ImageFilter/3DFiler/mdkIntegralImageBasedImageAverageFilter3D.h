@@ -1,5 +1,4 @@
-﻿#ifndef mdk_IntegralImageBasedImageAverageFilter3D_h
-#define mdk_IntegralImageBasedImageAverageFilter3D_h
+﻿#pragma once
 
 #include <algorithm>
 #include <cmath>
@@ -49,4 +48,3 @@ private:
 
 #include "mdkIntegralImageBasedImageAverageFilter3D.hpp"
 
-#endif

@@ -1,5 +1,4 @@
-﻿#ifndef mdk_ScalarDenseImageGradientMagnitudeFilter2D_hpp
-#define mdk_ScalarDenseImageGradientMagnitudeFilter2D_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -249,4 +248,3 @@ EvaluateAt2DPositionInInputImage(ScalarType x0, ScalarType y0)
 
 }//end namespace mdk
 
-#endif

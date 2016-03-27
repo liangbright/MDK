@@ -1,7 +1,4 @@
-﻿#ifndef mdk_DenseVector_h
-#define mdk_DenseVector_h
+﻿#pragma once
 
 #include "mdkDenseVectorWithFixedLength.h"
 #include "mdkDenseVectorWithVariableLength.h"
-
-#endif

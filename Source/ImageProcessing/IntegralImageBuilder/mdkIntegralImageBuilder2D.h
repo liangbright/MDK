@@ -1,5 +1,4 @@
-﻿#ifndef mdk_IntegralImageBuilder2D_h
-#define mdk_IntegralImageBuilder2D_h
+﻿#pragma once
 
 #include <algorithm>
 #include <cmath>
@@ -40,5 +39,3 @@ private:
 }//end namespace mdk
 
 #include "mdkIntegralImageBuilder2D.hpp"
-
-#endif

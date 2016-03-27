@@ -1,5 +1,4 @@
-﻿#ifndef mdk_ScalarDenseImagePoolingFilter3D_h
-#define mdk_ScalarDenseImagePoolingFilter3D_h
+﻿#pragma once
 
 #include <algorithm>
 #include <cmath>
@@ -45,4 +44,3 @@ private:
 
 #include "mdkScalarDenseImagePoolingFilter3D.hpp"
 
-#endif

@@ -1,5 +1,4 @@
-﻿#ifndef mdk_Matrix_Common_hpp
-#define mdk_Matrix_Common_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -120,4 +119,3 @@ inline DenseVector<int_max> span(int_max Index_A, int_max Step, int_max Index_B)
 
 }//end namespace mdk
 
-#endif

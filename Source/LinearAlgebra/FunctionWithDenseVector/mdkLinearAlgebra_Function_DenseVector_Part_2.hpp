@@ -1,5 +1,4 @@
-﻿#ifndef mdk_LinearAlgebra_Function_DenseVector_Part_2_hpp
-#define mdk_LinearAlgebra_Function_DenseVector_Part_2_hpp
+﻿#pragma once
 
 
 namespace mdk
@@ -78,5 +77,3 @@ ElementType ComputeCorrelationBetweenTwoVector(const DenseVector<ElementType, A>
 
 
 }
-
-#endif

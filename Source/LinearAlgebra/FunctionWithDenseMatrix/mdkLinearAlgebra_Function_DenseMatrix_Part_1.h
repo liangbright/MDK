@@ -1,5 +1,4 @@
-﻿#ifndef mdk_LinearAlgebra_Function_DenseMatrix_Part_1_h
-#define mdk_LinearAlgebra_Function_DenseMatrix_Part_1_h
+﻿#pragma once
 
 #include <vector>
 #include <array>
@@ -587,4 +586,3 @@ void MatrixLinearCombine_MatrixNumber_10(ElementType* OutputMatrixElementPointer
 
 #include "mdkLinearAlgebra_Function_DenseMatrix_Part_1.hpp"
 
-#endif

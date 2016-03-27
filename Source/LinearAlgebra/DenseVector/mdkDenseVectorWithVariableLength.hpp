@@ -1,5 +1,4 @@
-﻿#ifndef mdk_DenseVectorWithVariableLength_hpp
-#define mdk_DenseVectorWithVariableLength_hpp
+﻿#pragma once
 
 
 namespace mdk
@@ -1994,5 +1993,3 @@ ElementType DenseVector<ElementType>::L2Norm() const
 
 
 }// namespace mdk
-
-#endif

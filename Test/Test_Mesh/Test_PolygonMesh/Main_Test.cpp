@@ -11,7 +11,7 @@ int main()
 	Test_SplitEdge();
 	Test_ShrinkFace();
 	Test_ReversePointOrder();
-	Test_GlobalAttribute();
+	Test_AddtionalInfo();
     std::system("pause");
 
     return 1;

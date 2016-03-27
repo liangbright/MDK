@@ -1,5 +1,4 @@
-﻿#ifndef mdk_ScalarDenseImageAverageFilter3D_h
-#define mdk_ScalarDenseImageAverageFilter3D_h
+﻿#pragma once
 
 #include <algorithm>
 #include <cmath>
@@ -34,5 +33,3 @@ private:
 }//end namespace mdk
 
 #include "mdkScalarDenseImageAverageFilter3D.hpp"
-
-#endif

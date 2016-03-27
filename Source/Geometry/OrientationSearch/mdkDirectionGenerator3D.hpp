@@ -1,5 +1,4 @@
-#ifndef mdk_DirectionGenerator3D_hpp
-#define mdk_DirectionGenerator3D_hpp
+#pragma once
 
 namespace mdk
 {
@@ -277,5 +276,3 @@ int_max DirectionGenerator3D<ScalarType>::GetDepthByResolution(int_max Resolutio
 
 
 }//namespace mdk
-
-#endif

@@ -76,6 +76,15 @@ void PolygonMesh<MeshAttributeType>::Clear()
     m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.clear();
     m_MeshData->Map_FaceID_to_FaceIndex.clear();
 
+	m_MeshData->ID = -1;
+	m_MeshData->Name = "";
+	m_MeshData->Map_PointName_to_PointHandle.clear();
+	m_MeshData->Map_FaceName_to_FaceHandle.clear();
+	m_MeshData->PointSetList.Clear();
+	m_MeshData->Map_PointSetName_to_PointSetIndex.clear();
+	m_MeshData->FaceSetList.Clear();
+	m_MeshData->Map_FaceSetName_to_FaceSetIndex.clear();
+
     m_MeshData->Attribute.Clear();
 }
 
@@ -148,6 +157,15 @@ void PolygonMesh<MeshAttributeType>::Copy(const PolygonMesh<MeshAttributeType>& 
     m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex = InputMesh.m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex;
     m_MeshData->Map_FaceID_to_FaceIndex = InputMesh.m_MeshData->Map_FaceID_to_FaceIndex;
 
+	m_MeshData->ID = InputMesh.m_MeshData->ID;
+	m_MeshData->Name = InputMesh.m_MeshData->Name;
+	m_MeshData->Map_PointName_to_PointHandle = InputMesh.m_MeshData->Map_PointName_to_PointHandle;
+	m_MeshData->Map_FaceName_to_FaceHandle = InputMesh.m_MeshData->Map_FaceName_to_FaceHandle;
+	m_MeshData->PointSetList = InputMesh.m_MeshData->PointSetList;
+	m_MeshData->Map_PointSetName_to_PointSetIndex = InputMesh.m_MeshData->Map_PointSetName_to_PointSetIndex;
+	m_MeshData->FaceSetList = InputMesh.m_MeshData->FaceSetList;
+	m_MeshData->Map_FaceSetName_to_FaceSetIndex = InputMesh.m_MeshData->Map_FaceSetName_to_FaceSetIndex;
+
     m_MeshData->Attribute = InputMesh.m_MeshData->Attribute;
 }
 
@@ -208,6 +226,15 @@ void PolygonMesh<MeshAttributeType>::Copy(PolygonMesh<MeshAttributeType>&& Input
 	m_MeshData->Map_EdgeID_to_EdgeIndex = std::move(InputMesh.m_MeshData->Map_EdgeID_to_EdgeIndex);
 	m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex = std::move(InputMesh.m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex);
 	m_MeshData->Map_FaceID_to_FaceIndex = std::move(InputMesh.m_MeshData->Map_FaceID_to_FaceIndex);
+
+	m_MeshData->ID = InputMesh.m_MeshData->ID;
+	m_MeshData->Name = std::move(InputMesh.m_MeshData->Name);
+	m_MeshData->Map_PointName_to_PointHandle = std::move(InputMesh.m_MeshData->Map_PointName_to_PointHandle);
+	m_MeshData->Map_FaceName_to_FaceHandle = std::move(InputMesh.m_MeshData->Map_FaceName_to_FaceHandle);
+	m_MeshData->PointSetList = std::move(InputMesh.m_MeshData->PointSetList);
+	m_MeshData->Map_PointSetName_to_PointSetIndex = std::move(InputMesh.m_MeshData->Map_PointSetName_to_PointSetIndex);
+	m_MeshData->FaceSetList = std::move(InputMesh.m_MeshData->FaceSetList);
+	m_MeshData->Map_FaceSetName_to_FaceSetIndex = std::move(InputMesh.m_MeshData->Map_FaceSetName_to_FaceSetIndex);
 
 	m_MeshData->Attribute = std::move(InputMesh.m_MeshData->Attribute);
 }
@@ -2041,6 +2068,410 @@ Handle_Of_Face_Of_PolygonMesh PolygonMesh<MeshAttributeType>::AddFaceByPoint(con
 	return this->AddFaceByEdge(EdgeHandleList, FaceHandle_input);
 }
 
+// modify Mesh additional Info ------------------------------------------------------------------------//
+template<typename MeshAttributeType>
+void PolygonMesh<MeshAttributeType>::SetID(int_max ID)
+{
+	m_MeshData->ID = ID;
+}
+
+template<typename MeshAttributeType>
+int_max PolygonMesh<MeshAttributeType>::GetID() const
+{
+	return m_MeshData->ID;
+}
+
+template<typename MeshAttributeType>
+void PolygonMesh<MeshAttributeType>::SetName(String Name)
+{
+	m_MeshData->Name =std::move(Name);
+}
+
+template<typename MeshAttributeType>
+String PolygonMesh<MeshAttributeType>::GetName() const
+{
+	return m_MeshData->Name;
+}
+
+template<typename MeshAttributeType>
+int_max PolygonMesh<MeshAttributeType>::GetNamedPointCount() const
+{
+	return m_MeshData->Map_PointName_to_PointHandle.size();
+}
+
+template<typename MeshAttributeType>
+int_max PolygonMesh<MeshAttributeType>::GetNamedFaceCount() const
+{
+	return m_MeshData->Map_FaceName_to_FaceHandle.size();
+}
+
+template<typename MeshAttributeType>
+int_max PolygonMesh<MeshAttributeType>::GetPointSetCount() const
+{
+	return m_MeshData->PointSetList.GetLength();
+}
+
+template<typename MeshAttributeType>
+int_max PolygonMesh<MeshAttributeType>::GetFaceSetCount() const
+{
+	return m_MeshData->FaceSetList.GetLength();
+}
+
+
+template<typename MeshAttributeType>
+void PolygonMesh<MeshAttributeType>::SetPointName(PointHandleType PointHandle, const String& PointName)
+{
+	auto it = m_MeshData->Map_PointName_to_PointHandle.find(PointName);
+	if (it == m_MeshData->Map_PointName_to_PointHandle.end())
+	{
+		m_MeshData->Map_PointName_to_PointHandle[PointName] = PointHandle;
+	}
+	else
+	{
+		MDK_Error("PointName has been used @ Polygon::SetPointName(...)")
+	}
+}
+
+
+template<typename MeshAttributeType>
+String PolygonMesh<MeshAttributeType>::GetPointName(PointHandleType PointHandle) const
+{
+	for (auto it = m_MeshData->Map_PointName_to_PointHandle.begin(); it != m_MeshData->Map_PointName_to_PointHandle.end(); ++it)
+	{
+		if (it->second == PointHandle)
+		{
+			return it->first;
+		}
+	}
+}
+
+
+template<typename MeshAttributeType>
+Handle_Of_Point_Of_PolygonMesh PolygonMesh<MeshAttributeType>::GetPointHandleByName(const String& PointName) const
+{
+	auto it = m_MeshData->Map_PointName_to_PointHandle.find(PointName);
+	if (it != m_MeshData->Map_PointName_to_PointHandle.end())
+	{
+		return it->second;
+	}
+	else
+	{
+		Handle_Of_Point_Of_PolygonMesh EmptyHandle;
+		MDK_Error("Unknown PointName: " << PointName << " @ PolygonMesh::GetPointHandleByName()")
+		return EmptyHandle;
+	}
+}
+
+
+template<typename MeshAttributeType>
+ObjectArray<std::pair<String, Handle_Of_Point_Of_PolygonMesh>> PolygonMesh<MeshAttributeType>::GetPointNameHandlePair(MDK_Symbol_ALL&) const
+{
+	ObjectArray<std::pair<String, PointHandleType>> NameHandlePair;
+	NameHandlePair.SetCapacity(m_MeshData->Map_PointName_to_PointHandle.size());
+	for (auto it = m_MeshData->Map_PointName_to_PointHandle.begin(); it != m_MeshData->Map_PointName_to_PointHandle.end(); ++it)
+	{
+		std::pair<String, PointHandleType> temp;
+		temp.first = it->first;
+		temp.second = it->second;
+		NameHandlePair.Append(temp);
+	}
+	return NameHandlePair;
+}
+
+
+template<typename MeshAttributeType>
+ObjectArray<String> PolygonMesh<MeshAttributeType>::GetAvailablePointName(MDK_Symbol_ALL&) const
+{
+	ObjectArray<String> NameList;
+	NameList.SetCapacity(m_MeshData->Map_PointName_to_PointHandle.size());
+	for (auto it = m_MeshData->Map_PointName_to_PointHandle.begin(); it != m_MeshData->Map_PointName_to_PointHandle.end(); ++it)
+	{
+		NameList.Append(it->first);
+	}
+	return NameList;
+}
+
+
+template<typename MeshAttributeType>
+int_max PolygonMesh<MeshAttributeType>::SetPointSet(const String& PointSetName, DenseVector<PointHandleType> PointSet)
+{
+	auto it = m_MeshData->Map_PointSetName_to_PointSetIndex.find(PointSetName);
+	if (it == m_MeshData->Map_PointSetName_to_PointSetIndex.end())
+	{
+		m_MeshData->PointSetList.Append(std::move(PointSet));
+		auto PointSetIndex = m_MeshData->PointSetList.GetLength() - 1;
+		m_MeshData->Map_PointSetName_to_PointSetIndex[PointSetName] = PointSetIndex;
+		return PointSetIndex;
+	}
+	else
+	{
+		auto PointSetIndex = it->second;
+		m_MeshData->PointSetList[PointSetIndex] = std::move(PointSet);
+		return PointSetIndex;
+	}
+}
+
+
+template<typename MeshAttributeType>
+int_max PolygonMesh<MeshAttributeType>::GetPointSetIndex(const String& PointSetName) const
+{
+	auto it = m_MeshData->Map_PointSetName_to_PointSetIndex.find(PointSetName);
+	if (it != m_MeshData->Map_PointSetName_to_PointSetIndex.end())
+	{
+		return it->second;
+	}
+	else
+	{
+		MDK_Error("PointSet NOT exist @ PolygonMesh::GetPointSetIndex(...)")
+		return -1;
+	}
+}
+
+
+template<typename MeshAttributeType>
+String PolygonMesh<MeshAttributeType>::GetPointSetName(int_max PointSetIndex) const
+{
+	for (auto it = m_MeshData->Map_PointSetName_to_PointSetIndex.begin(); it != m_MeshData->Map_PointSetName_to_PointSetIndex.end(); ++it)
+	{
+		if (it->second == PointSetIndex)
+		{
+			return it->first;
+		}
+	}
+
+	MDK_Error("PointSet NOT exist @  PolygonMesh::GetPointSetName(...)")
+	String EmptyName;
+	return EmptyName;
+}
+
+
+template<typename MeshAttributeType>
+DenseVector<Handle_Of_Point_Of_PolygonMesh> PolygonMesh<MeshAttributeType>::GetPointSet(int_max PointSetIndex) const
+{
+	return m_MeshData->PointSetList[PointSetIndex];
+}
+
+
+template<typename MeshAttributeType>
+DenseVector<Handle_Of_Point_Of_PolygonMesh> PolygonMesh<MeshAttributeType>::GetPointSet(const String& PointSetName) const
+{
+	auto it = m_MeshData->Map_PointSetName_to_PointSetIndex.find(PointSetName);
+	if (it != m_MeshData->Map_PointSetName_to_PointSetIndex.end())
+	{
+		return m_MeshData->PointSetList[it->second];
+	}
+	else
+	{
+		DenseVector<Handle_Of_Point_Of_PolygonMesh> EmptySet;
+		MDK_Error("Unknown PointSetName: " << PointSetName << " @ PolygonMesh::GetPointSet()")
+		return EmptySet;
+	}
+}
+
+
+template<typename MeshAttributeType>
+ObjectArray<String> PolygonMesh<MeshAttributeType>::GetPointSetName(MDK_Symbol_ALL&) const
+{
+	ObjectArray<String> NameList;
+	NameList.SetCapacity(m_MeshData->Map_PointSetName_to_PointSetIndex.size());
+	DenseVector<int_max> IndexList;
+	IndexList.SetCapacity(m_MeshData->Map_PointSetName_to_PointSetIndex.size());
+	for (auto it = m_MeshData->Map_PointSetName_to_PointSetIndex.begin(); it != m_MeshData->Map_PointSetName_to_PointSetIndex.end(); ++it)
+	{
+		NameList.Append(it->first);
+		IndexList.Append(it->second);
+	}
+	auto IndexList_sort = IndexList.Sort("ascend");
+	NameList = NameList.GetSubSet(IndexList_sort);
+	return NameList;
+}
+
+
+template<typename MeshAttributeType>
+ObjectArray<DenseVector<Handle_Of_Point_Of_PolygonMesh>> PolygonMesh<MeshAttributeType>::GetPointSet(MDK_Symbol_ALL&) const
+{
+	ObjectArray<DenseVector<PointHandleType>> PointSetList;
+	PointSetList = m_MeshData->PointSetList;
+	return PointSetList;
+}
+
+
+template<typename MeshAttributeType>
+void PolygonMesh<MeshAttributeType>::SetFaceName(FaceHandleType FaceHandle, const String& FaceName)
+{
+	auto it = m_MeshData->Map_FaceName_to_FaceHandle.find(FaceName);
+	if (it == m_MeshData->Map_FaceName_to_FaceHandle.end())
+	{
+		m_MeshData->Map_FaceName_to_FaceHandle[FaceName] = FaceHandle;
+	}
+	else
+	{
+		MDK_Error("FaceName has been used @ Polygon::SetFaceName(...)")
+	}
+}
+
+
+template<typename MeshAttributeType>
+String PolygonMesh<MeshAttributeType>::GetFaceName(FaceHandleType FaceHandle) const
+{
+	for (auto it = m_MeshData->Map_FaceName_to_FaceHandle.begin(); it != m_MeshData->Map_FaceName_to_FaceHandle.end(); ++it)
+	{
+		if (it->second == FaceHandle)
+		{
+			return it->first;
+		}
+	}
+}
+
+
+template<typename MeshAttributeType>
+Handle_Of_Face_Of_PolygonMesh PolygonMesh<MeshAttributeType>::GetFaceHandleByName(const String& FaceName) const
+{
+	auto it = m_MeshData->Map_FaceName_to_FaceHandle.find(FaceName);
+	if (it != m_MeshData->Map_FaceName_to_FaceHandle.end())
+	{
+		return it->second;
+	}
+	else
+	{
+		Handle_Of_Face_Of_PolygonMesh EmptyHandle;
+		MDK_Error("Unknown FaceName: " << FaceName << " @ PolygonMesh::GetFaceHandleByName()")
+		return EmptyHandle;
+	}
+}
+
+
+template<typename MeshAttributeType>
+ObjectArray<std::pair<String, Handle_Of_Face_Of_PolygonMesh>> PolygonMesh<MeshAttributeType>::GetFaceNameHandlePair(MDK_Symbol_ALL&) const
+{
+	ObjectArray<std::pair<String, FaceHandleType>> NameHandlePair;
+	NameHandlePair.SetCapacity(m_MeshData->Map_FaceName_to_FaceHandle.size());
+	for (auto it = m_MeshData->Map_FaceName_to_FaceHandle.begin(); it != m_MeshData->Map_FaceName_to_FaceHandle.end(); ++it)
+	{
+		std::pair<String, FaceHandleType> temp;
+		temp.first = it->first;
+		temp.second = it->second;
+		NameHandlePair.Append(temp);
+	}
+	return NameHandlePair;
+}
+
+
+template<typename MeshAttributeType>
+ObjectArray<String> PolygonMesh<MeshAttributeType>::GetAvailableFaceName(MDK_Symbol_ALL&) const
+{
+	ObjectArray<String> NameList;
+	NameList.SetCapacity(m_MeshData->Map_FaceName_to_FaceHandle.size());
+	for (auto it = m_MeshData->Map_FaceName_to_FaceHandle.begin(); it != m_MeshData->Map_FaceName_to_FaceHandle.end(); ++it)
+	{
+		NameList.Append(it->first);
+	}
+	return NameList;
+}
+
+
+template<typename MeshAttributeType>
+int_max PolygonMesh<MeshAttributeType>::SetFaceSet(const String& FaceSetName, DenseVector<FaceHandleType> FaceSet)
+{
+	auto it = m_MeshData->Map_FaceSetName_to_FaceSetIndex.find(FaceSetName);
+	if (it == m_MeshData->Map_FaceSetName_to_FaceSetIndex.end())
+	{
+		m_MeshData->FaceSetList.Append(std::move(FaceSet));
+		auto FaceSetIndex = m_MeshData->FaceSetList.GetLength() - 1;
+		m_MeshData->Map_FaceSetName_to_FaceSetIndex[FaceSetName] = FaceSetIndex;
+		return FaceSetIndex;
+	}
+	else
+	{
+		auto FaceSetIndex = it->second;
+		m_MeshData->FaceSetList[FaceSetIndex] = std::move(FaceSet);
+		return FaceSetIndex;
+	}
+}
+
+
+template<typename MeshAttributeType>
+int_max PolygonMesh<MeshAttributeType>::GetFaceSetIndex(const String& FaceSetName) const
+{
+	auto it = m_MeshData->Map_FaceSetName_to_FaceSetIndex.find(FaceSetName);
+	if (it != m_MeshData->Map_FaceSetName_to_FaceSetIndex.end())
+	{
+		return it->second;
+	}
+	else
+	{
+		MDK_Error("FaceSet NOT exist @ PolygonMesh::GetFaceSetIndex(...)")
+		return -1;
+	}
+}
+
+
+template<typename MeshAttributeType>
+String PolygonMesh<MeshAttributeType>::GetFaceSetName(int_max FaceSetIndex) const
+{
+	for (auto it = m_MeshData->Map_FaceSetName_to_FaceSetIndex.begin(); it != m_MeshData->Map_FaceSetName_to_FaceSetIndex.end(); ++it)
+	{
+		if (it->second == FaceSetIndex)
+		{
+			return it->first;
+		}
+	}
+
+	MDK_Error("FaceSet NOT exist @  PolygonMesh::GetFaceSetName(...)")
+	String EmptyName;
+	return EmptyName;
+}
+
+
+template<typename MeshAttributeType>
+DenseVector<Handle_Of_Face_Of_PolygonMesh> PolygonMesh<MeshAttributeType>::GetFaceSet(int_max FaceSetIndex) const
+{
+	return m_MeshData->FaceSetList[FaceSetIndex];
+}
+
+
+template<typename MeshAttributeType>
+DenseVector<Handle_Of_Face_Of_PolygonMesh> PolygonMesh<MeshAttributeType>::GetFaceSet(const String& FaceSetName) const
+{
+	auto it = m_MeshData->Map_FaceSetName_to_FaceSetIndex.find(FaceSetName);
+	if (it != m_MeshData->Map_FaceSetName_to_FaceSetIndex.end())
+	{
+		return m_MeshData->FaceSetList[it->second];
+	}
+	else
+	{
+		DenseVector<Handle_Of_Face_Of_PolygonMesh> EmptySet;
+		MDK_Error("Unknown FaceSetName: " << FaceSetName << " @ PolygonMesh::GetFaceSet()")
+		return EmptySet;
+	}
+}
+
+
+template<typename MeshAttributeType>
+ObjectArray<String> PolygonMesh<MeshAttributeType>::GetFaceSetName(MDK_Symbol_ALL&) const
+{
+	ObjectArray<String> NameList;
+	NameList.SetCapacity(m_MeshData->Map_FaceSetName_to_FaceSetIndex.size());
+	DenseVector<int_max> IndexList;
+	IndexList.SetCapacity(m_MeshData->Map_FaceSetName_to_FaceSetIndex.size());
+	for (auto it = m_MeshData->Map_FaceSetName_to_FaceSetIndex.begin(); it != m_MeshData->Map_FaceSetName_to_FaceSetIndex.end(); ++it)
+	{
+		NameList.Append(it->first);
+		IndexList.Append(it->second);
+	}
+	auto IndexList_sort = IndexList.Sort("ascend");
+	NameList = NameList.GetSubSet(IndexList_sort);
+	return NameList;
+}
+
+
+template<typename MeshAttributeType>
+ObjectArray<DenseVector<Handle_Of_Face_Of_PolygonMesh>> PolygonMesh<MeshAttributeType>::GetFaceSet(MDK_Symbol_ALL&) const
+{
+	ObjectArray<DenseVector<FaceHandleType>> FacSetList;
+	FacSetList = m_MeshData->FacSetList;
+	return FacSetList;
+}
 //------------------- Delete Mesh Item ----------------------------------------------------------------------------//
 
 template<typename MeshAttributeType>
@@ -2330,6 +2761,43 @@ void PolygonMesh<MeshAttributeType>::CleanDataStructure(DenseVector<int_max>& Po
 			AdjacentEdgeIndexList_new.Append(Index_new);
 		}
 		m_MeshData->PointList[PointIndex_new].AdjacentEdgeIndexList() = std::move(AdjacentEdgeIndexList_new);
+	}
+
+	// update additional info
+	for (auto it = m_MeshData->Map_PointName_to_PointHandle.begin(); it != m_MeshData->Map_PointName_to_PointHandle.end(); ++it)
+	{
+		auto PointIndex_old = it->second.GetIndex();
+		auto PointIndex_new = PointIndexMap_Old_To_New[PointIndex_old];
+		it->second.SetIndex(PointIndex_new);
+	}
+
+	for (auto it = m_MeshData->Map_FaceName_to_FaceHandle.begin(); it != m_MeshData->Map_FaceName_to_FaceHandle.end(); ++it)
+	{
+		auto FaceIndex_old = it->second.GetIndex();
+		auto FaceIndex_new = FaceIndexMap_Old_To_New[FaceIndex_old];
+		it->second.SetIndex(FaceIndex_new);
+	}
+
+	for (int_max k = 0; k < m_MeshData->PointSetList.GetLength(); ++k)
+	{
+		auto& PointSet_k = m_MeshData->PointSetList[k];
+		for (int_max n = 0; n < PointSet_k.GetLength(); ++n)
+		{
+			auto PointIndex_old = PointSet_k[n].GetIndex();
+			auto PointIndex_new = PointIndexMap_Old_To_New[PointIndex_old];
+			PointSet_k[n].SetIndex(PointIndex_new);
+		}
+	}
+
+	for (int_max k = 0; k < m_MeshData->FaceSetList.GetLength(); ++k)
+	{
+		auto& FaceSet_k = m_MeshData->FaceSetList[k];
+		for (int_max n = 0; n < FaceSet_k.GetLength(); ++n)
+		{
+			auto FaceIndex_old = FaceSet_k[n].GetIndex();
+			auto FaceIndex_new = FaceIndexMap_Old_To_New[FaceIndex_old];
+			FaceSet_k[n].SetIndex(FaceIndex_new);
+		}
 	}
 }
 
@@ -3256,7 +3724,7 @@ template<typename MeshAttributeType>
 inline
 Handle_Of_Face_Of_PolygonMesh PolygonMesh<MeshAttributeType>::ConvertFaceIndexToFaceHandle(int_max FaceIndex) const
 {
-	return this->ConvertIndexToHandle<Handle_Of_Face_Of_PolygonMesh>(PointIndex);
+	return this->ConvertIndexToHandle<Handle_Of_Face_Of_PolygonMesh>(FaceIndex);
 }
 
 

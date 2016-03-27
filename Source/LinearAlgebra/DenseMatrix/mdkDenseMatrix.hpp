@@ -1,5 +1,4 @@
-﻿#ifndef mdk_DenseMatrix_hpp
-#define mdk_DenseMatrix_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -7908,5 +7907,3 @@ DenseMatrixSVDResult<ElementType> DenseMatrix<ElementType>::SVD() const
 }
 
 }//end namespace mdk
-
-#endif

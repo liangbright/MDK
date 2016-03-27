@@ -1,5 +1,4 @@
-﻿#ifndef mdk_DenseMatrixOperator_DenseMatrix_hpp
-#define mdk_DenseMatrixOperator_DenseMatrix_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -372,4 +371,3 @@ DenseMatrix<ElementType> operator/(const ElementType& ElementA, const DenseMatri
 
 } // namespace mdk
 
-#endif

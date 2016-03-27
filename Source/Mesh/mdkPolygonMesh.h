@@ -74,6 +74,19 @@ struct PolygonMeshData
     std::unordered_map<int_max, DirectedEdgeIndex_Of_PolygonMesh> Map_DirectedEdgeID_to_DirectedEdgeIndex;
     std::unordered_map<int_max, int_max> Map_FaceID_to_FaceIndex;
 
+	//----------------------------- addtional info --------------------------------------------------------------//
+	int_max ID; // ID of the mesh
+	String Name;// name of the mesh
+
+	std::unordered_map<String, Handle_Of_Point_Of_PolygonMesh, StringHash<String>> Map_PointName_to_PointHandle;
+	std::unordered_map<String, Handle_Of_Face_Of_PolygonMesh, StringHash<String>>  Map_FaceName_to_FaceHandle;
+
+	StdObjectVector<DenseVector<Handle_Of_Point_Of_PolygonMesh>>  PointSetList;// PointSetList[k] is PointHandleList Of a PointSet indexed by k
+	std::unordered_map<String, int_max, StringHash<String>> Map_PointSetName_to_PointSetIndex;
+
+	StdObjectVector<DenseVector<Handle_Of_Face_Of_PolygonMesh>>  FaceSetList; // FaceSetList[k] is FaceHandleList Of a FaceSet indexed by k
+	std::unordered_map<String, int_max, StringHash<String>> Map_FaceSetName_to_FaceSetIndex;
+
     //Mesh Attribute
     GlobalAttribute Attribute;
 };
@@ -374,6 +387,46 @@ public:
 
 	//FaceHandle_input may be the handle of a deleted face, so to reused old FaceIndex if necessary
 	FaceHandleType AddFaceByPoint(const DenseVector<PointHandleType>& PointHandleList, FaceHandleType FaceHandle_input);
+
+	// modify Mesh additional Info ------------------------------------------------------------------------//
+
+	void SetID(int_max ID);
+	int_max GetID() const;
+	void SetName(String Name);
+	String GetName() const;
+
+	int_max GetNamedPointCount() const;
+	int_max GetNamedFaceCount() const;
+	int_max GetPointSetCount() const;
+	int_max GetFaceSetCount() const;
+
+	void SetPointName(PointHandleType PointHandle, const String& PointName);
+	String GetPointName(PointHandleType PointHandle) const;
+	PointHandleType GetPointHandleByName(const String& PointName) const;	
+	ObjectArray<std::pair<String, PointHandleType>> GetPointNameHandlePair(MDK_Symbol_ALL&) const;
+	ObjectArray<String> GetAvailablePointName(MDK_Symbol_ALL&) const;
+
+	int_max SetPointSet(const String& PointSetName, DenseVector<PointHandleType> PointSet);
+	int_max GetPointSetIndex(const String& PointSetName) const;
+	String GetPointSetName(int_max PointSetIndex) const;
+	DenseVector<PointHandleType> GetPointSet(int_max PointSetIndex) const;	
+	DenseVector<PointHandleType> GetPointSet(const String& PointSetName) const;
+	ObjectArray<String> GetPointSetName(MDK_Symbol_ALL&) const;
+	ObjectArray<DenseVector<PointHandleType>> GetPointSet(MDK_Symbol_ALL&) const;
+
+	void SetFaceName(FaceHandleType FaceHandle, const String& FaceName);
+	String GetFaceName(FaceHandleType FaceHandle) const;
+	FaceHandleType GetFaceHandleByName(const String& FaceName) const;
+	ObjectArray<std::pair<String, FaceHandleType>> GetFaceNameHandlePair(MDK_Symbol_ALL&) const;
+	ObjectArray<String> GetAvailableFaceName(MDK_Symbol_ALL&) const;
+	
+	int_max SetFaceSet(const String& FaceSetName, DenseVector<FaceHandleType> FaceSet);
+	int_max GetFaceSetIndex(const String& FaceSetName) const;
+	String GetFaceSetName(int_max PointSetIndex) const;
+	DenseVector<FaceHandleType> GetFaceSet(int_max FaceSetIndex) const;
+	DenseVector<FaceHandleType> GetFaceSet(const String& FaceSetName) const;
+    ObjectArray<String> GetFaceSetName(MDK_Symbol_ALL&) const;
+	ObjectArray<DenseVector<FaceHandleType>> GetFaceSet(MDK_Symbol_ALL&) const;
 
     // Delete Mesh Item ----------------------------------------------------------------------------//
 

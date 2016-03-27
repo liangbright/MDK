@@ -1,5 +1,4 @@
-﻿#ifndef mdk_DenseVectorWithVariableLength_h
-#define mdk_DenseVectorWithVariableLength_h
+﻿#pragma once
 
 #include <utility>
 #include <vector>
@@ -349,5 +348,3 @@ public:
 
 #include "mdkDenseVectorWithVariableLength.hpp"
 #include "mdkDenseVectorWithVariableLength_Operator.h"
-
-#endif

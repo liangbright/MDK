@@ -1,5 +1,4 @@
-﻿#ifndef mdk_IntegralImageBuilder3D_h
-#define mdk_IntegralImageBuilder3D_h
+﻿#pragma once
 
 #include <algorithm>
 #include <cmath>
@@ -46,4 +45,3 @@ private:
 
 #include "mdkIntegralImageBuilder3D.hpp"
 
-#endif

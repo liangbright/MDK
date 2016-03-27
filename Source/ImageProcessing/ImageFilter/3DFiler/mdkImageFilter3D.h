@@ -1,5 +1,4 @@
-﻿#ifndef mdk_ImageFilter3D_h
-#define mdk_ImageFilter3D_h
+﻿#pragma once
 
 #include "mdkParallelForLoop.h"
 #include "mdkDenseImage3D.h"
@@ -178,5 +177,3 @@ private:
 }// namespace mdk
 
 #include "mdkImageFilter3D.hpp"
-
-#endif

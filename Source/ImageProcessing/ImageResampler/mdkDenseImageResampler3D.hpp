@@ -1,5 +1,4 @@
-﻿#ifndef mdk_DenseImageResampler3D_hpp
-#define mdk_DenseImageResampler3D_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -111,4 +110,3 @@ EvaluateAt3DPositionInInputImage(int_max PointIndex, ScalarType x, ScalarType y,
 
 }
 
-#endif

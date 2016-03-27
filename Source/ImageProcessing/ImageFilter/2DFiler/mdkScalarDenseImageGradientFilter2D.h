@@ -1,5 +1,4 @@
-﻿#ifndef mdk_ScalarDenseImageGradientFilter2D_h
-#define mdk_ScalarDenseImageGradientFilter2D_h
+﻿#pragma once
 
 #include <algorithm>
 #include <cmath>
@@ -87,4 +86,3 @@ private:
 
 #include "mdkScalarDenseImageGradientFilter2D.hpp"
 
-#endif

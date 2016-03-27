@@ -1,5 +1,4 @@
-﻿#ifndef mdk_SparseVector_hpp
-#define mdk_SparseVector_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -686,5 +685,3 @@ ElementType SparseVector<ElementType>::L2Norm() const
 
 
 }//end namespace mdk
-
-#endif

@@ -1,5 +1,4 @@
-﻿#ifndef mdk_SparseMatrix_hpp
-#define mdk_SparseMatrix_hpp
+﻿#pragma once
 
 
 namespace mdk
@@ -6268,5 +6267,3 @@ SparseMatrixSVDResult<ElementType> SparseMatrix<ElementType>::SVD() const
 */
 
 }//end namespace mdk
-
-#endif

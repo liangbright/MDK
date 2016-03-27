@@ -1,5 +1,4 @@
-﻿#ifndef mdk_DenseImageFilterWithSingleMaskInInputImage3D_h
-#define mdk_DenseImageFilterWithSingleMaskInInputImage3D_h
+﻿#pragma once
 
 #include <algorithm>
 
@@ -63,5 +62,3 @@ private:
 
 
 #include "mdkDenseImageFilterWithSingleMaskInInputImage3D.hpp"
-
-#endif

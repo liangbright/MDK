@@ -1,5 +1,4 @@
-﻿#ifndef mdk_DenseGlueMatrixForMultiplication_h
-#define mdk_DenseGlueMatrixForMultiplication_h
+﻿#pragma once
 
 #include "mdkObject.h"
 #include "mdkLinearAlgebraConfig.h"
@@ -295,5 +294,3 @@ private:
 }// end namespace mdk
 
 #include "mdkDenseGlueMatrixForMultiplication.hpp"
-
-#endif

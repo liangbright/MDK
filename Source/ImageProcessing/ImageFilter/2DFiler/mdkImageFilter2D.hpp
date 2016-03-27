@@ -1,5 +1,4 @@
-﻿#ifndef mdk_ImageFilter2D_hpp
-#define mdk_ImageFilter2D_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -1108,4 +1107,3 @@ Transform2DPositionInOutputImageTo2DPositionInInputImage(const DenseVector<Scala
 
 }// namespace mdk
 
-#endif

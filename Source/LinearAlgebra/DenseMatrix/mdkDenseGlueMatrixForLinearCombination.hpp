@@ -1,5 +1,4 @@
-﻿#ifndef mdk_DenseGlueMatrixForLinearCombination_hpp
-#define mdk_DenseGlueMatrixForLinearCombination_hpp
+﻿#pragma once
 
 #include <cmath>
 #include <algorithm>
@@ -202,4 +201,3 @@ DenseGlueMatrixForLinearCombination<ElementType>::ElementMultiply(const DenseGlu
 
 }//end namespace mdk
 
-#endif

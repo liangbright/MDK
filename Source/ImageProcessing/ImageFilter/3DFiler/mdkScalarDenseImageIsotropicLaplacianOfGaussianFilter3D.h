@@ -1,5 +1,4 @@
-﻿#ifndef mdk_ScalarDenseImageIsotropicLaplacianOfGaussianFilter3D_h
-#define mdk_ScalarDenseImageIsotropicLaplacianOfGaussianFilter3D_h
+﻿#pragma once
 
 #include <algorithm>
 #include <cmath>
@@ -44,5 +43,3 @@ private:
 }//end namespace mdk
 
 #include "mdkScalarDenseImageIsotropicLaplacianOfGaussianFilter3D.hpp"
-
-#endif

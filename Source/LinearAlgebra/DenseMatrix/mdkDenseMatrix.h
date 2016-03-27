@@ -1,5 +1,4 @@
-﻿#ifndef mdk_DenseMatrix_h
-#define mdk_DenseMatrix_h
+﻿#pragma once
 
 #include <vector>
 #include <memory>
@@ -1409,4 +1408,3 @@ inline mdkDenseMatrix<ElementType> operator/(const ElementType& ElementA, const 
 
 #include "mdkDenseMatrix.hpp"
 
-#endif

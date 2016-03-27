@@ -1,5 +1,4 @@
-﻿#ifndef MDK_DenseImageResamplerWithCoordinateTransform3D_hpp
-#define MDK_DenseImageResamplerWithCoordinateTransform3D_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -117,4 +116,3 @@ EvaluateAt3DPhysicalPosition(int_max PointIndex, ScalarType x, ScalarType y, Sca
 
 }
 
-#endif

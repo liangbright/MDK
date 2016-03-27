@@ -1,5 +1,4 @@
-﻿#ifndef mdk_DenseVectorWithFixedLength_h
-#define mdk_DenseVectorWithFixedLength_h
+﻿#pragma once
 
 #include <utility>
 #include <array>
@@ -302,5 +301,3 @@ public:
 
 #include "mdkDenseVectorWithFixedLength.hpp"
 #include "mdkDenseVectorWithFixedLength_Operator.h"
-
-#endif

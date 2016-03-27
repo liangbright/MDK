@@ -1,5 +1,4 @@
-﻿#ifndef mdk_ImageFilter3D_hpp
-#define mdk_ImageFilter3D_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -1111,4 +1110,3 @@ Transform3DPositionInOutputImageTo3DPositionInInputImage(const DenseVector<Scala
 
 }// namespace mdk
 
-#endif

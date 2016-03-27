@@ -1,5 +1,4 @@
-﻿#ifndef mdk_LinearAlgebra_Function_Part_0_hpp
-#define mdk_LinearAlgebra_Function_Part_0_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -111,5 +110,3 @@ bool Sort(const ElementType* InputDataArray, int_max Length, ElementType* Output
 
 
 }//end namespace mdk
-
-#endif

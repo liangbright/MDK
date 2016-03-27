@@ -1,5 +1,4 @@
-﻿#ifndef mdk_LinearAlgebra_Function_DenseMatrix_Part_3_hpp
-#define mdk_LinearAlgebra_Function_DenseMatrix_Part_3_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -932,5 +931,3 @@ ElementType ComputeJSDivergenceBetweenTwoVector(const ElementType* VectorA, cons
 }
 
 }
-
-#endif

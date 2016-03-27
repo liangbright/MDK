@@ -1,5 +1,4 @@
-﻿#ifndef MDK_DenseImageResampler2D_h
-#define MDK_DenseImageResampler2D_h
+﻿#pragma once
 
 #include "mdkIntegralImageBasedImageAverageFilter2D.h"
 
@@ -43,4 +42,3 @@ private:
 
 #include "mdkDenseImageResampler2D.hpp"
 
-#endif

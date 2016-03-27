@@ -1,5 +1,4 @@
-﻿#ifndef mdk_SparseImageInterpolation2D_hpp
-#define mdk_SparseImageInterpolation2D_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -246,4 +245,3 @@ OutputPixelType InterpolateImageAt2DPhysicalPosition_Cubic(const SparseImage2D<I
 
 }// namespace mdk
 
-#endif

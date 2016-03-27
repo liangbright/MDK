@@ -1,5 +1,4 @@
-﻿#ifndef mdk_DenseImageInterpolation2D_hpp
-#define mdk_DenseImageInterpolation2D_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -219,4 +218,3 @@ OutputPixelType InterpolateImageAt2DIndex_Cubic(const DenseImage2D<InputPixelTyp
 
 }// namespace mdk
 
-#endif

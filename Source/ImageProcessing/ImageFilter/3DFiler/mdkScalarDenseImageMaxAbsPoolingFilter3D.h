@@ -1,5 +1,4 @@
-﻿#ifndef mdk_ScalarDenseImageMaxAbsPoolingFilter3D_h
-#define mdk_ScalarDenseImageMaxAbsPoolingFilter3D_h
+﻿#pragma once
 
 #include "mdkDebugConfig.h"
 #include "mdkScalarDenseImagePoolingFilter3D.h"
@@ -30,5 +29,3 @@ private:
 }//end namespace mdk
 
 #include "mdkScalarDenseImageMaxAbsPoolingFilter3D.hpp"
-
-#endif

@@ -1,5 +1,4 @@
-﻿#ifndef mdk_LinearAlgebra_Function_DenseVector_Part_1_hpp
-#define mdk_LinearAlgebra_Function_DenseVector_Part_1_hpp
+﻿#pragma once
 
 
 namespace mdk
@@ -159,5 +158,3 @@ DenseVector<ElementType> SetDiff(const DenseVector<ElementType, A>& SetA, const 
 
 
 }//namespace
-
-#endif

@@ -1,5 +1,4 @@
-﻿#ifndef mdk_DenseVector_ForwardDeclare_h
-#define mdk_DenseVector_ForwardDeclare_h
+﻿#pragma once
 
 #include "mdkCommonType.h"
 
@@ -10,5 +9,3 @@ template<typename ElementType, int_max Length = -1>  // -1: fixed-length vector
 class DenseVector;
 //------------------------------------------------------
 }
-
-#endif

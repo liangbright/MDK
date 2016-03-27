@@ -1,5 +1,4 @@
-﻿#ifndef mdk_ScalarDenseImageGaussianFilter2D_h
-#define mdk_ScalarDenseImageGaussianFilter2D_h
+﻿#pragma once
 
 #include <algorithm>
 #include <cmath>
@@ -51,4 +50,3 @@ private:
 
 #include "mdkScalarDenseImageGaussianFilter2D.hpp"
 
-#endif

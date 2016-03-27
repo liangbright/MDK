@@ -1,5 +1,4 @@
-﻿#ifndef mdk_DenseMatrix_FileIO_hpp
-#define mdk_DenseMatrix_FileIO_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -123,4 +122,3 @@ bool LoadDenseMatrixFromJsonDataFile(DenseMatrix<ScalarType>& OutputMatrix, cons
 
 }//namespace mdk
 
-#endif

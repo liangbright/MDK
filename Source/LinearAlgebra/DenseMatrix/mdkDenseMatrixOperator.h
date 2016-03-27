@@ -1,5 +1,4 @@
-﻿#ifndef mdk_DenseMatrixOperator_h
-#define mdk_DenseMatrixOperator_h
+﻿#pragma once
 
 namespace mdk
 {
@@ -475,5 +474,3 @@ inline DenseMatrix<ElementType> operator/(const DenseGlueMatrixForMultiplication
 #include "mdkDenseMatrixOperator_DenseShadowMatrix.hpp"
 #include "mdkDenseMatrixOperator_DenseGlueMatrixForLinearCombination.hpp"
 #include "mdkDenseMatrixOperator_DenseGlueMatrixForMultiplication.hpp"
-
-#endif 

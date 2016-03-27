@@ -1,5 +1,4 @@
-﻿#ifndef mdk_DenseMatrix_FileIO_h
-#define mdk_DenseMatrix_FileIO_h
+﻿#pragma once
 
 #include <tuple>
 #include <utility>
@@ -33,4 +32,3 @@ bool LoadDenseMatrixFromJsonDataFile(DenseMatrix<ScalarType>& OutputMatrix, cons
 
 #include "mdkDenseMatrix_FileIO.hpp"
 
-#endif

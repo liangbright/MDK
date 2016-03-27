@@ -1,5 +1,4 @@
-﻿#ifndef mdk_ScalarDenseImageAverageFilter2D_h
-#define mdk_ScalarDenseImageAverageFilter2D_h
+﻿#pragma once
 
 #include <algorithm>
 #include <cmath>
@@ -35,4 +34,3 @@ private:
 
 #include "mdkScalarDenseImageAverageFilter2D.hpp"
 
-#endif

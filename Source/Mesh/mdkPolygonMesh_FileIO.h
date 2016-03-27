@@ -15,8 +15,6 @@ template<typename MeshAttributeType>
 class PolygonMesh;
 //--------------------------------------
 
-//------------ save/load only point and face -------------------------//
-
 template<typename MeshAttributeType>
 bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<MeshAttributeType>& InputMesh, const String& FilePathAndName);
 
@@ -29,13 +27,6 @@ bool SavePolygonMeshAsVTKFile(const PolygonMesh<MeshAttributeType>& InputMesh, c
 template<typename MeshAttributeType>
 bool LoadPolygonMeshMeshFromVTKFile(PolygonMesh<MeshAttributeType>& OutputMesh, const String& FilePathAndName);
 
-//------------------ save load with attribute  -------------------------------------------------//
-
-template<typename ScalarType>
-bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<PolygonMeshStandardAttributeType<ScalarType>>& InputMesh, const String& FilePathAndName);
-
-template<typename ScalarType>
-bool LoadPolygonMeshFromJsonDataFile(PolygonMesh<PolygonMeshStandardAttributeType<ScalarType>>& OutputMesh, const String& FilePathAndName);
 
 }//namespace mdk
 

@@ -1,5 +1,4 @@
-﻿#ifndef mdk_DenseVectorWithVariableLength_Operator_hpp
-#define mdk_DenseVectorWithVariableLength_Operator_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -259,5 +258,3 @@ operator/(const ElementType& Element, const DenseVector<ElementType>& Vector)
 
 
 }// namespace mdk
-
-#endif

@@ -1,5 +1,4 @@
-﻿#ifndef mdk_DenseGlueMatrixForLinearCombination_h
-#define mdk_DenseGlueMatrixForLinearCombination_h
+﻿#pragma once
 
 #include <vector>
 #include <memory>
@@ -316,4 +315,3 @@ private:
 
 #include "mdkDenseGlueMatrixForLinearCombination.hpp"
 
-#endif 

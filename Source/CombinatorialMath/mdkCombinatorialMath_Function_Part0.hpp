@@ -1,5 +1,4 @@
-﻿#ifndef mdk_CombinatorialMath_Function_Part0_hpp
-#define mdk_CombinatorialMath_Function_Part0_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -58,6 +57,3 @@ ObjectArray<DenseVector<int_max>> NChooseK(int_max N, int_max K)
 }
 
 }//namespace mdk
-
-
-#endif

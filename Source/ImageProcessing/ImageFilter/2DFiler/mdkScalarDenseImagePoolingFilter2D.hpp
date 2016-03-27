@@ -1,5 +1,4 @@
-﻿#ifndef mdk_ScalarDenseImagePoolingFilter2D_hpp
-#define mdk_ScalarDenseImagePoolingFilter2D_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -90,4 +89,3 @@ void ScalarDenseImagePoolingFilter2D<InputPixelType, OutputPixelType, ScalarType
 
 }//end namespace mdk
 
-#endif

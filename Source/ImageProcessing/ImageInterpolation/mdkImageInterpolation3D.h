@@ -1,5 +1,4 @@
-﻿#ifndef mdk_ImageInterpolation3D_h
-#define mdk_ImageInterpolation3D_h
+﻿#pragma once
 
 #include <cmath>
 
@@ -175,4 +174,3 @@ OutputPixelType InterpolateImageAt3DWorldPosition_Cubic(const SparseImage3D<Inpu
 #include "mdkDenseImageInterpolation3D.hpp"
 #include "mdkSparseImageInterpolation3D.hpp"
 
-#endif

@@ -1,5 +1,4 @@
-﻿#ifndef mdk_ScalarDenseImageMinAbsPoolingFilter3D_h
-#define mdk_ScalarDenseImageMinAbsPoolingFilter3D_h
+﻿#pragma once
 
 #include "mdkDebugConfig.h"
 #include "mdkScalarDenseImagePoolingFilter3D.h"
@@ -31,4 +30,3 @@ private:
 
 #include "mdkScalarDenseImageMinAbsPoolingFilter3D.hpp"
 
-#endif

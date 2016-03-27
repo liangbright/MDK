@@ -1,5 +1,4 @@
-﻿#ifndef mdk_LinearAlgebra_Function_DenseVector_Part_0_h
-#define mdk_LinearAlgebra_Function_DenseVector_Part_0_h
+﻿#pragma once
 
 namespace mdk
 {
@@ -19,5 +18,3 @@ VectorLinearCombine(const std::vector<ElementType>& CoefList, const std::vector<
 }
 
 #include "mdkLinearAlgebra_Function_DenseVector_Part_0.hpp"
-
-#endif

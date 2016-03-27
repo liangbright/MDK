@@ -1,5 +1,4 @@
-﻿#ifndef mdk_DenseShadowMatrix_hpp
-#define mdk_DenseShadowMatrix_hpp
+﻿#pragma once
 
 
 namespace mdk
@@ -1677,4 +1676,3 @@ DenseMatrix<ElementType> DenseShadowMatrix<ElementType>::ElementMultiply(const D
 
 }//end namespace mdk
 
-#endif

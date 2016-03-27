@@ -1,5 +1,4 @@
-#ifndef mdk_DirectionGenerator3D_h
-#define mdk_DirectionGenerator3D_h
+#pragma once
 
 #include <queue>
 
@@ -58,5 +57,3 @@ private:
 }//namespace mdk
 
 #include "mdkDirectionGenerator3D.hpp"
-
-#endif

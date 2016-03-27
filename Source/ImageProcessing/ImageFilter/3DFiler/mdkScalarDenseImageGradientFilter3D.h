@@ -1,5 +1,4 @@
-﻿#ifndef mdk_ScalarDenseImageGradientFilter3D_h
-#define mdk_ScalarDenseImageGradientFilter3D_h
+﻿#pragma once
 
 #include <algorithm>
 #include <cmath>
@@ -81,5 +80,3 @@ private:
 }//end namespace mdk
 
 #include "mdkScalarDenseImageGradientFilter3D.hpp"
-
-#endif

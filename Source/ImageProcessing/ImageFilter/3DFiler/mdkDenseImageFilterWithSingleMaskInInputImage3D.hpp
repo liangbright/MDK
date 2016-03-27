@@ -1,5 +1,4 @@
-﻿#ifndef mdk_DenseImageFilterWithSingleMaskInInputImage3D_hpp
-#define mdk_DenseImageFilterWithSingleMaskInInputImage3D_hpp
+﻿#pragma once
 
 
 namespace mdk
@@ -168,4 +167,3 @@ GetInputImagePixelByMask_At3DPosition(const DenseVector<ScalarType, 3>& Position
 
 }// namespace mdk
 
-#endif

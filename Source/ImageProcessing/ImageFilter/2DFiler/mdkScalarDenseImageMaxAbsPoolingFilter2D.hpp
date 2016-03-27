@@ -1,5 +1,4 @@
-﻿#ifndef mdk_ScalarDenseImageMaxAbsPoolingFilter2D_hpp
-#define mdk_ScalarDenseImageMaxAbsPoolingFilter2D_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -57,4 +56,3 @@ EvaluateAt2DPositionInInputImage(int_max PointIndex, ScalarType x0, ScalarType y
 
 }//end namespace mdk
 
-#endif

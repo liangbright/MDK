@@ -1,5 +1,4 @@
-﻿#ifndef mdk_DenseImageFilterWithSingleMaskInInputImage2D_h
-#define mdk_DenseImageFilterWithSingleMaskInInputImage2D_h
+﻿#pragma once
 
 #include <algorithm>
 
@@ -63,4 +62,3 @@ private:
 
 #include "mdkDenseImageFilterWithSingleMaskInInputImage2D.hpp"
 
-#endif

@@ -1,5 +1,4 @@
-﻿#ifndef mdk_DenseMatrixOperator_DenseGlueMatrixForLinearCombination_h
-#define mdk_DenseMatrixOperator_DenseGlueMatrixForLinearCombination_h
+﻿#pragma once
 
 namespace mdk
 {
@@ -627,4 +626,3 @@ DenseMatrix<ElementType> operator/(const DenseGlueMatrixForLinearCombination<Ele
 
 } // namespace mdk
 
-#endif

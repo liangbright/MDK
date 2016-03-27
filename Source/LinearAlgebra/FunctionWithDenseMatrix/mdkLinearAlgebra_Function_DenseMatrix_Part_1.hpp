@@ -1,5 +1,4 @@
-﻿#ifndef mdk_LinearAlgebra_DenseMatrix_Function_DenseMatrix_Part_1_hpp
-#define mdk_LinearAlgebra_DenseMatrix_Function_DenseMatrix_Part_1_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -3015,8 +3014,4 @@ void MatrixLinearCombine_MatrixNumber_10(ElementType* Output,
 
 //======================================================================================================================================================//
 
-
-
 }//end namespace mdk
-
-#endif

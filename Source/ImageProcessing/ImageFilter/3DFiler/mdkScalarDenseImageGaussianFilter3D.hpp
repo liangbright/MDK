@@ -1,5 +1,4 @@
-﻿#ifndef mdk_ScalarDenseImageGaussianFilter3D_hpp
-#define mdk_ScalarDenseImageGaussianFilter3D_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -157,4 +156,3 @@ void ScalarDenseImageGaussianFilter3D<InputPixelType, OutputPixelType, ScalarTyp
 
 }//end namespace mdk
 
-#endif

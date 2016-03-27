@@ -1,5 +1,4 @@
-﻿#ifndef mdk_DenseVectorWithFixedLength_Operator_h
-#define mdk_DenseVectorWithFixedLength_Operator_h
+﻿#pragma once
 
 //#include <array>
 
@@ -103,5 +102,3 @@ inline DenseVector<ElementType, Length> operator/(const ElementType& Element, co
 }
 
 #include "mdkDenseVectorWithFixedLength_Operator.hpp"
-
-#endif

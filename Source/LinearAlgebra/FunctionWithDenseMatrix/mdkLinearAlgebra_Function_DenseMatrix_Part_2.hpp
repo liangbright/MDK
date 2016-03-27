@@ -1,5 +1,4 @@
-﻿#ifndef mdk_LinearAlgebra_Function_DenseMatrix_Part_2_hpp
-#define mdk_LinearAlgebra_Function_DenseMatrix_Part_2_hpp
+﻿#pragma once
 
 
 namespace mdk
@@ -1523,4 +1522,3 @@ DenseMatrixSVDResult<ElementType> MatrixSVD(const DenseMatrix<ElementType>& Inpu
 
 }//end namespace mdk
 
-#endif

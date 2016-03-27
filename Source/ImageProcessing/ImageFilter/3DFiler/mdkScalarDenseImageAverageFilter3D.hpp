@@ -1,5 +1,4 @@
-﻿#ifndef mdk_ScalarDenseImageAverageFilter3D_hpp
-#define mdk_ScalarDenseImageAverageFilter3D_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -36,4 +35,3 @@ EvaluateAt3DPositionInInputImage(int_max PointIndex, ScalarType x0, ScalarType y
 
 }//end namespace mdk
 
-#endif

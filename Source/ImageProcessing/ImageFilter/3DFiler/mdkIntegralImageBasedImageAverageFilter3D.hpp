@@ -1,5 +1,4 @@
-﻿#ifndef mdk_IntegralImageBasedImageAverageFilter3D_hpp
-#define mdk_IntegralImageBasedImageAverageFilter3D_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -225,4 +224,3 @@ const DenseImage3D<InputPixelType>* IntegralImageBasedImageAverageFilter3D<Input
 
 }//end namespace mdk
 
-#endif

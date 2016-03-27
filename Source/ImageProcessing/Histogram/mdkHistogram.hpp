@@ -1,5 +1,4 @@
-﻿#ifndef mdk_Histogram_hpp
-#define mdk_Histogram_hpp
+﻿#pragma once
 
 namespace mdk
 {
@@ -304,5 +303,3 @@ bool NormalizeHistogram(ElementType* NormalizedHistogram, const int_max* Histogr
 
 
 }
-
-#endif
