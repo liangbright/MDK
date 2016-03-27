@@ -39,10 +39,10 @@ bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<MeshAttributeType>& InputMe
 	if (NamedPointCount > 0)
 	{
 		JsonObject tempJObject;
-		auto PointNameList = InputMesh.GetAvailablePointName(ALL);
+		auto PointNameList = InputMesh.GetValidPointNameList();
 		for (int_max k = 0; k < PointNameList.GetLength(); ++k)
 		{
-			auto PointIndex = InputMesh.GetPointHandleByName(PointNameList[k]).GetIndex();
+			auto PointIndex = InputMesh.GetPointIndexByName(PointNameList[k]);
 		    tempJObject[PointNameList[k]] = PointIndex;
 		}
 		JsonValue tempJValue = std::move(tempJObject);
@@ -52,10 +52,10 @@ bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<MeshAttributeType>& InputMe
 	if (NamedFaceCount > 0)
 	{
 		JsonObject tempJObject;
-		auto FaceNameList = InputMesh.GetAvailableFaceName(ALL);
+		auto FaceNameList = InputMesh.GetValidFaceNameList();
 		for (int_max k = 0; k < FaceNameList.GetLength(); ++k)
 		{
-			auto FaceIndex = InputMesh.GetFaceHandleByName(FaceNameList[k]).GetIndex();
+			auto FaceIndex = InputMesh.GetFaceIndexByName(FaceNameList[k]);
 			tempJObject[FaceNameList[k]] = FaceIndex;
 		}
 		JsonValue tempJValue = std::move(tempJObject);
@@ -71,7 +71,7 @@ bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<MeshAttributeType>& InputMe
 		{
 			JsonObject tempJObject;
 			auto PointSet = InputMesh.GetPointSet(PointSetIndex);
-			tempJObject[PointSetNameList[PointSetIndex]] = InputMesh.ConvertHandleToIndex(PointSet);
+			tempJObject[PointSetNameList[PointSetIndex]] = PointSet;
 			tempJArray[PointSetIndex] = tempJObject;			
 		}		
 		JsonValue tempJValue = std::move(tempJArray);
@@ -87,7 +87,7 @@ bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<MeshAttributeType>& InputMe
 		{
 			JsonObject tempJObject;
 			auto FaceSet = InputMesh.GetFaceSet(FaceSetIndex);
-			tempJObject[FaceSetNameList[FaceSetIndex]] = InputMesh.ConvertHandleToIndex(FaceSet);
+			tempJObject[FaceSetNameList[FaceSetIndex]] = FaceSet;
 			tempJArray[FaceSetIndex] = tempJObject;			
 		}
 		JsonValue tempJValue = std::move(tempJArray);
@@ -286,9 +286,8 @@ bool LoadPolygonMeshFromJsonDataFile(PolygonMesh<MeshAttributeType>& OutputMesh,
 			for (auto it = tempJObject.begin(); it != tempJObject.end(); ++it)
 			{
 				const auto& PointName = it->first;
-				auto PointIndex = it->second.ToScalar<int_max>();
-				auto PointHandle = OutputMesh.ConvertPointIndexToPointHandle(PointIndex);
-				OutputMesh.SetPointName(PointHandle, PointName);				
+				auto PointIndex = it->second.ToScalar<int_max>();				
+				OutputMesh.Point(PointIndex).SetName(PointName);
 			}
 		}
 	}
@@ -302,8 +301,7 @@ bool LoadPolygonMeshFromJsonDataFile(PolygonMesh<MeshAttributeType>& OutputMesh,
 			{
 				const auto& FaceName = it->first;
 				auto FaceIndex = it->second.ToScalar<int_max>();
-				auto FaceHandle = OutputMesh.ConvertFaceIndexToFaceHandle(FaceIndex);
-				OutputMesh.SetFaceName(FaceHandle, FaceName);
+				OutputMesh.Face(FaceIndex).SetName(FaceName);
 			}
 		}
 	}
@@ -321,8 +319,7 @@ bool LoadPolygonMeshFromJsonDataFile(PolygonMesh<MeshAttributeType>& OutputMesh,
 				{
 					const auto& PointSetName = it->first;
 					auto PointIndexList = it->second.ToScalarArray<int_max>();
-					auto PointHandleList = OutputMesh.ConvertPointIndexToPointHandle(PointIndexList);
-					OutputMesh.SetPointSet(PointSetName, PointHandleList);					
+					OutputMesh.SetPointSet(PointSetName, PointIndexList);					
 				}
 			}
 		}
@@ -341,8 +338,7 @@ bool LoadPolygonMeshFromJsonDataFile(PolygonMesh<MeshAttributeType>& OutputMesh,
 				{
 					const auto& FaceSetName = it->first;
 					auto FaceIndexList = it->second.ToScalarArray<int_max>();
-					auto FaceHandleList = OutputMesh.ConvertFaceIndexToFaceHandle(FaceIndexList);
-					OutputMesh.SetFaceSet(FaceSetName, FaceHandleList);
+					OutputMesh.SetFaceSet(FaceSetName, FaceIndexList);
 				}
 			}
 		}

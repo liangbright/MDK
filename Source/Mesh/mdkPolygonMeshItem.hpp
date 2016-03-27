@@ -49,6 +49,7 @@ void Point_Of_PolygonMesh<MeshAttributeType>::operator=(const Point_Of_PolygonMe
     m_Data->Mesh.ForceShare(InputPoint.m_Data->Mesh);
     m_Data->Index = InputPoint.m_Data->Index; 
     m_Data->ID = InputPoint.m_Data->ID;
+	m_Data->Name = InputPoint.m_Data->Name;
     m_Data->AdjacentEdgeIndexList = InputPoint.m_Data->AdjacentEdgeIndexList;
     m_Data->Attribute = InputPoint.m_Data->Attribute;
 }
@@ -71,6 +72,7 @@ void Point_Of_PolygonMesh<MeshAttributeType>::ReCreate()
 
     m_Data->Index = -1;
     m_Data->ID = -1;
+	m_Data->Name.Clear();
     m_Data->AdjacentEdgeIndexList.Clear();
     m_Data->Attribute.Clear();
 }
@@ -97,13 +99,6 @@ void Point_Of_PolygonMesh<MeshAttributeType>::SetIndex(int_max PointIndex)
 }
 
 template<typename MeshAttributeType>
-inline
-int_max Point_Of_PolygonMesh<MeshAttributeType>::GetIndex() const
-{
-    return m_Data->Index;
-}
-
-template<typename MeshAttributeType>
 inline 
 DenseVector<int_max>& Point_Of_PolygonMesh<MeshAttributeType>::AdjacentEdgeIndexList()
 {
@@ -115,93 +110,6 @@ inline
 const DenseVector<int_max>& Point_Of_PolygonMesh<MeshAttributeType>::AdjacentEdgeIndexList() const
 {
 	return m_Data->AdjacentEdgeIndexList;
-}
-
-template<typename MeshAttributeType>
-inline
-DenseVector<int_max> Point_Of_PolygonMesh<MeshAttributeType>::GetAdjacentPointIndexList() const
-{
-	DenseVector<int_max> AdjacentPointIndexList;
-	AdjacentPointIndexList.Resize(m_Data->AdjacentEdgeIndexList.GetLength());
-	for (int_max k = 0; k < m_Data->AdjacentEdgeIndexList.GetLength(); ++k)
-	{
-		auto EdgeIndex_k = m_Data->AdjacentEdgeIndexList[k];
-		int_max PointIndex0, PointIndex1;
-		m_Data->Mesh.m_MeshData->EdgeList[EdgeIndex_k].GetPointIndexList(PointIndex0, PointIndex1);
-		if (PointIndex0 == m_Data->Index)
-		{
-			AdjacentPointIndexList[k] = PointIndex1;
-		}
-		else if (PointIndex1 == m_Data->Index)
-		{
-			AdjacentPointIndexList[k] = PointIndex0;
-		}
-		else
-		{
-			MDK_Error("Wrong @ Point_Of_PolygonMesh::GetAdjacentPointIndexList()")
-		}
-	}
-	return AdjacentPointIndexList;
-}
-
-template<typename MeshAttributeType>
-inline
-DenseVector<int_max> Point_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceIndexList() const
-{
-	DenseVector<int_max> AdjacentFaceIndexList;
-	auto OutgoingDirectedEdgeIndexList = this->GetOutgoingDirectedEdgeIndexList();
-	AdjacentFaceIndexList.Resize(OutgoingDirectedEdgeIndexList.GetLength());
-	for (int_max k = 0; k < OutgoingDirectedEdgeIndexList.GetLength(); ++k)
-	{
-		AdjacentFaceIndexList[k] = OutgoingDirectedEdgeIndexList[k].FaceIndex;
-	}
-	return AdjacentFaceIndexList;
-}
-
-template<typename MeshAttributeType>
-inline
-DenseVector<DirectedEdgeIndex_Of_PolygonMesh> Point_Of_PolygonMesh<MeshAttributeType>::GetOutgoingDirectedEdgeIndexList() const
-{
-	DenseVector<DirectedEdgeIndex_Of_PolygonMesh> OutgoingDirectedEdgeIndexList;
-	OutgoingDirectedEdgeIndexList.SetCapacity(m_Data->AdjacentEdgeIndexList.GetLength());
-	for (int_max k = 0; k < m_Data->AdjacentEdgeIndexList.GetLength(); ++k)
-	{
-		const auto& DirectedEdgeIndexList_k = m_Data->Mesh.m_MeshData->EdgeList[m_Data->AdjacentEdgeIndexList[k]].DirectedEdgeIndexList();
-		for (int_max n = 0; n < DirectedEdgeIndexList_k.GetLength(); ++n)
-		{
-			auto DirectedEdgeIndex_n = DirectedEdgeIndexList_k[n];
-			const auto& DirectedEdge_n = m_Data->Mesh.m_MeshData->FaceList[DirectedEdgeIndex_n.FaceIndex].DirectedEdgeList()[DirectedEdgeIndex_n.RelativeIndex];
-			auto PointIndex_start = DirectedEdge_n.GetStartPointIndex();			
-			if (PointIndex_start == m_Data->Index)
-			{
-				OutgoingDirectedEdgeIndexList.Append(DirectedEdgeIndex_n);
-			}
-		}
-	}
-	return OutgoingDirectedEdgeIndexList;
-}
-
-template<typename MeshAttributeType>
-inline
-DenseVector<DirectedEdgeIndex_Of_PolygonMesh> Point_Of_PolygonMesh<MeshAttributeType>::GetIncomingDirectedEdgeIndexList() const
-{
-	DenseVector<DirectedEdgeIndex_Of_PolygonMesh> IncomingDirectedEdgeIndexList;
-	IncomingDirectedEdgeIndexList.SetCapacity(m_Data->AdjacentEdgeIndexList.GetLength());
-	for (int_max k = 0; k < m_Data->AdjacentEdgeIndexList.GetLength(); ++k)
-	{
-		const auto& DirectedEdgeIndexList_k = m_Data->Mesh.m_MeshData->EdgeList[m_Data->AdjacentEdgeIndexList[k]].DirectedEdgeIndexList();
-		for (int_max n = 0; n < DirectedEdgeIndexList_k.GetLength(); ++n)
-		{
-			auto DirectedEdgeIndex_n = DirectedEdgeIndexList_k[n];
-			const auto& DirectedEdge_n = m_Data->Mesh.m_MeshData->FaceList[DirectedEdgeIndex_n.FaceIndex].DirectedEdgeList()[DirectedEdgeIndex_n.RelativeIndex];
-			auto PointIndex_end = DirectedEdge_n.GetEndPointIndex();
-			if (PointIndex_end == m_Data->Index)
-			{
-				IncomingDirectedEdgeIndexList.Append(DirectedEdgeIndex_n);
-			}
-		}
-	}
-	return IncomingDirectedEdgeIndexList;
 }
 
 template<typename MeshAttributeType>
@@ -261,11 +169,9 @@ const PolygonMesh<MeshAttributeType>& Point_Of_PolygonMesh<MeshAttributeType>::G
 
 template<typename MeshAttributeType>
 inline
-Handle_Of_Point_Of_PolygonMesh Point_Of_PolygonMesh<MeshAttributeType>::GetHandle() const
+int_max Point_Of_PolygonMesh<MeshAttributeType>::GetIndex() const
 {
-    Handle_Of_Point_Of_PolygonMesh PointHandle;
-    PointHandle.SetIndex(m_Data->Index);
-    return PointHandle;
+    return m_Data->Index;
 }
 
 template<typename MeshAttributeType>
@@ -331,6 +237,67 @@ int_max Point_Of_PolygonMesh<MeshAttributeType>::GetID() const
 
 template<typename MeshAttributeType>
 inline
+void Point_Of_PolygonMesh<MeshAttributeType>::SetName(String PointName)
+{
+	if (!m_Data)
+	{
+		MDK_Error("this point has been deleted @ Point_Of_PolygonMesh::SetName(...)")
+		return;
+	}
+
+	if (PointName.IsEmpty() == true)
+	{
+		MDK_Error("PointName is empty @ Point_Of_PolygonMesh::SetName(...)")
+		return;
+	}
+
+	// check record
+	auto PointName_old = m_Data->Name;
+	if (PointName_old != PointName)
+	{
+		auto it = m_Data->Mesh.m_MeshData->Map_PointName_to_PointIndex.find(PointName);
+		if (it != m_Data->Mesh.m_MeshData->Map_PointName_to_PointIndex.end())
+		{
+			MDK_Error("Input PointName has already been used for another point @ Point_Of_PolygonMesh::SetID(...)")
+			return;
+		}
+
+		it = m_Data->Mesh.m_MeshData->Map_PointName_to_PointIndex.find(PointName_old);
+		if (it != m_Data->Mesh.m_MeshData->Map_PointName_to_PointIndex.end())
+		{
+			m_Data->Mesh.m_MeshData->Map_PointName_to_PointIndex.erase(it);
+		}
+
+		m_Data->Mesh.m_MeshData->Map_PointName_to_PointIndex[PointName] = m_Data->Index;
+		m_Data->Name =std::move(PointName);
+	}
+}
+
+template<typename MeshAttributeType>
+inline
+void Point_Of_PolygonMesh<MeshAttributeType>::EraseName()
+{
+	if (m_Data->Name.IsEmpty() == false)
+	{
+		auto it = m_Data->Mesh.m_MeshData->Map_PointName_to_PointIndex.find(m_Data->Name);
+		if (it != m_Data->Mesh.m_MeshData->Map_PointName_to_PointIndex.end())
+		{
+			m_Data->Mesh.m_MeshData->Map_PointName_to_PointIndex.erase(it);
+		}
+
+		m_Data->Name.Clear();
+	}
+}
+
+template<typename MeshAttributeType>
+inline
+String Point_Of_PolygonMesh<MeshAttributeType>::GetName() const
+{
+	return m_Data->Name;
+}
+
+template<typename MeshAttributeType>
+inline
 void Point_Of_PolygonMesh<MeshAttributeType>::SetPosition(const DenseVector<ScalarType, 3>& Pos)
 {
     m_Data->Mesh.m_MeshData->PointPositionTable.SetCol(m_Data->Index, Pos.GetPointer());
@@ -384,47 +351,31 @@ int_max Point_Of_PolygonMesh<MeshAttributeType>::GetAdjacentPointCount() const
 	return m_Data->AdjacentEdgeIndexList.GetLength();
 }
 
-
 template<typename MeshAttributeType>
 inline
-DenseVector<Handle_Of_Point_Of_PolygonMesh> Point_Of_PolygonMesh<MeshAttributeType>::GetAdjacentPointHandleList() const
+DenseVector<int_max> Point_Of_PolygonMesh<MeshAttributeType>::GetAdjacentPointIndexList() const
 {
-    DenseVector<Handle_Of_Point_Of_PolygonMesh> OutputHandleList;
-    this->GetAdjacentPointHandleList(OutputHandleList);
-    return OutputHandleList;
-}
-
-template<typename MeshAttributeType>
-inline
-void Point_Of_PolygonMesh<MeshAttributeType>::GetAdjacentPointHandleList(DenseVector<Handle_Of_Point_Of_PolygonMesh>& OutputHandleList) const
-{
-	auto AdjacentPointIndexList = this->GetAdjacentPointIndexList();
-    OutputHandleList.FastResize(AdjacentPointIndexList.GetLength());
-    for (int_max k = 0; k < AdjacentPointIndexList.GetLength(); ++k)
-    {
-        OutputHandleList[k].SetIndex(AdjacentPointIndexList[k]);
-    }
-}
-
-template<typename MeshAttributeType>
-inline
-DenseVector<int_max> Point_Of_PolygonMesh<MeshAttributeType>::GetAdjacentPointIDList() const
-{
-    DenseVector<int_max> OutputIDList;
-    this->GetAdjacentPointIDList(OutputIDList);
-    return OutputIDList;
-}
-
-template<typename MeshAttributeType>
-inline
-void Point_Of_PolygonMesh<MeshAttributeType>::GetAdjacentPointIDList(DenseVector<int_max>& OutputIDList) const
-{
-	auto AdjacentPointIndexList = this->GetAdjacentPointIndexList();
-	OutputIDList.FastResize(AdjacentPointIndexList.GetLength());
-    for (int_max k = 0; k < AdjacentPointIndexList.GetLength(); ++k)
-    {
-        OutputIDList[k] = m_Data->Mesh.m_MeshData->PointList[AdjacentPointIndexList[k]].GetID();
-    }
+	DenseVector<int_max> AdjacentPointIndexList;
+	AdjacentPointIndexList.Resize(m_Data->AdjacentEdgeIndexList.GetLength());
+	for (int_max k = 0; k < m_Data->AdjacentEdgeIndexList.GetLength(); ++k)
+	{
+		auto EdgeIndex_k = m_Data->AdjacentEdgeIndexList[k];
+		int_max PointIndex0, PointIndex1;
+		m_Data->Mesh.m_MeshData->EdgeList[EdgeIndex_k].GetPointIndexList(PointIndex0, PointIndex1);
+		if (PointIndex0 == m_Data->Index)
+		{
+			AdjacentPointIndexList[k] = PointIndex1;
+		}
+		else if (PointIndex1 == m_Data->Index)
+		{
+			AdjacentPointIndexList[k] = PointIndex0;
+		}
+		else
+		{
+			MDK_Error("Wrong @ Point_Of_PolygonMesh::GetAdjacentPointIndexList()")
+		}
+	}
+	return AdjacentPointIndexList;
 }
 
 template<typename MeshAttributeType>
@@ -436,42 +387,9 @@ int_max Point_Of_PolygonMesh<MeshAttributeType>::GetAdjacentEdgeCount() const
 
 template<typename MeshAttributeType>
 inline
-DenseVector<Handle_Of_Edge_Of_PolygonMesh> Point_Of_PolygonMesh<MeshAttributeType>::GetAdjacentEdgeHandleList() const
+DenseVector<int_max> Point_Of_PolygonMesh<MeshAttributeType>::GetAdjacentEdgeIndexList() const
 {
-    DenseVector<Handle_Of_Edge_Of_PolygonMesh> OutputHandleList;
-    this->GetAdjacentEdgeHandleList(OutputHandleList);
-    return OutputHandleList;
-}
-
-template<typename MeshAttributeType>
-inline
-void Point_Of_PolygonMesh<MeshAttributeType>::GetAdjacentEdgeHandleList(DenseVector<Handle_Of_Edge_Of_PolygonMesh>& OutputHandleList) const
-{
-    OutputHandleList.FastResize(m_Data->AdjacentEdgeIndexList.GetLength());
-    for (int_max k = 0; k < m_Data->AdjacentEdgeIndexList.GetLength(); ++k)
-    {
-        OutputHandleList[k].SetIndex(m_Data->AdjacentEdgeIndexList[k]);
-    }
-}
-
-template<typename MeshAttributeType>
-inline
-DenseVector<int_max> Point_Of_PolygonMesh<MeshAttributeType>::GetAdjacentEdgeIDList() const
-{
-    DenseVector<int_max> OutputIDList;
-    this->GetAdjacentEdgeIDList(OutputIDList);
-    return OutputIDList;
-}
-
-template<typename MeshAttributeType>
-inline
-void Point_Of_PolygonMesh<MeshAttributeType>::GetAdjacentEdgeIDList(DenseVector<int_max>& OutputIDList) const
-{
-    OutputHandleList.FastResize(m_Data->AdjacentEdgeIndexList.GetLength());
-    for (int_max k = 0; k < m_Data->AdjacentEdgeIndexList.GetLength(); ++k)
-    {
-        OutputIDList[k]= m_Data->Mesh.m_MeshData->EdgeList[m_Data->AdjacentEdgeIndexList[k]].GetID();
-    }
+	return m_Data->AdjacentEdgeIndexList;
 }
 
 template<typename MeshAttributeType>
@@ -484,46 +402,25 @@ int_max Point_Of_PolygonMesh<MeshAttributeType>::GetOutgoingDirectedEdgeCount() 
 
 template<typename MeshAttributeType>
 inline
-DenseVector<Handle_Of_DirectedEdge_Of_PolygonMesh> Point_Of_PolygonMesh<MeshAttributeType>::GetOutgoingDirectedEdgeHandleList() const
+DenseVector<DirectedEdgeIndex_Of_PolygonMesh> Point_Of_PolygonMesh<MeshAttributeType>::GetOutgoingDirectedEdgeIndexList() const
 {
-    DenseVector<Handle_Of_DirectedEdge_Of_PolygonMesh> OutputHandleList;
-    this->GetOutgoingDirectedEdgeHandleList(OutputHandleList);
-    return OutputHandleList;
-}
-
-template<typename MeshAttributeType>
-inline
-void Point_Of_PolygonMesh<MeshAttributeType>::GetOutgoingDirectedEdgeHandleList(DenseVector<Handle_Of_DirectedEdge_Of_PolygonMesh>& OutputHandleList) const
-{
-	auto OutgoingDirectedEdgeIndexList = this->GetOutgoingDirectedEdgeIndexList();
-    OutputHandleList.FastResize(OutgoingDirectedEdgeIndexList.GetLength());
-    for (int_max k = 0; k < OutgoingDirectedEdgeIndexList.GetLength(); ++k)
-    {
-        OutputHandleList[k].SetIndex(OutgoingDirectedEdgeIndexList[k]);
-    }
-}
-
-template<typename MeshAttributeType>
-inline
-DenseVector<int_max> Point_Of_PolygonMesh<MeshAttributeType>::GetOutgoingDirectedEdgeIDList() const
-{
-    DenseVector<int_max> OutputIDList;
-    this->GetOutgoingDirectedEdgeIDList(OutputIDList);
-    return OutputIDList;
-}
-
-template<typename MeshAttributeType>
-inline
-void Point_Of_PolygonMesh<MeshAttributeType>::GetOutgoingDirectedEdgeIDList(DenseVector<int_max>& OutputIDList) const
-{
-	auto OutgoingDirectedEdgeIndexList = this->GetOutgoingDirectedEdgeIndexList();
-    OutputHandleList.FastResize(OutgoingDirectedEdgeIndexList.GetLength());
-    for (int_max k = 0; k < OutgoingDirectedEdgeIndexList.GetLength(); ++k)
-    {
-        auto FaceIndex = OutgoingDirectedEdgeIndexList[k].FaceIndex;
-        auto RelativeIndex = OutgoingDirectedEdgeIndexList[k].RelativeIndex;
-        OutputIDList[k] = m_Data->Mesh.m_MeshData->FaceList[FaceIndex].DirectedEdgeList()[RelativeIndex].GetID();
-    }
+	DenseVector<DirectedEdgeIndex_Of_PolygonMesh> OutgoingDirectedEdgeIndexList;
+	OutgoingDirectedEdgeIndexList.SetCapacity(m_Data->AdjacentEdgeIndexList.GetLength());
+	for (int_max k = 0; k < m_Data->AdjacentEdgeIndexList.GetLength(); ++k)
+	{
+		const auto& DirectedEdgeIndexList_k = m_Data->Mesh.m_MeshData->EdgeList[m_Data->AdjacentEdgeIndexList[k]].DirectedEdgeIndexList();
+		for (int_max n = 0; n < DirectedEdgeIndexList_k.GetLength(); ++n)
+		{
+			auto DirectedEdgeIndex_n = DirectedEdgeIndexList_k[n];
+			const auto& DirectedEdge_n = m_Data->Mesh.m_MeshData->FaceList[DirectedEdgeIndex_n.FaceIndex].DirectedEdgeList()[DirectedEdgeIndex_n.RelativeIndex];
+			auto PointIndex_start = DirectedEdge_n.GetStartPointIndex();
+			if (PointIndex_start == m_Data->Index)
+			{
+				OutgoingDirectedEdgeIndexList.Append(DirectedEdgeIndex_n);
+			}
+		}
+	}
+	return OutgoingDirectedEdgeIndexList;
 }
 
 template<typename MeshAttributeType>
@@ -536,46 +433,25 @@ int_max Point_Of_PolygonMesh<MeshAttributeType>::GetIncomingDirectedEdgeCount() 
 
 template<typename MeshAttributeType>
 inline
-DenseVector<Handle_Of_DirectedEdge_Of_PolygonMesh> Point_Of_PolygonMesh<MeshAttributeType>::GetIncomingDirectedEdgeHandleList() const
+DenseVector<DirectedEdgeIndex_Of_PolygonMesh> Point_Of_PolygonMesh<MeshAttributeType>::GetIncomingDirectedEdgeIndexList() const
 {
-    DenseVector<Handle_Of_DirectedEdge_Of_PolygonMesh> OutputHandleList;
-    this->GetIncomingDirectedEdgeHandleList(OutputHandleList);
-    return OutputHandleList;
-}
-
-template<typename MeshAttributeType>
-inline
-void Point_Of_PolygonMesh<MeshAttributeType>::GetIncomingDirectedEdgeHandleList(DenseVector<Handle_Of_DirectedEdge_Of_PolygonMesh>& OutputHandleList) const
-{
-	auto IncomingDirectedEdgeIndexList = this->GetIncomingDirectedEdgeIndexList();
-    OutputHandleList.FastResize(IncomingDirectedEdgeIndexList.GetLength());
-    for (int_max k = 0; k < IncomingDirectedEdgeIndexList.GetLength(); ++k)
-    {
-        OutputHandleList[k].SetIndex(IncomingDirectedEdgeIndexList[k]);
-    }
-}
-
-template<typename MeshAttributeType>
-inline
-DenseVector<int_max> Point_Of_PolygonMesh<MeshAttributeType>::GetIncomingDirectedEdgeIDList() const
-{
-    DenseVector<int_max> OutputIDList;
-    this->GetIncomingDirectedEdgeIDList(OutputIDList);
-    return OutputIDList;
-}
-
-template<typename MeshAttributeType>
-inline
-void Point_Of_PolygonMesh<MeshAttributeType>::GetIncomingDirectedEdgeIDList(DenseVector<int_max>& OutputIDList) const
-{
-	auto IncomingDirectedEdgeIndexList = this->GetIncomingDirectedEdgeIndexList();
-    OutputHandleList.FastResize(IncomingDirectedEdgeIndexList.GetLength());
-    for (int_max k = 0; k < IncomingDirectedEdgeIndexList.GetLength(); ++k)
-    {
-        auto FaceIndex = IncomingDirectedEdgeIndexList[k].FaceIndex;
-        auto RelativeIndex = IncomingDirectedEdgeIndexList[k].RelativeIndex;
-        OutputIDList[k] = m_Data->Mesh.m_MeshData->FaceList[FaceIndex].DirectedEdgeList()[RelativeIndex].GetID();
-    }
+	DenseVector<DirectedEdgeIndex_Of_PolygonMesh> IncomingDirectedEdgeIndexList;
+	IncomingDirectedEdgeIndexList.SetCapacity(m_Data->AdjacentEdgeIndexList.GetLength());
+	for (int_max k = 0; k < m_Data->AdjacentEdgeIndexList.GetLength(); ++k)
+	{
+		const auto& DirectedEdgeIndexList_k = m_Data->Mesh.m_MeshData->EdgeList[m_Data->AdjacentEdgeIndexList[k]].DirectedEdgeIndexList();
+		for (int_max n = 0; n < DirectedEdgeIndexList_k.GetLength(); ++n)
+		{
+			auto DirectedEdgeIndex_n = DirectedEdgeIndexList_k[n];
+			const auto& DirectedEdge_n = m_Data->Mesh.m_MeshData->FaceList[DirectedEdgeIndex_n.FaceIndex].DirectedEdgeList()[DirectedEdgeIndex_n.RelativeIndex];
+			auto PointIndex_end = DirectedEdge_n.GetEndPointIndex();
+			if (PointIndex_end == m_Data->Index)
+			{
+				IncomingDirectedEdgeIndexList.Append(DirectedEdgeIndex_n);
+			}
+		}
+	}
+	return IncomingDirectedEdgeIndexList;
 }
 
 template<typename MeshAttributeType>
@@ -588,43 +464,16 @@ int_max Point_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceCount() const
 
 template<typename MeshAttributeType>
 inline
-DenseVector<Handle_Of_Face_Of_PolygonMesh> Point_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceHandleList() const
+DenseVector<int_max> Point_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceIndexList() const
 {
-    DenseVector<Handle_Of_Face_Of_PolygonMesh> OutputHandleList;
-    this->GetAdjacentFaceHandleList(OutputHandleList);
-    return OutputHandleList;
-}
-
-template<typename MeshAttributeType>
-inline
-void Point_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceHandleList(DenseVector<Handle_Of_Face_Of_PolygonMesh>& OutputHandleList) const
-{
-	auto AdjacentFaceIndexList = this->GetAdjacentFaceIndexList();
-    OutputHandleList.FastResize(AdjacentFaceIndexList.GetLength());
-    for (int_max k = 0; k < AdjacentFaceIndexList.GetLength(); ++k)
-    {
-        OutputHandleList[k].SetIndex(AdjacentFaceIndexList[k]);
-    }
-}
-
-template<typename MeshAttributeType>
-inline
-DenseVector<int_max> Point_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceIDList() const
-{
-    DenseVector<int_max> OutputIDList;
-    this->GetAdjacentFaceIDList(OutputIDList);
-    return OutputIDList;
-}
-
-template<typename MeshAttributeType>
-inline
-void Point_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceIDList(DenseVector<int_max>& OutputIDList) const
-{
-    OutputHandleList.FastResize(m_Data->AdjacentFaceIndexList.GetLength());
-    for (int_max k = 0; k < m_Data->AdjacentFaceIndexList.GetLength(); ++k)
-    {
-        OutputIDList[k] = m_Data->Mesh.m_MeshData->FaceList[m_Data->AdjacentFaceIndexList[k]].GetID();
-    }
+	DenseVector<int_max> AdjacentFaceIndexList;
+	auto OutgoingDirectedEdgeIndexList = this->GetOutgoingDirectedEdgeIndexList();
+	AdjacentFaceIndexList.Resize(OutgoingDirectedEdgeIndexList.GetLength());
+	for (int_max k = 0; k < OutgoingDirectedEdgeIndexList.GetLength(); ++k)
+	{
+		AdjacentFaceIndexList[k] = OutgoingDirectedEdgeIndexList[k].FaceIndex;
+	}
+	return AdjacentFaceIndexList;
 }
 
 template<typename MeshAttributeType>
@@ -688,6 +537,7 @@ void Edge_Of_PolygonMesh<MeshAttributeType>::operator=(const Edge_Of_PolygonMesh
     m_Data->Mesh.ForceShare(InputEdge.m_Data->Mesh);
     m_Data->Index = InputEdge.m_Data->Index;
     m_Data->ID = InputEdge.m_Data->ID;
+	m_Data->Name = InputEdge.m_Data->Name;
     m_Data->PointIndex0 = InputEdge.m_Data->PointIndex0;
     m_Data->PointIndex1 = InputEdge.m_Data->PointIndex1;
 	m_Data->DirectedEdgeIndexList = InputEdge.m_Data->DirectedEdgeIndexList;
@@ -712,6 +562,7 @@ void Edge_Of_PolygonMesh<MeshAttributeType>::ReCreate()
 
     m_Data->Index = -1;
     m_Data->ID = -1;
+	m_Data->Name.Clear();
     m_Data->PointIndex0 = -1;
     m_Data->PointIndex1 = -1;
 	m_Data->DirectedEdgeIndexList.Clear();
@@ -762,38 +613,6 @@ const DenseVector<DirectedEdgeIndex_Of_PolygonMesh>& Edge_Of_PolygonMesh<MeshAtt
 
 template<typename MeshAttributeType>
 inline
-int_max Edge_Of_PolygonMesh<MeshAttributeType>::GetIndex() const
-{
-    return m_Data->Index;
-}
-
-template<typename MeshAttributeType>
-inline
-void Edge_Of_PolygonMesh<MeshAttributeType>::GetPointIndexList(int_max& PointIndex0, int_max& PointIndex1) const
-{
-    PointIndex0 = m_Data->PointIndex0;
-    PointIndex1 = m_Data->PointIndex1;
-}
-
-template<typename MeshAttributeType>
-inline
-void Edge_Of_PolygonMesh<MeshAttributeType>::GetPointIndexList(int_max PointIndexList[2]) const
-{
-    this->GetPointIndexList(PointIndexList[0], PointIndexList[1]);
-}
-
-template<typename MeshAttributeType>
-inline 
-DenseVector<int_max, 2> Edge_Of_PolygonMesh<MeshAttributeType>::GetPointIndexList() const
-{
-	DenseVector<int_max, 2> PointIndexList;
-	PointIndexList[0] = m_Data->PointIndex0;
-	PointIndexList[1] = m_Data->PointIndex1;
-	return PointIndexList;
-}
-
-template<typename MeshAttributeType>
-inline
 void Edge_Of_PolygonMesh<MeshAttributeType>::SetPointIndexList(int_max PointIndex0, int_max PointIndex1)
 {
     m_Data->PointIndex0 = PointIndex0;
@@ -808,107 +627,6 @@ void Edge_Of_PolygonMesh<MeshAttributeType>::SetPointIndexList(const DenseVector
 	m_Data->PointIndex1 = PointIndexList[1];
 }
 
-template<typename MeshAttributeType>
-inline 
-DenseVector<int_max> Edge_Of_PolygonMesh<MeshAttributeType>::GetAdjacentEdgeIndexList() const
-{
-    DenseVector<int_max> OutputIndexList;
-    this->GetAdjacentEdgeIndexList(OutputIndexList);
-    return OutputIndexList;
-}
-
-template<typename MeshAttributeType>
-inline
-void Edge_Of_PolygonMesh<MeshAttributeType>::GetAdjacentEdgeIndexList(DenseVector<int_max>& OutputIndexList) const
-{
-	const auto& AdjacentEdgeIndexList0 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex0].GetAdjacentEdgeIndexList();
-	const auto& AdjacentEdgeIndexList1 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex1].GetAdjacentEdgeIndexList();
-
-    OutputIndexList.FastResize(0);
-    OutputIndexList.SetCapacity(AdjacentEdgeIndexList0.GetLength() + AdjacentEdgeIndexList1.GetLength() - 2);
-
-    Handle_Of_Edge_Of_PolygonMesh EdgeHandle;
-
-    for (int_max k = 0; k < AdjacentEdgeIndexList0.GetLength(); ++k)
-    {
-        auto tempIndex = AdjacentEdgeIndexList0[k];
-        if (tempIndex != m_Data->Index)
-        {
-            OutputIndexList.Append(tempIndex);
-        }
-    }
-
-    for (int_max k = 0; k < AdjacentEdgeIndexList1.GetLength(); ++k)
-    {
-        auto tempIndex = AdjacentEdgeIndexList1[k];
-        if (tempIndex != m_Data->Index)
-        {
-            OutputIndexList.Append(tempIndex);
-        }
-    }
-}
-
-// Face share this edge
-template<typename MeshAttributeType>
-inline
-DenseVector<int_max> Edge_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceIndexList() const
-{
-    DenseVector<int_max> OutputIndexList;
-    this->GetAdjacentFaceIndexList(OutputIndexList);
-    return OutputIndexList;
-}
-
-template<typename MeshAttributeType>
-inline 
-void Edge_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceIndexList(DenseVector<int_max>& OutputIndexList) const
-{
-    OutputIndexList.FastResize(0);
-    OutputIndexList.SetCapacity(2);
-	for (int_max k = 0; k < m_Data->DirectedEdgeIndexList.GetLength(); ++k)
-	{
-		OutputIndexList.Append(m_Data->DirectedEdgeIndexList[k].FaceIndex);
-	}
-}
-
-// Face share any  point of this edge
-template<typename MeshAttributeType>
-inline
-DenseVector<int_max> Edge_Of_PolygonMesh<MeshAttributeType>::GetNeighbourFaceIndexList() const
-{
-    DenseVector<int_max> OutputIndexList;
-    this->GetNeighbourFaceIndexList(OutputIndexList);
-    return OutputIndexList;
-}
-
-template<typename MeshAttributeType>
-inline 
-void Edge_Of_PolygonMesh<MeshAttributeType>::GetNeighbourFaceIndexList(DenseVector<int_max>& OutputIndexList) const
-{
-    const auto& AdjacentFaceIndexList0 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex0].AdjacentFaceIndexList();
-	const auto& AdjacentFaceIndexList1 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex1].AdjacentFaceIndexList();
-
-    OutputIndexList.FastResize(0);
-
-    if (AdjacentFaceIndexList0.IsEmpty() == true && AdjacentFaceIndexList1.IsEmpty() == true)
-    {
-        return;
-    }
-
-    OutputIndexList.SetCapacity(AdjacentFaceIndexList0.GetLength() + AdjacentFaceIndexList1.GetLength());
-
-    for (int_max k = 0; k < AdjacentFaceIndexList0.GetLength(); ++k)
-    {
-        OutputIndexList.Append(AdjacentFaceIndexList0[k]);
-    }
-
-    for (int_max k = 0; k < AdjacentFaceIndexList1.GetLength(); ++k)
-    {
-        OutputIndexList.Append(AdjacentFaceIndexList1[k]);
-    }
-
-    auto tempIndexList = OutputIndexList.FindUnique();
-    OutputIndexList = OutputIndexList.GetSubSet(tempIndexList);
-}
 
 template<typename MeshAttributeType>
 inline
@@ -952,11 +670,9 @@ const PolygonMesh<MeshAttributeType>& Edge_Of_PolygonMesh<MeshAttributeType>::Ge
 
 template<typename MeshAttributeType>
 inline
-Handle_Of_Edge_Of_PolygonMesh Edge_Of_PolygonMesh<MeshAttributeType>::GetHandle() const
+int_max Edge_Of_PolygonMesh<MeshAttributeType>::GetIndex() const
 {
-    Handle_Of_Edge_Of_PolygonMesh EdgeHandle;
-    EdgeHandle.SetIndex(m_Data->Index);
-    return EdgeHandle;
+	return m_Data->Index;
 }
 
 template<typename MeshAttributeType>
@@ -1022,38 +738,88 @@ int_max Edge_Of_PolygonMesh<MeshAttributeType>::GetID() const
 
 template<typename MeshAttributeType>
 inline
-DenseVector<Handle_Of_Point_Of_PolygonMesh, 2> Edge_Of_PolygonMesh<MeshAttributeType>::GetPointHandleList() const
+void Edge_Of_PolygonMesh<MeshAttributeType>::SetName(String EdgeName)
 {
-    DenseVector<Handle_Of_Point_Of_PolygonMesh, 2> OutputHandleList;
-    OutputHandleList[0].SetIndex(m_Data->PointIndex0);
-    OutputHandleList[1].SetIndex(m_Data->PointIndex1);
-    return OutputHandleList;
+	if (!m_Data)
+	{
+		MDK_Error("Edge has been deleted @ Edge_Of_PolygonMesh::SetName(...)")
+		return;
+	}
+
+	if (EdgeName.IsEmpty() == true)
+	{
+		MDK_Error("EdgeName is empty @ Edge_Of_PolygonMesh::SetName(...)")
+		return;
+	}
+
+	// check record
+	auto EdgeName_old = m_Data->Name;
+	if (EdgeName_old != EdgeName)
+	{
+		auto it = m_Data->Mesh.m_MeshData->Map_EdgeName_to_EdgeIndex.find(EdgeName);
+		if (it != m_Data->Mesh.m_MeshData->Map_EdgeName_to_EdgeIndex.end())
+		{
+			MDK_Error("Input EdgeName has already been used for another edge @ Edge_Of_PolygonMesh::SetID(...)")
+			return;
+		}
+
+		it = m_Data->Mesh.m_MeshData->Map_EdgeName_to_EdgeIndex.find(EdgeName_old);
+		if (it != m_Data->Mesh.m_MeshData->Map_EdgeName_to_EdgeIndex.end())
+		{
+			m_Data->Mesh.m_MeshData->Map_EdgeName_to_EdgeIndex.erase(it);
+		}
+
+		m_Data->Mesh.m_MeshData->Map_EdgeName_to_EdgeIndex[EdgeName] = m_Data->Index;
+		m_Data->Name = std::move(EdgeName);
+	}
 }
 
 template<typename MeshAttributeType>
 inline
-void Edge_Of_PolygonMesh<MeshAttributeType>::
-GetPointHandleList(Handle_Of_Point_Of_PolygonMesh& PointHandle0, Handle_Of_Point_Of_PolygonMesh& PointHandle1) const
+void Edge_Of_PolygonMesh<MeshAttributeType>::EraseName()
 {
-    PointHandle0.SetIndex(m_Data->PointIndex0);
-    PointHandle1.SetIndex(m_Data->PointIndex1);
-}
+	if (m_Data->Name.IsEmpty() == false)
+	{
+		auto it = m_Data->Mesh.m_MeshData->Map_EdgeName_to_EdgeIndex.find(m_Data->Name);
+		if (it != m_Data->Mesh.m_MeshData->Map_EdgeName_to_EdgeIndex.end())
+		{
+			m_Data->Mesh.m_MeshData->Map_EdgeName_to_EdgeIndex.erase(it);
+		}
 
-template<typename MeshAttributeType>
-inline 
-DenseVector<int_max, 2> Edge_Of_PolygonMesh<MeshAttributeType>::GetPointIDList() const
-{
-    DenseVector<int_max, 2> PointIDList;
-    this->GetPointIDList(PointIDList[0], PointIDList[1]);
-    return PointIDList;
+		m_Data->Name.Clear();
+	}
 }
 
 template<typename MeshAttributeType>
 inline
-void Edge_Of_PolygonMesh<MeshAttributeType>::GetPointIDList(int_max& PointID0, int_max& PointID1) const
+String Edge_Of_PolygonMesh<MeshAttributeType>::GetName() const
 {
-    PointID0 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex0].GetID();
-    PointID1 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex1].GetID();
+	return m_Data->Name;
+}
+
+template<typename MeshAttributeType>
+inline
+void Edge_Of_PolygonMesh<MeshAttributeType>::GetPointIndexList(int_max& PointIndex0, int_max& PointIndex1) const
+{
+	PointIndex0 = m_Data->PointIndex0;
+	PointIndex1 = m_Data->PointIndex1;
+}
+
+template<typename MeshAttributeType>
+inline
+void Edge_Of_PolygonMesh<MeshAttributeType>::GetPointIndexList(int_max PointIndexList[2]) const
+{
+	this->GetPointIndexList(PointIndexList[0], PointIndexList[1]);
+}
+
+template<typename MeshAttributeType>
+inline
+DenseVector<int_max, 2> Edge_Of_PolygonMesh<MeshAttributeType>::GetPointIndexList() const
+{
+	DenseVector<int_max, 2> PointIndexList;
+	PointIndexList[0] = m_Data->PointIndex0;
+	PointIndexList[1] = m_Data->PointIndex1;
+	return PointIndexList;
 }
 
 template<typename MeshAttributeType>
@@ -1064,23 +830,10 @@ int_max Edge_Of_PolygonMesh<MeshAttributeType>::GetDirectedEdgeCount() const
 }
 
 template<typename MeshAttributeType>
-inline 
-DenseVector<Handle_Of_DirectedEdge_Of_PolygonMesh> Edge_Of_PolygonMesh<MeshAttributeType>::GetDirectedEdgeHandleList() const
-{
-    DenseVector<Handle_Of_DirectedEdge_Of_PolygonMesh> OutputHandleList;
-	this->GetDirectedEdgeHandleList(OutputHandleList);
-    return OutputHandleList;
-}
-
-template<typename MeshAttributeType>
 inline
-void Edge_Of_PolygonMesh<MeshAttributeType>::GetDirectedEdgeHandleList(DenseVector<Handle_Of_DirectedEdge_Of_PolygonMesh>& OutputHandleList) const
+DenseVector<DirectedEdgeIndex_Of_PolygonMesh> Edge_Of_PolygonMesh<MeshAttributeType>::GetDirectedEdgeIndexList() const
 {
-	OutputHandleList.FastResize(m_Data->DirectedEdgeIndexList.GetLength());
-	for (int_max k = 0; k < m_Data->DirectedEdgeIndexList.GetLength(); ++k)
-	{
-		OutputHandleList[k].SetIndex(m_Data->DirectedEdgeIndexList[k]);
-	}
+	return m_Data->DirectedEdgeIndexList;
 }
 
 template<typename MeshAttributeType>
@@ -1094,84 +847,33 @@ int_max Edge_Of_PolygonMesh<MeshAttributeType>::GetAdjacentEdgeCount() const
 
 template<typename MeshAttributeType>
 inline
-DenseVector<Handle_Of_Edge_Of_PolygonMesh> Edge_Of_PolygonMesh<MeshAttributeType>::GetAdjacentEdgeHandleList() const
+DenseVector<int_max> Edge_Of_PolygonMesh<MeshAttributeType>::GetAdjacentEdgeIndexList() const
 {
-    DenseVector<Handle_Of_Edge_Of_PolygonMesh> OutputHandleList;
-    this->GetAdjacentEdgeHandleList(OutputHandleList);
-	return OutputHandleList;
-}
+	const auto& AdjacentEdgeIndexList0 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex0].GetAdjacentEdgeIndexList();
+	const auto& AdjacentEdgeIndexList1 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex1].GetAdjacentEdgeIndexList();
 
-template<typename MeshAttributeType>
-inline
-void Edge_Of_PolygonMesh<MeshAttributeType>::GetAdjacentEdgeHandleList(DenseVector<Handle_Of_Edge_Of_PolygonMesh>& OutputHandleList) const
-{
-    const auto& AdjacentEdgeIndexList0 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex0].AdjacentEdgeIndexList();
-	const auto& AdjacentEdgeIndexList1 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex1].AdjacentEdgeIndexList();
+	DenseVector<int_max> OutputIndexList;
+	OutputIndexList.SetCapacity(AdjacentEdgeIndexList0.GetLength() + AdjacentEdgeIndexList1.GetLength() - 2);
 
-    OutputHandleList.FastResize(0);
-    OutputHandleList.SetCapacity(AdjacentEdgeIndexList0.GetLength() + AdjacentEdgeIndexList1.GetLength() - 2);
+	for (int_max k = 0; k < AdjacentEdgeIndexList0.GetLength(); ++k)
+	{
+		auto tempIndex = AdjacentEdgeIndexList0[k];
+		if (tempIndex != m_Data->Index)
+		{
+			OutputIndexList.Append(tempIndex);
+		}
+	}
 
-    Handle_Of_Edge_Of_PolygonMesh EdgeHandle;
+	for (int_max k = 0; k < AdjacentEdgeIndexList1.GetLength(); ++k)
+	{
+		auto tempIndex = AdjacentEdgeIndexList1[k];
+		if (tempIndex != m_Data->Index)
+		{
+			OutputIndexList.Append(tempIndex);
+		}
+	}
 
-    for (int_max k = 0; k < AdjacentEdgeIndexList0.GetLength(); ++k)
-    {
-        auto tempIndex = AdjacentEdgeIndexList0[k];
-        if (tempIndex != m_Data->Index)
-        {
-            EdgeHandle.SetIndex(tempIndex);
-            OutputHandleList.Append(EdgeHandle);
-        }
-    }
-
-    for (int_max k = 0; k < AdjacentEdgeIndexList1.GetLength(); ++k)
-    {
-        auto tempIndex = AdjacentEdgeIndexList1[k];
-        if (tempIndex != m_Data->Index)
-        {
-            EdgeHandle.SetIndex(tempIndex);
-            OutputHandleList.Append(EdgeHandle);
-        }
-    }
-}
-
-template<typename MeshAttributeType>
-inline
-DenseVector<int_max> Edge_Of_PolygonMesh<MeshAttributeType>::GetAdjacentEdgeIDList() const
-{
-    DenseVector<int_max> OutputIDList;
-    this->GetAdjacentEdgeIDList(OutputIDList);
-    return OutputIDList;
-}
-
-template<typename MeshAttributeType>
-inline
-void Edge_Of_PolygonMesh<MeshAttributeType>::GetAdjacentEdgeIDList(DenseVector<int_max>& OutputIDList) const
-{
-    const auto& AdjacentEdgeIndexList0 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex0].AdjacentEdgeIndexList();
-    const auto& AdjacentEdgeIndexList1 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex1].AdjacentEdgeIndexList();
-
-    OutputIDList.FastResize(0);
-    OutputIDList.SetCapacity(AdjacentEdgeIndexList0.GetLength() + AdjacentEdgeIndexList1.GetLength() - 2);
-
-    Handle_Of_Edge_Of_PolygonMesh EdgeHandle;
-
-    for (int_max k = 0; k < AdjacentEdgeIndexList0.GetLength(); ++k)
-    {
-        auto tempIndex = AdjacentEdgeIndexList0[k];
-        if (tempIndex != m_Data->Index)
-        {
-            OutputIDList.Append(m_Data->Mesh.m_MeshData->EdgeList[tempIndex].GetID());
-        }
-    }
-
-    for (int_max k = 0; k < AdjacentEdgeIndexList1.GetLength(); ++k)
-    {
-        auto tempIndex = AdjacentEdgeIndexList1[k];
-        if (tempIndex != m_Data->Index)
-        {
-            OutputIDList.Append(m_Data->Mesh.m_MeshData->EdgeList[tempIndex].GetID());
-        }
-    }
+	return OutputIndexList;
 }
 
 template<typename MeshAttributeType>
@@ -1181,45 +883,18 @@ int_max Edge_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceCount() const
 	return m_Data->DirectedEdgeIndexList.GetLength();
 }
 
+// Face share this edge
 template<typename MeshAttributeType>
 inline
-DenseVector<Handle_Of_Face_Of_PolygonMesh> Edge_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceHandleList() const
+DenseVector<int_max> Edge_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceIndexList() const
 {
-    DenseVector<Handle_Of_Face_Of_PolygonMesh> OutputHandleList;
-    this->GetAdjacentFaceHandleList(OutputHandleList);
-    return OutputHandleList;
-}
-
-template<typename MeshAttributeType>
-inline
-void Edge_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceHandleList(DenseVector<Handle_Of_Face_Of_PolygonMesh>& OutputHandleList) const
-{    
-	OutputHandleList.FastResize(m_Data->DirectedEdgeIndexList.GetLength());
-	for (int_max k = 0; k < m_Data->DirectedEdgeIndexList.GetLength(); ++k)
-	{				
-		OutputHandleList[k].SetIndex(m_Data->DirectedEdgeIndexList[k].FaceIndex);
-	}
-}
-
-template<typename MeshAttributeType>
-inline
-DenseVector<int_max> Edge_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceIDList() const
-{
-    DenseVector<int_max> OutputIDList;
-    this->GetAdjacentFaceIDList(OutputIDList);
-    return OutputIDList;
-}
-
-template<typename MeshAttributeType>
-inline
-void Edge_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceIDList(DenseVector<int_max>& OutputIDList) const
-{
-	OutputIDList.FastResize(m_Data->DirectedEdgeIndexList.GetLength());
+	DenseVector<int_max> OutputIndexList;
+	OutputIndexList.SetCapacity(2);
 	for (int_max k = 0; k < m_Data->DirectedEdgeIndexList.GetLength(); ++k)
 	{
-		auto FaceIndex_k = m_Data->DirectedEdgeIndexList[k].GetFaceIndex();		
-		OutputIDList[k] = m_Data->Mesh.FaceList[FaceIndex_k].GetID();
+		OutputIndexList.Append(m_Data->DirectedEdgeIndexList[k].FaceIndex);
 	}
+	return OutputIndexList;
 }
 
 template<typename MeshAttributeType>
@@ -1231,72 +906,41 @@ int_max Edge_Of_PolygonMesh<MeshAttributeType>::GetNeighbourFaceCount() const
 	//auto Counter1 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex1].GetAdjacentFaceCount();
 	//return Counter0 + Counter1 - 2;
 
-	auto HandleList = this->GetNeighbourFaceHandleList();
-	return HandleList.GetLength();
+	auto IndexList = this->GetNeighbourFaceIndexList();
+	return IndexList.GetLength();
 }
 
+// Face share any  point of this edge
 template<typename MeshAttributeType>
 inline
-DenseVector<Handle_Of_Face_Of_PolygonMesh> Edge_Of_PolygonMesh<MeshAttributeType>::GetNeighbourFaceHandleList() const
+DenseVector<int_max> Edge_Of_PolygonMesh<MeshAttributeType>::GetNeighbourFaceIndexList() const
 {
-    DenseVector<Handle_Of_Face_Of_PolygonMesh> OutputHandleList;
-    this->GetNeighbourFaceHandleList(OutputHandleList);
-    return OutputHandleList;
-}
+	DenseVector<int_max> OutputIndexList;
 
-template<typename MeshAttributeType>
-inline
-void Edge_Of_PolygonMesh<MeshAttributeType>::GetNeighbourFaceHandleList(DenseVector<Handle_Of_Face_Of_PolygonMesh>& OutputHandleList) const
-{
-    const auto& AdjacentFaceIndexList0 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex0].GetAdjacentFaceIndexList();
-    const auto& AdjacentFaceIndexList1 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex1].GetAdjacentFaceIndexList();
+	const auto& AdjacentFaceIndexList0 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex0].AdjacentFaceIndexList();
+	const auto& AdjacentFaceIndexList1 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex1].AdjacentFaceIndexList();
 
-    OutputHandleList.FastResize(0);
-
-    if (AdjacentFaceIndexList0.IsEmpty() == true && AdjacentFaceIndexList1.IsEmpty() == true)
-    {
-        return;
-    }
-
-    Handle_Of_Face_Of_PolygonMesh FaceHandle;
-
-    OutputHandleList.SetCapacity(AdjacentFaceIndexList0.GetLength() + AdjacentFaceIndexList1.GetLength());
-
-    for (int_max k = 0; k < AdjacentFaceIndexList0.GetLength(); ++k)
-    {
-        FaceHandle.SetIndex(AdjacentFaceIndexList0[k]);
-        OutputHandleList.Append(FaceHandle);
-    }
-
-    for (int_max k = 0; k < AdjacentFaceIndexList1.GetLength(); ++k)
-    {
-        FaceHandle.SetIndex(AdjacentFaceIndexList1[k]);
-        OutputHandleList.Append(FaceHandle);
-    }
-
-    auto tempIndexList = OutputHandleList.FindUnique();
-    OutputHandleList = OutputHandleList.GetSubSet(tempIndexList);
-}
-
-template<typename MeshAttributeType>
-inline
-DenseVector<int_max> Edge_Of_PolygonMesh<MeshAttributeType>::GetNeighbourFaceIDList() const
-{
-    DenseVector<int_max> OutputIDList;
-    this->GetNeighbourFaceIDList(OutputIDList);
-    return OutputIDList;
-}
-
-template<typename MeshAttributeType>
-inline
-void Edge_Of_PolygonMesh<MeshAttributeType>::GetNeighbourFaceIDList(DenseVector<int_max>& OutputIDList) const
-{
-	auto NeighbourFaceIndexList = this->GetNeighbourFaceIndexList();
-	OutputIDList.FastResize(NeighbourFaceIndexList.GetLength());
-	for (int_max k = 0; k < NeighbourFaceIndexList.GetLength(); ++k)
+	if (AdjacentFaceIndexList0.IsEmpty() == true && AdjacentFaceIndexList1.IsEmpty() == true)
 	{
-		OutputIDList[k] = m_Data->Mesh.m_MeshData->FaceList[NeighbourFaceIndexList[k]].GetID();
+		return OutputIndexList;
 	}
+
+	OutputIndexList.SetCapacity(AdjacentFaceIndexList0.GetLength() + AdjacentFaceIndexList1.GetLength());
+
+	for (int_max k = 0; k < AdjacentFaceIndexList0.GetLength(); ++k)
+	{
+		OutputIndexList.Append(AdjacentFaceIndexList0[k]);
+	}
+
+	for (int_max k = 0; k < AdjacentFaceIndexList1.GetLength(); ++k)
+	{
+		OutputIndexList.Append(AdjacentFaceIndexList1[k]);
+	}
+
+	auto tempIndexList = OutputIndexList.FindUnique();
+	OutputIndexList = OutputIndexList.GetSubSet(tempIndexList);
+
+	return OutputIndexList;
 }
 
 template<typename MeshAttributeType>
@@ -1360,6 +1004,7 @@ void DirectedEdge_Of_PolygonMesh<MeshAttributeType>::operator=(const DirectedEdg
     m_Data->Mesh.ForceShare(InputDirectedEdge.m_Data->Mesh);
     m_Data->Index = InputDirectedEdge.m_Data->Index;
     m_Data->ID = InputDirectedEdge.m_Data->ID;
+	m_Data->Name = InputDirectedEdge.m_Data->Name;
     m_Data->EdgeIndex = InputDirectedEdge.m_Data->EdgeIndex;
     m_Data->PointIndex_start = InputDirectedEdge.m_Data->PointIndex_start;
     m_Data->PointIndex_end = InputDirectedEdge.m_Data->PointIndex_end;
@@ -1383,6 +1028,7 @@ void DirectedEdge_Of_PolygonMesh<MeshAttributeType>::ReCreate()
     }    
 
     m_Data->ID = -1;
+	m_Data->Name.Clear();
     m_Data->Index.FaceIndex = -1;
     m_Data->Index.RelativeIndex = -1;
     m_Data->EdgeIndex = -1;
@@ -1444,103 +1090,6 @@ void DirectedEdge_Of_PolygonMesh<MeshAttributeType>::SetEndPointIndex(int_max Po
 
 template<typename MeshAttributeType>
 inline
-DirectedEdgeIndex_Of_PolygonMesh DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetIndex() const
-{
-    return m_Data->Index;
-}
-
-template<typename MeshAttributeType>
-inline
-int_max DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetFaceIndex() const
-{
-	return m_Data->Index.FaceIndex;
-}
-
-template<typename MeshAttributeType>
-inline
-int_max DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetEdgeIndex() const
-{
-	return m_Data->EdgeIndex;
-}
-
-template<typename MeshAttributeType>
-inline
-int_max DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetStartPointIndex() const
-{
-    return m_Data->PointIndex_start;
-}
-
-template<typename MeshAttributeType>
-inline
-int_max DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetEndPointIndex() const
-{
-    return m_Data->PointIndex_end;
-}
-
-template<typename MeshAttributeType>
-inline
-DirectedEdgeIndex_Of_PolygonMesh DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetNextDirectedEdgeIndex() const
-{
-	auto DirectedEdgeCount = m_Data->Mesh.m_MeshData->FaceList[m_Data->Index.FaceIndex].DirectedEdgeList().GetLength();
-	DirectedEdgeIndex_Of_PolygonMesh DirectedEdgeIndex_next;
-	DirectedEdgeIndex_next.FaceIndex = m_Data->Index.FaceIndex;
-	DirectedEdgeIndex_next.RelativeIndex = m_Data->Index.RelativeIndex + 1;
-	if (DirectedEdgeIndex_next.RelativeIndex >= DirectedEdgeCount)
-	{
-		DirectedEdgeIndex_next.RelativeIndex = 0;
-	}
-	return DirectedEdgeIndex_next;
-}
-
-template<typename MeshAttributeType>
-inline
-DirectedEdgeIndex_Of_PolygonMesh DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetPreviousDirectedEdgeIndex() const
-{
-	auto DirectedEdgeCount = m_Data->Mesh.m_MeshData->FaceList[m_Data->Index.FaceIndex].DirectedEdgeList().GetLength();
-	DirectedEdgeIndex_Of_PolygonMesh DirectedEdgeIndex_prev;
-	DirectedEdgeIndex_prev.FaceIndex = m_Data->Index.FaceIndex;
-	DirectedEdgeIndex_prev.RelativeIndex = m_Data->Index.RelativeIndex + 1;
-	if (DirectedEdgeIndex_prev.RelativeIndex >= DirectedEdgeCount)
-	{
-		DirectedEdgeIndex_prev.RelativeIndex = 0;
-	}
-	return DirectedEdgeIndex_prev;
-}
-
-template<typename MeshAttributeType>
-inline
-DenseVector<DirectedEdgeIndex_Of_PolygonMesh> DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetFriendDirectedEdgeIndexList() const
-{
-	DenseVector<DirectedEdgeIndex_Of_PolygonMesh> OutputIndexList;
-	auto DirectedEdgeCountMax = m_Data->Mesh.m_MeshData->EdgeList[m_Data->EdgeIndex].DirectedEdgeIndexList().GetLength();
-	OutputIndexList.SetCapacity(DirectedEdgeCountMax);
-	for (int_max k = 0; k < DirectedEdgeCountMax; ++k)
-	{
-		auto DirectedEdgeIndex_k = m_Data->Mesh.m_MeshData->EdgeList[m_Data->EdgeIndex].DirectedEdgeIndexList()[k];
-		if (m_Data->Index != DirectedEdgeIndex_k)
-		{
-			OutputIndexList.Append(DirectedEdgeIndex_k);
-		}
-	}
-	return OutputIndexList;
-}
-
-template<typename MeshAttributeType>
-inline
-DenseVector<int_max> DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceIndexList() const
-{
-	return m_Data->Mesh.m_MeshData->EdgeList[m_Data->EdgeIndex].GetAdjacentFaceIndexList();
-}
-
-template<typename MeshAttributeType>
-inline
-DenseVector<int_max> DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetNeighbourFaceIndexList() const
-{
-	return m_Data->Mesh.m_MeshData->EdgeList[m_Data->EdgeIndex].GetNeighbourFaceIndexList();
-}
-
-template<typename MeshAttributeType>
-inline
 bool DirectedEdge_Of_PolygonMesh<MeshAttributeType>::IsValid() const
 {
     if (!m_Data)
@@ -1580,12 +1129,38 @@ const PolygonMesh<MeshAttributeType>& DirectedEdge_Of_PolygonMesh<MeshAttributeT
 }
 
 template<typename MeshAttributeType>
-inline 
-Handle_Of_DirectedEdge_Of_PolygonMesh DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetHandle() const
+inline
+DirectedEdgeIndex_Of_PolygonMesh DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetIndex() const
 {
-    Handle_Of_DirectedEdge_Of_PolygonMesh DirectedEdgeHandle;
-    DirectedEdgeHandle.SetIndex(m_Data->Index);
-    return DirectedEdgeHandle;
+	return m_Data->Index;
+}
+
+template<typename MeshAttributeType>
+inline
+int_max DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetFaceIndex() const
+{
+	return m_Data->Index.FaceIndex;
+}
+
+template<typename MeshAttributeType>
+inline
+int_max DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetEdgeIndex() const
+{
+	return m_Data->EdgeIndex;
+}
+
+template<typename MeshAttributeType>
+inline
+int_max DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetStartPointIndex() const
+{
+	return m_Data->PointIndex_start;
+}
+
+template<typename MeshAttributeType>
+inline
+int_max DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetEndPointIndex() const
+{
+	return m_Data->PointIndex_end;
 }
 
 template<typename MeshAttributeType>
@@ -1645,150 +1220,119 @@ int_max DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetID() const
 
 template<typename MeshAttributeType>
 inline
-Handle_Of_Face_Of_PolygonMesh DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetFaceHandle() const
+void DirectedEdge_Of_PolygonMesh<MeshAttributeType>::SetName(String DirectedEdgeName)
 {
-    Handle_Of_Face_Of_PolygonMesh FaceHandle;
-    FaceHandle.SetIndex(m_Data->Index.FaceIndex);
-    return FaceHandle;
+	if (!m_Data)
+	{
+		MDK_Error("DirectedEdge has been deleted @ DirectedEdge_Of_PolygonMesh::SetName(...)")
+		return;
+	}
+
+	if (DirectedEdgeName.IsEmpty() == true)
+	{
+		MDK_Error("DirectedEdgeName is empty 0 @ DirectedEdge_Of_PolygonMesh::SetName(...)")
+		return;
+	}
+
+	// check record
+	auto DirectedEdgeName_old = m_Data->Name;
+	if (DirectedEdgeName_old != DirectedEdgeName)
+	{
+		auto it = m_Data->Mesh.m_MeshData->Map_DirectedEdgeName_to_DirectedEdgeIndex.find(DirectedEdgeName);
+		if (it != m_Data->Mesh.m_MeshData->Map_DirectedEdgeName_to_DirectedEdgeIndex.end())
+		{
+			MDK_Error("Input DirectedEdgeID has already been used for another directed-edge @ DirectedEdge_Of_PolygonMesh::SetName(...)")
+			return;
+		}
+
+		it = m_Data->Mesh.m_MeshData->Map_DirectedEdgeName_to_DirectedEdgeIndex.find(DirectedEdgeName_old);
+		if (it != m_Data->Mesh.m_MeshData->Map_DirectedEdgeName_to_DirectedEdgeIndex.end())
+		{
+			m_Data->Mesh.m_MeshData->Map_DirectedEdgeName_to_DirectedEdgeIndex.erase(it);
+		}
+
+		m_Data->Mesh.m_MeshData->Map_DirectedEdgeName_to_DirectedEdgeIndex[DirectedEdgeName] = m_Data->Index;
+		m_Data->Name = std::move(DirectedEdgeName);
+	}
 }
 
 template<typename MeshAttributeType>
 inline
-int_max DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetFaceID() const
+void DirectedEdge_Of_PolygonMesh<MeshAttributeType>::EraseName()
 {
-    return m_Data->Mesh.m_MeshData->FaceList[m_Data->Index.FaceIndex].GetID();
+	if (m_Data->Name.IsEmpty() == false)
+	{
+		auto it = m_Data->Mesh.m_MeshData->Map_DirectedEdgeName_to_DirectedEdgeIndex.find(m_Data->Name);
+		if (it != m_Data->Mesh.m_MeshData->Map_DirectedEdgeName_to_DirectedEdgeIndex.end())
+		{
+			m_Data->Mesh.m_MeshData->Map_DirectedEdgeName_to_DirectedEdgeIndex.erase(it);
+		}
+
+		m_Data->Name.Clear();
+	}
 }
 
 template<typename MeshAttributeType>
 inline
-Handle_Of_Point_Of_PolygonMesh DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetStartPointHandle() const
+String DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetName() const
 {
-    Handle_Of_Point_Of_PolygonMesh PointHandle;
-    PointHandle.SetIndex(m_Data->PointIndex_start);
-    return PointHandle;
+	return m_Data->Name;
 }
 
 template<typename MeshAttributeType>
 inline
-int_max DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetStartPointID() const
+DirectedEdgeIndex_Of_PolygonMesh DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetNextDirectedEdgeIndex() const
 {
-    return m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex_start].GetID();
+	auto DirectedEdgeCount = m_Data->Mesh.m_MeshData->FaceList[m_Data->Index.FaceIndex].DirectedEdgeList().GetLength();
+	DirectedEdgeIndex_Of_PolygonMesh DirectedEdgeIndex_next;
+	DirectedEdgeIndex_next.FaceIndex = m_Data->Index.FaceIndex;
+	DirectedEdgeIndex_next.RelativeIndex = m_Data->Index.RelativeIndex + 1;
+	if (DirectedEdgeIndex_next.RelativeIndex >= DirectedEdgeCount)
+	{
+		DirectedEdgeIndex_next.RelativeIndex = 0;
+	}
+	return DirectedEdgeIndex_next;
 }
 
 template<typename MeshAttributeType>
 inline
-Handle_Of_Point_Of_PolygonMesh DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetEndPointHandle() const
+DirectedEdgeIndex_Of_PolygonMesh DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetPreviousDirectedEdgeIndex() const
 {
-    Handle_Of_Point_Of_PolygonMesh PointHandle;
-    PointHandle.SetIndex(m_Data->PointIndex_end);
-    return PointHandle;
+	auto DirectedEdgeCount = m_Data->Mesh.m_MeshData->FaceList[m_Data->Index.FaceIndex].DirectedEdgeList().GetLength();
+	DirectedEdgeIndex_Of_PolygonMesh DirectedEdgeIndex_prev;
+	DirectedEdgeIndex_prev.FaceIndex = m_Data->Index.FaceIndex;
+	DirectedEdgeIndex_prev.RelativeIndex = m_Data->Index.RelativeIndex + 1;
+	if (DirectedEdgeIndex_prev.RelativeIndex >= DirectedEdgeCount)
+	{
+		DirectedEdgeIndex_prev.RelativeIndex = 0;
+	}
+	return DirectedEdgeIndex_prev;
 }
 
-template<typename MeshAttributeType>
-inline
-int_max DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetEndPointID() const
-{
-    return m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex_end].GetID();
-}
-
-template<typename MeshAttributeType>
-inline
-Handle_Of_Edge_Of_PolygonMesh DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetEdgeHandle() const
-{
-    Handle_Of_Edge_Of_PolygonMesh EdgeHandle;
-    EdgeHandle.SetIndex(m_Data->EdgeIndex);
-    return EdgeHandle;
-}
-
-template<typename MeshAttributeType>
-inline
-int_max DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetEdgeID() const
-{
-    return m_Data->Mesh.m_MeshData->EdgeList[m_Data->EdgeIndex].GetID();
-}
-
-template<typename MeshAttributeType>
-inline
-Handle_Of_DirectedEdge_Of_PolygonMesh DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetNextDirectedEdgeHandle() const
-{
-	Handle_Of_DirectedEdge_Of_PolygonMesh  DirectedEdgeHandle;
-	DirectedEdgeHandle.SetIndex(m_Data->NextDirectedEdgeIndex);
-	return DirectedEdgeHandle;
-}
-
-template<typename MeshAttributeType>
-inline
-int_max DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetNextDirectedEdgeID() const
-{
-	auto FaceIndex = m_Data->NextDirectedEdgeIndex.FaceIndex;
-	auto RelativeIndex = m_Data->NextDirectedEdgeIndex.RelativeIndex;
-	return m_Data->Mesh.m_MeshData->FaceList[FaceIndex].DirectedEdgeList()[RelativeIndex].GetID();
-}
-
-template<typename MeshAttributeType>
-inline
-Handle_Of_DirectedEdge_Of_PolygonMesh DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetPreviousDirectedEdgeHandle() const
-{
-	Handle_Of_DirectedEdge_Of_PolygonMesh  DirectedEdgeHandle;
-	DirectedEdgeHandle.SetIndex(m_Data->PreviousDirectedEdgeIndex);
-	return DirectedEdgeHandle;
-}
-
-template<typename MeshAttributeType>
-inline
-int_max DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetPreviousDirectedEdgeID() const
-{
-	auto FaceIndex = m_Data->PreviousDirectedEdgeIndex.FaceIndex;
-	auto RelativeIndex = m_Data->PreviousDirectedEdgeIndex.RelativeIndex;
-	return m_Data->Mesh.m_MeshData->FaceList[FaceIndex].DirectedEdgeList()[RelativeIndex].GetID();
-}
 
 template<typename MeshAttributeType>
 inline
 int_max DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetFriendDirectedEdgeCount() const
 {
-	return m_Data->Mesh.m_MeshData->EdgeList[m_Data->EdgeIndex].DirectedEdgeIndexList().GetLength()-1;
+	return m_Data->Mesh.m_MeshData->EdgeList[m_Data->EdgeIndex].DirectedEdgeIndexList().GetLength() - 1;
 }
 
 template<typename MeshAttributeType>
 inline
-DenseVector<Handle_Of_DirectedEdge_Of_PolygonMesh> DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetFriendDirectedEdgeHandleList() const
+DenseVector<DirectedEdgeIndex_Of_PolygonMesh> DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetFriendDirectedEdgeIndexList() const
 {
-	DenseVector<Handle_Of_DirectedEdge_Of_PolygonMesh> OutputHandleList;
-	auto DirectedEdgeCountMax = m_Data->Mesh.m_MeshData->EdgeList[m_Data->Index.EdgeIndex].DirectedEdgeIndexList().GetLength();
+	DenseVector<DirectedEdgeIndex_Of_PolygonMesh> OutputIndexList;
+	auto DirectedEdgeCountMax = m_Data->Mesh.m_MeshData->EdgeList[m_Data->EdgeIndex].DirectedEdgeIndexList().GetLength();
 	OutputIndexList.SetCapacity(DirectedEdgeCountMax);
 	for (int_max k = 0; k < DirectedEdgeCountMax; ++k)
 	{
 		auto DirectedEdgeIndex_k = m_Data->Mesh.m_MeshData->EdgeList[m_Data->EdgeIndex].DirectedEdgeIndexList()[k];
 		if (m_Data->Index != DirectedEdgeIndex_k)
 		{
-			Handle_Of_DirectedEdge_Of_PolygonMesh  DirectedEdgeHandle;
-			DirectedEdgeHandle.SetIndex(DirectedEdgeIndex_k);
-			OutputHandleList.Append(DirectedEdgeHandle);
+			OutputIndexList.Append(DirectedEdgeIndex_k);
 		}
 	}
-	return OutputHandleList;
-}
-
-template<typename MeshAttributeType>
-inline
-DenseVector<int_max> DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetFriendDirectedEdgeIDList() const
-{
-	DenseVector<int_max> OutputIDList;
-	auto DirectedEdgeCountMax = m_Data->Mesh.m_MeshData->EdgeList[m_Data->EdgeIndex].DirectedEdgeIndexList().GetLength();
-	OutputIDList.SetCapacity(DirectedEdgeCountMax);
-	for (int_max k = 0; k < DirectedEdgeCountMax; ++k)
-	{
-		auto DirectedEdgeIndex_k = m_Data->Mesh.m_MeshData->EdgeList[m_Data->EdgeIndex].DirectedEdgeIndexList()[k];		
-		if (m_Data->Index.RelativeIndex != DirectedEdgeIndex_k)
-		{
-			auto FaceIndex_k = DirectedEdgeIndex_k.FaceIndex;
-			auto RelativeIndex_k = DirectedEdgeIndex_k.RelativeIndex;
-			const auto& DirectedEdge_k = m_Data->Mesh.m_MeshData->FaceList[FaceIndex_k].DirectedEdgeList()[RelativeIndex_k];
-			OutputIDList.Append(DirectedEdge_k.GetID());
-		}
-	}
-	return OutputIDList;
+	return OutputIndexList;
 }
 
 template<typename MeshAttributeType>
@@ -1800,16 +1344,9 @@ int_max DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceCount() c
 
 template<typename MeshAttributeType>
 inline
-DenseVector<Handle_Of_Face_Of_PolygonMesh> DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceHandleList() const
+DenseVector<int_max> DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceIndexList() const
 {
-	return m_Data->Mesh.m_MeshData->EdgeList[m_Data->EdgeIndex].GetAdjacentFaceHandleList();
-}
-
-template<typename MeshAttributeType>
-inline
-DenseVector<int_max> DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceIDList() const
-{
-	return m_Data->Mesh.m_MeshData->EdgeList[m_Data->EdgeIndex].GetAdjacentFaceHandleList();
+	return m_Data->Mesh.m_MeshData->EdgeList[m_Data->EdgeIndex].GetAdjacentFaceIndexList();
 }
 
 template<typename MeshAttributeType>
@@ -1821,16 +1358,9 @@ int_max DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetNeighbourFaceCount() 
 
 template<typename MeshAttributeType>
 inline
-DenseVector<Handle_Of_Face_Of_PolygonMesh> DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetNeighbourFaceHandleList() const
+DenseVector<int_max> DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetNeighbourFaceIndexList() const
 {
-    return m_Data->Mesh.m_MeshData->EdgeList[m_Data->EdgeIndex].GetNeighbourFaceHandleList();
-}
-
-template<typename MeshAttributeType>
-inline
-DenseVector<int_max> DirectedEdge_Of_PolygonMesh<MeshAttributeType>::GetNeighbourFaceIDList() const
-{
-	return m_Data->Mesh.m_MeshData->EdgeList[m_Data->EdgeIndex].GetNeighbourFaceIDList();
+	return m_Data->Mesh.m_MeshData->EdgeList[m_Data->EdgeIndex].GetNeighbourFaceIndexList();
 }
 
 template<typename MeshAttributeType>
@@ -1894,6 +1424,7 @@ void Face_Of_PolygonMesh<MeshAttributeType>::operator=(const Face_Of_PolygonMesh
     m_Data->Mesh.ForceShare(InputFace.m_Data->Mesh);
     m_Data->Index = InputFace.m_Data->Index;
     m_Data->ID = InputFace.m_Data->ID;
+	m_Data->Name = InputFace.m_Data->Name;
     m_Data->DirectedEdgeList = InputFace.m_Data->DirectedEdgeList;
     m_Data->Attribute = InputFace.m_Data->Attribute;
 }
@@ -1916,6 +1447,7 @@ void Face_Of_PolygonMesh<MeshAttributeType>::ReCreate()
 
     m_Data->Index = -1;
     m_Data->ID = -1;
+	m_Data->Name.Clear();
     m_Data->DirectedEdgeList.Clear();
     m_Data->Attribute.Clear();
 }
@@ -1965,136 +1497,6 @@ const StdObjectVector<DirectedEdge_Of_PolygonMesh<MeshAttributeType>>& Face_Of_P
 
 template<typename MeshAttributeType>
 inline
-int_max Face_Of_PolygonMesh<MeshAttributeType>::GetIndex() const
-{
-    return m_Data->Index;
-}
-
-template<typename MeshAttributeType>
-inline
-DenseVector<int_max> Face_Of_PolygonMesh<MeshAttributeType>::GetPointIndexList() const
-{
-    DenseVector<int_max> IndexList;
-    this->GetPointIndexList(IndexList);
-    return IndexList;
-}
-
-template<typename MeshAttributeType>
-inline
-void Face_Of_PolygonMesh<MeshAttributeType>::GetPointIndexList(DenseVector<int_max>& OutputIndexList) const
-{
-    OutputIndexList.FastResize(m_Data->DirectedEdgeList.GetLength());
-    for (int_max k = 0; k < OutputIndexList.GetLength(); ++k)
-    {
-        OutputIndexList[k] = m_Data->DirectedEdgeList[k].GetStartPointIndex();
-    }
-}
-
-template<typename MeshAttributeType>
-inline
-DenseVector<int_max> Face_Of_PolygonMesh<MeshAttributeType>::GetEdgeIndexList() const
-{
-    DenseVector<int_max> OutputIndexList;
-    this->GetEdgeIndexList(OutputIndexList);
-    return OutputIndexList;
-}
-
-template<typename MeshAttributeType>
-inline
-void Face_Of_PolygonMesh<MeshAttributeType>::GetEdgeIndexList(DenseVector<int_max>& OutputIndexList) const
-{
-    int_max EdgeCount = m_Data->DirectedEdgeList.GetLength();
-    OutputIndexList.FastResize(EdgeCount);
-    for (int_max k = 0; k < EdgeCount; ++k)
-    {
-        OutputIndexList[k] = m_Data->DirectedEdgeList[k].GetEdgeIndex();
-    }
-}
-
-template<typename MeshAttributeType>
-inline 
-DenseVector<DirectedEdgeIndex_Of_PolygonMesh> Face_Of_PolygonMesh<MeshAttributeType>::GetDirectedEdgeIndexList() const
-{
-	DenseVector<DirectedEdgeIndex_Of_PolygonMesh> OutputIndexList;
-	this->GetDirectedEdgeIndexList(OutputIndexList);
-	return OutputIndexList;
-}
-
-template<typename MeshAttributeType>
-inline 
-void Face_Of_PolygonMesh<MeshAttributeType>::GetDirectedEdgeIndexList(DenseVector<DirectedEdgeIndex_Of_PolygonMesh>& OutputIndexList) const
-{
-	OutputIndexList.FastResize(m_Data->DirectedEdgeList.GetLength());
-	for (int_max k = 0; k < m_Data->DirectedEdgeList.GetLength(); ++k)
-	{
-		OutputIndexList[k].FaceIndex = m_Data->Index;
-		OutputIndexList[k].RelativeIndex = k;
-	}
-}
-
-
-template<typename MeshAttributeType>
-inline
-DenseVector<int_max> Face_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceIndexList() const
-{
-    DenseVector<int_max> OutputIndexList;
-    this->GetAdjacentFaceIndexList(OutputIndexList);
-    return OutputIndexList;
-}
-
-template<typename MeshAttributeType>
-inline
-void Face_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceIndexList(DenseVector<int_max>& OutputIndexList) const
-{
-    OutputIndexList.FastResize(0);
-	OutputIndexList.SetCapacity(m_Data->DirectedEdgeList.GetLength());
-	for (int_max k = 0; k < m_Data->DirectedEdgeList.GetLength(); ++k)
-    {   
-		auto EdgeIndex_k = m_Data->DirectedEdgeList[k].GetEdgeIndex();	
-		int_max MaxCount = m_Data->Mesh.m_MeshData->EdgeList[EdgeIndex_k].DirectedEdgeIndexList().GetLength();
-		for (int_max n = 0; n < MaxCount; ++n)
-		{
-			auto DirectedEdgeIndex_n = m_Data->Mesh.m_MeshData->EdgeList[EdgeIndex_k].DirectedEdgeIndexList()[n];
-			if (DirectedEdgeIndex_n.FaceIndex != m_Data->Index)
-			{
-				OutputIndexList.Append(DirectedEdgeIndex_n.FaceIndex);
-			}
-		}
-    }    
-}
-
-template<typename MeshAttributeType>
-inline 
-DenseVector<int_max> Face_Of_PolygonMesh<MeshAttributeType>::GetNeighbourFaceIndexList() const
-{
-	DenseVector<int_max> OutputIndexList;
-	this->GetNeighbourFaceIndexList(OutputIndexList);
-	return OutputIndexList;
-}
-
-template<typename MeshAttributeType>
-inline
-void Face_Of_PolygonMesh<MeshAttributeType>::GetNeighbourFaceIndexList(DenseVector<int_max>& OutputIndexList) const
-{
-	OutputIndexList.FastResize(0);
-	OutputIndexList.SetCapacity(6);
-	auto PointIndexList = this->GetPointIndexList();
-	for (int_max k = 0; k < PointIndexList.GetLength(); ++k)
-	{
-		const auto& FaceIndexList_k = m_Data->Mesh.m_MeshData->PointList[PointIndexList[k]].AdjacentFaceIndexList();
-		for (int_max n = 0; n < FaceIndexList_k.GetLength(); ++n)
-		{
-			if (FaceIndexList_k[n] != m_Data->Index)
-			{
-				OutputIndexList.Append(FaceIndexList_k[n]);
-			}
-		}
-	}
-	OutputIndexList = OutputIndexList.GetSubSet(OutputIndexList.FindUnique());
-}
-
-template<typename MeshAttributeType>
-inline
 bool Face_Of_PolygonMesh<MeshAttributeType>::IsValid() const
 {
     if (!m_Data)
@@ -2128,11 +1530,9 @@ const PolygonMesh<MeshAttributeType>& Face_Of_PolygonMesh<MeshAttributeType>::Ge
 
 template<typename MeshAttributeType>
 inline
-Handle_Of_Face_Of_PolygonMesh Face_Of_PolygonMesh<MeshAttributeType>::GetHandle() const
+int_max Face_Of_PolygonMesh<MeshAttributeType>::GetIndex() const
 {
-    Handle_Of_Face_Of_PolygonMesh FaceHandle;
-    FaceHandle.SetIndex(m_Data->Index);
-    return FaceHandle;
+	return m_Data->Index;
 }
 
 template<typename MeshAttributeType>
@@ -2191,49 +1591,64 @@ int_max Face_Of_PolygonMesh<MeshAttributeType>::GetID() const
 }
 
 template<typename MeshAttributeType>
-inline int_max Face_Of_PolygonMesh<MeshAttributeType>::GetDirectedEdgeCount() const
+inline
+void Face_Of_PolygonMesh<MeshAttributeType>::SetName(String FaceName)
 {
-	return m_Data->DirectedEdgeList.GetLength();
+	if (!m_Data)
+	{
+		MDK_Error("Face has been deleted @ Face_Of_PolygonMesh::SetName(...)")
+		return;
+	}
+
+	if (FaceName.IsEmpty() == true)
+	{
+		MDK_Error("FaceName is empty @ Face_Of_PolygonMesh::SetName(...)")
+		return;
+	}
+
+	// check record
+	auto FaceName_old = m_Data->Name;
+	if (FaceName_old != FaceName)
+	{
+		auto it = m_Data->Mesh.m_MeshData->Map_FaceName_to_FaceIndex.find(FaceName);
+		if (it != m_Data->Mesh.m_MeshData->Map_FaceName_to_FaceIndex.end())
+		{
+			MDK_Error("Input FaceName has already been used for another cell @ Face_Of_PolygonMesh::SetName(...)")
+			return;
+		}
+
+		it = m_Data->Mesh.m_MeshData->Map_FaceName_to_FaceIndex.find(FaceName_old);
+		if (it != m_Data->Mesh.m_MeshData->Map_FaceName_to_FaceIndex.end())
+		{
+			m_Data->Mesh.m_MeshData->Map_FaceName_to_FaceIndex.erase(it);
+		}
+
+		m_Data->Mesh.m_MeshData->Map_FaceName_to_FaceIndex[FaceName] = m_Data->Index;
+		m_Data->Name = std::move(FaceName);
+	}
 }
 
 template<typename MeshAttributeType>
 inline
-DenseVector<Handle_Of_DirectedEdge_Of_PolygonMesh> Face_Of_PolygonMesh<MeshAttributeType>::GetDirectedEdgeHandleList() const
+void Face_Of_PolygonMesh<MeshAttributeType>::EraseName()
 {
-    DenseVector<Handle_Of_DirectedEdge_Of_PolygonMesh> OutputHandleList;
-    this->GetDirectedEdgeHandleList(OutputHandleList);
-    return OutputHandleList;
+	if (m_Data->Name.IsEmpty() == false)
+	{
+		auto it = m_Data->Mesh.m_MeshData->Map_FaceName_to_FaceIndex.find(m_Data->Name);
+		if (it != m_Data->Mesh.m_MeshData->Map_FaceName_to_FaceIndex.end())
+		{
+			m_Data->Mesh.m_MeshData->Map_FaceName_to_FaceIndex.erase(it);
+		}
+
+		m_Data->Name.Clear();
+	}
 }
 
 template<typename MeshAttributeType>
 inline
-void Face_Of_PolygonMesh<MeshAttributeType>::GetDirectedEdgeHandleList(DenseVector<Handle_Of_DirectedEdge_Of_PolygonMesh>& OutputHandleList) const
+String Face_Of_PolygonMesh<MeshAttributeType>::GetName() const
 {
-    OutputHandleList.FastResize(m_Data->DirectedEdgeList.GetLength());
-    for (int_max k = 0; k < m_Data->DirectedEdgeList.GetLength(); ++k)
-    {
-        OutputHandleList[k].SetIndex(m_Data->DirectedEdgeList[k].GetIndex());
-    }
-}
-
-template<typename MeshAttributeType>
-inline
-DenseVector<int_max> Face_Of_PolygonMesh<MeshAttributeType>::GetDirectedEdgeIDList() const
-{
-    DenseVector<int_max> OutputIDList;
-    this->GetDirectedEdgeIDList(OutputIDList);
-    return OutputIDList;
-}
-
-template<typename MeshAttributeType>
-inline
-void Face_Of_PolygonMesh<MeshAttributeType>::GetDirectedEdgeIDList(DenseVector<int_max>& OutputIDList) const
-{
-    OutputIDList.FastResize(m_Data->DirectedEdgeList.GetLength());
-    for (int_max k = 0; k < m_Data->DirectedEdgeList.GetLength(); ++k)
-    {
-		OutputIDList[k] = m_Data->DirectedEdgeList[k].GetID();
-    }
+	return m_Data->Name;
 }
 
 template<typename MeshAttributeType>
@@ -2245,56 +1660,15 @@ int_max Face_Of_PolygonMesh<MeshAttributeType>::GetPointCount() const
 
 template<typename MeshAttributeType>
 inline
-DenseVector<Handle_Of_Point_Of_PolygonMesh> Face_Of_PolygonMesh<MeshAttributeType>::GetPointHandleList() const
+DenseVector<int_max> Face_Of_PolygonMesh<MeshAttributeType>::GetPointIndexList() const
 {
-    DenseVector<Handle_Of_Point_Of_PolygonMesh> OutputHandleList;
-    this->GetPointHandleList(OutputHandleList);
-    return OutputHandleList;
-}
-
-template<typename MeshAttributeType>
-inline
-void Face_Of_PolygonMesh<MeshAttributeType>::GetPointHandleList(DenseVector<Handle_Of_Point_Of_PolygonMesh>& OutputHandleList) const
-{    
-    OutputHandleList.FastResize(m_Data->DirectedEdgeList.GetLength());
-    for (int_max k = 0; k < OutputHandleList.GetLength(); ++k)
-    {
-		OutputHandleList[k].SetIndex(m_Data->DirectedEdgeList[k].GetStartPointIndex());
-    }
-}
-
-template<typename MeshAttributeType>
-inline
-DenseVector<int_max> Face_Of_PolygonMesh<MeshAttributeType>::GetPointIDList() const
-{
-    DenseVector<int_max> OutputPointIDList;
-    this->GetPointIDList(OutputPointIDList);
-    return OutputPointIDList;
-}
-
-template<typename MeshAttributeType>
-inline
-void Face_Of_PolygonMesh<MeshAttributeType>::GetPointIDList(DenseVector<Handle_Of_Point_Of_PolygonMesh>& OutputPointIDList) const
-{    
-    OutputPointIDList.FastResize(m_Data->DirectedEdgeList.GetLength());
-    for (int_max k = 0; k < OutputHandleList.GetLength(); ++k)
-    {
-		OutputPointIDList[k] = m_Data->DirectedEdgeList[k].GetStartPointID();
-    }
-}
-
-template<typename MeshAttributeType>
-inline 
-int_max Face_Of_PolygonMesh<MeshAttributeType>::GetRelativeIndexOfPoint(Handle_Of_Point_Of_PolygonMesh PointHandle) const
-{
-	for (int_max k = 0; k < m_Data->DirectedEdgeList.GetLength(); ++k)
+	DenseVector<int_max> OutputIndexList;
+	OutputIndexList.Resize(m_Data->DirectedEdgeList.GetLength());
+	for (int_max k = 0; k < OutputIndexList.GetLength(); ++k)
 	{
-		if (m_Data->DirectedEdgeList[k].GetStartPointHandle() == PointHandle)
-		{
-			return k;
-		}
+		OutputIndexList[k] = m_Data->DirectedEdgeList[k].GetStartPointIndex();
 	}
-	return -1;
+	return OutputIndexList;
 }
 
 template<typename MeshAttributeType>
@@ -2305,53 +1679,35 @@ inline int_max Face_Of_PolygonMesh<MeshAttributeType>::GetEdgeCount() const
 
 template<typename MeshAttributeType>
 inline
-DenseVector<Handle_Of_Edge_Of_PolygonMesh> Face_Of_PolygonMesh<MeshAttributeType>::GetEdgeHandleList() const
+DenseVector<int_max> Face_Of_PolygonMesh<MeshAttributeType>::GetEdgeIndexList() const
 {
-    DenseVector<Handle_Of_Edge_Of_PolygonMesh> OutputHandleList;
-    this->GetEdgeHandleList(OutputHandleList);
-    return OutputHandleList;
+	DenseVector<int_max> OutputIndexList;
+	OutputIndexList.Resize(m_Data->DirectedEdgeList.GetLength());
+	for (int_max k = 0; k < m_Data->DirectedEdgeList.GetLength(); ++k)
+	{
+		OutputIndexList[k] = m_Data->DirectedEdgeList[k].GetEdgeIndex();
+	}
+	return OutputIndexList;
+}
+
+template<typename MeshAttributeType>
+inline int_max Face_Of_PolygonMesh<MeshAttributeType>::GetDirectedEdgeCount() const
+{
+	return m_Data->DirectedEdgeList.GetLength();
 }
 
 template<typename MeshAttributeType>
 inline
-void Face_Of_PolygonMesh<MeshAttributeType>::GetEdgeHandleList(DenseVector<Handle_Of_Edge_Of_PolygonMesh>& OutputHandleList) const
+DenseVector<DirectedEdgeIndex_Of_PolygonMesh> Face_Of_PolygonMesh<MeshAttributeType>::GetDirectedEdgeIndexList() const
 {
-    int_max EdgeCount = m_Data->DirectedEdgeList.GetLength();
-    OutputHandleList.FastResize(EdgeCount);
-    for (int_max k = 0; k < EdgeCount; ++k)
-    {
-        OutputHandleList[k].SetIndex(m_Data->DirectedEdgeList[k].GetEdgeIndex());
-    }
-}
-
-template<typename MeshAttributeType>
-inline
-DenseVector<int_max> Face_Of_PolygonMesh<MeshAttributeType>::GetEdgeIDList() const
-{
-    DenseVector<int_max> OutputIDList;
-    this->GetEdgeIDList(OutputIDList);
-    return OutputIDList;
-}
-
-template<typename MeshAttributeType>
-inline
-void Face_Of_PolygonMesh<MeshAttributeType>::GetEdgeIDList(DenseVector<int_max>& OutputIDList) const
-{
-    int_max EdgeCount = m_Data->DirectedEdgeList.GetLength();
-    OutputIDList.FastResize(EdgeCount);
-    for (int_max k = 0; k < EdgeCount; ++k)
-    {
-        OutputIDList[k] = m_Data->Mesh.m_MeshData->EdgeList[m_Data->DirectedEdgeList[k].GetEdgeIndex()].GetID();
-    }
-}
-
-template<typename MeshAttributeType>
-inline
-DenseVector<Handle_Of_Face_Of_PolygonMesh> Face_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceHandleList() const
-{
-    DenseVector<Handle_Of_Face_Of_PolygonMesh> OutputHandleList;
-    this->GetAdjacentFaceHandleList(OutputHandleList);
-    return OutputHandleList;
+	DenseVector<DirectedEdgeIndex_Of_PolygonMesh> OutputIndexList;
+	OutputIndexList.Resize(m_Data->DirectedEdgeList.GetLength());
+	for (int_max k = 0; k < m_Data->DirectedEdgeList.GetLength(); ++k)
+	{
+		OutputIndexList[k].FaceIndex = m_Data->Index;
+		OutputIndexList[k].RelativeIndex = k;
+	}
+	return OutputIndexList;
 }
 
 template<typename MeshAttributeType>
@@ -2377,10 +1733,10 @@ int_max Face_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceCount() const
 
 template<typename MeshAttributeType>
 inline
-void Face_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceHandleList(DenseVector<Handle_Of_Face_Of_PolygonMesh>& OutputHandleList) const
+DenseVector<int_max> Face_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceIndexList() const
 {
-	OutputHandleList.FastResize(0);
-	OutputHandleList.SetCapacity(m_Data->DirectedEdgeList.GetLength());
+	DenseVector<int_max> OutputIndexList;
+	OutputIndexList.SetCapacity(m_Data->DirectedEdgeList.GetLength());
 	for (int_max k = 0; k < m_Data->DirectedEdgeList.GetLength(); ++k)
 	{
 		auto EdgeIndex_k = m_Data->DirectedEdgeList[k].GetEdgeIndex();
@@ -2390,71 +1746,28 @@ void Face_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceHandleList(DenseVect
 			auto DirectedEdgeIndex_n = m_Data->Mesh.m_MeshData->EdgeList[EdgeIndex_k].DirectedEdgeIndexList()[n];
 			if (DirectedEdgeIndex_n.FaceIndex != m_Data->Index)
 			{
-				Handle_Of_Face_Of_PolygonMesh FaceHandle;
-				FaceHandle.SetIndex(DirectedEdgeIndex_n.FaceIndex);
-				OutputHandleList.Append(FaceHandle);
+				OutputIndexList.Append(DirectedEdgeIndex_n.FaceIndex);
 			}
 		}
 	}
+	return OutputIndexList;
 }
-
-template<typename MeshAttributeType>
-inline
-DenseVector<int_max> Face_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceIDList() const
-{
-    DenseVector<int_max> OutputIDList;
-    this->GetAdjacentFaceIDList(OutputIDList);
-    return OutputIDList;
-}
-
-template<typename MeshAttributeType>
-inline
-void Face_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceIDList(DenseVector<int_max>& OutputIDList) const
-{
-	OutputIDList.FastResize(0);
-	OutputIDList.SetCapacity(m_Data->DirectedEdgeList.GetLength());
-	for (int_max k = 0; k < m_Data->DirectedEdgeList.GetLength(); ++k)
-	{
-		auto EdgeIndex_k = m_Data->DirectedEdgeList[k].GetEdgeIndex();
-		int_max MaxCount = m_Data->Mesh.m_MeshData->EdgeList[EdgeIndex_k].DirectedEdgeIndexList().GetLength();
-		for (int_max n = 0; n < MaxCount; ++n)
-		{
-			auto DirectedEdgeIndex_n = m_Data->Mesh.m_MeshData->EdgeList[EdgeIndex_k].DirectedEdgeIndexList()[n];
-			if (DirectedEdgeIndex_n.FaceIndex != m_Data->Index)
-			{
-				OutputIDList.Append(m_Data->Mesh.m_MeshData->FaceList[DirectedEdgeIndex_n.FaceIndex].GetID());
-			}
-		}
-	}
-}
-
 
 template<typename MeshAttributeType>
 inline
 int_max Face_Of_PolygonMesh<MeshAttributeType>::GetNeighbourFaceCount() const
 {// share a vertex point
-	auto HandleList = this->GetNeighbourFaceHandleList();
-	return HandleList.GetLength();
+	auto IndexList = this->GetNeighbourFaceIndexList();
+	return IndexList.GetLength();
 }
-
 
 template<typename MeshAttributeType>
 inline
-DenseVector<Handle_Of_Face_Of_PolygonMesh> Face_Of_PolygonMesh<MeshAttributeType>::GetNeighbourFaceHandleList() const
+DenseVector<int_max> Face_Of_PolygonMesh<MeshAttributeType>::GetNeighbourFaceIndexList() const
 {
-	DenseVector<Handle_Of_Face_Of_PolygonMesh> HandleList;
-	this->GetNeighbourFaceHandleList(HandleList);
-	return HandleList;
-}
-
-
-template<typename MeshAttributeType>
-inline 
-void Face_Of_PolygonMesh<MeshAttributeType>::GetNeighbourFaceHandleList(DenseVector<Handle_Of_Face_Of_PolygonMesh>& OutputHandleList) const
-{
+	DenseVector<int_max> OutputIndexList;
+	OutputIndexList.SetCapacity(6);
 	auto PointIndexList = this->GetPointIndexList();
-	OutputHandleList.FastResize(0);
-	OutputHandleList.SetCapacity(PointIndexList.GetLength());
 	for (int_max k = 0; k < PointIndexList.GetLength(); ++k)
 	{
 		const auto& FaceIndexList_k = m_Data->Mesh.m_MeshData->PointList[PointIndexList[k]].AdjacentFaceIndexList();
@@ -2462,38 +1775,13 @@ void Face_Of_PolygonMesh<MeshAttributeType>::GetNeighbourFaceHandleList(DenseVec
 		{
 			if (FaceIndexList_k[n] != m_Data->Index)
 			{
-				Handle_Of_Face_Of_PolygonMesh FaceHandle;
-				FaceHandle.SetIndex(FaceIndexList_k[n]);
-				OutputHandleList.Append(FaceHandle);
+				OutputIndexList.Append(FaceIndexList_k[n]);
 			}
 		}
 	}
-	OutputHandleList = OutputHandleList.GetSubSet(OutputHandleList.FindUnique());
+	OutputIndexList = OutputIndexList.GetSubSet(OutputIndexList.FindUnique());
+	return OutputIndexList;
 }
-
-
-template<typename MeshAttributeType>
-inline
-DenseVector<int_max> Face_Of_PolygonMesh<MeshAttributeType>::GetNeighbourFaceIDList() const
-{
-	DenseVector<int_max> IDList;
-	this->GetNeighbourFaceIDList(IDList);
-	return IDList;
-}
-
-
-template<typename MeshAttributeType>
-inline 
-void Face_Of_PolygonMesh<MeshAttributeType>::GetNeighbourFaceIDList(DenseVector<int_max>& OutputIDList) const
-{
-	auto NeighbourFaceIndexList = this->GetNeighbourFaceIndexList();
-	OutputIDList.FastResize(NeighbourFaceIndexList.GetLength());
-	for (int_max k = 0; k < NeighbourFaceIndexList.GetLength(); ++k)
-	{
-		OutputIDList[k] = m_Data->Mesh.m_MeshData->FaceList[NeighbourFaceIndexList[k]].GetID();
-	}
-}
-
 
 template<typename MeshAttributeType>
 inline 
@@ -2511,20 +1799,32 @@ const typename MeshAttributeType::FaceAttributeType& Face_Of_PolygonMesh<MeshAtt
 
 template<typename MeshAttributeType>
 inline
-Handle_Of_Edge_Of_PolygonMesh Face_Of_PolygonMesh<MeshAttributeType>::GetEdgeHandleByPoint(Handle_Of_Point_Of_PolygonMesh PointHandleA, Handle_Of_Point_Of_PolygonMesh PointHandleB) const
+int_max Face_Of_PolygonMesh<MeshAttributeType>::GetRelativeIndexOfPoint(int_max PointIndex) const
 {
-	Handle_Of_Edge_Of_PolygonMesh EdgeHandle;
-	EdgeHandle.SetToInvalid();
-	auto PointHandleList = this->GetPointHandleList();
+	for (int_max k = 0; k < m_Data->DirectedEdgeList.GetLength(); ++k)
+	{
+		if (m_Data->DirectedEdgeList[k].GetStartPointIndex() == PointIndex)
+		{
+			return k;
+		}
+	}
+	return -1;
+}
+
+template<typename MeshAttributeType>
+inline
+int_max Face_Of_PolygonMesh<MeshAttributeType>::GetEdgeIndexByPoint(int_max PointIndexA, int_max PointIndexB) const
+{
+	auto PointIndexList = this->GetPointIndexList();
 	int_max tempIndexA = -1;
 	int_max tempIndexB = -1;
-	for (int_max k = 0; k < PointHandleList.GetLength(); ++k)
+	for (int_max k = 0; k < PointIndexList.GetLength(); ++k)
 	{
-		if (PointHandleList[k] == PointHandleA)
+		if (PointIndexList[k] == PointIndexA)
 		{
 			tempIndexA = k;
 		}
-		else if (PointHandleList[k] == PointHandleB)
+		else if (PointIndexList[k] == PointIndexB)
 		{
 			tempIndexB = k;
 		}
@@ -2536,49 +1836,49 @@ Handle_Of_Edge_Of_PolygonMesh Face_Of_PolygonMesh<MeshAttributeType>::GetEdgeHan
 	}
 	if (tempIndexA < 0 || tempIndexB < 0)
 	{
-		return EdgeHandle;
+		return -1;
 	}
-	auto EdgeHandleList = this->GetEdgeHandleList();
-	auto PointCount = PointHandleList.GetLength();
+
+	auto EdgeIndex = -1;
+	auto EdgeIndexList = this->GetEdgeIndexList();
+	auto PointCount = EdgeIndexList.GetLength();
 	if (tempIndexB = tempIndexA + 1 || tempIndexB = tempIndexA + 1 - PointCount)
 	{
-		EdgeHandle = EdgeHandleList[tempIndexA];
+		EdgeIndex = EdgeIndexList[tempIndexA];
 	}
 	else if (tempIndexA = tempIndexB + 1 || tempIndexA = tempIndexB + 1 - PointCount)
 	{
-		EdgeHandle = EdgeHandleList[tempIndexB];
+		EdgeIndex = EdgeIndexList[tempIndexB];
 	}
-	return EdgeHandle;
+	return EdgeIndex;
 }
 
 template<typename MeshAttributeType>
-Handle_Of_DirectedEdge_Of_PolygonMesh Face_Of_PolygonMesh<MeshAttributeType>::GetDirectedEdgeHandleByPoint(Handle_Of_Point_Of_PolygonMesh PointHandleA, Handle_Of_Point_Of_PolygonMesh PointHandleB) const
-{// get DirectedEdgeHandle from A  to B
-	Handle_Of_DirectedEdge_Of_PolygonMesh DirectedEdgeHandle;
-	DirectedEdgeHandle.SetToInvalid();
+DirectedEdgeIndex_Of_PolygonMesh Face_Of_PolygonMesh<MeshAttributeType>::GetDirectedEdgeIndexByPoint(int_max PointIndexA, int_max PointIndexB) const
+{// get DirectedEdgeIndex from A  to B
+	DirectedEdgeIndex_Of_PolygonMesh DirectedEdgeIndex;	
 	for (int_max k = 0; k < m_Data->DirectedEdgeList.GetLength(); ++k)
 	{
 		auto StartPointIndex_k = m_Data->DirectedEdgeList[k].GetStartPointIndex();
 		auto EndPointIndex_k = m_Data->DirectedEdgeList[k].GetEndPointIndex();
-		if (StartPointIndex_k == PointHandleA.GetIndex() && EndPointIndex_k == PointHandleB.GetIndex())
+		if (StartPointIndex_k == PointIndexA && EndPointIndex_k == PointIndexB)
 		{
-			DirectedEdgeHandle.SetIndex(m_Data->DirectedEdgeList[k].GetIndex());
+			DirectedEdgeIndex = m_Data->DirectedEdgeList[k].GetIndex();
 			break;
 		}
 	}
-	return DirectedEdgeHandle;
+	return DirectedEdgeIndex;
 }
 
 template<typename MeshAttributeType>
 inline
-DenseVector<Handle_Of_Point_Of_PolygonMesh> 
-Face_Of_PolygonMesh<MeshAttributeType>::GetPointHandleList_LeadBy(Handle_Of_Point_Of_PolygonMesh PointHandleA) const
-{// output handle list {PointHandleA, ...}
-	auto PointHandleList = this->GetPointHandleList();
+DenseVector<int_max> Face_Of_PolygonMesh<MeshAttributeType>::GetPointIndexList_LeadBy(int_max PointIndexA) const
+{// output list {PointIndexA, ...}
+	auto PointIndexList = this->GetPointIndexList();
 	int_max tempIndexA = -1;
-	for (int_max k = 0; k < PointHandleList.GetLength(); ++k)
+	for (int_max k = 0; k < PointIndexList.GetLength(); ++k)
 	{
-		if (PointHandleList[k] == PointHandleA)
+		if (PointIndexList[k] == PointIndexA)
 		{
 			tempIndexA = k;
 		}
@@ -2590,67 +1890,66 @@ Face_Of_PolygonMesh<MeshAttributeType>::GetPointHandleList_LeadBy(Handle_Of_Poin
 
 	if (tempIndexA == 0)
 	{
-		return PointHandleList;
+		return PointIndexList;
 	}
 
-	DenseVector<Handle_Of_Point_Of_PolygonMesh> PointHandleList_output;
+	DenseVector<int_max> PointIndexList_output;
 
 	if (tempIndexA < 0)
 	{
-		return PointHandleList_output;
+		return PointIndexList_output;
 	}
 	
 	//now tempIndexA > 0
-	PointHandleList_output.SetCapacity(PointHandleList.GetLength());
-	for (int_max k = tempIndexA; k < PointHandleList.GetLength(); ++k)
+	PointIndexList_output.SetCapacity(PointIndexList.GetLength());
+	for (int_max k = tempIndexA; k < PointIndexList.GetLength(); ++k)
 	{
-		PointHandleList_output.Append(PointHandleList[k]);
+		PointIndexList_output.Append(PointIndexList[k]);
 	}
 	for (int_max k = 0; k < tempIndexA; ++k)
 	{
-		PointHandleList_output.Append(PointHandleList[k]);
+		PointIndexList_output.Append(PointIndexList[k]);
 	}
-	return PointHandleList_output;
+	return PointIndexList_output;
 }
 
 template<typename MeshAttributeType>
 inline
-DenseVector<Handle_Of_Point_Of_PolygonMesh> 
-Face_Of_PolygonMesh<MeshAttributeType>::GetPointHandleList_LeadBy(Handle_Of_Point_Of_PolygonMesh PointHandleA, Handle_Of_Point_Of_PolygonMesh PointHandleB) const
-{// output handle list {PointHandleA, PointHandleB, ...}
+DenseVector<int_max> Face_Of_PolygonMesh<MeshAttributeType>::GetPointIndexList_LeadBy(int_max PointIndexA, int_max PointIndexB) const
+{// output Index list {PointIndexA, PointIndexB, ...}
 
-	auto PointHandleListA = this->GetPointHandleList_LeadBy(PointHandleA);
+	auto PointIndexListA = this->GetPointIndexList_LeadBy(PointIndexA);
 	
-	if (PointHandleListA.IsEmpty() == true)
+	if (PointIndexListA.IsEmpty() == true)
 	{
-		return PointHandleListA;
+		return PointIndexListA;
 	}
 
-	if (PointHandleListA[1] == PointHandleB)
+	if (PointIndexListA[1] == PointIndexB)
 	{
-		return PointHandleListA;
+		return PointIndexListA;
 	}
 
-	DenseVector<Handle_Of_Point_Of_PolygonMesh> PointHandleList_output;
+	DenseVector<Index_Of_Point_Of_PolygonMesh> PointIndexList_output;
 
-	if (PointHandleListA[PointHandleListA.GetLength()-1] == PointHandleB)
+	if (PointIndexListA[PointIndexListA.GetLength()-1] == PointIndexB)
 	{
-		PointHandleList_output.SetCapacity(PointHandleListA.GetLength());
-		PointHandleList_output.Append(PointHandleListA[0]);
-		for (int_max k = PointHandleListA.GetLength() - 1; k > 0; --k)
+		PointIndexList_output.SetCapacity(PointIndexListA.GetLength());
+		PointIndexList_output.Append(PointIndexListA[0]);
+		for (int_max k = PointIndexListA.GetLength() - 1; k > 0; --k)
 		{
-			PointHandleList_output.Append(PointHandleListA[k]);
+			PointIndexList_output.Append(PointIndexListA[k]);
 		}
 	}
 
-	return PointHandleList_output;
+	return PointIndexList_output;
 }
 
 template<typename MeshAttributeType>
 inline
 void Face_Of_PolygonMesh<MeshAttributeType>::ReversePointOrder()
 {
-	m_Data->Mesh.ReversePointOrderOfFace(this->GetHandle());
+	m_Data->Mesh.ReversePointOrderOfFace(m_Data->Index);
 }
 
 }// namespace mdk

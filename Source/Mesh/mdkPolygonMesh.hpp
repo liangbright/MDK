@@ -61,6 +61,9 @@ void PolygonMesh<MeshAttributeType>::Clear()
         return;
     }
 
+	m_MeshData->ID = -1;
+	m_MeshData->Name = "";
+
     m_MeshData->PointPositionTable.Clear();
     m_MeshData->PointList.Clear();
     m_MeshData->PointValidityFlagList.Clear();
@@ -75,13 +78,17 @@ void PolygonMesh<MeshAttributeType>::Clear()
     m_MeshData->Map_EdgeID_to_EdgeIndex.clear();
     m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.clear();
     m_MeshData->Map_FaceID_to_FaceIndex.clear();
+	
+	m_MeshData->Map_PointName_to_PointIndex.clear();
+	m_MeshData->Map_EdgeName_to_EdgeIndex.clear();
+	m_MeshData->Map_FaceName_to_FaceIndex.clear();
 
-	m_MeshData->ID = -1;
-	m_MeshData->Name = "";
-	m_MeshData->Map_PointName_to_PointHandle.clear();
-	m_MeshData->Map_FaceName_to_FaceHandle.clear();
 	m_MeshData->PointSetList.Clear();
 	m_MeshData->Map_PointSetName_to_PointSetIndex.clear();
+
+	m_MeshData->EdgeSetList.Clear();
+	m_MeshData->Map_EdgeSetName_to_EdgeSetIndex.clear();
+
 	m_MeshData->FaceSetList.Clear();
 	m_MeshData->Map_FaceSetName_to_FaceSetIndex.clear();
 
@@ -121,6 +128,9 @@ void PolygonMesh<MeshAttributeType>::Copy(const PolygonMesh<MeshAttributeType>& 
         return;
     }
 
+	m_MeshData->ID = InputMesh.m_MeshData->ID;
+	m_MeshData->Name = InputMesh.m_MeshData->Name;
+
     m_MeshData->PointPositionTable = InputMesh.m_MeshData->PointPositionTable;
     m_MeshData->PointValidityFlagList = InputMesh.m_MeshData->PointValidityFlagList;
     m_MeshData->PointList = InputMesh.m_MeshData->PointList;
@@ -157,12 +167,16 @@ void PolygonMesh<MeshAttributeType>::Copy(const PolygonMesh<MeshAttributeType>& 
     m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex = InputMesh.m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex;
     m_MeshData->Map_FaceID_to_FaceIndex = InputMesh.m_MeshData->Map_FaceID_to_FaceIndex;
 
-	m_MeshData->ID = InputMesh.m_MeshData->ID;
-	m_MeshData->Name = InputMesh.m_MeshData->Name;
-	m_MeshData->Map_PointName_to_PointHandle = InputMesh.m_MeshData->Map_PointName_to_PointHandle;
-	m_MeshData->Map_FaceName_to_FaceHandle = InputMesh.m_MeshData->Map_FaceName_to_FaceHandle;
+	m_MeshData->Map_PointName_to_PointIndex = InputMesh.m_MeshData->Map_PointName_to_PointIndex;
+	m_MeshData->Map_EdgeName_to_EdgeIndex = InputMesh.m_MeshData->Map_EdgeName_to_EdgeIndex;
+	m_MeshData->Map_FaceName_to_FaceIndex = InputMesh.m_MeshData->Map_FaceName_to_FaceIndex;
+
 	m_MeshData->PointSetList = InputMesh.m_MeshData->PointSetList;
 	m_MeshData->Map_PointSetName_to_PointSetIndex = InputMesh.m_MeshData->Map_PointSetName_to_PointSetIndex;
+
+	m_MeshData->EdgeSetList = InputMesh.m_MeshData->EdgeSetList;
+	m_MeshData->Map_EdgeSetName_to_EdgeSetIndex = InputMesh.m_MeshData->Map_EdgeSetName_to_EdgeSetIndex;
+
 	m_MeshData->FaceSetList = InputMesh.m_MeshData->FaceSetList;
 	m_MeshData->Map_FaceSetName_to_FaceSetIndex = InputMesh.m_MeshData->Map_FaceSetName_to_FaceSetIndex;
 
@@ -190,6 +204,9 @@ void PolygonMesh<MeshAttributeType>::Copy(PolygonMesh<MeshAttributeType>&& Input
 		this->Clear();
 		return;
 	}
+
+	m_MeshData->ID = InputMesh.m_MeshData->ID;
+	m_MeshData->Name = std::move(InputMesh.m_MeshData->Name);
 
 	m_MeshData->PointPositionTable = std::move(InputMesh.m_MeshData->PointPositionTable);
 	m_MeshData->PointValidityFlagList = std::move(InputMesh.m_MeshData->PointValidityFlagList);
@@ -227,12 +244,16 @@ void PolygonMesh<MeshAttributeType>::Copy(PolygonMesh<MeshAttributeType>&& Input
 	m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex = std::move(InputMesh.m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex);
 	m_MeshData->Map_FaceID_to_FaceIndex = std::move(InputMesh.m_MeshData->Map_FaceID_to_FaceIndex);
 
-	m_MeshData->ID = InputMesh.m_MeshData->ID;
-	m_MeshData->Name = std::move(InputMesh.m_MeshData->Name);
-	m_MeshData->Map_PointName_to_PointHandle = std::move(InputMesh.m_MeshData->Map_PointName_to_PointHandle);
-	m_MeshData->Map_FaceName_to_FaceHandle = std::move(InputMesh.m_MeshData->Map_FaceName_to_FaceHandle);
+	m_MeshData->Map_PointName_to_PointIndex = std::move(InputMesh.m_MeshData->Map_PointName_to_PointIndex);
+	m_MeshData->Map_EdgeName_to_EdgeIndex = std::move(InputMesh.m_MeshData->Map_EdgeName_to_EdgeIndex);
+	m_MeshData->Map_FaceName_to_FaceIndex = std::move(InputMesh.m_MeshData->Map_FaceName_to_FaceIndex);
+
 	m_MeshData->PointSetList = std::move(InputMesh.m_MeshData->PointSetList);
 	m_MeshData->Map_PointSetName_to_PointSetIndex = std::move(InputMesh.m_MeshData->Map_PointSetName_to_PointSetIndex);
+
+	m_MeshData->EdgeSetList = std::move(InputMesh.m_MeshData->EdgeSetList);
+	m_MeshData->Map_EdgeSetName_to_EdgeSetIndex = std::move(InputMesh.m_MeshData->Map_EdgeSetName_to_EdgeSetIndex);
+
 	m_MeshData->FaceSetList = std::move(InputMesh.m_MeshData->FaceSetList);
 	m_MeshData->Map_FaceSetName_to_FaceSetIndex = std::move(InputMesh.m_MeshData->Map_FaceSetName_to_FaceSetIndex);
 
@@ -294,10 +315,7 @@ int_max PolygonMesh<MeshAttributeType>::GetPointCount() const
 	{
 		return 0;
 	}
-	else
-	{
-		return m_MeshData->PointValidityFlagList.Sum();
-	}
+	return m_MeshData->PointValidityFlagList.Sum();
 }
 
 template<typename MeshAttributeType>
@@ -308,10 +326,7 @@ int_max PolygonMesh<MeshAttributeType>::GetEdgeCount() const
 	{
 		return 0;
 	}
-	else
-	{
-		return m_MeshData->EdgeValidityFlagList.Sum();
-	}
+	return m_MeshData->EdgeValidityFlagList.Sum();	
 }
 
 template<typename MeshAttributeType>
@@ -345,10 +360,29 @@ int_max PolygonMesh<MeshAttributeType>::GetFaceCount() const
 	{
 		return 0;
 	}
-	else
+	return m_MeshData->FaceValidityFlagList.Sum();
+}
+
+
+template<typename MeshAttributeType>
+int_max PolygonMesh<MeshAttributeType>::GetNamedPointCount() const
+{
+	if (!m_MeshData)
 	{
-		return m_MeshData->FaceValidityFlagList.Sum();
+		return 0;
 	}
+	return m_MeshData->Map_PointName_to_PointIndex.size();
+}
+
+
+template<typename MeshAttributeType>
+int_max PolygonMesh<MeshAttributeType>::GetNamedFaceCount() const
+{
+	if (!m_MeshData)
+	{
+		return 0;
+	}
+	return m_MeshData->Map_FaceName_to_FaceIndex.size();
 }
 
 
@@ -360,10 +394,7 @@ int_max PolygonMesh<MeshAttributeType>::GetMaxValueOfPointIndex() const
 	{
 		return 0;
 	}
-	else
-	{
-		return m_MeshData->PointPositionTable.GetColCount();
-	}
+	return m_MeshData->PointPositionTable.GetColCount();	
 }
 
 
@@ -375,10 +406,7 @@ int_max PolygonMesh<MeshAttributeType>::GetMaxValueOfEdgeIndex() const
 	{
 		return 0;
 	}
-	else
-	{
-		return m_MeshData->EdgeList.GetLength();
-	}
+	return m_MeshData->EdgeList.GetLength();
 }
 
 
@@ -390,10 +418,7 @@ int_max PolygonMesh<MeshAttributeType>::GetMaxValueOfFaceIndex() const
 	{
 		return 0;
 	}
-	else
-	{
-		return m_MeshData->FaceList.GetLength();
-	}
+	return m_MeshData->FaceList.GetLength();	
 }
 
 //------ Get/Set GlobalAttribute -----------------------------------//
@@ -410,6 +435,32 @@ inline
 const typename MeshAttributeType::GlobalAttribute& PolygonMesh<MeshAttributeType>::Attribute() const
 {
     return m_MeshData->Attribute;
+}
+
+//--------------------------------------------------------------//
+
+template<typename MeshAttributeType>
+void PolygonMesh<MeshAttributeType>::SetID(int_max ID)
+{
+	m_MeshData->ID = ID;
+}
+
+template<typename MeshAttributeType>
+int_max PolygonMesh<MeshAttributeType>::GetID() const
+{
+	return m_MeshData->ID;
+}
+
+template<typename MeshAttributeType>
+void PolygonMesh<MeshAttributeType>::SetName(String Name)
+{
+	m_MeshData->Name = std::move(Name);
+}
+
+template<typename MeshAttributeType>
+String PolygonMesh<MeshAttributeType>::GetName() const
+{
+	return m_MeshData->Name;
 }
 
 //------------- Get All the position (valid point) --------------------------------//
@@ -448,40 +499,80 @@ void PolygonMesh<MeshAttributeType>::GetPointPosition(const MDK_Symbol_ALL&, Den
 	}
 }
 
-//---- Get/Set 3D Position by PointHandle --------------------------------------------------------------------------//
+//---- Get/Set 3D Position by PointIndex --------------------------------------------------------------------------//
 
 template<typename MeshAttributeType>
 inline
 void PolygonMesh<MeshAttributeType>::
-SetPointPosition(PointHandleType PointHandle, ScalarType x, ScalarType y, ScalarType z)
+SetPointPosition(int_max PointIndex, ScalarType x, ScalarType y, ScalarType z)
 {
-    m_MeshData->PointPositionTable.SetCol(PointHandle.GetIndex(), { x, y, z });
+    m_MeshData->PointPositionTable.SetCol(PointIndex, { x, y, z });
 }
 
 template<typename MeshAttributeType>
 inline 
-void PolygonMesh<MeshAttributeType>::SetPointPosition(PointHandleType PointHandle, const ScalarType Position[3])
+void PolygonMesh<MeshAttributeType>::SetPointPosition(int_max PointIndex, const ScalarType Position[3])
 {
-    m_MeshData->PointPositionTable.SetCol(PointHandle.GetIndex(), Position);
+    m_MeshData->PointPositionTable.SetCol(PointIndex, Position);
+}
+
+template<typename MeshAttributeType>
+inline
+void PolygonMesh<MeshAttributeType>::SetPointPosition(int_max PointIndex, const DenseVector<ScalarType,3>& Position)
+{
+	m_MeshData->PointPositionTable.SetCol(PointIndex, Position);
+}
+
+template<typename MeshAttributeType>
+inline
+void PolygonMesh<MeshAttributeType>::
+SetPointPosition(const DenseVector<int_max>& PointIndexList, const DenseMatrix<ScalarType>& PointPositionMatrix)
+{
+	if (PointIndexList.IsEmpty() == true && PointPositionMatrix.IsEmpty() == true)
+	{
+		return;
+	}
+	else if (PointIndexList.IsEmpty() == true && PointPositionMatrix.IsEmpty() == false)
+	{
+		MDK_Error("Invalid input @ PolygonMesh::SetPointPosition(...)")
+		return;
+	}
+	else if (PointIndexList.IsEmpty() == false && PointPositionMatrix.IsEmpty() == true)
+	{
+		MDK_Error("Invalid input @ PolygonMesh::SetPointPosition(...)")
+		return;
+	}
+
+	for (int_max k = 0; k < PointIndexList.GetLength(); ++k)
+	{
+		auto PointIndex = PointIndexList[k];
+		if (PointIndex < 0 || PointIndex >= m_MeshData->PointPositionTable.GetColCount())
+		{
+			MDK_Error("Invalid PointIndex @ PolygonMesh::SetPointPosition(...)")
+			return;
+		}
+
+		m_MeshData->PointPositionTable.SetCol(PointIndex, PointPositionMatrix.GetPointerOfCol(k));
+	}
 }
 
 template<typename MeshAttributeType>
 inline
 DenseVector<typename MeshAttributeType::ScalarType, 3> 
-PolygonMesh<MeshAttributeType>::GetPointPosition(PointHandleType PointHandle) const
+PolygonMesh<MeshAttributeType>::GetPointPosition(int_max PointIndex) const
 {
     DenseVector<ScalarType, 3> Position;
-    m_MeshData->PointPositionTable.GetCol(PointHandle.GetIndex(), Position.GetPointer());
+    m_MeshData->PointPositionTable.GetCol(PointIndex, Position.GetPointer());
     return Position;
 }
 
 template<typename MeshAttributeType>
 inline 
 void PolygonMesh<MeshAttributeType>::
-GetPointPosition(PointHandleType PointHandle, ScalarType& x, ScalarType& y, ScalarType& z) const
+GetPointPosition(int_max PointIndex, ScalarType& x, ScalarType& y, ScalarType& z) const
 {
     ScalarType Position[3];
-    m_MeshData->PointPositionTable.GetCol(PointHandle.GetIndex(), Position);
+    m_MeshData->PointPositionTable.GetCol(PointIndex, Position);
     x = Position[0];
     y = Position[1];
     z = Position[2];
@@ -489,53 +580,19 @@ GetPointPosition(PointHandleType PointHandle, ScalarType& x, ScalarType& y, Scal
 
 template<typename MeshAttributeType>
 inline 
-void PolygonMesh<MeshAttributeType>::GetPointPosition(PointHandleType PointHandle, ScalarType Position[3]) const
+void PolygonMesh<MeshAttributeType>::GetPointPosition(int_max PointIndex, ScalarType Position[3]) const
 {
-    m_MeshData->PointPositionTable.GetCol(PointHandle.GetIndex(), Position);
-}
-
-
-template<typename MeshAttributeType>
-inline
-void PolygonMesh<MeshAttributeType>::
-SetPointPosition(const DenseVector<PointHandleType>& PointHandleList, const DenseMatrix<ScalarType>& PointPositionMatrix)
-{
-    if (PointHandleList.IsEmpty() == true && PointPositionMatrix.IsEmpty() == true)
-    {
-        return;
-    }
-    else if (PointHandleList.IsEmpty() == true && PointPositionMatrix.IsEmpty() == false)
-    {
-        MDK_Error("Invalid input @ PolygonMesh::SetPointPosition(...)")
-        return;
-    }
-    else if (PointHandleList.IsEmpty() == false && PointPositionMatrix.IsEmpty() == true)
-    {
-        MDK_Error("Invalid input @ PolygonMesh::SetPointPosition(...)")
-        return;
-    }
-
-    for (int_max k = 0; k < PointHandleList.GetLength(); ++k)
-    {
-        auto PointIndex = PointHandleList[k].GetIndex();
-        if (PointIndex < 0 || PointIndex >= m_MeshData->PointPositionTable.GetColCount())
-        {
-            MDK_Error("Invalid PointIndex @ PolygonMesh::SetPointPosition(...)")
-            return;
-        }
-
-        m_MeshData->PointPositionTable.SetCol(PointIndex, PointPositionMatrix.GetPointerOfCol(k));
-    }
+    m_MeshData->PointPositionTable.GetCol(PointIndex, Position);
 }
 
 
 template<typename MeshAttributeType>
 inline
 DenseMatrix<typename MeshAttributeType::ScalarType> 
-PolygonMesh<MeshAttributeType>::GetPointPosition(const DenseVector<PointHandleType>& PointHandleList) const
+PolygonMesh<MeshAttributeType>::GetPointPosition(const DenseVector<int_max>& PointIndexList) const
 {
     DenseMatrix<MeshAttributeType::ScalarType> PointPositionMatrix;
-    this->GetPointPosition(PointHandleList, PointPositionMatrix);
+    this->GetPointPosition(PointIndexList, PointPositionMatrix);
     return PointPositionMatrix;
 }
 
@@ -543,18 +600,18 @@ PolygonMesh<MeshAttributeType>::GetPointPosition(const DenseVector<PointHandleTy
 template<typename MeshAttributeType>
 inline
 void PolygonMesh<MeshAttributeType>::
-GetPointPosition(const DenseVector<PointHandleType>& PointHandleList, DenseMatrix<ScalarType>& PointPositionMatrix) const
+GetPointPosition(const DenseVector<int_max>& PointIndexList, DenseMatrix<ScalarType>& PointPositionMatrix) const
 {
-    if (PointHandleList.IsEmpty() == true)
+    if (PointIndexList.IsEmpty() == true)
     {
         PointPositionMatrix.FastResize(0, 0);
         return;
     }
 
-    PointPositionMatrix.FastResize(3, PointHandleList.GetLength());
-    for (int_max k = 0; k < PointHandleList.GetLength(); ++k)
+    PointPositionMatrix.FastResize(3, PointIndexList.GetLength());
+    for (int_max k = 0; k < PointIndexList.GetLength(); ++k)
     {
-        auto PointIndex = PointHandleList[k].GetIndex();
+        auto PointIndex = PointIndexList[k];
         if (PointIndex < 0 || PointIndex >= m_MeshData->PointPositionTable.GetColCount())
         {
             MDK_Error("Invalid PointIndex @ PolygonMesh::GetPointPosition(...)")
@@ -569,71 +626,70 @@ GetPointPosition(const DenseVector<PointHandleType>& PointHandleList, DenseMatri
 
 template<typename MeshAttributeType>
 inline
-Point_Of_PolygonMesh<MeshAttributeType>& PolygonMesh<MeshAttributeType>::Point(PointHandleType PointHandle)
+Point_Of_PolygonMesh<MeshAttributeType>& PolygonMesh<MeshAttributeType>::Point(int_max PointIndex)
 {
-    return m_MeshData->PointList[PointHandle.GetIndex()];
+    return m_MeshData->PointList[PointIndex];
 }
 
 template<typename MeshAttributeType>
 inline
-const Point_Of_PolygonMesh<MeshAttributeType>& PolygonMesh<MeshAttributeType>::Point(PointHandleType PointHandle) const
+const Point_Of_PolygonMesh<MeshAttributeType>& PolygonMesh<MeshAttributeType>::Point(int_max PointIndex) const
 {
-    return m_MeshData->PointList[PointHandle.GetIndex()];
+    return m_MeshData->PointList[PointIndex];
 }
 
 template<typename MeshAttributeType>
 inline
-Edge_Of_PolygonMesh<MeshAttributeType>& PolygonMesh<MeshAttributeType>::Edge(EdgeHandleType EdgeHandle)
+Edge_Of_PolygonMesh<MeshAttributeType>& PolygonMesh<MeshAttributeType>::Edge(int_max EdgeIndex)
 {
-    return m_MeshData->EdgeList[EdgeHandle.GetIndex()];
+    return m_MeshData->EdgeList[EdgeIndex];
 }
 
 template<typename MeshAttributeType>
 inline
-const Edge_Of_PolygonMesh<MeshAttributeType>& PolygonMesh<MeshAttributeType>::Edge(EdgeHandleType EdgeHandle) const
+const Edge_Of_PolygonMesh<MeshAttributeType>& PolygonMesh<MeshAttributeType>::Edge(int_max EdgeIndex) const
 {
-    return m_MeshData->EdgeList[EdgeHandle.GetIndex()];
+    return m_MeshData->EdgeList[EdgeIndex];
 }
 
 template<typename MeshAttributeType>
 inline
-DirectedEdge_Of_PolygonMesh<MeshAttributeType>& PolygonMesh<MeshAttributeType>::DirectedEdge(DirectedEdgeHandleType DirectedEdgeHandle)
+DirectedEdge_Of_PolygonMesh<MeshAttributeType>& PolygonMesh<MeshAttributeType>::DirectedEdge(DirectedEdgeIndexType DirectedEdgeIndex)
 {
-    auto FaceIndex = DirectedEdgeHandle.GetFaceIndex();
-    auto RelativeIndex = DirectedEdgeHandle.GetRelativeIndex();
+    auto FaceIndex = DirectedEdgeIndex.FaceIndex;
+    auto RelativeIndex = DirectedEdgeIndex.RelativeIndex;
 	return m_MeshData->FaceList[FaceIndex].DirectedEdgeList()[RelativeIndex];
 }
 
 template<typename MeshAttributeType>
 inline
 const DirectedEdge_Of_PolygonMesh<MeshAttributeType>& 
-PolygonMesh<MeshAttributeType>::DirectedEdge(DirectedEdgeHandleType DirectedEdgeHandle) const
+PolygonMesh<MeshAttributeType>::DirectedEdge(DirectedEdgeIndexType DirectedEdgeIndex) const
 {
-    auto FaceIndex = DirectedEdgeHandle.GetFaceIndex();
-    auto RelativeIndex = DirectedEdgeHandle.GetRelativeIndex();
+	auto FaceIndex = DirectedEdgeIndex.FaceIndex;
+	auto RelativeIndex = DirectedEdgeIndex.RelativeIndex;
     return m_MeshData->FaceList[FaceIndex].DirectedEdgeList()[RelativeIndex];
 }
 
 template<typename MeshAttributeType>
 inline
-Face_Of_PolygonMesh<MeshAttributeType>& PolygonMesh<MeshAttributeType>::Face(FaceHandleType FaceHandle)
+Face_Of_PolygonMesh<MeshAttributeType>& PolygonMesh<MeshAttributeType>::Face(int_max FaceIndex)
 {
-    return m_MeshData->FaceList[FaceHandle.GetIndex()];
+    return m_MeshData->FaceList[FaceIndex];
 }
 
 template<typename MeshAttributeType>
 inline
-const Face_Of_PolygonMesh<MeshAttributeType>& PolygonMesh<MeshAttributeType>::Face(FaceHandleType FaceHandle) const
+const Face_Of_PolygonMesh<MeshAttributeType>& PolygonMesh<MeshAttributeType>::Face(int_max FaceIndex) const
 {
-    return m_MeshData->FaceList[FaceHandle.GetIndex()];
+    return m_MeshData->FaceList[FaceIndex];
 }
 
-//-------------- check handle -------------------------------------------------------//
+//-------------- check index -------------------------------------------------------//
 
 template<typename MeshAttributeType>
-bool PolygonMesh<MeshAttributeType>::IsValidHandle(PointHandleType PointHandle) const
+bool PolygonMesh<MeshAttributeType>::IsValidPointIndex(int_max PointIndex) const
 {
-    auto PointIndex = PointHandle.GetIndex();
     if (PointIndex < 0 || PointIndex >= m_MeshData->PointValidityFlagList.GetLength())
     {
         return false;
@@ -653,32 +709,20 @@ bool PolygonMesh<MeshAttributeType>::IsValidHandle(PointHandleType PointHandle) 
 }
 
 template<typename MeshAttributeType>
-bool PolygonMesh<MeshAttributeType>::IsValidHandle(EdgeHandleType EdgeHandle) const
+bool PolygonMesh<MeshAttributeType>::IsValidEdgeIndex(int_max EdgeIndex) const
 {
-    auto EdgeIndex = EdgeHandle.GetIndex();
     if (EdgeIndex < 0 || EdgeIndex >= m_MeshData->EdgeValidityFlagList.GetLength())
     {
         return false;
     }
-
 	return (m_MeshData->EdgeValidityFlagList[EdgeIndex] == 1);    
-
-    // slow
-    //if (EdgeIndex < 0 || EdgeIndex >= m_MeshData->EdgeList.GetLength())
-    //{
-    //    return false;
-    //}
-    //else
-    //{
-    //    return m_MeshData->EdgeList[EdgeIndex].IsValid();
-    //}
 }
 
 template<typename MeshAttributeType>
-bool PolygonMesh<MeshAttributeType>::IsValidHandle(DirectedEdgeHandleType DirectedEdgeHandle) const
+bool PolygonMesh<MeshAttributeType>::IsValidDirectedEdgeIndex(DirectedEdgeIndexType DirectedEdgeIndex) const
 {
-    auto FaceIndex = DirectedEdgeHandle.GetEdgeIndex();
-    auto RelativeIndex = DirectedEdgeHandle.GetRelativeIndex();
+    auto FaceIndex = DirectedEdgeIndex.FaceIndex;
+    auto RelativeIndex = DirectedEdgeIndex.RelativeIndex;
 
     if (FaceIndex < 0 || FaceIndex >= m_MeshData->FaceValidityFlagList.GetLength())
     {
@@ -694,175 +738,118 @@ bool PolygonMesh<MeshAttributeType>::IsValidHandle(DirectedEdgeHandleType Direct
 }
 
 template<typename MeshAttributeType>
-bool PolygonMesh<MeshAttributeType>::IsValidHandle(FaceHandleType FaceHandle) const
+bool PolygonMesh<MeshAttributeType>::IsValidFaceIndex(int_max FaceIndex) const
 {
-    auto FaceIndex = FaceHandle.GetIndex();
     if (FaceIndex < 0 || FaceIndex >= m_MeshData->FaceValidityFlagList.GetLength())
     {
         return false;
-    }
-    
-	return (m_MeshData->FaceValidityFlagList[FaceIndex] == 1);
-    
-    // slow
-    //if (FaceIndex < 0 || FaceIndex >= m_MeshData->FaceList.GetLength())
-    //{
-    //    return false;
-    //}
-    //else
-    //{
-    //    return m_MeshData->FaceList[FaceIndex].IsValid();
-    //}
+    }    
+	return (m_MeshData->FaceValidityFlagList[FaceIndex] == 1);  
 }
 
-//--------- get HandleList ------------------------------------------------------------//
+//--------- get Valid IndexList ------------------------------------------------------------//
 
 template<typename MeshAttributeType>
 inline
-DenseVector<Handle_Of_Point_Of_PolygonMesh> PolygonMesh<MeshAttributeType>::GetPointHandleList() const
+DenseVector<int_max> PolygonMesh<MeshAttributeType>::GetPointIndexList() const
 {
-	DenseVector<PointHandleType> OutputHandleList;
-    this->GetPointHandleList(OutputHandleList);
-    return OutputHandleList;
-}
-
-template<typename MeshAttributeType>
-inline
-void PolygonMesh<MeshAttributeType>::GetPointHandleList(DenseVector<PointHandleType>& OutputHandleList) const
-{
-	OutputHandleList.FastResize(0);
-    OutputHandleList.SetCapacity(m_MeshData->PointList.GetLength());
-	PointHandleType PointHandle;
+	DenseVector<int_max> OutputIndexList;
+	OutputIndexList.SetCapacity(m_MeshData->PointList.GetLength());	
     for (int_max k = 0; k < m_MeshData->PointList.GetLength(); ++k)
     {
         if (m_MeshData->PointValidityFlagList[k] == 1)
         {
-            PointHandle.SetIndex(k);
-            OutputHandleList.Append(PointHandle);
+			OutputIndexList.Append(k);
         }
     }
+	return OutputIndexList;
 }
 
 template<typename MeshAttributeType>
 inline 
-DenseVector<Handle_Of_Edge_Of_PolygonMesh> PolygonMesh<MeshAttributeType>::GetEdgeHandleList() const
+DenseVector<int_max> PolygonMesh<MeshAttributeType>::GetEdgeIndexList() const
 {
-	DenseVector<EdgeHandleType> OutputHandleList;
-    this->GetEdgeHandleList(OutputHandleList);
-    return OutputHandleList;
-}
-
-template<typename MeshAttributeType>
-inline
-void PolygonMesh<MeshAttributeType>::GetEdgeHandleList(DenseVector<EdgeHandleType>& OutputHandleList) const
-{
-	OutputHandleList.FastResize(0);
-    OutputHandleList.SetCapacity(m_MeshData->EdgeList.GetLength());
-	EdgeHandleType EdgeHandle;
+	DenseVector<int_max> OutputIndexList;
+	OutputIndexList.SetCapacity(m_MeshData->EdgeList.GetLength());	
     for (int_max k = 0; k < m_MeshData->EdgeList.GetLength(); ++k)
     {
         if (m_MeshData->EdgeValidityFlagList[k] == 1)
         {
-            EdgeHandle.SetIndex(k);
-            OutputHandleList.Append(EdgeHandle);
+			OutputIndexList.Append(k);
         }
     }
+	return OutputIndexList;
 }
 
 template<typename MeshAttributeType>
 inline
-DenseVector<Handle_Of_DirectedEdge_Of_PolygonMesh> PolygonMesh<MeshAttributeType>::GetDirectedEdgeHandleList() const
+DenseVector<DirectedEdgeIndex_Of_PolygonMesh> PolygonMesh<MeshAttributeType>::GetDirectedEdgeIndexList() const
 {
-	DenseVector<DirectedEdgeHandleType> OutputHandleList;
-    this->GetDirectedEdgeHandleList(OutputHandleList);
-    return OutputHandleList;
-}
-
-template<typename MeshAttributeType>
-inline
-void PolygonMesh<MeshAttributeType>::
-GetDirectedEdgeHandleList(DenseVector<DirectedEdgeHandleType>& OutputHandleList) const
-{
-	OutputHandleList.FastResize(0);
-    OutputHandleList.SetCapacity(3*m_MeshData->FaceList.GetLength());    
+	DenseVector<DirectedEdgeIndexType> OutputIndexList;
+	OutputIndexList.SetCapacity(3*m_MeshData->FaceList.GetLength());
     for (int_max k = 0; k < m_MeshData->FaceList.GetLength(); ++k)
     {
         if (m_MeshData->FaceValidityFlagList[k] == 1)
         {
 			for (int_max n = 0; n < m_MeshData->FaceList[k].DirectedEdgeList().GetLength(); ++n)
 			{
-				DirectedEdgeHandleType DirectedEdgeHandle;
-				DirectedEdgeHandle.SetIndex(k, n);
-				OutputHandleList.Append(DirectedEdgeHandle);
+				DirectedEdgeIndexType DirectedEdgeIndex;
+				DirectedEdgeIndex.FaceIndex = k;
+				DirectedEdgeIndex.RelativeIndex = n;
+				OutputIndexList.Append(DirectedEdgeIndex);
 			}
         }
     }
+	return OutputIndexList;
 }
 
 template<typename MeshAttributeType>
 inline
-DenseVector<Handle_Of_Face_Of_PolygonMesh> PolygonMesh<MeshAttributeType>::GetFaceHandleList() const
+DenseVector<int_max> PolygonMesh<MeshAttributeType>::GetFaceIndexList() const
 {
-	DenseVector<FaceHandleType> OutputHandleList;
-    this->GetFaceHandleList(OutputHandleList);
-    return OutputHandleList;
-}
-
-
-template<typename MeshAttributeType>
-inline
-void PolygonMesh<MeshAttributeType>::GetFaceHandleList(DenseVector<FaceHandleType>& OutputHandleList) const
-{
-	OutputHandleList.FastResize(0);
-    OutputHandleList.SetCapacity(m_MeshData->FaceList.GetLength());
-	FaceHandleType FaceHandle;
+	DenseVector<int_max> OutputIndexList;
+	OutputIndexList.SetCapacity(m_MeshData->FaceList.GetLength());
     for (int_max k = 0; k < m_MeshData->FaceList.GetLength(); ++k)
     {
         if (m_MeshData->FaceValidityFlagList[k] == 1)
         {
-            FaceHandle.SetIndex(k);
-            OutputHandleList.Append(FaceHandle);
+			OutputIndexList.Append(k);
         }
     }
+	return OutputIndexList;
 }
 
-//----------- get PointHandle by Position, ID, ----------------------------------------------//
+//----------- get PointIndex by Position, ID, Name ----------------------------------------------//
 
 template<typename MeshAttributeType>
 inline
-Handle_Of_Point_Of_PolygonMesh PolygonMesh<MeshAttributeType>::
-GetPointHandleByPosition(const DenseVector<ScalarType, 3>& Position, ScalarType DistanceThreshold) const
+int_max PolygonMesh<MeshAttributeType>::GetPointIndexByPosition(const DenseVector<ScalarType, 3>& Position, ScalarType DistanceThreshold) const
 {
-    return this->GetPointHandleByPosition(Position[0], Position[1], Position[2], DistanceThreshold);
-}
-
-
-template<typename MeshAttributeType>
-inline
-Handle_Of_Point_Of_PolygonMesh PolygonMesh<MeshAttributeType>::
-GetPointHandleByPosition(const ScalarType Position[3], ScalarType DistanceThreshold) const
-{
-    return this->GetPointHandleByPosition(Position[0], Position[1], Position[2], DistanceThreshold);
+    return this->GetPointIndexByPosition(Position[0], Position[1], Position[2], DistanceThreshold);
 }
 
 
 template<typename MeshAttributeType>
 inline
-Handle_Of_Point_Of_PolygonMesh PolygonMesh<MeshAttributeType>::
-GetPointHandleByPosition(ScalarType x, ScalarType y, ScalarType z, ScalarType DistanceThreshold) const
+int_max PolygonMesh<MeshAttributeType>::GetPointIndexByPosition(const ScalarType Position[3], ScalarType DistanceThreshold) const
 {
-	PointHandleType PointHandle;
-    PointHandle.SetToInvalid();
+    return this->GetPointIndexByPosition(Position[0], Position[1], Position[2], DistanceThreshold);
+}
 
+
+template<typename MeshAttributeType>
+inline
+int_max PolygonMesh<MeshAttributeType>::GetPointIndexByPosition(ScalarType x, ScalarType y, ScalarType z, ScalarType DistanceThreshold) const
+{
     if (this->IsEmpty() == true)
     {        
-        return PointHandle;
+        return -1;
     }
 
     if (DistanceThreshold < 0)
     {
-        MDK_Error("DistanceThreshold < 0 @ PolygonMesh::GetPointHandleByPosition(...)")
-        return PointHandle;
+        MDK_Error("DistanceThreshold < 0 @ PolygonMesh::GetPointIndexByPosition(...)")
+        return -1;
     }
 
     auto eps_value = std::numeric_limits<ScalarType>::epsilon();
@@ -884,8 +871,7 @@ GetPointHandleByPosition(ScalarType x, ScalarType y, ScalarType z, ScalarType Di
 
             if (Distance_sq <= LowerLimit_sq)
             {
-                PointHandle.SetIndex(k);
-                return PointHandle;
+                return k;
             }
 
             if (PointIndex_min == -1) // set initial value
@@ -904,284 +890,322 @@ GetPointHandleByPosition(ScalarType x, ScalarType y, ScalarType z, ScalarType Di
 
     if (Distance_sq_min <= Threshold_sq)
     {
-        PointHandle.SetIndex(PointIndex_min);
+		return PointIndex_min;
     }
-
-    //MDK_Warning("Invalid Position @ PolygonMesh::GetPointHandleByPosition(...)")
-    return PointHandle;
+	else
+	{
+		return -1;
+	}
 }
 
 
 template<typename MeshAttributeType>
-inline
-Handle_Of_Point_Of_PolygonMesh PolygonMesh<MeshAttributeType>::GetPointHandleByID(int_max PointID) const
+inline int_max PolygonMesh<MeshAttributeType>::GetPointIndexByID(int_max PointID) const
 {
-	PointHandleType PointHandle;
-
     if (PointID < 0)
     {
-        //MDK_Warning("Invalid PointID (< 0) @ PolygonMesh::GetPointHandleByID(...)")
-        PointHandle.SetToInvalid();
-        return PointHandle;
+        //MDK_Warning("Invalid PointID (< 0) @ PolygonMesh::GetPointIndexByID(...)")
+        return -1;
     }
 
     auto it = m_MeshData->Map_PointID_to_PointIndex.find(PointID);
     if (it != m_MeshData->Map_PointID_to_PointIndex.end())
     {
-        PointHandle.SetIndex(it->second);
+		return it->second;
     }
     else
     {
-        //MDK_Warning("Invalid PointID @ PolygonMesh::GetPointHandleByID(...)")
-        PointHandle.SetToInvalid();
+        //MDK_Warning("Invalid PointID @ PolygonMesh::GetPointIndexByID(...)")
+		return -1;
     }
-        
-    return PointHandle;
 }
 
-//----------- get EdgeHandle by ID, PointHandleList, PointIDList -------------------------------------//
+template<typename MeshAttributeType>
+inline int_max PolygonMesh<MeshAttributeType>::GetPointIndexByName(const String& PointName) const
+{
+	if (PointName.IsEmpty() == true)
+	{
+		//MDK_Warning("PointName is empty @ PolygonMesh::GetPointIndexByID(...)")
+		return -1;
+	}
+
+	auto it = m_MeshData->Map_PointName_to_PointIndex.find(PointName);
+	if (it != m_MeshData->Map_PointName_to_PointIndex.end())
+	{
+		return it->second;
+	}
+	else
+	{
+		//MDK_Warning("Invalid PointName @ PolygonMesh::GetPointIndexByID(...)")
+		return -1;
+	}
+}
+
+//----------- get EdgeIndex by Point, ID, Name -------------------------------------//
+template<typename MeshAttributeType>
+inline
+int_max PolygonMesh<MeshAttributeType>::GetEdgeIndexByPoint(int_max PointIndex0, int_max PointIndex1) const
+{
+	if (this->IsValidPointIndex(PointIndex0) == false || this->IsValidPointIndex(PointIndex1) == false)
+	{
+		//MDK_Warning("PointIndex0 or PointIndex1 is invalid @ PolygonMesh::GetEdgeIndexByPoint(...)")		
+		return -1;
+	}
+
+	if (m_MeshData->PointList[PointIndex0].IsOnEdge() == true && m_MeshData->PointList[PointIndex1].IsOnEdge() == true)
+	{
+		const auto& tempAdjacentEdgeIndexList = m_MeshData->PointList[PointIndex0].AdjacentEdgeIndexList();
+		for (int_max k = 0; k < tempAdjacentEdgeIndexList.GetLength(); ++k)
+		{
+			int_max tempPointIdex_a, tempPointIdex_b;
+			m_MeshData->EdgeList[tempAdjacentEdgeIndexList[k]].GetPointIndexList(tempPointIdex_a, tempPointIdex_b);
+			if (PointIndex1 == tempPointIdex_a || PointIndex1 == tempPointIdex_b)
+			{
+				return tempAdjacentEdgeIndexList[k];
+			}
+		}
+	}
+
+	//MDK_Warning("No Edge between PointIndex0 and PointIndex1 @ PolygonMesh::GetEdgeIndexByPoint(...)")
+	return -1;
+}
+
 
 template<typename MeshAttributeType>
 inline
-Handle_Of_Edge_Of_PolygonMesh  PolygonMesh<MeshAttributeType>::GetEdgeHandleByID(int_max EdgeID) const
+int_max PolygonMesh<MeshAttributeType>::GetEdgeIndexByID(int_max EdgeID) const
 {
-	EdgeHandleType EdgeHandle;
-
     if (EdgeID < 0)
     {
-        //MDK_Warning("Invalid EdgeID (< 0) @ PolygonMesh::GetEdgeHandleByID(...)")
-        EdgeHandle.SetToInvalid();
-        return EdgeHandle;
+        //MDK_Warning("Invalid EdgeID (< 0) @ PolygonMesh::GetEdgeIndexByID(...)")        
+        return -1;
     }
 
     auto it = m_MeshData->Map_EdgeID_to_EdgeIndex.find(EdgeID);
     if (it != m_MeshData->Map_EdgeID_to_EdgeIndex.end())
     {
-        EdgeHandle.SetIndex(it->second);
+        return it->second;
     }
     else
     {
-        //MDK_Warning("Invalid EdgeID @ PolygonMesh::GetEdgeHandleByID(...)")
-        EdgeHandle.SetToInvalid();
+        //MDK_Warning("Invalid EdgeID @ PolygonMesh::GetEdgeIndexByID(...)")
+		return -1;
     }
-
-    return EdgeHandle;
 }
 
 
 template<typename MeshAttributeType>
 inline
-Handle_Of_Edge_Of_PolygonMesh PolygonMesh<MeshAttributeType>::
-GetEdgeHandleByPoint(PointHandleType PointHandle0, PointHandleType PointHandle1) const
+int_max PolygonMesh<MeshAttributeType>::GetEdgeIndexByName(const String& EdgeName) const
 {
-	EdgeHandleType EdgeHandle;
+	if (EdgeName.IsEmpty() == true)
+	{
+		//MDK_Warning("EdgeName is empty @ PolygonMesh::GetEdgeIndexByName(...)")        
+		return -1;
+	}
 
-    if (this->IsValidHandle(PointHandle0) == false || this->IsValidHandle(PointHandle1) == false)
-    {
-        //MDK_Warning("PointHandle0 or PointHandle1 is invalid @ PolygonMesh::GetEdgeHandleByPoint(...)")
-        EdgeHandle.SetToInvalid();
-        return EdgeHandle;
-    }
-
-    auto PointIndex0 = PointHandle0.GetIndex();
-    auto PointIndex1 = PointHandle1.GetIndex();
-
-    if (m_MeshData->PointList[PointIndex0].IsOnEdge() == true && m_MeshData->PointList[PointIndex1].IsOnEdge() == true)
-    {
-        const auto& tempAdjacentEdgeIndexList = m_MeshData->PointList[PointIndex0].AdjacentEdgeIndexList();
-        for (int_max k = 0; k < tempAdjacentEdgeIndexList.GetLength(); ++k)
-        {
-            int_max tempPointIdex_a, tempPointIdex_b;
-            m_MeshData->EdgeList[tempAdjacentEdgeIndexList[k]].GetPointIndexList(tempPointIdex_a, tempPointIdex_b);
-            if (PointIndex1 == tempPointIdex_a || PointIndex1 == tempPointIdex_b)
-            {
-                EdgeHandle.SetIndex(tempAdjacentEdgeIndexList[k]);
-                return EdgeHandle;
-            }
-        }
-    }
-
-    //MDK_Warning("No Edge between PointHandle0 and PointHandle1 @ PolygonMesh::GetEdgeHandleByPoint(...)")
-    EdgeHandle.SetToInvalid();
-    return EdgeHandle;
+	auto it = m_MeshData->Map_EdgeName_to_EdgeIndex.find(EdgeName);
+	if (it != m_MeshData->Map_EdgeName_to_EdgeIndex.end())
+	{
+		return it->second;
+	}
+	else
+	{
+		//MDK_Warning("Invalid EdgeName @ PolygonMesh::GetEdgeIndexByName(...)")
+		return -1;
+	}
 }
 
+//---------- - get DirectedEdgeIndex by Point, ID, Name ------------------------------------ -//
+template<typename MeshAttributeType>
+inline
+DenseVector<DirectedEdgeIndex_Of_PolygonMesh> PolygonMesh<MeshAttributeType>::GetDirectedEdgeIndexListByPoint(int_max PointIndex_start, int_max PointIndex_end) const
+{
+	DenseVector<DirectedEdgeIndexType> DirectedEdgeIndexList;
+
+	if (this->IsValidPointIndex(PointIndex_start) == false || this->IsValidPointIndex(PointIndex_end) == false)
+	{
+		return DirectedEdgeIndexList;
+	}
+
+	auto OutgoingDirectedEdgeIndexList_s = m_MeshData->PointList[PointIndex_start].GetOutgoingDirectedEdgeIndexList();
+	for (int_max k = 0; k < OutgoingDirectedEdgeIndexList_s.GetLength(); ++k)
+	{
+		auto tempFaceIndex = OutgoingDirectedEdgeIndexList_s[k].FaceIndex;
+		auto tempRelativeIndex = OutgoingDirectedEdgeIndexList_s[k].RelativeIndex;
+		auto tempPointIndex_end = m_MeshData->FaceList[tempFaceIndex].DirectedEdgeList()[tempRelativeIndex].GetEndPointIndex();
+		if (tempPointIndex_end == PointIndex_end)
+		{
+			DirectedEdgeIndexType tempIndex;
+			tempIndex.FaceIndex = tempFaceIndex;
+			tempIndex.RelativeIndex = tempRelativeIndex;			
+			DirectedEdgeIndexList.Append(tempIndex);
+		}
+	}
+
+	return DirectedEdgeIndexList;
+}
 
 template<typename MeshAttributeType>
 inline
-Handle_Of_Edge_Of_PolygonMesh PolygonMesh<MeshAttributeType>::
-GetEdgeHandleByPoint(int_max PointID0, int_max PointID1) const
+DirectedEdgeIndex_Of_PolygonMesh PolygonMesh<MeshAttributeType>::GetDirectedEdgeIndexByID(int_max DirectedEdgeID) const
 {
-	auto PointHandle0 = this->GetPointHandleByID(PointID0);
-	auto PointHandle1 = this->GetPointHandleByID(PointID1);
-    return this->GetEdgeHandleByPoint(PointHandle0, PointHandle1);
-}
-
-//---------- - get DirectedEdgeHandle by ID, PointHandleList, PointIDList ------------------------------------ -//
-
-template<typename MeshAttributeType>
-inline
-Handle_Of_DirectedEdge_Of_PolygonMesh PolygonMesh<MeshAttributeType>::GetDirectedEdgeHandleByID(int_max DirectedEdgeID) const
-{
-	DirectedEdgeHandleType DirectedEdgeHandle;
+	DirectedEdgeIndex_Of_PolygonMesh DirectedEdgeIndex_invalid;
 
     if (DirectedEdgeID < 0)
     {
-        //MDK_Warning("Invalid DirectedEdgeID (< 0) @ PolygonMesh::GetDirectedEdgeHandle(...)")
-        DirectedEdgeHandle.SetToInvalid();
-        return DirectedEdgeHandle;
+        //MDK_Warning("Invalid DirectedEdgeID (< 0) @ PolygonMesh::GetDirectedEdgeIndexByID(...)")        
+        return DirectedEdgeIndex_invalid;
     }
 
     auto it = m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.find(DirectedEdgeID);
     if (it != m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.end())
     {
-        DirectedEdgeHandle.SetIndex(it->second);
+        return it->second;
     }
     else
     {
-        //MDK_Warning("Invalid DirectedEdgeID @ PolygonMesh::GetDirectedEdgeHandle(...)")
-        DirectedEdgeHandle.SetToInvalid();
+        //MDK_Warning("Invalid DirectedEdgeID @ PolygonMesh::GetDirectedEdgeIndex(...)")
+		return DirectedEdgeIndex_invalid;
     }
-
-    return DirectedEdgeHandle;
 }
 
 
 template<typename MeshAttributeType>
 inline
-DenseVector<Handle_Of_DirectedEdge_Of_PolygonMesh> PolygonMesh<MeshAttributeType>::
-GetDirectedEdgeHandleListByPoint(PointHandleType PointHandle_start, PointHandleType PointHandle_end) const
+DirectedEdgeIndex_Of_PolygonMesh PolygonMesh<MeshAttributeType>::GetDirectedEdgeIndexByName(const String& DirectedEdgeName) const
 {
-	DenseVector<DirectedEdgeHandleType> DirectedEdgeHandleList;
+	DirectedEdgeIndex_Of_PolygonMesh DirectedEdgeIndex_invalid;
 
-    if (this->IsValidHandle(PointHandle_start) == false || this->IsValidHandle(PointHandle_end) == false)
-    {
-		return DirectedEdgeHandleList;
-    }
-    
-    auto PointIndex_start = PointHandle_start.GetIndex();
-    auto PointIndex_end = PointHandle_end.GetIndex();
+	if (DirectedEdgeName.IsEmpty() == true)
+	{
+		//MDK_Warning("DirectedEdgeName is empty @ PolygonMesh::GetDirectedEdgeIndexByName(...)")        
+		return DirectedEdgeIndex_invalid;
+	}
 
-    auto OutgoingDirectedEdgeIndexList_s = m_MeshData->PointList[PointIndex_start].GetOutgoingDirectedEdgeIndexList();
-	for (int_max k = 0; k < OutgoingDirectedEdgeIndexList_s.GetLength(); ++k)
-    {
-		auto tempFaceIndex = OutgoingDirectedEdgeIndexList_s[k].FaceIndex;
-		auto tempRelativeIndex = OutgoingDirectedEdgeIndexList_s[k].RelativeIndex;
-        auto tempPointIndex_end = m_MeshData->FaceList[tempFaceIndex].DirectedEdgeList()[tempRelativeIndex].GetEndPointIndex();
-        if (tempPointIndex_end == PointIndex_end)
-        {
-			DirectedEdgeHandleType tempHandle;
-			tempHandle.SetIndex(tempFaceIndex, tempRelativeIndex);
-			DirectedEdgeHandleList.Append(tempHandle);
-        }
-    }
-  
-	return DirectedEdgeHandleList;
-}
-
-//----------- get FaceHandle by ID, PointHandleList, PointIDList, EdgeHandleList, or EdgeIDList ----------//
-
-template<typename MeshAttributeType>
-inline 
-Handle_Of_Face_Of_PolygonMesh PolygonMesh<MeshAttributeType>::GetFaceHandleByID(int_max FaceID) const
-{
-	FaceHandleType FaceHandle;
-
-    if (FaceID < 0)
-    {
-        //MDK_Warning("Invalid FaceID (< 0) @ PolygonMesh::GetFaceHandle(...)")
-        FaceHandle.SetToInvalid();
-        return FaceHandle;
-    }
-
-    auto it = m_MeshData->Map_FaceID_to_FaceIndex.find(FaceID);
-    if (it != m_MeshData->Map_FaceID_to_FaceIndex.end())
-    {
-        FaceHandle.SetIndex(it->second);
-    }
-    else
-    {
-        //MDK_Warning("Invalid FaceID @ PolygonMesh::GetFaceHandle(...)")
-        FaceHandle.SetToInvalid();
-    }
-
-    return FaceHandle;
+	auto it = m_MeshData->Map_DirectedEdgeName_to_DirectedEdgeIndex.find(DirectedEdgeName);
+	if (it != m_MeshData->Map_DirectedEdgeName_to_DirectedEdgeIndex.end())
+	{
+		return it->second;
+	}
+	else
+	{
+		//MDK_Warning("invalid DirectedEdgeName @ PolygonMesh::GetDirectedEdgeIndexByName(...)")
+		return DirectedEdgeIndex_invalid;
+	}
 }
 
 
+//----------- get FaceIndex by Point, Edge, ID, Name ----------//
+template<typename MeshAttributeType>
+inline
+int_max PolygonMesh<MeshAttributeType>::GetFaceIndexByPoint(const DenseVector<int_max>& PointIndexList) const
+{
+	for (int_max k = 0; k < PointIndexList.GetLength(); ++k)
+	{
+		if (this->IsValidPointIndex(PointIndexList[k]) == false)
+		{
+			//MDK_Warning("PointIndexList is invalid @ PolygonMesh::GetFaceIndexByPoint(...)")
+			return -1;
+		}
+	}
+
+	DenseVector<int_max> EdgeIndexList;
+	EdgeIndexList.Resize(PointIndexList.GetLength());
+	for (int_max k = 0; k < PointIndexList.GetLength(); ++k)
+	{
+		if (k < PointIndexList.GetLength() - 1)
+		{
+			EdgeIndexList[k] = this->GetEdgeIndexByPoint(PointIndexList[k], PointIndexList[k + 1]);
+		}
+		else
+		{
+			EdgeIndexList[k] = this->GetEdgeIndexByPoint(PointIndexList[k], PointIndexList[0]);
+		}
+		if (EdgeIndexList[k].GetIndex() < 0)
+		{
+			//MDK_Warning("PointIndexList is invalid @ PolygonMesh::GetFaceIndexByPoint(...)")
+			return -1;
+		}
+	}
+	return this->GetFaceIndexByEdge(EdgeIndexList);
+}
+
+
 template<typename MeshAttributeType>
 inline 
-Handle_Of_Face_Of_PolygonMesh PolygonMesh<MeshAttributeType>::GetFaceHandleByEdge(const DenseVector<EdgeHandleType>& EdgeHandleList) const
+int_max PolygonMesh<MeshAttributeType>::GetFaceIndexByEdge(const DenseVector<int_max>& EdgeIndexList) const
 {
-	FaceHandleType FaceHandle;
-
-    for (int_max k = 0; k < EdgeHandleList.GetLength(); ++k)
+    for (int_max k = 0; k < EdgeIndexList.GetLength(); ++k)
     {
-        if (this->IsValidHandle(EdgeHandleList[k]) == false)
+        if (this->IsValidEdgeIndex(EdgeIndexList[k]) == false)
         {
-            //MDK_Warning("EdgeHandleList is invalid @ PolygonMesh::GetFaceHandleByEdge(...)")
-            FaceHandle.SetToInvalid();
-            return FaceHandle;
+            //MDK_Warning("EdgeIndexList is invalid @ PolygonMesh::GetFaceIndexByEdge(...)")            
+            return -1;
         }
     }
 
 	//---------------------------------------------------------------------------------------------------
-	auto FaceIndexList = m_MeshData->EdgeList[EdgeHandleList[0].GetIndex()].GetAdjacentFaceIndexList();
-	for (int_max k = 1; k < EdgeHandleList.GetLength(); ++k)
+	auto FaceIndexList = m_MeshData->EdgeList[EdgeIndexList[0]].GetAdjacentFaceIndexList();
+	for (int_max k = 1; k < EdgeIndexList.GetLength(); ++k)
 	{
-		auto AdjacentFaceIndexList_k = m_MeshData->EdgeList[EdgeHandleList[k].GetIndex()].GetAdjacentFaceIndexList();
-		FaceIndexList = this->Intersect(FaceIndexList, AdjacentFaceIndexList_k);
+		auto AdjacentFaceIndexList_k = m_MeshData->EdgeList[EdgeIndexList[k]].GetAdjacentFaceIndexList();
+		FaceIndexList = Intersect(FaceIndexList, AdjacentFaceIndexList_k);
 	}
 	//----------------------
 	if (FaceIndexList.GetLength() != 1)
 	{
-		//MDK_Warning("EdgeHandleList is invalid @ PolygonMesh::GetFaceHandleByEdge(...)")
-		FaceHandle.SetToInvalid();
-		return FaceHandle;
+		//MDK_Warning("EdgeIndexList is invalid @ PolygonMesh::GetFaceIndexByEdge(...)")
+		return -1;
 	}
 
-	FaceHandle.SetIndex(FaceIndexList[0]);
-	return FaceHandle;
+	return FaceIndexList[0];
 }
 
 
 template<typename MeshAttributeType>
-inline 
-Handle_Of_Face_Of_PolygonMesh 
-PolygonMesh<MeshAttributeType>::GetFaceHandleByPoint(const DenseVector<PointHandleType>& PointHandleList) const
+inline
+int_max PolygonMesh<MeshAttributeType>::GetFaceIndexByID(int_max FaceID) const
 {
-	FaceHandleType FaceHandle;
-
-    for (int_max k = 0; k < PointHandleList.GetLength(); ++k)
-    {
-        if (this->IsValidHandle(PointHandleList[k]) == false)
-        {
-            //MDK_Warning("PointHandleList is invalid @ PolygonMesh::GetFaceHandleByPoint(...)")
-            FaceHandle.SetToInvalid();
-            return FaceHandle;
-        }
-    }
-
-	DenseVector<EdgeHandleType> EdgeHandleList;
-	EdgeHandleList.Resize(PointHandleList.GetLength());
-	for (int_max k = 0; k < PointHandleList.GetLength(); ++k)
+	if (FaceID < 0)
 	{
-		if (k < PointHandleList.GetLength() - 1)
-		{
-			EdgeHandleList[k] = this->GetEdgeHandleByPoint(PointHandleList[k], PointHandleList[k + 1]);
-		}
-		else
-		{
-			EdgeHandleList[k] = this->GetEdgeHandleByPoint(PointHandleList[k], PointHandleList[0]);
-		}
-		if (EdgeHandleList[k].GetIndex() < 0)
-		{
-			//MDK_Warning("PointHandleList is invalid @ PolygonMesh::GetFaceHandleByPoint(...)")
-			FaceHandle.SetToInvalid();
-			return FaceHandle;
-		}
+		//MDK_Warning("Invalid FaceID (< 0) @ PolygonMesh::GetFaceIndexByID(...)")
+		return -1;
 	}
-	return this->GetFaceHandleByEdge(EdgeHandleList);
+
+	auto it = m_MeshData->Map_FaceID_to_FaceIndex.find(FaceID);
+	if (it != m_MeshData->Map_FaceID_to_FaceIndex.end())
+	{
+		return it->second;
+	}
+	else
+	{
+		//MDK_Warning("Invalid FaceID @ PolygonMesh::GetFaceIndexByID(...)")
+		return -1;
+	}
+}
+
+
+template<typename MeshAttributeType>
+inline
+int_max PolygonMesh<MeshAttributeType>::GetFaceIndexByName(const String& FaceName) const
+{
+	if (FaceName.IsEmpty() == true)
+	{
+		//MDK_Warning("FaceName is empty @ PolygonMesh::GetFaceIndexByName(...)")
+		return -1;
+	}
+
+	auto it = m_MeshData->Map_FaceName_to_FaceIndex.find(FaceName);
+	if (it != m_MeshData->Map_FaceName_to_FaceIndex.end())
+	{
+		return it->second;
+	}
+	else
+	{
+		//MDK_Warning("Invalid FaceName @ PolygonMesh::GetFaceIndexByName(...)")
+		return -1;
+	}
 }
 
 //-------------- check ID -------------------------------------------------------//
@@ -1238,101 +1262,70 @@ bool PolygonMesh<MeshAttributeType>::IsValidFaceID(int_max FaceID) const
     return (it != m_MeshData->Map_FaceID_to_FaceIndex.end());
 }
 
-//--------- get IDList ------------------------------------------------------------//
+//--------- get Valid IDList ------------------------------------------------------------//
 
 template<typename MeshAttributeType>
 inline
-DenseVector<int_max> PolygonMesh<MeshAttributeType>::GetPointIDList() const
+DenseVector<int_max> PolygonMesh<MeshAttributeType>::GetValidPointIDList() const
 {
-    DenseVector<int_max> OutputIDList;
-    this->GetPointIDList(OutputIDList);
-    return OutputIDList;
-}
-
-template<typename MeshAttributeType>
-inline 
-void PolygonMesh<MeshAttributeType>::GetPointIDList(DenseVector<int_max>& OutputIDList) const
-{
-	OutputIDList.FastResize(0);
-    OutputIDList.SetCapacity(int_max(m_MeshData->Map_PointID_to_PointIndex.size()));
-    for (auto it = m_MeshData->Map_PointID_to_PointIndex.begin(); it != m_MeshData->Map_PointID_to_PointIndex.end(); ++it)
-    {
-        OutputIDList.Append(it->first);
-    }
-}
-
-template<typename MeshAttributeType>
-inline 
-DenseVector<int_max> PolygonMesh<MeshAttributeType>::GetEdgeIDList() const
-{
-    DenseVector<int_max> OutputIDList;
-    this->GetEdgeIDList(OutputIDList);
-    return OutputIDList;
+	DenseVector<int_max> OutputIDList;
+	OutputIDList.SetCapacity(int_max(m_MeshData->Map_PointID_to_PointIndex.size()));
+	for (auto it = m_MeshData->Map_PointID_to_PointIndex.begin(); it != m_MeshData->Map_PointID_to_PointIndex.end(); ++it)
+	{
+		OutputIDList.Append(it->first);
+	}
+	return OutputIDList;
 }
 
 template<typename MeshAttributeType>
 inline
-void PolygonMesh<MeshAttributeType>::GetEdgeIDList(DenseVector<int_max>& OutputIDList) const
+DenseVector<int_max> PolygonMesh<MeshAttributeType>::GetValidEdgeIDList() const
 {
-	OutputIDList.FastResize(0);
-    OutputIDList.SetCapacity(int_max(m_MeshData->Map_EdgeID_to_EdgeIndex.size()));
-    for (auto it = m_MeshData->Map_EdgeID_to_EdgeIndex.begin(); it != m_MeshData->Map_EdgeID_to_EdgeIndex.end(); ++it)
-    {
-        OutputIDList.Append(it->first);
-    }
+	DenseVector<int_max> OutputIDList;
+	OutputIDList.SetCapacity(int_max(m_MeshData->Map_EdgeID_to_EdgeIndex.size()));
+	for (auto it = m_MeshData->Map_EdgeID_to_EdgeIndex.begin(); it != m_MeshData->Map_EdgeID_to_EdgeIndex.end(); ++it)
+	{
+		OutputIDList.Append(it->first);
+	}
+	return OutputIDList;
 }
 
 template<typename MeshAttributeType>
 inline
-DenseVector<int_max> PolygonMesh<MeshAttributeType>::GetDirectedEdgeIDList() const
+DenseVector<int_max> PolygonMesh<MeshAttributeType>::GetValidDirectedEdgeIDList() const
 {
-    DenseVector<int_max> OutputIDList;
-    this->GetDirectedEdgeIDList(OutputIDList);
-    return OutputIDList;
-}
-
-template<typename MeshAttributeType>
-inline 
-void PolygonMesh<MeshAttributeType>::GetDirectedEdgeIDList(DenseVector<int_max>& OutputIDList) const
-{
-	OutputIDList.FastResize(0);
-    OutputIDList.SetCapacity(int_max(m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.size()));
-    for (auto it = m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.begin(); it != m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.end(); ++it)
-    {
-        OutputIDList.Append(it->first);
-    }
+	DenseVector<int_max> OutputIDList;
+	OutputIDList.SetCapacity(int_max(m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.size()));
+	for (auto it = m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.begin(); it != m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.end(); ++it)
+	{
+		OutputIDList.Append(it->first);
+	}
+	return OutputIDList;
 }
 
 template<typename MeshAttributeType>
 inline
-DenseVector<int_max> PolygonMesh<MeshAttributeType>::GetFaceIDList() const
+DenseVector<int_max> PolygonMesh<MeshAttributeType>::GetValidFaceIDList() const
 {
-    DenseVector<int_max> OutputIDList;
-    this->GetFaceIDList(OutputIDList);
-    return OutputIDList;
+	DenseVector<int_max> OutputIDList;
+	OutputIDList.SetCapacity(int_max(m_MeshData->Map_FaceID_to_FaceIndex.size()));
+	for (auto it = m_MeshData->Map_FaceID_to_FaceIndex.begin(); it != m_MeshData->Map_FaceID_to_FaceIndex.end(); ++it)
+	{
+		OutputIDList.Append(it->first);
+	}
+	return OutputIDList;
 }
+
+
+//----------- get Point/Edge/DirectedEdge/Face ID by Index -----------------------------------------------------------//
 
 template<typename MeshAttributeType>
 inline 
-void PolygonMesh<MeshAttributeType>::GetFaceIDList(DenseVector<int_max>& OutputIDList) const
+int_max PolygonMesh<MeshAttributeType>::GetPointID(int_max PointIndex) const
 {
-	OutputIDList.FastResize(0);
-    OutputIDList.SetCapacity(int_max(m_MeshData->Map_FaceID_to_FaceIndex.size()));
-    for (auto it = m_MeshData->Map_FaceID_to_FaceIndex.begin(); it != m_MeshData->Map_FaceID_to_FaceIndex.end(); ++it)
+    if (this->IsValidPointIndex(PointIndex) == true)
     {
-        OutputIDList.Append(it->first);
-    }
-}
-
-//----------- get Point ID by Handle, Position -----------------------------------------------------------//
-
-template<typename MeshAttributeType>
-inline 
-int_max PolygonMesh<MeshAttributeType>::GetPointIDByHandle(PointHandleType PointHandle) const
-{
-    if (this->IsValidHandle(PointHandle) == true)
-    {
-        return m_MeshData->PointList[PointHandle.GetIndex()].GetID();
+        return m_MeshData->PointList[PointIndex].GetID();
     }
     else
     {
@@ -1343,43 +1336,25 @@ int_max PolygonMesh<MeshAttributeType>::GetPointIDByHandle(PointHandleType Point
 
 template<typename MeshAttributeType>
 inline
-int_max PolygonMesh<MeshAttributeType>::GetPointIDByPosition(ScalarType Position[3]) const
-{
-    auto PointHandle = this->GetPointHandleByPosition(Position);
-    return this->GetPointID(PointHandle);
-}
-
-template<typename MeshAttributeType>
-inline int_max PolygonMesh<MeshAttributeType>::
-GetPointIDByPosition(ScalarType x, ScalarType y, ScalarType z) const
-{
-    auto PointHandle = this->GetPointHandleByPosition(x, y, z);
-    return this->GetPointID(PointHandle);
-}
-
-
-template<typename MeshAttributeType>
-inline
-DenseVector<int_max> PolygonMesh<MeshAttributeType>::GetPointIDListByHandleList(const DenseVector<PointHandleType>& PointHandleList) const
+DenseVector<int_max> PolygonMesh<MeshAttributeType>::GetPointID(const DenseVector<int_max>& PointIndexList) const
 {
 	DenseVector<int_max> PointIDList;
-	PointIDList.Resize(PointHandleList.GetLength());
-	for (int_max k = 0; k < PointHandleList.GetLength(); ++k)
+	PointIDList.Resize(PointIndexList.GetLength());
+	for (int_max k = 0; k < PointIndexList.GetLength(); ++k)
 	{
-		PointIDList[k] = this->GetPointIDByHandle(PointHandleList[k]);
+		PointIDList[k] = this->GetPointID(PointIndexList[k]);
 	}
 	return PointIDList;
 }
 
-//----------- get Edge ID by EdgeHandle, PointHandleList, PointIDList -----------------------------------------------------------//
 
 template<typename MeshAttributeType>
 inline
-int_max PolygonMesh<MeshAttributeType>::GetEdgeIDByHandle(EdgeHandleType EdgeHandle) const
+int_max PolygonMesh<MeshAttributeType>::GetEdgeID(int_max EdgeIndex) const
 {
-    if (this->IsValidHandle(EdgeHandle) == true)
+    if (this->IsValidEdgeIndex(EdgeIndex) == true)
     {
-        return m_MeshData->EdgeList[EdgeHandle.GetIndex()].GetID();
+        return m_MeshData->EdgeList[EdgeIndex].GetID();
     }
     else
     {
@@ -1387,38 +1362,28 @@ int_max PolygonMesh<MeshAttributeType>::GetEdgeIDByHandle(EdgeHandleType EdgeHan
     }
 }
 
-template<typename MeshAttributeType>
-inline
-int_max PolygonMesh<MeshAttributeType>::GetEdgeIDByPoint(PointHandleType PointHandle0, PointHandleType PointHandle1) const
-{
-    auto EdgeHandle = this->GetEdgeHandle(PointHandle0, PointHandle1);
-    return this->GetEdgeID(EdgeHandle);
-}
-
 
 template<typename MeshAttributeType>
 inline
-DenseVector<int_max> PolygonMesh<MeshAttributeType>::GetEdgeIDListByHandleList(const DenseVector<EdgeHandleType>& EdgeHandleList) const
+DenseVector<int_max> PolygonMesh<MeshAttributeType>::GetEdgeID(const DenseVector<int_max>& EdgeIndexList) const
 {
 	DenseVector<int_max> EdgeIDList;
-	EdgeIDList.Resize(EdgeHandleList.GetLength());
-	for (int_max k = 0; k < EdgeHandleList.GetLength(); ++k)
+	EdgeIDList.Resize(EdgeIndexList.GetLength());
+	for (int_max k = 0; k < EdgeIndexList.GetLength(); ++k)
 	{
-		EdgeIDList[k] = this->GetEdgeIDByHandle(EdgeHandleList[k]);
+		EdgeIDList[k] = this->GetEdgeID(EdgeIndexList[k]);
 	}
 	return EdgeIDList;
 }
 
-//----------- get DirectedEdge ID by DirectedEdgeHandle, PointHandle, PointID -------------------------------------------//
 
 template<typename MeshAttributeType>
 inline 
-int_max PolygonMesh<MeshAttributeType>::GetDirectedEdgeIDByHandle(DirectedEdgeHandleType DirectedEdgeHandle) const
+int_max PolygonMesh<MeshAttributeType>::GetDirectedEdgeID(DirectedEdgeIndexType DirectedEdgeIndex) const
 {
-    if (this->IsValidHandle(DirectedEdgeHandle) == true)
+    if (this->IsValidDirectedEdgeIndex(DirectedEdgeIndex) == true)
     {
-        auto Index = DirectedEdgeHandle.GetIndex();
-		return m_MeshData->FaceList[Index.FaceIndex].DirectedEdgeList()[Index.RelativeIndex].GetID();
+		return m_MeshData->FaceList[DirectedEdgeIndex.FaceIndex].DirectedEdgeList()[DirectedEdgeIndex.RelativeIndex].GetID();
     }
     else
     {
@@ -1429,36 +1394,25 @@ int_max PolygonMesh<MeshAttributeType>::GetDirectedEdgeIDByHandle(DirectedEdgeHa
 
 template<typename MeshAttributeType>
 inline
-int_max PolygonMesh<MeshAttributeType>::
-GetDirectedEdgeIDByPoint(PointHandleType PointHandle_start, PointHandleType PointHandle_end) const
-{
-    auto DirectedEdgeHandle = this->GetDirectedEdgeHandle(PointHandle_start, PointHandle_end);
-    return this->GetDirectedEdgeIDByHandle(DirectedEdgeHandle);
-}
-
-
-template<typename MeshAttributeType>
-inline
-DenseVector<int_max> PolygonMesh<MeshAttributeType>::GetDirectedEdgeIDListByHandleList(const DenseVector<DirectedEdgeHandleType>& DirectedEdgeHandleList) const
+DenseVector<int_max> PolygonMesh<MeshAttributeType>::GetDirectedEdgeID(const DenseVector<DirectedEdgeIndexType>& DirectedEdgeIndexList) const
 {
 	DenseVector<int_max> DirectedEdgeIDList;
-	DirectedEdgeIDList.Resize(DirectedEdgeHandleList.GetLength());
-	for (int_max k = 0; k < DirectedEdgeHandleList.GetLength(); ++k)
+	DirectedEdgeIDList.Resize(DirectedEdgeIndexList.GetLength());
+	for (int_max k = 0; k < DirectedEdgeIndexList.GetLength(); ++k)
 	{
-		DirectedEdgeIDList[k] = this->GetDirectedEdgeIDByHandle(DirectedEdgeHandleList[k]);
+		DirectedEdgeIDList[k] = this->GetDirectedEdgeID(DirectedEdgeIndexList[k]);
 	}
 	return DirectedEdgeIDList;
 }
 
-//----------- get FaceID by FaceHandle, EdgeHandleList, EdgeIDList, PointHandleList, PointIDList --------------------------//
 
 template<typename MeshAttributeType>
 inline 
-int_max PolygonMesh<MeshAttributeType>::GetFaceIDByHandle(FaceHandleType FaceHandle) const
+int_max PolygonMesh<MeshAttributeType>::GetFaceID(int_max FaceIndex) const
 {
-    if (this->IsValidHandle(FaceHandle) == true)
+    if (this->IsValidFaceIndex(FaceIndex) == true)
     {
-        return m_MeshData->FaceList[FaceHandle.GetIndex()].GetID();
+        return m_MeshData->FaceList[FaceIndex].GetID();
     }
     else
     {
@@ -1468,25 +1422,557 @@ int_max PolygonMesh<MeshAttributeType>::GetFaceIDByHandle(FaceHandleType FaceHan
 
 
 template<typename MeshAttributeType>
-inline 
-int_max PolygonMesh<MeshAttributeType>::GetFaceIDByEdge(const DenseVector<EdgeHandleType>& EdgeHandleList) const
+inline
+DenseVector<int_max> PolygonMesh<MeshAttributeType>::GetFaceID(const DenseVector<int_max>& FaceIndexList) const
 {
-    auto FaceHandle = this->GetFaceHandleByEdge(EdgeHandleList);
-    return this->GetFaceIDByHandle(FaceHandle);
+	DenseVector<int_max> FaceIDList;
+	FaceIDList.Resize(FaceIndexList.GetLength());
+	for (int_max k = 0; k < FaceIndexList.GetLength(); ++k)
+	{
+		FaceIDList[k] = this->GetFaceID(FaceIndexList[k]);
+	}
+	return FaceIDList;
+}
+
+//-------------- check Name -------------------------------------------------------//
+
+template<typename MeshAttributeType>
+inline bool PolygonMesh<MeshAttributeType>::IsValidPointName(const String& PointName) const
+{
+	if (PointName.IsEmpty() == true)
+	{
+		return false;
+	}
+	auto it = m_MeshData->Map_PointName_to_PointIndex.find(PointName);
+	return (it != m_MeshData->Map_PointName_to_PointIndex.end());
+}
+
+template<typename MeshAttributeType>
+inline bool PolygonMesh<MeshAttributeType>::IsValidEdgeName(const String& EdgeName) const
+{
+	if (EdgeName.IsEmpty() == true)
+	{
+		return false;
+	}
+	auto it = m_MeshData->Map_EdgeName_to_EdgeIndex.find(EdgeName);
+	return (it != m_MeshData->Map_EdgeName_to_EdgeIndex.end());
+}
+
+template<typename MeshAttributeType>
+inline bool PolygonMesh<MeshAttributeType>::IsValidDirectedEdgeName(const String& DirectedEdgeName) const
+{
+	if (DirectedEdgeName.IsEmpty() == true)
+	{
+		return false;
+	}
+	auto it = m_MeshData->Map_DirectedEdgeName_to_DirectedEdgeIndex.find(DirectedEdgeName);
+	return (it != m_MeshData->Map_DirectedEdgeName_to_DirectedEdgeIndex.end());
+}
+
+template<typename MeshAttributeType>
+inline bool PolygonMesh<MeshAttributeType>::IsValidFaceName(const String& FaceName) const
+{
+	if (FaceName.IsEmpty() == true)
+	{
+		return false;
+	}
+	auto it = m_MeshData->Map_FaceName_to_FaceIndex.find(FaceName);
+	return (it != m_MeshData->Map_FaceName_to_FaceIndex.end());
+}
+
+//--------- get Valid NameList ------------------------------------------------------------//
+
+template<typename MeshAttributeType>
+ObjectArray<String> PolygonMesh<MeshAttributeType>::GetValidPointNameList() const
+{
+	ObjectArray<String> NameList;
+	NameList.SetCapacity(m_MeshData->Map_PointName_to_PointIndex.size());
+	for (auto it = m_MeshData->Map_PointName_to_PointIndex.begin(); it != m_MeshData->Map_PointName_to_PointIndex.end(); ++it)
+	{
+		NameList.Append(it->first);
+	}
+	return NameList;
 }
 
 
 template<typename MeshAttributeType>
-inline
-DenseVector<int_max> PolygonMesh<MeshAttributeType>::GetFaceIDListByHandleList(const DenseVector<FaceHandleType>& FaceHandleList) const
+ObjectArray<String> PolygonMesh<MeshAttributeType>::GetValidEdgeNameList() const
 {
-	DenseVector<int_max> FaceIDList;
-	FaceIDList.Resize(FaceHandleList.GetLength());
-	for (int_max k = 0; k < FaceHandleList.GetLength(); ++k)
+	ObjectArray<String> NameList;
+	NameList.SetCapacity(m_MeshData->Map_EdgeName_to_EdgeIndex.size());
+	for (auto it = m_MeshData->Map_EdgeName_to_EdgeIndex.begin(); it != m_MeshData->Map_EdgeName_to_EdgeIndex.end(); ++it)
 	{
-		FaceIDList[k] = this->GetFaceIDByHandle(FaceHandleList[k]);
+		NameList.Append(it->first);
 	}
-	return FaceIDList;
+	return NameList;
+}
+
+
+template<typename MeshAttributeType>
+ObjectArray<String> PolygonMesh<MeshAttributeType>::GetValidDirectedEdgeNameList() const
+{
+	ObjectArray<String> NameList;
+	NameList.SetCapacity(m_MeshData->Map_DirectedEdgeName_to_DirectedEdgeIndex.size());
+	for (auto it = m_MeshData->Map_DirectedEdgeName_to_DirectedEdgeIndex.begin(); it != m_MeshData->Map_DirectedEdgeName_to_DirectedEdgeIndex.end(); ++it)
+	{
+		NameList.Append(it->first);
+	}
+	return NameList;
+}
+
+
+template<typename MeshAttributeType>
+ObjectArray<String> PolygonMesh<MeshAttributeType>::GetValidFaceNameList() const
+{
+	ObjectArray<String> NameList;
+	NameList.SetCapacity(m_MeshData->Map_FaceName_to_FaceIndex.size());
+	for (auto it = m_MeshData->Map_FaceName_to_FaceIndex.begin(); it != m_MeshData->Map_FaceName_to_FaceIndex.end(); ++it)
+	{
+		NameList.Append(it->first);
+	}
+	return NameList;
+}
+
+//----------- get Point/Edge/DirectedEdge/Face Name by Index -----------------------------------------------------------//
+
+template<typename MeshAttributeType>
+inline String PolygonMesh<MeshAttributeType>::GetPointName(int_max PointIndex) const
+{
+	if (this->IsValidPointIndex(PointIndex) == true)
+	{
+		return m_MeshData->PointList[PointIndex].GetName();
+	}
+	else
+	{
+		String EmptyName;
+		return EmptyName;
+	}
+}
+
+template<typename MeshAttributeType>
+inline ObjectArray<String> PolygonMesh<MeshAttributeType>::GetPointName(const DenseVector<int_max>& PointIndexList) const
+{
+	ObjectArray<String> NameList;
+	NameList.Resize(PointIndexList.GetLength());
+	for (int_max k = 0; k < PointIndexList.GetLength(); ++k)
+	{
+		NameList[k] = this->GetPointName(PointIndexList[k]);
+	}
+	return NameList;
+}
+
+
+template<typename MeshAttributeType>
+inline String PolygonMesh<MeshAttributeType>::GetEdgeName(int_max EdgeIndex) const
+{
+	if (this->IsValidEdgeIndex(EdgeIndex) == true)
+	{
+		return m_MeshData->EdgeList[EdgeIndex].GetName();
+	}
+	else
+	{
+		String EmptyName;
+		return EmptyName;
+	}
+}
+
+template<typename MeshAttributeType>
+inline ObjectArray<String> PolygonMesh<MeshAttributeType>::GetEdgeName(const DenseVector<int_max>& EdgeIndexList) const
+{
+	ObjectArray<String> NameList;
+	NameList.Resize(EdgeIndexList.GetLength());
+	for (int_max k = 0; k < EdgeIndexList.GetLength(); ++k)
+	{
+		NameList[k] = this->GetEdgeName(EdgeIndexList[k]);
+	}
+	return NameList;
+}
+
+
+template<typename MeshAttributeType>
+inline String PolygonMesh<MeshAttributeType>::GetDirectedEdgeName(DirectedEdgeIndexType DirectedEdgeIndex) const
+{
+	if (this->IsValidDirectedEdgeIndex(DirectedEdgeIndex) == true)
+	{
+		return m_MeshData->FaceList[DirectedEdgeIndex.FaceIndex].DirectedEdgeList()[DirectedEdgeIndex.RelativeIndex].GetName();
+	}
+	else
+	{
+		String EmptyName;
+		return EmptyName;
+	}
+}
+
+template<typename MeshAttributeType>
+inline ObjectArray<String> PolygonMesh<MeshAttributeType>::GetDirectedEdgeName(const DenseVector<DirectedEdgeIndexType>& DirectedEdgeIndexList) const
+{
+	ObjectArray<String> NameList;
+	NameList.Resize(DirectedEdgeIndexList.GetLength());
+	for (int_max k = 0; k < DirectedEdgeIndexList.GetLength(); ++k)
+	{
+		NameList[k] = this->GetDirectedEdgeName(DirectedEdgeIndexList[k]);
+	}
+	return NameList;
+}
+
+
+template<typename MeshAttributeType>
+inline String PolygonMesh<MeshAttributeType>::GetFaceName(int_max FaceIndex) const
+{
+	if (this->IsValidFaceIndex(FaceIndex) == true)
+	{
+		return m_MeshData->FaceList[FaceIndex].GetName();
+	}
+	else
+	{
+		String EmptyName;
+		return EmptyName;
+	}
+}
+
+template<typename MeshAttributeType>
+inline ObjectArray<String> PolygonMesh<MeshAttributeType>::GetFaceName(const DenseVector<int_max>& FaceIndexList) const
+{
+	ObjectArray<String> NameList;
+	NameList.Resize(FaceIndexList.GetLength());
+	for (int_max k = 0; k < FaceIndexList.GetLength(); ++k)
+	{
+		NameList[k] = this->GetFaceName(FaceIndexList[k]);
+	}
+	return NameList;
+}
+
+//------------ PointSet, EdgeSet, FaceSet ------------------------------------------//
+
+template<typename MeshAttributeType>
+int_max PolygonMesh<MeshAttributeType>::GetPointSetCount() const
+{
+	return m_MeshData->PointSetList.GetLength();
+}
+
+
+template<typename MeshAttributeType>
+int_max PolygonMesh<MeshAttributeType>::SetPointSet(const String& PointSetName, DenseVector<int_max> PointSet)
+{
+	auto it = m_MeshData->Map_PointSetName_to_PointSetIndex.find(PointSetName);
+	if (it != m_MeshData->Map_PointSetName_to_PointSetIndex.end())
+	{
+		auto PointSetIndex = it->second;
+		m_MeshData->PointSetList[PointSetIndex] = std::move(PointSet);
+		return PointSetIndex;
+	}
+	else
+	{
+		m_MeshData->PointSetList.Append(std::move(PointSet));
+		auto PointSetIndex = m_MeshData->PointSetList.GetLength() - 1;
+		m_MeshData->Map_PointSetName_to_PointSetIndex[PointSetName] = PointSetIndex;
+		return PointSetIndex;
+	}
+}
+
+
+template<typename MeshAttributeType>
+int_max PolygonMesh<MeshAttributeType>::GetPointSetIndex(const String& PointSetName) const
+{
+	auto it = m_MeshData->Map_PointSetName_to_PointSetIndex.find(PointSetName);
+	if (it != m_MeshData->Map_PointSetName_to_PointSetIndex.end())
+	{
+		return it->second;
+	}
+	else
+	{
+		MDK_Error("PointSet NOT exist @ PolygonMesh::GetPointSetIndex(...)")
+		return -1;
+	}
+}
+
+
+template<typename MeshAttributeType>
+String PolygonMesh<MeshAttributeType>::GetPointSetName(int_max PointSetIndex) const
+{
+	for (auto it = m_MeshData->Map_PointSetName_to_PointSetIndex.begin(); it != m_MeshData->Map_PointSetName_to_PointSetIndex.end(); ++it)
+	{
+		if (it->second == PointSetIndex)
+		{
+			return it->first;
+		}
+	}
+
+	MDK_Error("PointSet NOT exist @  PolygonMesh::GetPointSetName(...)")
+	String EmptyName;
+	return EmptyName;
+}
+
+
+template<typename MeshAttributeType>
+DenseVector<int_max> PolygonMesh<MeshAttributeType>::GetPointSet(int_max PointSetIndex) const
+{
+	return m_MeshData->PointSetList[PointSetIndex];
+}
+
+
+template<typename MeshAttributeType>
+DenseVector<int_max> PolygonMesh<MeshAttributeType>::GetPointSet(const String& PointSetName) const
+{
+	auto it = m_MeshData->Map_PointSetName_to_PointSetIndex.find(PointSetName);
+	if (it != m_MeshData->Map_PointSetName_to_PointSetIndex.end())
+	{
+		return m_MeshData->PointSetList[it->second];
+	}
+	else
+	{
+		DenseVector<int_max> EmptySet;
+		MDK_Error("Unknown PointSetName: " << PointSetName << " @ PolygonMesh::GetPointSet()")
+		return EmptySet;
+	}
+}
+
+
+template<typename MeshAttributeType>
+ObjectArray<String> PolygonMesh<MeshAttributeType>::GetPointSetName(MDK_Symbol_ALL&) const
+{
+	ObjectArray<String> NameList;
+	NameList.SetCapacity(m_MeshData->Map_PointSetName_to_PointSetIndex.size());
+	DenseVector<int_max> IndexList;
+	IndexList.SetCapacity(m_MeshData->Map_PointSetName_to_PointSetIndex.size());
+	for (auto it = m_MeshData->Map_PointSetName_to_PointSetIndex.begin(); it != m_MeshData->Map_PointSetName_to_PointSetIndex.end(); ++it)
+	{
+		NameList.Append(it->first);
+		IndexList.Append(it->second);
+	}
+	auto IndexList_sort = IndexList.Sort("ascend");
+	NameList = NameList.GetSubSet(IndexList_sort);
+	return NameList;
+}
+
+
+template<typename MeshAttributeType>
+ObjectArray<DenseVector<int_max>> PolygonMesh<MeshAttributeType>::GetPointSet(MDK_Symbol_ALL&) const
+{
+	ObjectArray<DenseVector<int_max>> PointSetList;
+	PointSetList = m_MeshData->PointSetList;
+	return PointSetList;
+}
+
+template<typename MeshAttributeType>
+int_max PolygonMesh<MeshAttributeType>::GetEdgeSetCount() const
+{
+	return m_MeshData->EdgeSetList.GetLength();
+}
+
+
+template<typename MeshAttributeType>
+int_max PolygonMesh<MeshAttributeType>::SetEdgeSet(const String& EdgeSetName, DenseVector<int_max> EdgeSet)
+{
+	auto it = m_MeshData->Map_EdgeSetName_to_EdgeSetIndex.find(EdgeSetName);
+	if (it != m_MeshData->Map_EdgeSetName_to_EdgeSetIndex.end())
+	{
+		auto EdgeSetIndex = it->second;
+		m_MeshData->EdgeSetList[EdgeSetIndex] = std::move(EdgeSet);
+		return EdgeSetIndex;
+	}
+	else
+	{
+		m_MeshData->EdgeSetList.Append(std::move(EdgeSet));
+		auto EdgeSetIndex = m_MeshData->EdgeSetList.GetLength() - 1;
+		m_MeshData->Map_EdgeSetName_to_EdgeSetIndex[EdgeSetName] = EdgeSetIndex;
+		return EdgeSetIndex;
+	}
+}
+
+
+template<typename MeshAttributeType>
+int_max PolygonMesh<MeshAttributeType>::GetEdgeSetIndex(const String& EdgeSetName) const
+{
+	auto it = m_MeshData->Map_EdgeSetName_to_EdgeSetIndex.find(EdgeSetName);
+	if (it != m_MeshData->Map_EdgeSetName_to_EdgeSetIndex.end())
+	{
+		return it->second;
+	}
+	else
+	{
+		MDK_Error("EdgeSet NOT exist @ PolygonMesh::GetEdgeSetIndex(...)")
+		return -1;
+	}
+}
+
+
+template<typename MeshAttributeType>
+String PolygonMesh<MeshAttributeType>::GetEdgeSetName(int_max EdgeSetIndex) const
+{
+	for (auto it = m_MeshData->Map_EdgeSetName_to_EdgeSetIndex.begin(); it != m_MeshData->Map_EdgeSetName_to_EdgeSetIndex.end(); ++it)
+	{
+		if (it->second == EdgeSetIndex)
+		{
+			return it->first;
+		}
+	}
+
+	MDK_Error("EdgeSet NOT exist @  PolygonMesh::GetEdgeSetName(...)")
+	String EmptyName;
+	return EmptyName;
+}
+
+
+template<typename MeshAttributeType>
+DenseVector<int_max> PolygonMesh<MeshAttributeType>::GetEdgeSet(int_max EdgeSetIndex) const
+{
+	return m_MeshData->EdgeSetList[EdgeSetIndex];
+}
+
+
+template<typename MeshAttributeType>
+DenseVector<int_max> PolygonMesh<MeshAttributeType>::GetEdgeSet(const String& EdgeSetName) const
+{
+	auto it = m_MeshData->Map_EdgeSetName_to_EdgeSetIndex.find(EdgeSetName);
+	if (it != m_MeshData->Map_EdgeSetName_to_EdgeSetIndex.end())
+	{
+		return m_MeshData->EdgeSetList[it->second];
+	}
+	else
+	{
+		DenseVector<int_max> EmptySet;
+		MDK_Error("Unknown EdgeSetName: " << EdgeSetName << " @ PolygonMesh::GetEdgeSet()")
+		return EmptySet;
+	}
+}
+
+
+template<typename MeshAttributeType>
+ObjectArray<String> PolygonMesh<MeshAttributeType>::GetEdgeSetName(MDK_Symbol_ALL&) const
+{
+	ObjectArray<String> NameList;
+	NameList.SetCapacity(m_MeshData->Map_EdgeSetName_to_EdgeSetIndex.size());
+	DenseVector<int_max> IndexList;
+	IndexList.SetCapacity(m_MeshData->Map_EdgeSetName_to_EdgeSetIndex.size());
+	for (auto it = m_MeshData->Map_EdgeSetName_to_EdgeSetIndex.begin(); it != m_MeshData->Map_EdgeSetName_to_EdgeSetIndex.end(); ++it)
+	{
+		NameList.Append(it->first);
+		IndexList.Append(it->second);
+	}
+	auto IndexList_sort = IndexList.Sort("ascend");
+	NameList = NameList.GetSubSet(IndexList_sort);
+	return NameList;
+}
+
+
+template<typename MeshAttributeType>
+ObjectArray<DenseVector<int_max>> PolygonMesh<MeshAttributeType>::GetEdgeSet(MDK_Symbol_ALL&) const
+{
+	ObjectArray<DenseVector<int_max>> EdgeSetList;
+	EdgeSetList = m_MeshData->EdgeSetList;
+	return EdgeSetList;
+}
+
+
+template<typename MeshAttributeType>
+int_max PolygonMesh<MeshAttributeType>::GetFaceSetCount() const
+{
+	return m_MeshData->FaceSetList.GetLength();
+}
+
+
+template<typename MeshAttributeType>
+int_max PolygonMesh<MeshAttributeType>::SetFaceSet(const String& FaceSetName, DenseVector<int_max> FaceSet)
+{
+	auto it = m_MeshData->Map_FaceSetName_to_FaceSetIndex.find(FaceSetName);
+	if (it != m_MeshData->Map_FaceSetName_to_FaceSetIndex.end())
+	{
+		auto FaceSetIndex = it->second;
+		m_MeshData->FaceSetList[FaceSetIndex] = std::move(FaceSet);
+		return FaceSetIndex;
+	}
+	else
+	{
+		m_MeshData->FaceSetList.Append(std::move(FaceSet));
+		auto FaceSetIndex = m_MeshData->FaceSetList.GetLength() - 1;
+		m_MeshData->Map_FaceSetName_to_FaceSetIndex[FaceSetName] = FaceSetIndex;
+		return FaceSetIndex;
+	}
+}
+
+
+template<typename MeshAttributeType>
+int_max PolygonMesh<MeshAttributeType>::GetFaceSetIndex(const String& FaceSetName) const
+{
+	auto it = m_MeshData->Map_FaceSetName_to_FaceSetIndex.find(FaceSetName);
+	if (it != m_MeshData->Map_FaceSetName_to_FaceSetIndex.end())
+	{
+		return it->second;
+	}
+	else
+	{
+		MDK_Error("FaceSet NOT exist @ PolygonMesh::GetFaceSetIndex(...)")
+		return -1;
+	}
+}
+
+
+template<typename MeshAttributeType>
+String PolygonMesh<MeshAttributeType>::GetFaceSetName(int_max FaceSetIndex) const
+{
+	for (auto it = m_MeshData->Map_FaceSetName_to_FaceSetIndex.begin(); it != m_MeshData->Map_FaceSetName_to_FaceSetIndex.end(); ++it)
+	{
+		if (it->second == FaceSetIndex)
+		{
+			return it->first;
+		}
+	}
+
+	MDK_Error("FaceSet NOT exist @  PolygonMesh::GetFaceSetName(...)")
+	String EmptyName;
+	return EmptyName;
+}
+
+
+template<typename MeshAttributeType>
+DenseVector<int_max> PolygonMesh<MeshAttributeType>::GetFaceSet(int_max FaceSetIndex) const
+{
+	return m_MeshData->FaceSetList[FaceSetIndex];
+}
+
+
+template<typename MeshAttributeType>
+DenseVector<int_max> PolygonMesh<MeshAttributeType>::GetFaceSet(const String& FaceSetName) const
+{
+	auto it = m_MeshData->Map_FaceSetName_to_FaceSetIndex.find(FaceSetName);
+	if (it != m_MeshData->Map_FaceSetName_to_FaceSetIndex.end())
+	{
+		return m_MeshData->FaceSetList[it->second];
+	}
+	else
+	{
+		DenseVector<int_max> EmptySet;
+		MDK_Error("Unknown FaceSetName: " << FaceSetName << " @ PolygonMesh::GetFaceSet()")
+		return EmptySet;
+	}
+}
+
+
+template<typename MeshAttributeType>
+ObjectArray<String> PolygonMesh<MeshAttributeType>::GetFaceSetName(MDK_Symbol_ALL&) const
+{
+	ObjectArray<String> NameList;
+	NameList.SetCapacity(m_MeshData->Map_FaceSetName_to_FaceSetIndex.size());
+	DenseVector<int_max> IndexList;
+	IndexList.SetCapacity(m_MeshData->Map_FaceSetName_to_FaceSetIndex.size());
+	for (auto it = m_MeshData->Map_FaceSetName_to_FaceSetIndex.begin(); it != m_MeshData->Map_FaceSetName_to_FaceSetIndex.end(); ++it)
+	{
+		NameList.Append(it->first);
+		IndexList.Append(it->second);
+	}
+	auto IndexList_sort = IndexList.Sort("ascend");
+	NameList = NameList.GetSubSet(IndexList_sort);
+	return NameList;
+}
+
+
+template<typename MeshAttributeType>
+ObjectArray<DenseVector<int_max>> PolygonMesh<MeshAttributeType>::GetFaceSet(MDK_Symbol_ALL&) const
+{
+	ObjectArray<DenseVector<int_max>> FaceSetList;
+	FaceSetList = m_MeshData->FaceSetList;
+	return FaceSetList;
 }
 
 //------------- Iterator --------------------------------------------------------------//
@@ -1594,21 +2080,19 @@ void PolygonMesh<MeshAttributeType>::ReleaseUnusedCapacity()
 //------------------------------ Add Mesh Item -------------------------------------------------------------------------//
 
 template<typename MeshAttributeType>
-Handle_Of_Point_Of_PolygonMesh PolygonMesh<MeshAttributeType>::AddPoint(const DenseVector<ScalarType, 3>& Position)
+int_max PolygonMesh<MeshAttributeType>::AddPoint(const DenseVector<ScalarType, 3>& Position)
 {
     return this->AddPoint(Position[0], Position[1], Position[2]);
 }
 
 
 template<typename MeshAttributeType>
-Handle_Of_Point_Of_PolygonMesh PolygonMesh<MeshAttributeType>::AddPoint(const DenseVector<ScalarType>& Position)
+int_max PolygonMesh<MeshAttributeType>::AddPoint(const DenseVector<ScalarType>& Position)
 {
     if (PointSet.GetLength() != 3)
     {
         MDK_Error("Position is a vector but length != 3 @ PolygonMesh::AddPoint(...)")
-		PointHandleType PointHandle;
-        PointHandle.SetToInvalid();
-        return PointHandle;
+        return -1;
     }
 
     return this->AddPoint(Position[0], Position[1], Position[2]);
@@ -1616,24 +2100,20 @@ Handle_Of_Point_Of_PolygonMesh PolygonMesh<MeshAttributeType>::AddPoint(const De
 
 
 template<typename MeshAttributeType>
-Handle_Of_Point_Of_PolygonMesh PolygonMesh<MeshAttributeType>::AddPoint(const DenseMatrix<ScalarType>& Position)
+int_max PolygonMesh<MeshAttributeType>::AddPoint(const DenseMatrix<ScalarType>& Position)
 {
     if (Position.IsVector() == true)
     {
         if (Position.GetElementCount() != 3)
         {
             MDK_Error("Position is a vector but length != 3 @ PolygonMesh::AddPoint(...)")
-			PointHandleType PointHandle;
-            PointHandle.SetToInvalid();
-            return PointHandle;
+            return -1;
         }
     }
     else
     {
         MDK_Error("Position is a not a vector @ PolygonMesh::AddPoint(...)")
-		PointHandleType PointHandle;
-        PointHandle.SetToInvalid();
-        return PointHandle;
+        return -1;
     }
 
     return this->AddPoint(Position[0], Position[1], Position[2]);
@@ -1641,15 +2121,14 @@ Handle_Of_Point_Of_PolygonMesh PolygonMesh<MeshAttributeType>::AddPoint(const De
 
 
 template<typename MeshAttributeType>
-Handle_Of_Point_Of_PolygonMesh PolygonMesh<MeshAttributeType>::AddPoint(const ScalarType Position[3])
+int_max PolygonMesh<MeshAttributeType>::AddPoint(const ScalarType Position[3])
 {
     return this->AddPoint(Position[0], Position[1], Position[2]);
 }
 
 
 template<typename MeshAttributeType>
-Handle_Of_Point_Of_PolygonMesh
-PolygonMesh<MeshAttributeType>::AddPoint(ScalarType x, ScalarType y, ScalarType z)
+int_max PolygonMesh<MeshAttributeType>::AddPoint(ScalarType x, ScalarType y, ScalarType z)
 {
     m_MeshData->PointPositionTable.AppendCol({x, y, z});
     auto PointIndex = m_MeshData->PointPositionTable.GetColCount() - 1;
@@ -1661,74 +2140,71 @@ PolygonMesh<MeshAttributeType>::AddPoint(ScalarType x, ScalarType y, ScalarType 
     m_MeshData->PointList.Append(std::move(Point));
     m_MeshData->PointValidityFlagList.Append(1);
 
-	PointHandleType PointHandle;
-    PointHandle.SetIndex(PointIndex);
-
-    return PointHandle;
+    return PointIndex;
 }
 
 
 template<typename MeshAttributeType>
-DenseVector<Handle_Of_Point_Of_PolygonMesh> PolygonMesh<MeshAttributeType>::AddPoint_batch(const DenseMatrix<ScalarType>& PointSet)
+DenseVector<int_max> PolygonMesh<MeshAttributeType>::AddPoint_batch(const DenseMatrix<ScalarType>& PointSet)
 {
-	DenseVector<PointHandleType> PointHandleList;
+	DenseVector<int_max> PointIndexList;
 
     if (PointSet.IsVector() == true)
     {
         if (PointSet.GetElementCount() != 3)
         {
             MDK_Error("PointSet is a vector but length != 3 @ PolygonMesh::AddPoint_batch(...)")
-            return PointHandleList;
+            return PointIndexList;
         }
 
-        PointHandleList.Resize(1);
-        PointHandleList[0] = this->AddPoint(PointSet.GetPointer());
-        return PointHandleList;
+		PointIndexList.Resize(1);
+		PointIndexList[0] = this->AddPoint(PointSet.GetPointer());
+        return PointIndexList;
     }
 
     if (PointSet.GetRowCount() != 3)
     {
         MDK_Error("PointSet is a matrix but RowCount != 3 @ PolygonMesh::AddPoint_batch(...)")
-        return PointHandleList;
+        return PointIndexList;
     }
 
-    PointHandleList.Resize(PointSet.GetColCount());
+	PointIndexList.Resize(PointSet.GetColCount());
     for (int_max k = 0; k < PointSet.GetColCount(); ++k)
     {
-        PointHandleList[k] = this->AddPoint(PointSet.GetPointerOfCol(k));
+		PointIndexList[k] = this->AddPoint(PointSet.GetPointerOfCol(k));
     }
-    return PointHandleList;
+    return PointIndexList;
 }
 
 
 template<typename MeshAttributeType>
-DenseVector<Handle_Of_Point_Of_PolygonMesh> PolygonMesh<MeshAttributeType>::AddPoint_batch(DenseMatrix<ScalarType>&& PointSet)
+DenseVector<int_max> PolygonMesh<MeshAttributeType>::AddPoint_batch(DenseMatrix<ScalarType>&& PointSet)
 {
-	DenseVector<PointHandleType> PointHandleList;
+	DenseVector<int_max> PointIndexList;
 
 	if (PointSet.IsVector() == true)
 	{
 		if (PointSet.GetElementCount() != 3)
 		{
 			MDK_Error("PointSet is a vector but length != 3 @ PolygonMesh::AddPoint_batch(...)")
-			return PointHandleList;
+			return PointIndexList;
 		}
 
-		PointHandleList.Resize(1);
-		PointHandleList[0] = this->AddPoint(PointSet.GetPointer());
-		return PointHandleList;
+		PointIndexList.Resize(1);
+		PointIndexList[0] = this->AddPoint(PointSet.GetPointer());
+		return PointIndexList;
 	}
 
 	if (PointSet.GetRowCount() != 3)
 	{
 		MDK_Error("PointSet is a matrix but RowCount != 3 @ PolygonMesh::AddPoint_batch(...)")
-		return PointHandleList;
+		return PointIndexList;
 	}
 
 	if (this->IsEmpty() == true)
 	{
 		m_MeshData->PointPositionTable = std::move(PointSet);
-		PointHandleList.Resize(m_MeshData->PointPositionTable.GetColCount());
+		PointIndexList.Resize(m_MeshData->PointPositionTable.GetColCount());
 		for (int_max k = 0; k < m_MeshData->PointPositionTable.GetColCount(); ++k)
 		{
 			Point_Of_PolygonMesh<MeshAttributeType> Point;
@@ -1738,88 +2214,73 @@ DenseVector<Handle_Of_Point_Of_PolygonMesh> PolygonMesh<MeshAttributeType>::AddP
 			m_MeshData->PointList.Append(std::move(Point));
 			m_MeshData->PointValidityFlagList.Append(1);
 
-			PointHandleList[k].SetIndex(k);
+			PointIndexList[k]=k;
 		}
 	}
 	else
 	{
-		PointHandleList.Resize(PointSet.GetColCount());
+		PointIndexList.Resize(PointSet.GetColCount());
 		for (int_max k = 0; k < PointSet.GetColCount(); ++k)
 		{
-			PointHandleList[k] = this->AddPoint(PointSet.GetPointerOfCol(k));
+			PointIndexList[k] = this->AddPoint(PointSet.GetPointerOfCol(k));
 		}
 	}
-	return PointHandleList;
+	return PointIndexList;
 }
 
 
 template<typename MeshAttributeType>
-Handle_Of_Edge_Of_PolygonMesh PolygonMesh<MeshAttributeType>::
-AddEdge(PointHandleType PointHandle0, PointHandleType PointHandle1)
+int_max PolygonMesh<MeshAttributeType>::AddEdge(int_max PointIndex0, int_max PointIndex1)
 {
-	EdgeHandleType EdgeHandle;
-	EdgeHandle.SetIndex(m_MeshData->EdgeList.GetLength());
-	return this->AddEdge(PointHandle0, PointHandle1, EdgeHandle);
+	auto EdgeIndex = m_MeshData->EdgeList.GetLength();
+	return this->AddEdge(PointIndex0, PointIndex1, EdgeIndex);
 }
 
 
 template<typename MeshAttributeType>
-Handle_Of_Edge_Of_PolygonMesh PolygonMesh<MeshAttributeType>::
-AddEdge(PointHandleType PointHandle0, PointHandleType PointHandle1, EdgeHandleType EdgeHandle_input)
+int_max PolygonMesh<MeshAttributeType>::AddEdge(int_max PointIndex0, int_max PointIndex1, int_max EdgeIndex_input)
 {
     // pay attention to MDK_Error or MDK_Warning, they are made on purpose
 
-	EdgeHandleType EdgeHandle;
-
-    if (this->IsValidHandle(PointHandle0) == false || this->IsValidHandle(PointHandle1) == false)
+    if (this->IsValidPointIndex(PointIndex0) == false || this->IsValidPointIndex(PointIndex1) == false)
     {
-        MDK_Error("PointHandle0 or PointHandle1 is invalid @ PolygonMesh::AddEdge(...)")
-        EdgeHandle.SetToInvalid();
-        return EdgeHandle;
+        MDK_Error("PointIndex0 or PointIndex1 is invalid @ PolygonMesh::AddEdge(...)")
+        return -1;
     }
 
-	auto EdgeIndex = EdgeHandle_input.GetIndex();
-	if (EdgeIndex < 0 || EdgeIndex > m_MeshData->EdgeList.GetLength())
+	if (EdgeIndex_input < 0 || EdgeIndex_input > m_MeshData->EdgeList.GetLength())
 	{
-		MDK_Error("EdgeHandle_input is out of range @ PolygonMesh::AddEdge(...)")
-		EdgeHandle.SetToInvalid();
-		return EdgeHandle;
+		MDK_Error("EdgeIndex_input is out of range @ PolygonMesh::AddEdge(...)")
+		return -1;
 	}
 
-    auto EdgeHandle_temp = this->GetEdgeHandleByPoint(PointHandle0, PointHandle1);
-    if (this->IsValidHandle(EdgeHandle_temp) == true)
+    auto EdgeIndex_temp = this->GetEdgeIndexByPoint(PointIndex0, PointIndex1);
+    if (this->IsValidEdgeIndex(EdgeIndex_temp) == true)
     {
         //MDK_Warning("The edge has been added already @ PolygonMesh::AddEdge(...)")
-		if (EdgeIndex == m_MeshData->EdgeList.GetLength() || EdgeIndex == EdgeHandle_temp.GetIndex())
+		if (EdgeIndex_input == m_MeshData->EdgeList.GetLength() || EdgeIndex_input == EdgeIndex_temp)
 		{
-			EdgeHandle = EdgeHandle_temp;
-			return EdgeHandle;
+			return EdgeIndex_temp;
 		}
 		else
 		{
-			MDK_Error("Edge exist at EdgeHandle_input @ PolygonMesh::AddEdge(...)")
-			EdgeHandle.SetToInvalid();
-			return EdgeHandle;
+			MDK_Error("Edge exist at EdgeIndex_input @ PolygonMesh::AddEdge(...)")
+			return -1;
 		}
     }
 
-	if (EdgeIndex < m_MeshData->EdgeList.GetLength())
+	if (EdgeIndex_input < m_MeshData->EdgeValidityFlagList.GetLength())
 	{
-		if (m_MeshData->EdgeValidityFlagList[EdgeIndex] == 1)
+		if (m_MeshData->EdgeValidityFlagList[EdgeIndex_input] == 1)
 		{
-			MDK_Error("Edge exist at EdgeHandle_input @ PolygonMesh::AddEdge(...)")
-			EdgeHandle.SetToInvalid();
-			return EdgeHandle;
+			MDK_Error("Edge exist at EdgeIndex_input @ PolygonMesh::AddEdge(...)")
+			return -1;
 		}
 	}
 
-    //----------------------------------------------------------------
-    auto PointIndex0 = PointHandle0.GetIndex();
-    auto PointIndex1 = PointHandle1.GetIndex();
-	
 	//Create Edge ----------------------------------------------------------------
 
-	if (EdgeIndex == m_MeshData->EdgeList.GetLength())
+	if (EdgeIndex_input == m_MeshData->EdgeList.GetLength())
 	{
 		EdgeType EmptyEdge;
 		m_MeshData->EdgeList.Append(std::move(EmptyEdge));
@@ -1827,36 +2288,34 @@ AddEdge(PointHandleType PointHandle0, PointHandleType PointHandle1, EdgeHandleTy
 	}
 	else
 	{
-		m_MeshData->EdgeList[EdgeIndex].ReCreate();
-		m_MeshData->EdgeValidityFlagList[EdgeIndex] = 1;
+		m_MeshData->EdgeList[EdgeIndex_input].ReCreate();
+		m_MeshData->EdgeValidityFlagList[EdgeIndex_input] = 1;
 	}
     // take reference
-	auto& Edge = m_MeshData->EdgeList[EdgeIndex];
+	auto& Edge = m_MeshData->EdgeList[EdgeIndex_input];
     Edge.SetParentMesh(*this);
-    Edge.SetIndex(EdgeIndex);
+    Edge.SetIndex(EdgeIndex_input);
     Edge.SetPointIndexList(PointIndex0, PointIndex1);
 
     // update AdjacentPoint information in m_MeshData->PointList
-    m_MeshData->PointList[PointIndex0].AdjacentEdgeIndexList().Append(EdgeIndex);
-    m_MeshData->PointList[PointIndex1].AdjacentEdgeIndexList().Append(EdgeIndex);
+    m_MeshData->PointList[PointIndex0].AdjacentEdgeIndexList().Append(EdgeIndex_input);
+    m_MeshData->PointList[PointIndex1].AdjacentEdgeIndexList().Append(EdgeIndex_input);
     
     //------------
-    EdgeHandle.SetIndex(EdgeIndex);
-    return EdgeHandle;
+    return EdgeIndex_input;
 }
 
 
 template<typename MeshAttributeType>
-Handle_Of_Face_Of_PolygonMesh PolygonMesh<MeshAttributeType>::AddFaceByEdge(const DenseVector<EdgeHandleType>& EdgeHandleList)
+int_max PolygonMesh<MeshAttributeType>::AddFaceByEdge(const DenseVector<int_max>& EdgeIndexList)
 {
-	FaceHandleType FaceHandle;
-	FaceHandle.SetIndex(m_MeshData->FaceList.GetLength());
-	return this->AddFaceByEdge(EdgeHandleList, FaceHandle);
+	auto FaceIndex = m_MeshData->FaceList.GetLength();
+	return this->AddFaceByEdge(EdgeIndexList, FaceIndex);
 }
 
 
 template<typename MeshAttributeType>
-Handle_Of_Face_Of_PolygonMesh PolygonMesh<MeshAttributeType>::AddFaceByEdge(const DenseVector<EdgeHandleType>& EdgeHandleList, FaceHandleType FaceHandle_input)
+int_max PolygonMesh<MeshAttributeType>::AddFaceByEdge(const DenseVector<int_max>& EdgeIndexList, int_max FaceInex_input)
 {
     // Input: the input EdgeIndexList must have been ordered
 	// the first point of the first input edge may NOT be the first point of the face
@@ -1865,78 +2324,61 @@ Handle_Of_Face_Of_PolygonMesh PolygonMesh<MeshAttributeType>::AddFaceByEdge(cons
     //
     // pay attention to MDK_Error or MDK_Warning, they are made on purpose
 
-	FaceHandleType FaceHandle;
-
-    if (EdgeHandleList.GetLength() < 2)
+    if (EdgeIndexList.GetLength() < 2)
     {
-        MDK_Error("length of EdgeHandleList < 2 @ PolygonMesh::AddFaceByEdge(...)")
-        FaceHandle.SetToInvalid();
-        return FaceHandle;
+        MDK_Error("length of EdgeIndexList < 2 @ PolygonMesh::AddFaceByEdge(...)")
+        return -1;
     }
 
-    for (int_max k = 0; k < EdgeHandleList.GetLength(); ++k)
+    for (int_max k = 0; k < EdgeIndexList.GetLength(); ++k)
     {
-        if (this->IsValidHandle(EdgeHandleList[k]) == false)
+        if (this->IsValidEdgeIndex(EdgeIndexList[k]) == false)
         {
-            MDK_Error("Invalid EdgeHandleList @ PolygonMesh::AddFaceByEdge(...)")
-            FaceHandle.SetToInvalid();
-            return FaceHandle;
+            MDK_Error("Invalid EdgeIndexList @ PolygonMesh::AddFaceByEdge(...)")
+            return -1;
         }
     }
 
-	auto FaceIndex = FaceHandle_input.GetIndex();
-	if (FaceIndex < 0 && FaceIndex > m_MeshData->FaceValidityFlagList.GetLength())
+	if (FaceInex_input < 0 && FaceInex_input > m_MeshData->FaceValidityFlagList.GetLength())
 	{
-		MDK_Error("FaceIndex is out of range @ PolygonMesh::AddFaceByEdge(...)")
-		FaceHandle.SetToInvalid();
-		return FaceHandle;
+		MDK_Error("FaceInex_input is out of range @ PolygonMesh::AddFaceByEdge(...)")
+		return -1;
 	}
 
-    auto FaceHandle_temp = this->GetFaceHandleByEdge(EdgeHandleList);
-    if (this->IsValidHandle(FaceHandle_temp) == true)
+    auto FaceIndex_temp = this->GetFaceIndexByEdge(EdgeIndexList);
+    if (this->IsValidFaceIndex(FaceIndex_temp) == true)
     {
         //MDK_Warning("The face has been added already @ PolygonMesh::AddFaceByEdge(...)")
 
-		if (FaceIndex == m_MeshData->FaceValidityFlagList.GetLength() || FaceIndex == FaceHandle_temp.GetIndex())
-		{//attempt to add new face, not necessary
-			FaceHandle = FaceHandle_temp;
-			return FaceHandle;
+		if (FaceInex_input == m_MeshData->FaceValidityFlagList.GetLength() || FaceInex_input == FaceIndex_temp)
+		{//attempt to add new face, not necessary			
+			return FaceIndex_temp;
 		}
 		else
 		{// attempt to replace old&valid face with new face
-			MDK_Error("Face arealdy exists at FaceIndex @ PolygonMesh::AddFaceByEdge(...)")
-			FaceHandle.SetToInvalid();
-			return FaceHandle;
+			MDK_Error("Face arealdy exists at FaceIndex: " << FaceIndex_temp << " @ PolygonMesh::AddFaceByEdge(...)")
+			return -1;
 		}
     }
 
-	if (FaceIndex < m_MeshData->FaceValidityFlagList.GetLength())
+	if (FaceInex_input < m_MeshData->FaceValidityFlagList.GetLength())
 	{
-		if (m_MeshData->FaceValidityFlagList[FaceIndex] == 1)
+		if (m_MeshData->FaceValidityFlagList[FaceInex_input] == 1)
 		{// attempt to replace old&valid face with new face
-			MDK_Error("Face arealdy exists at FaceIndex @ PolygonMesh::AddFaceByEdge(...)")
-			FaceHandle.SetToInvalid();
-			return FaceHandle;
+			MDK_Error("Face arealdy exists at FaceInex_input @ PolygonMesh::AddFaceByEdge(...)")			
+			return -1;
 		}
 	}
 
-	//-------------------- input check is done ---------------------------------------------------//
-
-    DenseVector<int_max> EdgeIndexList;
-    EdgeIndexList.Resize(EdgeHandleList.GetLength());
-    for (int_max k = 0; k < EdgeHandleList.GetLength(); ++k)
-    {
-        EdgeIndexList[k] = EdgeHandleList[k].GetIndex();
-    }
-
     // check EdgeIndexList
     auto tempList_unique = EdgeIndexList.FindUnique();
-    if (tempList_unique.GetLength() != EdgeHandleList.GetLength())
+    if (tempList_unique.GetLength() != EdgeIndexList.GetLength())
     {
-        MDK_Error("EdgeHandleList is invalid : more than one copy of a handle @ PolygonMesh::AddFaceByEdge(...)")
-        FaceHandle.SetToInvalid();
-        return FaceHandle;
+        MDK_Error("EdgeIndexList is invalid : more than one copy of an index @ PolygonMesh::AddFaceByEdge(...)")
+        return -1;
     }
+
+	//-------------------- input check is done ---------------------------------------------------//
 
     // get PointIndexList from EdgeIndexList ---------------------------------------------------------------------------//
        
@@ -1973,15 +2415,14 @@ Handle_Of_Face_Of_PolygonMesh PolygonMesh<MeshAttributeType>::AddFaceByEdge(cons
         }
         else
         {
-			MDK_Error("EdgeIndexList is not ordered or invalid @ PolygonMesh::AddFaceByEdge(...)")
-			FaceHandle.SetToInvalid();
-            return FaceHandle;
+			MDK_Error("EdgeIndexList is not ordered or invalid @ PolygonMesh::AddFaceByEdge(...)")			
+            return -1;
         }
     }
 
     // create face --------------------------------------------------------------------------------------------------
 
-	if (FaceIndex == m_MeshData->FaceList.GetLength())
+	if (FaceInex_input == m_MeshData->FaceList.GetLength())
 	{
 		FaceType EmptyFace;
 		m_MeshData->FaceList.Append(std::move(EmptyFace));
@@ -1989,13 +2430,13 @@ Handle_Of_Face_Of_PolygonMesh PolygonMesh<MeshAttributeType>::AddFaceByEdge(cons
 	}
 	else
 	{
-		m_MeshData->FaceList[FaceIndex].ReCreate();
-		m_MeshData->FaceValidityFlagList[FaceIndex] = 1;
+		m_MeshData->FaceList[FaceInex_input].ReCreate();
+		m_MeshData->FaceValidityFlagList[FaceInex_input] = 1;
 	}
 	// take reference
-	auto& Face = m_MeshData->FaceList[FaceIndex];
+	auto& Face = m_MeshData->FaceList[FaceInex_input];
 	Face.SetParentMesh(*this);
-	Face.SetIndex(FaceIndex);
+	Face.SetIndex(FaceInex_input);
 
 	// create DirectedEdge in Face	
 	Face.DirectedEdgeList().Resize(EdgeIndexList.GetLength());
@@ -2004,7 +2445,7 @@ Handle_Of_Face_Of_PolygonMesh PolygonMesh<MeshAttributeType>::AddFaceByEdge(cons
 		// attention: auto& will get reference, auto will copy
 		auto& DirectedEdge_k = Face.DirectedEdgeList()[k];		
 		DirectedEdge_k.SetParentMesh(*this);
-		DirectedEdge_k.SetIndex(FaceIndex, k);		
+		DirectedEdge_k.SetIndex(FaceInex_input, k);
 		DirectedEdge_k.SetEdgeIndex(EdgeIndexList[k]);
 		DirectedEdge_k.SetStartPointIndex(PointIndexList[k]);
 
@@ -2027,536 +2468,122 @@ Handle_Of_Face_Of_PolygonMesh PolygonMesh<MeshAttributeType>::AddFaceByEdge(cons
 	}
 
     //-----------------------------
-    FaceHandle.SetIndex(FaceIndex);
-    return FaceHandle;
+    return FaceInex_input;
 }
 
 
 template<typename MeshAttributeType>
-Handle_Of_Face_Of_PolygonMesh PolygonMesh<MeshAttributeType>::AddFaceByPoint(const DenseVector<PointHandleType>& PointHandleList)
+int_max PolygonMesh<MeshAttributeType>::AddFaceByPoint(const DenseVector<int_max>& PointIndexList)
 {
-	FaceHandleType FaceHandle;
-	FaceHandle.SetIndex(m_MeshData->FaceList.GetLength());
-	return this->AddFaceByPoint(PointHandleList, FaceHandle);
+	auto FaceIndex = m_MeshData->FaceList.GetLength();
+	return this->AddFaceByPoint(PointIndexList, FaceIndex);
 }
 
 template<typename MeshAttributeType>
-Handle_Of_Face_Of_PolygonMesh PolygonMesh<MeshAttributeType>::AddFaceByPoint(const DenseVector<PointHandleType>& PointHandleList, FaceHandleType FaceHandle_input)
+int_max PolygonMesh<MeshAttributeType>::AddFaceByPoint(const DenseVector<int_max>& PointIndexList, int_max FaceIndex_input)
 {
-    if (PointHandleList.GetLength() < 3)
+    if (PointIndexList.GetLength() < 3)
     {        
-        MDK_Error("PointHandleList length < 3 @ PolygonMesh::AddFaceByPoint(...)")
-		FaceHandleType FaceHandle;
-        FaceHandle.SetToInvalid();
-        return FaceHandle;
+        MDK_Error("PointIndexList length < 3 @ PolygonMesh::AddFaceByPoint(...)")
+        return -1;
     }
 
-	DenseVector<EdgeHandleType> EdgeHandleList;
-    EdgeHandleList.Resize(PointHandleList.GetLength());
-    for (int_max k = 0; k < PointHandleList.GetLength(); ++k)
+	DenseVector<int_max> EdgeIndexList;
+	EdgeIndexList.Resize(PointIndexList.GetLength());
+    for (int_max k = 0; k < PointIndexList.GetLength(); ++k)
     {
-        if (k < PointHandleList.GetLength() - 1)
+        if (k < PointIndexList.GetLength() - 1)
         {
-            EdgeHandleList[k] = this->AddEdge(PointHandleList[k], PointHandleList[k + 1]);
+			EdgeIndexList[k] = this->AddEdge(PointIndexList[k], PointIndexList[k + 1]);
         }
         else
         {
-            EdgeHandleList[k] = this->AddEdge(PointHandleList[k], PointHandleList[0]);
+			EdgeIndexList[k] = this->AddEdge(PointIndexList[k], PointIndexList[0]);
         }
     }
 
-	return this->AddFaceByEdge(EdgeHandleList, FaceHandle_input);
+	return this->AddFaceByEdge(EdgeIndexList, FaceIndex_input);
 }
 
-// modify Mesh additional Info ------------------------------------------------------------------------//
-template<typename MeshAttributeType>
-void PolygonMesh<MeshAttributeType>::SetID(int_max ID)
-{
-	m_MeshData->ID = ID;
-}
-
-template<typename MeshAttributeType>
-int_max PolygonMesh<MeshAttributeType>::GetID() const
-{
-	return m_MeshData->ID;
-}
-
-template<typename MeshAttributeType>
-void PolygonMesh<MeshAttributeType>::SetName(String Name)
-{
-	m_MeshData->Name =std::move(Name);
-}
-
-template<typename MeshAttributeType>
-String PolygonMesh<MeshAttributeType>::GetName() const
-{
-	return m_MeshData->Name;
-}
-
-template<typename MeshAttributeType>
-int_max PolygonMesh<MeshAttributeType>::GetNamedPointCount() const
-{
-	return m_MeshData->Map_PointName_to_PointHandle.size();
-}
-
-template<typename MeshAttributeType>
-int_max PolygonMesh<MeshAttributeType>::GetNamedFaceCount() const
-{
-	return m_MeshData->Map_FaceName_to_FaceHandle.size();
-}
-
-template<typename MeshAttributeType>
-int_max PolygonMesh<MeshAttributeType>::GetPointSetCount() const
-{
-	return m_MeshData->PointSetList.GetLength();
-}
-
-template<typename MeshAttributeType>
-int_max PolygonMesh<MeshAttributeType>::GetFaceSetCount() const
-{
-	return m_MeshData->FaceSetList.GetLength();
-}
-
-
-template<typename MeshAttributeType>
-void PolygonMesh<MeshAttributeType>::SetPointName(PointHandleType PointHandle, const String& PointName)
-{
-	auto it = m_MeshData->Map_PointName_to_PointHandle.find(PointName);
-	if (it == m_MeshData->Map_PointName_to_PointHandle.end())
-	{
-		m_MeshData->Map_PointName_to_PointHandle[PointName] = PointHandle;
-	}
-	else
-	{
-		MDK_Error("PointName has been used @ Polygon::SetPointName(...)")
-	}
-}
-
-
-template<typename MeshAttributeType>
-String PolygonMesh<MeshAttributeType>::GetPointName(PointHandleType PointHandle) const
-{
-	for (auto it = m_MeshData->Map_PointName_to_PointHandle.begin(); it != m_MeshData->Map_PointName_to_PointHandle.end(); ++it)
-	{
-		if (it->second == PointHandle)
-		{
-			return it->first;
-		}
-	}
-}
-
-
-template<typename MeshAttributeType>
-Handle_Of_Point_Of_PolygonMesh PolygonMesh<MeshAttributeType>::GetPointHandleByName(const String& PointName) const
-{
-	auto it = m_MeshData->Map_PointName_to_PointHandle.find(PointName);
-	if (it != m_MeshData->Map_PointName_to_PointHandle.end())
-	{
-		return it->second;
-	}
-	else
-	{
-		Handle_Of_Point_Of_PolygonMesh EmptyHandle;
-		MDK_Error("Unknown PointName: " << PointName << " @ PolygonMesh::GetPointHandleByName()")
-		return EmptyHandle;
-	}
-}
-
-
-template<typename MeshAttributeType>
-ObjectArray<std::pair<String, Handle_Of_Point_Of_PolygonMesh>> PolygonMesh<MeshAttributeType>::GetPointNameHandlePair(MDK_Symbol_ALL&) const
-{
-	ObjectArray<std::pair<String, PointHandleType>> NameHandlePair;
-	NameHandlePair.SetCapacity(m_MeshData->Map_PointName_to_PointHandle.size());
-	for (auto it = m_MeshData->Map_PointName_to_PointHandle.begin(); it != m_MeshData->Map_PointName_to_PointHandle.end(); ++it)
-	{
-		std::pair<String, PointHandleType> temp;
-		temp.first = it->first;
-		temp.second = it->second;
-		NameHandlePair.Append(temp);
-	}
-	return NameHandlePair;
-}
-
-
-template<typename MeshAttributeType>
-ObjectArray<String> PolygonMesh<MeshAttributeType>::GetAvailablePointName(MDK_Symbol_ALL&) const
-{
-	ObjectArray<String> NameList;
-	NameList.SetCapacity(m_MeshData->Map_PointName_to_PointHandle.size());
-	for (auto it = m_MeshData->Map_PointName_to_PointHandle.begin(); it != m_MeshData->Map_PointName_to_PointHandle.end(); ++it)
-	{
-		NameList.Append(it->first);
-	}
-	return NameList;
-}
-
-
-template<typename MeshAttributeType>
-int_max PolygonMesh<MeshAttributeType>::SetPointSet(const String& PointSetName, DenseVector<PointHandleType> PointSet)
-{
-	auto it = m_MeshData->Map_PointSetName_to_PointSetIndex.find(PointSetName);
-	if (it == m_MeshData->Map_PointSetName_to_PointSetIndex.end())
-	{
-		m_MeshData->PointSetList.Append(std::move(PointSet));
-		auto PointSetIndex = m_MeshData->PointSetList.GetLength() - 1;
-		m_MeshData->Map_PointSetName_to_PointSetIndex[PointSetName] = PointSetIndex;
-		return PointSetIndex;
-	}
-	else
-	{
-		auto PointSetIndex = it->second;
-		m_MeshData->PointSetList[PointSetIndex] = std::move(PointSet);
-		return PointSetIndex;
-	}
-}
-
-
-template<typename MeshAttributeType>
-int_max PolygonMesh<MeshAttributeType>::GetPointSetIndex(const String& PointSetName) const
-{
-	auto it = m_MeshData->Map_PointSetName_to_PointSetIndex.find(PointSetName);
-	if (it != m_MeshData->Map_PointSetName_to_PointSetIndex.end())
-	{
-		return it->second;
-	}
-	else
-	{
-		MDK_Error("PointSet NOT exist @ PolygonMesh::GetPointSetIndex(...)")
-		return -1;
-	}
-}
-
-
-template<typename MeshAttributeType>
-String PolygonMesh<MeshAttributeType>::GetPointSetName(int_max PointSetIndex) const
-{
-	for (auto it = m_MeshData->Map_PointSetName_to_PointSetIndex.begin(); it != m_MeshData->Map_PointSetName_to_PointSetIndex.end(); ++it)
-	{
-		if (it->second == PointSetIndex)
-		{
-			return it->first;
-		}
-	}
-
-	MDK_Error("PointSet NOT exist @  PolygonMesh::GetPointSetName(...)")
-	String EmptyName;
-	return EmptyName;
-}
-
-
-template<typename MeshAttributeType>
-DenseVector<Handle_Of_Point_Of_PolygonMesh> PolygonMesh<MeshAttributeType>::GetPointSet(int_max PointSetIndex) const
-{
-	return m_MeshData->PointSetList[PointSetIndex];
-}
-
-
-template<typename MeshAttributeType>
-DenseVector<Handle_Of_Point_Of_PolygonMesh> PolygonMesh<MeshAttributeType>::GetPointSet(const String& PointSetName) const
-{
-	auto it = m_MeshData->Map_PointSetName_to_PointSetIndex.find(PointSetName);
-	if (it != m_MeshData->Map_PointSetName_to_PointSetIndex.end())
-	{
-		return m_MeshData->PointSetList[it->second];
-	}
-	else
-	{
-		DenseVector<Handle_Of_Point_Of_PolygonMesh> EmptySet;
-		MDK_Error("Unknown PointSetName: " << PointSetName << " @ PolygonMesh::GetPointSet()")
-		return EmptySet;
-	}
-}
-
-
-template<typename MeshAttributeType>
-ObjectArray<String> PolygonMesh<MeshAttributeType>::GetPointSetName(MDK_Symbol_ALL&) const
-{
-	ObjectArray<String> NameList;
-	NameList.SetCapacity(m_MeshData->Map_PointSetName_to_PointSetIndex.size());
-	DenseVector<int_max> IndexList;
-	IndexList.SetCapacity(m_MeshData->Map_PointSetName_to_PointSetIndex.size());
-	for (auto it = m_MeshData->Map_PointSetName_to_PointSetIndex.begin(); it != m_MeshData->Map_PointSetName_to_PointSetIndex.end(); ++it)
-	{
-		NameList.Append(it->first);
-		IndexList.Append(it->second);
-	}
-	auto IndexList_sort = IndexList.Sort("ascend");
-	NameList = NameList.GetSubSet(IndexList_sort);
-	return NameList;
-}
-
-
-template<typename MeshAttributeType>
-ObjectArray<DenseVector<Handle_Of_Point_Of_PolygonMesh>> PolygonMesh<MeshAttributeType>::GetPointSet(MDK_Symbol_ALL&) const
-{
-	ObjectArray<DenseVector<PointHandleType>> PointSetList;
-	PointSetList = m_MeshData->PointSetList;
-	return PointSetList;
-}
-
-
-template<typename MeshAttributeType>
-void PolygonMesh<MeshAttributeType>::SetFaceName(FaceHandleType FaceHandle, const String& FaceName)
-{
-	auto it = m_MeshData->Map_FaceName_to_FaceHandle.find(FaceName);
-	if (it == m_MeshData->Map_FaceName_to_FaceHandle.end())
-	{
-		m_MeshData->Map_FaceName_to_FaceHandle[FaceName] = FaceHandle;
-	}
-	else
-	{
-		MDK_Error("FaceName has been used @ Polygon::SetFaceName(...)")
-	}
-}
-
-
-template<typename MeshAttributeType>
-String PolygonMesh<MeshAttributeType>::GetFaceName(FaceHandleType FaceHandle) const
-{
-	for (auto it = m_MeshData->Map_FaceName_to_FaceHandle.begin(); it != m_MeshData->Map_FaceName_to_FaceHandle.end(); ++it)
-	{
-		if (it->second == FaceHandle)
-		{
-			return it->first;
-		}
-	}
-}
-
-
-template<typename MeshAttributeType>
-Handle_Of_Face_Of_PolygonMesh PolygonMesh<MeshAttributeType>::GetFaceHandleByName(const String& FaceName) const
-{
-	auto it = m_MeshData->Map_FaceName_to_FaceHandle.find(FaceName);
-	if (it != m_MeshData->Map_FaceName_to_FaceHandle.end())
-	{
-		return it->second;
-	}
-	else
-	{
-		Handle_Of_Face_Of_PolygonMesh EmptyHandle;
-		MDK_Error("Unknown FaceName: " << FaceName << " @ PolygonMesh::GetFaceHandleByName()")
-		return EmptyHandle;
-	}
-}
-
-
-template<typename MeshAttributeType>
-ObjectArray<std::pair<String, Handle_Of_Face_Of_PolygonMesh>> PolygonMesh<MeshAttributeType>::GetFaceNameHandlePair(MDK_Symbol_ALL&) const
-{
-	ObjectArray<std::pair<String, FaceHandleType>> NameHandlePair;
-	NameHandlePair.SetCapacity(m_MeshData->Map_FaceName_to_FaceHandle.size());
-	for (auto it = m_MeshData->Map_FaceName_to_FaceHandle.begin(); it != m_MeshData->Map_FaceName_to_FaceHandle.end(); ++it)
-	{
-		std::pair<String, FaceHandleType> temp;
-		temp.first = it->first;
-		temp.second = it->second;
-		NameHandlePair.Append(temp);
-	}
-	return NameHandlePair;
-}
-
-
-template<typename MeshAttributeType>
-ObjectArray<String> PolygonMesh<MeshAttributeType>::GetAvailableFaceName(MDK_Symbol_ALL&) const
-{
-	ObjectArray<String> NameList;
-	NameList.SetCapacity(m_MeshData->Map_FaceName_to_FaceHandle.size());
-	for (auto it = m_MeshData->Map_FaceName_to_FaceHandle.begin(); it != m_MeshData->Map_FaceName_to_FaceHandle.end(); ++it)
-	{
-		NameList.Append(it->first);
-	}
-	return NameList;
-}
-
-
-template<typename MeshAttributeType>
-int_max PolygonMesh<MeshAttributeType>::SetFaceSet(const String& FaceSetName, DenseVector<FaceHandleType> FaceSet)
-{
-	auto it = m_MeshData->Map_FaceSetName_to_FaceSetIndex.find(FaceSetName);
-	if (it == m_MeshData->Map_FaceSetName_to_FaceSetIndex.end())
-	{
-		m_MeshData->FaceSetList.Append(std::move(FaceSet));
-		auto FaceSetIndex = m_MeshData->FaceSetList.GetLength() - 1;
-		m_MeshData->Map_FaceSetName_to_FaceSetIndex[FaceSetName] = FaceSetIndex;
-		return FaceSetIndex;
-	}
-	else
-	{
-		auto FaceSetIndex = it->second;
-		m_MeshData->FaceSetList[FaceSetIndex] = std::move(FaceSet);
-		return FaceSetIndex;
-	}
-}
-
-
-template<typename MeshAttributeType>
-int_max PolygonMesh<MeshAttributeType>::GetFaceSetIndex(const String& FaceSetName) const
-{
-	auto it = m_MeshData->Map_FaceSetName_to_FaceSetIndex.find(FaceSetName);
-	if (it != m_MeshData->Map_FaceSetName_to_FaceSetIndex.end())
-	{
-		return it->second;
-	}
-	else
-	{
-		MDK_Error("FaceSet NOT exist @ PolygonMesh::GetFaceSetIndex(...)")
-		return -1;
-	}
-}
-
-
-template<typename MeshAttributeType>
-String PolygonMesh<MeshAttributeType>::GetFaceSetName(int_max FaceSetIndex) const
-{
-	for (auto it = m_MeshData->Map_FaceSetName_to_FaceSetIndex.begin(); it != m_MeshData->Map_FaceSetName_to_FaceSetIndex.end(); ++it)
-	{
-		if (it->second == FaceSetIndex)
-		{
-			return it->first;
-		}
-	}
-
-	MDK_Error("FaceSet NOT exist @  PolygonMesh::GetFaceSetName(...)")
-	String EmptyName;
-	return EmptyName;
-}
-
-
-template<typename MeshAttributeType>
-DenseVector<Handle_Of_Face_Of_PolygonMesh> PolygonMesh<MeshAttributeType>::GetFaceSet(int_max FaceSetIndex) const
-{
-	return m_MeshData->FaceSetList[FaceSetIndex];
-}
-
-
-template<typename MeshAttributeType>
-DenseVector<Handle_Of_Face_Of_PolygonMesh> PolygonMesh<MeshAttributeType>::GetFaceSet(const String& FaceSetName) const
-{
-	auto it = m_MeshData->Map_FaceSetName_to_FaceSetIndex.find(FaceSetName);
-	if (it != m_MeshData->Map_FaceSetName_to_FaceSetIndex.end())
-	{
-		return m_MeshData->FaceSetList[it->second];
-	}
-	else
-	{
-		DenseVector<Handle_Of_Face_Of_PolygonMesh> EmptySet;
-		MDK_Error("Unknown FaceSetName: " << FaceSetName << " @ PolygonMesh::GetFaceSet()")
-		return EmptySet;
-	}
-}
-
-
-template<typename MeshAttributeType>
-ObjectArray<String> PolygonMesh<MeshAttributeType>::GetFaceSetName(MDK_Symbol_ALL&) const
-{
-	ObjectArray<String> NameList;
-	NameList.SetCapacity(m_MeshData->Map_FaceSetName_to_FaceSetIndex.size());
-	DenseVector<int_max> IndexList;
-	IndexList.SetCapacity(m_MeshData->Map_FaceSetName_to_FaceSetIndex.size());
-	for (auto it = m_MeshData->Map_FaceSetName_to_FaceSetIndex.begin(); it != m_MeshData->Map_FaceSetName_to_FaceSetIndex.end(); ++it)
-	{
-		NameList.Append(it->first);
-		IndexList.Append(it->second);
-	}
-	auto IndexList_sort = IndexList.Sort("ascend");
-	NameList = NameList.GetSubSet(IndexList_sort);
-	return NameList;
-}
-
-
-template<typename MeshAttributeType>
-ObjectArray<DenseVector<Handle_Of_Face_Of_PolygonMesh>> PolygonMesh<MeshAttributeType>::GetFaceSet(MDK_Symbol_ALL&) const
-{
-	ObjectArray<DenseVector<FaceHandleType>> FacSetList;
-	FacSetList = m_MeshData->FacSetList;
-	return FacSetList;
-}
 //------------------- Delete Mesh Item ----------------------------------------------------------------------------//
 
 template<typename MeshAttributeType>
-void PolygonMesh<MeshAttributeType>::DeleteFace(FaceHandleType FaceHandle)
+void PolygonMesh<MeshAttributeType>::DeleteFace(int_max FaceIndex)
 {
     // this function will delete each DirectedEdge of the Face, and modify any information related to the face
-    // FaceHandle and FaceID of the face become invalid after the face is deleted
+    // FaceIndex and FaceID of the face become invalid after the face is deleted
 
     // check input 
-    if (this->IsValidHandle(FaceHandle) == false)
+    if (this->IsValidFaceIndex(FaceIndex) == false)
     {
-        //MDK_Warning("Invalid FaceHandle @ PolygonMesh::DeleteFace(...)")
+        //MDK_Warning("Invalid FaceIndex @ PolygonMesh::DeleteFace(...)")
         return;
     }
 
-    //--------------------------------------------------------------------------------------
-    auto FaceIndex = FaceHandle.GetIndex();  
     this->UpdateRecord_DeleteFace(FaceIndex);
 }
 
 
 template<typename MeshAttributeType>
-void PolygonMesh<MeshAttributeType>::DeleteEdge(EdgeHandleType EdgeHandle)
+void PolygonMesh<MeshAttributeType>::DeleteEdge(int_max EdgeIndex)
 {    
-    if (this->IsValidHandle(EdgeHandle) == false)
+    if (this->IsValidEdgeIndex(EdgeIndex) == false)
     {
-        //MDK_Warning("Invalid EdgeHandle @ PolygonMesh::DeleteEdge(...)")
+        //MDK_Warning("Invalid EdgeIndex @ PolygonMesh::DeleteEdge(...)")
         return;
     }
     
-    auto EdgeIndex = EdgeHandle.GetIndex();
     auto AdjacentFaceCount = m_MeshData->EdgeList[EdgeIndex].GetAdjacentFaceCount();
     if (AdjacentFaceCount > 0)
     {
         MDK_Error("AdjacentFaceIndexList is not empty, so this edge can not be deleted @ PolygonMesh::DeleteEdge(...)")
         return;
     }
-    // -------------------------- input check is done -----------------------------------------------------
 
     this->UpdateRecord_DeleteEdge(EdgeIndex);
 }
 
 
 template<typename MeshAttributeType>
-void PolygonMesh<MeshAttributeType>::DeletePoint(PointHandleType PointHandle)
+void PolygonMesh<MeshAttributeType>::DeletePoint(int_max PointIndex)
 {
-    if (this->IsValidHandle(PointHandle) == false)
+    if (this->IsValidPointIndex(PointIndex) == false)
     {
-        //MDK_Warning("Invalid PointHandle @ PolygonMesh::DeletePoint(...)")
+        //MDK_Warning("Invalid PointIndex @ PolygonMesh::DeletePoint(...)")
         return;
     }
 
-    auto PointIndex = PointHandle.GetIndex();
     if (m_MeshData->PointList[PointIndex].IsOnEdge() == true)
     {
         MDK_Error("The point is on an edge, so it can not be deleted @ PolygonMesh::DeletePoint(...)")
         return;
     }
-	// -------------------------- input check is done -----------------------------------------------------
 
     this->UpdateRecord_DeletePoint(PointIndex);
 }
 
 
 template<typename MeshAttributeType>
-void PolygonMesh<MeshAttributeType>::DeletePoint(const DenseVector<PointHandleType>& PointHandleList)
+void PolygonMesh<MeshAttributeType>::DeletePoint(const DenseVector<int_max>& PointIndexList)
 {
-    if (PointHandleList.IsEmpty() == true)
+    if (PointIndexList.IsEmpty() == true)
     {
-        //MDK_Warning("PointHandleList is empty @ PolygonMesh::DeletePoint(...)")
+        //MDK_Warning("PointIndexList is empty @ PolygonMesh::DeletePoint(...)")
         return;
     }
 
-    for (int_max k = 0; k < PointHandleList.GetLength(); ++k)
+    for (int_max k = 0; k < PointIndexList.GetLength(); ++k)
     {
-		this->DeletePoint(PointHandleList[k]);
+		this->DeletePoint(PointIndexList[k]);
     }
 }
 
 //----------------- remove deleted item from Point/Edge/DirectedEdgeList/Face list ----------------------------------------------------------//
 // attention: 
-// after CleanDataStructure() is called, the size of each list will change, index and handle may become invalid,
+// after CleanDataStructure() is called, the size of each list will change, index may become invalid,
 // but every valid ID will still be valid
 // and there will be no "dead/deleted" item in any object list (e.g., m_MeshData->EdgeList)
-// Only use CleanDataStructure() if memory is an issue, when InvalidPointHandleCount/ValidPointCount( GetPointCount() ) > 0.5
+// Only use CleanDataStructure() if memory is an issue, when DeletedPointIndexCount/ValidPointCount( GetPointCount() ) > 0.5
 
 template<typename MeshAttributeType>
 void PolygonMesh<MeshAttributeType>::CleanDataStructure()
@@ -2764,18 +2791,32 @@ void PolygonMesh<MeshAttributeType>::CleanDataStructure(DenseVector<int_max>& Po
 	}
 
 	// update additional info
-	for (auto it = m_MeshData->Map_PointName_to_PointHandle.begin(); it != m_MeshData->Map_PointName_to_PointHandle.end(); ++it)
+	for (auto it = m_MeshData->Map_PointName_to_PointIndex.begin(); it != m_MeshData->Map_PointName_to_PointIndex.end(); ++it)
 	{
-		auto PointIndex_old = it->second.GetIndex();
-		auto PointIndex_new = PointIndexMap_Old_To_New[PointIndex_old];
-		it->second.SetIndex(PointIndex_new);
+		auto Index_old = it->second;
+		auto Index_new = PointIndexMap_Old_To_New[Index_old];
+		it->second = Index_new;
 	}
 
-	for (auto it = m_MeshData->Map_FaceName_to_FaceHandle.begin(); it != m_MeshData->Map_FaceName_to_FaceHandle.end(); ++it)
+	for (auto it = m_MeshData->Map_EdgeName_to_EdgeIndex.begin(); it != m_MeshData->Map_EdgeName_to_EdgeIndex.end(); ++it)
 	{
-		auto FaceIndex_old = it->second.GetIndex();
+		auto Index_old = it->second;
+		auto Index_new = EdgeIndexMap_Old_To_New[Index_old];
+		it->second = Index_new;
+	}
+
+	for (auto it = m_MeshData->Map_DirectedEdgeName_to_DirectedEdgeIndex.begin(); it != m_MeshData->Map_DirectedEdgeName_to_DirectedEdgeIndex.end(); ++it)
+	{
+		auto FaceIndex_old = it->second.FaceIndex;
 		auto FaceIndex_new = FaceIndexMap_Old_To_New[FaceIndex_old];
-		it->second.SetIndex(FaceIndex_new);
+		it->second.FaceIndex = FaceIndex_new;
+	}
+
+	for (auto it = m_MeshData->Map_FaceName_to_FaceIndex.begin(); it != m_MeshData->Map_FaceName_to_FaceIndex.end(); ++it)
+	{
+		auto Index_old = it->second;
+		auto Index_new = FaceIndexMap_Old_To_New[Index_old];
+		it->second = Index_new;
 	}
 
 	for (int_max k = 0; k < m_MeshData->PointSetList.GetLength(); ++k)
@@ -2783,9 +2824,20 @@ void PolygonMesh<MeshAttributeType>::CleanDataStructure(DenseVector<int_max>& Po
 		auto& PointSet_k = m_MeshData->PointSetList[k];
 		for (int_max n = 0; n < PointSet_k.GetLength(); ++n)
 		{
-			auto PointIndex_old = PointSet_k[n].GetIndex();
+			auto PointIndex_old = PointSet_k[n];
 			auto PointIndex_new = PointIndexMap_Old_To_New[PointIndex_old];
-			PointSet_k[n].SetIndex(PointIndex_new);
+			PointSet_k[n] = PointIndex_new;
+		}
+	}
+
+	for (int_max k = 0; k < m_MeshData->EdgeSetList.GetLength(); ++k)
+	{
+		auto& EdgeSet_k = m_MeshData->EdgeSetList[k];
+		for (int_max n = 0; n < EdgeSet_k.GetLength(); ++n)
+		{
+			auto EdgeIndex_old = EdgeSet_k[n];
+			auto EdgeIndex_new = EdgeIndexMap_Old_To_New[EdgeIndex_old];
+			EdgeSet_k[n] = EdgeIndex_new;
 		}
 	}
 
@@ -2794,9 +2846,9 @@ void PolygonMesh<MeshAttributeType>::CleanDataStructure(DenseVector<int_max>& Po
 		auto& FaceSet_k = m_MeshData->FaceSetList[k];
 		for (int_max n = 0; n < FaceSet_k.GetLength(); ++n)
 		{
-			auto FaceIndex_old = FaceSet_k[n].GetIndex();
+			auto FaceIndex_old = FaceSet_k[n];
 			auto FaceIndex_new = FaceIndexMap_Old_To_New[FaceIndex_old];
-			FaceSet_k[n].SetIndex(FaceIndex_new);
+			FaceSet_k[n] = FaceIndex_new;
 		}
 	}
 }
@@ -2856,21 +2908,21 @@ void PolygonMesh<MeshAttributeType>::Construct(DenseMatrix<ScalarType> InputPoin
 	//--------------------------------------------------------------------------------------------------
 	this->Clear(); // attribute will get lost
 
-	auto PointHandleList = this->AddPoint_batch(std::move(InputPointPositionMatrix));
+	auto PointIndexList = this->AddPoint_batch(std::move(InputPointPositionMatrix));
 
-	for (int_max k = 0; k < PointHandleList.GetLength(); ++k)
+	for (int_max k = 0; k < PointIndexList.GetLength(); ++k)
 	{
-		if (this->IsValidHandle(PointHandleList[k]) == false)
+		if (this->IsValidPointIndex(PointIndexList[k]) == false)
 		{
-			MDK_Error("Somthing is wrong with PointHandleList @ PolygonMesh::Construct(...)")
+			MDK_Error("Somthing is wrong with PointIndexList @ PolygonMesh::Construct(...)")
 			return;
 		}
 	}
 
 	for (int_max k = 0; k < InputFaceTable.GetLength(); ++k)
 	{
-		auto PointHandleList_k = PointHandleList.GetSubSet(InputFaceTable[k]);
-		this->AddFaceByPoint(PointHandleList_k);
+		auto PointIndexList_k = PointIndexList.GetSubSet(InputFaceTable[k]);
+		this->AddFaceByPoint(PointIndexList_k);
 	}
 }
 
@@ -2897,16 +2949,16 @@ GetPointPositionMatrixAndFaceTable(DenseMatrix<typename MeshAttributeType::Scala
 	PointPositionTable.FastResize(3, PointCount);
 	FaceTable.FastResize(FaceCount);
 
-	// Map PointIndex (PointHandle.GetIndex()) to OutputIndex (col index) in PointPositionTable
+	// Map PointIndex (PointIndex.GetIndex()) to OutputIndex (col index) in PointPositionTable
 	std::unordered_map<int_max, int_max> Map_PointIndex_to_OutputIndex;
 
 	int_max PointCounter = 0;
 
 	for (auto it = this->GetIteratorOfPoint(); it.IsNotEnd(); ++it)
 	{
-		auto PointHandle = it.GetPointHandle();
+		auto PointIndex = it.GetPointIndex();
 		it.Point().GetPosition(PointPositionTable.GetPointerOfCol(PointCounter));
-		Map_PointIndex_to_OutputIndex[PointHandle.GetIndex()] = PointCounter;
+		Map_PointIndex_to_OutputIndex[PointIndex] = PointCounter;
 		PointCounter += 1;
 	}
 
@@ -2914,11 +2966,11 @@ GetPointPositionMatrixAndFaceTable(DenseMatrix<typename MeshAttributeType::Scala
 
 	for (auto it = this->GetIteratorOfFace(); it.IsNotEnd(); ++it)
 	{
-		auto PointHandleList = it.Face().GetPointHandleList();
-		FaceTable[FaceCounter].FastResize(PointHandleList.GetLength());
-		for (int_max k = 0; k < PointHandleList.GetLength(); ++k)
+		auto PointIndexList = it.Face().GetPointIndexList();
+		FaceTable[FaceCounter].FastResize(PointIndexList.GetLength());
+		for (int_max k = 0; k < PointIndexList.GetLength(); ++k)
 		{
-			auto tempPointIndex = PointHandleList[k].GetIndex();
+			auto tempPointIndex = PointIndexList[k];
 			auto it_map = Map_PointIndex_to_OutputIndex.find(tempPointIndex);
 			if (it_map != Map_PointIndex_to_OutputIndex.end())
 			{
@@ -2944,8 +2996,8 @@ bool PolygonMesh<MeshAttributeType>::CheckIfTriangleMesh() const
 
 	for (auto it = this->GetIteratorOfFace(); it.IsNotEnd(); ++it)
 	{
-		auto FaceHandle = it.GetFaceHandle();
-		auto PointCount = this->Face(FaceHandle).GetPointCount();
+		auto FaceIndex = it.GetFaceIndex();
+		auto PointCount = this->Face(FaceIndex).GetPointCount();
 		if (PointCount != 3)
 		{
 			return false;
@@ -2955,15 +3007,15 @@ bool PolygonMesh<MeshAttributeType>::CheckIfTriangleMesh() const
 	return true;
 }
 
-//-------------------- get a sub mesh by FaceHandleList or FaceIDList -----------------------------------------//
+//-------------------- get a sub mesh by FaceIndexList  -----------------------------------------//
 
 template<typename MeshAttributeType>
 PolygonMesh<MeshAttributeType> 
-PolygonMesh<MeshAttributeType>::GetSubMeshByFace(const DenseVector<FaceHandleType>& FaceHandleList) const
+PolygonMesh<MeshAttributeType>::GetSubMeshByFace(const DenseVector<int_max>& FaceIndexList) const
 {
     PolygonMesh<MeshAttributeType> OutputMesh;
     
-    if (FaceHandleList.IsEmpty() == true)
+    if (FaceIndexList.IsEmpty() == true)
     {
         return OutputMesh;
     }
@@ -2974,11 +3026,11 @@ PolygonMesh<MeshAttributeType>::GetSubMeshByFace(const DenseVector<FaceHandleTyp
         return OutputMesh;
     }
 
-    for (int_max k = 0; k < FaceHandleList.GetLength(); ++k)
+    for (int_max k = 0; k < FaceIndexList.GetLength(); ++k)
     {
-        if (this->IsValidHandle(FaceHandleList[k]) == false)
+        if (this->IsValidFaceIndex(FaceIndexList[k]) == false)
         {
-            MDK_Error("FaceHandleList is invalid @ PolygonMesh::GetSubMeshByFace(...)")
+            MDK_Error("FaceIndexList is invalid @ PolygonMesh::GetSubMeshByFace(...)")
             return OutputMesh;
         }
     }
@@ -2995,86 +3047,109 @@ PolygonMesh<MeshAttributeType>::GetSubMeshByFace(const DenseVector<FaceHandleTyp
 	Map_EdgeIndex_OuputIndex.Fill(-1);
 
     // add face one by one
-    for (int_max k = 0; k < FaceHandleList.GetLength(); ++k)
+    for (int_max k = 0; k < FaceIndexList.GetLength(); ++k)
     {
-        auto FaceID_k = this->Face(FaceHandleList[k]).GetID();
-        const auto& FaceAttribute_k = this->Face(FaceHandleList[k]).Attribute();
-        auto PointHandleList_k = this->Face(FaceHandleList[k]).GetPointHandleList();
-        auto EdgeHandleList_k = this->Face(FaceHandleList[k]).GetEdgeHandleList();
-        auto DirectedEdgeHandleList_k = this->Face(FaceHandleList[k]).GetDirectedEdgeHandleList();
+        auto FaceID_k = this->Face(FaceIndexList[k]).GetID();
+		auto FaceName_k= this->Face(FaceIndexList[k]).GetName();
+        const auto& FaceAttribute_k = this->Face(FaceIndexList[k]).Attribute();
+        auto PointIndexList_k = this->Face(FaceIndexList[k]).GetPointIndexList();
+        auto EdgeIndexList_k = this->Face(FaceIndexList[k]).GetEdgeIndexList();
+        auto DirectedEdgeIndexList_k = this->Face(FaceIndexList[k]).GetDirectedEdgeIndexList();
 
         // add point
-        DenseVector<PointHandleType> PointHandleList_OutputFace;
-		PointHandleList_OutputFace.Resize(PointHandleList_k.GetLength());
-        for (int_max n = 0; n < PointHandleList_k.GetLength(); ++n)
+        DenseVector<int_max> PointIndexList_OutputFace;
+		PointIndexList_OutputFace.Resize(PointIndexList_k.GetLength());
+        for (int_max n = 0; n < PointIndexList_k.GetLength(); ++n)
         {
-            auto PointHandle_n = PointHandleList_k[n];
-            auto PointID_n = this->Point(PointHandle_n).GetID();
-            const auto& PointAttribute_n = this->Point(PointHandle_n).Attribute();            
-			auto Position_n = this->Point(PointHandle_n).GetPosition();
+            auto PointIndex_n = PointIndexList_k[n];
+            auto PointID_n = this->Point(PointIndex_n).GetID();
+			auto PointName_n = this->Point(PointIndex_n).GetName();
+            const auto& PointAttribute_n = this->Point(PointIndex_n).Attribute();
+			auto Position_n = this->Point(PointIndex_n).GetPosition();
 
             // check if the point has already been added to OutputMesh			
-			if (Map_PointIndex_OuputIndex[PointHandle_n.GetIndex()] < 0)
+			if (Map_PointIndex_OuputIndex[PointIndex_n] < 0)
             {        
                 // add Point Position
-				PointHandleList_OutputFace[n] = OutputMesh.AddPoint(Position_n);
+				PointIndexList_OutputFace[n] = OutputMesh.AddPoint(Position_n);
                 // copy PointID if it is valid
                 if (PointID_n >= 0)
                 {
-					OutputMesh.Point(PointHandleList_OutputFace[n]).SetID(PointID_n);
+					OutputMesh.Point(PointIndexList_OutputFace[n]).SetID(PointID_n);
                 }
+				// copy PointName if it is valid
+				if (PointName_n.IsEmpty() == false)
+				{
+					OutputMesh.Point(PointIndexList_OutputFace[n]).SetName(PointName_n);
+				}
                 // copy Attribute
-				OutputMesh.Point(PointHandleList_OutputFace[n]).Attribute() = PointAttribute_n;
+				OutputMesh.Point(PointIndexList_OutputFace[n]).Attribute() = PointAttribute_n;
                 // add point to map
-				Map_PointIndex_OuputIndex[PointHandle_n.GetIndex()] = PointHandleList_OutputFace[n].GetIndex();
+				Map_PointIndex_OuputIndex[PointIndex_n] = PointIndexList_OutputFace[n];
             }
             else
             {
-				PointHandleList_OutputFace[n].SetIndex(Map_PointIndex_OuputIndex[PointHandle_n.GetIndex()]);
+				PointIndexList_OutputFace[n] = Map_PointIndex_OuputIndex[PointIndex_n];
             }
         }
 
         // add face
-		auto FaceHandle_Output = OutputMesh.AddFaceByPoint(PointHandleList_OutputFace);
+		auto FaceIndex_Output = OutputMesh.AddFaceByPoint(PointIndexList_OutputFace);
         // copy face ID if it is valid
         if (FaceID_k >= 0)
         {
-			OutputMesh.Face(FaceHandle_Output).SetID(FaceID_k);
+			OutputMesh.Face(FaceIndex_Output).SetID(FaceID_k);
         }
+		// copy face Name if it is valid
+		if (FaceName_k.IsEmpty() == false)
+		{
+			OutputMesh.Face(FaceIndex_Output).SetName(FaceName_k);
+		}
         // copy Attribute
-		OutputMesh.Face(FaceHandle_Output).Attribute() = FaceAttribute_k;
+		OutputMesh.Face(FaceIndex_Output).Attribute() = FaceAttribute_k;
 
-        // copy Edge ID and Attribute
-		auto EdgeHandleList_Output = OutputMesh.Face(FaceHandle_Output).GetEdgeHandleList();
-        for (int_max n = 0; n < EdgeHandleList_k.GetLength(); ++n)
+        // copy Edge ID, Name and Attribute
+		auto EdgeIndexList_Output = OutputMesh.Face(FaceIndex_Output).GetEdgeIndexList();
+        for (int_max n = 0; n < EdgeIndexList_k.GetLength(); ++n)
         {
             // check if the edge has already been added to OutputMesh			
-			if (Map_EdgeIndex_OuputIndex[EdgeHandleList_k[n].GetIndex()] < 0)
+			if (Map_EdgeIndex_OuputIndex[EdgeIndexList_k[n].GetIndex()] < 0)
             {
-                auto EdgeID_n = this->Edge(EdgeHandleList_k[n]).GetID();             
+                auto EdgeID_n = this->Edge(EdgeIndexList_k[n]).GetID();             
                 if (EdgeID_n >= 0)
                 {
-					OutputMesh.Edge(EdgeHandleList_Output[n]).SetID(EdgeID_n);
+					OutputMesh.Edge(EdgeIndexList_Output[n]).SetID(EdgeID_n);
                 }
 
-				const auto& EdgeAttribute_n = this->Edge(EdgeHandleList_k[n]).Attribute();
-				OutputMesh.Edge(EdgeHandleList_Output[n]).Attribute() = EdgeAttribute_n;
+				auto EdgeName_n = this->Edge(EdgeIndexList_k[n]).GetName();
+				if (EdgeName_n.IsEmpty() == false)
+				{
+					OutputMesh.Edge(EdgeIndexList_Output[n]).SetName(EdgeName_n);
+				}
 
-				Map_EdgeIndex_OuputIndex[EdgeHandleList_k[n].GetIndex()] = EdgeHandleList_Output[n].GetIndex();
+				const auto& EdgeAttribute_n = this->Edge(EdgeIndexList_k[n]).Attribute();
+				OutputMesh.Edge(EdgeIndexList_Output[n]).Attribute() = EdgeAttribute_n;
+
+				Map_EdgeIndex_OuputIndex[EdgeIndexList_k[n]] = EdgeIndexList_Output[n];
             }
         }
 
-        // copy DirectedEdge ID and Attribute
-        auto DirectedEdgeHandleList_Output = OutputMesh.Face(FaceHandle_Output).GetDirectedEdgeHandleList();
-        for (int_max n = 0; n < DirectedEdgeHandleList_k.GetLength(); ++n)
+        // copy DirectedEdge ID, Name and Attribute
+        auto DirectedEdgeIndexList_Output = OutputMesh.Face(FaceIndex_Output).GetDirectedEdgeIndexList();
+        for (int_max n = 0; n < DirectedEdgeIndexList_k.GetLength(); ++n)
         {
-            auto DirectedEdgeID_n = this->DirectedEdge(DirectedEdgeHandleList_k[n]).GetID();
+            auto DirectedEdgeID_n = this->DirectedEdge(DirectedEdgeIndexList_k[n]).GetID();
             if (DirectedEdgeID_n >= 0)
             {
-				OutputMesh.DirectedEdge(DirectedEdgeHandleList_Output[n]).SetID(DirectedEdgeID_n);
+				OutputMesh.DirectedEdge(DirectedEdgeIndexList_Output[n]).SetID(DirectedEdgeID_n);
             }
-			const auto& DirectedEdgeAttribute_n = this->DirectedEdge(DirectedEdgeHandleList_k[n]).Attribute();
-			OutputMesh.DirectedEdge(DirectedEdgeHandleList_Output[n]).Attribute() = DirectedEdgeAttribute_n;
+			auto DirectedEdgeName_n = this->DirectedEdge(DirectedEdgeIndexList_k[n]).GetName();
+			if (DirectedEdgeName_n.IsEmpty() == false)
+			{
+				OutputMesh.DirectedEdge(DirectedEdgeIndexList_Output[n]).SetName(DirectedEdgeName_n);
+			}
+			const auto& DirectedEdgeAttribute_n = this->DirectedEdge(DirectedEdgeIndexList_k[n]).Attribute();
+			OutputMesh.DirectedEdge(DirectedEdgeIndexList_Output[n]).Attribute() = DirectedEdgeAttribute_n;
         }
     }
 
@@ -3085,15 +3160,15 @@ PolygonMesh<MeshAttributeType>::GetSubMeshByFace(const DenseVector<FaceHandleTyp
 // other basic operation ----------------------------------------------------------------------------------------
 
 template<typename MeshAttributeType>
-void PolygonMesh<MeshAttributeType>::ReversePointOrderOfFace(FaceHandleType FaceHandle)
+void PolygonMesh<MeshAttributeType>::ReversePointOrderOfFace(int_max FaceIndex)
 {
-	if (this->IsValidHandle(FaceHandle) == false)
+	if (this->IsValidFaceIndex(FaceIndex) == false)
 	{
-		MDK_Error("Invalid FaceHandle @ PolygonMesh::ReversePointOrderOfFace(...)")
+		MDK_Error("Invalid FaceIndex @ PolygonMesh::ReversePointOrderOfFace(...)")
 		return;
 	}
 	
-	auto&  DirectedEdgeList = m_MeshData->FaceList[FaceHandle.GetIndex()].DirectedEdgeList();
+	auto&  DirectedEdgeList = m_MeshData->FaceList[FaceIndex].DirectedEdgeList();
 	for (int_max k = 0; k < DirectedEdgeList.GetLength(); ++k)
 	{
 		auto PointIndex_start = DirectedEdgeList[k].GetStartPointIndex();
@@ -3129,50 +3204,48 @@ void PolygonMesh<MeshAttributeType>::ReversePointOrderOfFace(FaceHandleType Face
 
 
 template<typename MeshAttributeType>
-bool PolygonMesh<MeshAttributeType>::SwapPoint(PointHandleType PointHandleA, PointHandleType PointHandleB)
+bool PolygonMesh<MeshAttributeType>::SwapPoint(int_max PointIndexA, int_max PointIndexB)
 {
-	if (PointHandleA == PointHandleB)
+	if (PointIndexA == PointIndexB)
 	{
 		return true;
 	}
 
-	if (this->IsValidHandle(PointHandleA) == false || this->IsValidHandle(PointHandleB) == false)
+	if (this->IsValidPointIndex(PointIndexA) == false || this->IsValidPointIndex(PointIndexB) == false)
 	{
-		MDK_Error("Invalid PointHandle @ PolygonMesh::SwapPoint(...)")
+		MDK_Error("Invalid PointIndex @ PolygonMesh::SwapPoint(...)")
 		return false;
 	}
 
 	//swap Position
-	auto PositionA = m_MeshData->PointList[PointHandleA.GetIndex()].GetPosition();
-	auto PositionB = m_MeshData->PointList[PointHandleB.GetIndex()].GetPosition();
-	m_MeshData->PointList[PointHandleA.GetIndex()].SetPosition(PositionB);
-	m_MeshData->PointList[PointHandleB.GetIndex()].SetPosition(PositionA);
+	auto PositionA = m_MeshData->PointList[PointIndexA].GetPosition();
+	auto PositionB = m_MeshData->PointList[PointIndexB].GetPosition();
+	m_MeshData->PointList[PointIndexA].SetPosition(PositionB);
+	m_MeshData->PointList[PointIndexB].SetPosition(PositionA);
 
-	return this->SwapConnectivityOfPoint(PointHandleA, PointHandleB);
+	return this->SwapConnectivityOfPoint(PointIndexA, PointIndexB);
 }
 
 
 template<typename MeshAttributeType>
-bool PolygonMesh<MeshAttributeType>::SwapConnectivityOfPoint(PointHandleType PointHandleA, PointHandleType PointHandleB)
+bool PolygonMesh<MeshAttributeType>::SwapConnectivityOfPoint(int_max PointIndexA, int_max PointIndexB)
 {
-	if (PointHandleA == PointHandleB)
+	if (PointIndexA == PointIndexB)
 	{
 		return true;
 	}
 
-	if (this->IsValidHandle(PointHandleA) == false || this->IsValidHandle(PointHandleB) == false)
+	if (this->IsValidPointIndex(PointIndexA) == false || this->IsValidPointIndex(PointIndexB) == false)
 	{
-		MDK_Error("Invalid PointHandle @ PolygonMesh::SwapConnectivityOfPoint(...)")
+		MDK_Error("Invalid PointIndex @ PolygonMesh::SwapConnectivityOfPoint(...)")
 		return false;
 	}
 
-	auto PointIndexA = PointHandleA.GetIndex();	
 	const auto& AdjacentPointIndexListA = m_MeshData->PointList[PointIndexA].GetAdjacentPointIndexList();
 	auto& AdjacentEdgeIndexListA = m_MeshData->PointList[PointIndexA].AdjacentEdgeIndexList();//to be updated
 	auto OutgoingDirectedEdgeIndexListA = m_MeshData->PointList[PointIndexA].GetOutgoingDirectedEdgeIndexList();
 	auto IncomingDirectedEdgeIndexListA = m_MeshData->PointList[PointIndexA].GetIncomingDirectedEdgeIndexList();
 
-	auto PointIndexB = PointHandleB.GetIndex();
 	const auto& AdjacentPointIndexListB = m_MeshData->PointList[PointIndexB].GetAdjacentPointIndexList();
 	auto& AdjacentEdgeIndexListB = m_MeshData->PointList[PointIndexB].AdjacentEdgeIndexList();//to be updated
 	auto OutgoingDirectedEdgeIndexListB = m_MeshData->PointList[PointIndexB].GetOutgoingDirectedEdgeIndexList();
@@ -3268,7 +3341,7 @@ bool PolygonMesh<MeshAttributeType>::SwapConnectivityOfPoint(PointHandleType Poi
 
 
 template<typename MeshAttributeType>
-bool PolygonMesh<MeshAttributeType>::MergeConnectivityOfPoint(PointHandleType PointHandleA, PointHandleType PointHandleB)
+bool PolygonMesh<MeshAttributeType>::MergeConnectivityOfPoint(int_max PointIndexA, int_max PointIndexB)
 {// merge connection of B to connection of A, B become isolated
 	//-------------------------
 	//   \         /
@@ -3280,28 +3353,23 @@ bool PolygonMesh<MeshAttributeType>::MergeConnectivityOfPoint(PointHandleType Po
 	//   / \     
     //-------------------------
 
-	if (PointHandleA == PointHandleB)
+	if (PointIndexA == PointIndexB)
 	{
 		return true;
 	}
 
-	Handle_Of_Point_Of_PolygonMesh PointHandle_output;
-
-	if (this->IsValidHandle(PointHandleA) == false || this->IsValidHandle(PointHandleB) == false)
+	if (this->IsValidPointIndex(PointIndexA) == false || this->IsValidPointIndex(PointIndexB) == false)
 	{
-		MDK_Error("Invalid PointHandle @ PolygonMesh::MergePoint(...)")		
+		MDK_Error("Invalid PointIndex @ PolygonMesh::MergePoint(...)")		
 		return false;
 	}
 
-	auto PointIndexA = PointHandleA.GetIndex();
-	auto PointIndexB = PointHandleB.GetIndex();
-
 	//------- delete Edge AB if it exist --------------------------------------------------------------------
 
-	auto EdgeHandle_AB = this->GetEdgeHandleByPoint(PointHandleA, PointHandleB);
-	if (EdgeHandle_AB.GetIndex() >= 0)
-	{// remove DirectedEdge on EdgeHandle_AB
-		auto AdjacentFaceIndexList_AB = m_MeshData->EdgeList[EdgeHandle_AB.GetIndex()].GetAdjacentFaceIndexList();
+	auto EdgeIndex_AB = this->GetEdgeIndexByPoint(PointIndexA, PointIndexB);
+	if (EdgeIndex_AB >= 0)
+	{// remove DirectedEdge on EdgeIndex_AB
+		auto AdjacentFaceIndexList_AB = m_MeshData->EdgeList[EdgeIndex_AB].GetAdjacentFaceIndexList();
 		for (int_max k = 0; k < AdjacentFaceIndexList_AB.GetLength(); ++k)
 		{
 			auto FaceIndex_k = AdjacentFaceIndexList_AB[k];
@@ -3312,7 +3380,7 @@ bool PolygonMesh<MeshAttributeType>::MergeConnectivityOfPoint(PointHandleType Po
 				int_max RelativeIndex_delete = -1;
 				for (int_max n = 0; n < DirectedEdgeList_k.GetLength(); ++n)
 				{
-					if (DirectedEdgeList_k[n].GetEdgeIndex() == EdgeHandle_AB.GetIndex())
+					if (DirectedEdgeList_k[n].GetEdgeIndex() == EdgeIndex_AB)
 					{
 						RelativeIndex_delete = n;
 						break;
@@ -3330,9 +3398,9 @@ bool PolygonMesh<MeshAttributeType>::MergeConnectivityOfPoint(PointHandleType Po
 	}
 
 	// delete edge AB if it exist
-	if (EdgeHandle_AB.GetIndex() >= 0)
+	if (EdgeIndex_AB >= 0)
 	{
-		this->UpdateRecord_DeleteEdge(EdgeHandle_AB.GetIndex());
+		this->UpdateRecord_DeleteEdge(EdgeIndex_AB);
 	}
 
 	//-------------------------- Merge connection of B to connection of A ------------------------------------
@@ -3372,7 +3440,7 @@ bool PolygonMesh<MeshAttributeType>::MergeConnectivityOfPoint(PointHandleType Po
 	//update adjacency info of A
 	auto& AdjacentEdgeIndexListA = m_MeshData->PointList[PointIndexA].AdjacentEdgeIndexList();//to be updated
 	AdjacentEdgeIndexListA = { &AdjacentEdgeIndexListA, &AdjacentEdgeIndexListB };
-	auto tempIndexList_edge_delete = AdjacentEdgeIndexListA.ExactMatch(EdgeHandle_AB.GetIndex());
+	auto tempIndexList_edge_delete = AdjacentEdgeIndexListA.ExactMatch(EdgeIndex_AB);
 	AdjacentEdgeIndexListA.Delete(tempIndexList_edge_delete);
 
 	//delete any adjacency info of B
@@ -3384,33 +3452,33 @@ bool PolygonMesh<MeshAttributeType>::MergeConnectivityOfPoint(PointHandleType Po
 
 
 template<typename MeshAttributeType>
-bool PolygonMesh<MeshAttributeType>::ShrinkEdgeToPoint(EdgeHandleType EdgeHandle, PointHandleType PointHandle)
+bool PolygonMesh<MeshAttributeType>::ShrinkEdgeToPoint(int_max EdgeIndex, int_max PointIndex)
 {
-	if (this->IsValidHandle(EdgeHandle) == false)
+	if (this->IsValidEdgeIndex(EdgeIndex) == false)
 	{
-		MDK_Error("Invalid EdgeHandle @ PolygonMesh::ShrinkEdgeToPoint(...)")		
+		MDK_Error("Invalid EdgeIndex @ PolygonMesh::ShrinkEdgeToPoint(...)")		
 		return false;
 	}
 
-	if (this->IsValidHandle(PointHandle) == false)
+	if (this->IsValidPointIndex(PointIndex) == false)
 	{
-		MDK_Error("Invalid PointHandle @ PolygonMesh::ShrinkEdgeToPoint(...)")		
+		MDK_Error("Invalid PointIndex @ PolygonMesh::ShrinkEdgeToPoint(...)")		
 		return false;
 	}
 
-	auto PointHandleList = m_MeshData->EdgeList[EdgeHandle.GetIndex()].GetPointHandleList();
-	if (PointHandleList[0] == PointHandle)
+	auto PointIndexList = m_MeshData->EdgeList[EdgeIndex].GetPointIndexList();
+	if (PointIndexList[0] == PointIndex)
 	{
-		this->MergeConnectivityOfPoint(PointHandleList[0], PointHandleList[1]);
+		this->MergeConnectivityOfPoint(PointIndexList[0], PointIndexList[1]);
 	}
-	else if (PointHandleList[1] == PointHandle)
+	else if (PointIndexList[1] == PointIndex)
 	{
-		this->MergeConnectivityOfPoint(PointHandleList[1], PointHandleList[0]);
+		this->MergeConnectivityOfPoint(PointIndexList[1], PointIndexList[0]);
 	}
 	else
 	{
-		this->MergeConnectivityOfPoint(PointHandleList[0], PointHandleList[1]);
-		this->SwapConnectivityOfPoint(PointHandleList[0], PointHandle);
+		this->MergeConnectivityOfPoint(PointIndexList[0], PointIndexList[1]);
+		this->SwapConnectivityOfPoint(PointIndexList[0], PointIndex);
 	}
 	//-------------------
 	return true;
@@ -3418,28 +3486,28 @@ bool PolygonMesh<MeshAttributeType>::ShrinkEdgeToPoint(EdgeHandleType EdgeHandle
 
 
 template<typename MeshAttributeType>
-DenseVector<Handle_Of_Edge_Of_PolygonMesh, 2> PolygonMesh<MeshAttributeType>::SplitEdgeByPoint(EdgeHandleType EdgeHandle, PointHandleType PointHandle)
+DenseVector<int_max, 2> PolygonMesh<MeshAttributeType>::SplitEdgeByPoint(int_max EdgeIndex, int_max PointIndex)
 {
-	DenseVector<EdgeHandleType, 2> EdgeHandlePair;
-	EdgeHandlePair[0].SetToInvalid();
-	EdgeHandlePair[1].SetToInvalid();
+	DenseVector<int_max, 2> EdgeIndexPair;
+	EdgeIndexPair[0] = -1;
+	EdgeIndexPair[1] = -1;
 
-    if (this->IsValidHandle(PointHandle) == false)
-    {
-		MDK_Error("Invalid PointHandle @ PolygonMesh::SplitEdgeByPoint(...)")      
-		return EdgeHandlePair;
-    }
-
-	if (this->IsValidHandle(EdgeHandle) == false)
+	if (this->IsValidEdgeIndex(EdgeIndex) == false)
 	{
-		MDK_Error("Invalid EdgeHandle @ PolygonMesh::SplitEdgeByPoint(...)")
-		return EdgeHandlePair;
+		MDK_Error("Invalid EdgeIndex @ PolygonMesh::SplitEdgeByPoint(...)")
+		return EdgeIndexPair;
 	}
 
-	auto PointIndexList = m_MeshData->EdgeList[EdgeHandle.GetIndex()].GetPointIndexList();
+	if (this->IsValidPointIndex(PointIndex) == false)
+	{
+		MDK_Error("Invalid PointIndex @ PolygonMesh::SplitEdgeByPoint(...)")
+		return EdgeIndexPair;
+	}
+
+	auto PointIndexList = m_MeshData->EdgeList[EdgeIndex].GetPointIndexList();
 	auto PointIndex0 = PointIndexList[0];
 	auto PointIndex1 = PointIndexList[1];
-	auto PointIndex2 = PointHandle.GetIndex();
+	auto PointIndex2 = PointIndex;
 	//-------------------------
 	//   \          /
     // ---P0---P2--P1---
@@ -3449,24 +3517,19 @@ DenseVector<Handle_Of_Edge_Of_PolygonMesh, 2> PolygonMesh<MeshAttributeType>::Sp
 	if (PointIndex2 == PointIndex0 || PointIndex2 == PointIndex1)
 	{
 		MDK_Error("Input Point is on Edge  @ PolygonMesh::SplitEdgeByPoint(...)")
-		return EdgeHandlePair;
+		return EdgeIndexPair;
 	}
 
 	//------------------------- input check is done --------------------------------------------//
 
-	PointHandleType PointHandle0, PointHandle1, PointHandle2;
-	PointHandle0.SetIndex(PointIndex0);
-	PointHandle1.SetIndex(PointIndex1);
-	PointHandle2.SetIndex(PointIndex2);
+	auto EdgeIndex01 = EdgeIndex;
+	auto EdgeIndex02 = this->AddEdge(PointIndex0, PointIndex2);
+	auto EdgeIndex21 = this->AddEdge(PointIndex2, PointIndex1);
 
-	auto EdgeHandle01 = EdgeHandle;
-	auto EdgeHandle02 = this->AddEdge(PointHandle0, PointHandle2);
-	auto EdgeHandle21 = this->AddEdge(PointHandle2, PointHandle1);
-
-	auto DirectedEdgeHandleList01 = this->GetDirectedEdgeHandleListByPoint(PointHandle0, PointHandle1);
-	for (int_max k = 0; k < DirectedEdgeHandleList01.GetLength(); ++k)
+	auto DirectedEdgeIndexList01 = this->GetDirectedEdgeIndexListByPoint(PointIndex0, PointIndex1);
+	for (int_max k = 0; k < DirectedEdgeIndexList01.GetLength(); ++k)
 	{
-		auto DirectedEdgeIndex01_k = DirectedEdgeHandleList01[k].GetIndex();
+		auto DirectedEdgeIndex01_k = DirectedEdgeIndexList01[k];
 		auto FaceIndex_k = DirectedEdgeIndex01_k.FaceIndex;
 		auto& DirectedEdgeList_k = m_MeshData->FaceList[FaceIndex_k].DirectedEdgeList();			
 		
@@ -3484,13 +3547,13 @@ DenseVector<Handle_Of_Edge_Of_PolygonMesh, 2> PolygonMesh<MeshAttributeType>::Sp
 		//
 		DirectedEdge02.SetParentMesh(*this);
 		DirectedEdge02.SetIndex(DirectedEdgeIndex02);
-		DirectedEdge02.SetEdgeIndex(EdgeHandle02.GetIndex());
+		DirectedEdge02.SetEdgeIndex(EdgeIndex02);
 		DirectedEdge02.SetStartPointIndex(PointIndex0);
 		DirectedEdge02.SetEndPointIndex(PointIndex2);	
 		//
 		DirectedEdge21.SetParentMesh(*this);
 		DirectedEdge21.SetIndex(DirectedEdgeIndex21);
-		DirectedEdge21.SetEdgeIndex(EdgeHandle21.GetIndex());
+		DirectedEdge21.SetEdgeIndex(EdgeIndex21);
 		DirectedEdge21.SetStartPointIndex(PointIndex2);
 		DirectedEdge21.SetEndPointIndex(PointIndex1);
 		//
@@ -3498,10 +3561,10 @@ DenseVector<Handle_Of_Edge_Of_PolygonMesh, 2> PolygonMesh<MeshAttributeType>::Sp
 		this->UpdateRecord_InsertDirectedEdge(std::move(DirectedEdge21));
 	}
 
-	auto DirectedEdgeHandleList_P1P0 = this->GetDirectedEdgeHandleListByPoint(PointHandle1, PointHandle0);
-	for (int_max k = 0; k < DirectedEdgeHandleList_P1P0.GetLength(); ++k)
+	auto DirectedEdgeIndexList_P1P0 = this->GetDirectedEdgeIndexListByPoint(PointIndex1, PointIndex0);
+	for (int_max k = 0; k < DirectedEdgeIndexList_P1P0.GetLength(); ++k)
 	{
-		auto DirectedEdgeIndex10_k = DirectedEdgeHandleList01[k].GetIndex();
+		auto DirectedEdgeIndex10_k = DirectedEdgeIndexList01[k];
 		auto FaceIndex_k = DirectedEdgeIndex10_k.FaceIndex;
 		auto& DirectedEdgeList_k = m_MeshData->FaceList[FaceIndex_k].DirectedEdgeList();
 
@@ -3519,13 +3582,13 @@ DenseVector<Handle_Of_Edge_Of_PolygonMesh, 2> PolygonMesh<MeshAttributeType>::Sp
 		//
 		DirectedEdge12.SetParentMesh(*this);
 		DirectedEdge12.SetIndex(DirectedEdgeIndex12);
-		DirectedEdge12.SetEdgeIndex(EdgeHandle21.GetIndex());
+		DirectedEdge12.SetEdgeIndex(EdgeIndex21);
 		DirectedEdge12.SetStartPointIndex(PointIndex1);
 		DirectedEdge12.SetEndPointIndex(PointIndex2);
 		//
 		DirectedEdge20.SetParentMesh(*this);
 		DirectedEdge20.SetIndex(DirectedEdgeIndex20);
-		DirectedEdge20.SetEdgeIndex(EdgeHandle02.GetIndex());
+		DirectedEdge20.SetEdgeIndex(EdgeIndex02);
 		DirectedEdge20.SetStartPointIndex(PointIndex2);
 		DirectedEdge20.SetEndPointIndex(PointIndex0);
 		//
@@ -3534,53 +3597,53 @@ DenseVector<Handle_Of_Edge_Of_PolygonMesh, 2> PolygonMesh<MeshAttributeType>::Sp
 	}
 
 	// delete edge P0P1
-	this->UpdateRecord_DeleteEdge(EdgeHandle01.GetIndex());
+	this->UpdateRecord_DeleteEdge(EdgeIndex01);
 
 	//-------------------------------------------------------------------------
-	EdgeHandlePair[0] = EdgeHandle02;
-	EdgeHandlePair[1] = EdgeHandle21;
-	return EdgeHandlePair;
+	EdgeIndexPair[0] = EdgeIndex02;
+	EdgeIndexPair[1] = EdgeIndex21;
+	return EdgeIndexPair;
 }
 
 
 template<typename MeshAttributeType>
-bool PolygonMesh<MeshAttributeType>::ShrinkFaceToPoint(FaceHandleType FaceHandle, PointHandleType PointHandle)
+bool PolygonMesh<MeshAttributeType>::ShrinkFaceToPoint(int_max FaceIndex, int_max PointIndex)
 {
-	if (this->IsValidHandle(FaceHandle) == false)
+	if (this->IsValidFaceIndex(FaceIndex) == false)
 	{
-		MDK_Error("Invalid FaceHandle @ PolygonMesh::ShrinkFaceToPoint(...)")		
+		MDK_Error("Invalid FaceIndex @ PolygonMesh::ShrinkFaceToPoint(...)")		
 		return false;
 	}
 
-	if (this->IsValidHandle(PointHandle) == false)
+	if (this->IsValidPointIndex(PointIndex) == false)
 	{
-		MDK_Error("Invalid PointHandle @ PolygonMesh::ShrinkFaceToPoint(...)")
+		MDK_Error("Invalid PointIndex @ PolygonMesh::ShrinkFaceToPoint(...)")
 		return false;
 	}
 
-	auto PointHandleList = m_MeshData->FaceList[FaceHandle.GetIndex()].GetPointHandleList();
+	auto PointIndexList = m_MeshData->FaceList[FaceIndex].GetPointIndexList();
 	
-	this->DeleteFace(FaceHandle);
+	this->DeleteFace(FaceIndex);
 
-	auto tempIndex = PointHandleList.ExactMatch("first", PointHandle);
+	auto tempIndex = PointIndexList.ExactMatch("first", PointIndex);
 	if (tempIndex >= 0)
 	{
-		for (int_max k = 0; k < PointHandleList.GetLength(); ++k)
+		for (int_max k = 0; k < PointIndexList.GetLength(); ++k)
 		{
 			if (k != tempIndex)
 			{
-				this->MergeConnectivityOfPoint(PointHandleList[tempIndex], PointHandleList[k]);
+				this->MergeConnectivityOfPoint(PointIndexList[tempIndex], PointIndexList[k]);
 			}
 		}
 	}
 	else
 	{
-		for (int_max k = 1; k < PointHandleList.GetLength(); ++k)
+		for (int_max k = 1; k < PointIndexList.GetLength(); ++k)
 		{
-			this->MergeConnectivityOfPoint(PointHandleList[0], PointHandleList[k]);
+			this->MergeConnectivityOfPoint(PointIndexList[0], PointIndexList[k]);
 		}
 
-		this->SwapConnectivityOfPoint(PointHandleList[0], PointHandle);
+		this->SwapConnectivityOfPoint(PointIndexList[0], PointIndex);
 	}
 	//--------------------------------
 	return true;
@@ -3589,213 +3652,17 @@ bool PolygonMesh<MeshAttributeType>::ShrinkFaceToPoint(FaceHandleType FaceHandle
 
 /*
 template<typename MeshAttributeType>
-Handle_Of_Face_Of_PolygonMesh PolygonMesh<MeshAttributeType>::MergeAdjacentFace(FaceHandleType FaceHandleA, FaceHandleType FaceHandleB)
+int_max PolygonMesh<MeshAttributeType>::MergeAdjacentFace(int_max FaceIndexA, int_max FaceIndexB)
 {
 
 }
 */
 /*
 template<typename MeshAttributeType>
-DenseVector<Handle_Of_Face_Of_PolygonMesh, 2> PolygonMesh<MeshAttributeType>::SplitFaceByEdge(EdgeHandleType EdgeHandle)
-{
-}
-
-template<typename MeshAttributeType>
-DenseVector<Handle_Of_Face_Of_PolygonMesh, 2> PolygonMesh<MeshAttributeType>::SplitFaceByEdge(int_max EdgeID)
+DenseVector<int_max, 2> PolygonMesh<MeshAttributeType>::SplitFaceByEdge(int_max EdgeIndex)
 {
 }
 */
-
-template<typename MeshAttributeType>
-template<typename ElementType>
-DenseVector<ElementType> PolygonMesh<MeshAttributeType>::Intersect(const DenseVector<ElementType>& SetA, const DenseVector<ElementType>& SetB) const
-{
-	DenseVector<ElementType> SetC;
-
-	if (SetA.IsEmpty() == true || SetB.IsEmpty() == true)
-	{
-		return SetC;
-	}
-
-	SetC.SetCapacity(std::min(SetA.GetLength(), SetB.GetLength()));
-
-	for (int_max k = 0; k < SetA.GetLength(); ++k)
-	{
-		for (int_max n = 0; n < SetB.GetLength(); ++n)
-		{
-			if (SetA[k] == SetB[n])
-			{
-				SetC.Append(SetA[k]);
-			}
-		}
-	}
-	return SetC;
-}
-
-
-template<typename MeshAttributeType>
-template<typename ElementType>
-DenseVector<ElementType> PolygonMesh<MeshAttributeType>::SetDiff(const DenseVector<ElementType>& SetA, const DenseVector<ElementType>& SetB) const
-{// in A, NOT in B
-
-	if (SetB.IsEmpty() == true)
-	{
-		return SetA;
-	}
-
-	DenseVector<ElementType> SetC;
-	SetC.SetCapacity(SetA.GetLength());
-
-	for (int_max k = 0; k < SetA.GetLength(); ++k)
-	{
-		bool Flag = false;
-		for (int_max n = 0; n < SetB.GetLength(); ++n)
-		{
-			if (SetA[k] == SetB[n])
-			{
-				Flag = true;
-				break;
-			}
-		}
-		if (Flag == false)
-		{
-			SetC.Append(SetA[k]);
-		}
-	}
-	return SetC;
-}
-
-
-template<typename MeshAttributeType>
-template<typename HandleType>
-inline HandleType PolygonMesh<MeshAttributeType>::ConvertIndexToHandle(int_max Index) const
-{
-	HandleType Handle;
-	Handle.SetIndex(Index);
-	return Handle;
-}
-
-
-template<typename MeshAttributeType>
-template<typename HandleType>
-DenseVector<HandleType> PolygonMesh<MeshAttributeType>::ConvertIndexToHandle(const DenseVector<int_max>& IndexList) const
-{
-	DenseVector<HandleType> HandleList;
-	HandleList.Resize(IndexList.GetLength());
-	for (int_max k = 0; k < IndexList.GetLength(); ++k)
-	{
-		HandleList[k].SetIndex(IndexList[k]);
-	}
-	return HandleList;
-}
-
-
-template<typename MeshAttributeType>
-inline
-Handle_Of_Point_Of_PolygonMesh PolygonMesh<MeshAttributeType>::ConvertPointIndexToPointHandle(int_max PointIndex) const
-{
-	return this->ConvertIndexToHandle<Handle_Of_Point_Of_PolygonMesh>(PointIndex);
-}
-
-
-template<typename MeshAttributeType>
-DenseVector<Handle_Of_Point_Of_PolygonMesh> PolygonMesh<MeshAttributeType>::ConvertPointIndexToPointHandle(const DenseVector<int_max>& PointIndexList) const
-{
-	return this->ConvertIndexToHandle<Handle_Of_Point_Of_PolygonMesh>(PointIndexList);
-}
-
-
-template<typename MeshAttributeType>
-inline
-Handle_Of_Edge_Of_PolygonMesh PolygonMesh<MeshAttributeType>::ConvertEdgeIndexToEdgeHandle(int_max EdgeIndex) const
-{
-	return this->ConvertIndexToHandle<Handle_Of_Edge_Of_PolygonMesh>(EdgeIndex);
-}
-
-
-template<typename MeshAttributeType>
-DenseVector<Handle_Of_Edge_Of_PolygonMesh> PolygonMesh<MeshAttributeType>::ConvertEdgeIndexToEdgeHandle(const DenseVector<int_max>& EdgeIndexList) const
-{
-	return this->ConvertIndexToHandle<Handle_Of_Edge_Of_PolygonMesh>(EdgeIndexList);
-}
-
-
-template<typename MeshAttributeType>
-inline
-Handle_Of_Face_Of_PolygonMesh PolygonMesh<MeshAttributeType>::ConvertFaceIndexToFaceHandle(int_max FaceIndex) const
-{
-	return this->ConvertIndexToHandle<Handle_Of_Face_Of_PolygonMesh>(FaceIndex);
-}
-
-
-template<typename MeshAttributeType>
-DenseVector<Handle_Of_Face_Of_PolygonMesh> PolygonMesh<MeshAttributeType>::ConvertFaceIndexToFaceHandle(const DenseVector<int_max>& FaceIndexList) const
-{
-	return this->ConvertIndexToHandle<Handle_Of_Face_Of_PolygonMesh>(FaceIndexList);
-}
-
-
-template<typename MeshAttributeType>
-inline
-int_max PolygonMesh<MeshAttributeType>::ConvertHandleToIndex(PointHandleType PointHandle) const
-{
-	return PointHandle.GetIndex();
-}
-
-
-template<typename MeshAttributeType>
-DenseVector<int_max> PolygonMesh<MeshAttributeType>::ConvertHandleToIndex(const DenseVector<PointHandleType>& PointHandleList) const
-{
-	DenseVector<int_max> PointIndexList;
-	PointIndexList.Resize(PointHandleList.GetLength());
-	for (int_max k = 0; k < PointHandleList.GetLength(); ++k)
-	{
-		PointIndexList[k] = PointHandleList[k].GetIndex();
-	}
-	return PointIndexList;
-}
-
-
-template<typename MeshAttributeType>
-inline
-int_max PolygonMesh<MeshAttributeType>::ConvertHandleToIndex(EdgeHandleType EdgeHandle) const
-{
-	return EdgeHandle.GetIndex();
-}
-
-
-template<typename MeshAttributeType>
-DenseVector<int_max> PolygonMesh<MeshAttributeType>::ConvertHandleToIndex(const DenseVector<EdgeHandleType>& EdgeHandleList) const
-{
-	DenseVector<int_max> EdgeIndexList;
-	EdgeIndexList.Resize(EdgeHandleList.GetLength());
-	for (int_max k = 0; k < EdgeHandleList.GetLength(); ++k)
-	{
-		EdgeIndexList[k] = EdgeHandleList[k].GetIndex();
-	}
-	return EdgeIndexList;
-}
-
-
-template<typename MeshAttributeType>
-inline
-int_max PolygonMesh<MeshAttributeType>::ConvertHandleToIndex(FaceHandleType FaceHandle) const
-{
-	return FaceHandle.GetIndex();
-}
-
-
-template<typename MeshAttributeType>
-DenseVector<int_max> PolygonMesh<MeshAttributeType>::ConvertHandleToIndex(const DenseVector<FaceHandleType>& FaceHandleList) const
-{
-	DenseVector<int_max> FaceIndexList;
-	FaceIndexList.Resize(FaceHandleList.GetLength());
-	for (int_max k = 0; k < FaceHandleList.GetLength(); ++k)
-	{
-		FaceIndexList[k] = FaceHandleList[k].GetIndex();
-	}
-	return FaceIndexList;
-}
 
 //----------------------------------- protected function ---------------------------------------------------------//
 
@@ -3809,6 +3676,16 @@ void PolygonMesh<MeshAttributeType>::UpdateRecord_DeletePoint(int_max PointIndex
 		if (it != m_MeshData->Map_PointID_to_PointIndex.end())
 		{
 			m_MeshData->Map_PointID_to_PointIndex.erase(it);
+		}
+	}
+
+	auto Name = m_MeshData->PointList[PointIndex].GetName();
+	if (Name.IsEmpty() == false)
+	{
+		auto it = m_MeshData->Map_PointName_to_PointIndex.find(Name);
+		if (it != m_MeshData->Map_PointName_to_PointIndex.end())
+		{
+			m_MeshData->Map_PointName_to_PointIndex.erase(it);
 		}
 	}
 
@@ -3843,6 +3720,16 @@ void PolygonMesh<MeshAttributeType>::UpdateRecord_DeleteEdge(int_max EdgeIndex)
 		}
 	}
 
+	auto Name = m_MeshData->EdgeList[EdgeIndex].GetName();
+	if (Name.IsEmpty() == false)
+	{
+		auto it = m_MeshData->Map_EdgeName_to_EdgeIndex.find(Name);
+		if (it != m_MeshData->Map_EdgeName_to_EdgeIndex.end())
+		{
+			m_MeshData->Map_EdgeName_to_EdgeIndex.erase(it);
+		}
+	}
+
     // Delete Edge: only release memory, not remove from EdgeList
 	m_MeshData->EdgeList[EdgeIndex].Clear(MDK_PURE_EMPTY);
     m_MeshData->EdgeValidityFlagList[EdgeIndex] = 0;
@@ -3865,7 +3752,7 @@ void PolygonMesh<MeshAttributeType>::UpdateRecord_DeleteFace(int_max FaceIndex)
 		m_MeshData->EdgeList[EdgeIndex_k].DirectedEdgeIndexList().Delete(tempIndex);
 	}
 
-	// delete DirectedEdgeID record if the map has it 
+	// delete ID, Name if the map has it 
 	for (int_max k = 0; k < DirectedEdgeList.GetLength(); ++k)
 	{
 		// auto& take reference
@@ -3878,10 +3765,19 @@ void PolygonMesh<MeshAttributeType>::UpdateRecord_DeleteFace(int_max FaceIndex)
 			{
 				m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.erase(it);
 			}
-		}		
+		}	
+		auto Name = DirectedEdge_k.GetName();
+		if (Name.IsEmpty() == false)
+		{
+			auto it = m_MeshData->Map_DirectedEdgeName_to_DirectedEdgeIndex.find(Name);
+			if (it != m_MeshData->Map_DirectedEdgeName_to_DirectedEdgeIndex.end())
+			{
+				m_MeshData->Map_DirectedEdgeName_to_DirectedEdgeIndex.erase(it);
+			}
+		}
 	}
 
-    // delete FaceID record if the map has it 
+    // delete ID, Name if the map has it 
 	auto ID = m_MeshData->FaceList[FaceIndex].GetID();
 	if (ID >= 0)
 	{
@@ -3889,6 +3785,15 @@ void PolygonMesh<MeshAttributeType>::UpdateRecord_DeleteFace(int_max FaceIndex)
 		if (it != m_MeshData->Map_FaceID_to_FaceIndex.end())
 		{
 			m_MeshData->Map_FaceID_to_FaceIndex.erase(it);
+		}
+	}
+	auto Name = m_MeshData->FaceList[FaceIndex].GetName();
+	if (Name.IsEmpty() == false)
+	{
+		auto it = m_MeshData->Map_FaceName_to_FaceIndex.find(Name);
+		if (it != m_MeshData->Map_FaceName_to_FaceIndex.end())
+		{
+			m_MeshData->Map_FaceName_to_FaceIndex.erase(it);
 		}
 	}
 
@@ -3911,7 +3816,7 @@ void PolygonMesh<MeshAttributeType>::UpdateRecord_DeleteDirectedEdge(DirectedEdg
 	auto EdgeIndex = m_MeshData->FaceList[FaceIndex].DirectedEdgeList()[DirectedEdgeIndex_delete.RelativeIndex].GetEdgeIndex();
 	auto PointIndex_start = m_MeshData->FaceList[FaceIndex].DirectedEdgeList()[DirectedEdgeIndex_delete.RelativeIndex].GetStartPointIndex();
 	auto PointIndex_end = m_MeshData->FaceList[FaceIndex].DirectedEdgeList()[DirectedEdgeIndex_delete.RelativeIndex].GetEndPointIndex();
-	// erase ID record
+	// erase ID, Name
 	auto ID = m_MeshData->FaceList[FaceIndex].DirectedEdgeList()[DirectedEdgeIndex_delete.RelativeIndex].GetID();
 	if (ID >= 0)
 	{
@@ -3919,6 +3824,15 @@ void PolygonMesh<MeshAttributeType>::UpdateRecord_DeleteDirectedEdge(DirectedEdg
 		if (it != m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.end())
 		{
 			m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex.erase(it);
+		}
+	}
+	auto Name = m_MeshData->FaceList[FaceIndex].DirectedEdgeList()[DirectedEdgeIndex_delete.RelativeIndex].GetName();
+	if (Name.IsEmpty() == false)
+	{
+		auto it = m_MeshData->Map_DirectedEdgeName_to_DirectedEdgeIndex.find(Name);
+		if (it != m_MeshData->Map_DirectedEdgeName_to_DirectedEdgeIndex.end())
+		{
+			m_MeshData->Map_DirectedEdgeName_to_DirectedEdgeIndex.erase(it);
 		}
 	}
 
@@ -3958,11 +3872,16 @@ void PolygonMesh<MeshAttributeType>::UpdateRecord_InsertDirectedEdge(DirectedEdg
 	auto PointIndex_start = DirectedEdge_insert.GetStartPointIndex();
 	auto PointIndex_end = DirectedEdge_insert.GetEndPointIndex();
 	
-	// insert ID 
+	// insert ID, Name 
 	auto ID = DirectedEdge_insert.GetID();
 	if (ID >= 0)
 	{
 		m_MeshData->Map_DirectedEdgeID_to_DirectedEdgeIndex[ID] = DirectedEdgeIndex_insert;
+	}
+	auto Name = DirectedEdge_insert.GetName();
+	if (Name.IsEmpty() == false)
+	{
+		m_MeshData->Map_DirectedEdgeName_to_DirectedEdgeIndex[Name] = DirectedEdgeIndex_insert;
 	}
 
 	// insert the directed-edge

@@ -12,7 +12,7 @@ struct Iterator_Of_Point_Of_PolygonMesh
 {
 private:
     mutable PolygonMesh<MeshAttribute> m_Mesh;
-    mutable Handle_Of_Point_Of_PolygonMesh m_PointHandle;
+	mutable int_max m_PointIndex;
 
 //----------------------------------
 private:
@@ -24,9 +24,7 @@ public:
 
     inline void operator=(const Iterator_Of_Point_Of_PolygonMesh& InputIterator) const;
 
-    inline Handle_Of_Point_Of_PolygonMesh GetPointHandle() const;
-
-    inline int_max GetPointID() const;
+    inline int_max GetPointIndex() const;
 
     inline Point_Of_PolygonMesh<MeshAttribute>& Point();
     inline const Point_Of_PolygonMesh<MeshAttribute>& Point() const;
@@ -48,7 +46,7 @@ struct Iterator_Of_Edge_Of_PolygonMesh
 {
 private:
     mutable PolygonMesh<MeshAttribute> m_Mesh;
-    mutable Handle_Of_Edge_Of_PolygonMesh m_EdgeHandle;
+	mutable int_max m_EdgeIndex;
 
     //----------------------------------
 private:
@@ -60,9 +58,7 @@ public:
 
     inline void operator=(const Iterator_Of_Edge_Of_PolygonMesh& InputIterator) const;
 
-    inline Handle_Of_Edge_Of_PolygonMesh GetEdgeHandle() const;
-
-    inline int_max GetEdgeID() const;
+    inline int_max GetEdgeIndex() const;
 
     inline Edge_Of_PolygonMesh<MeshAttribute>& Edge();
     inline const Edge_Of_PolygonMesh<MeshAttribute>& Edge() const;
@@ -84,7 +80,7 @@ struct Iterator_Of_DirectedEdge_Of_PolygonMesh
 {
 private:
     mutable PolygonMesh<MeshAttribute> m_Mesh;
-    mutable Handle_Of_DirectedEdge_Of_PolygonMesh m_DirectedEdgeHandle;
+	mutable DirectedEdgeIndex_Of_PolygonMesh m_DirectedEdgeIndex;
 
     //----------------------------------
 private:
@@ -96,9 +92,7 @@ public:
 
     inline void operator=(const Iterator_Of_DirectedEdge_Of_PolygonMesh& InputIterator) const;
 
-    inline Handle_Of_DirectedEdge_Of_PolygonMesh GetDirectedEdgeHandle() const;
-
-    inline int_max GetDirectedEdgeID() const;
+    inline DirectedEdgeIndex_Of_PolygonMesh GetDirectedEdgeIndex() const;
 
     inline DirectedEdge_Of_PolygonMesh<MeshAttribute>& DirectedEdge();
     inline const DirectedEdge_Of_PolygonMesh<MeshAttribute>& DirectedEdge() const;
@@ -120,7 +114,7 @@ struct Iterator_Of_Face_Of_PolygonMesh
 {
 private:
     mutable PolygonMesh<MeshAttribute> m_Mesh;
-    mutable Handle_Of_Face_Of_PolygonMesh m_FaceHandle;
+	mutable int_max m_FaceIndex;
 
     //----------------------------------
 private:
@@ -132,9 +126,7 @@ public:
 
     inline void operator=(const Iterator_Of_Face_Of_PolygonMesh& InputIterator) const;
 
-    inline Handle_Of_Face_Of_PolygonMesh GetFaceHandle() const;
-
-    inline int_max GetFaceID() const;
+    inline int_max GetFaceIndex() const;
 
     inline Face_Of_PolygonMesh<MeshAttribute>& Face();
     inline const Face_Of_PolygonMesh<MeshAttribute>& Face() const;

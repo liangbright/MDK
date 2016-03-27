@@ -10,9 +10,9 @@ void Test_MeshConstruction()
 	PolygonMesh<PolygonMeshStandardAttributeType<double>> InputMesh;
 	LoadPolygonMeshFromVTKFile(InputMesh, FilePathAndName);
 
-    auto PointHandle = InputMesh.AddPoint(0, 0, 0);
+    auto PointIndex = InputMesh.AddPoint(0, 0, 0);
 
-    InputMesh.DeletePoint(PointHandle);
+    InputMesh.DeletePoint(PointIndex);
     InputMesh.CleanDataStructure();
 
    // SavePolygonMeshAsJsonDataFile(InputMesh, "C:/Research/Test_VTK/Subdivision/Build/Leaflet_A_Polygon.json");
@@ -27,9 +27,9 @@ void Test_ShrinkEdge()
 	PolygonMesh<PolygonMeshStandardAttributeType<double>> InputMesh;
 	LoadPolygonMeshFromVTKFile(InputMesh, FilePathAndName + ".vtk");
 
-	auto EdgeHandleList = InputMesh.GetEdgeHandleList();
-	auto PointIndexList_Edge = InputMesh.Edge(EdgeHandleList[0]).GetPointHandleList();
-	InputMesh.ShrinkEdgeToPoint(EdgeHandleList[0], PointIndexList_Edge[0]);
+	auto EdgeIndexList = InputMesh.GetEdgeIndexList();
+	auto PointIndexList_Edge = InputMesh.Edge(EdgeIndexList[0]).GetPointIndexList();
+	InputMesh.ShrinkEdgeToPoint(EdgeIndexList[0], PointIndexList_Edge[0]);
 	SavePolygonMeshAsVTKFile(InputMesh, FilePathAndName + "_ShrinkEdge.vtk");
 
 }
@@ -41,13 +41,13 @@ void Test_SplitEdge()
 	PolygonMesh<PolygonMeshStandardAttributeType<double>> InputMesh;
 	LoadPolygonMeshFromVTKFile(InputMesh, FilePathAndName + ".vtk");
 
-	auto PointHandleList = InputMesh.GetPointHandleList();
-	auto Point0 = InputMesh.GetPointPosition(PointHandleList[0]);
-	auto Point1 = InputMesh.GetPointPosition(PointHandleList[1]);
+	auto PointIndexList = InputMesh.GetPointIndexList();
+	auto Point0 = InputMesh.GetPointPosition(PointIndexList[0]);
+	auto Point1 = InputMesh.GetPointPosition(PointIndexList[1]);
 	auto Point2 = (Point0 + Point1) / 2.0;
-	auto PointHandle2 = InputMesh.AddPoint(Point2);
-	auto EdgeHandle01 = InputMesh.GetEdgeHandleByPoint(PointHandleList[0], PointHandleList[1]);
-	InputMesh.SplitEdgeByPoint(EdgeHandle01, PointHandle2);
+	auto PointIndex2 = InputMesh.AddPoint(Point2);
+	auto EdgeIndex01 = InputMesh.GetEdgeIndexByPoint(PointIndexList[0], PointIndexList[1]);
+	InputMesh.SplitEdgeByPoint(EdgeIndex01, PointIndex2);
 	SavePolygonMeshAsVTKFile(InputMesh, FilePathAndName + "_SplitEdge.vtk");
 }
 
@@ -58,9 +58,9 @@ void Test_ShrinkFace()
 	PolygonMesh<PolygonMeshStandardAttributeType<double>> InputMesh;
 	LoadPolygonMeshFromVTKFile(InputMesh, FilePathAndName + ".vtk");
 
-	auto FaceHandleList = InputMesh.GetFaceHandleList();
-	auto PointHandleList_Face = InputMesh.Face(FaceHandleList[0]).GetPointHandleList();
-	InputMesh.ShrinkFaceToPoint(FaceHandleList[0], PointHandleList_Face[0]);
+	auto FaceIndexList = InputMesh.GetFaceIndexList();
+	auto PointIndexList_Face = InputMesh.Face(FaceIndexList[0]).GetPointIndexList();
+	InputMesh.ShrinkFaceToPoint(FaceIndexList[0], PointIndexList_Face[0]);
 	SavePolygonMeshAsVTKFile(InputMesh, FilePathAndName + "_ShrinkFace.vtk");
 }
 
@@ -71,8 +71,8 @@ void Test_ReversePointOrder()
 	PolygonMesh<PolygonMeshStandardAttributeType<double>> InputMesh;
 	LoadPolygonMeshFromVTKFile(InputMesh, FilePathAndName + ".vtk");
 
-	auto FaceHandleList = InputMesh.GetFaceHandleList();
-	InputMesh.ReversePointOrderOfFace(FaceHandleList[0]);
+	auto FaceIndexList = InputMesh.GetFaceIndexList();
+	InputMesh.ReversePointOrderOfFace(FaceIndexList[0]);
 	SavePolygonMeshAsVTKFile(InputMesh, FilePathAndName + "_ReversePointOrder.vtk");
 }
 
@@ -83,23 +83,18 @@ void Test_AddtionalInfo()
 	PolygonMesh<PolygonMeshStandardAttributeType<double>> InputMesh, SquareMesh;	
 	LoadPolygonMeshFromVTKFile(InputMesh, FilePathAndName + ".vtk");
 
-	PolygonMesh<PolygonMeshStandardAttributeType<double>>::PointHandleType PointHandle;
-	PolygonMesh<PolygonMeshStandardAttributeType<double>>::FaceHandleType FaceHandle;
-
 	InputMesh.SetID(1);
 	InputMesh.SetName("Square");
-	PointHandle.SetIndex(0);
-	InputMesh.SetPointName(PointHandle,"0_Name");
-	PointHandle.SetIndex(1);
-	InputMesh.SetPointName(PointHandle, "1_Name");
-	FaceHandle.SetIndex(0);
-	InputMesh.SetFaceName(FaceHandle, "0_Name");
-	FaceHandle.SetIndex(1);
-	InputMesh.SetFaceName(FaceHandle, "1_Name");
-	InputMesh.SetPointSet("0_PointSet", InputMesh.ConvertPointIndexToPointHandle({ 1, 2, 3 }));
-	InputMesh.SetPointSet("1_PointSet", InputMesh.ConvertPointIndexToPointHandle({ 4, 5, 6 }));	
-	InputMesh.SetFaceSet("0_FaceSet", InputMesh.ConvertFaceIndexToFaceHandle({ 1, 2, 3 }));
-	InputMesh.SetFaceSet("1_FaceSet", InputMesh.ConvertFaceIndexToFaceHandle({ 4, 5, 6 }));
+
+	InputMesh.Point(0).SetName("0_Name");	
+	InputMesh.Point(1).SetName("1_Name");
+	InputMesh.Face(0).SetName("0_Name");
+	InputMesh.Face(1).SetName("1_Name");
+	
+	InputMesh.SetPointSet("0_PointSet", { 1, 2, 3 });
+	InputMesh.SetPointSet("1_PointSet", { 4, 5, 6 });	
+	InputMesh.SetFaceSet("0_FaceSet", { 1, 2, 3 });
+	InputMesh.SetFaceSet("1_FaceSet", { 4, 5, 6 });
 
 	SavePolygonMeshAsJsonDataFile(InputMesh, FilePathAndName + "_att.json");
 
@@ -112,4 +107,14 @@ void Test_AddtionalInfo()
 
 	auto Set3 = InputMesh.GetFaceSet("0_name");
 	auto Set4 = InputMesh.GetFaceSet("b");
+}
+
+void Test_AddtionalInfo_Name()
+{
+	ObjectArray<String> NameList;
+	NameList.Resize(10000);
+	for (int_max k = 0; k < 10000; ++k)
+	{
+		NameList[k] = "LandMark_abcedfg_0123456789";
+	}
 }

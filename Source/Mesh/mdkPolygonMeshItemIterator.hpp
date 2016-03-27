@@ -32,36 +32,29 @@ inline
 void Iterator_Of_Point_Of_PolygonMesh<MeshAttribute>::operator=(const Iterator_Of_Point_Of_PolygonMesh<MeshAttribute>& InputIterator) const
 {
     m_Mesh.ForceShare(InputIterator.m_Mesh);
-    m_PointHandle = InputIterator.m_PointHandle;
+    m_PointIndex = InputIterator.m_PointIndex;
     this->SetToBegin();
 }
 
 template<typename MeshAttribute>
 inline  
-Handle_Of_Point_Of_PolygonMesh Iterator_Of_Point_Of_PolygonMesh<MeshAttribute>::GetPointHandle() const
+int_max Iterator_Of_Point_Of_PolygonMesh<MeshAttribute>::GetPointIndex() const
 {
-     return m_PointHandle;
-}
-
-template<typename MeshAttribute>
-inline
-int_max Iterator_Of_Point_Of_PolygonMesh<MeshAttribute>::GetPointID() const
-{
-    return m_Mesh.GetPointID(m_PointHandle);
+     return m_PointIndex;
 }
 
 template<typename MeshAttribute>
 inline
 Point_Of_PolygonMesh<MeshAttribute>& Iterator_Of_Point_Of_PolygonMesh<MeshAttribute>::Point()
 {
-    return m_Mesh.Point(m_PointHandle);
+    return m_Mesh.Point(m_PointIndex);
 }
 
 template<typename MeshAttribute>
 inline
 const Point_Of_PolygonMesh<MeshAttribute>& Iterator_Of_Point_Of_PolygonMesh<MeshAttribute>::Point() const
 {
-    return m_Mesh.Point(m_PointHandle);
+    return m_Mesh.Point(m_PointIndex);
 }
 
 template<typename MeshAttribute>
@@ -74,11 +67,11 @@ void Iterator_Of_Point_Of_PolygonMesh<MeshAttribute>::operator+=(int_max Offset)
     }
     else if (Offset > 0)
     {
-        auto PointIndex = m_PointHandle.GetIndex();
+        auto PointIndex = m_PointIndex;
 
         if (PointIndex + Offset >= m_Mesh.m_MeshData->PointList.GetLength())
         {
-            m_PointHandle.SetIndex(-1);
+            m_PointIndex = -1;
             return;
         }
 
@@ -90,21 +83,21 @@ void Iterator_Of_Point_Of_PolygonMesh<MeshAttribute>::operator+=(int_max Offset)
 				Counter += 1;
 				if (Counter == Offset)
 				{
-					m_PointHandle.SetIndex(k);
+					m_PointIndex = k;
 					return;
 				}
 			}
         }
 
-        m_PointHandle.SetIndex(-1);
+        m_PointIndex = -1;
     }
     else // Offset < 0
     {
-        auto PointIndex = m_PointHandle.GetIndex();
+        auto PointIndex = m_PointIndex;
 
         if (PointIndex + Offset < 0)
         {
-            m_PointHandle.SetIndex(-1);
+            m_PointIndex = -1;
             return;
         }
 
@@ -116,12 +109,12 @@ void Iterator_Of_Point_Of_PolygonMesh<MeshAttribute>::operator+=(int_max Offset)
 				Counter += 1;
 				if (Counter == -Offset)
 				{
-					m_PointHandle.SetIndex(k);
+					m_PointIndex = k;
 					return;
 				}
 			}
         }
-        m_PointHandle.SetIndex(-1);
+        m_PointIndex = -1;
     }
 }
 
@@ -150,8 +143,7 @@ template<typename MeshAttribute>
 inline
 bool Iterator_Of_Point_Of_PolygonMesh<MeshAttribute>::IsNotEnd() const
 {
-    auto PointIndex = m_PointHandle.GetIndex();
-    return (PointIndex >= 0 && PointIndex < m_Mesh.m_MeshData->PointList.GetLength());
+    return (m_PointIndex >= 0 && m_PointIndex < m_Mesh.m_MeshData->PointList.GetLength());
 }
 
 template<typename MeshAttribute>
@@ -162,11 +154,11 @@ void Iterator_Of_Point_Of_PolygonMesh<MeshAttribute>::SetToBegin() const
     {
         if (m_Mesh.m_MeshData->PointList[k].IsValid() == true)
         {
-            m_PointHandle.SetIndex(k);
+            m_PointIndex = k;
             return;
         }
     }
-    m_PointHandle.SetIndex(-1);
+    m_PointIndex = -1;
 }
 
 //================================================= Iterator_Of_Edge_Of_PolygonMesh ==================================//
@@ -198,36 +190,29 @@ inline
 void Iterator_Of_Edge_Of_PolygonMesh<MeshAttribute>::operator=(const Iterator_Of_Edge_Of_PolygonMesh<MeshAttribute>& InputIterator) const
 {
     m_Mesh.ForceShare(InputIterator.m_Mesh);
-    m_EdgeHandle = InputIterator.m_EdgeHandle;
+    m_EdgeIndex = InputIterator.m_EdgeIndex;
     this->SetToBegin();
 }
 
 template<typename MeshAttribute>
 inline
-Handle_Of_Edge_Of_PolygonMesh Iterator_Of_Edge_Of_PolygonMesh<MeshAttribute>::GetEdgeHandle() const
+int_max Iterator_Of_Edge_Of_PolygonMesh<MeshAttribute>::GetEdgeIndex() const
 {
-    return m_EdgeHandle;
-}
-
-template<typename MeshAttribute>
-inline
-int_max Iterator_Of_Edge_Of_PolygonMesh<MeshAttribute>::GetEdgeID() const
-{
-    return m_Mesh.GetEdgeID(m_EdgeHandle);
+    return m_EdgeIndex;
 }
 
 template<typename MeshAttribute>
 inline
 Edge_Of_PolygonMesh<MeshAttribute>& Iterator_Of_Edge_Of_PolygonMesh<MeshAttribute>::Edge()
 {
-    return m_Mesh.Edge(m_EdgeHandle);
+    return m_Mesh.Edge(m_EdgeIndex);
 }
 
 template<typename MeshAttribute>
 inline
 const Edge_Of_PolygonMesh<MeshAttribute>& Iterator_Of_Edge_Of_PolygonMesh<MeshAttribute>::Edge() const
 {
-    return m_Mesh.Edge(m_EdgeHandle);
+    return m_Mesh.Edge(m_EdgeIndex);
 }
 
 template<typename MeshAttribute>
@@ -240,11 +225,11 @@ void Iterator_Of_Edge_Of_PolygonMesh<MeshAttribute>::operator+=(int_max Offset) 
     }
     else if (Offset > 0)
     {
-        auto EdgeIndex = m_EdgeHandle.GetIndex();
+        auto EdgeIndex = m_EdgeIndex;
 
         if (EdgeIndex + Offset >= m_Mesh.m_MeshData->EdgeList.GetLength())
         {
-            m_EdgeHandle.SetIndex(-1);
+            m_EdgeIndex = -1;
             return;
         }
 
@@ -256,21 +241,21 @@ void Iterator_Of_Edge_Of_PolygonMesh<MeshAttribute>::operator+=(int_max Offset) 
 				Counter += 1;
 				if (Counter == Offset)
 				{
-					m_EdgeHandle.SetIndex(k);
+					m_EdgeIndex = k;
 					return;
 				}
 			}
         }
 
-        m_EdgeHandle.SetIndex(-1);
+        m_EdgeIndex = -1;
     }
     else // Offset < 0
     {
-        auto EdgeIndex = m_EdgeHandle.GetIndex();
+        auto EdgeIndex = m_EdgeIndex;
 
         if (EdgeIndex + Offset < 0)
         {
-            m_EdgeHandle.SetIndex(-1);
+            m_EdgeIndex = -1;
             return;
         }
 
@@ -282,12 +267,12 @@ void Iterator_Of_Edge_Of_PolygonMesh<MeshAttribute>::operator+=(int_max Offset) 
 				Counter += 1;
 				if (Counter == -Offset)
 				{
-					m_EdgeHandle.SetIndex(k);
+					m_EdgeIndex = k;
 					return;
 				}
 			}
         }
-        m_EdgeHandle.SetIndex(-1);
+        m_EdgeIndex = -1;
     }
 }
 
@@ -316,8 +301,7 @@ template<typename MeshAttribute>
 inline
 bool Iterator_Of_Edge_Of_PolygonMesh<MeshAttribute>::IsNotEnd() const
 {
-    auto EdgeIndex = m_EdgeHandle.GetIndex();
-    return (EdgeIndex >= 0 && EdgeIndex < m_Mesh.m_MeshData->EdgeList.GetLength());
+    return (m_EdgeIndex >= 0 && m_EdgeIndex < m_Mesh.m_MeshData->EdgeList.GetLength());
 }
 
 template<typename MeshAttribute>
@@ -328,11 +312,11 @@ void Iterator_Of_Edge_Of_PolygonMesh<MeshAttribute>::SetToBegin() const
     {
         if (m_Mesh.m_MeshData->EdgeList[k].IsValid() == true)
         {
-            m_EdgeHandle.SetIndex(k);
+            m_EdgeIndex = k;
             return;
         }
     }
-    m_EdgeHandle.SetIndex(-1);
+    m_EdgeIndex = -1;
 }
 
 //================================================= Iterator_Of_DirectedEdge_Of_PolygonMesh ==================================//
@@ -365,36 +349,29 @@ inline
 void Iterator_Of_DirectedEdge_Of_PolygonMesh<MeshAttribute>::operator=(const Iterator_Of_DirectedEdge_Of_PolygonMesh<MeshAttribute>& InputIterator) const
 {
     m_Mesh.ForceShare(InputIterator.m_Mesh);
-    m_DirectedEdgeHandle = InputIterator.m_DirectedEdgeHandle;
+    m_DirectedEdgeIndex = InputIterator.m_DirectedEdgeIndex;
     this->SetToBegin();
 }
 
 template<typename MeshAttribute>
 inline
-Handle_Of_DirectedEdge_Of_PolygonMesh Iterator_Of_DirectedEdge_Of_PolygonMesh<MeshAttribute>::GetDirectedEdgeHandle() const
+DirectedEdgeIndex_Of_PolygonMesh Iterator_Of_DirectedEdge_Of_PolygonMesh<MeshAttribute>::GetDirectedEdgeIndex() const
 {
-    return m_DirectedEdgeHandle;
-}
-
-template<typename MeshAttribute>
-inline
-int_max Iterator_Of_DirectedEdge_Of_PolygonMesh<MeshAttribute>::GetDirectedEdgeID() const
-{
-    return m_Mesh.GetDirectedEdgeID(m_DirectedEdgeHandle);
+    return m_DirectedEdgeIndex;
 }
 
 template<typename MeshAttribute>
 inline
 DirectedEdge_Of_PolygonMesh<MeshAttribute>& Iterator_Of_DirectedEdge_Of_PolygonMesh<MeshAttribute>::DirectedEdge()
 {
-    return m_Mesh.DirectedEdge(m_DirectedEdgeHandle);
+    return m_Mesh.DirectedEdge(m_DirectedEdgeIndex);
 }
 
 template<typename MeshAttribute>
 inline
 const DirectedEdge_Of_PolygonMesh<MeshAttribute>& Iterator_Of_DirectedEdge_Of_PolygonMesh<MeshAttribute>::DirectedEdge() const
 {
-    return m_Mesh.DirectedEdge(m_DirectedEdgeHandle);
+    return m_Mesh.DirectedEdge(m_DirectedEdgeIndex);
 }
 
 template<typename MeshAttribute>
@@ -407,8 +384,8 @@ void Iterator_Of_DirectedEdge_Of_PolygonMesh<MeshAttribute>::operator+=(int_max 
     }
     else if (Offset > 0)
     {
-        auto FaceIndex = m_DirectedEdgeHandle.GetFaceIndex();
-        auto RelativeIndex = m_DirectedEdgeHandle.GetRelativeIndex();
+        auto FaceIndex = m_DirectedEdgeIndex.FaceIndex;
+        auto RelativeIndex = m_DirectedEdgeIndex.RelativeIndex;
 
 		int_max Counter = 0;
 		for (int_max k = FaceIndex; k < m_Mesh.m_MeshData->FaceList.GetLength(); ++k)
@@ -430,18 +407,18 @@ void Iterator_Of_DirectedEdge_Of_PolygonMesh<MeshAttribute>::operator+=(int_max 
 					Counter += 1;
 					if (Counter == Offset)
 					{
-						m_DirectedEdgeHandle.SetIndex(k, n);
+						m_DirectedEdgeIndex.SetIndex(k, n);
 						return;
 					}
 				}
 			}
 		}
-		m_DirectedEdgeHandle.SetIndex(-1, -1);
+		m_DirectedEdgeIndex.SetIndex(-1, -1);
     }
     else // Offset < 0
     {
-		auto FaceIndex = m_DirectedEdgeHandle.GetFaceIndex();
-		auto RelativeIndex = m_DirectedEdgeHandle.GetRelativeIndex();
+		auto FaceIndex = m_DirectedEdgeIndex.FaceIndex;
+		auto RelativeIndex = m_DirectedEdgeIndex.RelativeIndex;
 
 		int_max Counter = 0;
 		for (int_max k = FaceIndex; k >= 0; --k)
@@ -463,13 +440,13 @@ void Iterator_Of_DirectedEdge_Of_PolygonMesh<MeshAttribute>::operator+=(int_max 
 					Counter += 1;
 					if (Counter == -Offset)
 					{
-						m_DirectedEdgeHandle.SetIndex(k, n);
+						m_DirectedEdgeIndex.SetIndex(k, n);
 						return;
 					}
 				}
 			}
 		}
-		m_DirectedEdgeHandle.SetIndex(-1, -1);
+		m_DirectedEdgeIndex.SetIndex(-1, -1);
     }
 }
 
@@ -498,8 +475,8 @@ template<typename MeshAttribute>
 inline
 bool Iterator_Of_DirectedEdge_Of_PolygonMesh<MeshAttribute>::IsNotEnd() const
 {
-    auto FaceIndex = m_DirectedEdgeHandle.GetFaceIndex();
-    auto RelativeIndex = m_DirectedEdgeHandle.GetRelativeIndex();
+    auto FaceIndex = m_DirectedEdgeIndex.FaceIndex;
+    auto RelativeIndex = m_DirectedEdgeIndex.RelativeIndex;
 	if (FaceIndex < 0 || FaceIndex >= m_Mesh.m_MeshData->FaceList.GetLength() || RelativeIndex < 0)
 	{
 		return false;
@@ -532,12 +509,12 @@ void Iterator_Of_DirectedEdge_Of_PolygonMesh<MeshAttribute>::SetToBegin() const
     {
         if (m_Mesh.m_MeshData->FaceValidityFlagList[k] == 1)
         {
-            m_DirectedEdgeHandle.SetIndex(k, 0);
+            m_DirectedEdgeIndex.SetIndex(k, 0);
             return;
         }
     }
 
-    m_DirectedEdgeHandle.SetIndex(-1, -1);
+    m_DirectedEdgeIndex.SetIndex(-1, -1);
 }
 
 //================================================= Iterator_Of_Face_Of_PolygonMesh ==================================//
@@ -570,36 +547,29 @@ inline
 void Iterator_Of_Face_Of_PolygonMesh<MeshAttribute>::operator=(const Iterator_Of_Face_Of_PolygonMesh<MeshAttribute>& InputIterator) const
 {
     m_Mesh.ForceShare(InputIterator.m_Mesh);
-    m_FaceHandle = InputIterator.m_FaceHandle;
+    m_FaceIndex = InputIterator.m_FaceIndex;
     this->SetToBegin();
 }
 
 template<typename MeshAttribute>
 inline
-Handle_Of_Face_Of_PolygonMesh Iterator_Of_Face_Of_PolygonMesh<MeshAttribute>::GetFaceHandle() const
+int_max Iterator_Of_Face_Of_PolygonMesh<MeshAttribute>::GetFaceIndex() const
 {
-    return m_FaceHandle;
-}
-
-template<typename MeshAttribute>
-inline
-int_max Iterator_Of_Face_Of_PolygonMesh<MeshAttribute>::GetFaceID() const
-{
-    return m_Mesh.GetFaceID(m_FaceHandle);
+    return m_FaceIndex;
 }
 
 template<typename MeshAttribute>
 inline
 Face_Of_PolygonMesh<MeshAttribute>& Iterator_Of_Face_Of_PolygonMesh<MeshAttribute>::Face()
 {
-    return m_Mesh.Face(m_FaceHandle);
+    return m_Mesh.Face(m_FaceIndex);
 }
 
 template<typename MeshAttribute>
 inline
 const Face_Of_PolygonMesh<MeshAttribute>& Iterator_Of_Face_Of_PolygonMesh<MeshAttribute>::Face() const
 {
-    return m_Mesh.Face(m_FaceHandle);
+    return m_Mesh.Face(m_FaceIndex);
 }
 
 template<typename MeshAttribute>
@@ -612,11 +582,11 @@ void Iterator_Of_Face_Of_PolygonMesh<MeshAttribute>::operator+=(int_max Offset) 
     }
     else if (Offset > 0)
     {
-        auto FaceIndex = m_FaceHandle.GetIndex();
+        auto FaceIndex = m_FaceIndex;
 
         if (FaceIndex + Offset >= m_Mesh.m_MeshData->FaceList.GetLength())
         {
-            m_FaceHandle.SetIndex(-1);
+            m_FaceIndex = -1;
             return;
         }
 
@@ -628,21 +598,21 @@ void Iterator_Of_Face_Of_PolygonMesh<MeshAttribute>::operator+=(int_max Offset) 
 				Counter += 1;
 				if (Counter == Offset)
 				{
-					m_FaceHandle.SetIndex(k);
+					m_FaceIndex = k;
 					return;
 				}
 			}
         }
 
-        m_FaceHandle.SetIndex(-1);
+        m_FaceIndex = -1;
     }
     else // Offset < 0
     {
-        auto FaceIndex = m_FaceHandle.GetIndex();
+        auto FaceIndex = m_FaceIndex;
 
         if (FaceIndex + Offset < 0)
         {
-            m_FaceHandle.SetIndex(-1);
+            m_FaceIndex = -1;
             return;
         }
 
@@ -654,12 +624,12 @@ void Iterator_Of_Face_Of_PolygonMesh<MeshAttribute>::operator+=(int_max Offset) 
 				Counter += 1;
 				if (Counter == -Offset)
 				{
-					m_FaceHandle.SetIndex(k);
+					m_FaceIndex = k;
 					return;
 				}
 			}
         }
-        m_FaceHandle.SetIndex(-1);
+        m_FaceIndex = -1;
     }
 }
 
@@ -688,8 +658,7 @@ template<typename MeshAttribute>
 inline
 bool Iterator_Of_Face_Of_PolygonMesh<MeshAttribute>::IsNotEnd() const
 {
-    auto FaceIndex = m_FaceHandle.GetIndex();
-    return (FaceIndex >= 0 && FaceIndex < m_Mesh.m_MeshData->FaceList.GetLength());
+    return (m_FaceIndex >= 0 && m_FaceIndex < m_Mesh.m_MeshData->FaceList.GetLength());
 }
 
 template<typename MeshAttribute>
@@ -700,11 +669,11 @@ void Iterator_Of_Face_Of_PolygonMesh<MeshAttribute>::SetToBegin() const
     {
         if (m_Mesh.m_MeshData->FaceList[k].IsValid() == true)
         {
-            m_FaceHandle.SetIndex(k);
+            m_FaceIndex = k;
             return;
         }
     }
-    m_FaceHandle.SetIndex(-1);
+    m_FaceIndex = -1;
 }
 
 }// namespace mdk

@@ -41,6 +41,9 @@ struct PolygonMeshData
     typedef typename MeshAttributeType::GlobalAttribute GlobalAttribute;
     //-------------------------------------------------------------------------------------------//
 
+	int_max ID; // ID of the mesh
+	String Name;// name of the mesh
+
     DenseMatrix<ScalarType> PointPositionTable;
     // row_0: x
     // row_1: y
@@ -73,18 +76,19 @@ struct PolygonMeshData
     std::unordered_map<int_max, int_max> Map_EdgeID_to_EdgeIndex;
     std::unordered_map<int_max, DirectedEdgeIndex_Of_PolygonMesh> Map_DirectedEdgeID_to_DirectedEdgeIndex;
     std::unordered_map<int_max, int_max> Map_FaceID_to_FaceIndex;
+	
+	std::unordered_map<String, int_max, StringHash<String>> Map_PointName_to_PointIndex;
+	std::unordered_map<String, int_max, StringHash<String>> Map_EdgeName_to_EdgeIndex;
+	std::unordered_map<String, DirectedEdgeIndex_Of_PolygonMesh, StringHash<String>> Map_DirectedEdgeName_to_DirectedEdgeIndex;
+	std::unordered_map<String, int_max, StringHash<String>> Map_FaceName_to_FaceIndex;
 
-	//----------------------------- addtional info --------------------------------------------------------------//
-	int_max ID; // ID of the mesh
-	String Name;// name of the mesh
-
-	std::unordered_map<String, Handle_Of_Point_Of_PolygonMesh, StringHash<String>> Map_PointName_to_PointHandle;
-	std::unordered_map<String, Handle_Of_Face_Of_PolygonMesh, StringHash<String>>  Map_FaceName_to_FaceHandle;
-
-	StdObjectVector<DenseVector<Handle_Of_Point_Of_PolygonMesh>>  PointSetList;// PointSetList[k] is PointHandleList Of a PointSet indexed by k
+	StdObjectVector<DenseVector<int_max>>  PointSetList;// PointSetList[k] is PointIndexList Of a PointSet indexed by k
 	std::unordered_map<String, int_max, StringHash<String>> Map_PointSetName_to_PointSetIndex;
 
-	StdObjectVector<DenseVector<Handle_Of_Face_Of_PolygonMesh>>  FaceSetList; // FaceSetList[k] is FaceHandleList Of a FaceSet indexed by k
+	StdObjectVector<DenseVector<int_max>>  EdgeSetList;// EdgeSetList[k] is EdgeIndexList Of a EdgeSet indexed by k
+	std::unordered_map<String, int_max, StringHash<String>> Map_EdgeSetName_to_EdgeSetIndex;
+
+	StdObjectVector<DenseVector<int_max>>  FaceSetList; // FaceSetList[k] is FaceIndexList Of a FaceSet indexed by k
 	std::unordered_map<String, int_max, StringHash<String>> Map_FaceSetName_to_FaceSetIndex;
 
     //Mesh Attribute
@@ -110,10 +114,10 @@ public:
     typedef DirectedEdge_Of_PolygonMesh<MeshAttributeType>    DirectedEdgeType;
     typedef Face_Of_PolygonMesh<MeshAttributeType>            FaceType;
 
-    typedef Handle_Of_Point_Of_PolygonMesh          PointHandleType;
-    typedef Handle_Of_Edge_Of_PolygonMesh           EdgeHandleType;
-    typedef Handle_Of_DirectedEdge_Of_PolygonMesh   DirectedEdgeHandleType;
-    typedef Handle_Of_Face_Of_PolygonMesh           FaceHandleType;
+    typedef int_max                            PointIndexType;
+    typedef int_max                            EdgeIndexType;
+    typedef DirectedEdgeIndex_Of_PolygonMesh   DirectedEdgeIndexType;
+    typedef int_max                            FaceIndexType;
 
     typedef Iterator_Of_Point_Of_PolygonMesh<MeshAttributeType>           PointIteratorType;
     typedef Iterator_Of_Edge_Of_PolygonMesh<MeshAttributeType>            EdgeIteratorType;
@@ -184,293 +188,262 @@ public:
     inline int_max GetDirectedEdgeCount() const;
     inline int_max GetFaceCount() const;
  
-	inline int_max GetMaxValueOfPointIndex() const;// the maximum value of PointHanlde.GetIndex()
-	inline int_max GetMaxValueOfEdgeIndex() const; // the maximum value of EdgeHanlde.GetIndex()	
-	inline int_max GetMaxValueOfFaceIndex() const; // the maximum value of FaceHanlde.GetIndex()
+	inline int_max GetNamedPointCount() const;
+	inline int_max GetNamedFaceCount() const;
+
+	inline int_max GetMaxValueOfPointIndex() const;
+	inline int_max GetMaxValueOfEdgeIndex() const;	
+	inline int_max GetMaxValueOfFaceIndex() const;
 
     //------ Get/Set GlobalAttribute -----------------------------------//
 
     inline GlobalAttribute& Attribute();
     inline const GlobalAttribute& Attribute() const;
 
-	//------------- Get All the position (valid point) --------------------------------//
-
-	inline DenseMatrix<ScalarType> GetPointPosition(const MDK_Symbol_ALL&) const;
-	inline void GetPointPosition(const MDK_Symbol_ALL&, DenseMatrix<ScalarType>& PositionMatrix) const;
-
-    // Get/Set 3D Position by PointHandle --------------------------------------------------------------------------//
-
-    inline void SetPointPosition(PointHandleType PointHandle, ScalarType x, ScalarType y, ScalarType z);
-    inline void SetPointPosition(PointHandleType PointHandle, const ScalarType Position[3]);
-
-    inline DenseVector<ScalarType, 3> GetPointPosition(PointHandleType PointHandle) const;
-    inline void GetPointPosition(PointHandleType PointHandle, ScalarType& x, ScalarType& y, ScalarType& z) const;
-    inline void GetPointPosition(PointHandleType PointHandle, ScalarType Position[3]) const;
-
-    inline void SetPointPosition(const DenseVector<PointHandleType>& PointHandleList, const DenseMatrix<ScalarType>& PointPositionMatrix);
-
-    inline DenseMatrix<ScalarType> GetPointPosition(const DenseVector<PointHandleType>& PointHandleList) const;
-    inline void GetPointPosition(const DenseVector<PointHandleType>& PointHandleList, DenseMatrix<ScalarType>& PointPositionMatrix) const;
-    
-    //----- Get/Set Mesh Item {Point, , Edge, DirectedEdge, Face} by using Handle ------//
-
-    inline PointType& Point(PointHandleType PointHandle);
-    inline const PointType& Point(PointHandleType PointHandle) const;
-
-    inline EdgeType& Edge(EdgeHandleType EdgeHandle);
-    inline const EdgeType& Edge(EdgeHandleType EdgeHandle) const;
-
-    inline DirectedEdgeType& DirectedEdge(DirectedEdgeHandleType DirectedEdgeHandle);
-    inline const DirectedEdgeType& DirectedEdge(DirectedEdgeHandleType DirectedEdgeHandle) const;
-
-    inline FaceType& Face(FaceHandleType FaceHandle);
-    inline const FaceType& Face(FaceHandleType FaceHandle) const;
-
-    //-------------- check handle -------------------------------------------------------//
-
-    inline bool IsValidHandle(PointHandleType PointHandle) const;
-    inline bool IsValidHandle(EdgeHandleType EdgeHandle) const;
-    inline bool IsValidHandle(DirectedEdgeHandleType DirectedEdgeHandle) const;
-    inline bool IsValidHandle(FaceHandleType FaceHandle) const;
-
-    //--------- get HandleList ------------------------------------------------------------//
-
-    inline DenseVector<PointHandleType> GetPointHandleList() const;
-    inline void GetPointHandleList(DenseVector<PointHandleType>& OutputHandleList) const;
-
-    inline DenseVector<EdgeHandleType> GetEdgeHandleList() const;
-    inline void GetEdgeHandleList(DenseVector<EdgeHandleType>& OutputHandleList) const;
-
-    inline DenseVector<DirectedEdgeHandleType> GetDirectedEdgeHandleList() const;
-    inline void GetDirectedEdgeHandleList(DenseVector<DirectedEdgeHandleType>& OutputHandleList) const;
-
-    inline DenseVector<FaceHandleType> GetFaceHandleList() const;
-    inline void GetFaceHandleList(DenseVector<FaceHandleType>& OutputHandleList) const;
-
-    //----------- get PointHandle by Position, ID, ----------------------------------------------//
-
-    inline PointHandleType GetPointHandleByPosition(const DenseVector<ScalarType, 3>& Position,
-                                                    ScalarType DistanceThreshold = std::numeric_limits<ScalarType>::epsilon()) const;
-    inline PointHandleType GetPointHandleByPosition(const ScalarType Position[3], 
-                                                    ScalarType DistanceThreshold = std::numeric_limits<ScalarType>::epsilon()) const;
-    inline PointHandleType GetPointHandleByPosition(ScalarType x, ScalarType y, ScalarType z,
-                                                    ScalarType DistanceThreshold = std::numeric_limits<ScalarType>::epsilon()) const;
-    inline PointHandleType GetPointHandleByID(int_max PointID) const;
-
-    //----------- get EdgeHandle by ID, PointHandleList, PointIDList -------------------------------------//
-
-    inline EdgeHandleType GetEdgeHandleByID(int_max EdgeID) const;
-    inline EdgeHandleType GetEdgeHandleByPoint(PointHandleType PointHandle0, PointHandleType PointHandle1) const;
-    inline EdgeHandleType GetEdgeHandleByPoint(int_max PointID0, int_max PointID1) const;
-
-    //----------- get DirectedEdgeHandle by ID, PointHandleList, PointIDList -------------------------------//
-
-    inline DirectedEdgeHandleType GetDirectedEdgeHandleByID(int_max DirectedEdgeID) const;
-
-	// non-manifold is allowed: maybe more than one DirectedEdge from PointHandle_start to PointHandle_end
-	//                          there are many face containing PointHandle_start and  PointHandle_end
-	//                          each face has a DirectedEdge from PointHandle_start to PointHandle_end
-    inline DenseVector<DirectedEdgeHandleType> GetDirectedEdgeHandleListByPoint(PointHandleType PointHandle_start, PointHandleType PointHandle_end) const;
-
-    //----------- get FaceHandle by ID, PointHandleList or PointIDList EdgeHandleList or EdgeIDList ----------//
-
-    inline FaceHandleType GetFaceHandleByID(int_max FaceID) const;
-
-	// PointHandleList/PointIDList/EdgeHandleList/EdgeIDList can have random order of point/edge
-    inline FaceHandleType GetFaceHandleByPoint(const DenseVector<PointHandleType>& PointHandleList) const;
-    inline FaceHandleType GetFaceHandleByEdge(const DenseVector<EdgeHandleType>& EdgeHandleList) const;
-
-    //-------------- check ID -------------------------------------------------------//
-
-    inline bool IsValidPointID(int_max PointID) const;
-    inline bool IsValidEdgeID(int_max EdgeID) const;
-    inline bool IsValidDirectedEdgeID(int_max DirectedEdgeID) const;
-    inline bool IsValidFaceID(int_max FaceID) const;
-
-    //--------- get IDList ------------------------------------------------------------//
-
-    inline DenseVector<int_max> GetPointIDList() const;
-    inline void GetPointIDList(DenseVector<int_max>& OutputIDList) const;
-
-    inline DenseVector<int_max> GetEdgeIDList() const;
-    inline void GetEdgeIDList(DenseVector<int_max>& OutputIDList) const;
-
-    inline DenseVector<int_max> GetDirectedEdgeIDList() const;
-    inline void GetDirectedEdgeIDList(DenseVector<int_max>& OutputIDList) const;
-
-    inline DenseVector<int_max> GetFaceIDList() const;
-    inline void GetFaceIDList(DenseVector<int_max>& OutputIDList) const;
-
-    //----------- get Point ID by Handle, Position -----------------------------------------------------------//
-
-    inline int_max GetPointIDByHandle(PointHandleType PointHandle) const;
-    inline int_max GetPointIDByPosition(ScalarType Position[3]) const;
-    inline int_max GetPointIDByPosition(ScalarType x, ScalarType y, ScalarType z) const;
-
-	inline DenseVector<int_max> GetPointIDListByHandleList(const DenseVector<PointHandleType>& PointHandleList) const;
-
-    //----------- get Edge ID by EdgeHandle, PointHandleList, PointIDList ------------------------------------------------------//
-
-    inline int_max GetEdgeIDByHandle(EdgeHandleType EdgeHandle) const;
-    inline int_max GetEdgeIDByPoint(PointHandleType PointHandle0, PointHandleType PointHandle1) const;
-
-	inline DenseVector<int_max> GetEdgeIDListByHandleList(const DenseVector<EdgeHandleType>& EdgeHandleList) const;
-
-    //----------- get DirectedEdge ID by DirectedEdgeHandle, PointHandle, PointID -------------------------------------------//
-
-    inline int_max GetDirectedEdgeIDByHandle(DirectedEdgeHandleType DirectedEdgeHandle) const;
-    inline int_max GetDirectedEdgeIDByPoint(PointHandleType PointHandle_start, PointHandleType PointHandle_end) const;
-
-	inline DenseVector<int_max> GetDirectedEdgeIDListByHandleList(const DenseVector<DirectedEdgeHandleType>& DirectedEdgeHandleList) const;
-
-    //----------- get FaceID by FaceHandle, EdgeHandleList, EdgeIDList, PointHandleList, PointIDList --------------------------//
-
-    inline int_max GetFaceIDByHandle(FaceHandleType FaceHandle) const;
-    inline int_max GetFaceIDByPoint(const DenseVector<PointHandleType>& PointHandleList) const;
-    inline int_max GetFaceIDByEdge(const DenseVector<EdgeHandleType>& EdgeHandleList) const;
-
-	inline DenseVector<int_max> GetFaceIDListByHandleList(const DenseVector<FaceHandleType>& FaceHandleList) const;
-
-    //------------- Iterator --------------------------------------------------------------//
-
-    inline PointIteratorType  GetIteratorOfPoint();
-    inline const PointIteratorType  GetIteratorOfPoint() const;
-
-    inline EdgeIteratorType   GetIteratorOfEdge();
-    inline const EdgeIteratorType   GetIteratorOfEdge() const;
-
-    inline DirectedEdgeIteratorType   GetIteratorOfDirectedEdge();
-    inline const DirectedEdgeIteratorType   GetIteratorOfDirectedEdge() const;
-
-    inline FaceIteratorType   GetIteratorOfFace();
-    inline const FaceIteratorType   GetIteratorOfFace() const;
-
-	//------------ SetCapacity, ReleaseUnusedCapacity -------------------------------------//
-
-	void SetCapacity(int_max PointCount, int_max EdgeCount, int_max FaceCount);
-
-	void ReleaseUnusedCapacity();
-
-    // Add Mesh Item -------------------------------------------------------------------------//
-    // add an item and return index (-1 if input is invalid)
-
-    // add a Point and return PointHandle -> PointIndex in m_MeshData->PointList
-    PointHandleType AddPoint(const DenseVector<ScalarType, 3>& Position);
-    PointHandleType AddPoint(const DenseVector<ScalarType>& Position);
-    PointHandleType AddPoint(const DenseMatrix<ScalarType>& Position);
-    PointHandleType AddPoint(const ScalarType Position[3]);
-    PointHandleType AddPoint(ScalarType x, ScalarType y, ScalarType z);
-    
-    // add a set of points and return PointHandleList
-    DenseVector<PointHandleType> AddPoint_batch(const DenseMatrix<ScalarType>& PointSet);
-	DenseVector<PointHandleType> AddPoint_batch(DenseMatrix<ScalarType>&& PointSet);
-
-    // add an Edge and return EdgeHandle -> EdgeIndex in m_MeshData->EdgeList
-    // also create invalid DirectedEdge to hold place at m_MeshData->DirectedEdgeList[EdgeIndex]
-    // Check is performed in the function to ensure that an edge will not be added more than once
-    EdgeHandleType AddEdge(PointHandleType PointHandle0, PointHandleType PointHandle1);
-
-	// EdgeHandle_input can be the handle of a deleted edge, so to reuse old EdgeIndex if necessary
-	EdgeHandleType AddEdge(PointHandleType PointHandle0, PointHandleType PointHandle1, EdgeHandleType EdgeHandle_input);
-
-    // add a face and return FaceHandle -> FaceIndex in m_MeshData->FaceList
-    // add DirectedEdge of the face
-    // the order of Edge in EdgeHandleList determine the direction of each DirectedEdge and the direction/sign of the normal vector
-    FaceHandleType AddFaceByEdge(const DenseVector<EdgeHandleType>& EdgeHandleList);
-
-	//FaceHandle_input may be the handle of a deleted face, so to reused old FaceIndex if necessary
-	FaceHandleType AddFaceByEdge(const DenseVector<EdgeHandleType>& EdgeHandleList, FaceHandleType FaceHandle_input);
-
-    // Add Face with PointHandleList, Point0 <- Edge0 -> Point1 <- Edge1 -> Point2 ... Point_end <- Edge_end -> Point0
-    // in this function, AddFaceByEdge() is called if necessary
-    FaceHandleType AddFaceByPoint(const DenseVector<PointHandleType>& PointHandleList);
-
-	//FaceHandle_input may be the handle of a deleted face, so to reused old FaceIndex if necessary
-	FaceHandleType AddFaceByPoint(const DenseVector<PointHandleType>& PointHandleList, FaceHandleType FaceHandle_input);
-
-	// modify Mesh additional Info ------------------------------------------------------------------------//
-
+	//-----------------------------------------------------------------//
 	void SetID(int_max ID);
 	int_max GetID() const;
 	void SetName(String Name);
 	String GetName() const;
 
-	int_max GetNamedPointCount() const;
-	int_max GetNamedFaceCount() const;
-	int_max GetPointSetCount() const;
-	int_max GetFaceSetCount() const;
+	//------------- Get All the position (valid point) --------------------------------//
 
-	void SetPointName(PointHandleType PointHandle, const String& PointName);
-	String GetPointName(PointHandleType PointHandle) const;
-	PointHandleType GetPointHandleByName(const String& PointName) const;	
-	ObjectArray<std::pair<String, PointHandleType>> GetPointNameHandlePair(MDK_Symbol_ALL&) const;
-	ObjectArray<String> GetAvailablePointName(MDK_Symbol_ALL&) const;
+	inline DenseMatrix<ScalarType> GetPointPosition(const MDK_Symbol_ALL&) const;
+	inline void GetPointPosition(const MDK_Symbol_ALL&, DenseMatrix<ScalarType>& PositionMatrix) const;
 
-	int_max SetPointSet(const String& PointSetName, DenseVector<PointHandleType> PointSet);
+    // Get/Set 3D Position by Index --------------------------------------------------------------------------//
+
+    inline void SetPointPosition(int_max PointIndex, ScalarType x, ScalarType y, ScalarType z);
+    inline void SetPointPosition(int_max PointIndex, const ScalarType Position[3]);
+	inline void SetPointPosition(int_max PointIndex, const DenseVector<ScalarType, 3>& Position);
+	inline void SetPointPosition(const DenseVector<int_max>& PointIndexList, const DenseMatrix<ScalarType>& PointPositionMatrix);
+
+    inline DenseVector<ScalarType, 3> GetPointPosition(int_max PointIndex) const;
+	inline void GetPointPosition(int_max PointIndex, DenseVector<ScalarType, 3>& Position) const;	
+	inline void GetPointPosition(int_max PointIndex, ScalarType& x, ScalarType& y, ScalarType& z) const;
+	inline void GetPointPosition(int_max PointIndex, ScalarType Position[3]) const;
+    inline DenseMatrix<ScalarType> GetPointPosition(const DenseVector<int_max>& PointIndexList) const;
+    inline void GetPointPosition(const DenseVector<int_max>& PointIndexList, DenseMatrix<ScalarType>& PointPositionMatrix) const;
+    
+    //----- Get/Set Mesh Item {Point, , Edge, DirectedEdge, Face} by using index  ------//
+
+    inline PointType& Point(int_max PointIndex);
+    inline const PointType& Point(int_max PointIndex) const;
+
+    inline EdgeType& Edge(int_max EdgeIndex);
+    inline const EdgeType& Edge(int_max EdgeIndex) const;
+
+    inline DirectedEdgeType& DirectedEdge(DirectedEdgeIndexType DirectedEdgeIndex);
+    inline const DirectedEdgeType& DirectedEdge(DirectedEdgeIndexType DirectedEdgeIndex) const;
+
+    inline FaceType& Face(int_max FaceIndex);
+    inline const FaceType& Face(int_max FaceIndex) const;
+
+    //-------------- check index -------------------------------------------------------//
+	// true: exist, false: not-exist
+    inline bool IsValidPointIndex(int_max PointIndex) const;
+    inline bool IsValidEdgeIndex(int_max EdgeIndex) const;
+    inline bool IsValidDirectedEdgeIndex(DirectedEdgeIndexType DirectedEdgeIndex) const;
+    inline bool IsValidFaceIndex(int_max FaceIndex) const;
+
+    //--------- get Valid IndexList ------------------------------------------------------------//
+    inline DenseVector<int_max> GetPointIndexList() const;
+    inline DenseVector<int_max> GetEdgeIndexList() const;
+    inline DenseVector<DirectedEdgeIndexType> GetDirectedEdgeIndexList() const;
+    inline DenseVector<int_max> GetFaceIndexList() const;
+
+    //----------- get PointIndex by Position, ID, Name ----------------------------------------------//
+    inline int_max GetPointIndexByPosition(const DenseVector<ScalarType, 3>& Position, ScalarType DistanceThreshold = std::numeric_limits<ScalarType>::epsilon()) const;
+    inline int_max GetPointIndexByPosition(const ScalarType Position[3], ScalarType DistanceThreshold = std::numeric_limits<ScalarType>::epsilon()) const;
+    inline int_max GetPointIndexByPosition(ScalarType x, ScalarType y, ScalarType z, ScalarType DistanceThreshold = std::numeric_limits<ScalarType>::epsilon()) const;
+    inline int_max GetPointIndexByID(int_max PointID) const;
+	inline int_max GetPointIndexByName(const String& PointName) const;
+
+    //----------- get EdgeIndex by Point, ID, Name -------------------------------------//
+	inline int_max GetEdgeIndexByPoint(int_max PointIndex0, int_max PointIndex1) const;
+    inline int_max GetEdgeIndexByID(int_max EdgeID) const;
+	inline int_max GetEdgeIndexByName(const String& EdgeName) const;
+
+    //----------- get DirectedEdgeIndex by Point, ID, Name -------------------------------//
+	// non-manifold is allowed: maybe more than one DirectedEdge from PointIndex_start to PointIndex_end
+	//                          there are many face containing PointIndex_start and  PointIndex_end
+	//                          each face has a DirectedEdge from PointIndex_start to PointIndex_end
+    inline DenseVector<DirectedEdgeIndexType> GetDirectedEdgeIndexListByPoint(int_max PointIndex_start, int_max PointIndex_end) const;
+	inline DirectedEdgeIndexType GetDirectedEdgeIndexByID(int_max DirectedEdgeID) const;
+	inline DirectedEdgeIndexType GetDirectedEdgeIndexByName(const String& DirectedEdgeName) const;
+
+    //----------- get FaceIndex by Point, Edge, ID, Name ----------//    
+	// PointIndexList/EdgeIndexList can have random order of point/edge
+    inline int_max GetFaceIndexByPoint(const DenseVector<int_max>& PointIndexList) const;
+    inline int_max GetFaceIndexByEdge(const DenseVector<int_max>& EdgeIndexList) const;
+	inline int_max GetFaceIndexByID(int_max FaceID) const;
+	inline int_max GetFaceIndexByName(const String& Name) const;
+
+	//-------------- check ID -------------------------------------------------------//
+	// true: exist, false: not-exist
+	inline bool IsValidPointID(int_max PointID) const;
+	inline bool IsValidEdgeID(int_max EdgeID) const;
+	inline bool IsValidDirectedEdgeID(int_max DirectedEdgeID) const;
+	inline bool IsValidFaceID(int_max FaceID) const;
+
+	//--------- get Valid IDList ------------------------------------------------------------//
+	inline DenseVector<int_max> GetValidPointIDList() const;
+	inline DenseVector<int_max> GetValidEdgeIDList() const;
+	inline DenseVector<int_max> GetValidDirectedEdgeIDList() const;
+	inline DenseVector<int_max> GetValidFaceIDList() const;
+
+    //----------- get Point/Edge/DirectedEdge/Face ID by Index -----------------------------------------------------------//
+    inline int_max GetPointID(int_max PointIndex) const;
+	inline DenseVector<int_max> GetPointID(const DenseVector<int_max>& PointIndexList) const;	
+    inline int_max GetEdgeID(int_max EdgeIndex) const;
+	inline DenseVector<int_max> GetEdgeID(const DenseVector<int_max>& EdgeIndexList) const;
+    inline int_max GetDirectedEdgeID(DirectedEdgeIndexType DirectedEdgeIndex) const;
+	inline DenseVector<int_max> GetDirectedEdgeID(const DenseVector<DirectedEdgeIndexType>& DirectedEdgeIndexList) const;
+    inline int_max GetFaceID(int_max FaceIndex) const;
+    inline DenseVector<int_max> GetFaceID(const DenseVector<int_max>& FaceIndexList) const;
+	
+	//-------------- check Name -------------------------------------------------------//
+	// true: exist, false: not-exist
+	inline bool IsValidPointName(const String& PointName) const;
+	inline bool IsValidEdgeName(const String& EdgeName) const;
+	inline bool IsValidDirectedEdgeName(const String& DirectedEdgeName) const;
+	inline bool IsValidFaceName(const String& FaceName) const;
+	
+	//--------- get Valid NameList ------------------------------------------------------------//
+	ObjectArray<String> GetValidPointNameList() const;
+	ObjectArray<String> GetValidEdgeNameList() const;
+	ObjectArray<String> GetValidDirectedEdgeNameList() const;
+	ObjectArray<String> GetValidFaceNameList() const;
+
+	//----------- get Point/Edge/DirectedEdge/Face Name by Index -----------------------------------------------------------//
+	inline String GetPointName(int_max PointIndex) const;
+	inline ObjectArray<String> GetPointName(const DenseVector<int_max>& PointIndexList) const;
+	inline String GetEdgeName(int_max EdgeIndex) const;
+	inline ObjectArray<String> GetEdgeName(const DenseVector<int_max>& EdgeIndexList) const;	
+	inline String GetDirectedEdgeName(DirectedEdgeIndexType DirectedEdgeIndex) const;
+	inline ObjectArray<String> GetDirectedEdgeName(const DenseVector<DirectedEdgeIndexType>& DirectedEdgeIndexList) const;
+	inline String GetFaceName(int_max FaceIndex) const;
+	inline ObjectArray<String> GetFaceName(const DenseVector<int_max>& FaceIndexList) const;
+
+	//------------ PointSet, EdgeSet, FaceSet ------------------------------------------//
+	int_max GetPointSetCount() const;	
+	int_max SetPointSet(const String& PointSetName, DenseVector<int_max> PointSet);
 	int_max GetPointSetIndex(const String& PointSetName) const;
 	String GetPointSetName(int_max PointSetIndex) const;
-	DenseVector<PointHandleType> GetPointSet(int_max PointSetIndex) const;	
-	DenseVector<PointHandleType> GetPointSet(const String& PointSetName) const;
+	DenseVector<int_max> GetPointSet(int_max PointSetIndex) const;
+	DenseVector<int_max> GetPointSet(const String& PointSetName) const;
 	ObjectArray<String> GetPointSetName(MDK_Symbol_ALL&) const;
-	ObjectArray<DenseVector<PointHandleType>> GetPointSet(MDK_Symbol_ALL&) const;
+	ObjectArray<DenseVector<int_max>> GetPointSet(MDK_Symbol_ALL&) const;
 
-	void SetFaceName(FaceHandleType FaceHandle, const String& FaceName);
-	String GetFaceName(FaceHandleType FaceHandle) const;
-	FaceHandleType GetFaceHandleByName(const String& FaceName) const;
-	ObjectArray<std::pair<String, FaceHandleType>> GetFaceNameHandlePair(MDK_Symbol_ALL&) const;
-	ObjectArray<String> GetAvailableFaceName(MDK_Symbol_ALL&) const;
-	
-	int_max SetFaceSet(const String& FaceSetName, DenseVector<FaceHandleType> FaceSet);
+	int_max GetEdgeSetCount() const;
+	int_max SetEdgeSet(const String& EdgeSetName, DenseVector<int_max> EdgeSet);
+	int_max GetEdgeSetIndex(const String& EdgeSetName) const;
+	String GetEdgeSetName(int_max EdgeSetIndex) const;
+	DenseVector<int_max> GetEdgeSet(int_max EdgeSetIndex) const;
+	DenseVector<int_max> GetEdgeSet(const String& EdgeSetName) const;
+	ObjectArray<String> GetEdgeSetName(MDK_Symbol_ALL&) const;
+	ObjectArray<DenseVector<int_max>> GetEdgeSet(MDK_Symbol_ALL&) const;
+
+	int_max GetFaceSetCount() const;
+	int_max SetFaceSet(const String& FaceSetName, DenseVector<int_max> FaceSet);
 	int_max GetFaceSetIndex(const String& FaceSetName) const;
-	String GetFaceSetName(int_max PointSetIndex) const;
-	DenseVector<FaceHandleType> GetFaceSet(int_max FaceSetIndex) const;
-	DenseVector<FaceHandleType> GetFaceSet(const String& FaceSetName) const;
-    ObjectArray<String> GetFaceSetName(MDK_Symbol_ALL&) const;
-	ObjectArray<DenseVector<FaceHandleType>> GetFaceSet(MDK_Symbol_ALL&) const;
+	String GetFaceSetName(int_max FaceSetIndex) const;
+	DenseVector<int_max> GetFaceSet(int_max FaceSetIndex) const;
+	DenseVector<int_max> GetFaceSet(const String& FaceSetName) const;
+	ObjectArray<String> GetFaceSetName(MDK_Symbol_ALL&) const;
+	ObjectArray<DenseVector<int_max>> GetFaceSet(MDK_Symbol_ALL&) const;
+
+    //------------- Iterator --------------------------------------------------------------//
+    inline PointIteratorType  GetIteratorOfPoint();
+    inline const PointIteratorType  GetIteratorOfPoint() const;
+    inline EdgeIteratorType   GetIteratorOfEdge();
+    inline const EdgeIteratorType   GetIteratorOfEdge() const;
+    inline DirectedEdgeIteratorType   GetIteratorOfDirectedEdge();
+    inline const DirectedEdgeIteratorType   GetIteratorOfDirectedEdge() const;
+    inline FaceIteratorType   GetIteratorOfFace();
+    inline const FaceIteratorType   GetIteratorOfFace() const;
+
+	//------------ SetCapacity, ReleaseUnusedCapacity -------------------------------------//
+	void SetCapacity(int_max PointCount, int_max EdgeCount, int_max FaceCount);
+	void ReleaseUnusedCapacity();
+
+    // Add Mesh Item -------------------------------------------------------------------------//
+    // add an item and return index (-1 if input is invalid)
+
+    // add a Point and return PointIndex in m_MeshData->PointList
+    int_max AddPoint(const DenseVector<ScalarType, 3>& Position);
+	int_max AddPoint(const DenseVector<ScalarType>& Position);
+	int_max AddPoint(const DenseMatrix<ScalarType>& Position);
+	int_max AddPoint(const ScalarType Position[3]);
+	int_max AddPoint(ScalarType x, ScalarType y, ScalarType z);
+    
+    // add a set of points and return PointIndexList
+    DenseVector<int_max> AddPoint_batch(const DenseMatrix<ScalarType>& PointSet);
+	DenseVector<int_max> AddPoint_batch(DenseMatrix<ScalarType>&& PointSet);
+
+    // add an Edge and return EdgeIndex in m_MeshData->EdgeList
+    // also create invalid DirectedEdge to hold place at m_MeshData->DirectedEdgeList[EdgeIndex]
+    // Check is performed in the function to ensure that an edge will not be added more than once
+	int_max AddEdge(int_max PointIndex0, int_max PointIndex1);
+
+	// EdgeIndex_input may be the Index of a deleted edge, so to reuse old EdgeIndex if necessary
+	int_max AddEdge(int_max PointIndex0, int_max PointIndex1, int_max EdgeIndex_input);
+
+    // add a face and return FaceIndex in m_MeshData->FaceList
+    // add DirectedEdge of the face
+    // the order of Edge in EdgeIndexList determine the direction of each DirectedEdge and the direction/sign of the normal vector
+	int_max AddFaceByEdge(const DenseVector<int_max>& EdgeIndexList);
+
+	//FaceIndex_input may be the Index of a deleted face, so to reused old FaceIndex if necessary
+	int_max AddFaceByEdge(const DenseVector<int_max>& EdgeIndexList, int_max FaceIndex_input);
+
+    // Add Face with PointIndexList, Point0 <- Edge0 -> Point1 <- Edge1 -> Point2 ... Point_end <- Edge_end -> Point0
+    // in this function, AddFaceByEdge() is called if necessary
+	int_max AddFaceByPoint(const DenseVector<int_max>& PointIndexList);
+
+	//FaceIndex_input may be the Index of a deleted face, so to reused old FaceIndex if necessary
+	int_max AddFaceByPoint(const DenseVector<int_max>& PointIndexList, int_max FaceIndex_input);
 
     // Delete Mesh Item ----------------------------------------------------------------------------//
 
     // m_MeshData->FaceList[FaceIndex].Clear() only release memory
     // this function will delete each DirectedEdge of the Face, and modify any information related to the face
-    // FaceHandle and FaceID of the face become invalid after the face is deleted
-	void DeleteFace(FaceHandleType FaceHandle);
+    // FaceIndex, FaceID, FaceName become invalid after the face is deleted
+	void DeleteFace(int_max FaceIndex);
 
     // m_MeshData->EdgeList[EdgeIndex].Clear() only release memory
     // this function will modify any information related to the Edge
-    // EdgeHandle and EdgeID of the edge become invalid after the edge is deleted
+    // EdgeIndex, EdgeID, EdgeName become invalid after the edge is deleted
     // Check is performed in the function to make sure an edge can not be deleted if any adjacent face exit
 	//
-	// note:  Call Edge(EdgeHandle).GetAdjacentFaceCount() to check if the edge can be deleted or not
-	void DeleteEdge(EdgeHandleType EdgeHandle);
+	// note:  Call Edge(EdgeIndex).GetAdjacentFaceCount() to check if the edge can be deleted or not
+	void DeleteEdge(int_max EdgeIndex);
 
     // m_MeshData->PointList[PointIndex].Cear() only release memory
     // this function will modify any information related to the point
     // Check is performed in the function to make sure a point can not be deleted if any adjacent edge exit	
-    // PointHandle and PointID of the point become invalid after the point is deleted
+    // PointIndex, PointID, PointName become invalid after the point is deleted
 	//
-	// note: Call Point(PointHandle).IsOnEdge() to check if the point can be deleted or not
-	void DeletePoint(PointHandleType PointHandle);
-	void DeletePoint(const DenseVector<PointHandleType>& PointHandleList);
+	// note: Call Point(PointIndex).IsOnEdge() to check if the point can be deleted or not
+	void DeletePoint(int_max PointIndex);
+	void DeletePoint(const DenseVector<int_max>& PointIndexList);
 
     // remove deleted item from object list ----------------------------------------------------------//
-    // attention: after CleanDataStructure() is called, handle may become invalid, but, ID will not change
-    // use this function when InvalidPointHandleCount/ValidPointCount( GetPointCount() ) > 0.5
+    // attention: after CleanDataStructure() is called, Index may become invalid, but, ID will not change
+    // use this function when DeletedPointCount/ValidPointCount( GetPointCount() ) > 0.5
     void CleanDataStructure();	
 	void CleanDataStructure(DenseVector<int_max>& PointIndexMap_Old_To_New, DenseVector<int_max>& EdgeIndexMap_Old_To_New, DenseVector<int_max>& FaceIndexMap_Old_To_New);
-	bool Check_If_DataStructure_is_Clean() const;//true: clean, false: invalid handle exit
+	bool Check_If_DataStructure_is_Clean() const;//true: clean, false: invalid index exit
     int_max GetDeletedPointCount() const; // the number of Deleted points
 	int_max GetDeletedEdgeCount() const; // the number of Deleted edges
 	int_max GetDeletedFaceCount() const; // the number of Deleted faces
 
-   //------------ Construct from input data ------------------------------------//
-
+    //------------ Construct from input data ------------------------------------//
+    // point index order in each InputFaceTable[k] should be consistent
 	void Construct(DenseMatrix<ScalarType> InputPointPositionMatrix, const ObjectArray<DenseVector<int_max>>& InputFaceTable);
-	// index order in each PointIndexList should be consistent
-
-	//--------------------- output -------------------------------------------------//
-
+	
+    //--------------------- output -------------------------------------------------//
 	std::pair<DenseMatrix<ScalarType>, ObjectArray<DenseVector<int_max>>> GetPointPositionMatrixAndFaceTable() const;
-
 	void GetPointPositionMatrixAndFaceTable(DenseMatrix<ScalarType>& PointPositionTable, ObjectArray<DenseVector<int_max>>& FaceTable) const;
 
 	//--- check --------------------------//
@@ -478,14 +451,14 @@ public:
 
     //---------------------------------------------------------------------------------------------------
 
-    // get a sub mesh by FaceHandleList
-    PolygonMesh<MeshAttributeType> GetSubMeshByFace(const DenseVector<FaceHandleType>& FaceHandleList) const;
+    // get a sub mesh by FaceIndexList
+    PolygonMesh<MeshAttributeType> GetSubMeshByFace(const DenseVector<int_max>& FaceIndexList) const;
 
     // other basic operation ----------------------------------------------------------------------------------------
 	
-	// change P0->P1->P2->...->Pn to Pn->...->P2->P1
+	// change P0->P1->P2->...->Pn to Pn->...->P2->P1->P0
 	// change AddFaceByPoint({P0, P1, P2,...,Pn}) to AddFaceByPoint({Pn,..., P2, P1, P0})
-	void ReversePointOrderOfFace(FaceHandleType FaceHandle);
+	void ReversePointOrderOfFace(int_max FaceIndex);
 
 	// swap PointA and PointB: move A to B, move B to A, NOT change the mesh topology
 	// A, B, C, D are point ID/name
@@ -496,7 +469,7 @@ public:
 	//       |          |
 	//       D          D
     //------------------------	
-	bool SwapPoint(PointHandleType PointHandleA, PointHandleType PointHandleB);
+	bool SwapPoint(int_max PointIndexA, int_max PointIndexB);
 
 	// swap the connection: NOT move A or B, Change the mesh topology
 	// A, B, C, D are point ID/name
@@ -507,7 +480,7 @@ public:
 	//       |       \
 	//       D         D
     //------------------------	
-	bool SwapConnectivityOfPoint(PointHandleType PointHandleA, PointHandleType PointHandleB);
+	bool SwapConnectivityOfPoint(int_max PointIndexA, int_max PointIndexB);
 
 	// merge the connection of PointB to the connection of PointA, then PointB become an isolated point
 	// if an edge between A and B exist, then it will be deleted
@@ -518,84 +491,23 @@ public:
 	// ---A---B =>    ---A   B
 	//    |   |          | \
     //-------------------------------
-	bool MergeConnectivityOfPoint(PointHandleType PointHandleA, PointHandleType PointHandleB);
+	bool MergeConnectivityOfPoint(int_max PointIndexA, int_max PointIndexB);
 
-	// PointHandle may not be on the edge
+	// Point may not be on the edge
 	// return true if success
-	bool ShrinkEdgeToPoint(EdgeHandleType EdgeHandle, PointHandleType PointHandle);
+	bool ShrinkEdgeToPoint(int_max EdgeIndex, int_max PointIndex);
 
-	DenseVector<EdgeHandleType, 2> SplitEdgeByPoint(EdgeHandleType EdgeHandle, PointHandleType PointHandle);
+	DenseVector<int_max, 2> SplitEdgeByPoint(int_max EdgeIndex, int_max PointIndex);
 
-	// PointHandle may not be on the face
+	// Point may not be on the face
 	// return true if success
 	// can NOT shrink if it lead to merge of two point of a triangle face: return false
-	bool ShrinkFaceToPoint(FaceHandleType FaceHandle, PointHandleType PointHandle);
+	bool ShrinkFaceToPoint(int_max FaceIndex, int_max PointIndex);
 
 	/*
-	FaceHandleType MergeAdjacentFace(FaceHandleType FaceHandleA, FaceHandleType FaceHandleB);
+	int_max MergeAdjacentFace(int_max FaceIndexA, int_max FaceIndexB);
 
-	DenseVector<FaceHandleType, 2> SplitFaceByEdge(EdgeHandleType EdgeHandle);
-	*/
-
-	//-----------------------------------------------------------------------------------------------------
-
-	template<typename ElementType>
-	DenseVector<ElementType> Intersect(const DenseVector<ElementType>& SetA, const DenseVector<ElementType>& SetB) const;
-
-	template<typename ElementType>
-	DenseVector<ElementType> SetDiff(const DenseVector<ElementType>& SetA, const DenseVector<ElementType>& SetB) const;//A-B
-
-	//-----------------------------------------------------------------------------------------------------
-
-	template<typename HandleType>
-	inline HandleType ConvertIndexToHandle(int_max Index) const;
-
-	template<typename HandleType>
-	DenseVector<HandleType> ConvertIndexToHandle(const DenseVector<int_max>& IndexList) const;
-
-	inline PointHandleType ConvertPointIndexToPointHandle(int_max PointIndex) const;
-	DenseVector<PointHandleType> ConvertPointIndexToPointHandle(const DenseVector<int_max>& PointIndexList) const;
-
-	inline EdgeHandleType ConvertEdgeIndexToEdgeHandle(int_max EdgeIndex) const;
-	DenseVector<EdgeHandleType> ConvertEdgeIndexToEdgeHandle(const DenseVector<int_max>& EdgeIndexList) const;
-
-	inline FaceHandleType ConvertFaceIndexToFaceHandle(int_max FaceIndex) const;
-	DenseVector<FaceHandleType> ConvertFaceIndexToFaceHandle(const DenseVector<int_max>& FaceIndexList) const;
-
-	inline int_max ConvertHandleToIndex(PointHandleType PointHandle) const;
-	DenseVector<int_max> ConvertHandleToIndex(const DenseVector<PointHandleType>& PointHandleList) const;
-
-	inline int_max ConvertHandleToIndex(EdgeHandleType EdgeHandle) const;
-	DenseVector<int_max> ConvertHandleToIndex(const DenseVector<EdgeHandleType>& EdgeHandleList) const;
-
-	inline int_max ConvertHandleToIndex(FaceHandleType FaceHandle) const;
-	DenseVector<int_max> ConvertHandleToIndex(const DenseVector<FaceHandleType>& FaceHandleList) const;
-
-	//------------- Mesh Attribute --------------------------------------------------//
-	/*
-	void UpdateNormalAtFace(); // all
-	void UpdateNormalAtFace(FaceHandleType FaceHandle);
-	void UpdateNormalAtFace(int_max FaceID);
-
-	void UpdateAreaOfFace(); // all
-	void UpdateAreaOfFace(FaceHandleType FaceHandle);
-	void UpdateAreaOfFace(int_max FaceID);
-
-	void UpdateCornerAngleOfFace(); // all
-	void UpdateCornerAngleOfFace(FaceHandleType FaceHandle);
-	void UpdateCornerAngleOfFace(int_max FaceID);
-
-	void UpdateAngleWeightedNormalAtPoint(); // all
-	void UpdateAngleWeightedNormalAtPoint(PointHandleType PointHandle);
-	void UpdateAngleWeightedNormalAtPoint(int_max PointID);
-
-	void UpdateGaussianCurvatureAtPoint(); // all
-	void UpdateGaussianCurvatureAtPoint(PointHandleType PointHandle);
-	void UpdateGaussianCurvatureAtPoint(int_max PointID);
-
-	void UpdateMeanCurvatureAtPoint(); // all
-	void UpdateMeanCurvatureAtPoint(PointHandleType PointHandle);
-	void UpdateMeanCurvatureAtPoint(int_max PointID);
+	DenseVector<int_max, 2> SplitFaceByEdge(int_max FaceIndex, int_max EdgeIndex);
 	*/
 
 protected:

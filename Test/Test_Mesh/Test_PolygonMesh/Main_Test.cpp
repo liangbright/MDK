@@ -12,6 +12,9 @@ int main()
 	Test_ShrinkFace();
 	Test_ReversePointOrder();
 	Test_AddtionalInfo();
+
+	//Test_AddtionalInfo_Name();
+
     std::system("pause");
 
     return 1;
