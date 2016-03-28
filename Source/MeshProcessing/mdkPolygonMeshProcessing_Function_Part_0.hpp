@@ -134,7 +134,7 @@ ObjectArray<DenseVector<int_max>> TraceMeshBoundaryCurve(const PolygonMesh<MeshA
     while (true)
     {
         // pick a boundary point and track boundary
-        int_max BoundaryPointIndex;
+		int_max BoundaryPointIndex = -1;
         for (int_max k = 0; k < FlagList.GetLength(); ++k)
         {
             if (FlagList[k] == 0)
