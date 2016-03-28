@@ -396,6 +396,9 @@ public:
 
     inline void Clear();
 
+	//------------------------- Recreate -------------------------------------------//
+	inline void Recreate();
+
 	//---------------------- Set/get Size ----------------------------------------//
 
 	inline void Resize(int_max InputLength); // try to keep the old data

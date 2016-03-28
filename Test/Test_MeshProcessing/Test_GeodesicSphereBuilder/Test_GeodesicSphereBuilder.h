@@ -1,6 +1,5 @@
 #include "mdkGeodesicSphereBuilder.h"
-#include "mdkTriangleMesh_FileIO.h"
-#include "mdkTriangleMeshProcessing.h"
+#include "mdkPolygonMeshProcessing.h"
 
 void Test_a()
 {
@@ -9,7 +8,7 @@ void Test_a()
 	GeodesicSphereBuilder<double> Builder;
 	Builder.SetMaxDepth(6);
 	Builder.Update();
-	auto& SphereList = *Builder.GetSphereList();
+	auto& SphereList = Builder.OutputSphereList();
 
 	String File0 = "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_GeodesicSphereBuilder/TestData/Sphere_d0.vtk";
 	String File1 = "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_GeodesicSphereBuilder/TestData/Sphere_d1.vtk";

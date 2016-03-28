@@ -24,9 +24,8 @@ public:
 	void Clear();
 	void SetMaxDepth(int_max MaxDepth);
 	void Update();
-	MeshType* GetSphereAtDepth(int_max Depth);
-	MeshType* GetSphereAtMaxDepth();
-	ObjectArray<MeshType>* GetSphereList();
+	int_max GetMaxDepth() {	return m_MaxDepth;	}
+	ObjectArray<MeshType>& OutputSphereList() { return m_SphereList;}
 
 private:
 	void BuildInitialSphere();

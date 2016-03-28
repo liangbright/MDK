@@ -21,7 +21,7 @@ void TemplateBasedSurfaceRemesher<ScalarType>::Clear()
 	m_TemplateMesh.Recreate();// dot NOT use Clear
 	m_BoundarySegmentListOfTemplateMesh.Clear();
 
-	m_BoundaryPointHandleListOfInputMesh.Clear();
+	m_BoundaryPointIndexListOfInputMesh.Clear();
 	m_UVTalbleOfBoundaryOfInputMesh.Clear();
 
 	m_DiffusionCoefficient = 0.5;
@@ -36,7 +36,7 @@ void TemplateBasedSurfaceRemesher<ScalarType>::Clear()
 template<typename ScalarType>
 void TemplateBasedSurfaceRemesher<ScalarType>::ClearInternalData()
 {
-	m_BoundaryPointHandleListOfTemplateMesh.Clear();
+	m_BoundaryPointIndexListOfTemplateMesh.Clear();
 	m_BoundaryPositionOfTemplateMesh.Clear();
 	m_BoundaryPositionOfOutputMesh.Clear();
 	m_TransfromedInputMesh.Clear();
@@ -173,8 +173,8 @@ void TemplateBasedSurfaceRemesher<ScalarType>::Update()
 template<typename ScalarType>
 void TemplateBasedSurfaceRemesher<ScalarType>::FindBoundaryConstraint()
 {
-	m_BoundaryPointHandleListOfInputMesh.Clear();
-	m_BoundaryPointHandleListOfInputMesh.SetCapacity(100 * m_BoundarySegmentListOfInputMesh.GetLength());
+	m_BoundaryPointIndexListOfInputMesh.Clear();
+	m_BoundaryPointIndexListOfInputMesh.SetCapacity(100 * m_BoundarySegmentListOfInputMesh.GetLength());
 
 	ObjectArray<DenseMatrix<ScalarType>> UVTalbleOfInputBoundary;
 	UVTalbleOfInputBoundary.Resize(m_BoundarySegmentListOfInputMesh.GetLength());
@@ -213,14 +213,14 @@ void TemplateBasedSurfaceRemesher<ScalarType>::FindBoundaryConstraint()
 			}
 		}
 
-		m_BoundaryPointHandleListOfInputMesh.Append(CurveHandle_input);
+		m_BoundaryPointIndexListOfInputMesh.Append(CurveHandle_input);
 	}
 
-	m_BoundaryPointHandleListOfInputMesh = m_BoundaryPointHandleListOfInputMesh.GetSubSet(m_BoundaryPointHandleListOfInputMesh.FindUnique());
+	m_BoundaryPointIndexListOfInputMesh = m_BoundaryPointIndexListOfInputMesh.GetSubSet(m_BoundaryPointIndexListOfInputMesh.FindUnique());
 	
 	//-----------------------------------------------------------------------------------------------//
 	m_UVTalbleOfBoundaryOfInputMesh.Clear();
-	m_UVTalbleOfBoundaryOfInputMesh.Resize(2, m_BoundaryPointHandleListOfInputMesh.GetLength());
+	m_UVTalbleOfBoundaryOfInputMesh.Resize(2, m_BoundaryPointIndexListOfInputMesh.GetLength());
 	m_UVTalbleOfBoundaryOfInputMesh.Fill(0);
 
 	for (int_max k = 0; k < m_BoundarySegmentListOfInputMesh.GetLength(); ++k)
@@ -230,7 +230,7 @@ void TemplateBasedSurfaceRemesher<ScalarType>::FindBoundaryConstraint()
 
 		for (int_max n = 0; n < CurveHandle.GetLength(); ++n)
 		{
-			auto tempIndex = m_BoundaryPointHandleListOfInputMesh.ExactMatch("first", CurveHandle[n]);
+			auto tempIndex = m_BoundaryPointIndexListOfInputMesh.ExactMatch("first", CurveHandle[n]);
 			auto u = UVCurve(0, n);
 			auto v = UVCurve(1, n);
 			m_UVTalbleOfBoundaryOfInputMesh.SetCol(tempIndex, {u,v});
@@ -238,8 +238,8 @@ void TemplateBasedSurfaceRemesher<ScalarType>::FindBoundaryConstraint()
 	}
 	//-----------------------------------------------------------------------------------------------//
 
-	m_BoundaryPointHandleListOfTemplateMesh.Clear();
-	m_BoundaryPointHandleListOfTemplateMesh.SetCapacity(100 * m_BoundarySegmentListOfInputMesh.GetLength());
+	m_BoundaryPointIndexListOfTemplateMesh.Clear();
+	m_BoundaryPointIndexListOfTemplateMesh.SetCapacity(100 * m_BoundarySegmentListOfInputMesh.GetLength());
 
 	ObjectArray<DenseMatrix<ScalarType>> OutputBoundaryPosition;
 	OutputBoundaryPosition.Resize(m_BoundarySegmentListOfTemplateMesh.GetLength());
@@ -278,14 +278,14 @@ void TemplateBasedSurfaceRemesher<ScalarType>::FindBoundaryConstraint()
 			}
 		}
 
-		m_BoundaryPointHandleListOfTemplateMesh.Append(CurveHandle_template);
+		m_BoundaryPointIndexListOfTemplateMesh.Append(CurveHandle_template);
 	}
 
-	m_BoundaryPointHandleListOfTemplateMesh = m_BoundaryPointHandleListOfTemplateMesh.GetSubSet(m_BoundaryPointHandleListOfTemplateMesh.FindUnique());
+	m_BoundaryPointIndexListOfTemplateMesh = m_BoundaryPointIndexListOfTemplateMesh.GetSubSet(m_BoundaryPointIndexListOfTemplateMesh.FindUnique());
 
 	//-----------------------------------------------------------------------------------------------//
 	m_BoundaryPositionOfOutputMesh.Clear();
-	m_BoundaryPositionOfOutputMesh.Resize(3, m_BoundaryPointHandleListOfTemplateMesh.GetLength());
+	m_BoundaryPositionOfOutputMesh.Resize(3, m_BoundaryPointIndexListOfTemplateMesh.GetLength());
 	m_BoundaryPositionOfOutputMesh.Fill(0);
 
 	for (int_max k = 0; k < m_BoundarySegmentListOfTemplateMesh.GetLength(); ++k)
@@ -295,24 +295,24 @@ void TemplateBasedSurfaceRemesher<ScalarType>::FindBoundaryConstraint()
 
 		for (int_max n = 0; n < CurveHandle.GetLength(); ++n)
 		{
-			auto tempIndex = m_BoundaryPointHandleListOfTemplateMesh.ExactMatch("first", CurveHandle[n]);
+			auto tempIndex = m_BoundaryPointIndexListOfTemplateMesh.ExactMatch("first", CurveHandle[n]);
 			m_BoundaryPositionOfOutputMesh.SetCol(tempIndex, Curve.GetPointerOfCol(n));
 		}
 	}
 
-	m_BoundaryPositionOfTemplateMesh = m_TemplateMesh.GetPointPosition(m_BoundaryPointHandleListOfTemplateMesh);
+	m_BoundaryPositionOfTemplateMesh = m_TemplateMesh.GetPointPosition(m_BoundaryPointIndexListOfTemplateMesh);
 }
 
 
 template<typename ScalarType>
 bool TemplateBasedSurfaceRemesher<ScalarType>::CheckBoundaryConstraint()
 {
-	//check if all the boundary point of input mesh is included in m_BoundaryPointHandleListOfInputMesh
+	//check if all the boundary point of input mesh is included in m_BoundaryPointIndexListOfInputMesh
 	for (auto it = m_InputMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
 	{
 		if (it.Point().IsOnBoundaryEdge() == true)
 		{
-			auto tempIndex = m_BoundaryPointHandleListOfInputMesh.ExactMatch("first", it.GetPointHandle());
+			auto tempIndex = m_BoundaryPointIndexListOfInputMesh.ExactMatch("first", it.GetPointIndex());
 			if (tempIndex < 0)
 			{
 				MDK_Error(" Some boundary point of input mesh is NOT included in BoundarySegmentListOfInputMesh @ TemplateBasedSurfaceRemesher::CheckBoundaryConstraint()")
@@ -329,7 +329,7 @@ void TemplateBasedSurfaceRemesher<ScalarType>::TransformInputMeshFrom3DTo2D()
 {
 	MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType> Mapper;
 	Mapper.InputMesh().Share(m_InputMesh);
-	Mapper.BoundaryPointHandleList() = m_BoundaryPointHandleListOfInputMesh;
+	Mapper.BoundaryPointIndexList() = m_BoundaryPointIndexListOfInputMesh;
 	Mapper.UVTableOfBoundary() = m_UVTalbleOfBoundaryOfInputMesh;
 	Mapper.SetDiffusionCoefficient(m_DiffusionCoefficient);
 	Mapper.Update();
@@ -382,7 +382,7 @@ void TemplateBasedSurfaceRemesher<ScalarType>::TransfromTemplateMeshFrom2Dto3D_M
 	m_OutputMesh = m_TemplateMesh;
 	for (auto it = m_OutputMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
 	{
-		auto tempIndex = m_BoundaryPointHandleListOfTemplateMesh.ExactMatch("first", it.GetPointHandle());
+		auto tempIndex = m_BoundaryPointIndexListOfTemplateMesh.ExactMatch("first", it.GetPointIndex());
 		if (tempIndex >= 0)
 		{
 			DenseVector<ScalarType, 3> Pos3D;
@@ -392,14 +392,14 @@ void TemplateBasedSurfaceRemesher<ScalarType>::TransfromTemplateMeshFrom2Dto3D_M
 		else
 		{
 			auto Pos2D = it.Point().GetPosition();
-			auto PointHandleList_nearest = this->Find3PointOfNearestFace(Pos2D, m_TransfromedInputMesh);
+			auto PointIndexList_nearest = this->Find3PointOfNearestFace(Pos2D, m_TransfromedInputMesh);
 
 			DenseVector<ScalarType, 3> Weight;
 			Weight.Fill(0);
 			{
-				auto Point0 = m_TransfromedInputMesh.GetPointPosition(PointHandleList_nearest[0]);
-				auto Point1 = m_TransfromedInputMesh.GetPointPosition(PointHandleList_nearest[1]);
-				auto Point2 = m_TransfromedInputMesh.GetPointPosition(PointHandleList_nearest[2]);
+				auto Point0 = m_TransfromedInputMesh.GetPointPosition(PointIndexList_nearest[0]);
+				auto Point1 = m_TransfromedInputMesh.GetPointPosition(PointIndexList_nearest[1]);
+				auto Point2 = m_TransfromedInputMesh.GetPointPosition(PointIndexList_nearest[2]);
 
 				auto x = Pos2D[0];
 				auto y = Pos2D[1];
@@ -429,9 +429,9 @@ void TemplateBasedSurfaceRemesher<ScalarType>::TransfromTemplateMeshFrom2Dto3D_M
 				
 			}
 
-			auto Point0 = m_InputMesh.GetPointPosition(PointHandleList_nearest[0]);
-			auto Point1 = m_InputMesh.GetPointPosition(PointHandleList_nearest[1]);
-			auto Point2 = m_InputMesh.GetPointPosition(PointHandleList_nearest[2]);
+			auto Point0 = m_InputMesh.GetPointPosition(PointIndexList_nearest[0]);
+			auto Point1 = m_InputMesh.GetPointPosition(PointIndexList_nearest[1]);
+			auto Point2 = m_InputMesh.GetPointPosition(PointIndexList_nearest[2]);
 			auto Pos3D = Weight[0] * Point0 + Weight[1] * Point1 + Weight[2] * Point2;
 			it.Point().SetPosition(Pos3D);
 		}
@@ -483,35 +483,12 @@ DenseVector<ScalarType> TemplateBasedSurfaceRemesher<ScalarType>::ComputeCumulat
 
 
 template<typename ScalarType>
-typename TemplateBasedSurfaceRemesher<ScalarType>::PointHandleType
-TemplateBasedSurfaceRemesher<ScalarType>::ConvertPointIndexToPointHandle(int_max Index)
+DenseVector<int_max, 3> TemplateBasedSurfaceRemesher<ScalarType>::Find3PointOfNearestFace(const DenseVector<ScalarType, 3>& Point, const TriangleMesh<InputMeshAttribute>& TargetMesh)
 {
-	PointHandleType P;
-	P.SetIndex(Index);
-	return P;
-}
-
-template<typename ScalarType>
-DenseVector<typename TemplateBasedSurfaceRemesher<ScalarType>::PointHandleType> 
-TemplateBasedSurfaceRemesher<ScalarType>::ConvertPointIndexToPointHandle(const DenseVector<int_max>& IndexList)
-{
-	DenseVector<PointHandleType> HandleList;
-	HandleList.Resize(IndexList.GetLength());
-	for (int_max k = 0; k < HandleList.GetLength(); ++k)
-	{
-		HandleList[k].SetIndex(IndexList[k]);
-	}
-	return HandleList;
-}
-
-template<typename ScalarType>
-DenseVector<typename TemplateBasedSurfaceRemesher<ScalarType>::PointHandleType, 3>
-TemplateBasedSurfaceRemesher<ScalarType>::Find3PointOfNearestFace(const DenseVector<ScalarType, 3>& Point, const TriangleMesh<InputMeshAttribute>& TargetMesh)
-{
-	DenseVector<PointHandleType, 3> PointHandleList_nearest;
+	DenseVector<int_max, 3> PointIndexList_nearest;
     //-----------------------------------------------//
-	DenseVector<FaceHandleType> CandidateFaceHandleList;
-	PointHandleType PointHanle_nearest;
+	DenseVector<int_max> CandidateFaceIndexList;
+	int_max PointIndex_nearest = -1;
 	DenseVector<ScalarType, 3> PointPosition_nearest;
 	{
 		DenseVector<ScalarType> DistanceList;
@@ -524,23 +501,21 @@ TemplateBasedSurfaceRemesher<ScalarType>::Find3PointOfNearestFace(const DenseVec
 		}
 		auto PointIndexList_sort = DistanceList.Sort("ascend");		
 		auto PointIndexList_nearest = PointIndexList_sort[0];
-		auto PointIndex_nearest = DistanceList.IndexOfMin();
-		PointHanle_nearest.SetIndex(PointIndex_nearest);
-		PointPosition_nearest = TargetMesh.GetPointPosition(PointHanle_nearest);
+		auto PointIndex_nearest = DistanceList.IndexOfMin();		
+		PointPosition_nearest = TargetMesh.GetPointPosition(PointIndex_nearest);
 
 		for (int_max n = 0; n < 3; ++n)
 		{
-			PointHandleType PointHandle_n;
-			PointHandle_n.SetIndex(PointIndexList_sort[n]);
-			auto AdjPointHandleList = TargetMesh.Point(PointHandle_n).GetAdjacentPointHandleList();
-			AdjPointHandleList.Insert(0, PointHandle_n);
-			for (int_max k = 0; k < AdjPointHandleList.GetLength(); ++k)
+			int_max PointIndex_n = PointIndexList_sort[n];
+			auto AdjPointIndexList = TargetMesh.Point(PointIndex_n).GetAdjacentPointIndexList();
+			AdjPointIndexList.Insert(0, PointIndex_n);
+			for (int_max k = 0; k < AdjPointIndexList.GetLength(); ++k)
 			{
-				auto AdjFaceHandleList = TargetMesh.Point(AdjPointHandleList[k]).GetAdjacentFaceHandleList();
-				CandidateFaceHandleList.Append(AdjFaceHandleList);
+				auto AdjFaceIndexList = TargetMesh.Point(AdjPointIndexList[k]).GetAdjacentFaceIndexList();
+				CandidateFaceIndexList.Append(AdjFaceIndexList);
 			}
 		}
-		CandidateFaceHandleList = CandidateFaceHandleList.GetSubSet(CandidateFaceHandleList.FindUnique());
+		CandidateFaceIndexList = CandidateFaceIndexList.GetSubSet(CandidateFaceIndexList.FindUnique());
 	}
 	
 	//-------------------------------------------------------------------
@@ -548,9 +523,9 @@ TemplateBasedSurfaceRemesher<ScalarType>::Find3PointOfNearestFace(const DenseVec
 	auto PointDistance_nearest = (PointPosition_nearest - Point).L2Norm();
 	if (PointDistance_nearest <= EPS)
 	{
-		auto AdjFaceHandleList = TargetMesh.Point(PointHanle_nearest).GetAdjacentFaceHandleList();
-		PointHandleList_nearest = TargetMesh.Face(AdjFaceHandleList[0]).GetPointHandleList();
-		return PointHandleList_nearest;
+		auto AdjFaceIndexList = TargetMesh.Point(PointIndex_nearest).GetAdjacentFaceIndexList();
+		PointIndexList_nearest = TargetMesh.Face(AdjFaceIndexList[0]).GetPointIndexList();
+		return PointIndexList_nearest;
 	}
 	//-------------------------------------------------------------------
 
@@ -559,14 +534,14 @@ TemplateBasedSurfaceRemesher<ScalarType>::Find3PointOfNearestFace(const DenseVec
 		return U[0] * V[1] - U[1] * V[0];
 	};
 
-	auto FaceHandle_nearest = CandidateFaceHandleList[0];
+	auto FaceIndex_nearest = CandidateFaceIndexList[0];
 	bool Flag = false;	
-	for (int_max k = 0; k < CandidateFaceHandleList.GetLength(); ++k)
+	for (int_max k = 0; k < CandidateFaceIndexList.GetLength(); ++k)
 	{
-		auto PointHandleList_k = TargetMesh.Face(CandidateFaceHandleList[k]).GetPointHandleList();//triangle: 3 point
-		auto Point0 = TargetMesh.GetPointPosition(PointHandleList_k[0]);
-		auto Point1 = TargetMesh.GetPointPosition(PointHandleList_k[1]);
-		auto Point2 = TargetMesh.GetPointPosition(PointHandleList_k[2]);
+		auto PointIndexList_k = TargetMesh.Face(CandidateFaceIndexList[k]).GetPointIndexList();//triangle: 3 point
+		auto Point0 = TargetMesh.GetPointPosition(PointIndexList_k[0]);
+		auto Point1 = TargetMesh.GetPointPosition(PointIndexList_k[1]);
+		auto Point2 = TargetMesh.GetPointPosition(PointIndexList_k[2]);
 		//http://mathworld.wolfram.com/TriangleInterior.html
 		//auto V = Point;
 		//auto V0 = Point0;		
@@ -590,7 +565,7 @@ TemplateBasedSurfaceRemesher<ScalarType>::Find3PointOfNearestFace(const DenseVec
 
 		if (a >= -0.0001 && b >= -0.0001 && a+b <= 1.0001)
 		{
-			FaceHandle_nearest = CandidateFaceHandleList[k];
+			FaceIndex_nearest = CandidateFaceIndexList[k];
 			Flag = true;
 			break;
 		}
@@ -602,8 +577,8 @@ TemplateBasedSurfaceRemesher<ScalarType>::Find3PointOfNearestFace(const DenseVec
 		MDK_Warning("Flag == false @ TemplateBasedSurfaceRemesher::Find3PointOfNearestFace(...)")
 	}
 
-	PointHandleList_nearest = TargetMesh.Face(FaceHandle_nearest).GetPointHandleList();
-	return PointHandleList_nearest;
+	PointIndexList_nearest = TargetMesh.Face(FaceIndex_nearest).GetPointIndexList();
+	return PointIndexList_nearest;
 }
 
 }//namespace mdk

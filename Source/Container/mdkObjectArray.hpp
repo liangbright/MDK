@@ -282,6 +282,12 @@ void ObjectArray<ElementType>::Clear()
 
 
 template<typename ElementType>
+inline void ObjectArray<ElementType>::Recreate()
+{
+	this->Resize(0);
+}
+
+template<typename ElementType>
 inline 
 void ObjectArray<ElementType>::Resize(int_max InputLength)
 {

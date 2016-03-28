@@ -13,9 +13,6 @@ public:
 	typedef typename TriangleMeshStandardAttributeType<ScalarType>      InputMeshAttribute;
 	typedef typename PolygonMeshStandardAttributeType<ScalarType>       OutputMeshAttribute;
 	typedef OutputMeshAttribute                                         TemplateMeshAttribute;
-	typedef typename TriangleMesh<InputMeshAttribute>::PointHandleType   PointHandleType;
-	typedef typename TriangleMesh<InputMeshAttribute>::EdgeHandleType    EdgeHandleType;
-	typedef typename TriangleMesh<InputMeshAttribute>::FaceHandleType    FaceHandleType;
 	
 	typedef typename TriangleMesh<InputMeshAttribute>    InputMeshType;
 	typedef typename PolygonMesh<OutputMeshAttribute>    TemplateMeshType;
@@ -27,18 +24,18 @@ private:
 	// input mesh must be triangle mesh
 	TriangleMesh<InputMeshAttribute> m_InputMesh;
 
-	ObjectArray<DenseVector<PointHandleType>> m_BoundarySegmentListOfInputMesh;
-	//m_BoundaryListOfInputMesh[k] is BoundarySegment: a set of boundary point handle
-	//BoundarySegment = {PointHandle_start, ..., PointHandle_end}
+	ObjectArray<DenseVector<int_max>> m_BoundarySegmentListOfInputMesh;
+	//m_BoundaryListOfInputMesh[k] is BoundarySegment: a set of boundary point index
+	//BoundarySegment = {PointIndex_start, ..., PointIndex_end}
 	//BoundarySegment[k] overlap with BoundarySegment[k-1] and BoundarySegment[k+1] at start/end point
 	//m_BoundaryListOfInputMesh[k] ~ m_BoundarySegmentListOfOutputMesh[k] 
 
 	//template mesh point position is [u, v, 0]
 	PolygonMesh<TemplateMeshAttribute> m_TemplateMesh;
 
-	ObjectArray<DenseVector<PointHandleType>> m_BoundarySegmentListOfTemplateMesh;
-	//m_BoundarySegmentListOfOutputMesh[k] is BoundarySegment: a set of boundary point handle
-	//BoundarySegment = {PointHandle_start, ..., PointHandle_end}
+	ObjectArray<DenseVector<int_max>> m_BoundarySegmentListOfTemplateMesh;
+	//m_BoundarySegmentListOfOutputMesh[k] is BoundarySegment: a set of boundary point index
+	//BoundarySegment = {PointIndex_start, ..., PointIndex_end}
 	//BoundarySegment[k] overlap with BoundarySegment[k-1] and BoundarySegment[k+1] at start/end point
 	//m_BoundarySegmentListOfOutputMesh[k] ~ m_BoundaryListOfInputMesh[k] 
 
@@ -47,10 +44,10 @@ private:
 	int_max m_MaxInteration;
 	//-------------------- internal ---------------------------//
 
-	DenseVector<PointHandleType> m_BoundaryPointHandleListOfInputMesh;
+	DenseVector<int_max> m_BoundaryPointIndexListOfInputMesh;
 	DenseMatrix<ScalarType> m_UVTalbleOfBoundaryOfInputMesh;// each col is [u,v]
 
-	DenseVector<PointHandleType> m_BoundaryPointHandleListOfTemplateMesh;
+	DenseVector<int_max> m_BoundaryPointIndexListOfTemplateMesh;
 	DenseMatrix<ScalarType> m_BoundaryPositionOfTemplateMesh;// each col is [u,v,0]
 	DenseMatrix<ScalarType> m_BoundaryPositionOfOutputMesh;  // each col is [x,y,z]
 
@@ -67,9 +64,9 @@ public:
 	~TemplateBasedSurfaceRemesher();
 
 	TriangleMesh<InputMeshAttribute>& InputMesh() { return m_InputMesh; }
-	ObjectArray<DenseVector<PointHandleType>>& BoundarySegmentListOfInputMesh() { return m_BoundarySegmentListOfInputMesh; }
+	ObjectArray<DenseVector<int_max>>& BoundarySegmentListOfInputMesh() { return m_BoundarySegmentListOfInputMesh; }
 	PolygonMesh<TemplateMeshAttribute>& TemplateMesh() { return m_TemplateMesh; }
-	ObjectArray<DenseVector<PointHandleType>>& BoundarySegmentListOfTemplateMesh() { return m_BoundarySegmentListOfTemplateMesh; }
+	ObjectArray<DenseVector<int_max>>& BoundarySegmentListOfTemplateMesh() { return m_BoundarySegmentListOfTemplateMesh; }
 	PolygonMesh<OutputMeshAttribute>& OutputMesh() { return m_OutputMesh; }
 	TriangleMesh<InputMeshAttribute>& TransfromedInputMesh() { return m_TransfromedInputMesh; }
 	void SetDiffusionCoefficientOfMeshParameterization(ScalarType Coef) { m_DiffusionCoefficient = Coef; }
@@ -78,9 +75,6 @@ public:
 
 	void Clear();
 	void Update();
-
-	PointHandleType ConvertPointIndexToPointHandle(int_max Index);
-	DenseVector<PointHandleType> ConvertPointIndexToPointHandle(const DenseVector<int_max>& IndexList);
 
 private:
 	bool CheckInput();
@@ -97,7 +91,7 @@ private:
 	// relative length is from 0 to 1
 	DenseVector<ScalarType> ComputeCumulativeCurveLength_Relative(const DenseMatrix<ScalarType>& CurvePosition);
 
-	DenseVector<PointHandleType, 3> Find3PointOfNearestFace(const DenseVector<ScalarType, 3>& Point, const TriangleMesh<InputMeshAttribute>& TargetMesh);
+	DenseVector<int_max, 3> Find3PointOfNearestFace(const DenseVector<ScalarType, 3>& Point, const TriangleMesh<InputMeshAttribute>& TargetMesh);
 	
 private:
 	TemplateBasedSurfaceRemesher(const TemplateBasedSurfaceRemesher&) = delete;

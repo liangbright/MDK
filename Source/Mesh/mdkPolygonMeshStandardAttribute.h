@@ -132,8 +132,7 @@ struct StandardAttribute_Of_Face_Of_PolygonMesh
 {
     ScalarType Area;
     DenseVector<ScalarType> CornerAngle;
-    DenseVector<ScalarType, 3> Normal;
-    bool Flag_ReverseNormalDirection;
+    DenseVector<ScalarType, 3> Normal;    
 //---------------------------------------
 	StandardAttribute_Of_Face_Of_PolygonMesh() { this->Clear(); }
 	StandardAttribute_Of_Face_Of_PolygonMesh(const StandardAttribute_Of_Face_Of_PolygonMesh& InputAttribute) { (*this) = InputAttribute; }
@@ -144,7 +143,6 @@ struct StandardAttribute_Of_Face_Of_PolygonMesh
         Area = InputAttribute.Area;
         CornerAngle = InputAttribute.CornerAngle;
         Normal = InputAttribute.Normal;
-        Flag_ReverseNormalDirection = InputAttribute.Flag_ReverseNormalDirection;
     }
 
     void Clear()
@@ -152,7 +150,6 @@ struct StandardAttribute_Of_Face_Of_PolygonMesh
         Area = 0;
         CornerAngle.Clear();
         Normal.Fill(0);
-        Flag_ReverseNormalDirection = false;
     }
 };
 

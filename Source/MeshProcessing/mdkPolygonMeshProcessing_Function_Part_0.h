@@ -10,13 +10,13 @@ namespace mdk
 {
 //no double count
 template<typename MeshAttributeType>
-DenseVector<Handle_Of_Point_Of_PolygonMesh> TraceMeshBoundaryCurve(const PolygonMesh<MeshAttributeType>& TargetMesh, Handle_Of_Point_Of_PolygonMesh PointHandle_start);
+DenseVector<int_max> TraceMeshBoundaryCurve(const PolygonMesh<MeshAttributeType>& TargetMesh, int_max PointIndex_start);
 
 template<typename MeshAttributeType>
-ObjectArray<DenseVector<Handle_Of_Point_Of_PolygonMesh>> TraceMeshBoundaryCurve(const PolygonMesh<MeshAttributeType>& TargetMesh);
+ObjectArray<DenseVector<int_max>> TraceMeshBoundaryCurve(const PolygonMesh<MeshAttributeType>& TargetMesh);
 
 template<typename MeshAttributeType>
-Handle_Of_Point_Of_PolygonMesh FindNearestPointOnMesh(const PolygonMesh<MeshAttributeType>& TargetMesh,  const DenseVector<typename MeshAttributeType::ScalarType, 3>& PointPosition);
+int_max FindNearestPointOnMesh(const PolygonMesh<MeshAttributeType>& TargetMesh,  const DenseVector<typename MeshAttributeType::ScalarType, 3>& PointPosition);
 
 template<typename MeshAttributeType>
 PolygonMesh<MeshAttributeType> SmoothMeshByVTKSmoothPolyDataFilter(const PolygonMesh<MeshAttributeType>& InputMesh, int_max Iter, bool Flag_FeatureEdgeSmoothing = true, bool Flag_BoundarySmoothing = true);

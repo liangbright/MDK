@@ -33,10 +33,10 @@ public:
     typedef DirectedEdge_Of_PolygonMesh<MeshAttributeType>    DirectedEdgeType;
     typedef Face_Of_PolygonMesh<MeshAttributeType>            FaceType;
 
-    typedef Handle_Of_Point_Of_PolygonMesh          PointHandleType;
-    typedef Handle_Of_Edge_Of_PolygonMesh           EdgeHandleType;
-    typedef Handle_Of_DirectedEdge_Of_PolygonMesh   DirectedEdgeHandleType;
-    typedef Handle_Of_Face_Of_PolygonMesh           FaceHandleType;
+    typedef int_max                            PointIndexType;
+    typedef int_max                            EdgeIndexType;
+    typedef DirectedEdgeIndex_Of_PolygonMesh   DirectedEdgeIndexType;
+    typedef int_max                            FaceIndexType;
 
     typedef Iterator_Of_Point_Of_PolygonMesh<MeshAttributeType>         PointIteratorType;
     typedef Iterator_Of_Edge_Of_PolygonMesh<MeshAttributeType>          EdgeIteratorType;
@@ -57,10 +57,10 @@ public:
     using PolygonMesh::AddFaceByPoint;
 
     // direction of DirectedEdge: 0->1->2
-    inline FaceHandleType AddFaceByEdge(EdgeHandleType EdgeHandle0, EdgeHandleType EdgeHandle1, EdgeHandleType EdgeHandle2);
+    inline int_max AddFaceByEdge(int_max EdgeIndex0, int_max EdgeIndex1, int_max EdgeIndex2);
     
     // direction of DirectedEdge: 0->1->2
-    inline FaceHandleType AddFaceByPoint(PointHandleType PointHandle0, PointHandleType PointHandle1, PointHandleType PointHandle2);
+    inline int_max AddFaceByPoint(int_max PointIndex0, int_max PointIndex1, int_max PointIndex2);
     
     //------------ Construct from input data ------------------------------------//
 
@@ -71,31 +71,31 @@ public:
     //--- check --------------------------//
     bool CheckIfTriangleMesh() const;
 
-    // get a sub mesh by FaceHandleList ----------------------------//
-    TriangleMesh<MeshAttributeType> GetSubMeshByFace(const DenseVector<FaceHandleType>& FaceHandleList) const;
+    // get a sub mesh by FaceIndexList ----------------------------//
+    TriangleMesh<MeshAttributeType> GetSubMeshByFace(const DenseVector<int_max>& FaceIndexList) const;
 
     //------------- Function optimized For TriangleMesh --------------------------------------------------//
 
 	void UpdateNormalAtFace(const MDK_Symbol_ALL&);
-    void UpdateNormalAtFace(FaceHandleType FaceHandle);
+    void UpdateNormalAtFace(int_max FaceIndex);
 
 	void UpdateAreaOfFace(const MDK_Symbol_ALL&);
-    void UpdateAreaOfFace(FaceHandleType FaceHandle);
+    void UpdateAreaOfFace(int_max FaceIndex);
 
 	void UpdateCornerAngleOfFace(const MDK_Symbol_ALL&);
-    void UpdateCornerAngleOfFace(FaceHandleType FaceHandle);
+    void UpdateCornerAngleOfFace(int_max FaceIndex);
 
 	// FaceNormal must be available: call UpdateNormalAtFace() and UpdateCornerAngleOfFace()
 	void UpdateAngleWeightedNormalAtPoint(const MDK_Symbol_ALL&);
-	void UpdateAngleWeightedNormalAtPoint(PointHandleType PointHandle);
+	void UpdateAngleWeightedNormalAtPoint(int_max PointIndex);
 
 	// run UpdateCornerAngleOfFace and UpdateAreaOfFace first
 	void UpdateGaussianCurvatureAtPoint(const MDK_Symbol_ALL&);
-    void UpdateGaussianCurvatureAtPoint(PointHandleType PointHandle);
+    void UpdateGaussianCurvatureAtPoint(int_max PointIndex);
 
 	// run UpdateAreaOfFace() first
 	void UpdateMeanCurvatureAtPoint(const MDK_Symbol_ALL&);
-    void UpdateMeanCurvatureAtPoint(PointHandleType PointHandle);
+    void UpdateMeanCurvatureAtPoint(int_max PointIndex);
 
 };
 

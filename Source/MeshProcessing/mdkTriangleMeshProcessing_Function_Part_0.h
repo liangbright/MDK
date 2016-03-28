@@ -13,16 +13,17 @@ namespace mdk
 template<typename MeshAttributeTypeA, typename MeshAttributeTypeB>
 void ConvertPolygonMeshToTriangleMesh(const PolygonMesh<MeshAttributeTypeA>& InputMesh, TriangleMesh<MeshAttributeTypeB>& OutputMesh);
 
+// output point index list
 template<typename MeshAttributeType>
-DenseVector<Handle_Of_Point_Of_PolygonMesh> TraceMeshBoundaryCurve(const TriangleMesh<MeshAttributeType>& TargetMesh,
-                                                                   Handle_Of_Point_Of_PolygonMesh PointHandle_start);
+DenseVector<int_max> TraceMeshBoundaryCurve(const TriangleMesh<MeshAttributeType>& TargetMesh, int_max PointIndex_start);
 
+// output point index list
 template<typename MeshAttributeType>
-ObjectArray<DenseVector<Handle_Of_Point_Of_PolygonMesh>> TraceMeshBoundaryCurve(const TriangleMesh<MeshAttributeType>& TargetMesh);
+ObjectArray<DenseVector<int_max>> TraceMeshBoundaryCurve(const TriangleMesh<MeshAttributeType>& TargetMesh);
 
+// output point index
 template<typename MeshAttributeType>
-Handle_Of_Point_Of_PolygonMesh FindNearestPointOnMesh(const TriangleMesh<MeshAttributeType>& TargetMesh, 
-                                                      const DenseVector<typename MeshAttributeType::ScalarType, 3>& PointPosition);
+int_max FindNearestPointOnMesh(const TriangleMesh<MeshAttributeType>& TargetMesh, const DenseVector<typename MeshAttributeType::ScalarType, 3>& PointPosition);
 
 template<typename MeshAttributeType>
 TriangleMesh<MeshAttributeType> SubdivideTriangleMesh_Linear(const TriangleMesh<MeshAttributeType>& InputMesh);// divide once only
