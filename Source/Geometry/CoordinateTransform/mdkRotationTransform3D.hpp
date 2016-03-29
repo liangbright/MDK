@@ -52,7 +52,7 @@ void RotationTransform3D<ScalarType>::SetRotationMatrix(const DenseMatrix<Scalar
 	m_Rotation = Rotation;
 
 	//T=C-R*C
-	const auto& C = Center;
+	const auto& C = m_RotationCenter;
 	const auto R = m_Rotation.GetElementPointer();
 	m_Translation_AfterRotation[0] = C[0] - (R[0] * C[0] + R[3] * C[1] + R[6] * C[2]);
 	m_Translation_AfterRotation[1] = C[1] - (R[1] * C[0] + R[4] * C[1] + R[7] * C[2]);

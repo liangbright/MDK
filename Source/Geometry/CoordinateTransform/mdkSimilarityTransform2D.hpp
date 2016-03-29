@@ -113,12 +113,14 @@ void SimilarityTransform2D<ScalarType>::EstimateParameter()
 	auto& S = SVDResult.S;
 	auto& V = SVDResult.V;	
 	auto Vt = SVDResult.V.Transpose();
-	auto H_det = H.Det();
+	//auto H_det = H.Det();
 	
 	DenseMatrix<ScalarType> D(2, 2);
 	D.Fill(0);
 	D(0, 0) = 1;
-	if (H_det > 0)
+	auto U_det = U.Det();
+	auto V_det = V.Det();
+	if (U_det*V_det > 0)
 	{
 		D(1, 1) = 1;
 	}
@@ -127,9 +129,24 @@ void SimilarityTransform2D<ScalarType>::EstimateParameter()
 		D(1, 1) = -1;
 	}
 
-	DenseMatrix<ScalarType> R = U * D * Vt;
+	// this is useless
+	/*
+	if (H_det > 0)
+	{
+		D(1, 1) = 1;
+	}
+	else
+	{
+		D(1, 1) = -1;
+	}
+	*/
 
-	DenseMatrix<ScalarType> SD = S*D;
+	DenseMatrix<ScalarType> S_Matrix(S.GetElementCount(), S.GetElementCount());
+	S_Matrix.Fill(0);
+	S_Matrix.SetDiagonal(S);
+
+	DenseMatrix<ScalarType> R = U * D * Vt;
+	DenseMatrix<ScalarType> SD = S_Matrix*D;
 	ScalarType trace_SD = SD.GetDiagonal().Sum();
 	ScalarType s = trace_SD / SigmaX_sq;
 

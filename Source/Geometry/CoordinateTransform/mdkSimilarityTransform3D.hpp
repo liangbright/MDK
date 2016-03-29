@@ -113,7 +113,7 @@ void SimilarityTransform3D<ScalarType>::EstimateParameter()
 	auto& S = SVDResult.S;//vector
 	auto& V = SVDResult.V;	
 	auto Vt = SVDResult.V.Transpose();
-	auto H_det = H.Det();
+	//auto H_det = H.Det();
 	
 	DenseMatrix<ScalarType> D(3, 3);
 	D.Fill(0);

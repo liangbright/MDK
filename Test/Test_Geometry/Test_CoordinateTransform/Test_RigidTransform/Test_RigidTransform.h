@@ -1,5 +1,4 @@
-#ifndef Test_SimilarityTransform_h
-#define Test_SimilarityTransform_h
+#pragma once
 
 //================================================
 #include <algorithm>
@@ -9,18 +8,18 @@
 #include <initializer_list>
 #include <functional>
 
-#include "mdkSimilarityTransform2D.h"
-#include "mdkSimilarityTransform3D.h"
+#include "mdkRigidTransform2D.h"
+#include "mdkRigidTransform3D.h"
 #include "mdkDenseMatrix_FileIO.h"
 
 void Test_2D()
 {
 	using namespace mdk;
 
-	SimilarityTransform2D<double> Transform;
+	RigidTransform2D<double> Transform;
 
-	String File_Source = "C:/Research/MDK/MDK_Build/Test/Test_Geometry/Test_CoordinateTransform/Test_SimilarityTransform/TestData/Source2D.json";
-	String File_Target = "C:/Research/MDK/MDK_Build/Test/Test_Geometry/Test_CoordinateTransform/Test_SimilarityTransform/TestData/Target2D.json";
+	String File_Source = "C:/Research/MDK/MDK_Build/Test/Test_Geometry/Test_CoordinateTransform/Test_RigidTransform/TestData/Source2D.json";
+	String File_Target = "C:/Research/MDK/MDK_Build/Test/Test_Geometry/Test_CoordinateTransform/Test_RigidTransform/TestData/Target2D.json";
 
 	DenseMatrix<double> SourceControlPointSet, TargetControlPointSet;
 	LoadDenseMatrixFromJsonDataFile(SourceControlPointSet, File_Source);
@@ -31,8 +30,8 @@ void Test_2D()
 	Transform.EstimateParameter();
 
 	auto RotationMatrix = Transform.GetRotationMatrix();
-	auto Translation = Transform.GetTranslation_After_Scale_Rotation();
-	auto Scale = Transform.GetScale();
+
+	auto Translation = Transform.GetTranslation();
 
 	DenseMatrix<double> TargetPointSet;
 	TargetPointSet.Resize(SourceControlPointSet.GetSize());
@@ -46,7 +45,9 @@ void Test_2D()
 
 	DisplayMatrix("RotationMatrix", RotationMatrix, 3);
 	DisplayVector("Translation", Translation, 3);
-	std::cout << "Scale=" << Scale << '\n';
+	DisplayMatrix("SourceControlPointSet", SourceControlPointSet, 3);
+	DisplayMatrix("TargetControlPointSet", TargetControlPointSet, 3);
+	DisplayMatrix("TargetPointSet", TargetPointSet, 3);
 }
 
 
@@ -54,10 +55,10 @@ void Test_3D()
 {
 	using namespace mdk;
 
-	SimilarityTransform3D<double> Transform;
+	RigidTransform3D<double> Transform;
 
-	String File_Source = "C:/Research/MDK/MDK_Build/Test/Test_Geometry/Test_CoordinateTransform/Test_SimilarityTransform/TestData/Source3D.json";
-	String File_Target = "C:/Research/MDK/MDK_Build/Test/Test_Geometry/Test_CoordinateTransform/Test_SimilarityTransform/TestData/Target3D.json";
+	String File_Source = "C:/Research/MDK/MDK_Build/Test/Test_Geometry/Test_CoordinateTransform/Test_RigidTransform/TestData/Source3D.json";
+	String File_Target = "C:/Research/MDK/MDK_Build/Test/Test_Geometry/Test_CoordinateTransform/Test_RigidTransform/TestData/Target3D.json";
 
 	DenseMatrix<double> SourceControlPointSet, TargetControlPointSet;
 	LoadDenseMatrixFromJsonDataFile(SourceControlPointSet, File_Source);
@@ -68,8 +69,8 @@ void Test_3D()
 	Transform.EstimateParameter();
 
 	auto RotationMatrix = Transform.GetRotationMatrix();
-	auto Translation = Transform.GetTranslation_After_Scale_Rotation();
-	auto Scale = Transform.GetScale();
+
+	auto Translation = Transform.GetTranslation();
 
 	DenseMatrix<double> TargetPointSet;
 	TargetPointSet.Resize(SourceControlPointSet.GetSize());
@@ -83,11 +84,7 @@ void Test_3D()
 
 	DisplayMatrix("RotationMatrix", RotationMatrix, 3);
 	DisplayVector("Translation", Translation, 3);
-	std::cout << "Scale=" << Scale << '\n';
-	//DisplayMatrix("SourceControlPointSet", SourceControlPointSet, 3);
-	//DisplayMatrix("TargetControlPointSet", TargetControlPointSet, 3);
-	//DisplayMatrix("TargetPointSet", TargetPointSet, 3);
+	DisplayMatrix("SourceControlPointSet", SourceControlPointSet, 3);
+	DisplayMatrix("TargetControlPointSet", TargetControlPointSet, 3);
+	DisplayMatrix("TargetPointSet", TargetPointSet, 3);
 }
-
-
-#endif
