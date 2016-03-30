@@ -60,14 +60,14 @@ DenseMatrix<ScalarType> RigidTransform3D<ScalarType>::GetRotationMatrix() const
 
 
 template<typename ScalarType>
-void RigidTransform3D<ScalarType>::SetTranslation(const DenseVector<ScalarType, 3>& Translation)
+void RigidTransform3D<ScalarType>::SetTranslation_AfterRotation(const DenseVector<ScalarType, 3>& Translation)
 {
 	m_Translation_AfterRotation = Translation;
 }
 
 
 template<typename ScalarType>
-DenseVector<ScalarType, 3> RigidTransform3D<ScalarType>::GetTranslation() const
+DenseVector<ScalarType, 3> RigidTransform3D<ScalarType>::GetTranslation_AfterRotation() const
 {
 	return m_Translation_AfterRotation;
 }

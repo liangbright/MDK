@@ -463,7 +463,7 @@ String PolygonMesh<MeshAttributeType>::GetName() const
 	return m_MeshData->Name;
 }
 
-//------------- Get All the position (valid point) --------------------------------//
+//------------- Get/Set All the position (valid point) --------------------------------//
 
 template<typename MeshAttributeType>
 inline 
@@ -498,6 +498,27 @@ void PolygonMesh<MeshAttributeType>::GetPointPosition(const MDK_Symbol_ALL&, Den
 		}
 	}
 }
+
+template<typename MeshAttributeType>
+inline void PolygonMesh<MeshAttributeType>::SetPointPosition(const MDK_Symbol_ALL&, const DenseMatrix<ScalarType>& PositionMatrix) const
+{
+	auto PointCount = this->GetPointCount();
+	if (PositionMatrix.GetColCount() != PointCount)
+	{
+		MDK_Error(" input size is wrong @ PolygonMesh<MeshAttributeType>::SetPointPosition(ALL, ...)")
+	}
+
+	int_max ColIndex = -1;
+	for (int_max k = 0; k < m_MeshData->PointPositionTable.GetColCount(); ++k)
+	{
+		if (m_MeshData->PointValidityFlagList[k] == 1)
+		{
+			ColIndex += 1;
+			m_MeshData->PointPositionTable.SetCol(k, PositionMatrix.GetPointerOfCol(ColIndex));
+		}
+	}
+}
+
 
 //---- Get/Set 3D Position by PointIndex --------------------------------------------------------------------------//
 

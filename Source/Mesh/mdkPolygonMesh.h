@@ -206,10 +206,12 @@ public:
 	void SetName(String Name);
 	String GetName() const;
 
-	//------------- Get All the position (valid point) --------------------------------//
+	//------------- Get/Set All the position (valid point) --------------------------------//
 
 	inline DenseMatrix<ScalarType> GetPointPosition(const MDK_Symbol_ALL&) const;
 	inline void GetPointPosition(const MDK_Symbol_ALL&, DenseMatrix<ScalarType>& PositionMatrix) const;
+
+	inline void SetPointPosition(const MDK_Symbol_ALL&, const DenseMatrix<ScalarType>& PositionMatrix) const;
 
     // Get/Set 3D Position by Index --------------------------------------------------------------------------//
 

@@ -51,8 +51,8 @@ public:
 	void SetRotationMatrix(const DenseMatrix<ScalarType>& Rotation);
 	DenseMatrix<ScalarType> GetRotationMatrix() const;
 
-	void SetTranslation(const DenseVector<ScalarType, 3>& Translation);
-	DenseVector<ScalarType, 3> GetTranslation() const;
+	void SetTranslation_AfterRotation(const DenseVector<ScalarType, 3>& Translation);
+	DenseVector<ScalarType, 3> GetTranslation_AfterRotation() const;
 
 	inline DenseVector<ScalarType, 3> TransformPoint(ScalarType x, ScalarType y, ScalarType z) const;
 	using CoordinateTransform3D::TransformPoint;

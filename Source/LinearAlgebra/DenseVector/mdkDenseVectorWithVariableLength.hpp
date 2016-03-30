@@ -1565,7 +1565,7 @@ DenseVector<int_max> DenseVector<ElementType>::Sort(int_max Index_start, int_max
 
 template<typename ElementType>
 inline
-DenseVector<int_max> DenseVector<ElementType>::Sort(const char* Order)
+DenseVector<int_max> DenseVector<ElementType>::Sort(const char* Order) const
 {
     std::string Order_str(Order);
     return this->Sort(Order_str);
@@ -1574,7 +1574,7 @@ DenseVector<int_max> DenseVector<ElementType>::Sort(const char* Order)
 
 template<typename ElementType>
 inline
-DenseVector<int_max> DenseVector<ElementType>::Sort(const std::string& Order)
+DenseVector<int_max> DenseVector<ElementType>::Sort(const std::string& Order) const
 {
     // Order: ascend or descend
 

@@ -276,8 +276,8 @@ public:
     inline DenseVector<int_max> Sort(int_max Index_start, int_max Index_end, CompareFunctionType CompareFunction) const;
 
 	// Order: ascend or descend
-	inline DenseVector<int_max> Sort(const char* ascend_or_descend);
-	inline DenseVector<int_max> Sort(const std::string& ascend_or_descend);
+	inline DenseVector<int_max> Sort(const char* ascend_or_descend) const;
+	inline DenseVector<int_max> Sort(const std::string& ascend_or_descend) const;
 
     template<typename CompareFunctionType>
     inline void SortInPlace(CompareFunctionType CompareFunction);
