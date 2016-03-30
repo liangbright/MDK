@@ -308,7 +308,8 @@ void DistanceMinimizationBasedShapeAligner3D<ScalarType>::FindInitialTransform()
 			for (int_max k = 0; k < Group_moving.GetLength(); ++k)
 			{
 				m_OutputTransformList[Group_moving[k]].Scale *= Scale;
-				m_OutputTransformList[Group_moving[k]].Rotation *= Rotation;
+				auto Rotation_old = m_OutputTransformList[Group_moving[k]].Rotation;
+				m_OutputTransformList[Group_moving[k]].Rotation = Rotation*Rotation_old;
 				auto Translation_old = m_OutputTransformList[Group_moving[k]].Translation;
 				m_OutputTransformList[Group_moving[k]].Translation = Scale*Rotation*Translation_old + Translation;
 			}
@@ -426,7 +427,8 @@ void DistanceMinimizationBasedShapeAligner3D<ScalarType>::UpdateTransform_sequen
 
 			// update m_OutputTransformList
 			m_OutputTransformList[k].Scale *= Scale;
-			m_OutputTransformList[k].Rotation *= Rotation;
+			auto Rotation_old = m_OutputTransformList[k].Rotation;
+			m_OutputTransformList[k].Rotation = Rotation*Rotation_old;
 			auto Translation_old = m_OutputTransformList[k].Translation;
 			m_OutputTransformList[k].Translation = Scale*Rotation*Translation_old + Translation;
 		}
@@ -544,7 +546,8 @@ void DistanceMinimizationBasedShapeAligner3D<ScalarType>::UpdateTransform_parall
 
 			// update m_OutputTransformList
 			m_OutputTransformList[k].Scale *= Scale;
-			m_OutputTransformList[k].Rotation *= Rotation;
+			auto Rotation_old = m_OutputTransformList[k].Rotation;
+			m_OutputTransformList[k].Rotation = Rotation*Rotation_old;
 			auto Translation_old = m_OutputTransformList[k].Translation;
 			m_OutputTransformList[k].Translation = Scale*Rotation*Translation_old + Translation;
 		};
@@ -585,7 +588,8 @@ void DistanceMinimizationBasedShapeAligner3D<ScalarType>::AlignToReferenceShape(
 			Shape_k = Transform.TransformPoint(Shape_k);
 			// update m_OutputTransformList
 			m_OutputTransformList[k].Scale *= Scale;
-			m_OutputTransformList[k].Rotation *= Rotation;
+			auto Rotation_old = m_OutputTransformList[k].Rotation;
+			m_OutputTransformList[k].Rotation = Rotation*Rotation_old;
 			auto Translation_old = m_OutputTransformList[k].Translation;
 			m_OutputTransformList[k].Translation = Scale*Rotation*Translation_old + Translation;
 		};
@@ -607,7 +611,8 @@ void DistanceMinimizationBasedShapeAligner3D<ScalarType>::AlignToReferenceShape(
 			auto& Shape_k = m_OutputShapeList[k];
 			Shape_k = Transform.TransformPoint(Shape_k);
 			// update m_OutputTransformList			
-			m_OutputTransformList[k].Rotation *= Rotation;
+			auto Rotation_old = m_OutputTransformList[k].Rotation;
+			m_OutputTransformList[k].Rotation = Rotation*Rotation_old;
 			auto Translation_old = m_OutputTransformList[k].Translation;
 			m_OutputTransformList[k].Translation = Rotation*Translation_old + Translation;
 		};

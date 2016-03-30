@@ -55,4 +55,18 @@ void test_a()
 		}
 	}
 	SaveDenseMatrixAsJsonDataFile(SimilarityTable_output, TestDataPath + "SimilarityTable.json");
+
+	for (int_max k = 0; k < ShapeCount; ++k)
+	{
+		auto R = ShapeAligner.OutputTransformList()[k].Rotation;
+		auto S = ShapeAligner.OutputTransformList()[k].Scale;
+		auto T= ShapeAligner.OutputTransformList()[k].Translation;
+
+		RigidTransform3D<double> Transform;
+		Transform.SetRotationMatrix(R);
+		Transform.SetTranslation_AfterRotation(T);
+		auto  AlignedShape = Transform.TransformPoint(ShapeList[k]);
+		AortaMesh.SetPointPosition(ALL, AlignedShape);
+		SavePolygonMeshAsVTKFile(AortaMesh, TestDataPath + std::to_string(k) + "_AortaModel_Pimg_align_from_transfrom.vtk");
+	}
 }
