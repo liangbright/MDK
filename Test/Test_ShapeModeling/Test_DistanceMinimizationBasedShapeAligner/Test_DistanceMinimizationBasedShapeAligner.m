@@ -34,3 +34,5 @@ for k=0:2
     
     WritePolygonMeshAsVTKFile(AortaMesh,[TestDataPath num2str(k) '_AortaModel_Pimg_rand.vtk']);
 end
+%%
+SimilarityTable=ReadDenseMatrixFromJsonDataFile([TestDataPath 'SimilarityTable.json']);

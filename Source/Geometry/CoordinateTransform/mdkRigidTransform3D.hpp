@@ -24,54 +24,10 @@ void RigidTransform3D<ScalarType>::Clear()
 	m_Rotation.Fill(0);
 	m_Rotation.FillDiagonal(1);
 	m_Rotation.FixSize();
+	m_Translation_AfterRotation.Resize(3, 1);
 	m_Translation_AfterRotation.Fill(0);
+	m_Translation_AfterRotation.FixSize();
 }
-
-template<typename ScalarType>
-void RigidTransform3D<ScalarType>::SetSourceLandmarkPointSet(const DenseMatrix<ScalarType>* SourceLandmarkPointSet)
-{
-	m_SourceLandmarkPointSet = SourceLandmarkPointSet;
-}
-
-template<typename ScalarType>
-void RigidTransform3D<ScalarType>::SetTargetLandmarkPointSet(const DenseMatrix<ScalarType>* TargetLandmarkPointSet)
-{
-	m_TargetLandmarkPointSet = TargetLandmarkPointSet;
-}
-
-
-template<typename ScalarType>
-void RigidTransform3D<ScalarType>::SetRotationMatrix(const DenseMatrix<ScalarType>& Rotation)
-{
-	if (Rotation.GetColCount() != 3 || Rotation.GetRowCount() != 3)
-	{
-		MDK_Error("Invalid size @ RigidTransform3D::SetRotationMatrix(...)")
-		return;
-	}
-	m_Rotation = Rotation;
-}
-
-
-template<typename ScalarType>
-DenseMatrix<ScalarType> RigidTransform3D<ScalarType>::GetRotationMatrix() const
-{
-	return m_Rotation;
-}
-
-
-template<typename ScalarType>
-void RigidTransform3D<ScalarType>::SetTranslation_AfterRotation(const DenseVector<ScalarType, 3>& Translation)
-{
-	m_Translation_AfterRotation = Translation;
-}
-
-
-template<typename ScalarType>
-DenseVector<ScalarType, 3> RigidTransform3D<ScalarType>::GetTranslation_AfterRotation() const
-{
-	return m_Translation_AfterRotation;
-}
-
 
 template<typename ScalarType>
 bool RigidTransform3D<ScalarType>::CheckLandmarkPointSet()
@@ -166,9 +122,7 @@ void RigidTransform3D<ScalarType>::EstimateParameter()
 	m_Rotation = V * D * Ut;
 
 	Yc.Reshape(3, 1);
-	DenseMatrix<ScalarType> Translation = Yc - m_Rotation*Xc;
-	
-	m_Translation_AfterRotation = Translation;
+	m_Translation_AfterRotation = Yc - m_Rotation*Xc;
 }
 
 

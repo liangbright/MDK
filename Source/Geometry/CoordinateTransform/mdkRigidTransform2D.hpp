@@ -24,52 +24,9 @@ void RigidTransform2D<ScalarType>::Clear()
 	m_Rotation.Fill(0);
 	m_Rotation.FillDiagonal(1);
 	m_Rotation.FixSize();
+	m_Translation_AfterRotation.Resize(2, 1);
 	m_Translation_AfterRotation.Fill(0);
-}
-
-template<typename ScalarType>
-void RigidTransform2D<ScalarType>::SetSourceLandmarkPointSet(const DenseMatrix<ScalarType>* SourceLandmarkPointSet)
-{
-	m_SourceLandmarkPointSet = SourceLandmarkPointSet;
-}
-
-template<typename ScalarType>
-void RigidTransform2D<ScalarType>::SetTargetLandmarkPointSet(const DenseMatrix<ScalarType>* TargetLandmarkPointSet)
-{
-	m_TargetLandmarkPointSet = TargetLandmarkPointSet;
-}
-
-
-template<typename ScalarType>
-void RigidTransform2D<ScalarType>::SetRotationMatrix(const DenseMatrix<ScalarType>& Rotation)
-{
-	if (Rotation.GetColCount() != 2 || Rotation.GetRowCount() != 2)
-	{
-		MDK_Error("Invalid size @ RigidTransform2D::SetRotationMatrix(...)")
-		return;
-	}
-	m_Rotation = Rotation;
-}
-
-
-template<typename ScalarType>
-DenseMatrix<ScalarType> RigidTransform2D<ScalarType>::GetRotationMatrix() const
-{
-	return m_Rotation;
-}
-
-
-template<typename ScalarType>
-void RigidTransform2D<ScalarType>::SetTranslation(const DenseVector<ScalarType, 2>& Translation)
-{
-	m_Translation_AfterRotation = Translation;
-}
-
-
-template<typename ScalarType>
-DenseVector<ScalarType, 2> RigidTransform2D<ScalarType>::GetTranslation() const
-{
-	return m_Translation_AfterRotation;
+	m_Translation_AfterRotation.FixSize();
 }
 
 
@@ -165,8 +122,7 @@ void RigidTransform2D<ScalarType>::EstimateParameter()
 	m_Rotation = V * D * Ut;
 
 	Yc.Reshape(2, 1);
-	DenseMatrix<ScalarType> Translation = Yc - m_Rotation*Xc;
-	m_Translation_AfterRotation = Translation;
+	m_Translation_AfterRotation = Yc - m_Rotation*Xc;	
 }
 
 

@@ -25,7 +25,9 @@ void SimilarityTransform3D<ScalarType>::Clear()
 	m_Rotation.Fill(0);
 	m_Rotation.FillDiagonal(1);
 	m_Rotation.FixSize();
+	m_Translation_After_Scale_Rotation.Resize(3, 1);
 	m_Translation_After_Scale_Rotation.Fill(0);
+	m_Translation_After_Scale_Rotation.FixSize();
 }
 
 

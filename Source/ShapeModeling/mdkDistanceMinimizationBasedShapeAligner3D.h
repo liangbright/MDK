@@ -23,6 +23,7 @@
 
 namespace mdk
 { 
+
 template<typename Scalar_Type>
 class DistanceMinimizationBasedShapeAligner3D : Object
 {
@@ -61,9 +62,8 @@ private:
 	int_max m_MaxThreadCount;
 
 	//------------------------------- output ---------------------------------//
-	ObjectArray<std::pair<DenseMatrix<ScalarType>, DenseMatrix<ScalarType>>> m_OutputTransformList;
-	// {[s1*R1, t1] of Shape1, [S2*R2, t2] of Shape1, ...]
-	// s is scale, R is rotation, t is translation
+	ObjectArray<Parameter_of_SimilarityTransform3D<ScalarType>> m_OutputTransformList;	
+	// {scale, rotation, translation}
 
 	ObjectArray<DenseMatrix<ScalarType>> m_OutputShapeList;// each aligned shape
 
@@ -85,7 +85,7 @@ public:
 	void EnableParallelUpdateTransform(bool On_or_Off = true) { m_Flag_Parallel_UpdateTransform = On_or_Off; }
 	bool CheckInput();
 	void Update();
-	ObjectArray<std::pair<DenseMatrix<ScalarType>, DenseMatrix<ScalarType>>>& OutputTransformList() {return m_OutputTransformList;}
+	ObjectArray<Parameter_of_SimilarityTransform3D<ScalarType>>& OutputTransformList() {return m_OutputTransformList;}
 	ObjectArray<DenseMatrix<ScalarType>>& OutputShapeList() { return m_OutputShapeList; }
 	DenseVector<ScalarType> GetObjectiveFunctionValue() {return m_ObjectiveFunctionValue;}
 	//---------------- provide a default method to get similarity --------------------------------------------------------------------

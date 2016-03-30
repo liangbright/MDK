@@ -25,8 +25,8 @@ private:
 	const DenseMatrix<ScalarType>* m_TargetLandmarkPointSet; // 2 x N
 
 	ScalarType m_Scale;
-	DenseMatrix<ScalarType> m_Rotation;
-	DenseVector<ScalarType, 2> m_Translation_After_Scale_Rotation;
+	DenseMatrix<ScalarType> m_Rotation;//2x2
+	DenseMatrix<ScalarType> m_Translation_After_Scale_Rotation;//2x1
 
 public:
 	SimilarityTransform2D();
@@ -44,8 +44,8 @@ public:
 	void SetRotationMatrix(const DenseMatrix<ScalarType>& Rotation) { m_Rotation = Rotation; }
 	DenseMatrix<ScalarType> GetRotationMatrix() const { return m_Rotation; }
 
-	void SetTranslation_After_Scale_Rotation(const DenseVector<ScalarType, 2>& Translation) { m_Translation_After_Scale_Rotation = Translation; }
-	DenseVector<ScalarType, 2> GetTranslation_After_Scale_Rotation() const { return m_Translation_After_Scale_Rotation; }
+	void SetTranslation_After_Scale_Rotation(const DenseMatrix<ScalarType>& Translation) { m_Translation_After_Scale_Rotation = Translation; }
+	DenseMatrix<ScalarType> GetTranslation_After_Scale_Rotation() const { return m_Translation_After_Scale_Rotation; }
 
 	inline DenseVector<ScalarType, 2> TransformPoint(ScalarType x, ScalarType y) const;
 	using CoordinateTransform2D::TransformPoint;

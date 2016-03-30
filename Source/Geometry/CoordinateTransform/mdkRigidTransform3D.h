@@ -35,8 +35,8 @@ private:
 	const DenseMatrix<ScalarType>* m_SourceLandmarkPointSet; // 3 x N
 	const DenseMatrix<ScalarType>* m_TargetLandmarkPointSet; // 3 x N
 
-	DenseMatrix<ScalarType> m_Rotation;
-	DenseVector<ScalarType, 3> m_Translation_AfterRotation;
+	DenseMatrix<ScalarType> m_Rotation;//3x3
+	DenseMatrix<ScalarType> m_Translation_AfterRotation;//3x1
 
 public:
 	RigidTransform3D();
@@ -44,15 +44,15 @@ public:
 
 	void Clear();
 
-	void SetSourceLandmarkPointSet(const DenseMatrix<ScalarType>* SourceLandmarkPointSet);
-	void SetTargetLandmarkPointSet(const DenseMatrix<ScalarType>* TargetLandmarkPointSet);
+	void SetSourceLandmarkPointSet(const DenseMatrix<ScalarType>* SourceLandmarkPointSet) { m_SourceLandmarkPointSet = SourceLandmarkPointSet; }
+	void SetTargetLandmarkPointSet(const DenseMatrix<ScalarType>* TargetLandmarkPointSet) { m_TargetLandmarkPointSet = TargetLandmarkPointSet; }
 	void EstimateParameter();
 
-	void SetRotationMatrix(const DenseMatrix<ScalarType>& Rotation);
-	DenseMatrix<ScalarType> GetRotationMatrix() const;
+	void SetRotationMatrix(const DenseMatrix<ScalarType>& Rotation) { m_Rotation = Rotation; }
+	DenseMatrix<ScalarType> GetRotationMatrix() const { return m_Rotation; }
 
-	void SetTranslation_AfterRotation(const DenseVector<ScalarType, 3>& Translation);
-	DenseVector<ScalarType, 3> GetTranslation_AfterRotation() const;
+	void SetTranslation_AfterRotation(const DenseMatrix<ScalarType>& Translation) { m_Translation_AfterRotation = Translation; }
+	DenseMatrix<ScalarType> GetTranslation_AfterRotation() const { return m_Translation_AfterRotation; }
 
 	inline DenseVector<ScalarType, 3> TransformPoint(ScalarType x, ScalarType y, ScalarType z) const;
 	using CoordinateTransform3D::TransformPoint;

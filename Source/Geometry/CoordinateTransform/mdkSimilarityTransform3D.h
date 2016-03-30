@@ -12,6 +12,16 @@ namespace mdk
 // Reference: Least-squares Estimation of Transformation Parameters Between Two Point Patterns, 1991
 
 template<typename Scalar_Type>
+struct Parameter_of_SimilarityTransform3D
+{
+	typedef Scalar_Type ScalarType;
+
+	ScalarType Scale;
+	DenseMatrix<ScalarType> Rotation;
+	DenseMatrix<ScalarType> Translation;
+};
+
+template<typename Scalar_Type>
 class SimilarityTransform3D : public CoordinateTransform3D<Scalar_Type>
 {
 public:
@@ -23,8 +33,8 @@ private:
 	const DenseMatrix<ScalarType>* m_TargetLandmarkPointSet; // 3 x N
 
 	ScalarType m_Scale;
-	DenseMatrix<ScalarType> m_Rotation;
-	DenseVector<ScalarType, 3> m_Translation_After_Scale_Rotation;
+	DenseMatrix<ScalarType> m_Rotation; // 3x3
+	DenseMatrix<ScalarType> m_Translation_After_Scale_Rotation;//3x1
 
 public:
 	SimilarityTransform3D();
@@ -42,8 +52,8 @@ public:
 	void SetRotationMatrix(const DenseMatrix<ScalarType>& Rotation) { m_Rotation = Rotation; }
 	DenseMatrix<ScalarType> GetRotationMatrix() const { return m_Rotation; }
 
-	void SetTranslation_After_Scale_Rotation(const DenseVector<ScalarType, 3>& Translation) { m_Translation_After_Scale_Rotation = Translation; }
-	DenseVector<ScalarType, 3> GetTranslation_After_Scale_Rotation() const { return m_Translation_After_Scale_Rotation; }
+	void SetTranslation_After_Scale_Rotation(const DenseMatrix<ScalarType>& Translation) { m_Translation_After_Scale_Rotation = Translation; }
+	DenseMatrix<ScalarType> GetTranslation_After_Scale_Rotation() const { return m_Translation_After_Scale_Rotation; }
 
 	inline DenseVector<ScalarType, 3> TransformPoint(ScalarType x, ScalarType y, ScalarType z) const;
 	using CoordinateTransform3D::TransformPoint;

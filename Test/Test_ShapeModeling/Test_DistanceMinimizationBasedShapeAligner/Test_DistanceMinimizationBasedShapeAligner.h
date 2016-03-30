@@ -1,6 +1,6 @@
 #include "mdkPolygonMeshProcessing.h"
 #include "mdkDistanceMinimizationBasedShapeAligner3D.h"
-
+#include "mdkLinearAlgebra.h"
 using namespace mdk;
 
 void test_a()
@@ -28,7 +28,7 @@ void test_a()
 	ShapeAligner.SetInputShapeList(&ShapeList);
 	ShapeAligner.SetInputSimilarityTable(&SimilarityTable);
 	ShapeAligner.SelectRigidTransform();
-	ShapeAligner.SetMaxNeighbourCount(5);
+	ShapeAligner.SetMaxNeighbourCount(10);
 	ShapeAligner.SetMaxIterCount(10);
 	ShapeAligner.EnableObjectiveFunctionEvaluation();
 	ShapeAligner.EnableParallelUpdateTransform();
@@ -44,4 +44,15 @@ void test_a()
 	}
 	
 	DisplayVector("ObjectiveFunctionValue", ShapeAligner.GetObjectiveFunctionValue(), 6);
+
+	DenseMatrix<double> SimilarityTable_output;
+	SimilarityTable_output.Resize(ShapeCount, ShapeCount);
+	for (int_max k = 0; k < ShapeCount; ++k)
+	{
+		for (int_max n = 0; n < ShapeCount; ++n)
+		{
+			SimilarityTable_output(k, n) = SimilarityTable[k][n];
+		}
+	}
+	SaveDenseMatrixAsJsonDataFile(SimilarityTable_output, TestDataPath + "SimilarityTable.json");
 }
