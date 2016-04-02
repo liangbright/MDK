@@ -1,5 +1,4 @@
-#ifndef Test_DenseMatrix_h
-#define Test_DenseMatrix_h
+#pragma once
 
 //================================================
 #include <algorithm>
@@ -1972,5 +1971,3 @@ void Test_DenseMatrix_DenseVector_ObjectArray()
 }
 
 }//namespace mdk
-
-#endif

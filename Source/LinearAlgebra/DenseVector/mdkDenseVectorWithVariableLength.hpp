@@ -1604,7 +1604,6 @@ void DenseVector<ElementType>::SortInPlace(CompareFunctionType CompareFunction)
     {
         return;
     }
-
     std::sort(this->begin(), this->end(), CompareFunction);
 }
 
@@ -1618,7 +1617,6 @@ void DenseVector<ElementType>::SortInPlace(int_max Index_start, int_max Index_en
     {
         return;
     }
-
     std::sort(this->begin() + Index_start, this->begin() + Index_end + 1, CompareFunction);
 }
 

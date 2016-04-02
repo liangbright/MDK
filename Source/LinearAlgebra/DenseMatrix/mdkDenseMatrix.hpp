@@ -7533,14 +7533,18 @@ template<typename CompareFunctionType>
 inline 
 void DenseMatrix<ElementType>::SortInPlace(CompareFunctionType CompareFunction)
 {
-    auto LinearIndexList = this->Sort(CompareFunction);
+    //auto LinearIndexList = this->Sort(CompareFunction);
+    //if (LinearIndexList.IsEmpty() == true)
+    //{
+    //   return;
+    //}
+    //(*this) = (*this)(LinearIndexList);
 
-    if (LinearIndexList.IsEmpty() == true)
-    {
-        return LinearIndexList;
-    }
-
-    (*this) = (*this)(LinearIndexList);
+	if (this->IsEmpty() == true)
+	{
+		return;
+	}
+	std::sort(this->begin(), this->end(), CompareFunction);
 }
 
 
@@ -7549,14 +7553,18 @@ template<typename CompareFunctionType>
 inline 
 void DenseMatrix<ElementType>::SortInPlace(int_max LinearIndex_start, int_max LinearIndex_end, CompareFunctionType CompareFunction)
 {
-    auto LinearIndexList = this->Sort(LinearIndex_start, LinearIndex_end, CompareFunction);
+    //auto LinearIndexList = this->Sort(LinearIndex_start, LinearIndex_end, CompareFunction);
+    //if (LinearIndexList.IsEmpty() == true)
+    //{
+    //   return;
+    //}
+    //(*this)(span(LinearIndex_start, LinearIndex_end)) = (*this)(LinearIndexList);	
 
-    if (LinearIndexList.IsEmpty() == true)
-    {
-        return LinearIndexList;
-    }
-
-    (*this)(span(LinearIndex_start, LinearIndex_end)) = (*this)(LinearIndexList);
+	if (this->IsEmpty() == true)
+	{
+		return;
+	}
+	std::sort(this->begin() + Index_start, this->begin() + Index_end + 1, CompareFunction);
 }
 
 
@@ -7634,12 +7642,10 @@ inline
 void DenseMatrix<ElementType>::SortColInPlace(int_max ColIndex_start, int_max ColIndex_end, CompareFunctionType CompareFunction)
 {
     auto ColIndexList = SortColInMatrix(*this, ColIndex_start, ColIndex_end, CompareFunction);
-
     if (ColIndexList.IsEmpty() == true)
     {
         return;
     }
-
     (*this)(ALL, span(ColIndex_start, ColIndex_end)) = (*this)(ALL, ColIndexList);
 }
 
