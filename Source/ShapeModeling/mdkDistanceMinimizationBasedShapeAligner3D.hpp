@@ -685,16 +685,14 @@ ScalarType DistanceMinimizationBasedShapeAligner3D<ScalarType>::ComputeObjective
 //---------------------------------------------------------- public static function ---------------------------------------------------------------------------//
 
 template<typename ScalarType>
-ObjectArray<SparseVector<ScalarType>> DistanceMinimizationBasedShapeAligner3D<ScalarType>::ComputeSimilarityBetweenShape(const ObjectArray<DenseMatrix<ScalarType>>& ShapeList, bool Flag_use_SimilarityTransfrom, int_max MaxThreadCount)
+ObjectArray<SparseVector<ScalarType>> DistanceMinimizationBasedShapeAligner3D<ScalarType>::ComputeShapeSimilarity(const ObjectArray<DenseMatrix<ScalarType>>& ShapeList, ScalarType SimilarityThreshold, const std::string& TransformName, bool Flag_Symmetry, int_max MaxThreadCount)
 {
 	ObjectArray<SparseVector<ScalarType>> SimilarityTable;
-
 	int_max ShapeCount = ShapeList.GetLength();
 	if (ShapeCount == 0)
 	{
 		return SimilarityTable;
 	}
-
 	SimilarityTable.Resize(ShapeCount);
 		
 	//for (int_max n = 0; n <= ShapeCount-2; ++n)
@@ -704,8 +702,13 @@ ObjectArray<SparseVector<ScalarType>> DistanceMinimizationBasedShapeAligner3D<Sc
 		for (int_max m = n+1; m < ShapeCount; ++m)
 		{
 			// compute similarity between Shape_n and Shape_m
-			auto Similarity_nm = DistanceMinimizationBasedShapeAligner3D<ScalarType>::ComputeSimilarityBetweenShape(ShapeList[n], ShapeList[m], Flag_use_SimilarityTransfrom);
-			SimilarityTable[n].SetElement(m, Similarity_nm);
+			auto Similarity = DistanceMinimizationBasedShapeAligner3D<ScalarType>::ComputeSimilarityBetweenShape(ShapeList[n], ShapeList[m], TransformName, Flag_Symmetry);
+			if (Similarity > SimilarityThreshold)
+			{
+				SimilarityTable[n].SetElement(m, Similarity);
+				SimilarityTable[m].SetElement(n, Similarity);
+			}
+
 		}
 	};
 	ParallelForLoop(TempFunction, 0, ShapeCount - 2, MaxThreadCount);
@@ -713,164 +716,15 @@ ObjectArray<SparseVector<ScalarType>> DistanceMinimizationBasedShapeAligner3D<Sc
 	SimilarityTable[ShapeCount-1].Resize(ShapeCount);
 	for (int_max n = 0; n < ShapeCount; ++n)
 	{		
-		for (int_max m = 0; m < ShapeCount; ++m)
-		{
-			if (m == n)
-			{
-				SimilarityTable[n].SetElement(m, 1);
-			}
-			else if (m < n)
-			{
-				SimilarityTable[n].SetElement(m, SimilarityTable[m][n]);
-			}
-		}
+		SimilarityTable[n].SetElement(n, 1);
 	}
 	return SimilarityTable;
 }
 
 template<typename ScalarType>
-ScalarType DistanceMinimizationBasedShapeAligner3D<ScalarType>::ComputeSimilarityBetweenShape(const DenseMatrix<ScalarType>& ShapeA, const DenseMatrix<ScalarType>& ShapeB, bool Flag_use_SimilarityTransfrom)
+ScalarType DistanceMinimizationBasedShapeAligner3D<ScalarType>::ComputeShapeSimilarity(const DenseMatrix<ScalarType>& ShapeA, const DenseMatrix<ScalarType>& ShapeB, const std::string& TransformName, bool Flag_Symmetry)
 {
-	// check input
-	if (ShapeA.IsEmpty() || ShapeB.IsEmpty())
-	{
-		return 0;
-	}
-
-	if (ShapeA.GetRowCount() !=3 || ShapeA.GetRowCount() != 3)
-	{
-		MDK_Error("input shape is wrong @ DistanceMinimizationBasedShapeAligner3D::ComputeSimilarityBetweenShape(...)")
-		return 0;
-	}
-
-	// Center each shape to [0,0,0]
-	// set mean distance to center to 1
-
-	//-------- function to normalize shape --------------------------------//
-	auto TempFunction_NormalizeShape = [](const DenseMatrix<ScalarType>& Shape)
-	{
-		DenseMatrix<ScalarType> Shape_new = Shape;
-		auto Center = Shape_new.MeanOfEachRow();
-		auto PointCount = Shape_new.GetColCount();		
-		ScalarType MeanDistance = 0;
-		for (int_max k = 0; k < PointCount; ++k)
-		{
-			auto& x = Shape_new(0, k);
-			auto& y = Shape_new(1, k);
-			auto& z = Shape_new(2, k);
-			x -= Center[0];
-			y -= Center[1];
-			z -= Center[2];			
-			MeanDistance += std::sqrt(x*x+y*y+z*z);
-		}
-		MeanDistance /= ScalarType(PointCount);
-
-		for (int_max k = 0; k < 3*PointCount; ++k)
-		{
-			Shape_new[k]/= MeanDistance;
-		}
-		return Shape_new;
-	};
-	//-------- function to center shape --------------------------------//
-	auto TempFunction_CenterShape = [](const DenseMatrix<ScalarType>& Shape)
-	{
-		DenseMatrix<ScalarType> Shape_new = Shape;
-		auto Center = Shape_new.MeanOfEachRow();
-		auto PointCount = Shape_new.GetColCount();
-		ScalarType MeanDistance = 0;
-		for (int_max k = 0; k < PointCount; ++k)
-		{
-			auto& x = Shape_new(0, k);
-			auto& y = Shape_new(1, k);
-			auto& z = Shape_new(2, k);
-			x -= Center[0];
-			y -= Center[1];
-			z -= Center[2];
-		}
-		return Shape_new;
-	};
-
-	//---------------------------------------------------------------------
-	// calculate mean distance error 
-	ScalarType MDE = 0;
-	if (Flag_use_SimilarityTransfrom == true)
-	{
-		auto ShapeA_new = TempFunction_NormalizeShape(ShapeA);
-		auto ShapeB_new = TempFunction_NormalizeShape(ShapeB);
-		auto PointCount = ShapeA_new.GetColCount();
-		// transfrom B to A
-		SimilarityTransform3D<ScalarType> Transform;
-		Transform.SetSourceLandmarkPointSet(&ShapeB_new);
-		Transform.SetTargetLandmarkPointSet(&ShapeA_new);
-		Transform.EstimateParameter();
-		ShapeB_new = Transform.TransformPoint(ShapeB_new);
-		
-		for (int_max k = 0; k < PointCount; ++k)
-		{
-			auto xa = ShapeA_new(0, k);
-			auto ya = ShapeA_new(1, k);
-			auto za = ShapeA_new(2, k);
-			auto xb = ShapeB_new(0, k);
-			auto yb = ShapeB_new(1, k);
-			auto zb = ShapeB_new(2, k);
-			MDE += std::sqrt((xa - xb)*(xa - xb) + (ya - yb)*(ya - yb) + (za - zb)*(za - zb));
-		}
-		MDE /= ScalarType(PointCount);
-	}
-	else// use RigidTransform
-	{
-		auto ShapeA_new = TempFunction_CenterShape(ShapeA);
-		auto ShapeB_new = TempFunction_CenterShape(ShapeB);
-		auto PointCount = ShapeA_new.GetColCount();
-		// transfrom B to A
-		RigidTransform3D<ScalarType> Transform;
-		Transform.SetSourceLandmarkPointSet(&ShapeB_new);
-		Transform.SetTargetLandmarkPointSet(&ShapeA_new);
-		Transform.EstimateParameter();
-		ShapeB_new = Transform.TransformPoint(ShapeB_new);
-
-		//calculate mean radius of Shape A
-		ScalarType MeanRadiusA = 0;
-		for (int_max k = 0; k < PointCount; ++k)
-		{
-			auto x = ShapeA_new(0, k);
-			auto y = ShapeA_new(1, k);
-			auto z = ShapeA_new(2, k);
-			MeanRadiusA += std::sqrt(x*x + y*y + z*z);
-		}
-		MeanRadiusA /= ScalarType(PointCount);
-
-		//calculate mean radius of Shape B
-		ScalarType MeanRadiusB = 0;
-		for (int_max k = 0; k < PointCount; ++k)
-		{
-			auto x = ShapeB_new(0, k);
-			auto y = ShapeB_new(1, k);
-			auto z = ShapeB_new(2, k);
-			MeanRadiusB += std::sqrt(x*x + y*y + z*z);
-		}
-		MeanRadiusB /= ScalarType(PointCount);
-
-		auto MeanRadius = std::min(MeanRadiusA, MeanRadiusB);
-
-		// calculate mean distance error 
-		for (int_max k = 0; k < PointCount; ++k)
-		{
-			auto xa = ShapeA_new(0, k);
-			auto ya = ShapeA_new(1, k);
-			auto za = ShapeA_new(2, k);
-			auto xb = ShapeB_new(0, k);
-			auto yb = ShapeB_new(1, k);
-			auto zb = ShapeB_new(2, k);
-			MDE += std::sqrt((xa - xb)*(xa - xb) + (ya - yb)*(ya - yb) + (za - zb)*(za - zb));
-		}
-		MDE /= ScalarType(PointCount);
-		MDE /= MeanRadius;		
-	}	
-
-	// calculate similarity 
-	auto Similarity = std::exp(-MDE*MDE / ScalarType(0.2));
-	return Similarity;
+	return ComputeSimilarityBetweenShapeWithPointCorrespondence(ShapeA, ShapeB, TransformName, Flag_Symmetry);
 }
 
 

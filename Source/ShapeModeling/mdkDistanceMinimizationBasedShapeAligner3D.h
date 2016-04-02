@@ -4,6 +4,7 @@
 #include "mdkSparseVector.h"
 #include "mdkSimilarityTransform3D.h"
 #include "mdkRigidTransform3D.h"
+#include "mdkShapeSimilarityMeasurementFunction.h"
 #include "mdkParallelForLoop.h"
 
 // the objective function E=sum{Aij*||Ti(Xi) - Tj(Xj)||^2, i,j=0, 1, 2, ...}
@@ -91,8 +92,8 @@ public:
 	//---------------- provide a default method to get similarity --------------------------------------------------------------------
 	//Flag_use_SimilarityTransfrom is true then use SimilarityTransfrom
 	//Flag_use_SimilarityTransfrom is false then use RigidTransfrom
-	static ObjectArray<SparseVector<ScalarType>> ComputeSimilarityBetweenShape(const ObjectArray<DenseMatrix<ScalarType>>& ShapeList, bool Flag_use_SimilarityTransfrom, int_max MaxThreadCount);
-	static ScalarType ComputeSimilarityBetweenShape(const DenseMatrix<ScalarType>& ShapeA, const DenseMatrix<ScalarType>& ShapeB, bool Flag_use_SimilarityTransfrom);
+	static ObjectArray<SparseVector<ScalarType>> ComputeShapeSimilarity(const ObjectArray<DenseMatrix<ScalarType>>& ShapeList, ScalarType SimilarityThreshold, const std::string& TransformName, bool Flag_Symmetry, int_max MaxThreadCount);
+	static ScalarType ComputeShapeSimilarity(const DenseMatrix<ScalarType>& ShapeA, const DenseMatrix<ScalarType>& ShapeB, const std::string& TransformName, bool Flag_Symmetry);
 
 private:
 	void FindInitialTransform();

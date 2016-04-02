@@ -369,6 +369,8 @@ public:
 	inline void operator=(const std::initializer_list<ElementType>& InputList);
 	inline void operator=(const StdObjectVector<ElementType>& InputArray);
 
+	inline void operator=(const std::initializer_list<ObjectArray<ElementType>*>& InputList);
+
     //----------------------  Copy  ----------------------------------------//
 
 	inline void Copy(const ObjectArray<ElementType>& InputArray);
@@ -545,9 +547,9 @@ public:
     template<typename CompareFunctionType>
     inline ObjectArray<int_max> Sort(int_max Index_start, int_max Index_end, CompareFunctionType CompareFunction) const;
 
-	inline ObjectArray<int_max> Sort(const char* Order);
+	inline ObjectArray<int_max> Sort(const char* Order) const;
 	// Order: ascend or descend
-	inline ObjectArray<int_max> Sort(const String& Order);
+	inline ObjectArray<int_max> Sort(const String& Order) const;
 
     template<typename CompareFunctionType>
     inline void SortInPlace(CompareFunctionType CompareFunction);
