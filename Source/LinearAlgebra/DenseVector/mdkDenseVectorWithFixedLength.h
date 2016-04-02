@@ -233,10 +233,10 @@ public:
 	inline DenseVector<int_max> Sort(const std::string& ascend_or_descend) const;
     
     template<typename CompareFunctionType>
-    inline void SortInPlace(CompareFunctionType CompareFunction);
+	inline void SortInPlace(CompareFunctionType CompareFunction);
 
     template<typename CompareFunctionType>
-    inline void SortInPlace(int_max Index_start, int_max Index_end, CompareFunctionType CompareFunction);
+	inline void SortInPlace(int_max Index_start, int_max Index_end, CompareFunctionType CompareFunction);
 
 	// Order: ascend or descend
 	inline void SortInPlace(const char* ascend_or_descend);

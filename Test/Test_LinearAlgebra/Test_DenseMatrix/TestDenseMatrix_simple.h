@@ -1,5 +1,4 @@
-#ifndef TestMatrix_simple_h
-#define TestMatrix_simple_h
+#pragma once
 
 //================================================
 #include <algorithm>
@@ -87,10 +86,4 @@ void Test_SubMatrix_simple()
     
 }
 
-
-
-
-
 }//namespace mdk
-
-#endif

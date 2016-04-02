@@ -145,7 +145,6 @@ public:
     //----------------------- get/set std vector -------------------------------
 
 	std::vector<ElementType>& StdVector();
-
 	const std::vector<ElementType>& StdVector() const;
 
     //----------------------- Create a new std vector -------------------------------
@@ -155,11 +154,9 @@ public:
     //---------- convert to regular vector represented by DenseMatrix ----------------//
 
     DenseMatrix<ElementType> ConvertToDenseMatrixAsRowVector() const;
-
     void ConvertToDenseMatrixAsRowVector(DenseMatrix<ElementType>& OutputVector) const;
 
     DenseMatrix<ElementType> ConvertToDenseMatrixAsColVector() const;
-
     void ConvertToDenseMatrixAsColVector(DenseMatrix<ElementType>& OutputVector) const;
 
     //---------------------- GetSubSet --------------------------------------
