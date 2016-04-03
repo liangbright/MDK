@@ -6,7 +6,8 @@ namespace mdk
 template<typename ScalarType>
 inline ScalarType ComputeSimilarityBetweenShape_By_NormalizedMeanDistance(ScalarType NMD)
 {
-	auto Similarity = std::exp(-NMD*NMD / ScalarType(0.2));
+	//auto Similarity = std::exp(-NMD*NMD / ScalarType(0.36));
+	auto Similarity = std::max(1 - NMD, ScalarType(0));
 	return Similarity;
 }
 

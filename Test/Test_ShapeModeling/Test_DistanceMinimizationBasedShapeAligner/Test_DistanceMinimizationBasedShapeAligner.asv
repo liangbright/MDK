@@ -3,8 +3,9 @@ MatlabQtVTKDir='C:\Research\MatlabQtVTK\MatlabQtVTK_Code\matlab';
 addpath(genpath(MatlabQtVTKDir))
 %%
 TestDataPath='C:/Research/MDK/MDK_Build/Test/Test_ShapeModeling/Test_DistanceMinimizationBasedShapeAligner/TestData/';
-for k=1:125
-    AortaMesh=ReadPolygonMeshFromVTKFile([TestDataPath num2str(k-1) '_AortaModel_Pimg.vtk']);
+%%
+for k=0:124
+    AortaMesh=ReadPolygonMeshFromVTKFile([TestDataPath num2str(k) '_AortaModel_Pimg.vtk']);
     X=rand; 
     Y=rand;
     Z=rand;
@@ -32,5 +33,7 @@ for k=1:125
     Target=bsxfun(@plus, Target, T);
     AortaMesh.Point=Target;
     
-    WritePolygonMeshAsVTKFile(AortaMesh, [TestDataPath num2str(k) '_AortaModel_Pimg_rand.vtk']);
+    WritePolygonMeshAsVTKFile(AortaMesh,[TestDataPath num2str(k) '_AortaModel_Pimg_rand.vtk']);
 end
+%%
+SimilarityTable=ReadDenseMatrixFromJsonDataFile([TestDataPath 'SimilarityTable.json']);
