@@ -374,29 +374,19 @@ const ElementType& SparseVector<ElementType>::GetElement(int_max Index) const
 {
 	if (Index >= m_Data->Length || Index < 0)
 	{
-		MDK_Error("Invalid Index @ SparseVector::GetElement(int_max Index)")
+		MDK_Error("Index out of range @ SparseVector::GetElement(int_max Index)")
 		return m_Data->ZeroElement;
 	}
 
-	int_max IndexInDataArray = -1;
 	for (int_max i = 0; i < m_Data->IndexList.GetLength(); ++i)
 	{
 		if (m_Data->IndexList[i] == Index)
 		{
-			IndexInDataArray = i;
-			break;
+			return m_Data->ElementList[i];
 		}
 	}
 
-	if (IndexInDataArray >= 0)
-	{
-		return m_Data->ElementList[IndexInDataArray];
-	}
-	else
-	{
-		MDK_Error("Invalid Index @ SparseVector::GetElement(Index)")
-		return m_Data->ZeroElement;
-	}
+	return m_Data->ZeroElement;
 }
 
 

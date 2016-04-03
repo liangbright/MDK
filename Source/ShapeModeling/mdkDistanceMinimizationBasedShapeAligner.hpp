@@ -687,32 +687,31 @@ ObjectArray<SparseVector<ScalarType>> DistanceMinimizationBasedShapeAligner<Scal
 	{
 		return SimilarityTable;
 	}
-
 	SimilarityTable.Resize(ShapeCount);	
-	for (int_max n = 0; n < ShapeCount; ++n)
-	{
-		SimilarityTable[n].Resize(ShapeCount);
-	}
 
-	//for (int_max n = 0; n <= ShapeCount-2; ++n)
+	//for (int_max n = 0; n <= ShapeCount-1; ++n)
 	auto TempFunction = [&](int_max n)
 	{		
+		SimilarityTable[n].Resize(ShapeCount);
+		SimilarityTable[n].SetElement(n, 1);
 		for (int_max m = n+1; m < ShapeCount; ++m)
 		{
 			// compute similarity between Shape_n and Shape_m
 			auto Similarity = ComputeSimilarityBetweenShapeWithPointCorrespondence(ShapeList[n], ShapeList[m], Landmark, TransformName, Flag_Symmetry);
 			if (Similarity > SimilarityThreshold)
 			{
-				SimilarityTable[n].SetElement(m, Similarity);
-				SimilarityTable[m].SetElement(n, Similarity);
+				SimilarityTable[n].SetElement(m, Similarity);				
 			}
 		}
 	};
-	ParallelForLoop(TempFunction, 0, ShapeCount - 2, MaxThreadCount);
+	ParallelForLoop(TempFunction, 0, ShapeCount-1, MaxThreadCount);
 	
 	for (int_max n = 0; n < ShapeCount; ++n)
-	{		
-		SimilarityTable[n].SetElement(n, 1);
+	{				
+		for (int_max m = n + 1; m < ShapeCount; ++m)
+		{
+			SimilarityTable[m].SetElement(n, SimilarityTable[n][m]);
+		}
 	}
 	return SimilarityTable;
 }
