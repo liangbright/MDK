@@ -3,7 +3,7 @@ MatlabQtVTKDir='C:\Research\MatlabQtVTK\MatlabQtVTK_Code\matlab';
 addpath(genpath(MatlabQtVTKDir))
 %%
 TestDataPath='C:/Research/MDK/MDK_Build/Test/Test_ShapeModeling/Test_DistanceMinimizationBasedShapeAligner/TestData/';
-for k=0:2
+for k=0:124
     AortaMesh=ReadPolygonMeshFromVTKFile([TestDataPath num2str(k) '_AortaModel_Pimg.vtk']);
     X=rand; 
     Y=rand;

@@ -20,8 +20,8 @@ struct Parameter_Of_KNNBasisSelectionBasedShapeDictionaryBuilder
 	ScalarType SimilarityThreshold;
 	// shape_a and shape_b not similar if Similarity(a,b) <= SimilarityThreshold
 
-	std::string TransformName;
-	//SimilarityTransform or RigidTransform
+	std::string TransformName;// RigidTransform, SimilarityTransform, ThinPlateSplineTransform
+	DenseVector<int_max> Landmark; // to get transform
 
     ScalarType ExperienceDiscountFactor; 
     // weight for the past experience when new training data is used
@@ -34,13 +34,11 @@ struct Parameter_Of_KNNBasisSelectionBasedShapeDictionaryBuilder
     // range [0, 1]
 
     //----------------------- parameter for data processing ------------------------------//
-
-    int_max MaxNumberOfDataInEachBatch; // mini-batch size
-    int_max MaxNumberOfEpoch;           // epoch: train once on all the input shape 
-    int_max MaxNumberOfThread;          // CPU thread
+	int_max MiniBatchSize;  // mini-batch size
+	int_max MaxEpochCount;  // epoch: train once on all the input shape 
+	int_max MaxThreadCount; // CPU thread
 
     //--------------------- parameter for updating some dictionary information -------------//
-
     bool Flag_Update_BasisID;
     bool Flag_Update_BasisAge;
     bool Flag_Update_BasisSimilarity;
@@ -56,15 +54,18 @@ struct Parameter_Of_KNNBasisSelectionBasedShapeDictionaryBuilder
 
     void Clear()
     {
+		Name = "";
         BasisCount = 0;
 		MaxNeighbourCount = 0;
 		SimilarityThreshold = 0;
 		TransformName = "RigidTransform";
+		Landmark.Clear();
         ExperienceDiscountFactor = 1;
         WeightOnProbabiliyForBasisSelection = 0;
-        MaxNumberOfDataInEachBatch = 0;
-		MaxNumberOfEpoch = 1;
-        MaxNumberOfThread = 1;
+
+		MiniBatchSize = 1;
+		MaxEpochCount = 1;
+		MaxThreadCount = 1;
 
         Flag_Update_BasisID  = true; // new basis ID = 0
         Flag_Update_BasisAge = true; // new basis age = 0
@@ -110,9 +111,7 @@ private:
 
     ShapeDictionary<ScalarType> PreprocessInitialDictionary(const ShapeDictionary<ScalarType>& InitialDictionary);
     
-    DenseMatrix<int_max> ComputeDataCountInEachBatch(int_max TotalShapeCount);
-
-    ShapeDictionary<ScalarType> BuildDictionaryFromDataBatch(const ShapeDictionary<ScalarType>& Dictionary_init, const ObjectArray<DenseMatrix<ScalarType>>& ShapeData);
+    ShapeDictionary<ScalarType> BuildDictionaryInMiniBatch(const ShapeDictionary<ScalarType>& Dictionary_init, const ObjectArray<DenseMatrix<ScalarType>>& ShapeData);
 
     DenseMatrix<int_max> SelectBasis(const int_max BasisCount_desired, const DenseMatrix<ScalarType>& SimilarityMatrix, const DenseMatrix<ScalarType>& ProbabilityOfEachShape);
 
@@ -130,7 +129,7 @@ private:
                                                                       const DenseMatrix<int_max>&    ShapeIndexList_Basis,
                                                                       int_max BasisCount_init);
 
-	ScalarType ComputeShapeSimilarity(const DenseMatrix<ScalarType>& ShapeA, const DenseMatrix<ScalarType>B);
+	ScalarType ComputeShapeSimilarity(const DenseMatrix<ScalarType>& ShapeA, const DenseMatrix<ScalarType>& ShapeB);
 
 	void UpdateDictionaryInformation_AtEachDataBatch(ShapeDictionary<ScalarType>& Dictionary,
 													 const ObjectArray<DenseMatrix<ScalarType>>& ShapeData,

@@ -1,6 +1,8 @@
+#include "mdkLinearAlgebra.h"
 #include "mdkPolygonMeshProcessing.h"
 #include "mdkDistanceMinimizationBasedShapeAligner3D.h"
-#include "mdkLinearAlgebra.h"
+
+
 using namespace mdk;
 
 void test_a()
@@ -22,7 +24,7 @@ void test_a()
 	DistanceMinimizationBasedShapeAligner3D<double> ShapeAligner;
 	
 	ObjectArray<SparseVector<double>> SimilarityTable;
-	SimilarityTable = ShapeAligner.ComputeSimilarityBetweenShape(ShapeList, false, 8);
+	SimilarityTable = ShapeAligner.ComputeShapeSimilarity(ShapeList, "RigidTransform", false, 0.2, 8);
 	std::cout << "done ComputeSimilarityBetweenShape" << '\n';
 
 	ShapeAligner.SetInputShapeList(&ShapeList);

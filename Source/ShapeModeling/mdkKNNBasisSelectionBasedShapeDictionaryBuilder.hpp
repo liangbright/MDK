@@ -42,23 +42,23 @@ bool KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::CheckInput()
         return false;
     }
 
-    if (m_Parameter.BasisCount > m_TrainingShapeData->GetLength())
-    {
-        MDK_Error("BasisCount > DataCount @ KNNBasisSelectionBasedShapeDictionaryBuilder::CheckInput()")
-        return false;
-    }
-
+	if (m_Parameter.MiniBatchSize < 0 || m_Parameter.MiniBatchSize > m_TrainingShapeData->GetLength())
+	{
+		MDK_Error("MiniBatchSize is out of range @ KNNBasisSelectionBasedShapeDictionaryBuilder::CheckInput()")
+		return false;
+	}
+	
     if (m_Parameter.MaxNeighbourCount <= 0)
     {
         MDK_Error("MaxNeighbourCount <= 0 @ KNNBasisSelectionBasedShapeDictionaryBuilder::CheckInput()")
         return false;
     }
-
-    if (m_Parameter.MaxNumberOfDataInEachBatch < MaxNeighbourCount)
-    {
-        MDK_Error("MaxNumberOfDataInEachBatch < MaxNeighbourCount @ KNNBasisSelectionBasedShapeDictionaryBuilder::CheckInput()")
-        return false;
-    }
+	
+	if (m_Parameter.BasisCount > m_TrainingShapeData->GetLength())
+	{
+		MDK_Error("BasisCount > DataCount @ KNNBasisSelectionBasedShapeDictionaryBuilder::CheckInput()")
+		return false;
+	}
 
     if (m_Parameter.BasisCount < m_Parameter.MaxNeighbourCount || m_Parameter.BasisCount <= 0)
     {
@@ -72,16 +72,17 @@ bool KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::CheckInput()
         return false;
     }
 
-    if (m_Parameter.SimilarityThreshold_For_ComputeBasisRedundancy <= 0)
-    {
-        m_Parameter.SimilarityThreshold_For_ComputeBasisRedundancy = m_Parameter.SimilarityThreshold;
-    }
+	if (m_Parameter.SimilarityThreshold < 0 || m_Parameter.SimilarityThreshold > 1)
+	{
+		MDK_Error("SimilarityThreshold < 0 or > 1 @ KNNBasisSelectionBasedShapeDictionaryBuilder::CheckInput()")
+		return false;
+	}
 
-    if (m_Parameter.MaxNumberOfThread <= 0)
+    if (m_Parameter.MaxThreadCount <= 0)
     {
-        MDK_Warning("MaxNumberOfThread <= 0, set to 1 @ KNNBasisSelectionBasedShapeDictionaryBuilder::CheckInput()")
+        MDK_Warning("MaxThreadCount <= 0, set to 1 @ KNNBasisSelectionBasedShapeDictionaryBuilder::CheckInput()")
 
-        m_Parameter.MaxNumberOfThread = 1;
+        m_Parameter.MaxThreadCount = 1;
     }
 
     return true;
@@ -113,59 +114,33 @@ void KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::Update()
 
     int_max TotalDataCount = m_TrainingShapeData->GetLength();
 
-    if (m_Parameter.MaxNumberOfDataInEachBatch >= TotalDataCount)
-    { // process all the data 
-        //for (int_max k = 0; k < m_Parameter.MaxEpochCount; ++k)
-        //{
-            OutputDictionary = this->BuildDictionaryFromDataBatch(OutputDictionary, *m_TrainingShapeData);
-            this->AdjustBasisExperience_AtEachEpoch(OutputDictionary.BasisExperience(), TotalDataCount, TotalExperience_init);
-        //}
-    }
-    else
-    {   //--------------------------------- run Epoch and Minibatch -------------------------------------------------------//
+   //--------------------------------- run Epoch and Minibatch -------------------------------------------------------//
 
-        // random number for sampling
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<> UniformRandomNumber(0, TotalDataCount - 1);
-
-        DenseMatrix<int_max> DataFlagList(1, TotalDataCount);
-		// DataFlagList[k]: 1 ~ (*m_TrainingShapeData)[k] not used yet
-		//                  0 ~ (*m_TrainingShapeData)[k] used
-
-        ObjectArray<DenseMatrix<ScalarType>> ShapeData_CurrentBatch;
-
-        for (int_max k = 0; k < m_Parameter.MaxEpochCount; ++k)
-        {
-			DataFlagList.Fill(1);
-
-            auto DataCountInEachBatch = this->ComputeDataCountInEachBatch(TotalDataCount);
-            int_max BatchCount = DataCountInEachBatch.GetElementCount();
-            for (int_max n = 0; n < BatchCount; ++n)
-            {
-                // sample a subset from m_TrainingShapeData
-                ShapeData_CurrentBatch.FastResize(DataCountInEachBatch[n]);
-                int_max SampleCounter = 0;
-                while (true)
-                {
-                    auto DataIndex = UniformRandomNumber(gen);
-                    if (DataFlagList[DataIndex] == 1)
-                    {
-                        ShapeData_CurrentBatch[SampleCounter].ForceShare((*m_TrainingShapeData)[DataIndex]);
-						DataFlagList[DataIndex] = 0;
-                        SampleCounter += 1;
-                        if (SampleCounter >= DataCountInEachBatch[n])
-                        {
-                            break;
-                        }
-                    }
-                }
-                // update Dictionary
-                OutputDictionary = this->BuildDictionaryFromDataBatch(OutputDictionary, ShapeData_CurrentBatch);
-            }
-            this->AdjustBasisExperience_AtEachEpoch(OutputDictionary.BasisExperience(), TotalDataCount, TotalExperience_init);
-        }
-    }
+   // random number for sampling
+    std::random_device rd;
+    std::mt19937 gen(rd());
+      
+	for (int_max iter = 0; iter < m_Parameter.MaxEpochCount; ++iter)
+	{
+		std::shuffle(RandomDataIndexList.begin(), RandomDataIndexList.end(), gen);
+		int_max BatchCount = TotalDataCount / m_Parameter.MiniBatchSize;
+		for (int_max n = 0; n < BatchCount; ++n)
+		{
+			ObjectArray<DenseMatrix<ScalarType>> ShapeData_CurrentBatch;
+			{// sample a subset from m_TrainingShapeData
+				int_max Idx_start = n*m_Parameter.MiniBatchSize;
+				int_max Idx_end = std::min(Idx_start + m_Parameter.MiniBatchSize - 1, TotalDataCount - 1);
+				auto SubSet = RandomDataIndexList.GetSubSet(Idx_start, Idx_end);
+				ShapeData_CurrentBatch.Resize(SubSet.GetLength());
+				for (int_max k = 0; k < SubSet.GetLength(); ++k)
+				{
+					ShapeData_CurrentBatch[k].ForceShare((*m_TrainingShapeData)[SubSet[k]]);
+				}
+			}
+			OutputDictionary = this->BuildDictionaryInMiniBatch(OutputDictionary, ShapeData_CurrentBatch);
+		}
+		this->AdjustBasisExperience_AtEachEpoch(OutputDictionary.BasisExperience(), TotalDataCount, TotalExperience_init);
+	}
 
     this->UpdateDictionaryInformation_AfterALLEpoch(OutputDictionary, TotalDataCount);
 	//------------------------------------
@@ -202,36 +177,9 @@ KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::PreprocessInitialDicti
 
 
 template<typename ScalarType>
-DenseMatrix<int_max> KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::ComputeDataCountInEachBatch(int_max TotalShapeCount)
-{
-    DenseMatrix<int_max> DataCountInEachBatch(1, 1 + TotalShapeCount / m_Parameter.MaxNumberOfDataInEachBatch);
-
-    int_max BatchCount = 0;
-    int_max NumberOfDataInNextBatch = 0;
-    int_max TotalShapeCount_used = 0;
-
-    while (true)
-    {
-        TotalShapeCount_used += NumberOfDataInNextBatch;
-
-        NumberOfDataInNextBatch = std::min(m_Parameter.MaxNumberOfDataInEachBatch, TotalShapeCount - TotalShapeCount_used);
-        if (NumberOfDataInNextBatch <= 0)
-        {
-            break;
-        }
-        DataCountInEachBatch[BatchCount] = NumberOfDataInNextBatch;
-        BatchCount += 1;
-    }
-
-    DataCountInEachBatch = DataCountInEachBatch(span(0, BatchCount - 1));
-    return DataCountInEachBatch;
-}
-
-
-template<typename ScalarType>
 ShapeDictionary<ScalarType> 
 KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::
-BuildDictionaryFromDataBatch(const ShapeDictionary<ScalarType>& Dictionary_init, const ObjectArray<DenseMatrix<ScalarType>>& ShapeData)
+BuildDictionaryInMiniBatch(const ShapeDictionary<ScalarType>& Dictionary_init, const ObjectArray<DenseMatrix<ScalarType>>& ShapeData)
 {
     ShapeDictionary<ScalarType> Dictionary;// the output
     Dictionary.Name() = m_Parameter.DictionaryName;
@@ -241,7 +189,7 @@ BuildDictionaryFromDataBatch(const ShapeDictionary<ScalarType>& Dictionary_init,
     //ShapeData is a mini batch from all the traning shape data
 	if (ShapeData.IsEmpty() == true)
     {
-        MDK_Error("ShapeData is empty @ KNNBasisSelectionBasedShapeDictionaryBuilder::BuildDictionaryFromDataBatch(...)")
+        MDK_Error("ShapeData is empty @ KNNBasisSelectionBasedShapeDictionaryBuilder::BuildDictionaryInMiniBatch(...)")
         return Dictionary;
     }
 
@@ -272,7 +220,7 @@ BuildDictionaryFromDataBatch(const ShapeDictionary<ScalarType>& Dictionary_init,
 
     if (BasisCount_desired >= TotalShapeCount)
     {
-        MDK_Warning("BasisCount_desired >= TotalShapeCount @ KNNBasisSelectionBasedShapeDictionaryBuilder::BuildDictionaryFromDataBatch(...)")
+        MDK_Warning("BasisCount_desired >= TotalShapeCount @ KNNBasisSelectionBasedShapeDictionaryBuilder::BuildDictionaryInMiniBatch(...)")
 
 		auto& Basis = Dictionary.Basis();
 		auto& BasisAge = Dictionary.BasisAge();
@@ -338,7 +286,7 @@ BuildDictionaryFromDataBatch(const ShapeDictionary<ScalarType>& Dictionary_init,
 			Basis[k] = ShapeData[tempIndex_k];
         }
     };
-    ParallelForLoop(TempFunction_CreateBasis, 0, OutputBasisCount-1, m_Parameter.MaxNumberOfThread);
+    ParallelForLoop(TempFunction_CreateBasis, 0, OutputBasisCount-1, m_Parameter.MaxThreadCount);
 
     // -------- encode ShapeData : code is similarity, not membership ------------------//
     auto CodeTable = this->EncodeShapeDataBySimilarity(ShapeSimilarityMatrix, ShapeIndexList_Basis, BasisCount_init);
@@ -638,7 +586,7 @@ ComputeShapeSimilarityMatrix(const ShapeDictionary<ScalarType>& Dictionary_init,
                 ShapeSimilarityMatrix(n, k) = Similarity;
             }
         };
-        ParallelForLoop(TempFunction_ComputeSimilarity, 0, TotalShapeCount - 2, m_Parameter.MaxNumberOfThread);
+        ParallelForLoop(TempFunction_ComputeSimilarity, 0, TotalShapeCount - 2, m_Parameter.MaxThreadCount);
     }
     else
     {
@@ -693,7 +641,7 @@ ComputeShapeSimilarityMatrix(const ShapeDictionary<ScalarType>& Dictionary_init,
                 ShapeSimilarityMatrix(n, k) = Similarity;
             }
         };
-        ParallelForLoop(TempFunction_ComputeSimilarity, 0, TotalShapeCount - 2, m_Parameter.MaxNumberOfThread);
+        ParallelForLoop(TempFunction_ComputeSimilarity, 0, TotalShapeCount - 2, m_Parameter.MaxThreadCount);
     }
 
     return ShapeSimilarityMatrix;
@@ -727,7 +675,7 @@ KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::FindKNNShapeIndexTable
 		auto SimilarityList = ShapeSimilarityMatrix.RefCol(k);
 		KNNShapeIndexTable[k] = FindKNNBySimilarityList(SimilarityList, m_Parameter.MaxNeighbourCount, m_Parameter.SimilarityThreshold);
     };
-    ParallelForLoop(TempFunction_FindKNN, 0, TotalShapeCount - 1, m_Parameter.MaxNumberOfThread);
+    ParallelForLoop(TempFunction_FindKNN, 0, TotalShapeCount - 1, m_Parameter.MaxThreadCount);
 
     return KNNShapeIndexTable;
 }
@@ -858,16 +806,16 @@ EncodeShapeDataBySimilarity(const DenseMatrix<ScalarType>& ShapeSimilarityMatrix
 			CodeTable[k].Construct(KNNBasisIndexList, KNNBasisSimilarityList, BasisCount);
 		}
 	};
-	ParallelForLoop(TempFunction_EncodeDataVector, 0, DataCount - 1, m_Parameter.MaxNumberOfThread);
+	ParallelForLoop(TempFunction_EncodeDataVector, 0, DataCount - 1, m_Parameter.MaxThreadCount);
 
 	return CodeTable;
 }
 
 
 template<typename ScalarType>
-ScalarType KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::ComputeShapeSimilarity(const DenseMatrix<ScalarType>& ShapeA, const DenseMatrix<ScalarType>B)
+ScalarType KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::ComputeShapeSimilarity(const DenseMatrix<ScalarType>& ShapeA, const DenseMatrix<ScalarType>& ShapeB)
 {
-	return ComputeSimilarityBetweenShapeWithPointCorrespondence(ShapeA, ShapeB, m_Parameter.TransformName, true);
+	return ComputeSimilarityBetweenShapeWithPointCorrespondence(ShapeA, ShapeB, m_Parameter.Landmark, m_Parameter.TransformName, true);
 }
 
 
@@ -1139,7 +1087,7 @@ UpdateBasisRedundancy_AfterALLEpoch(DenseMatrix<ScalarType>& BasisRedundancy, co
             }
         }
     };
-    ParallelForLoop(TempFunction_UpdateRedundancy, 0, BasisCount - 1, m_Parameter.MaxNumberOfThread);
+    ParallelForLoop(TempFunction_UpdateRedundancy, 0, BasisCount - 1, m_Parameter.MaxThreadCount);
 }
 
 }//namespace mdk

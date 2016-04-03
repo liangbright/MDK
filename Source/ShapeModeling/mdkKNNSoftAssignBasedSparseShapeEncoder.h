@@ -11,7 +11,8 @@ template<typename ScalarType>
 struct Parameter_Of_KNNSoftAssignBasedSparseShapeEncoder
 {
     int_max NeighbourCount;
-	std::string TransformName; // SimilarityTransform or RigidTransform	
+	std::string TransformName; // RigidTransform, SimilarityTransform, ThinPlateSplineTransform
+	DenseVector<int_max> Landmark;
 	ScalarType SimilarityThreshold; // set Similarity to 0 if it is < SimilarityThreshold
 	int_max MaxThreadCount;
 };
@@ -41,6 +42,7 @@ public:
 	//----------------------------------------------------------------------------------------------------
 private:
 	SparseVector<ScalarType> EncodeShape(int_max ShapeIndex);
+
 private:
     KNNSoftAssignBasedSparseShapeEncoder(const KNNSoftAssignBasedSparseShapeEncoder&) = delete;
     void operator=(const KNNSoftAssignBasedSparseShapeEncoder&) = delete;

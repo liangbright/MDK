@@ -24,7 +24,8 @@ void KNNSoftAssignBasedSparseShapeEncoder<ScalarType>::Clear()
 	m_Parameter.NeighbourCount = 5;
 	m_Parameter.SimilarityThreshold = 0;
 	m_Parameter.TransformName = "SimilarityTransform";
-	MaxThreadCount = 1;
+	m_Parameter.Landmark.Clear();
+	m_Parameter.MaxThreadCount = 1;
 }
 
 
@@ -109,7 +110,7 @@ SparseVector<ScalarType> KNNSoftAssignBasedSparseShapeEncoder<ScalarType>::Encod
 	SimilarityList.Resize(1,:BasisCount);
 	for (int_max k = 0; k < BasisCount; ++k)
 	{
-		SimilarityList[k]= ComputeSimilarityBetweenShapeWithPointCorrespondence(Basis[k], (*m_ShapeList)[ShapeIndex], m_Parameter.TransformName, false);
+		SimilarityList[k]= ComputeSimilarityBetweenShapeWithPointCorrespondence(Basis[k], (*m_ShapeList)[ShapeIndex], m_Parameter.Landmark, m_Parameter.TransformName, false);
 	}
 	auto NeighbourIndexList = FindKNNBySimilarityList(SimilarityList, m_Parameter.NeighbourCount);
 	auto NeighbourMembershipList = SimilarityList.GetSubMatrix(ALL, NeighbourIndexList);

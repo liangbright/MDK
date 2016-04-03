@@ -1496,7 +1496,7 @@ ObjectArray<int_max> ObjectArray<ElementType>::Sort(int_max Index_start, int_max
 
 template<typename ElementType>
 inline
-ObjectArray<int_max> ObjectArray<ElementType>::Sort(const char* Order)
+ObjectArray<int_max> ObjectArray<ElementType>::Sort(const char* Order) const
 {
 	String Order_str(Order);
 	return this->Sort(Order_str);
@@ -1505,7 +1505,7 @@ ObjectArray<int_max> ObjectArray<ElementType>::Sort(const char* Order)
 
 template<typename ElementType>
 inline
-ObjectArray<int_max> ObjectArray<ElementType>::Sort(const String& Order)
+ObjectArray<int_max> ObjectArray<ElementType>::Sort(const String& Order) const
 {
 	// Order: ascend or descend
 

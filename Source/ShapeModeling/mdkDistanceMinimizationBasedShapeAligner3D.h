@@ -2,8 +2,8 @@
 
 #include "mdkDenseMatrix.h"
 #include "mdkSparseVector.h"
-#include "mdkSimilarityTransform3D.h"
 #include "mdkRigidTransform3D.h"
+#include "mdkSimilarityTransform3D.h"
 #include "mdkShapeSimilarityMeasurementFunction.h"
 #include "mdkParallelForLoop.h"
 
@@ -42,8 +42,9 @@ private:
 	//(*m_InputSimilarityTable)[k][k] is NOT usd, it can be any value, e.g., 0 or 1
 
 	bool m_Flag_use_SimilarityTransform;
-	// true : use SimilarityTransform
-	// false: use RigidTransform
+	// true: SimilarityTransform
+	// false: RigidTransform
+	DenseVector<int_max> m_Landmark;// to get transform
 
 	int_max m_MaxNeighbourCount;
 	//Aij is 0 if Xi and Xj are not neighbour to each other
@@ -76,6 +77,7 @@ public:
 	void Clear();	
 	void SelectSimilarityTransform() { m_Flag_use_SimilarityTransform = true; }
 	void SelectRigidTransform() { m_Flag_use_SimilarityTransform = false; }
+	void SetLandmark(const DenseVector<int_max>& Landmark) { m_Landmark = Landmark; }
 	void SetInputShapeList(const ObjectArray<DenseMatrix<ScalarType>>* InputShapeList) { m_InputShapeList = InputShapeList; }
 	void SetInputReferenceShapeIndex(int_max) { m_InputReferenceShapeIndex = Index; }
 	void SetInputSimilarityTable(const ObjectArray<SparseVector<ScalarType>>* SimilarityTable) { m_InputSimilarityTable = SimilarityTable; }
@@ -92,8 +94,11 @@ public:
 	//---------------- provide a default method to get similarity --------------------------------------------------------------------
 	//Flag_use_SimilarityTransfrom is true then use SimilarityTransfrom
 	//Flag_use_SimilarityTransfrom is false then use RigidTransfrom
-	static ObjectArray<SparseVector<ScalarType>> ComputeShapeSimilarity(const ObjectArray<DenseMatrix<ScalarType>>& ShapeList, ScalarType SimilarityThreshold, const std::string& TransformName, bool Flag_Symmetry, int_max MaxThreadCount);
+	static ObjectArray<SparseVector<ScalarType>> ComputeShapeSimilarity(const ObjectArray<DenseMatrix<ScalarType>>& ShapeList, const std::string& TransformName, bool Flag_Symmetry, ScalarType SimilarityThreshold, int_max MaxThreadCount);
 	static ScalarType ComputeShapeSimilarity(const DenseMatrix<ScalarType>& ShapeA, const DenseMatrix<ScalarType>& ShapeB, const std::string& TransformName, bool Flag_Symmetry);
+
+	static ObjectArray<SparseVector<ScalarType>> ComputeShapeSimilarity(const ObjectArray<DenseMatrix<ScalarType>>& ShapeList, const DenseVector<int_max>& Landmark, const std::string& TransformName, bool Flag_Symmetry, ScalarType SimilarityThreshold, int_max MaxThreadCount);
+	static ScalarType ComputeShapeSimilarity(const DenseMatrix<ScalarType>& ShapeA, const DenseMatrix<ScalarType>& ShapeB, const DenseVector<int_max>& Landmark, const std::string& TransformName, bool Flag_Symmetry);
 
 private:
 	void FindInitialTransform();
@@ -101,6 +106,8 @@ private:
 	void UpdateTransform_parallel();
 	void AlignToReferenceShape();
 	ScalarType ComputeObjectiveFunctionValue();
+	Parameter_of_SimilarityTransform3D<ScalarType> EstimateTransformParameter(const DenseMatrix<ScalarType>& SourceShape, const DenseMatrix<ScalarType>& TagetShape);
+
 private:
 	DistanceMinimizationBasedShapeAligner3D(const DistanceMinimizationBasedShapeAligner3D&) = delete;
 	void operator=(const DistanceMinimizationBasedShapeAligner3D&) = delete;
