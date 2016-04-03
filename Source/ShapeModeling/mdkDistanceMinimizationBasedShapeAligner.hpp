@@ -3,18 +3,18 @@
 namespace mdk
 {
 template<typename ScalarType>
-DistanceMinimizationBasedShapeAligner3D<ScalarType>::DistanceMinimizationBasedShapeAligner3D()
+DistanceMinimizationBasedShapeAligner<ScalarType>::DistanceMinimizationBasedShapeAligner()
 {
 	this->Clear();
 }
 
 template<typename ScalarType>
-DistanceMinimizationBasedShapeAligner3D<ScalarType>::~DistanceMinimizationBasedShapeAligner3D()
+DistanceMinimizationBasedShapeAligner<ScalarType>::~DistanceMinimizationBasedShapeAligner()
 {
 }
 
 template<typename ScalarType>
-void DistanceMinimizationBasedShapeAligner3D<ScalarType>::Clear()
+void DistanceMinimizationBasedShapeAligner<ScalarType>::Clear()
 {
 	m_InputShapeList = nullptr;	
 	m_InputSimilarityTable = nullptr;
@@ -38,45 +38,45 @@ void DistanceMinimizationBasedShapeAligner3D<ScalarType>::Clear()
 }
 
 template<typename ScalarType>
-bool DistanceMinimizationBasedShapeAligner3D<ScalarType>::CheckInput()
+bool DistanceMinimizationBasedShapeAligner<ScalarType>::CheckInput()
 {
 	if (m_InputShapeList == nullptr)
 	{
-		MDK_Error("InputShapeList is nullptr @ DistanceMinimizationBasedShapeAligner3D::CheckInput()")
+		MDK_Error("InputShapeList is nullptr @ DistanceMinimizationBasedShapeAligner::CheckInput()")
 		return false;
 	}
 
 	if (m_InputShapeList->GetLength() <= 1)
 	{
-		MDK_Error("InputShapeList is empty or only 1 shape @ DistanceMinimizationBasedShapeAligner3D::CheckInput()")
+		MDK_Error("InputShapeList is empty or only 1 shape @ DistanceMinimizationBasedShapeAligner::CheckInput()")
 		return false;
 	}
 
 	for (int_max k = 0; k < m_InputShapeList->GetLength(); ++k)
 	{
 		const auto& Shape_k = (*m_InputShapeList)[k];
-		if (Shape_k.GetRowCount() != 3)
+		if (Shape_k.GetRowCount() != 3 && Shape_k.GetRowCount() != 2)
 		{
-			MDK_Error("input shape is wrong @ DistanceMinimizationBasedShapeAligner3D::CheckInput(...)")
+			MDK_Error("input shape is wrong @ DistanceMinimizationBasedShapeAligner::CheckInput(...)")
 			return false;
 		}
 	}
 
 	if (m_InputSimilarityTable == nullptr)
 	{
-		MDK_Error("InputSimilarityTable is nullptr @ DistanceMinimizationBasedShapeAligner3D::CheckInput()")
+		MDK_Error("InputSimilarityTable is nullptr @ DistanceMinimizationBasedShapeAligner::CheckInput()")
 		return false;
 	}
 
 	if (m_InputSimilarityTable->IsEmpty() == true)
 	{
-		MDK_Error("InputSimilarityTable is empty @ DistanceMinimizationBasedShapeAligner3D::CheckInput()")
+		MDK_Error("InputSimilarityTable is empty @ DistanceMinimizationBasedShapeAligner::CheckInput()")
 		return false;
 	}
 
 	if (m_InputSimilarityTable->GetLength() != m_InputShapeList->GetLength())
 	{
-		MDK_Error("InputSimilarityTable size not the same InputShapeList size @ DistanceMinimizationBasedShapeAligner3D::CheckInput()")
+		MDK_Error("InputSimilarityTable size not the same InputShapeList size @ DistanceMinimizationBasedShapeAligner::CheckInput()")
 		return false;
 	}
 
@@ -85,32 +85,32 @@ bool DistanceMinimizationBasedShapeAligner3D<ScalarType>::CheckInput()
 	{
 		if ((*m_InputSimilarityTable)[k].IsEmpty() == true)
 		{
-			MDK_Error("InputSimilarityTable[" << std::to_string(k) << "] is empty @ DistanceMinimizationBasedShapeAligner3D::CheckInput()")
+			MDK_Error("InputSimilarityTable[" << std::to_string(k) << "] is empty @ DistanceMinimizationBasedShapeAligner::CheckInput()")
 			return false;
 		}
 	}
 
 	if (m_MaxNeighbourCount <= 0 || m_MaxNeighbourCount > m_InputShapeList->GetLength())
 	{
-		MDK_Error("MaxNeighbourCount is out of range @ DistanceMinimizationBasedShapeAligner3D::CheckInput()")
+		MDK_Error("MaxNeighbourCount is out of range @ DistanceMinimizationBasedShapeAligner::CheckInput()")
 		return false;
 	}
 
 	if (m_MaxIterCount < 0)
 	{
-		MDK_Error("MaxIterCount is out of range @ DistanceMinimizationBasedShapeAligner3D::CheckInput()")
+		MDK_Error("MaxIterCount is out of range @ DistanceMinimizationBasedShapeAligner::CheckInput()")
 		return false;
 	}
 
 	if (m_InputReferenceShapeIndex < 0 || m_InputReferenceShapeIndex >= m_InputShapeList->GetLength())
 	{
-		MDK_Error("InputReferenceShapeIndex is out of range @ DistanceMinimizationBasedShapeAligner3D::CheckInput()")
+		MDK_Error("InputReferenceShapeIndex is out of range @ DistanceMinimizationBasedShapeAligner::CheckInput()")
 		return false;
 	}
 
 	if (m_MaxThreadCount < 0)
 	{
-		MDK_Error("MaxThreadCount < 0 @ DistanceMinimizationBasedShapeAligner3D::CheckInput()")
+		MDK_Error("MaxThreadCount < 0 @ DistanceMinimizationBasedShapeAligner::CheckInput()")
 		return false;
 	}
 
@@ -118,7 +118,7 @@ bool DistanceMinimizationBasedShapeAligner3D<ScalarType>::CheckInput()
 }
 
 template<typename ScalarType>
-void DistanceMinimizationBasedShapeAligner3D<ScalarType>::Update()
+void DistanceMinimizationBasedShapeAligner<ScalarType>::Update()
 {
 	if (this->CheckInput() == false)
 	{
@@ -128,17 +128,20 @@ void DistanceMinimizationBasedShapeAligner3D<ScalarType>::Update()
 	m_OutputShapeList.Clear();
 	m_OutputShapeList = *m_InputShapeList;//copy
 
+	int_max Dimension = m_OutputShapeList[0].GetRowCount();
+
 	m_OutputTransformList.Clear();
 	m_OutputTransformList.Resize(m_OutputShapeList.GetLength());
 	for (int_max k = 0; k < m_OutputTransformList.GetLength();++k)
 	{
 		m_OutputTransformList[k].Scale = 1;		
-		m_OutputTransformList[k].Rotation.Resize(3, 3);
-		m_OutputTransformList[k].Rotation.Fill(0);
-		m_OutputTransformList[k].Rotation.FillDiagonal(1);
+		m_OutputTransformList[k].Rotation.Resize(Dimension, Dimension);
 		m_OutputTransformList[k].Rotation.FixSize();
-		m_OutputTransformList[k].Translation.Resize(3, 1);
-		m_OutputTransformList[k].Translation.Fill(0);
+		m_OutputTransformList[k].Rotation.Fill(0);
+		m_OutputTransformList[k].Rotation.FillDiagonal(1);		
+		m_OutputTransformList[k].Translation.Resize(Dimension, 1);
+		m_OutputTransformList[k].Translation.FixSize();
+		m_OutputTransformList[k].Translation.Fill(0);		
 	}
 
 	if (m_Flag_ComputeObjectiveFunctionValue == true)
@@ -166,7 +169,7 @@ void DistanceMinimizationBasedShapeAligner3D<ScalarType>::Update()
 
 
 template<typename ScalarType>
-void DistanceMinimizationBasedShapeAligner3D<ScalarType>::FindInitialTransform()
+void DistanceMinimizationBasedShapeAligner<ScalarType>::FindInitialTransform()
 {
 	int_max ShapeCount = m_InputShapeList->GetLength();
 	int_max ShapePairCount = ShapeCount*(ShapeCount - 1) / 2;
@@ -264,34 +267,12 @@ void DistanceMinimizationBasedShapeAligner3D<ScalarType>::FindInitialTransform()
 
 			// Estimate transform from Shape_moving (X) to Shape_ref (Y):  Y ~ R*s*X+t
 			// transfrom every shape in Group_moving (ShapeIndex_moving)
-			auto TransformParameter = this->EstimateTransformParameter(m_OutputShapeList[ShapeIndex_moving], m_OutputShapeList[ShapeIndex_ref]);
-			const auto& Rotation = TransformParameter.Rotation;
-			const auto& Scale = TransformParameter.Scale;
-			const auto& Translation = TransformParameter.Translation;
-			if (m_Flag_use_SimilarityTransform == true)
+			auto TransformParameter = this->EstimateTransformParameter(m_OutputShapeList[ShapeIndex_moving], m_OutputShapeList[ShapeIndex_ref]);			
+			for (int_max k = 0; k < Group_moving.GetLength(); ++k)
 			{
-				SimilarityTransform3D<ScalarType> Transform;				
-				Transform.SetRotationMatrix(Rotation);
-				Transform.SetScale(Scale);
-				Transform.SetTranslation_After_Scale_Rotation(Translation);
-				for (int_max k = 0; k < Group_moving.GetLength(); ++k)
-				{
-					auto& Shape_k = m_OutputShapeList[Group_moving[k]];
-					Shape_k = Transform.TransformPoint(Shape_k);
-				}
+				auto& Shape_k = m_OutputShapeList[Group_moving[k]];
+				Shape_k = this->TransformShape(Shape_k, TransformParameter);
 			}
-			else
-			{
-				RigidTransform3D<ScalarType> Transform;
-				Transform.SetRotationMatrix(Rotation);				
-				Transform.SetTranslation_AfterRotation(Translation);
-				for (int_max k = 0; k < Group_moving.GetLength(); ++k)
-				{
-					auto& Shape_k = m_OutputShapeList[Group_moving[k]];
-					Shape_k = Transform.TransformPoint(Shape_k);
-				}
-			}
-
 			//move shape in Group_moving to Group_ref
 			//update GroupIndexOfEachShape
 			for (int_max k = 0; k < Group_moving.GetLength(); ++k)
@@ -299,6 +280,9 @@ void DistanceMinimizationBasedShapeAligner3D<ScalarType>::FindInitialTransform()
 				GroupIndexOfEachShape[Group_moving[k]] = GroupIndex_ref;
 			}
 			// update m_OutputTransformList
+			const auto& Rotation = TransformParameter.Rotation;
+			const auto& Scale = TransformParameter.Scale;
+			const auto& Translation = TransformParameter.Translation;
 			for (int_max k = 0; k < Group_moving.GetLength(); ++k)
 			{
 				m_OutputTransformList[Group_moving[k]].Scale *= Scale;
@@ -321,13 +305,11 @@ void DistanceMinimizationBasedShapeAligner3D<ScalarType>::FindInitialTransform()
 
 
 template<typename ScalarType>
-void DistanceMinimizationBasedShapeAligner3D<ScalarType>::UpdateTransform_sequential()
+void DistanceMinimizationBasedShapeAligner<ScalarType>::UpdateTransform_sequential()
 {
-	int_max ShapeCount = m_OutputShapeList.GetLength();
-	int_max PointCountPerShape = m_OutputShapeList[0].GetColCount();
-
 	for (int_max Iter = 0; Iter < m_MaxIterCount; ++Iter)
 	{
+		int_max ShapeCount = m_OutputShapeList.GetLength();
 		for (int_max k = 0; k < ShapeCount; ++k)
 		{
 			auto NeighbourShapeIndexList = (*m_InputSimilarityTable)[k].IndexList();
@@ -380,12 +362,12 @@ void DistanceMinimizationBasedShapeAligner3D<ScalarType>::UpdateTransform_sequen
 
 			//get mean shape of neighbour
 			DenseMatrix<ScalarType> MeanShape;
-			MeanShape.Resize(3, PointCountPerShape);
+			MeanShape.Resize(m_OutputShapeList[0].GetSize());
 			MeanShape.Fill(0);
 			for (int_max n = 0; n < NeighbourShapeIndexList.GetLength(); ++n)
 			{
 				const auto& Shape_n = m_OutputShapeList[NeighbourShapeIndexList[n]];
-				for (int_max m = 0; m < 3*PointCountPerShape; ++m)
+				for (int_max m = 0; m < Shape_n.GetElementCount(); ++m)
 				{
 					MeanShape[m] += NeighbourSimilarityList[n] * Shape_n[m];
 				}
@@ -394,26 +376,11 @@ void DistanceMinimizationBasedShapeAligner3D<ScalarType>::UpdateTransform_sequen
 			//transfrom from Shape_k (X) to MeanShape (Y): :  Y ~ R*s*X+t
 			auto& Shape_k = m_OutputShapeList[k];
 			auto TransformParameter = this->EstimateTransformParameter(Shape_k, MeanShape);
+			Shape_k = this->TransformShape(Shape_k, TransformParameter);
+			// update m_OutputTransformList
 			const auto& Rotation = TransformParameter.Rotation;
 			const auto& Scale = TransformParameter.Scale;
 			const auto& Translation = TransformParameter.Translation;
-			if (m_Flag_use_SimilarityTransform == true)
-			{
-				SimilarityTransform3D<ScalarType> Transform;
-				Transform.SetRotationMatrix(Rotation);
-				Transform.SetScale(Scale);
-				Transform.SetTranslation_After_Scale_Rotation(Translation);
-				Shape_k = Transform.TransformPoint(Shape_k);
-			}
-			else
-			{
-				RigidTransform3D<ScalarType> Transform;
-				Transform.SetRotationMatrix(Rotation);				
-				Transform.SetTranslation_AfterRotation(Translation);
-				Shape_k = Transform.TransformPoint(Shape_k);
-			}
-
-			// update m_OutputTransformList
 			m_OutputTransformList[k].Scale *= Scale;
 			auto Rotation_old = m_OutputTransformList[k].Rotation;
 			m_OutputTransformList[k].Rotation = Rotation*Rotation_old;
@@ -430,16 +397,14 @@ void DistanceMinimizationBasedShapeAligner3D<ScalarType>::UpdateTransform_sequen
 
 
 template<typename ScalarType>
-void DistanceMinimizationBasedShapeAligner3D<ScalarType>::UpdateTransform_parallel()
+void DistanceMinimizationBasedShapeAligner<ScalarType>::UpdateTransform_parallel()
 {
-	int_max ShapeCount = m_OutputShapeList.GetLength();
-	int_max PointCountPerShape = m_OutputShapeList[0].GetColCount();
-
 	//copy data
 	auto OutputShapeList_updated = m_OutputShapeList;
 
 	for (int_max Iter = 0; Iter < m_MaxIterCount; ++Iter)
 	{		
+		int_max ShapeCount = m_OutputShapeList.GetLength();
 		//for (int_max k = 0; k <= ShapeCount-1; ++k)
 		auto TempFunction = [&](int_max k)
 		{
@@ -493,12 +458,12 @@ void DistanceMinimizationBasedShapeAligner3D<ScalarType>::UpdateTransform_parall
 
 			//get mean shape of neighbour
 			DenseMatrix<ScalarType> MeanShape;
-			MeanShape.Resize(3, PointCountPerShape);
+			MeanShape.Resize(m_OutputShapeList[0].GetSize());
 			MeanShape.Fill(0);
 			for (int_max n = 0; n < NeighbourShapeIndexList.GetLength(); ++n)
 			{
 				const auto& Shape_n = m_OutputShapeList[NeighbourShapeIndexList[n]];
-				for (int_max m = 0; m < 3 * PointCountPerShape; ++m)
+				for (int_max m = 0; m < Shape_n.GetElementCount(); ++m)
 				{
 					MeanShape[m] += NeighbourSimilarityList[n] * Shape_n[m];
 				}
@@ -507,26 +472,11 @@ void DistanceMinimizationBasedShapeAligner3D<ScalarType>::UpdateTransform_parall
 			//transfrom from Shape_k (X) to MeanShape (Y): :  Y ~ R*s*X+t
 			auto& Shape_k = OutputShapeList_updated[k];
 			auto TransformParameter = EstimateTransformParameter(Shape_k, MeanShape);
+			Shape_k = this->TransformShape(Shape_k, TransformParameter);
+			// update m_OutputTransformList
 			const auto& Rotation = TransformParameter.Rotation;
 			const auto& Scale = TransformParameter.Scale;
 			const auto& Translation = TransformParameter.Translation;
-			if (m_Flag_use_SimilarityTransform == true)
-			{
-				SimilarityTransform3D<ScalarType> Transform;
-				Transform.SetRotationMatrix(Rotation);
-				Transform.SetScale(Scale);
-				Transform.SetTranslation_After_Scale_Rotation(Translation);
-				Shape_k = Transform.TransformPoint(Shape_k);
-			}
-			else
-			{
-				RigidTransform3D<ScalarType> Transform;
-				Transform.SetRotationMatrix(Rotation);				
-				Transform.SetTranslation_AfterRotation(Translation);
-				Shape_k = Transform.TransformPoint(Shape_k);
-			}
-
-			// update m_OutputTransformList
 			m_OutputTransformList[k].Scale *= Scale;
 			auto Rotation_old = m_OutputTransformList[k].Rotation;
 			m_OutputTransformList[k].Rotation = Rotation*Rotation_old;
@@ -546,7 +496,7 @@ void DistanceMinimizationBasedShapeAligner3D<ScalarType>::UpdateTransform_parall
 
 
 template<typename ScalarType>
-void DistanceMinimizationBasedShapeAligner3D<ScalarType>::AlignToReferenceShape()
+void DistanceMinimizationBasedShapeAligner<ScalarType>::AlignToReferenceShape()
 {
 	const auto& Shape_input = (*m_InputShapeList)[m_InputReferenceShapeIndex];
 	const auto& Shape_output = m_OutputShapeList[m_InputReferenceShapeIndex];
@@ -557,48 +507,20 @@ void DistanceMinimizationBasedShapeAligner3D<ScalarType>::AlignToReferenceShape(
 	const auto& Scale = TransformParameter.Scale;
 	const auto& Translation = TransformParameter.Translation;
 
-	if (m_Flag_use_SimilarityTransform == true)
+	//for (int_max k = 0; k <= ShapeCount-1; ++k)
+	auto TempFunction = [&](int_max k)
 	{
-		SimilarityTransform3D<ScalarType> Transform;		
-		Transform.SetRotationMatrix(Rotation);
-		Transform.SetScale(Scale);
-		Transform.SetTranslation_After_Scale_Rotation(Translation);
-				
-		//for (int_max k = 0; k <= ShapeCount-1; ++k)
-		auto TempFunction = [&](int_max k)
-		{
-			//transfrom from Shape_k (X) to Shape_ref (Y): :  Y ~ R*s*X+t
-			auto& Shape_k = m_OutputShapeList[k];
-			Shape_k = Transform.TransformPoint(Shape_k);
-			// update m_OutputTransformList
-			m_OutputTransformList[k].Scale *= Scale;
-			auto Rotation_old = m_OutputTransformList[k].Rotation;
-			m_OutputTransformList[k].Rotation = Rotation*Rotation_old;
-			auto Translation_old = m_OutputTransformList[k].Translation;
-			m_OutputTransformList[k].Translation = Scale*Rotation*Translation_old + Translation;
-		};
-		ParallelForLoop(TempFunction, 0, ShapeCount - 1, m_MaxThreadCount);
-	}
-	else
-	{
-		RigidTransform3D<ScalarType> Transform;
-		Transform.SetRotationMatrix(Rotation);		
-		Transform.SetTranslation_AfterRotation(Translation);
-		
-		//for (int_max k = 0; k <= ShapeCount-1; ++k)
-		auto TempFunction = [&](int_max k)
-		{
-			//transfrom from Shape_k (X) to Shape_ref (Y): :  Y ~ R*s*X+t
-			auto& Shape_k = m_OutputShapeList[k];
-			Shape_k = Transform.TransformPoint(Shape_k);
-			// update m_OutputTransformList			
-			auto Rotation_old = m_OutputTransformList[k].Rotation;
-			m_OutputTransformList[k].Rotation = Rotation*Rotation_old;
-			auto Translation_old = m_OutputTransformList[k].Translation;
-			m_OutputTransformList[k].Translation = Rotation*Translation_old + Translation;
-		};
-		ParallelForLoop(TempFunction, 0, ShapeCount - 1, m_MaxThreadCount);
-	}		
+		//transfrom from Shape_k (X) to Shape_ref (Y): :  Y ~ R*s*X+t
+		auto& Shape_k = m_OutputShapeList[k];
+		Shape_k = this->TransformShape(Shape_k, TransformParameter);
+		// update m_OutputTransformList
+		m_OutputTransformList[k].Scale *= Scale;
+		auto Rotation_old = m_OutputTransformList[k].Rotation;
+		m_OutputTransformList[k].Rotation = Rotation*Rotation_old;
+		auto Translation_old = m_OutputTransformList[k].Translation;
+		m_OutputTransformList[k].Translation = Scale*Rotation*Translation_old + Translation;
+	};
+	ParallelForLoop(TempFunction, 0, ShapeCount - 1, m_MaxThreadCount);
 
 	if (m_Flag_ComputeObjectiveFunctionValue == true)
 	{
@@ -608,7 +530,7 @@ void DistanceMinimizationBasedShapeAligner3D<ScalarType>::AlignToReferenceShape(
 
 
 template<typename ScalarType>
-ScalarType DistanceMinimizationBasedShapeAligner3D<ScalarType>::ComputeObjectiveFunctionValue()
+ScalarType DistanceMinimizationBasedShapeAligner<ScalarType>::ComputeObjectiveFunctionValue()
 {
 	ScalarType RMSE = 0;
 	ScalarType SimilaritySum = 0;
@@ -664,10 +586,10 @@ ScalarType DistanceMinimizationBasedShapeAligner3D<ScalarType>::ComputeObjective
 }
 
 template<typename ScalarType>
-Parameter_of_SimilarityTransform3D<ScalarType> 
-DistanceMinimizationBasedShapeAligner3D<ScalarType>::EstimateTransformParameter(const DenseMatrix<ScalarType>& SourceShape, const DenseMatrix<ScalarType>& TagetShape)
+Parameter_Of_SimilarityTransform<ScalarType>
+DistanceMinimizationBasedShapeAligner<ScalarType>::EstimateTransformParameter(const DenseMatrix<ScalarType>& SourceShape, const DenseMatrix<ScalarType>& TagetShape)
 {
-	Parameter_of_SimilarityTransform3D<ScalarType> TransformParameter;
+	Parameter_Of_SimilarityTransform<ScalarType> TransformParameter;
 	
 	if (m_Flag_use_SimilarityTransform == true)
 	{
@@ -721,23 +643,43 @@ DistanceMinimizationBasedShapeAligner3D<ScalarType>::EstimateTransformParameter(
 	return TransformParameter;
 }
 
+
+template<typename ScalarType>
+DenseMatrix<ScalarType> DistanceMinimizationBasedShapeAligner<ScalarType>::TransformShape(const DenseMatrix<ScalarType>& Shape, const Parameter_Of_SimilarityTransform<ScalarType>& Parameter)
+{
+	if (m_Flag_use_SimilarityTransform == true)
+	{
+		SimilarityTransform3D<ScalarType> Transform;
+		Transform.SetRotationMatrix(Parameter.Rotation);
+		Transform.SetScale(Parameter.Scale);
+		Transform.SetTranslation_After_Scale_Rotation(Parameter.Translation);
+		return Transform.TransformPoint(Shape);
+	}
+	else
+	{
+		RigidTransform3D<ScalarType> Transform;
+		Transform.SetRotationMatrix(Parameter.Rotation);
+		Transform.SetTranslation_AfterRotation(Parameter.Translation);
+		return Transform.TransformPoint(Shape);
+	}
+}
+
 //---------------------------------------------------------- public static function ---------------------------------------------------------------------------//
 template<typename ScalarType>
-ObjectArray<SparseVector<ScalarType>> DistanceMinimizationBasedShapeAligner3D<ScalarType>::ComputeShapeSimilarity(const ObjectArray<DenseMatrix<ScalarType>>& ShapeList, const std::string& TransformName, bool Flag_Symmetry, ScalarType SimilarityThreshold, int_max MaxThreadCount)
+ObjectArray<SparseVector<ScalarType>> DistanceMinimizationBasedShapeAligner<ScalarType>::ComputeShapeSimilarity(const ObjectArray<DenseMatrix<ScalarType>>& ShapeList, const std::string& TransformName, bool Flag_Symmetry, ScalarType SimilarityThreshold, int_max MaxThreadCount)
 {
 	DenseVector<int_max> Landmark;
-	return DistanceMinimizationBasedShapeAligner3D<ScalarType>::ComputeShapeSimilarity(ShapeList, Landmark, TransformName, Flag_Symmetry, SimilarityThreshold, MaxThreadCount);
+	return DistanceMinimizationBasedShapeAligner<ScalarType>::ComputeShapeSimilarity(ShapeList, Landmark, TransformName, Flag_Symmetry, SimilarityThreshold, MaxThreadCount);
 }
 
 template<typename ScalarType>
 ScalarType ComputeShapeSimilarity(const DenseMatrix<ScalarType>& ShapeA, const DenseMatrix<ScalarType>& ShapeB, std::string& TransformName, bool Flag_Symmetry)
 {
-	DenseVector<int_max> Landmark;
-	return DistanceMinimizationBasedShapeAligner3D<ScalarType>::ComputeShapeSimilarity(ShapeA, ShapeB, TransformName, Flag_Symmetry);
+	return ComputeSimilarityBetweenShapeWithPointCorrespondence(ShapeA, ShapeB, TransformName, Flag_Symmetry);
 }
 
 template<typename ScalarType>
-ObjectArray<SparseVector<ScalarType>> DistanceMinimizationBasedShapeAligner3D<ScalarType>::ComputeShapeSimilarity(const ObjectArray<DenseMatrix<ScalarType>>& ShapeList, const DenseVector<int_max>& Landmark, const std::string& TransformName, bool Flag_Symmetry, ScalarType SimilarityThreshold, int_max MaxThreadCount)
+ObjectArray<SparseVector<ScalarType>> DistanceMinimizationBasedShapeAligner<ScalarType>::ComputeShapeSimilarity(const ObjectArray<DenseMatrix<ScalarType>>& ShapeList, const DenseVector<int_max>& Landmark, const std::string& TransformName, bool Flag_Symmetry, ScalarType SimilarityThreshold, int_max MaxThreadCount)
 {
 	ObjectArray<SparseVector<ScalarType>> SimilarityTable;
 	int_max ShapeCount = ShapeList.GetLength();
@@ -745,16 +687,20 @@ ObjectArray<SparseVector<ScalarType>> DistanceMinimizationBasedShapeAligner3D<Sc
 	{
 		return SimilarityTable;
 	}
-	SimilarityTable.Resize(ShapeCount);
-		
-	//for (int_max n = 0; n <= ShapeCount-2; ++n)
-	auto TempFunction = [&](int_max n)
+
+	SimilarityTable.Resize(ShapeCount);	
+	for (int_max n = 0; n < ShapeCount; ++n)
 	{
 		SimilarityTable[n].Resize(ShapeCount);
+	}
+
+	//for (int_max n = 0; n <= ShapeCount-2; ++n)
+	auto TempFunction = [&](int_max n)
+	{		
 		for (int_max m = n+1; m < ShapeCount; ++m)
 		{
 			// compute similarity between Shape_n and Shape_m
-			auto Similarity = DistanceMinimizationBasedShapeAligner3D<ScalarType>::ComputeShapeSimilarity(ShapeList[n], ShapeList[m], Landmark, TransformName, Flag_Symmetry);
+			auto Similarity = ComputeSimilarityBetweenShapeWithPointCorrespondence(ShapeList[n], ShapeList[m], Landmark, TransformName, Flag_Symmetry);
 			if (Similarity > SimilarityThreshold)
 			{
 				SimilarityTable[n].SetElement(m, Similarity);
@@ -763,8 +709,7 @@ ObjectArray<SparseVector<ScalarType>> DistanceMinimizationBasedShapeAligner3D<Sc
 		}
 	};
 	ParallelForLoop(TempFunction, 0, ShapeCount - 2, MaxThreadCount);
-
-	SimilarityTable[ShapeCount-1].Resize(ShapeCount);
+	
 	for (int_max n = 0; n < ShapeCount; ++n)
 	{		
 		SimilarityTable[n].SetElement(n, 1);
@@ -773,7 +718,7 @@ ObjectArray<SparseVector<ScalarType>> DistanceMinimizationBasedShapeAligner3D<Sc
 }
 
 template<typename ScalarType>
-ScalarType DistanceMinimizationBasedShapeAligner3D<ScalarType>::ComputeShapeSimilarity(const DenseMatrix<ScalarType>& ShapeA, const DenseMatrix<ScalarType>& ShapeB, const DenseVector<int_max>& Landmark, const std::string& TransformName, bool Flag_Symmetry)
+ScalarType DistanceMinimizationBasedShapeAligner<ScalarType>::ComputeShapeSimilarity(const DenseMatrix<ScalarType>& ShapeA, const DenseMatrix<ScalarType>& ShapeB, const DenseVector<int_max>& Landmark, const std::string& TransformName, bool Flag_Symmetry)
 {
 	return ComputeSimilarityBetweenShapeWithPointCorrespondence(ShapeA, ShapeB, Landmark, TransformName, Flag_Symmetry);
 }

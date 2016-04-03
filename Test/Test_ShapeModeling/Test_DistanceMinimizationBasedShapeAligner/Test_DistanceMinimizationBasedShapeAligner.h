@@ -1,6 +1,6 @@
 #include "mdkLinearAlgebra.h"
 #include "mdkPolygonMeshProcessing.h"
-#include "mdkDistanceMinimizationBasedShapeAligner3D.h"
+#include "mdkDistanceMinimizationBasedShapeAligner.h"
 
 
 using namespace mdk;
@@ -21,31 +21,11 @@ void test_a()
 	}
 	std::cout << "done read mesh" << '\n';
 
-	DistanceMinimizationBasedShapeAligner3D<double> ShapeAligner;
+	DistanceMinimizationBasedShapeAligner<double> ShapeAligner;
 	
 	ObjectArray<SparseVector<double>> SimilarityTable;
 	SimilarityTable = ShapeAligner.ComputeShapeSimilarity(ShapeList, "RigidTransform", false, 0.2, 8);
 	std::cout << "done ComputeSimilarityBetweenShape" << '\n';
-
-	ShapeAligner.SetInputShapeList(&ShapeList);
-	ShapeAligner.SetInputSimilarityTable(&SimilarityTable);
-	ShapeAligner.SelectRigidTransform();
-	ShapeAligner.SetMaxNeighbourCount(10);
-	ShapeAligner.SetMaxIterCount(10);
-	ShapeAligner.EnableObjectiveFunctionEvaluation();
-	ShapeAligner.EnableParallelUpdateTransform();
-	ShapeAligner.SetMaxThreadCount(8);
-	ShapeAligner.Update();
-	auto& AlignedShapeList = ShapeAligner.OutputShapeList();
-	std::cout << "done DistanceMinimizationBasedShapeAligner3D" << '\n';
-
-	for (int_max k = 0; k < ShapeCount; ++k)
-	{
-		AortaMesh.SetPointPosition(ALL, AlignedShapeList[k]);
-		SavePolygonMeshAsVTKFile(AortaMesh, TestDataPath + std::to_string(k) + "_AortaModel_Pimg_align.vtk");		
-	}
-	
-	DisplayVector("ObjectiveFunctionValue", ShapeAligner.GetObjectiveFunctionValue(), 6);
 
 	DenseMatrix<double> SimilarityTable_output;
 	SimilarityTable_output.Resize(ShapeCount, ShapeCount);
@@ -57,6 +37,26 @@ void test_a()
 		}
 	}
 	SaveDenseMatrixAsJsonDataFile(SimilarityTable_output, TestDataPath + "SimilarityTable.json");
+
+	ShapeAligner.SetInputShapeList(&ShapeList);
+	ShapeAligner.SetInputSimilarityTable(&SimilarityTable);
+	ShapeAligner.SelectRigidTransform();
+	ShapeAligner.SetMaxNeighbourCount(5);
+	ShapeAligner.SetMaxIterCount(10);
+	ShapeAligner.EnableObjectiveFunctionEvaluation();
+	ShapeAligner.EnableParallelUpdateTransform();
+	ShapeAligner.SetMaxThreadCount(8);
+	ShapeAligner.Update();
+	auto& AlignedShapeList = ShapeAligner.OutputShapeList();
+	std::cout << "done DistanceMinimizationBasedShapeAligner" << '\n';
+
+	for (int_max k = 0; k < ShapeCount; ++k)
+	{
+		AortaMesh.SetPointPosition(ALL, AlignedShapeList[k]);
+		SavePolygonMeshAsVTKFile(AortaMesh, TestDataPath + std::to_string(k) + "_AortaModel_Pimg_align.vtk");		
+	}
+	
+	DisplayVector("ObjectiveFunctionValue", ShapeAligner.GetObjectiveFunctionValue(), 6);
 
 	for (int_max k = 0; k < ShapeCount; ++k)
 	{

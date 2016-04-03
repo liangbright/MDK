@@ -7,6 +7,8 @@
 #include "mdkShapeSimilarityMeasurementFunction.h"
 #include "mdkParallelForLoop.h"
 
+//------------------------------------------------------------------------------------
+// Shape can be 2D or 3D
 // the objective function E=sum{Aij*||Ti(Xi) - Tj(Xj)||^2, i,j=0, 1, 2, ...}
 // input: shape X0, X1, X2, ... and similarity Aij between each shape pair 
 //        they have point-to-point corresponedece 
@@ -26,7 +28,7 @@ namespace mdk
 { 
 
 template<typename Scalar_Type>
-class DistanceMinimizationBasedShapeAligner3D : Object
+class DistanceMinimizationBasedShapeAligner : Object
 {
 public:
 	typedef Scalar_Type ScalarType;// double or float
@@ -48,7 +50,7 @@ private:
 
 	int_max m_MaxNeighbourCount;
 	//Aij is 0 if Xi and Xj are not neighbour to each other
-	// Xi can only have a limited number of neighbour = m_MaxNeighbourCount
+	//Xi can only have a limited number of neighbour = m_MaxNeighbourCount
 
 	int_max m_MaxIterCount;
 	// max iteration count for Algorithm Part-II
@@ -64,7 +66,7 @@ private:
 	int_max m_MaxThreadCount;
 
 	//------------------------------- output ---------------------------------//
-	ObjectArray<Parameter_of_SimilarityTransform3D<ScalarType>> m_OutputTransformList;	
+	ObjectArray<Parameter_Of_SimilarityTransform<ScalarType>> m_OutputTransformList;	
 	// {scale, rotation, translation}
 
 	ObjectArray<DenseMatrix<ScalarType>> m_OutputShapeList;// each aligned shape
@@ -72,8 +74,8 @@ private:
 	DenseVector<ScalarType> m_ObjectiveFunctionValue;
 
 public:
-	DistanceMinimizationBasedShapeAligner3D();
-	~DistanceMinimizationBasedShapeAligner3D();
+	DistanceMinimizationBasedShapeAligner();
+	~DistanceMinimizationBasedShapeAligner();
 	void Clear();	
 	void SelectSimilarityTransform() { m_Flag_use_SimilarityTransform = true; }
 	void SelectRigidTransform() { m_Flag_use_SimilarityTransform = false; }
@@ -88,7 +90,7 @@ public:
 	void EnableParallelUpdateTransform(bool On_or_Off = true) { m_Flag_Parallel_UpdateTransform = On_or_Off; }
 	bool CheckInput();
 	void Update();
-	ObjectArray<Parameter_of_SimilarityTransform3D<ScalarType>>& OutputTransformList() {return m_OutputTransformList;}
+	ObjectArray<Parameter_Of_SimilarityTransform<ScalarType>>& OutputTransformList() {return m_OutputTransformList;}
 	ObjectArray<DenseMatrix<ScalarType>>& OutputShapeList() { return m_OutputShapeList; }
 	DenseVector<ScalarType> GetObjectiveFunctionValue() {return m_ObjectiveFunctionValue;}
 	//---------------- provide a default method to get similarity --------------------------------------------------------------------
@@ -106,13 +108,14 @@ private:
 	void UpdateTransform_parallel();
 	void AlignToReferenceShape();
 	ScalarType ComputeObjectiveFunctionValue();
-	Parameter_of_SimilarityTransform3D<ScalarType> EstimateTransformParameter(const DenseMatrix<ScalarType>& SourceShape, const DenseMatrix<ScalarType>& TagetShape);
+	Parameter_Of_SimilarityTransform<ScalarType> EstimateTransformParameter(const DenseMatrix<ScalarType>& SourceShape, const DenseMatrix<ScalarType>& TagetShape);
+	DenseMatrix<ScalarType> TransformShape(const DenseMatrix<ScalarType>& Shape, const Parameter_Of_SimilarityTransform<ScalarType>& Parameter);
 
 private:
-	DistanceMinimizationBasedShapeAligner3D(const DistanceMinimizationBasedShapeAligner3D&) = delete;
-	void operator=(const DistanceMinimizationBasedShapeAligner3D&) = delete;
+	DistanceMinimizationBasedShapeAligner(const DistanceMinimizationBasedShapeAligner&) = delete;
+	void operator=(const DistanceMinimizationBasedShapeAligner&) = delete;
 };
 
 }//namespace mdk
 
-#include "mdkDistanceMinimizationBasedShapeAligner3D.hpp"
+#include "mdkDistanceMinimizationBasedShapeAligner.hpp"

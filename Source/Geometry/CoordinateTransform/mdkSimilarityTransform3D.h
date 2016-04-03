@@ -1,7 +1,8 @@
 ﻿#pragma once
 
-#include "mdkCoordinateTransform3D.h"
 #include "mdkDenseMatrix.h"
+#include "mdkCoordinateTransform3D.h"
+#include "mdkParameterOfCoordinateTransform.h"
 
 namespace mdk
 {
@@ -10,16 +11,6 @@ namespace mdk
 //
 // use right-hand coordinate system
 // Reference: Least-squares Estimation of Transformation Parameters Between Two Point Patterns, 1991
-
-template<typename Scalar_Type>
-struct Parameter_of_SimilarityTransform3D
-{
-	typedef Scalar_Type ScalarType;
-
-	ScalarType Scale;
-	DenseMatrix<ScalarType> Rotation;
-	DenseMatrix<ScalarType> Translation;
-};
 
 template<typename Scalar_Type>
 class SimilarityTransform3D : public CoordinateTransform3D<Scalar_Type>
