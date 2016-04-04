@@ -37,20 +37,12 @@ public:
 		{
 			NewPosition = this->TransformPoint(Position[0], Position[1]);
 		}
-		else if (ColCount > 1 && RowCount == 2)
+		else if (RowCount == 2 && ColCount > 1)
 		{
 			for (int_max k = 0; k < ColCount; ++k)
 			{
 				auto Pos_k = this->TransformPoint(Position(0, k), Position(1, k));
 				NewPosition.SetCol(k, Pos_k);
-			}
-		}
-		else if (ColCount == 2 && RowCount > 1)
-		{
-			for (int_max k = 0; k < RowCount; ++k)
-			{
-				auto Pos_k = this->TransformPoint(Position(k, 0), Position(k, 1));
-				NewPosition.SetRow(k, Pos_k);
 			}
 		}
 		else

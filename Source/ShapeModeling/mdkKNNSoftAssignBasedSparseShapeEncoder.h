@@ -1,7 +1,6 @@
 #pragma once
 
-#include "mdkString.h"
-#include "mdkShapeDictioanry.h"
+#include "mdkShapeDictionary.h"
 #include "mdkShapeSimilarityMeasurementFunction.h"
 
 namespace mdk
@@ -10,9 +9,8 @@ namespace mdk
 template<typename ScalarType>
 struct Parameter_Of_KNNSoftAssignBasedSparseShapeEncoder
 {
-    int_max NeighbourCount;
-	std::string TransformName; // RigidTransform, SimilarityTransform, ThinPlateSplineTransform
-	DenseVector<int_max> Landmark;
+	String TransformName; // RigidTransform, SimilarityTransform, ThinPlateSplineTransform
+    int_max MaxNeighbourCount;
 	ScalarType SimilarityThreshold; // set Similarity to 0 if it is < SimilarityThreshold
 	int_max MaxThreadCount;
 };
@@ -26,19 +24,21 @@ public:
 
 private:
     Parameter_Of_KNNSoftAssignBasedSparseShapeEncoder<ScalarType> m_Parameter;
-	const ObjectArray<DenseMatirx<ScalarType>>* m_ShapeData;
-	const ObjectArray<DenseMatirx<ScalarType>>* m_Dictioanry;
+	const ObjectArray<DenseMatrix<ScalarType>>* m_ShapeData;
+	DenseVector<int_max> m_LandmarkOnShape;
+	const ObjectArray<DenseMatrix<ScalarType>>* m_Dictionary;
 	ObjectArray<SparseVector<ScalarType>> m_Code;
 public:
     KNNSoftAssignBasedSparseShapeEncoder();
     ~KNNSoftAssignBasedSparseShapeEncoder();
 	void Clear();
 	Parameter_Of_KNNSoftAssignBasedSparseShapeEncoder<ScalarType>& Parameter() {return m_Parameter;}
-	void SetInputShapeData(const ObjectArray<DenseMatirx<ScalarType>>* ShapeData) { m_ShapeData = ShapeData; }
-	void SetInputDictioanry(const ObjectArray<DenseMatirx<ScalarType>>* Dictioanry) {m_Dictioanry = Dictioanry;}
+	void SetInputShapeData(const ObjectArray<DenseMatrix<ScalarType>>* ShapeData) { m_ShapeData = ShapeData; }
+	void SetLandmarkOnShape(const DenseVector<int_max>& Landmark) { m_LandmarkOnShape = Landmark; }
+	void SetInputDictionary(const ObjectArray<DenseMatrix<ScalarType>>* Dictioanry) {m_Dictionary = Dictioanry;}
 	bool CheckInput();
 	void Update();
-	ObjectArray<SparseVector<ScalarType>> OuputCode() { return m_Code; }   
+	ObjectArray<SparseVector<ScalarType>> OutputCode() { return m_Code; }   
 	//----------------------------------------------------------------------------------------------------
 private:
 	SparseVector<ScalarType> EncodeShape(int_max ShapeIndex);

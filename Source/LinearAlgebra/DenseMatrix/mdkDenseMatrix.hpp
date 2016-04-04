@@ -7490,11 +7490,11 @@ template<typename ElementType>
 inline
 DenseMatrix<int_max> DenseMatrix<ElementType>::Sort(const char* ascend_or_descend) const
 {
-	if (ascend_or_descend[0] == "a")
+	if (ascend_or_descend[0] == 'a')
 	{
 		return this->Sort([](const ElementType& ElementA, const ElementType& ElementB){ return ElementA < ElementB; });
 	}
-	else if (ascend_or_descend[0] == "d")
+	else if (ascend_or_descend[0] == 'd')
 	{
 		return this->Sort([](const ElementType& ElementA, const ElementType& ElementB){ return ElementA > ElementB; });
 	}

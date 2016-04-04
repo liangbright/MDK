@@ -14,16 +14,15 @@ ShapeDictionary<ScalarType>::ShapeDictionary()
 
 template<typename ScalarType>
 ShapeDictionary<ScalarType>::ShapeDictionary(const ShapeDictionary<ScalarType>& InputDictionary)
-{
-    m_Data = std::make_shared<ShapeDictionaryData<ScalarType>>();
+{    
     this->Copy(InputDictionary);
 }
 
 
 template<typename ScalarType>
 ShapeDictionary<ScalarType>::ShapeDictionary(ShapeDictionary<ScalarType>&& InputDictionary)
-{
-	(*this) = std::move(InputDictionary);
+{	
+	m_Data = std::move(InputDictionary.m_Data);
 }
 
 
@@ -55,6 +54,11 @@ void ShapeDictionary<ScalarType>::Copy(const ShapeDictionary<ScalarType>& InputD
         return;
     }
 
+	if (!m_Data)
+	{
+		m_Data = std::make_shared<ShapeDictionaryData<ScalarType>>();
+	}
+
     m_Data->Name = InputDictionary.m_Data->Name;
     m_Data->Basis = InputDictionary.m_Data->Basis;
     m_Data->SeedForNewBasisIDGeneration = InputDictionary.m_Data->SeedForNewBasisIDGeneration.load();
@@ -70,6 +74,16 @@ void ShapeDictionary<ScalarType>::Copy(const ShapeDictionary<ScalarType>& InputD
 template<typename ScalarType>
 void ShapeDictionary<ScalarType>::Copy(ShapeDictionary<ScalarType>&& InputDictionary)
 {
+	if (m_Data == InputDictionary.m_Data)
+	{
+		return;
+	}
+
+	if (!m_Data)
+	{
+		m_Data = std::make_shared<ShapeDictionaryData<ScalarType>>();
+	}
+
     m_Data->Name = std::move(InputDictionary.m_Data->Name);
     m_Data->Basis = std::move(InputDictionary.m_Data->Basis);	
     m_Data->SeedForNewBasisIDGeneration = InputDictionary.m_Data->SeedForNewBasisIDGeneration.load();
@@ -114,7 +128,7 @@ void ShapeDictionary<ScalarType>::Clear()
 {
 	if (!m_Data)
 	{
-		return;
+		m_Data = std::make_shared<ShapeDictionaryData<ScalarType>>();
 	}
 
 	m_Data->Name = "";
@@ -153,8 +167,31 @@ bool ShapeDictionary<ScalarType>::Save(const std::string& FilePathAndName) const
 
 
 template<typename ScalarType>
-ShapeDictionary<ScalarType>
-ShapeDictionary<ScalarType>::GetSubDictionary(const DenseMatrix<int_max>& SelectedBasisIndexList) const
+void ShapeDictionary<ScalarType>::Initialize(ObjectArray<DenseMatrix<ScalarType>> BasisData)
+{
+	this->Clear();
+
+	m_Data->Basis = std::move(BasisData);
+	auto BasisCount = m_Data->Basis.GetLength();
+	m_Data->BasisID.Resize(BasisCount);
+	m_Data->BasisAge.Resize(BasisCount);
+	m_Data->BasisExperience.Resize(BasisCount);
+	m_Data->BasisRedundancy.Resize(BasisCount);
+	for (int_max k = 0; k < BasisCount; ++k)
+	{
+		m_Data->BasisID[k] = this->GenerateNewBasisID();
+		m_Data->BasisAge[k] = 0;
+		m_Data->BasisExperience[k] = 1;
+		m_Data->BasisRedundancy[k] = 0;
+	}
+	m_Data->BasisSimilarity.Resize(BasisCount, BasisCount);
+	m_Data->BasisSimilarity.Fill(0);
+	m_Data->BasisSimilarity.FillDiagonal(1);
+}
+
+
+template<typename ScalarType>
+ShapeDictionary<ScalarType> ShapeDictionary<ScalarType>::GetSubDictionary(const DenseMatrix<int_max>& SelectedBasisIndexList) const
 {
     ShapeDictionary<ScalarType> SubDictionary;
 

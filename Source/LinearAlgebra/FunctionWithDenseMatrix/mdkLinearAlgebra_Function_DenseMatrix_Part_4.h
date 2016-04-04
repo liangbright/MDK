@@ -8,7 +8,7 @@ class DenseMatrix;
 //-----------------------------------
 
 template<typename ElementType>
-DenseMatrix<int_max> FindKNNByDistanceList(const DenseMatrix<ElementType>& DistanceList, int_max K_NeighbourCount);
+DenseMatrix<int_max> FindKNNByDistanceList(const DenseMatrix<ElementType>& DistanceList, int_max K_MaxNeighbourCount);
 
 // find KNN with Distance <= DistanceThreshold
 template<typename ElementType>
@@ -17,7 +17,7 @@ DenseMatrix<int_max> FindKNNByDistanceList(const DenseMatrix<ElementType>& Dista
 //------------------------------------ Similarity based metric --------------------------------------------------------------//
 
 template<typename ElementType>
-DenseMatrix<int_max> FindKNNBySimilarityList(const DenseMatrix<ElementType>& SimilarityList, int_max K_NeighbourCount);
+DenseMatrix<int_max> FindKNNBySimilarityList(const DenseMatrix<ElementType>& SimilarityList, int_max K_MaxNeighbourCount);
 
 // find KNN with Similarity >= SimilarityThreshold
 template<typename ElementType>

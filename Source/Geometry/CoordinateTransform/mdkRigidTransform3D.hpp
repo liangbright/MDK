@@ -21,12 +21,13 @@ void RigidTransform3D<ScalarType>::Clear()
 	m_TargetLandmarkPointSet = nullptr;
 	m_Rotation.Clear();
 	m_Rotation.Resize(3, 3);
-	m_Rotation.Fill(0);
-	m_Rotation.FillDiagonal(1);
 	m_Rotation.FixSize();
+	m_Rotation.Fill(0);
+	m_Rotation.FillDiagonal(1);	
+	m_Translation_AfterRotation.Clear();
 	m_Translation_AfterRotation.Resize(3, 1);
-	m_Translation_AfterRotation.Fill(0);
 	m_Translation_AfterRotation.FixSize();
+	m_Translation_AfterRotation.Fill(0);	
 }
 
 template<typename ScalarType>

@@ -112,13 +112,13 @@ template<typename ElementType>
 inline 
 bool SparseVector<ElementType>::Initialize(const DenseMatrix<int_max>& IndexList, const DenseMatrix<ElementType>& ElementList, int_max Length)
 {
-    if (IndexList.GetElementNumber() != ElementList.GetElementNumber())
+    if (IndexList.GetElementCount() != ElementList.GetElementCount())
     {
         MDK_Error("Invalid Input @ SparseVector::Construct(DenseMatrix ...)")
         return false;
     }
 
-    return this->Initialize(IndexList.GetElementPointer(), ElementList.GetElementPointer(), ElementList.GetElementNumber(), Length);
+    return this->Initialize(IndexList.GetElementPointer(), ElementList.GetElementPointer(), ElementList.GetElementCount(), Length);
 }
 
 
@@ -126,13 +126,13 @@ template<typename ElementType>
 inline 
 bool SparseVector<ElementType>::Initialize(const DenseVector<int_max>& IndexList, const DenseMatrix<ElementType>& ElementList, int_max Length)
 {
-	if (IndexList.GetElementNumber() != ElementList.GetElementNumber())
+	if (IndexList.GetElementCount() != ElementList.GetElementCount())
 	{
 		MDK_Error("Invalid Input @ SparseVector::Construct(DenseVector, DenseMatrix, ...)")
 		return false;
 	}
 
-	return this->Initialize(IndexList.GetElementPointer(), ElementList.GetElementPointer(), ElementList.GetElementNumber(), Length);
+	return this->Initialize(IndexList.GetElementPointer(), ElementList.GetElementPointer(), ElementList.GetElementCount(), Length);
 }
 
 
@@ -140,13 +140,13 @@ template<typename ElementType>
 inline 
 bool SparseVector<ElementType>::Initialize(const DenseMatrix<int_max>& IndexList, const DenseVector<ElementType>& ElementList, int_max Length)
 {
-	if (IndexList.GetElementNumber() != ElementList.GetElementNumber())
+	if (IndexList.GetElementCount() != ElementList.GetElementCount())
 	{
 		MDK_Error("Invalid Input @ SparseVector::Construct(DenseMatrix, DenseVector, ...)")
 		return false;
 	}
 
-	return this->Initialize(IndexList.GetElementPointer(), ElementList.GetElementPointer(), ElementList.GetElementNumber(), Length);
+	return this->Initialize(IndexList.GetElementPointer(), ElementList.GetElementPointer(), ElementList.GetElementCount(), Length);
 }
 
 

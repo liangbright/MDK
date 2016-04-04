@@ -26,13 +26,14 @@ struct ShapeDictionaryData
 
     //------------ Age of each basis ----------------------------
     // row vector
+	//Total Number Of Samples In Training History
     DenseMatrix<ScalarType> BasisAge;
 
     // ---------- basis  Experience on Representing Data ----
-    // row vector
-    DenseMatrix<ScalarType> BasisExperience;
-    // the weighted total number of training data samples
+    // row vector    
+    // the weighted number of training data samples
     // for each basis from day 0
+	DenseMatrix<ScalarType> BasisExperience;
 
     //---------- Similarity and Redundancy between basis vector -----
 
@@ -77,6 +78,8 @@ public:
     bool Load(const std::string& FilePathAndName);
 	bool Save(const std::string& FilePathAndName) const;
 
+	void Initialize(ObjectArray<DenseMatrix<ScalarType>> BasisData);
+
     ShapeDictionary<ScalarType> GetSubDictionary(const DenseMatrix<int_max>& SelectedBasisIndexList) const;
 
     void MergeDictionary(const ShapeDictionary<ScalarType>& InputDictionary);
@@ -87,15 +90,15 @@ public:
 	inline const std::string& Name() const { return m_Data->Name; }
 
 	inline int_max GenerateNewBasisID();
-	inline int_max GetCurrentSeedForNewBasisIDGeneration() { return m_Data->SeedForNewBasisIDGeneration.load(); }
+	inline int_max GetCurrentSeedForNewBasisIDGeneration() const { return m_Data->SeedForNewBasisIDGeneration.load(); }
 	inline void SetCurrentSeedForNewBasisIDGeneration(int_max Seed) { m_Data->SeedForNewBasisIDGeneration = Seed; }
 
 	inline void SetCurrentDictionaryTime(int_max DictionaryTime) {m_Data->CurrentDictionaryTime = DictionaryTime;}
 	inline int_max GetCurrentDictionaryTime() const {return m_Data->CurrentDictionaryTime = DictionaryTime;	}
 
-	inline void GetBasisCount() const { return  m_Data->Basis->GetLength(); }
-	inline DenseMatrix<ScalarType>& Basis() { return m_Data->Basis; }
-    inline const DenseMatrix<ScalarType>& Basis() const { return m_Data->Basis; }
+	inline int_max GetBasisCount() const { return  m_Data->Basis.GetLength(); }
+	inline ObjectArray<DenseMatrix<ScalarType>>& Basis() { return m_Data->Basis; }
+    inline const  ObjectArray<DenseMatrix<ScalarType>>& Basis() const { return m_Data->Basis; }
 
     inline DenseMatrix<int_max>& BasisID() { return m_Data->BasisID; }
     inline const DenseMatrix<int_max>& BasisID() const { return m_Data->BasisID; }
@@ -112,8 +115,8 @@ public:
     inline DenseMatrix<ScalarType>& BasisSimilarity() { return m_Data->BasisSimilarity; }
     inline const DenseMatrix<ScalarType>& BasisSimilarity() const { return m_Data->BasisSimilarity; }
 
-    inline void Set_SimilarityThreshold(ScalarType SimilarityThreshold) { m_Data->SimilarityThreshold= SimilarityThreshold; }
-	inline ScalarType Get_SimilarityThreshold() const { return m_Data->SimilarityThreshold; }	
+    inline void SetSimilarityThreshold(ScalarType SimilarityThreshold) { m_Data->SimilarityThreshold = SimilarityThreshold; }
+	inline ScalarType GetSimilarityThreshold() const { return m_Data->SimilarityThreshold; }	
 };
 
 

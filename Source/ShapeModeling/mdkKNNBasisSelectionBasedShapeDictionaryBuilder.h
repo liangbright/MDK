@@ -2,8 +2,9 @@
 
 #include <random>
 
-#include "mdkShapeDictioanry.h"
+#include "mdkShapeDictionary.h"
 #include "mdkShapeSimilarityMeasurementFunction.h"
+
 
 namespace mdk
 {
@@ -20,8 +21,7 @@ struct Parameter_Of_KNNBasisSelectionBasedShapeDictionaryBuilder
 	ScalarType SimilarityThreshold;
 	// shape_a and shape_b not similar if Similarity(a,b) <= SimilarityThreshold
 
-	std::string TransformName;// RigidTransform, SimilarityTransform, ThinPlateSplineTransform
-	DenseVector<int_max> Landmark; // to get transform
+	std::string TransformName;// IdentityTransform, RigidTransform, SimilarityTransform, ThinPlateSplineTransform
 
     ScalarType ExperienceDiscountFactor; 
     // weight for the past experience when new training data is used
@@ -45,8 +45,8 @@ struct Parameter_Of_KNNBasisSelectionBasedShapeDictionaryBuilder
     bool Flag_Update_BasisRedundancy;
 
 	// -------------------------- debug -----------------------------------------------//
-	bool Debug_Flag_OutputInfo;
-	std::string Debug_FilePath;
+	bool Debug_Flag;
+	String Debug_FilePath;
 //--------------------------------------------------------------------------------------------------------
 
     Parameter_Of_KNNBasisSelectionBasedShapeDictionaryBuilder() { this->Clear(); }
@@ -59,7 +59,7 @@ struct Parameter_Of_KNNBasisSelectionBasedShapeDictionaryBuilder
 		MaxNeighbourCount = 0;
 		SimilarityThreshold = 0;
 		TransformName = "RigidTransform";
-		Landmark.Clear();
+		
         ExperienceDiscountFactor = 1;
         WeightOnProbabiliyForBasisSelection = 0;
 
@@ -72,7 +72,7 @@ struct Parameter_Of_KNNBasisSelectionBasedShapeDictionaryBuilder
 		Flag_Update_BasisSimilarity = true;
         Flag_Update_BasisRedundancy = true;
         
-		Debug_Flag_OutputInfo = false;
+		Debug_Flag = false;
 		Debug_FilePath = "";
     }
 };
@@ -90,6 +90,8 @@ private:
     // training data
     const ObjectArray<DenseMatrix<ScalarType>>* m_TrainingShapeData;
 
+	DenseVector<int_max> m_LandmarkOnShape; // to get transform
+
 	// input initial dictionary
     const ShapeDictionary<ScalarType>* m_InitialDictionary;
 
@@ -102,6 +104,7 @@ public:
     void Clear();
 	Parameter_Of_KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>& Parameter() { return m_Parameter; }
 	void SetTrainingShapeData(const ObjectArray<DenseMatrix<ScalarType>>* ShapeData) { m_TrainingShapeData = ShapeData; }
+	void SetLandmarkOnShape(const DenseVector<int_max>& Landmark) { m_LandmarkOnShape = Landmark;	}
 	void SetInitialDictionary(const ShapeDictionary<ScalarType>* InitialDictionary) { m_InitialDictionary = InitialDictionary; }
     bool CheckInput();
 	void Update();
@@ -109,13 +112,13 @@ public:
 
 private:
 
-    ShapeDictionary<ScalarType> PreprocessInitialDictionary(const ShapeDictionary<ScalarType>& InitialDictionary);
+    void AdjustBasisExperience_BeforeEachEpoch(DenseMatrix<ScalarType>& BasisExperience);
     
     ShapeDictionary<ScalarType> BuildDictionaryInMiniBatch(const ShapeDictionary<ScalarType>& Dictionary_init, const ObjectArray<DenseMatrix<ScalarType>>& ShapeData);
 
     DenseMatrix<int_max> SelectBasis(const int_max BasisCount_desired, const DenseMatrix<ScalarType>& SimilarityMatrix, const DenseMatrix<ScalarType>& ProbabilityOfEachShape);
 
-    DenseMatrix<ScalarType> ComputeInitialRepresentativeAbilityOfEachVector(const ShapeDictionary<ScalarType>& Dictionary_init, int_max TotalShapeCount);
+    DenseMatrix<ScalarType> ComputeInitialRepresentativeAbilityOfEachShape(const ShapeDictionary<ScalarType>& Dictionary_init, int_max TotalShapeCount);
 
     DenseMatrix<ScalarType> ComputeShapeSimilarityMatrix(const ShapeDictionary<ScalarType>& Dictionary_init, const ObjectArray<DenseMatrix<ScalarType>>& ShapeData);
 
@@ -123,7 +126,7 @@ private:
    
     DenseMatrix<ScalarType> EstimateSmoothedAndNormalizedRepresentativeAbilityOfEachShape(const DenseMatrix<ScalarType>& ShapeSimilarityMatrix,
                                                                                           const ObjectArray<DenseMatrix<int_max>>& KNNShapeIndexTable,
-                                                                                          const DenseMatrix<ScalarType>& RepresentativeAbilityOfEachVector);
+                                                                                          const DenseMatrix<ScalarType>& RepresentativeAbilityOfEachShape);
 
     ObjectArray<SparseVector<ScalarType>> EncodeShapeDataBySimilarity(const DenseMatrix<ScalarType>& ShapeSimilarityMatrix,
                                                                       const DenseMatrix<int_max>&    ShapeIndexList_Basis,
@@ -131,18 +134,18 @@ private:
 
 	ScalarType ComputeShapeSimilarity(const DenseMatrix<ScalarType>& ShapeA, const DenseMatrix<ScalarType>& ShapeB);
 
-	void UpdateDictionaryInformation_AtEachDataBatch(ShapeDictionary<ScalarType>& Dictionary,
+	void UpdateDictionaryInformation_AtEachMiniBatch(ShapeDictionary<ScalarType>& Dictionary,
 													 const ObjectArray<DenseMatrix<ScalarType>>& ShapeData,
 													 const ObjectArray<SparseVector<ScalarType>>& CodeTable,
 													 const DenseMatrix<ScalarType>& ShapeSimilarityMatrix,
 													 const DenseMatrix<int_max>& ShapeIndexList_Basis,
 													 const ShapeDictionary<ScalarType>& Dictionary_init);
 
-	void UpdateDictionaryInformation_AfterALLEpoch(ShapeDictionary<ScalarType>& Dictionary, int_max ShapeDataCount);
+	void UpdateBasisExperience_AtEachMiniBatch(DenseMatrix<ScalarType>& BasisExperience, const ObjectArray<SparseVector<ScalarType>>& CodeTable);
 
-    void UpdateBasisExperience_AtEachDataBatch(DenseMatrix<ScalarType>& BasisExperience, const ObjectArray<SparseVector<ScalarType>>& CodeTable);
+	void AdjustBasisExperience_AfterEachEpoch(DenseMatrix<ScalarType>& BasisExperience, const DenseMatrix<ScalarType>& BasisExperience_init, int_max TotalDataCount);
 
-	void AdjustBasisExperience_AtEachEpoch(DenseMatrix<ScalarType>& BasisExperience, int_max DataCount, ScalarType TotalExperience_init);
+	void UpdateDictionaryInformation_AfterALLEpoch(ShapeDictionary<ScalarType>& Dictionary, int_max TotalDataCount);
 
     void UpdateBasisRedundancy_AfterALLEpoch(DenseMatrix<ScalarType>& BasisRedundancy, const DenseMatrix<ScalarType>& BasisSimilarity);
 

@@ -22,6 +22,7 @@ void KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::Clear()
 {
     m_Parameter.Clear();
 	m_TrainingShapeData = nullptr;
+	m_LandmarkOnShape.Clear();
     m_InitialDictionary = nullptr;
 	m_Dictionary.Clear();
 }
@@ -48,11 +49,11 @@ bool KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::CheckInput()
 		return false;
 	}
 	
-    if (m_Parameter.MaxNeighbourCount <= 0)
-    {
-        MDK_Error("MaxNeighbourCount <= 0 @ KNNBasisSelectionBasedShapeDictionaryBuilder::CheckInput()")
-        return false;
-    }
+	if (m_Parameter.BasisCount <= 0)
+	{
+		MDK_Error("BasisCount <= 0 @ KNNBasisSelectionBasedShapeDictionaryBuilder::CheckInput()")
+		return false;
+	}
 	
 	if (m_Parameter.BasisCount > m_TrainingShapeData->GetLength())
 	{
@@ -60,12 +61,12 @@ bool KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::CheckInput()
 		return false;
 	}
 
-    if (m_Parameter.BasisCount < m_Parameter.MaxNeighbourCount || m_Parameter.BasisCount <= 0)
-    {
-        MDK_Error("BasisCount <  MaxNeighbourCount or BasisCount <= 0 @ KNNBasisSelectionBasedShapeDictionaryBuilder::CheckInput()")
-        return false;
-    }
-    
+	if (m_Parameter.MaxNeighbourCount <= 0)
+	{
+		MDK_Error("MaxNeighbourCount <= 0 @ KNNBasisSelectionBasedShapeDictionaryBuilder::CheckInput()")
+		return false;
+	}
+
     if (m_Parameter.WeightOnProbabiliyForBasisSelection < 0 || m_Parameter.WeightOnProbabiliyForBasisSelection > 1)
     {
         MDK_Error("WeightOnProbabiliyForBasisSelection < 0 or > 1 @ KNNBasisSelectionBasedShapeDictionaryBuilder::CheckInput()")
@@ -74,15 +75,30 @@ bool KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::CheckInput()
 
 	if (m_Parameter.SimilarityThreshold < 0 || m_Parameter.SimilarityThreshold > 1)
 	{
-		MDK_Error("SimilarityThreshold < 0 or > 1 @ KNNBasisSelectionBasedShapeDictionaryBuilder::CheckInput()")
+		MDK_Error("SimilarityThreshold is out of range @ KNNBasisSelectionBasedShapeDictionaryBuilder::CheckInput()")
 		return false;
+	}
+
+	if (m_Parameter.TransformName != "IdentityTransform" && m_Parameter.TransformName != "RigidTransform" 
+		&& m_Parameter.TransformName != "SimilarityTransform" && m_Parameter.TransformName != "ThinPlateSplineTransform")
+	{
+		MDK_Error("TransformName is unknown @ KNNBasisSelectionBasedShapeDictionaryBuilder::CheckInput()")
+		return false;
+	}
+
+	if (m_Parameter.TransformName == "ThinPlateSplineTransform")
+	{
+		if (m_LandmarkOnShape.GetLength() < 9)
+		{
+			MDK_Error("too few Landmark for ThinPlateSplineTransform @ KNNBasisSelectionBasedShapeDictionaryBuilder::CheckInput()")
+			return false;
+		}
 	}
 
     if (m_Parameter.MaxThreadCount <= 0)
     {
-        MDK_Warning("MaxThreadCount <= 0, set to 1 @ KNNBasisSelectionBasedShapeDictionaryBuilder::CheckInput()")
-
-        m_Parameter.MaxThreadCount = 1;
+		MDK_Error("MaxThreadCount <= 0 @ KNNBasisSelectionBasedShapeDictionaryBuilder::CheckInput()")
+		return false;
     }
 
     return true;
@@ -98,32 +114,33 @@ void KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::Update()
 	}
 
 	ShapeDictionary<ScalarType> OutputDictionary;
+	if (m_InitialDictionary != nullptr)
+	{
+		OutputDictionary.Copy(*m_InitialDictionary);
+	}	
 
-    //-----------------------------------------------------------------------------
-    if (m_InitialDictionary != nullptr)
-    {
-        OutputDictionary = this->PreprocessInitialDictionary(*m_InitialDictionary);
-    }
+	DenseMatrix<ScalarType> BasisExperience_init;
+	BasisExperience_init.Copy(OutputDictionary.BasisExperience());
+	BasisExperience_init *= m_Parameter.ExperienceDiscountFactor;
 
-    auto TotalExperience_init = ScalarType(0);
-    if (OutputDictionary.BasisExperience().IsEmpty() == false)
-    {
-        TotalExperience_init = OutputDictionary.BasisExperience().Sum();
-    }
-    //------------------------------------------------------------------------------
-
-    int_max TotalDataCount = m_TrainingShapeData->GetLength();
+	int_max TotalDataCount = m_TrainingShapeData->GetLength();
 
    //--------------------------------- run Epoch and Minibatch -------------------------------------------------------//
 
    // random number for sampling
     std::random_device rd;
     std::mt19937 gen(rd());
-      
+	DenseVector<int_max> RandomDataIndexList = span(0, TotalDataCount - 1);
+
 	for (int_max iter = 0; iter < m_Parameter.MaxEpochCount; ++iter)
-	{
-		std::shuffle(RandomDataIndexList.begin(), RandomDataIndexList.end(), gen);
+	{		
+		this->AdjustBasisExperience_BeforeEachEpoch(OutputDictionary.BasisExperience());
+
 		int_max BatchCount = TotalDataCount / m_Parameter.MiniBatchSize;
+		if (BatchCount > 1)
+		{
+			std::shuffle(RandomDataIndexList.begin(), RandomDataIndexList.end(), gen);
+		}
 		for (int_max n = 0; n < BatchCount; ++n)
 		{
 			ObjectArray<DenseMatrix<ScalarType>> ShapeData_CurrentBatch;
@@ -139,7 +156,7 @@ void KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::Update()
 			}
 			OutputDictionary = this->BuildDictionaryInMiniBatch(OutputDictionary, ShapeData_CurrentBatch);
 		}
-		this->AdjustBasisExperience_AtEachEpoch(OutputDictionary.BasisExperience(), TotalDataCount, TotalExperience_init);
+		this->AdjustBasisExperience_AfterEachEpoch(OutputDictionary.BasisExperience(), BasisExperience_init, TotalDataCount);
 	}
 
     this->UpdateDictionaryInformation_AfterALLEpoch(OutputDictionary, TotalDataCount);
@@ -149,18 +166,9 @@ void KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::Update()
 
 
 template<typename ScalarType>
-ShapeDictionary<ScalarType>
-KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::PreprocessInitialDictionary(const ShapeDictionary<ScalarType>& InitialDictionary)
+void
+KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::AdjustBasisExperience_BeforeEachEpoch(DenseMatrix<ScalarType>& BasisExperience)
 {
-    ShapeDictionary<ScalarType> OutputDictionary;
-    if (InitialDictionary.IsEmpty())
-    {
-        return OutputDictionary;
-    }
-
-    OutputDictionary.Copy(InitialDictionary);
-
-    DenseMatrix<ScalarType>& BasisExperience = OutputDictionary.BasisExperience();
     // discount the previous Experience
     BasisExperience *= m_Parameter.ExperienceDiscountFactor;
     // Experience must >= 1
@@ -171,8 +179,6 @@ KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::PreprocessInitialDicti
             BasisExperience[k] = 1;
         }
     }
-
-    return OutputDictionary;
 }
 
 
@@ -182,7 +188,7 @@ KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::
 BuildDictionaryInMiniBatch(const ShapeDictionary<ScalarType>& Dictionary_init, const ObjectArray<DenseMatrix<ScalarType>>& ShapeData)
 {
     ShapeDictionary<ScalarType> Dictionary;// the output
-    Dictionary.Name() = m_Parameter.DictionaryName;
+    Dictionary.Name() = m_Parameter.Name;
     int_max BasisCount_desired = m_Parameter.BasisCount;
 
     //------------------------------------------- check input ---------------------------------------------------------------//
@@ -193,25 +199,19 @@ BuildDictionaryInMiniBatch(const ShapeDictionary<ScalarType>& Dictionary_init, c
         return Dictionary;
     }
 
-    //--------------------------- combine ShapeData and Basis Of InitialDictionary and Compute ShapeSimilarityMatrix ---------//
+    //--------------------------- combine ShapeData and Dictionary_init.Basis to Compute ShapeSimilarityMatrix ---------//
 	// just for reference: what is CombinedData
 	// CombinedData = { Dictionary_init.Basis(), ShapeData };
 
     int_max DataCount = ShapeData.GetLength();
-
-    int_max BasisCount_init = 0;
-    if (Dictionary_init.IsEmpty() == false)
-    {
-        BasisCount_init = Dictionary_init.GetBasisCount();
-    }
-
+	int_max BasisCount_init = Dictionary_init.GetBasisCount(); 
     int_max TotalShapeCount = BasisCount_init + DataCount;
 
     auto ShapeSimilarityMatrix = this->ComputeShapeSimilarityMatrix(Dictionary_init, ShapeData);
 
-    if (m_Parameter.Debug_Flag_OutputInfo == true)
+    if (m_Parameter.Debug_Flag == true)
     {
-        std::string FilePathAndName = m_Parameter.Debug_FilePath + "ShapeSimilarityMatrix.json";
+        String FilePathAndName = m_Parameter.Debug_FilePath + "ShapeSimilarityMatrix.json";
         SaveDenseMatrixAsJsonDataFile(ShapeSimilarityMatrix, FilePathAndName);
     }
 
@@ -230,11 +230,10 @@ BuildDictionaryInMiniBatch(const ShapeDictionary<ScalarType>& Dictionary_init, c
         BasisExperience.FastResize(1, TotalShapeCount);
         BasisExperience.Fill(1);
 
-        if (Dictionary_init.IsEmpty() == false)
+		auto BasisCount_init = Dictionary_init.GetBasisCount();
+        if (BasisCount_init > 0)
         {
-            const auto& Basis_init = Dictionary_init.Basis();
-            BasisCount_init = Basis_init.GetColCount();
-
+			const auto& Basis_init = Dictionary_init.Basis();
             Basis = { &Basis_init, &ShapeData };
             BasisAge(span(0, BasisCount_init - 1)) = Dictionary_init.BasisAge();
             BasisExperience(span(0, BasisCount_init - 1)) = Dictionary_init.BasisExperience();
@@ -244,11 +243,10 @@ BuildDictionaryInMiniBatch(const ShapeDictionary<ScalarType>& Dictionary_init, c
             Basis = ShapeData;
         }
 
+		// all shape as basis
         DenseMatrix<int_max> ShapeIndexList_Basis = span(0, Dictionary.GetBasisCount()-1);
-
         auto CodeTable = this->EncodeShapeDataBySimilarity(ShapeSimilarityMatrix, ShapeIndexList_Basis, BasisCount_init);
-
-        this->UpdateDictionaryInformation_AtEachDataBatch(Dictionary, ShapeData, CodeTable, ShapeSimilarityMatrix, ShapeIndexList_Basis, Dictionary_init);
+        this->UpdateDictionaryInformation_AtEachMiniBatch(Dictionary, ShapeData, CodeTable, ShapeSimilarityMatrix, ShapeIndexList_Basis, Dictionary_init);
 
         return Dictionary;
     }
@@ -292,7 +290,7 @@ BuildDictionaryInMiniBatch(const ShapeDictionary<ScalarType>& Dictionary_init, c
     auto CodeTable = this->EncodeShapeDataBySimilarity(ShapeSimilarityMatrix, ShapeIndexList_Basis, BasisCount_init);
 
     // --------------- Update DictionaryInformation --------------------------------------------//
-    this->UpdateDictionaryInformation_AtEachDataBatch(Dictionary, ShapeData, CodeTable, ShapeSimilarityMatrix, ShapeIndexList_Basis, Dictionary_init);
+    this->UpdateDictionaryInformation_AtEachMiniBatch(Dictionary, ShapeData, CodeTable, ShapeSimilarityMatrix, ShapeIndexList_Basis, Dictionary_init);
 
     //---------------------------------------------- done -------------------------------------------------------//
     
@@ -303,8 +301,8 @@ BuildDictionaryInMiniBatch(const ShapeDictionary<ScalarType>& Dictionary_init, c
 template<typename ScalarType>
 DenseMatrix<int_max>
 KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::SelectBasis(const int_max BasisCount_desired,
-                                                                       const DenseMatrix<ScalarType>& ShapeSimilarityMatrix,
-                                                                       const DenseMatrix<ScalarType>& ProbabilityOfEachShape)
+                                                                      const DenseMatrix<ScalarType>& ShapeSimilarityMatrix,
+                                                                      const DenseMatrix<ScalarType>& ProbabilityOfEachShape)
 {
 	//---------------------------------------------------------------------
     // Combined data = {Dictionary_init.Basis(), ShapeData}
@@ -356,16 +354,10 @@ KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::SelectBasis(const int_
         }
     }
     // sort ShapePairScoreList
-	DenseMatrix<int_max> tempIndexList_sort = ShapePairScoreList.Sort();
-	ShapePairScoreList = ShapePairScoreList.GetSubSet(tempIndexList_sort);
+	DenseMatrix<int_max> tempIndexList_sort = ShapePairScoreList.Sort("ascend");
+	ShapePairScoreList = ShapePairScoreList.GetSubMatrix(ALL, tempIndexList_sort);
 	// update ShapePairIndexList
-    DenseMatrix<int_max> ShapePairIndexList_old = ShapePairIndexList;
-    for (int_max k = 0; k < ShapePairCount; ++k)
-    {
-        auto tempColIndex = tempIndexList_sort[k];
-        ShapePairIndexList(0, k) = ShapePairIndexList_old(0, tempColIndex);
-        ShapePairIndexList(1, k) = ShapePairIndexList_old(1, tempColIndex);
-    }
+	ShapePairIndexList = ShapePairIndexList.GetSubMatrix(ALL, tempIndexList_sort);
 
     //------------------ select basis by removing redundant shape ---------------------------------//
     // get the pair (shape_a, shape_b) with the highest score in the current basis set
@@ -428,8 +420,7 @@ KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::SelectBasis(const int_
     }
 
     DenseMatrix<int_max> ShapeIndexList_Basis;
-    ShapeIndexList_Basis.ReserveCapacity(CurrentBasisCount);
-
+    ShapeIndexList_Basis.SetCapacity(CurrentBasisCount);
     for (int_max k = 0; k < TotalShapeCount; ++k)
     {
         if (ShapeFlagList[k] > 0)
@@ -462,11 +453,10 @@ ComputeInitialRepresentativeAbilityOfEachShape(const ShapeDictionary<ScalarType>
     DenseMatrix<ScalarType> RepresentativeAbility(1, TotalShapeCount);
     RepresentativeAbility.Fill(ScalarType(1));
 
-    if (Dictionary_init.IsEmpty() == false)
+	auto BasisCount_init = Dictionary_init.GetBasisCount();
+    if (BasisCount_init > 0)
     {
-        auto BasisCount_init = Dictionary_init.GetBasisCount();
-
-        const auto& BasisExperience_init = Dictionary_init.BasisExperience();
+		const auto& BasisExperience_init = Dictionary_init.BasisExperience();
 
         for (int_max k = 0; k < BasisCount_init; k++)
         {
@@ -568,7 +558,7 @@ ComputeShapeSimilarityMatrix(const ShapeDictionary<ScalarType>& Dictionary_init,
 
     if (Dictionary_init.BasisSimilarity().IsEmpty() == true)
     {
-        int_max TotalShapeCount = ShapeData.GetColCount();
+        int_max TotalShapeCount = ShapeData.GetElementCount();
 
         ShapeSimilarityMatrix.FastResize(TotalShapeCount, TotalShapeCount);
         ShapeSimilarityMatrix.Fill(ScalarType(0));  // ShapeSimilarityMatrix(i, i) = 0 for all i
@@ -594,7 +584,7 @@ ComputeShapeSimilarityMatrix(const ShapeDictionary<ScalarType>& Dictionary_init,
 		const auto& BasisSimilarity_init = Dictionary_init.BasisSimilarity();
 
 		int_max BasisCount_init = Dictionary_init.GetBasisCount();
-		int_max DataCount = ShapeData.GetColCount();
+		int_max DataCount = ShapeData.GetElementCount();
 		auto TotalShapeCount = BasisCount_init + DataCount;
 
         ShapeSimilarityMatrix.FastResize(TotalShapeCount, TotalShapeCount);
@@ -750,9 +740,9 @@ EstimateSmoothedAndNormalizedRepresentativeAbilityOfEachShape(const DenseMatrix<
 		Probability /= ProbSum;
 	}
 
-    if (m_Parameter.Debug_Flag_OutputInfo == true)
+    if (m_Parameter.Debug_Flag == true)
     {
-        std::string FilePathAndName = m_Parameter.DebugInfo.FilePathToSaveDebugInfo + "ShapeProbabilityList_with_init.json";
+        String FilePathAndName = m_Parameter.Debug_FilePath + "ShapeProbabilityList_with_init.json";
         SaveDenseMatrixAsJsonDataFile(Probability, FilePathAndName);
     }
 
@@ -766,10 +756,8 @@ KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::
 EncodeShapeDataBySimilarity(const DenseMatrix<ScalarType>& ShapeSimilarityMatrix, const DenseMatrix<int_max>& ShapeIndexList_Basis, int_max BasisCount_init)
 {
 	int_max BasisCount = ShapeIndexList_Basis.GetElementCount();
-
 	int_max TotalShapeCount = ShapeSimilarityMatrix.GetColCount();
-
-	auto DataCount = TotalShapeCount - BasisCount_init;
+	int_max DataCount = TotalShapeCount - BasisCount_init;
 
 	ObjectArray<SparseVector<ScalarType>> CodeTable;
 	CodeTable.FastResize(DataCount);
@@ -784,26 +772,21 @@ EncodeShapeDataBySimilarity(const DenseMatrix<ScalarType>& ShapeSimilarityMatrix
 
 		for (int_max n = 0; n < BasisCount; ++n)
 		{
-			int_max ShapeIndex_basis = ShapeIndexList_Basis[n];
-
-			SimilarityList[n] = ShapeSimilarityMatrix(ShapeIndex_basis, ShapeIndex_Data);
+			int_max ShapeIndex_Basis = ShapeIndexList_Basis[n];
+			SimilarityList[n] = ShapeSimilarityMatrix(ShapeIndex_Basis, ShapeIndex_Data);
 		}
 
 		auto KNNBasisIndexList = FindKNNBySimilarityList(SimilarityList, m_Parameter.MaxNeighbourCount, m_Parameter.SimilarityThreshold);
-
 		auto tempNeighbourCount = KNNBasisIndexList.GetElementCount();
-
 		if (tempNeighbourCount > 0)
 		{
 			DenseMatrix<ScalarType> KNNBasisSimilarityList;
 			KNNBasisSimilarityList.FastResize(1, tempNeighbourCount);
-
 			for (int_max m = 0; m < tempNeighbourCount; ++m)
 			{
 				KNNBasisSimilarityList[m] = SimilarityList[KNNBasisIndexList[m]];
 			}
-
-			CodeTable[k].Construct(KNNBasisIndexList, KNNBasisSimilarityList, BasisCount);
+			CodeTable[k].Initialize(KNNBasisIndexList, KNNBasisSimilarityList, BasisCount);
 		}
 	};
 	ParallelForLoop(TempFunction_EncodeDataVector, 0, DataCount - 1, m_Parameter.MaxThreadCount);
@@ -815,13 +798,13 @@ EncodeShapeDataBySimilarity(const DenseMatrix<ScalarType>& ShapeSimilarityMatrix
 template<typename ScalarType>
 ScalarType KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::ComputeShapeSimilarity(const DenseMatrix<ScalarType>& ShapeA, const DenseMatrix<ScalarType>& ShapeB)
 {
-	return ComputeSimilarityBetweenShapeWithPointCorrespondence(ShapeA, ShapeB, m_Parameter.Landmark, m_Parameter.TransformName, true);
+	return ComputeSimilarityBetweenShapeWithPointCorrespondence(ShapeA, ShapeB, m_LandmarkOnShape, m_Parameter.TransformName, true);
 }
 
 
 template<typename ScalarType>
 void KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::
-UpdateDictionaryInformation_AtEachDataBatch(ShapeDictionary<ScalarType>& Dictionary,
+UpdateDictionaryInformation_AtEachMiniBatch(ShapeDictionary<ScalarType>& Dictionary,
                                             const ObjectArray<DenseMatrix<ScalarType>>& ShapeData,
                                             const ObjectArray<SparseVector<ScalarType>>& CodeTable,
                                             const DenseMatrix<ScalarType>& ShapeSimilarityMatrix,
@@ -832,7 +815,7 @@ UpdateDictionaryInformation_AtEachDataBatch(ShapeDictionary<ScalarType>& Diction
 	// ShapeSimilarityMatrix is from Combined Data
 
     // Basis has been updated
-    DenseMatrix<ScalarType>& Basis = Dictionary.Basis();
+    auto& Basis = Dictionary.Basis();
 	int_max BasisCount = Dictionary.GetBasisCount();
 
 	//To be initialized or updated in this function
@@ -842,15 +825,10 @@ UpdateDictionaryInformation_AtEachDataBatch(ShapeDictionary<ScalarType>& Diction
 	auto& BasisSimilarity = Dictionary.BasisSimilarity();
 	auto& BasisRedundancy = Dictionary.BasisRedundancy();
 
-    int_max BasisCount_init = 0;
-    if (Dictionary_init.Basis().IsEmpty() == false)
-    { 
-        BasisCount_init = Dictionary_init.GetBasisCount();
-    }
+    int_max BasisCount_init = Dictionary_init.GetBasisCount();
 
-    //---------------------- copy SeedForNewBasisIDGeneration ---------------------------//
-    
-    if (Dictionary_init.IsEmpty() == false)
+    //---------------------- copy SeedForNewBasisIDGeneration ---------------------------//   
+    if (BasisCount_init > 0)
     {
         Dictionary.SetCurrentSeedForNewBasisIDGeneration(Dictionary_init.GetCurrentSeedForNewBasisIDGeneration());
     }
@@ -859,11 +837,9 @@ UpdateDictionaryInformation_AtEachDataBatch(ShapeDictionary<ScalarType>& Diction
 
     BasisID.FastResize(1, BasisCount);
     BasisID.Fill(0); // BasisID is always > 0, fill 0 to mark new basis
-
-    if (Dictionary_init.IsEmpty() == false)
+    if (BasisCount_init > 0)
     {
-        const DenseMatrix<int_max>& BasisID_init = Dictionary_init.BasisID();
-
+        const auto& BasisID_init = Dictionary_init.BasisID();
         for (int_max k = 0; k < BasisCount; ++k)
         {
             auto tempIndex = ShapeIndexList_Basis[k];
@@ -877,13 +853,10 @@ UpdateDictionaryInformation_AtEachDataBatch(ShapeDictionary<ScalarType>& Diction
     //------------------- initialize BasisAge ----------------------------------------//
 
     BasisAge.FastResize(1, BasisCount);
-
     BasisAge.Fill(0); // fill 0 for new basis
-
-    if (Dictionary_init.IsEmpty() == false)
+    if (BasisCount_init > 0)
     {
         const DenseMatrix<ScalarType>& BasisAge_init = Dictionary_init.BasisAge();
-
         for (int_max k = 0; k < BasisCount; ++k)
         {
             auto tempIndex = ShapeIndexList_Basis[k];
@@ -899,7 +872,7 @@ UpdateDictionaryInformation_AtEachDataBatch(ShapeDictionary<ScalarType>& Diction
 
     BasisExperience.FastResize(1, BasisCount);
     BasisExperience.Fill(ScalarType(1)); // fill 1 for new basis
-    if (Dictionary_init.IsEmpty() == false)
+    if (BasisCount_init > 0)
     {
         const auto& BasisExperience_init = Dictionary_init.BasisExperience();
         for (int_max k = 0; k < BasisCount; ++k)
@@ -935,13 +908,77 @@ UpdateDictionaryInformation_AtEachDataBatch(ShapeDictionary<ScalarType>& Diction
     //--------------------- update BasisExperience -----------------------------//
 	BasisRedundancy.FastResize(1, BasisCount);
 	BasisRedundancy.Fill(1);
-    this->UpdateBasisExperience_AtEachDataBatch(BasisExperience, CodeTable);
+    this->UpdateBasisExperience_AtEachMiniBatch(BasisExperience, CodeTable);
 }
 
 
 template<typename ScalarType>
 void KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::
-UpdateDictionaryInformation_AfterALLEpoch(ShapeDictionary<ScalarType>& Dictionary, int_max DataCount)
+UpdateBasisExperience_AtEachMiniBatch(DenseMatrix<ScalarType>& BasisExperience, const ObjectArray<SparseVector<ScalarType>>& CodeTable)
+{
+	//--------------------------------------------------------------------------------------
+	// Input:
+	// BasisExperience is initialized
+	//
+	// CodeTable is from this->EncodeShapeDataBySimilarity(...), code of each shape data
+	//
+	// Output:
+	// BasisExperience
+	//
+	// BasisExperience[n] is estimated by counting the weighted-number/membership of KNN of the basis n
+	//--------------------------------------------------------------------------------------
+
+	int_max BasisCount = BasisExperience.GetElementCount();
+	int_max DataCount = CodeTable.GetLength();
+
+	auto eps_value = std::numeric_limits<ScalarType>::epsilon();
+
+	DenseMatrix<ScalarType> Membership;
+
+	for (int_max k = 0; k < DataCount; ++k)
+	{
+		const auto& KNN_IndexList = CodeTable[k].IndexList();
+		const auto& KNN_Similarity = CodeTable[k].ElementList();
+		auto tempNeighbourCount = KNN_IndexList.GetLength();
+		if (tempNeighbourCount > 0)
+		{
+			Membership = KNN_Similarity + eps_value;
+			Membership /= Membership.Sum();
+			for (int_max m = 0; m < tempNeighbourCount; ++m)
+			{
+				BasisExperience[KNN_IndexList[m]] += Membership[m];
+			}
+		}
+	}
+
+	// the total Experience is
+	// BasisExperience.Sum() <= BasisExperience.Sum() + DataCount
+	//
+	// the new "Experience" of the dictionary gained from data is DataCount
+}
+
+
+template<typename ScalarType>
+void KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::
+AdjustBasisExperience_AfterEachEpoch(DenseMatrix<ScalarType>& BasisExperience, const DenseMatrix<ScalarType>& BasisExperience_init, int_max TotalDataCount)
+{
+	int_max BasisCount = BasisExperience.GetElementCount();
+
+	DenseMatrix<ScalarType> BasisExperience_Diff = MatrixSubtract(BasisExperience, BasisExperience_init);
+
+	ScalarType TotalGain = BasisExperience_Diff.Sum();
+
+	if (TotalGain > TotalDataCount)
+	{
+		BasisExperience_Diff *= ScalarType(TotalDataCount) / TotalGain;
+		MatrixAdd(BasisExperience, BasisExperience_init, BasisExperience_Diff);
+	}
+}
+
+
+template<typename ScalarType>
+void KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::
+UpdateDictionaryInformation_AfterALLEpoch(ShapeDictionary<ScalarType>& Dictionary, int_max TotalDataCount)
 {
     DenseMatrix<int_max>& BasisID = Dictionary.BasisID();
     DenseMatrix<ScalarType>& BasisAge = Dictionary.BasisAge();
@@ -967,7 +1004,7 @@ UpdateDictionaryInformation_AfterALLEpoch(ShapeDictionary<ScalarType>& Dictionar
 
     if (m_Parameter.Flag_Update_BasisAge == true)
     {
-        BasisAge += DataCount;
+        BasisAge += TotalDataCount;
     }
 
     //---------- Update BasisRedundancy --------------------------------------------//
@@ -976,83 +1013,6 @@ UpdateDictionaryInformation_AfterALLEpoch(ShapeDictionary<ScalarType>& Dictionar
     {
         this->UpdateBasisRedundancy_AfterALLEpoch(BasisRedundancy, BasisSimilarity);
     }
-}
-
-
-
-template<typename ScalarType>
-void KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::
-UpdateBasisExperience_AtEachDataBatch(DenseMatrix<ScalarType>& BasisExperience, const ObjectArray<SparseVector<ScalarType>>& CodeTable)
-{
-    //--------------------------------------------------------------------------------------
-    // Input:
-    // BasisExperience is initialized
-    //
-    // CodeTable is from this->EncodeShapeDataBySimilarity(...)
-    //
-    // Output:
-    // BasisExperience
-    //
-    // BasisExperience[n] is estimated by counting the weighted-number/membership of KNN of the basis n
-    //--------------------------------------------------------------------------------------
-
-    int_max BasisCount = BasisExperience.GetElementCount();
-
-    int_max ShapeCount = CodeTable.GetLength();
-
-    auto eps_value = std::numeric_limits<ScalarType>::epsilon();
-
-    DenseMatrix<ScalarType> Membership;
-
-    for (int_max k = 0; k < ShapeCount; ++k)
-    {
-        const auto& KNN_IndexList = CodeTable[k].IndexList();
-		const auto& KNN_Similarity = CodeTable[k].ElementList();
-        auto tempNeighbourCount = KNN_IndexList.GetLength();
-        if (tempNeighbourCount > 0)
-        {
-            Membership  = KNN_Similarity + eps_value;
-            Membership /= Membership.Sum();
-            for (int_max m = 0; m < tempNeighbourCount; ++m)
-            {
-                BasisExperience[KNN_IndexList[m]] += Membership[m];
-            }
-        }
-    }
-
-    // the total Experience is
-    // BasisExperience.Sum() <- BasisExperience.Sum() + DataCount
-    //
-    // the new "Experience" of the dictionary gained from data is DataCount
-}
-
-
-template<typename ScalarType>
-void KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::
-AdjustBasisExperience_AtEachEpoch(DenseMatrix<ScalarType>& BasisExperience, int_max DataCount, ScalarType TotalExperience_init)
-{
-	// adjust the experience of each new basis
-	// BasisExperience >= 1 always
-	// TotalExperience should be TotalExperience_init + DataCount
-
-	int_max BasisCount = BasisExperience.GetElementCount();
-
-	ScalarType TotalExperience = BasisExperience.Sum();
-
-	if (TotalExperience > TotalExperience_init + DataCount)
-	{
-		auto factor = ScalarType(TotalExperience_init + DataCount) / TotalExperience;
-
-		BasisExperience *= factor;
-
-		for (int_max k = 0; k < BasisCount; ++k)
-		{
-			if (BasisExperience[k] < 1)
-			{
-				BasisExperience[k] = 1;
-			}
-		}
-	}
 }
 
 
@@ -1075,12 +1035,11 @@ UpdateBasisRedundancy_AfterALLEpoch(DenseMatrix<ScalarType>& BasisRedundancy, co
     auto TempFunction_UpdateRedundancy = [&](int_max k)
     {
         BasisRedundancy[k] = 0;
-
         for (int_max n = 0; n < BasisCount; ++n)
         {
             if (k != n)
             {
-                if (SimilarityMatrix(n, k) >= SimilarityThreshold)
+                if (BasisSimilarity(n, k) >= SimilarityThreshold)
                 {
                     BasisRedundancy[k] += BasisSimilarity(n, k);
                 }

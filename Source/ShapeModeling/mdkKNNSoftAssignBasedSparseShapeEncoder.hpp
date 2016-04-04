@@ -20,11 +20,11 @@ template<typename ScalarType>
 void KNNSoftAssignBasedSparseShapeEncoder<ScalarType>::Clear()
 {
 	m_ShapeData = nullptr;
-	m_Dictioanry = nullptr;
-	m_Parameter.NeighbourCount = 5;
+	m_Dictionary = nullptr;
+	m_LandmarkOnShape.Clear();
+	m_Parameter.MaxNeighbourCount = 5;
 	m_Parameter.SimilarityThreshold = 0;
-	m_Parameter.TransformName = "SimilarityTransform";
-	m_Parameter.Landmark.Clear();
+	m_Parameter.TransformName = "RigidTransform";
 	m_Parameter.MaxThreadCount = 1;
 }
 
@@ -32,29 +32,6 @@ void KNNSoftAssignBasedSparseShapeEncoder<ScalarType>::Clear()
 template<typename ScalarType>
 bool KNNSoftAssignBasedSparseShapeEncoder<ScalarType>::CheckInput()
 {
-    if (m_Parameter.NeighbourCount <= 0)
-    {
-        MDK_Error("NeighbourCount <= 0  @ KNNSoftAssignBasedSparseShapeEncoder::CheckInput()")
-        return false;
-    }
-
-    if (m_Parameter.TransformName != "SimilarityTransform" && m_Parameter.TransformName != "RigidTransform")
-    {
-		MDK_Error("TransformName is NOT SimilarityTransform or RigidTransform @ KNNSoftAssignBasedSparseShapeEncoder::CheckInput()")
-		return false;
-    }
-
-	if (m_Parameter.SimilarityThreshold > 1)
-	{
-		MDK_Error("SimilarityThreshold > 1 @ KNNSoftAssignBasedSparseShapeEncoder::CheckInput()")
-		return false;
-	}
-
-	if (m_Parameter.MaxThreadCount <= 0)
-	{
-		m_Parameter.MaxThreadCount = 1;
-	}
-
 	if (m_ShapeData == nullptr)
 	{
 		MDK_Error("input ShapeData is nullptr @ KNNSoftAssignBasedSparseShapeEncoder::CheckInput()")
@@ -67,16 +44,55 @@ bool KNNSoftAssignBasedSparseShapeEncoder<ScalarType>::CheckInput()
 		return false;
 	}
 
-	if (m_Dictioanry == nullptr)
+	int_max Dimension = (*m_ShapeData)[0].GetRowCount();
+	if (Dimension != 2 && Dimension != 3)
+	{
+		MDK_Error("Shape Dimension is NOT 2 or 3 @ KNNSoftAssignBasedSparseShapeEncoder::CheckInput()")
+		return false;
+	}
+
+	if (m_Dictionary == nullptr)
 	{
 		MDK_Error("input Dictioanry is nullptr @ KNNSoftAssignBasedSparseShapeEncoder::CheckInput()")
 		return false;
 	}
 
-	if (m_Dictioanry->IsEmpty() == true)
+	if (m_Dictionary->IsEmpty() == true)
 	{
 		MDK_Error("input Dictioanry is empty @ KNNSoftAssignBasedSparseShapeEncoder::CheckInput()")
 		return false;
+	}
+
+    if (m_Parameter.MaxNeighbourCount <= 0)
+    {
+        MDK_Error("MaxNeighbourCount <= 0  @ KNNSoftAssignBasedSparseShapeEncoder::CheckInput()")
+        return false;
+    }
+
+    if (m_Parameter.TransformName != "SimilarityTransform" && m_Parameter.TransformName != "RigidTransform" && m_Parameter.TransformName != "ThinPlateSplineTransform")
+    {
+		MDK_Error("TransformName is unknown @ KNNSoftAssignBasedSparseShapeEncoder::CheckInput()")
+		return false;
+    }
+
+	if (m_Parameter.TransformName == "ThinPlateSplineTransform")
+	{
+		if (m_LandmarkOnShape.GetLength() < 9)
+		{
+			MDK_Error("too few Landmark for ThinPlateSplineTransform @ KNNSoftAssignBasedSparseShapeEncoder::CheckInput()")
+			return false;
+		}
+	}
+
+	if (m_Parameter.SimilarityThreshold < 0 || m_Parameter.SimilarityThreshold > 1)
+	{
+		MDK_Error("SimilarityThreshold is out of range @ KNNSoftAssignBasedSparseShapeEncoder::CheckInput()")
+		return false;
+	}
+
+	if (m_Parameter.MaxThreadCount <= 0)
+	{
+		m_Parameter.MaxThreadCount = 1;
 	}
 
     return true;
@@ -86,53 +102,53 @@ bool KNNSoftAssignBasedSparseShapeEncoder<ScalarType>::CheckInput()
 template<typename ScalarType>
 void KNNSoftAssignBasedSparseShapeEncoder<ScalarType>::Update()
 {
-	if (this->CheckInput() = false)
+	if (this->CheckInput() == false)
 	{
 		return;
 	}
-
-	m_Code.FastResize(m_ShapeData->GetLength());
-	//for (int_max k = 0; k <= m_ShapeList.GetLength()-1; ++k)
+	m_Code.Clear();
+	m_Code.Resize(m_ShapeData->GetLength());
+	//for (int_max k = 0; k <= m_ShapeData.GetLength()-1; ++k)
 	auto TempFunction = [&](int_max k)
 	{
 		m_Code[k] = this->EncodeShape(k);
 	};
-	ParallelForLoop(TempFunction, 0, m_ShapeList.GetLength() - 1, m_Parameter.MaxThreadCount);
+	ParallelForLoop(TempFunction, 0, m_ShapeData->GetLength() - 1, m_Parameter.MaxThreadCount);
 }
 
 template<typename ScalarType>
 SparseVector<ScalarType> KNNSoftAssignBasedSparseShapeEncoder<ScalarType>::EncodeShape(int_max ShapeIndex)
 {
-	auto BasisCount = m_Dictioanry->GetLength();
-	const auto& Basis = *m_Dictioanry;
+	auto BasisCount = m_Dictionary->GetLength();
+	const auto& Basis = *m_Dictionary;
     //----------------------------------------------------------------------------------------------------
 	DenseMatrix<ScalarType> SimilarityList;
-	SimilarityList.Resize(1,:BasisCount);
+	SimilarityList.Resize(1, BasisCount);
 	for (int_max k = 0; k < BasisCount; ++k)
 	{
-		SimilarityList[k]= ComputeSimilarityBetweenShapeWithPointCorrespondence(Basis[k], (*m_ShapeList)[ShapeIndex], m_Parameter.Landmark, m_Parameter.TransformName, false);
+		SimilarityList[k]= ComputeSimilarityBetweenShapeWithPointCorrespondence(Basis[k], (*m_ShapeData)[ShapeIndex], m_LandmarkOnShape, m_Parameter.TransformName, false);
 	}
-	auto NeighbourIndexList = FindKNNBySimilarityList(SimilarityList, m_Parameter.NeighbourCount);
+	auto NeighbourIndexList = FindKNNBySimilarityList(SimilarityList, m_Parameter.MaxNeighbourCount);
 	auto NeighbourMembershipList = SimilarityList.GetSubMatrix(ALL, NeighbourIndexList);
 	// process NeighbourMembershipList
 	auto eps_value = std::numeric_limits<ScalarType>::epsilon();
 	auto tempSum = ScalarType(0);
-	for (int_max i = 0; i < m_Parameter.NeighbourCount; ++i)
+	for (int_max i = 0; i < NeighbourIndexList.GetElementCount(); ++i)
 	{
 		if (NeighbourMembershipList[i] < m_Parameter.SimilarityThreshold)
 		{
 			NeighbourMembershipList[i] = 0;
 		}
 		NeighbourMembershipList[i] += eps_value;
-		tempSum += Membership[i];
+		tempSum += NeighbourMembershipList[i];
 	}
-	for (int_max i = 0; i < m_Parameter.NeighbourCount; ++i)
+	for (int_max i = 0; i < NeighbourIndexList.GetElementCount(); ++i)
 	{
 		NeighbourMembershipList[i] /= tempSum;
 	}
 	//----------------------------------------------------------------------------------------------------
 	SparseVector<ScalarType> Code;
-	Code.Construct(NeighbourIndexList, NeighbourMembershipList, BasisCount);
+	Code.Initialize(NeighbourIndexList, NeighbourMembershipList, BasisCount);
 	return Code;
 }
 

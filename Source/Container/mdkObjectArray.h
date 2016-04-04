@@ -347,8 +347,9 @@ public:
     inline ObjectArray(const ObjectArray<ElementType>& InputArray);
     inline ObjectArray(ObjectArray<ElementType>&& InputArray) noexcept;
 
-	inline ObjectArray(const std::initializer_list<ElementType>& InputArray);
 	inline ObjectArray(const StdObjectVector<ElementType>& InputArray);
+	inline ObjectArray(const std::initializer_list<ElementType>& InputArray);
+	inline ObjectArray(const std::initializer_list<const ObjectArray<ElementType>*>& InputList);
 
 	inline ~ObjectArray();
 
@@ -366,10 +367,9 @@ public:
     inline void operator=(const ObjectArray<ElementType>& InputArray);
     inline void operator=(ObjectArray<ElementType>&& InputArray);
 
-	inline void operator=(const std::initializer_list<ElementType>& InputList);
 	inline void operator=(const StdObjectVector<ElementType>& InputArray);
-
-	inline void operator=(const std::initializer_list<ObjectArray<ElementType>*>& InputList);
+	inline void operator=(const std::initializer_list<ElementType>& InputList);
+	inline void operator=(const std::initializer_list<const ObjectArray<ElementType>*>& InputList);
 
     //----------------------  Copy  ----------------------------------------//
 

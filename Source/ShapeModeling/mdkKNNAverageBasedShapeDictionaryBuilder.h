@@ -13,13 +13,12 @@ struct Parameter_Of_KNNAverageBasedShapeDictionaryBuilder
 {
 	std::string Name;
 
-	int_max NeighbourCount;
+	int_max MaxNeighbourCount;
 
 	ScalarType SimilarityThreshold;
 	// shape_a and shape_b not similar if Similarity(a,b) <= SimilarityThreshold
 
-	std::string TransformName;// RigidTransform, SimilarityTransform, ThinPlateSplineTransform
-	DenseVector<int_max> Landmark; // to get transform
+	std::string TransformName;// IdentityTransform, RigidTransform, SimilarityTransform, ThinPlateSplineTransform
 
 	ScalarType ExperienceDiscountFactor;
 	// weight for the past experience when new training data is used
@@ -38,8 +37,8 @@ struct Parameter_Of_KNNAverageBasedShapeDictionaryBuilder
 	bool Flag_Update_BasisRedundancy;
 
 	// -------------------------- debug -----------------------------------------------//
-	bool Debug_Flag_OutputInfo;
-	std::string Debug_FilePath;
+	bool Debug_Flag;
+	String Debug_FilePath;
 //--------------------------------------------------------------------------------------------------------
 
     Parameter_Of_KNNAverageBasedShapeDictionaryBuilder() { this->Clear(); }
@@ -48,22 +47,21 @@ struct Parameter_Of_KNNAverageBasedShapeDictionaryBuilder
     void Clear()
     {
 		Name = "";
-		NeighbourCount = 0;
+		MaxNeighbourCount = 0;
 		SimilarityThreshold = 0;
 		TransformName = "RigidTransform";
-		Landmark.Clear();
+		
 		ExperienceDiscountFactor = 1;
 		
 		MiniBatchSize = 1;
 		MaxEpochCount = 1;
 		MaxThreadCount = 1;
 
-		Flag_Update_BasisID = true; 
 		Flag_Update_BasisAge = true;
 		Flag_Update_BasisSimilarity = true;
 		Flag_Update_BasisRedundancy = true;
 
-		Debug_Flag_OutputInfo = false;
+		Debug_Flag = false;
 		Debug_FilePath = "";
     }
 };
@@ -83,7 +81,7 @@ private:
 
 	// land mark index list of each traing shape
 	// to compute transform
-	DenseVector<int_max> m_LandmarkIndexList;
+	DenseVector<int_max> m_LandmarkOnShape;
 
 	// input initial dictionary
 	const ShapeDictionary<ScalarType>* m_InitialDictionary;
@@ -97,35 +95,29 @@ public:
 	void Clear();
 	Parameter_Of_KNNAverageBasedShapeDictionaryBuilder<ScalarType>& Parameter() { return m_Parameter; }
 	void SetTrainingShapeData(const ObjectArray<DenseMatrix<ScalarType>>* ShapeData) { m_TrainingShapeData = ShapeData; }
-	void SetLandmark(const DenseVector<int_max>& LandmarkIndexList) { m_LandmarkIndexList = LandmarkIndexList; }
+	void SetLandmarkOnShape(const DenseVector<int_max>& Landmark) { m_LandmarkOnShape = Landmark; }
 	void SetInitialDictionary(const ShapeDictionary<ScalarType>* InitialDictionary) { m_InitialDictionary = InitialDictionary; }
 	bool CheckInput();
 	void Update();
 	ShapeDictionary<ScalarType>& OutputDictionary() { return m_Dictionary; }
 
 protected:
-	ShapeDictioanry<ScalarType> PreprocessInitialDictionary(const ShapeDictionary<ScalarType>& InitialDictionary);
-
-	DenseMatrix<int_max> ComputeDataCountInEachBatch(int_max TotalShapeCount);
+	void AdjustBasisExperience_BeforeEachEpoch(DenseMatrix<ScalarType>& BasisExperience);
 
     void UpdateBasisAndBasisExperience(ObjectArray<DenseMatrix<ScalarType>>& Basis,
                                        DenseMatrix<ScalarType>& BasisExperience,
                                        const ObjectArray<DenseMatrix<ScalarType>>& ShapeData,
                                        const ObjectArray<SparseVector<ScalarType>>& CodeTable);
 
-	DenseMatrix<ScalarType> TransformShape(const <DenseMatrix<ScalarType>& Shape, const DenseMatrix<ScalarType>& Basis);
+	DenseMatrix<ScalarType> TransformShape(const DenseMatrix<ScalarType>& Shape, const DenseMatrix<ScalarType>& Basis);
 
-    void UpdateDictionaryInformation_AfterALLEpoch(ShapeDictionary<ScalarType>& Dictionary,
-                                                   const DenseMatrix<ScalarType>& BasisExperience_init,
-                                                   int_max TotalDataCount);
+    void AdjustBasisExperience_AfterEachEpoch(DenseMatrix<ScalarType>& BasisExperience, const DenseMatrix<ScalarType>& BasisExperience_init, int_max TotalDataCount);
 
-    void AdjustBasisExperience(DenseMatrix<ScalarType>& BasisExperience, const DenseMatrix<ScalarType>& BasisExperience_init, int_max TotalDataCount);
+	void UpdateDictionaryInformation_AfterALLEpoch(ShapeDictionary<ScalarType>& Dictionary, int_max TotalDataCount);
 
     void UpdateBasisSimilarity(DenseMatrix<ScalarType>& BasisSimilarity, const ObjectArray<DenseMatrix<ScalarType>>& Basis);
 
     void UpdateBasisRedundancy(DenseMatrix<ScalarType>& BasisRedundancy, const DenseMatrix<ScalarType>& BasisSimilarity);
-
-
 };
 
 

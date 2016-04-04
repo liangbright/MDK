@@ -13,7 +13,7 @@ inline ScalarType ComputeSimilarityBetweenShape_By_NormalizedMeanDistance(Scalar
 
 
 template<typename ScalarType>
-ScalarType ComputeSimilarityBetweenShapeWithPointCorrespondence(const DenseMatrix<ScalarType>& ShapeA, const DenseMatrix<ScalarType>& ShapeB, const std::string& TransformName, bool Flag_Symmetry)
+ScalarType ComputeSimilarityBetweenShapeWithPointCorrespondence(const DenseMatrix<ScalarType>& ShapeA, const DenseMatrix<ScalarType>& ShapeB, const String& TransformName, bool Flag_Symmetry)
 {
 	bool Flag_3D = false;
 	bool Flag_2D = false;
@@ -43,7 +43,19 @@ ScalarType ComputeSimilarityBetweenShapeWithPointCorrespondence(const DenseMatri
 		return 0;
 	}
 
-	if (TransformName == "RigidTransform")
+	if (TransformName == "IdentityTransform")
+	{
+		if (Flag_2D == true)
+		{
+			return ComputeSimilarityBetweenShapeWithPointCorrespondence2D_IdentityTransform(ShapeA, ShapeB);
+		}
+
+		if (Flag_3D == true)
+		{
+			return ComputeSimilarityBetweenShapeWithPointCorrespondence3D_IdentityTransform(ShapeA, ShapeB);
+		}
+	}
+	else if (TransformName == "RigidTransform")
 	{
 		if (Flag_Symmetry == true)
 		{
@@ -109,6 +121,11 @@ ScalarType ComputeSimilarityBetweenShapeWithPointCorrespondence(const DenseMatri
 			}
 		}
 	}
+	else if (TransformName == "ThinPlateSplineTransform")
+	{
+		MDK_Warning("ThinPlateSplineTransform without Landmark: using ALL point @ ShapeSimilarityMeasurementFunction::ComputeSimilarityBetweenShapeWithPointCorrespondence(...)")
+		return 1;
+	}
 	else
 	{
 		MDK_Error("TransformName is Unknown @ ShapeSimilarityMeasurementFunction::ComputeSimilarityBetweenShapeWithPointCorrespondence(...)")
@@ -117,6 +134,53 @@ ScalarType ComputeSimilarityBetweenShapeWithPointCorrespondence(const DenseMatri
 
 	MDK_Error("Wrong @ ShapeSimilarityMeasurementFunction::ComputeSimilarityBetweenShapeWithPointCorrespondence(...)")
 	return 0;
+}
+
+
+template<typename ScalarType>
+ScalarType ComputeSimilarityBetweenShapeWithPointCorrespondence2D_IdentityTransform(const DenseMatrix<ScalarType>& ShapeA, const DenseMatrix<ScalarType>& ShapeB)
+{
+	//-------- function to center and normalize shape -----------------------//
+	auto TempFunction_NormalizeShape = [](const DenseMatrix<ScalarType>& Shape)
+	{
+		DenseMatrix<ScalarType> Shape_new = Shape;
+		auto Center = Shape.MeanOfEachRow();
+		auto PointCount = Shape.GetColCount();
+		ScalarType MeanDistance = 0;
+		for (int_max k = 0; k < PointCount; ++k)
+		{
+			auto& x = Shape_new(0, k);
+			auto& y = Shape_new(1, k);
+			x -= Center[0];
+			y -= Center[1];
+			MeanDistance += std::sqrt(x*x + y*y);
+		}
+		MeanDistance /= ScalarType(PointCount);
+
+		for (int_max k = 0; k < 2 * PointCount; ++k)
+		{
+			Shape_new[k] /= MeanDistance;
+		}
+		return Shape_new;
+	};
+	//------------------------------------------------------
+	// center and normalized A, B 
+	auto ShapeA_new = TempFunction_NormalizeShape(ShapeA);
+	auto ShapeB_new = TempFunction_NormalizeShape(ShapeB);	
+	//calculate mean distance error
+	ScalarType NMD = 0;
+	auto PointCount = ShapeA_new.GetColCount();
+	for (int_max k = 0; k < PointCount; ++k)
+	{
+		auto xa = ShapeA_new(0, k);
+		auto ya = ShapeA_new(1, k);
+		auto xb = ShapeB_new(0, k);
+		auto yb = ShapeB_new(1, k);
+		NMD += std::sqrt((xa - xb)*(xa - xb) + (ya - yb)*(ya - yb));
+	}
+	NMD /= ScalarType(PointCount);
+	// calculate similarity 
+	return ComputeSimilarityBetweenShape_By_NormalizedMeanDistance(NMD);
 }
 
 
@@ -232,6 +296,57 @@ ScalarType ComputeSimilarityBetweenShapeWithPointCorrespondence2D_SimilarityTran
 		auto xb = ShapeB_new(0, k);
 		auto yb = ShapeB_new(1, k);
 		NMD += std::sqrt((xa - xb)*(xa - xb) + (ya - yb)*(ya - yb));
+	}
+	NMD /= ScalarType(PointCount);
+	// calculate similarity 
+	return ComputeSimilarityBetweenShape_By_NormalizedMeanDistance(NMD);
+}
+
+
+template<typename ScalarType>
+ScalarType ComputeSimilarityBetweenShapeWithPointCorrespondence3D_IdentityTransform(const DenseMatrix<ScalarType>& ShapeA, const DenseMatrix<ScalarType>& ShapeB)
+{
+	//-------- function to center and normalize shape -----------------------//
+	auto TempFunction_NormalizeShape = [](const DenseMatrix<ScalarType>& Shape)
+	{
+		DenseMatrix<ScalarType> Shape_new = Shape;
+		auto Center = Shape.MeanOfEachRow();
+		auto PointCount = Shape.GetColCount();
+		ScalarType MeanDistance = 0;
+		for (int_max k = 0; k < PointCount; ++k)
+		{
+			auto& x = Shape_new(0, k);
+			auto& y = Shape_new(1, k);
+			auto& z = Shape_new(2, k);
+			x -= Center[0];
+			y -= Center[1];
+			z -= Center[2];
+			MeanDistance += std::sqrt(x*x + y*y + z*z);
+		}
+		MeanDistance /= ScalarType(PointCount);
+
+		for (int_max k = 0; k < 3 * PointCount; ++k)
+		{
+			Shape_new[k] /= MeanDistance;
+		}
+		return Shape_new;
+	};
+
+	//------------------------------------------------
+	auto ShapeA_new = TempFunction_NormalizeShape(ShapeA);
+	auto ShapeB_new = TempFunction_NormalizeShape(ShapeB);
+	//calculate mean distance error
+	ScalarType NMD = 0;
+	auto PointCount = ShapeA_new.GetColCount();
+	for (int_max k = 0; k < PointCount; ++k)
+	{
+		auto xa = ShapeA_new(0, k);
+		auto ya = ShapeA_new(1, k);
+		auto za = ShapeA_new(2, k);
+		auto xb = ShapeB_new(0, k);
+		auto yb = ShapeB_new(1, k);
+		auto zb = ShapeB_new(2, k);
+		NMD += std::sqrt((xa - xb)*(xa - xb) + (ya - yb)*(ya - yb) + (za - zb)*(za - zb));
 	}
 	NMD /= ScalarType(PointCount);
 	// calculate similarity 
@@ -364,7 +479,7 @@ ScalarType ComputeSimilarityBetweenShapeWithPointCorrespondence3D_SimilarityTran
 
 
 template<typename ScalarType>
-DenseMatrix<ScalarType> ComputeSimilarityBetweenShapeWithPointCorrespondence(const ObjectArray<DenseMatrix<ScalarType>>& ShapeList, const std::string& TransformName, bool Flag_Symmetry, int_max MaxThreadCount)
+DenseMatrix<ScalarType> ComputeSimilarityBetweenShapeWithPointCorrespondence(const ObjectArray<DenseMatrix<ScalarType>>& ShapeList, const String& TransformName, bool Flag_Symmetry, int_max MaxThreadCount)
 {
 	DenseMatrix<ScalarType> SimilarityMatrix;
 	int_max ShapeCount = ShapeList.GetLength();
@@ -399,7 +514,7 @@ DenseMatrix<ScalarType> ComputeSimilarityBetweenShapeWithPointCorrespondence(con
 // Landmark: point index list
 
 template<typename ScalarType>
-ScalarType ComputeSimilarityBetweenShapeWithPointCorrespondence(const DenseMatrix<ScalarType>& ShapeA, const DenseMatrix<ScalarType>& ShapeB, const DenseVector<int_max>& Landmark, const std::string& TransformName, bool Flag_Symmetry)
+ScalarType ComputeSimilarityBetweenShapeWithPointCorrespondence(const DenseMatrix<ScalarType>& ShapeA, const DenseMatrix<ScalarType>& ShapeB, const DenseVector<int_max>& Landmark, const String& TransformName, bool Flag_Symmetry)
 {
 	if (Landmark.IsEmpty() == true)
 	{
@@ -434,7 +549,19 @@ ScalarType ComputeSimilarityBetweenShapeWithPointCorrespondence(const DenseMatri
 		return 0;
 	}
 
-	if (TransformName == "RigidTransform")
+	if (TransformName == "IdentityTransform")
+	{
+		if (Flag_2D == true)
+		{
+			return ComputeSimilarityBetweenShapeWithPointCorrespondence2D_IdentityTransform(ShapeA, ShapeB);
+		}
+
+		if (Flag_3D == true)
+		{
+			return ComputeSimilarityBetweenShapeWithPointCorrespondence3D_IdentityTransform(ShapeA, ShapeB);
+		}
+	}
+	else if (TransformName == "RigidTransform")
 	{
 		if (Flag_Symmetry == true)
 		{
@@ -913,7 +1040,7 @@ ScalarType ComputeSimilarityBetweenShapeWithPointCorrespondence3D_ThinPlateSplin
 // output Similarity between ShapeList[i] and ShapeList[j]
 // SimilarityMatrix(k,k)=1
 template<typename ScalarType>
-DenseMatrix<ScalarType> ComputeSimilarityBetweenShapeWithPointCorrespondence(const ObjectArray<DenseMatrix<ScalarType>>& ShapeList, const DenseVector<int_max>& Landmark, const std::string& TransformName, bool Flag_Symmetry, int_max MaxThreadCount)
+DenseMatrix<ScalarType> ComputeSimilarityBetweenShapeWithPointCorrespondence(const ObjectArray<DenseMatrix<ScalarType>>& ShapeList, const DenseVector<int_max>& Landmark, const String& TransformName, bool Flag_Symmetry, int_max MaxThreadCount)
 {
 	DenseMatrix<ScalarType> SimilarityMatrix;
 	int_max ShapeCount = ShapeList.GetLength();

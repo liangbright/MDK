@@ -1,73 +1,107 @@
 #include "mdkLinearAlgebra.h"
 #include "mdkPolygonMeshProcessing.h"
-#include "mdkKNNBasisSelectionOnlineShapeDictionaryBuilder.h"
+#include "mdkKNNBasisSelectionBasedShapeDictionaryBuilder.h"
+#include "mdkKNNAverageBasedShapeDictionaryBuilder.h"
 
 using namespace mdk;
 
 void test_a()
 {
-	String TestDataPath = "C:/Research/MDK/MDK_Build/Test/Test_ShapeModeling/Test_DistanceMinimizationBasedShapeAligner/TestData/";
+	String TestDataPath = "C:/Research/MDK/MDK_Build/Test/Test_ShapeModeling/Test_ShapeDictionaryBuilder/TestData/";
 	
 	int_max ShapeCount = 125;
 
 	ObjectArray<DenseMatrix<double>> ShapeList;
-	ShapeList.Resize(ShapeCount);
+	ShapeList.SetCapacity(ShapeCount);
 	PolygonMesh<PolygonMeshEmptyAttributeType<double>> AortaMesh;
-	for (int_max k = 0; k < ShapeCount; ++k)
+	for (int_max k = 0; k < 125; ++k)
 	{	
-		LoadPolygonMeshFromVTKFile(AortaMesh, TestDataPath + std::to_string(k) + "_AortaModel_Pimg_rand.vtk");
-		ShapeList[k] = AortaMesh.GetPointPosition(ALL);
+		LoadPolygonMeshFromVTKFile(AortaMesh, TestDataPath + std::to_string(k) + "_AortaModel_Pimg.vtk");
+		ShapeList.Append(AortaMesh.GetPointPosition(ALL));
+		/*
+		ShapeList.Append(AortaMesh.GetPointPosition(ALL));
+		ShapeList.Append(AortaMesh.GetPointPosition(ALL));
+		ShapeList.Append(AortaMesh.GetPointPosition(ALL));
+		ShapeList.Append(AortaMesh.GetPointPosition(ALL));
+		ShapeList.Append(AortaMesh.GetPointPosition(ALL));
+		ShapeList.Append(AortaMesh.GetPointPosition(ALL));
+		ShapeList.Append(AortaMesh.GetPointPosition(ALL));
+		ShapeList.Append(AortaMesh.GetPointPosition(ALL));
+		ShapeList.Append(AortaMesh.GetPointPosition(ALL));
+		ShapeList.Append(AortaMesh.GetPointPosition(ALL));
+		*/
 	}
 	std::cout << "done read mesh" << '\n';
 
-	DistanceMinimizationBasedShapeAligner3D<double> ShapeAligner;
-	
-	ObjectArray<SparseVector<double>> SimilarityTable;
-	SimilarityTable = ShapeAligner.ComputeSimilarityBetweenShape(ShapeList, false, 8);
-	std::cout << "done ComputeSimilarityBetweenShape" << '\n';
+	KNNBasisSelectionBasedShapeDictionaryBuilder<double> DictionaryBuilder;	
+	DictionaryBuilder.Parameter().BasisCount = 10;
+	DictionaryBuilder.Parameter().MaxNeighbourCount = 5;
+	DictionaryBuilder.Parameter().SimilarityThreshold = 0.3;
+	DictionaryBuilder.Parameter().ExperienceDiscountFactor = 0.9;
+	DictionaryBuilder.Parameter().TransformName = "SimilarityTransform";	
+	DictionaryBuilder.Parameter().MaxEpochCount = 10;
+	DictionaryBuilder.Parameter().MiniBatchSize = 25;
+	DictionaryBuilder.Parameter().MaxThreadCount = 8;
+	DictionaryBuilder.Parameter().Debug_Flag = true;
+	DictionaryBuilder.Parameter().Debug_FilePath = TestDataPath;
+	DictionaryBuilder.SetTrainingShapeData(&ShapeList);	
+	DictionaryBuilder.Update();
+	auto& Dictionary = DictionaryBuilder.OutputDictionary();
+	std::cout << "done build dictionary" << '\n';
 
-	ShapeAligner.SetInputShapeList(&ShapeList);
-	ShapeAligner.SetInputSimilarityTable(&SimilarityTable);
-	ShapeAligner.SelectRigidTransform();
-	ShapeAligner.SetMaxNeighbourCount(10);
-	ShapeAligner.SetMaxIterCount(10);
-	ShapeAligner.EnableObjectiveFunctionEvaluation();
-	ShapeAligner.EnableParallelUpdateTransform();
-	ShapeAligner.SetMaxThreadCount(8);
-	ShapeAligner.Update();
-	auto& AlignedShapeList = ShapeAligner.OutputShapeList();
-	std::cout << "done DistanceMinimizationBasedShapeAligner3D" << '\n';
-
-	for (int_max k = 0; k < ShapeCount; ++k)
+	for (int_max k = 0; k < Dictionary.GetBasisCount(); ++k)
 	{
-		AortaMesh.SetPointPosition(ALL, AlignedShapeList[k]);
-		SavePolygonMeshAsVTKFile(AortaMesh, TestDataPath + std::to_string(k) + "_AortaModel_Pimg_align.vtk");		
+		AortaMesh.SetPointPosition(ALL, Dictionary.Basis()[k]);
+		SavePolygonMeshAsVTKFile(AortaMesh, TestDataPath + std::to_string(k) + "_AortaModel_Basis_init.vtk");		
 	}
-	
-	DisplayVector("ObjectiveFunctionValue", ShapeAligner.GetObjectiveFunctionValue(), 6);
+}
 
-	DenseMatrix<double> SimilarityTable_output;
-	SimilarityTable_output.Resize(ShapeCount, ShapeCount);
-	for (int_max k = 0; k < ShapeCount; ++k)
-	{
-		for (int_max n = 0; n < ShapeCount; ++n)
-		{
-			SimilarityTable_output(k, n) = SimilarityTable[k][n];
-		}
+void test_b()
+{
+	String TestDataPath = "C:/Research/MDK/MDK_Build/Test/Test_ShapeModeling/Test_ShapeDictionaryBuilder/TestData/";
+
+	PolygonMesh<PolygonMeshEmptyAttributeType<double>> AortaMesh;
+
+	ObjectArray<DenseMatrix<double>> TrainingShapeList;
+	TrainingShapeList.SetCapacity(125);	
+	for (int_max k = 0; k < 125; ++k)
+	{	
+		LoadPolygonMeshFromVTKFile(AortaMesh, TestDataPath + std::to_string(k) + "_AortaModel_Pimg.vtk");
+		TrainingShapeList.Append(AortaMesh.GetPointPosition(ALL));
 	}
-	SaveDenseMatrixAsJsonDataFile(SimilarityTable_output, TestDataPath + "SimilarityTable.json");
 
-	for (int_max k = 0; k < ShapeCount; ++k)
-	{
-		auto R = ShapeAligner.OutputTransformList()[k].Rotation;
-		auto S = ShapeAligner.OutputTransformList()[k].Scale;
-		auto T= ShapeAligner.OutputTransformList()[k].Translation;
+	ObjectArray<DenseMatrix<double>> BasisShape;
+	BasisShape.SetCapacity(10);
+	for (int_max k = 0; k < 10; ++k)
+	{		
+		LoadPolygonMeshFromVTKFile(AortaMesh, TestDataPath + std::to_string(k) + "_AortaModel_Basis_init.vtk");
+		BasisShape.Append(AortaMesh.GetPointPosition(ALL));
+	}
 
-		RigidTransform3D<double> Transform;
-		Transform.SetRotationMatrix(R);
-		Transform.SetTranslation_AfterRotation(T);
-		auto  AlignedShape = Transform.TransformPoint(ShapeList[k]);
-		AortaMesh.SetPointPosition(ALL, AlignedShape);
-		SavePolygonMeshAsVTKFile(AortaMesh, TestDataPath + std::to_string(k) + "_AortaModel_Pimg_align_from_transfrom.vtk");
+	ShapeDictionary<double> Dictioanry_init;
+	Dictioanry_init.Initialize(std::move(BasisShape));
+
+	std::cout << "done read mesh" << '\n';	
+
+	KNNAverageBasedShapeDictionaryBuilder<double> DictionaryBuilder;	
+	DictionaryBuilder.Parameter().MaxNeighbourCount = 5;
+	DictionaryBuilder.Parameter().SimilarityThreshold = 0.3;
+	DictionaryBuilder.Parameter().ExperienceDiscountFactor = 0.5;
+	DictionaryBuilder.Parameter().TransformName = "RigidTransform";
+	DictionaryBuilder.Parameter().MaxEpochCount = 10;
+	DictionaryBuilder.Parameter().MiniBatchSize = 25;
+	DictionaryBuilder.Parameter().MaxThreadCount = 8;
+	DictionaryBuilder.Parameter().Debug_Flag = true;
+	DictionaryBuilder.Parameter().Debug_FilePath = TestDataPath;
+	DictionaryBuilder.SetTrainingShapeData(&TrainingShapeList);
+	DictionaryBuilder.SetInitialDictionary(&Dictioanry_init);
+	DictionaryBuilder.Update();
+	auto& Dictionary = DictionaryBuilder.OutputDictionary();
+	std::cout << "done build dictionary" << '\n';
+
+	for (int_max k = 0; k < Dictionary.GetBasisCount(); ++k)
+	{		
+		AortaMesh.SetPointPosition(ALL, Dictionary.Basis()[k]);
+		SavePolygonMeshAsVTKFile(AortaMesh, TestDataPath + std::to_string(k) + "_AortaModel_Basis_avg.vtk");
 	}
 }

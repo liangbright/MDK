@@ -28,17 +28,23 @@ ObjectArray<ElementType>::ObjectArray(ObjectArray<ElementType>&& InputArray) noe
 
 
 template<typename ElementType>
-inline
-ObjectArray<ElementType>::ObjectArray(const std::initializer_list<ElementType>& InputList)
+inline ObjectArray<ElementType>::ObjectArray(const StdObjectVector<ElementType>& InputArray)
+{
+	this->Copy(InputArray);
+}
+
+
+template<typename ElementType>
+inline ObjectArray<ElementType>::ObjectArray(const std::initializer_list<ElementType>& InputList)
 {
 	(*this) = InputList;
 }
 
 
 template<typename ElementType>
-inline ObjectArray<ElementType>::ObjectArray(const StdObjectVector<ElementType>& InputArray)
+inline ObjectArray<ElementType>::ObjectArray(const std::initializer_list<const ObjectArray<ElementType>*>& InputList)
 {
-	this->Copy(InputArray);
+	(*this) = InputList;
 }
 
 
@@ -67,6 +73,15 @@ void ObjectArray<ElementType>::operator=(ObjectArray<ElementType>&& InputArray)
 
 template<typename ElementType>
 inline
+void ObjectArray<ElementType>::operator=(const StdObjectVector<ElementType>& InputArray)
+{
+	this->Copy(InputArray);
+}
+
+
+
+template<typename ElementType>
+inline
 void ObjectArray<ElementType>::operator=(const std::initializer_list<ElementType>& InputArray)
 {
 	this->Copy(InputArray.begin(), int_max(InputArray.size()));
@@ -75,9 +90,111 @@ void ObjectArray<ElementType>::operator=(const std::initializer_list<ElementType
 
 template<typename ElementType>
 inline
-void ObjectArray<ElementType>::operator=(const StdObjectVector<ElementType>& InputArray)
+void ObjectArray<ElementType>::operator=(const std::initializer_list<const ObjectArray<ElementType>*>& InputList)
 {
-	this->Copy(InputArray);
+	auto InputArrayCount = int_max(InputList.size());
+
+	if (InputArrayCount <= 0)
+	{
+		MDK_Warning("Input is empty, try to clear self @ ObjectArray::operator=(initializer_list of ObjectArray pointer)")
+
+		if (this->IsSizeFixed() == true)
+		{
+			if (this->IsEmpty() == false)
+			{
+				MDK_Error("Can not change self size @ ObjectArray::operator=(initializer_list of ObjectArray pointer)")
+			}
+		}
+		else
+		{
+			this->Clear();
+		}
+	    return;
+	}
+
+	bool IsSelfInInputList = false;
+
+	std::vector<int_max> InputElementCountList;
+	InputElementCountList.resize(InputArrayCount);
+	int_max TotalInputElementCount = 0;
+	for (int_max k = 0; k < InputArrayCount; k++)
+	{
+		InputElementCountList[k] = 0;
+		auto InputArrayPtr = InputList.begin()[k];
+		if (InputArrayPtr != nullptr)
+		{
+			InputElementCountList[k] = InputArrayPtr->GetElementCount();
+			TotalInputElementCount += InputElementCountList[k];
+			if (this->GetElementPointer() != nullptr && this->GetElementPointer() == InputArrayPtr->GetElementPointer())
+			{
+				IsSelfInInputList = true;
+			}
+		}
+	}
+
+	if (TotalInputElementCount == 0)
+	{
+		MDK_Warning("TotalInputElementCount is 0, try to clear self @ ObjectArray::operator=(initializer_list of ObjectArray pointer)")
+
+		if (this->IsSizeFixed() == true)
+		{
+			if (this->IsEmpty() == false)
+			{
+				MDK_Error("Can not change self size @ DenseMatrix::ObjectArray=(initializer_list of ObjectArray pointerr)")
+			}
+		}
+		else
+		{
+			this->Clear();
+		}
+	    return;
+	}
+
+	auto SelfElementCount = this->GetElementCount();
+
+	if (IsSelfInInputList == false)
+	{
+		if (this->IsSizeFixed() == true)
+		{
+			if (SelfElementCount != TotalInputElementCount)
+			{
+				MDK_Error("Can not change self size @ ObjectArray::operator=(initializer_list of ObjectArray pointer)")
+				return;
+			}
+		}
+		else
+		{
+			this->FastResize(TotalInputElementCount);
+		}
+
+		int_max temp_ElementCount = 0;
+		for (int_max k = 0; k < InputArrayCount; k++)
+		{
+			auto InputArrayPtr = InputList.begin()[k];
+			if (InputArrayPtr != nullptr)
+			{
+				auto ElementPtr = InputArrayPtr->GetElementPointer();
+				for (int_max j = temp_ElementCount; j < temp_ElementCount + InputElementCountList[k]; ++j, ++ElementPtr)
+				{
+					(*this)[j] = *ElementPtr;
+				}
+				temp_ElementCount += InputElementCountList[k];
+			}
+		}
+	}
+	else // Self is in InputList 
+	{
+		if (TotalInputElementCount == SelfElementCount)
+		{
+			MDK_Warning("Self = {&Self} @ ObjectArray::operator=(initializer_list of ObjectArray pointer)")
+			return;
+		}
+		else
+		{
+			ObjectArray<ElementType> tempArray = InputList;
+			this->Copy(std::move(tempArray));
+		}
+	}
 }
 
 
