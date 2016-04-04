@@ -304,8 +304,103 @@ BuildDictionaryInMiniBatch(const ShapeDictionary<ScalarType>& Dictionary_init, c
 template<typename ScalarType>
 DenseMatrix<int_max>
 KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::SelectBasis(const int_max BasisCount_desired,
-                                                                      const DenseMatrix<ScalarType>& ShapeSimilarityMatrix,
-                                                                      const DenseMatrix<ScalarType>& ProbabilityOfEachShape)
+	                                                                  const DenseMatrix<ScalarType>& ShapeSimilarityMatrix,
+	                                                                  const DenseMatrix<ScalarType>& ProbabilityOfEachShape)
+{
+	//---------------------------------------------------------------------
+	// Combined data = {Dictionary_init.Basis(), ShapeData}
+	//
+	// the number of combined data is greater than the number of bases
+	// extract a subset from the combined data set to be the bases
+	// return the selected shape index list 
+	// shape index is the index in Combined data
+	//----------------------------------------------------------------------
+
+	DenseMatrix<int_max> ShapeIndexList_Basis;//output
+
+	int_max TotalShapeCount = ProbabilityOfEachShape.GetElementCount();
+	//---------------------------------------------------------------
+	DenseVector<ScalarType> ShapeScoreList;
+	ShapeScoreList.Resize(TotalShapeCount);
+	for (int_max k = 0; k < TotalShapeCount; ++k)
+	{
+		ShapeScoreList[k] = (2*m_Parameter.WeightOnProbabiliyForBasisSelection-1)*ProbabilityOfEachShape[k];
+	}
+	auto ShapeIndexList_sort = ShapeScoreList.Sort("descend");
+    //---------------------------------------------------------------
+
+	int_max MaxIter = 1000;
+	for (int_max iter = 0; iter <= MaxIter; ++iter)
+	{
+		ScalarType SimilarityThreshold = m_Parameter.SimilarityThreshold + iter* (1 - m_Parameter.SimilarityThreshold) / ScalarType(MaxIter);
+
+		DenseVector<DenseVector<ScalarType>> NeighbourTable;
+		NeighbourTable.Resize(TotalShapeCount);
+		for (int_max k = 0; k < TotalShapeCount; ++k)
+		{
+			NeighbourTable[k].SetCapacity(m_Parameter.MaxNeighbourCount*10);
+			for (int_max n = 0; n < TotalShapeCount; ++n)
+			{
+				if (n != k)
+				{
+					if (ShapeSimilarityMatrix(k, n) >= SimilarityThreshold)
+					{
+						NeighbourTable[k].Append(n);
+					}
+				}
+			}
+		}
+
+		DenseVector<ScalarType> FlagList_basis, FlagList_other;
+		FlagList_basis.Resize(TotalShapeCount);
+		FlagList_basis.Fill(0);
+		FlagList_other.Resize(TotalShapeCount);
+		FlagList_other.Fill(1);
+		//FlagList_basis[k] is 0 if k is basis
+		//FlagList_other[k] is 0 if k is not a basis 
+
+		for (int_max k = 0; k < TotalShapeCount; ++k)
+		{
+			auto Index = ShapeIndexList_sort[k];
+			if (FlagList_other[k] > 0)
+			{
+				FlagList_basis[k] = 1;
+				const auto& NeighbourList = NeighbourTable[k];
+				for (int_max n = 0; n < NeighbourList.GetLength(); ++n)
+				{
+					auto Index_n = NeighbourList[n];
+					if (FlagList_basis[Index_n] == 0)
+					{
+						FlagList_other[Index_n] = 0;
+					}
+				}
+			}
+		}
+
+		auto BasisCount = FlagList_basis.Sum();		
+		if (FlagList_basis.Sum() >= BasisCount_desired)
+		{
+			ShapeIndexList_Basis.SetCapacity(BasisCount);
+			for (int_max k = 0; k < TotalShapeCount; ++k)
+			{
+				if (FlagList_basis[k] > 0)
+				{
+					ShapeIndexList_Basis.Append(k);
+				}
+			}
+			break;
+		}
+	}
+	
+	return ShapeIndexList_Basis;
+}
+
+
+template<typename ScalarType>
+DenseMatrix<int_max>
+KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::SelectBasis_old(const int_max BasisCount_desired,
+                                                                          const DenseMatrix<ScalarType>& ShapeSimilarityMatrix,
+                                                                          const DenseMatrix<ScalarType>& ProbabilityOfEachShape)
 {
 	//---------------------------------------------------------------------
     // Combined data = {Dictionary_init.Basis(), ShapeData}

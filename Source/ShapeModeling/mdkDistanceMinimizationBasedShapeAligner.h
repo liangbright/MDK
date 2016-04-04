@@ -2,10 +2,8 @@
 
 #include "mdkDenseMatrix.h"
 #include "mdkSparseVector.h"
-#include "mdkRigidTransform3D.h"
-#include "mdkSimilarityTransform3D.h"
+#include "mdkGeometry.h"
 #include "mdkShapeSimilarityMeasurementFunction.h"
-#include "mdkParallelForLoop.h"
 
 //------------------------------------------------------------------------------------
 // Shape can be 2D or 3D
@@ -46,7 +44,7 @@ private:
 	bool m_Flag_use_SimilarityTransform;
 	// true: SimilarityTransform
 	// false: RigidTransform
-	DenseVector<int_max> m_Landmark;// to get transform
+	DenseVector<int_max> m_LandmarkOnShape;// to get transform
 
 	int_max m_MaxNeighbourCount;
 	//Aij is 0 if Xi and Xj are not neighbour to each other
@@ -79,7 +77,7 @@ public:
 	void Clear();	
 	void SelectSimilarityTransform() { m_Flag_use_SimilarityTransform = true; }
 	void SelectRigidTransform() { m_Flag_use_SimilarityTransform = false; }
-	void SetLandmark(const DenseVector<int_max>& Landmark) { m_Landmark = Landmark; }
+	void SetLandmarkOnShape(const DenseVector<int_max>& Landmark) { m_LandmarkOnShape = Landmark; }
 	void SetInputShapeList(const ObjectArray<DenseMatrix<ScalarType>>* InputShapeList) { m_InputShapeList = InputShapeList; }
 	void SetInputReferenceShapeIndex(int_max) { m_InputReferenceShapeIndex = Index; }
 	void SetInputSimilarityTable(const ObjectArray<SparseVector<ScalarType>>* SimilarityTable) { m_InputSimilarityTable = SimilarityTable; }

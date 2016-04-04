@@ -1,7 +1,7 @@
 #pragma once
 
 #include "mdkMinimumStretchBasedTriangleMesh3DTo2DMapper.h"
-#include "mdkGeometry3D.h"
+#include "mdkGeometry.h"
 
 namespace mdk
 {

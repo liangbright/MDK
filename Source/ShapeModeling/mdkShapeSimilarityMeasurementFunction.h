@@ -1,8 +1,7 @@
 #pragma once
 
 #include "mdkDenseMatrix.h" 
-#include "mdkGeometry2D.h"
-#include "mdkGeometry3D.h"
+#include "mdkGeometry.h"
 #include "mdkParallelForLoop.h"
 
 namespace mdk
