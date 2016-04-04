@@ -85,10 +85,10 @@ void test_b()
 	KNNAverageBasedShapeDictionaryBuilder<double> DictionaryBuilder;	
 	DictionaryBuilder.Parameter().MaxNeighbourCount = 5;
 	DictionaryBuilder.Parameter().SimilarityThreshold = 0.3;
-	DictionaryBuilder.Parameter().ExperienceDiscountFactor = 0.5;
+	DictionaryBuilder.Parameter().ExperienceDiscountFactor = 0.2;
 	DictionaryBuilder.Parameter().TransformName = "SimilarityTransform";
-	DictionaryBuilder.Parameter().MaxEpochCount = 2;
-	DictionaryBuilder.Parameter().MiniBatchSize = 125;
+	DictionaryBuilder.Parameter().MaxEpochCount = 100;
+	DictionaryBuilder.Parameter().MiniBatchSize = 10;
 	DictionaryBuilder.Parameter().MaxThreadCount = 8;
 	DictionaryBuilder.Parameter().Debug_Flag = true;
 	DictionaryBuilder.Parameter().Debug_FilePath = TestDataPath;
