@@ -9,10 +9,8 @@ void test_a()
 {
 	String TestDataPath = "C:/Research/MDK/MDK_Build/Test/Test_ShapeModeling/Test_ShapeDictionaryBuilder/TestData/";
 	
-	int_max ShapeCount = 125;
-
 	ObjectArray<DenseMatrix<double>> ShapeList;
-	ShapeList.SetCapacity(ShapeCount);
+	ShapeList.SetCapacity(100);
 	PolygonMesh<PolygonMeshEmptyAttributeType<double>> AortaMesh;
 	for (int_max k = 0; k < 125; ++k)
 	{	
@@ -30,6 +28,7 @@ void test_a()
 		ShapeList.Append(AortaMesh.GetPointPosition(ALL));
 		ShapeList.Append(AortaMesh.GetPointPosition(ALL));
 		*/
+		
 	}
 	std::cout << "done read mesh" << '\n';
 
@@ -37,10 +36,10 @@ void test_a()
 	DictionaryBuilder.Parameter().BasisCount = 10;
 	DictionaryBuilder.Parameter().MaxNeighbourCount = 5;
 	DictionaryBuilder.Parameter().SimilarityThreshold = 0.3;
-	DictionaryBuilder.Parameter().ExperienceDiscountFactor = 0.9;
+	DictionaryBuilder.Parameter().ExperienceDiscountFactor = 0.5;
 	DictionaryBuilder.Parameter().TransformName = "SimilarityTransform";	
-	DictionaryBuilder.Parameter().MaxEpochCount = 10;
-	DictionaryBuilder.Parameter().MiniBatchSize = 25;
+	DictionaryBuilder.Parameter().MaxEpochCount = 1;
+	DictionaryBuilder.Parameter().MiniBatchSize = 125;
 	DictionaryBuilder.Parameter().MaxThreadCount = 8;
 	DictionaryBuilder.Parameter().Debug_Flag = true;
 	DictionaryBuilder.Parameter().Debug_FilePath = TestDataPath;
@@ -87,9 +86,9 @@ void test_b()
 	DictionaryBuilder.Parameter().MaxNeighbourCount = 5;
 	DictionaryBuilder.Parameter().SimilarityThreshold = 0.3;
 	DictionaryBuilder.Parameter().ExperienceDiscountFactor = 0.5;
-	DictionaryBuilder.Parameter().TransformName = "RigidTransform";
-	DictionaryBuilder.Parameter().MaxEpochCount = 10;
-	DictionaryBuilder.Parameter().MiniBatchSize = 25;
+	DictionaryBuilder.Parameter().TransformName = "SimilarityTransform";
+	DictionaryBuilder.Parameter().MaxEpochCount = 2;
+	DictionaryBuilder.Parameter().MiniBatchSize = 125;
 	DictionaryBuilder.Parameter().MaxThreadCount = 8;
 	DictionaryBuilder.Parameter().Debug_Flag = true;
 	DictionaryBuilder.Parameter().Debug_FilePath = TestDataPath;

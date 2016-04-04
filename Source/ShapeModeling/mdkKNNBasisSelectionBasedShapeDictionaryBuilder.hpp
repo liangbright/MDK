@@ -114,14 +114,12 @@ void KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::Update()
 	}
 
 	ShapeDictionary<ScalarType> OutputDictionary;
+	ScalarType TotalBasisExperience_init = 0;
 	if (m_InitialDictionary != nullptr)
 	{
 		OutputDictionary.Copy(*m_InitialDictionary);
-	}	
-
-	DenseMatrix<ScalarType> BasisExperience_init;
-	BasisExperience_init.Copy(OutputDictionary.BasisExperience());
-	BasisExperience_init *= m_Parameter.ExperienceDiscountFactor;
+		TotalBasisExperience_init = OutputDictionary.BasisExperience().Sum();	
+	}
 
 	int_max TotalDataCount = m_TrainingShapeData->GetLength();
 
@@ -156,7 +154,7 @@ void KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::Update()
 			}
 			OutputDictionary = this->BuildDictionaryInMiniBatch(OutputDictionary, ShapeData_CurrentBatch);
 		}
-		this->AdjustBasisExperience_AfterEachEpoch(OutputDictionary.BasisExperience(), BasisExperience_init, TotalDataCount);
+		this->AdjustBasisExperience_AfterEachEpoch(OutputDictionary.BasisExperience(), TotalBasisExperience_init, TotalDataCount);
 	}
 
     this->UpdateDictionaryInformation_AfterALLEpoch(OutputDictionary, TotalDataCount);
@@ -169,6 +167,11 @@ template<typename ScalarType>
 void
 KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::AdjustBasisExperience_BeforeEachEpoch(DenseMatrix<ScalarType>& BasisExperience)
 {
+	if (BasisExperience.IsEmpty() == true)
+	{
+		return;
+	}
+
     // discount the previous Experience
     BasisExperience *= m_Parameter.ExperienceDiscountFactor;
     // Experience must >= 1
@@ -960,18 +963,22 @@ UpdateBasisExperience_AtEachMiniBatch(DenseMatrix<ScalarType>& BasisExperience, 
 
 template<typename ScalarType>
 void KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::
-AdjustBasisExperience_AfterEachEpoch(DenseMatrix<ScalarType>& BasisExperience, const DenseMatrix<ScalarType>& BasisExperience_init, int_max TotalDataCount)
+AdjustBasisExperience_AfterEachEpoch(DenseMatrix<ScalarType>& BasisExperience, ScalarType TotalBasisExperience_init, int_max TotalDataCount)
 {
+	// adjust the experience of each new basis
 	int_max BasisCount = BasisExperience.GetElementCount();
-
-	DenseMatrix<ScalarType> BasisExperience_Diff = MatrixSubtract(BasisExperience, BasisExperience_init);
-
-	ScalarType TotalGain = BasisExperience_Diff.Sum();
-
-	if (TotalGain > TotalDataCount)
+	ScalarType TotalExperience = BasisExperience.Sum();
+	if (TotalExperience > TotalBasisExperience_init + TotalDataCount)
 	{
-		BasisExperience_Diff *= ScalarType(TotalDataCount) / TotalGain;
-		MatrixAdd(BasisExperience, BasisExperience_init, BasisExperience_Diff);
+		ScalarType factor = (TotalBasisExperience_init + ScalarType(TotalDataCount)) / TotalExperience;
+		BasisExperience *= factor;
+		for (int_max k = 0; k < BasisCount; ++k)
+		{
+			if (BasisExperience[k] < 1)
+			{
+				BasisExperience[k] = 1;
+			}
+		}
 	}
 }
 
