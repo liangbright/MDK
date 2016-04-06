@@ -34,7 +34,7 @@ void test_a()
 
 	KNNBasisSelectionBasedShapeDictionaryBuilder<double> DictionaryBuilder;	
 	DictionaryBuilder.Parameter().BasisCount = 10;
-	DictionaryBuilder.Parameter().MaxNeighbourCount = 5;
+	DictionaryBuilder.Parameter().MaxNeighbourCount = 20;
 	DictionaryBuilder.Parameter().SimilarityThreshold = 0.3;
 	DictionaryBuilder.Parameter().ExperienceDiscountFactor = 0.5;
 	DictionaryBuilder.Parameter().TransformName = "SimilarityTransform";	

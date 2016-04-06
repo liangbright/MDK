@@ -3,7 +3,7 @@
 #include <Eigen/Sparse>
 
 #include "mdkLinearAlgebra.h"
-#include "mdkGeometry3D.h"
+#include "mdkGeometry.h"
 #include "mdkTriangleMesh.h"
 
 namespace mdk

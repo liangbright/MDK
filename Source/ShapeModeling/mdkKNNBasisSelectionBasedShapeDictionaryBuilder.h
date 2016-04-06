@@ -116,7 +116,9 @@ private:
     
     ShapeDictionary<ScalarType> BuildDictionaryInMiniBatch(const ShapeDictionary<ScalarType>& Dictionary_init, const ObjectArray<DenseMatrix<ScalarType>>& ShapeData);
 
-    DenseMatrix<int_max> SelectBasis(const int_max BasisCount_desired, const DenseMatrix<ScalarType>& SimilarityMatrix, const DenseMatrix<ScalarType>& ProbabilityOfEachShape);
+	DenseMatrix<int_max> SelectBasis(const int_max BasisCount_desired, const DenseMatrix<ScalarType>& SimilarityMatrix, const DenseMatrix<ScalarType>& ProbabilityOfEachShape);
+
+    DenseMatrix<int_max> SelectBasis_old(const int_max BasisCount_desired, const DenseMatrix<ScalarType>& SimilarityMatrix, const DenseMatrix<ScalarType>& ProbabilityOfEachShape);
 
     DenseMatrix<ScalarType> ComputeInitialRepresentativeAbilityOfEachShape(const ShapeDictionary<ScalarType>& Dictionary_init, int_max TotalShapeCount);
 

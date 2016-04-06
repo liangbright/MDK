@@ -57,7 +57,7 @@ bool DistanceMinimizationBasedShapeAligner<ScalarType>::CheckInput()
 		const auto& Shape_k = (*m_InputShapeList)[k];
 		if (Shape_k.GetRowCount() != 3 && Shape_k.GetRowCount() != 2)
 		{
-			MDK_Error("input shape is wrong @ DistanceMinimizationBasedShapeAligner::CheckInput(...)")
+			MDK_Error("input shape is not in 2D or 3D @ DistanceMinimizationBasedShapeAligner::CheckInput(...)")
 			return false;
 		}
 	}
@@ -585,6 +585,7 @@ ScalarType DistanceMinimizationBasedShapeAligner<ScalarType>::ComputeObjectiveFu
 	return RMSE;
 }
 
+
 template<typename ScalarType>
 Parameter_Of_SimilarityTransform<ScalarType>
 DistanceMinimizationBasedShapeAligner<ScalarType>::EstimateTransformParameter(const DenseMatrix<ScalarType>& SourceShape, const DenseMatrix<ScalarType>& TagetShape)
@@ -593,50 +594,106 @@ DistanceMinimizationBasedShapeAligner<ScalarType>::EstimateTransformParameter(co
 	
 	if (m_Flag_use_SimilarityTransform == true)
 	{
-		SimilarityTransform3D<ScalarType> Transform;
-		if (m_Landmark.IsEmpty() == true)
+		int_max Dimension = SourceShape.GetRowCount();
+		if (Dimension == 3)
 		{
-			Transform.SetSourceLandmarkPointSet(&SourceShape);
-			Transform.SetTargetLandmarkPointSet(&TagetShape);
-			Transform.EstimateParameter();
-			TransformParameter.Rotation = Transform.GetRotationMatrix();
-			TransformParameter.Scale = Transform.GetScale();
-			TransformParameter.Translation = Transform.GetTranslation_After_Scale_Rotation();
+			SimilarityTransform3D<ScalarType> Transform;
+			if (m_LandmarkOnShape.IsEmpty() == true)
+			{
+				Transform.SetSourceLandmarkPointSet(&SourceShape);
+				Transform.SetTargetLandmarkPointSet(&TagetShape);
+				Transform.EstimateParameter();
+				TransformParameter.Rotation = Transform.GetRotationMatrix();
+				TransformParameter.Scale = Transform.GetScale();
+				TransformParameter.Translation = Transform.GetTranslation_After_Scale_Rotation();
+			}
+			else
+			{
+				auto Source = SourceShape.GetSubMatrix(ALL, m_LandmarkOnShape);
+				auto Target = TagetShape.GetSubMatrix(ALL, m_LandmarkOnShape);
+				Transform.SetSourceLandmarkPointSet(&Source);
+				Transform.SetTargetLandmarkPointSet(&Target);
+				Transform.EstimateParameter();
+				TransformParameter.Rotation = Transform.GetRotationMatrix();
+				TransformParameter.Scale = Transform.GetScale();
+				TransformParameter.Translation = Transform.GetTranslation_After_Scale_Rotation();
+			}
 		}
-		else
+		else//Dimension == 2
 		{
-			auto Source = SourceShape.GetSubMatrix(ALL, m_Landmark);
-			auto Target = TagetShape.GetSubMatrix(ALL, m_Landmark);
-			Transform.SetSourceLandmarkPointSet(&Source);
-			Transform.SetTargetLandmarkPointSet(&Target);
-			Transform.EstimateParameter();
-			TransformParameter.Rotation = Transform.GetRotationMatrix();
-			TransformParameter.Scale = Transform.GetScale();
-			TransformParameter.Translation = Transform.GetTranslation_After_Scale_Rotation();
+			SimilarityTransform2D<ScalarType> Transform;
+			if (m_LandmarkOnShape.IsEmpty() == true)
+			{
+				Transform.SetSourceLandmarkPointSet(&SourceShape);
+				Transform.SetTargetLandmarkPointSet(&TagetShape);
+				Transform.EstimateParameter();
+				TransformParameter.Rotation = Transform.GetRotationMatrix();
+				TransformParameter.Scale = Transform.GetScale();
+				TransformParameter.Translation = Transform.GetTranslation_After_Scale_Rotation();
+			}
+			else
+			{
+				auto Source = SourceShape.GetSubMatrix(ALL, m_LandmarkOnShape);
+				auto Target = TagetShape.GetSubMatrix(ALL, m_LandmarkOnShape);
+				Transform.SetSourceLandmarkPointSet(&Source);
+				Transform.SetTargetLandmarkPointSet(&Target);
+				Transform.EstimateParameter();
+				TransformParameter.Rotation = Transform.GetRotationMatrix();
+				TransformParameter.Scale = Transform.GetScale();
+				TransformParameter.Translation = Transform.GetTranslation_After_Scale_Rotation();
+			}
 		}
 	}
 	else
 	{
-		RigidTransform3D<ScalarType> Transform;
-		if (m_Landmark.IsEmpty() == true)
+		int_max Dimension = SourceShape.GetRowCount();
+		if (Dimension == 3)
 		{
-			Transform.SetSourceLandmarkPointSet(&SourceShape);
-			Transform.SetTargetLandmarkPointSet(&TagetShape);
-			Transform.EstimateParameter();
-			TransformParameter.Rotation = Transform.GetRotationMatrix();
-			TransformParameter.Scale = 1;
-			TransformParameter.Translation = Transform.GetTranslation_AfterRotation();
+			RigidTransform3D<ScalarType> Transform;
+			if (m_LandmarkOnShape.IsEmpty() == true)
+			{
+				Transform.SetSourceLandmarkPointSet(&SourceShape);
+				Transform.SetTargetLandmarkPointSet(&TagetShape);
+				Transform.EstimateParameter();
+				TransformParameter.Rotation = Transform.GetRotationMatrix();
+				TransformParameter.Scale = 1;
+				TransformParameter.Translation = Transform.GetTranslation_AfterRotation();
+			}
+			else
+			{
+				auto Source = SourceShape.GetSubMatrix(ALL, m_LandmarkOnShape);
+				auto Target = TagetShape.GetSubMatrix(ALL, m_LandmarkOnShape);
+				Transform.SetSourceLandmarkPointSet(&Source);
+				Transform.SetTargetLandmarkPointSet(&Target);
+				Transform.EstimateParameter();
+				TransformParameter.Rotation = Transform.GetRotationMatrix();
+				TransformParameter.Scale = 1;
+				TransformParameter.Translation = Transform.GetTranslation_AfterRotation();
+			}
 		}
-		else
+		else//Dimension == 2
 		{
-			auto Source = SourceShape.GetSubMatrix(ALL, m_Landmark);
-			auto Target = TagetShape.GetSubMatrix(ALL, m_Landmark);
-			Transform.SetSourceLandmarkPointSet(&Source);
-			Transform.SetTargetLandmarkPointSet(&Target);
-			Transform.EstimateParameter();
-			TransformParameter.Rotation = Transform.GetRotationMatrix();
-			TransformParameter.Scale = 1;
-			TransformParameter.Translation = Transform.GetTranslation_AfterRotation();
+			RigidTransform2D<ScalarType> Transform;
+			if (m_LandmarkOnShape.IsEmpty() == true)
+			{
+				Transform.SetSourceLandmarkPointSet(&SourceShape);
+				Transform.SetTargetLandmarkPointSet(&TagetShape);
+				Transform.EstimateParameter();
+				TransformParameter.Rotation = Transform.GetRotationMatrix();
+				TransformParameter.Scale = 1;
+				TransformParameter.Translation = Transform.GetTranslation_AfterRotation();
+			}
+			else
+			{
+				auto Source = SourceShape.GetSubMatrix(ALL, m_LandmarkOnShape);
+				auto Target = TagetShape.GetSubMatrix(ALL, m_LandmarkOnShape);
+				Transform.SetSourceLandmarkPointSet(&Source);
+				Transform.SetTargetLandmarkPointSet(&Target);
+				Transform.EstimateParameter();
+				TransformParameter.Rotation = Transform.GetRotationMatrix();
+				TransformParameter.Scale = 1;
+				TransformParameter.Translation = Transform.GetTranslation_AfterRotation();
+			}
 		}
 	}
 
@@ -649,18 +706,42 @@ DenseMatrix<ScalarType> DistanceMinimizationBasedShapeAligner<ScalarType>::Trans
 {
 	if (m_Flag_use_SimilarityTransform == true)
 	{
-		SimilarityTransform3D<ScalarType> Transform;
-		Transform.SetRotationMatrix(Parameter.Rotation);
-		Transform.SetScale(Parameter.Scale);
-		Transform.SetTranslation_After_Scale_Rotation(Parameter.Translation);
-		return Transform.TransformPoint(Shape);
+		int_max Dimension = Shape.GetRowCount();
+		if (Dimension == 3)
+		{
+			SimilarityTransform3D<ScalarType> Transform;
+			Transform.SetRotationMatrix(Parameter.Rotation);
+			Transform.SetScale(Parameter.Scale);
+			Transform.SetTranslation_After_Scale_Rotation(Parameter.Translation);
+			return Transform.TransformPoint(Shape);
+		}
+		else//Dimension == 2
+		{
+			SimilarityTransform2D<ScalarType> Transform;
+			Transform.SetRotationMatrix(Parameter.Rotation);
+			Transform.SetScale(Parameter.Scale);
+			Transform.SetTranslation_After_Scale_Rotation(Parameter.Translation);
+			return Transform.TransformPoint(Shape);
+		}
+
 	}
 	else
 	{
-		RigidTransform3D<ScalarType> Transform;
-		Transform.SetRotationMatrix(Parameter.Rotation);
-		Transform.SetTranslation_AfterRotation(Parameter.Translation);
-		return Transform.TransformPoint(Shape);
+		int_max Dimension = Shape.GetRowCount();
+		if (Dimension == 3)
+		{
+			RigidTransform3D<ScalarType> Transform;
+			Transform.SetRotationMatrix(Parameter.Rotation);
+			Transform.SetTranslation_AfterRotation(Parameter.Translation);
+			return Transform.TransformPoint(Shape);
+		}
+		else//Dimension == 2
+		{
+			RigidTransform2D<ScalarType> Transform;
+			Transform.SetRotationMatrix(Parameter.Rotation);
+			Transform.SetTranslation_AfterRotation(Parameter.Translation);
+			return Transform.TransformPoint(Shape);
+		}
 	}
 }
 
