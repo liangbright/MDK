@@ -116,6 +116,7 @@ void KNNSoftAssignBasedSparseShapeEncoder<ScalarType>::Update()
 	ParallelForLoop(TempFunction, 0, m_ShapeData->GetLength() - 1, m_Parameter.MaxThreadCount);
 }
 
+
 template<typename ScalarType>
 SparseVector<ScalarType> KNNSoftAssignBasedSparseShapeEncoder<ScalarType>::EncodeShape(int_max ShapeIndex)
 {
@@ -126,7 +127,7 @@ SparseVector<ScalarType> KNNSoftAssignBasedSparseShapeEncoder<ScalarType>::Encod
 	SimilarityList.Resize(1, BasisCount);
 	for (int_max k = 0; k < BasisCount; ++k)
 	{
-		SimilarityList[k]= ComputeSimilarityBetweenShapeWithPointCorrespondence(Basis[k], (*m_ShapeData)[ShapeIndex], m_LandmarkOnShape, m_Parameter.TransformName, false);
+		SimilarityList[k]= this->ComputeShapeSimilarity(Basis[k], (*m_ShapeData)[ShapeIndex], m_LandmarkOnShape, m_Parameter.TransformName, false);
 	}
 	auto NeighbourIndexList = FindKNNBySimilarityList(SimilarityList, m_Parameter.MaxNeighbourCount);
 	auto NeighbourMembershipList = SimilarityList.GetSubMatrix(ALL, NeighbourIndexList);
@@ -150,6 +151,12 @@ SparseVector<ScalarType> KNNSoftAssignBasedSparseShapeEncoder<ScalarType>::Encod
 	SparseVector<ScalarType> Code;
 	Code.Initialize(NeighbourIndexList, NeighbourMembershipList, BasisCount);
 	return Code;
+}
+
+template<typename ScalarType>
+ScalarType KNNSoftAssignBasedSparseShapeEncoder<ScalarType>::ComputeShapeSimilarity(const DenseMatrix<ScalarType>& ShapeA, const DenseMatrix<ScalarType>& ShapeB, const DenseVector<int_max>& Landmark, const String& TransformName, bool Flag_Symmetry)
+{
+	return ComputeSimilarityBetweenShapeWithPointCorrespondence(ShapeA, ShapeB, Landmark, TransformName, Flag_Symmetry);
 }
 
 }// namespace mdk

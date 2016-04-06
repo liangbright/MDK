@@ -248,7 +248,7 @@ public:
     inline bool IsValidDirectedEdgeIndex(DirectedEdgeIndexType DirectedEdgeIndex) const;
     inline bool IsValidFaceIndex(int_max FaceIndex) const;
 
-    //--------- get Valid IndexList ------------------------------------------------------------//
+    //--------- get IndexList ------------------------------------------------------------//
     inline DenseVector<int_max> GetPointIndexList() const;
     inline DenseVector<int_max> GetEdgeIndexList() const;
     inline DenseVector<DirectedEdgeIndexType> GetDirectedEdgeIndexList() const;

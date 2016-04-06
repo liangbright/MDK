@@ -21,7 +21,6 @@ class KNNSoftAssignBasedSparseShapeEncoder : public Object
 {
 public:
 	typedef Scalar_Type ScalarType;
-
 private:
     Parameter_Of_KNNSoftAssignBasedSparseShapeEncoder<ScalarType> m_Parameter;
 	const ObjectArray<DenseMatrix<ScalarType>>* m_ShapeData;
@@ -39,15 +38,16 @@ public:
 	bool CheckInput();
 	void Update();
 	ObjectArray<SparseVector<ScalarType>> OutputCode() { return m_Code; }   
-	//----------------------------------------------------------------------------------------------------
 private:
 	SparseVector<ScalarType> EncodeShape(int_max ShapeIndex);
-
+public:
+	//----------------------------- static function --------------------------------------------//
+	static ScalarType ComputeShapeSimilarity(const DenseMatrix<ScalarType>& ShapeA, const DenseMatrix<ScalarType>& ShapeB, const DenseVector<int_max>& Landmark, const String& TransformName, bool Flag_Symmetry);
 private:
     KNNSoftAssignBasedSparseShapeEncoder(const KNNSoftAssignBasedSparseShapeEncoder&) = delete;
     void operator=(const KNNSoftAssignBasedSparseShapeEncoder&) = delete;
 };
 
-}
+}//namespace mdk
 
 #include "mdkKNNSoftAssignBasedSparseShapeEncoder.hpp"

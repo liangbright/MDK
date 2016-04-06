@@ -801,7 +801,7 @@ EncodeShapeDataBySimilarity(const DenseMatrix<ScalarType>& ShapeSimilarityMatrix
 template<typename ScalarType>
 ScalarType KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>::ComputeShapeSimilarity(const DenseMatrix<ScalarType>& ShapeA, const DenseMatrix<ScalarType>& ShapeB)
 {
-	return ComputeSimilarityBetweenShapeWithPointCorrespondence(ShapeA, ShapeB, m_LandmarkOnShape, m_Parameter.TransformName, true);
+	return KNNSoftAssignBasedSparseShapeEncoder<ScalarType>::ComputeShapeSimilarity(ShapeA, ShapeB, m_LandmarkOnShape, m_Parameter.TransformName, true);
 }
 
 

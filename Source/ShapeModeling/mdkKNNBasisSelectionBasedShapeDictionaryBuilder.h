@@ -3,7 +3,7 @@
 #include <random>
 
 #include "mdkShapeDictionary.h"
-#include "mdkShapeSimilarityMeasurementFunction.h"
+#include "mdkKNNSoftAssignBasedSparseShapeEncoder.h"
 
 
 namespace mdk
