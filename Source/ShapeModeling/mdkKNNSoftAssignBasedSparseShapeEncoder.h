@@ -26,7 +26,8 @@ private:
 	const ObjectArray<DenseMatrix<ScalarType>>* m_ShapeData;
 	DenseVector<int_max> m_LandmarkOnShape;
 	const ObjectArray<DenseMatrix<ScalarType>>* m_Dictionary;
-	ObjectArray<SparseVector<ScalarType>> m_Code;
+	ObjectArray<SparseVector<ScalarType>> m_MembershipCode;
+	ObjectArray<SparseVector<ScalarType>> m_SimilarityCode;
 public:
     KNNSoftAssignBasedSparseShapeEncoder();
     ~KNNSoftAssignBasedSparseShapeEncoder();
@@ -37,12 +38,11 @@ public:
 	void SetInputDictionary(const ObjectArray<DenseMatrix<ScalarType>>* Dictioanry) {m_Dictionary = Dictioanry;}
 	bool CheckInput();
 	void Update();
-	ObjectArray<SparseVector<ScalarType>> OutputCode() { return m_Code; }   
+	ObjectArray<SparseVector<ScalarType>> OutputMembershipCode() { return m_MembershipCode; }
+	ObjectArray<SparseVector<ScalarType>> OutputSimilarityCode() { return m_SimilarityCode;}
 private:
-	SparseVector<ScalarType> EncodeShape(int_max ShapeIndex);
-public:
-	//----------------------------- static function --------------------------------------------//
-	static ScalarType ComputeShapeSimilarity(const DenseMatrix<ScalarType>& ShapeA, const DenseMatrix<ScalarType>& ShapeB, const DenseVector<int_max>& Landmark, const String& TransformName, bool Flag_Symmetry);
+	void EncodeShape(int_max ShapeIndex, SparseVector<ScalarType>& MemebershipCode, SparseVector<ScalarType>& SimilarityCode);
+	ScalarType ComputeShapeSimilarity(const DenseMatrix<ScalarType>& Basis, const DenseMatrix<ScalarType>& Data);
 private:
     KNNSoftAssignBasedSparseShapeEncoder(const KNNSoftAssignBasedSparseShapeEncoder&) = delete;
     void operator=(const KNNSoftAssignBasedSparseShapeEncoder&) = delete;

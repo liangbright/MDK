@@ -3,8 +3,7 @@
 #include <random>
 
 #include "mdkShapeDictionary.h"
-#include "mdkKNNSoftAssignBasedSparseShapeEncoder.h"
-
+#include "mdkShapeSimilarityMeasurementFunction.h"
 
 namespace mdk
 {
@@ -45,7 +44,7 @@ struct Parameter_Of_BasisSelectionBasedShapeDictionaryBuilder
 		MaxEpochCount = 1;
 		MaxThreadCount = 1;
 
-        Flag_Update_BasisID  = true; // new basis ID = 0
+        Flag_Update_BasisID  = true;
 		Flag_Update_BasisSimilarity = true;
         
 		Debug_Flag = false;
@@ -89,9 +88,9 @@ public:
 private:    
     ShapeDictionary<ScalarType> BuildDictionaryInMiniBatch(const ShapeDictionary<ScalarType>& Dictionary_init, const ObjectArray<DenseMatrix<ScalarType>>& ShapeData);
 
-	DenseVector<int_max> SelectBasis(const int_max BasisCount_desired, const DenseMatrix<ScalarType>& SimilarityMatrix);
+	DenseVector<int_max> SelectBasis(const int_max BasisCount_desired, const DenseMatrix<ScalarType>& ShapeSimilarityMatrix);
 
-	DenseVector<int_max> SelectBasis_By_SimilarityThreshold(const DenseVector<int_max>& ShapeIndexList_sort, const DenseMatrix<ScalarType>& SimilarityMatrix, ScalarType SimilarityThreshold);
+	DenseVector<int_max> SelectBasis_By_SimilarityThreshold(const DenseVector<int_max>& ShapeIndexList_sort, const DenseMatrix<ScalarType>& ShapeSimilarityMatrix, ScalarType SimilarityThreshold);
 
     DenseMatrix<ScalarType> ComputeShapeSimilarityMatrix(const ShapeDictionary<ScalarType>& Dictionary_init, const ObjectArray<DenseMatrix<ScalarType>>& ShapeData);
    

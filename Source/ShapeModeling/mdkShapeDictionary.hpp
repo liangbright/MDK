@@ -62,8 +62,7 @@ void ShapeDictionary<ScalarType>::Copy(const ShapeDictionary<ScalarType>& InputD
     m_Data->Name = InputDictionary.m_Data->Name;
     m_Data->Basis = InputDictionary.m_Data->Basis;
     m_Data->SeedForNewBasisIDGeneration = InputDictionary.m_Data->SeedForNewBasisIDGeneration.load();
-    m_Data->BasisID = InputDictionary.m_Data->BasisID;
-    m_Data->CurrentDictionaryTime = InputDictionary.m_Data->CurrentDictionaryTime;
+    m_Data->BasisID = InputDictionary.m_Data->BasisID;    
     m_Data->BasisAge = InputDictionary.m_Data->BasisAge;
     m_Data->BasisExperience = InputDictionary.m_Data->BasisExperience;
     m_Data->BasisSimilarity = InputDictionary.m_Data->BasisSimilarity;
@@ -87,8 +86,7 @@ void ShapeDictionary<ScalarType>::Copy(ShapeDictionary<ScalarType>&& InputDictio
     m_Data->Name = std::move(InputDictionary.m_Data->Name);
     m_Data->Basis = std::move(InputDictionary.m_Data->Basis);	
     m_Data->SeedForNewBasisIDGeneration = InputDictionary.m_Data->SeedForNewBasisIDGeneration.load();
-    m_Data->BasisID = std::move(InputDictionary.m_Data->BasisID);
-    m_Data->CurrentDictionaryTime = InputDictionary.m_Data->CurrentDictionaryTime;
+    m_Data->BasisID = std::move(InputDictionary.m_Data->BasisID);    
     m_Data->BasisAge = std::move(InputDictionary.m_Data->BasisAge);
     m_Data->BasisExperience = std::move(InputDictionary.m_Data->BasisExperience);
     m_Data->BasisSimilarity = std::move(InputDictionary.m_Data->BasisSimilarity);
@@ -134,8 +132,7 @@ void ShapeDictionary<ScalarType>::Clear()
 	m_Data->Name = "";
     m_Data->Basis.Clear();
     m_Data->SeedForNewBasisIDGeneration = 0;
-    m_Data->BasisID.Clear();
-    m_Data->CurrentDictionaryTime = 0;
+    m_Data->BasisID.Clear();    
     m_Data->BasisAge.Clear();
     m_Data->BasisExperience.Clear();
     m_Data->BasisSimilarity.Clear();
@@ -143,17 +140,10 @@ void ShapeDictionary<ScalarType>::Clear()
     m_Data->BasisRedundancy.Clear();
 }
 
-
+/*
 template<typename ScalarType>
 bool ShapeDictionary<ScalarType>::Load(const std::string& FilePathAndName)
 {
-    //auto temp = LoadShapeDictionaryFromJsonDataFile<ScalarType>(FilePathAndName);
-    //if (temp.IsEmpty() == false)
-    //{
-    //    this->Take(temp);
-    //    return true;
-    //}
-
     return false;
 }
 
@@ -161,10 +151,9 @@ bool ShapeDictionary<ScalarType>::Load(const std::string& FilePathAndName)
 template<typename ScalarType>
 bool ShapeDictionary<ScalarType>::Save(const std::string& FilePathAndName) const
 {
-    //return SaveShapeDictionaryAsJsonDataFile(*this, FilePathAndName);
 	return false;
 }
-
+*/
 
 template<typename ScalarType>
 void ShapeDictionary<ScalarType>::Initialize(ObjectArray<DenseMatrix<ScalarType>> BasisData)
@@ -218,8 +207,7 @@ ShapeDictionary<ScalarType> ShapeDictionary<ScalarType>::GetSubDictionary(const 
     // get data
     SubDictionary.m_Data->Basis = m_Data->Basis.GetSubMatrix(ALL, SelectedBasisIndexList);
     SubDictionary.m_Data->BasisID = m_Data->BasisID.GetSubMatrix(SelectedBasisIndexList);
-    SubDictionary.m_Data->SeedForNewBasisIDGeneration = m_Data->SeedForNewBasisIDGeneration.load();
-    SubDictionary.m_Data->CurrentDictionaryTime = m_Data->CurrentDictionaryTime;//???????
+    SubDictionary.m_Data->SeedForNewBasisIDGeneration = m_Data->SeedForNewBasisIDGeneration.load();    
     SubDictionary.m_Data->BasisAge = m_Data->BasisAge.GetSubMatrix(SelectedBasisIndexList);
     SubDictionary.m_Data->BasisExperience = m_Data->BasisExperience.GetSubMatrix(SelectedBasisIndexList);
     SubDictionary.m_Data->BasisSimilarity = m_Data->BasisSimilarity.GetSubMatrix(SelectedBasisIndexList, SelectedBasisIndexList);
@@ -233,13 +221,13 @@ ShapeDictionary<ScalarType> ShapeDictionary<ScalarType>::GetSubDictionary(const 
 template<typename ScalarType>
 void ShapeDictionary<ScalarType>::MergeDictionary(const ShapeDictionary<ScalarType>& InputDictionary)
 {
-    if (InputDictionary.IsEmpty() == true)
+    if (InputDictionary.GetBasisCount() == 0)
     {
         MDK_Warning("InputDictionary is empty @ ShapeDictionary::CombineDictionary(...)")
         return;
     }
 
-    if (this->IsEmpty() == true)
+    if (this->GetBasisCount() == 0)
     {
         this->Copy(InputDictionary);
         return;
@@ -248,39 +236,25 @@ void ShapeDictionary<ScalarType>::MergeDictionary(const ShapeDictionary<ScalarTy
 	//----------------------- start to merge ---------------------------------------------------------------
 
     int_max BasisCount_input = InputDictionary.m_Data->Basis.GetLength();
-
     int_max BasisCount_self = m_Data->Basis.GetLength();
-
     int_max BasisCount_combined = BasisCount_self + BasisCount_input;
 
     // update SeedForNewBasisIDGeneration
     m_Data->SeedForNewBasisIDGeneration = std::max(m_Data->SeedForNewBasisIDGeneration.load(), InputDictionary.m_Data->SeedForNewBasisIDGeneration.load());
 
-    // update Dictionary Time
-    m_Data->CurrentDictionaryTime = m_Data->CurrentDictionaryTime + InputDictionary.m_Data->CurrentDictionaryTime;
-
     // update other
-
     m_Data->Basis = { &m_Data->Basis, &InputDictionary.m_Data->Basis };
-
     m_Data->BasisID = { &m_Data->BasisID, &InputDictionary.m_Data->BasisID };
-
     m_Data->BasisID = { &m_Data->BasisID, &InputDictionary.m_Data->BasisID };
-
     m_Data->BasisAge = { &m_Data->BasisAge, &InputDictionary.m_Data->BasisAge };
-
     m_Data->BasisExperience = { &m_Data->BasisExperience, &InputDictionary.m_Data->BasisExperience };
 
     // update SimilarityMatrix : fill 0 to unknown Similarity
-
     DenseMatrix<ScalarType> SimilarityMatrix_self = m_Data->BasisSimilarity;
-
     m_Data->BasisSimilarity.FastResize(BasisCount_combined, BasisCount_combined);
     m_Data->BasisSimilarity.Fill(0);
-
     auto IndexRange_self = span(0, BasisCount_self - 1);
     m_Data->BasisSimilarity(IndexRange_self, IndexRange_self) = SimilarityMatrix_self;
-
     auto IndexRange_input = span(BasisCount_self, BasisCount_combined - 1);
     m_Data->BasisSimilarity(IndexRange_input, IndexRange_input) = InputDictionary.m_Data->BasisSimilarity;
 

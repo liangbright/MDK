@@ -20,10 +20,6 @@ struct ShapeDictionaryData
 
     std::atomic<int_max> SeedForNewBasisIDGeneration;
 
-    //----------- Current "Dictionary Time " --------------------
-
-    int_max CurrentDictionaryTime; // Measured By Total Number Of Samples In Training History;
-
     //------------ Age of each basis ----------------------------
     // row vector
 	//Total Number Of Samples In Training History
@@ -75,8 +71,8 @@ public:
 
     void Clear();
 
-    bool Load(const std::string& FilePathAndName);
-	bool Save(const std::string& FilePathAndName) const;
+    //bool Load(const std::string& FilePathAndName);
+	//bool Save(const std::string& FilePathAndName) const;
 
 	void Initialize(ObjectArray<DenseMatrix<ScalarType>> BasisData);
 
@@ -92,9 +88,6 @@ public:
 	inline int_max GenerateNewBasisID();
 	inline int_max GetCurrentSeedForNewBasisIDGeneration() const { return m_Data->SeedForNewBasisIDGeneration.load(); }
 	inline void SetCurrentSeedForNewBasisIDGeneration(int_max Seed) { m_Data->SeedForNewBasisIDGeneration = Seed; }
-
-	inline void SetCurrentDictionaryTime(int_max DictionaryTime) {m_Data->CurrentDictionaryTime = DictionaryTime;}
-	inline int_max GetCurrentDictionaryTime() const {return m_Data->CurrentDictionaryTime = DictionaryTime;	}
 
 	inline int_max GetBasisCount() const { return  m_Data->Basis.GetLength(); }
 	inline ObjectArray<DenseMatrix<ScalarType>>& Basis() { return m_Data->Basis; }

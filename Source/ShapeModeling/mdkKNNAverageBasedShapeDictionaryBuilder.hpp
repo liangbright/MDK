@@ -159,7 +159,7 @@ void KNNAverageBasedShapeDictionaryBuilder<ScalarType>::Update()
 			Encoder.SetLandmarkOnShape(m_LandmarkOnShape);
 			Encoder.SetInputDictionary(&OutputDictionary.Basis());
 			Encoder.Update();
-			const auto& CodeTable = Encoder.OutputCode();
+			const auto& CodeTable = Encoder.OutputMembershipCode();
 			//update basis -----------------------------------------------
 			this->UpdateBasisAndBasisExperience(OutputDictionary.Basis(), OutputDictionary.BasisExperience(), ShapeData_CurrentBatch, CodeTable);            
         }            

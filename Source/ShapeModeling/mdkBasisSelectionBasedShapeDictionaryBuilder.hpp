@@ -209,8 +209,7 @@ BuildDictionaryInMiniBatch(const ShapeDictionary<ScalarType>& Dictionary_init, c
     }
 
     //------------------------------------------ select basis from Combined Data -----------------------------------------------------------------//   
-    DenseMatrix<int_max> ShapeIndexList_Basis = this->SelectBasis(BasisCount_desired, ShapeSimilarityMatrix);
-
+    auto ShapeIndexList_Basis = this->SelectBasis(BasisCount_desired, ShapeSimilarityMatrix);
     int_max OutputBasisCount = ShapeIndexList_Basis.GetElementCount();
 
     // ------------- create Basis --------------------------------------------------//
@@ -254,7 +253,7 @@ DenseVector<int_max> BasisSelectionBasedShapeDictionaryBuilder<ScalarType>::Sele
 	// shape index is the index in Combined data
 	//----------------------------------------------------------------------
 
-	int_max TotalShapeCount = ProbabilityOfEachShape.GetElementCount();
+	int_max TotalShapeCount = ShapeSimilarityMatrix.GetColCount();
 
 	DenseVector<ScalarType> ProbabilityList;
 	ProbabilityList.Resize(TotalShapeCount);
@@ -263,7 +262,7 @@ DenseVector<int_max> BasisSelectionBasedShapeDictionaryBuilder<ScalarType>::Sele
 		auto SimilarityList = ShapeSimilarityMatrix.RefCol(k);
 		ProbabilityList[k] = SimilarityList.Sum()/ScalarType(TotalShapeCount);
 	}
-	auto ShapeIndexList_sort = ProbabilityList.Sort("descend");
+	auto ShapeIndexList_sort = ProbabilityList.Sort("ascend");// or descend ?
 
 	DenseVector<int_max> ShapeIndexList_Basis;	
 	ScalarType Similarity_lb = 0;
@@ -275,11 +274,11 @@ DenseVector<int_max> BasisSelectionBasedShapeDictionaryBuilder<ScalarType>::Sele
 		auto BasisCount_now = ShapeIndexList_Basis.GetLength();
 		if (BasisCount_now > BasisCount_desired)
 		{
-			Similarity_lb = SimilarityThreshold;
+			Similarity_ub = SimilarityThreshold;
 		}
 		else if (BasisCount_now < BasisCount_desired)
 		{
-			Similarity_ub = SimilarityThreshold;
+			Similarity_lb = SimilarityThreshold;
 		}
 		else
 		{
@@ -302,21 +301,15 @@ DenseVector<int_max> BasisSelectionBasedShapeDictionaryBuilder<ScalarType>::Sele
 
 
 template<typename ScalarType>
-DenseVector<int_max> BasisSelectionBasedShapeDictionaryBuilder<ScalarType>::SelectBasis_By_SimilarityThreshold(const DenseVector<int_max>& ShapeIndexList_sort, const DenseMatrix<ScalarType>& SimilarityMatrix, ScalarType SimilarityThreshold)
+DenseVector<int_max> BasisSelectionBasedShapeDictionaryBuilder<ScalarType>::SelectBasis_By_SimilarityThreshold(const DenseVector<int_max>& ShapeIndexList_sort, const DenseMatrix<ScalarType>& ShapeSimilarityMatrix, ScalarType SimilarityThreshold)
 {
 	int_max TotalShapeCount = ShapeIndexList_sort.GetLength();
-
-	DataArray<DenseVector<int_max>> NeighbourTable;
-	NeighbourTable.Resize(ShapeCount);
-	for (int_max k = 0; k < ShapeCount; ++k)
-	{
-		NeighbourTable[k].SetCapacity(ShapeCount);
-	}
 
 	DenseVector<int_max> ShapeFlagList;
 	ShapeFlagList.Resize(TotalShapeCount);
 	ShapeFlagList.Fill(1);
 	//0: not basis
+	//1: selected as basis
 
 	for (int_max k = 0; k < TotalShapeCount; ++k)
 	{
@@ -327,7 +320,7 @@ DenseVector<int_max> BasisSelectionBasedShapeDictionaryBuilder<ScalarType>::Sele
 			{
 				if (n != ShapeIndex_k)
 				{
-					if (SimilarityMatrix(ShapeIndex_k, n) > SimilarityThreshold)
+					if (ShapeSimilarityMatrix(ShapeIndex_k, n) > SimilarityThreshold)
 					{
 						ShapeFlagList[n] = 0;
 					}
@@ -336,16 +329,7 @@ DenseVector<int_max> BasisSelectionBasedShapeDictionaryBuilder<ScalarType>::Sele
 		}
 	}
 
-	int_max BasisCount = ShapeFlagList.Sum();
-	DenseVector<int_max> ShapeIndexList_Basis;
-	ShapeIndexList_Basis.SetCapacity(BasisCount);
-	for (int_max k = 0; k < TotalShapeCount; ++k)
-	{
-		if (ShapeFlagList[k] > 0)
-		{
-			ShapeIndexList_Basis[k] = k;
-		}
-	}
+	auto ShapeIndexList_Basis = ShapeFlagList.Find([](int_max Flag) { return Flag > 0; });
 	return ShapeIndexList_Basis;
 }
 
@@ -372,8 +356,6 @@ ComputeShapeSimilarityMatrix(const ShapeDictionary<ScalarType>& Dictionary_init,
     DenseMatrix<ScalarType> ShapeSimilarityMatrix;
 
 	auto eps_value = std::numeric_limits<ScalarType>::epsilon();
-
-    auto SimilarityThreshold = m_Parameter.SimilarityThreshold;
 
     //---------------------------------------------------------------------------------------------
 
@@ -494,7 +476,7 @@ ComputeShapeSimilarityMatrix(const ShapeDictionary<ScalarType>& Dictionary_init,
 template<typename ScalarType>
 ScalarType BasisSelectionBasedShapeDictionaryBuilder<ScalarType>::ComputeShapeSimilarity(const DenseMatrix<ScalarType>& ShapeA, const DenseMatrix<ScalarType>& ShapeB)
 {
-	return KNNSoftAssignBasedSparseShapeEncoder<ScalarType>::ComputeShapeSimilarity(ShapeA, ShapeB, m_LandmarkOnShape, m_Parameter.TransformName, true);
+	return ComputeSimilarityBetweenShapeWithPointCorrespondence(ShapeA, ShapeB, m_LandmarkOnShape, m_Parameter.TransformName, true);
 }
 
 
@@ -609,15 +591,10 @@ template<typename ScalarType>
 void BasisSelectionBasedShapeDictionaryBuilder<ScalarType>::
 UpdateDictionaryInformation_AfterALLEpoch(ShapeDictionary<ScalarType>& Dictionary, int_max TotalDataCount)
 {
-    DenseMatrix<int_max>& BasisID = Dictionary.BasisID();
-    DenseMatrix<ScalarType>& BasisAge = Dictionary.BasisAge();
-    DenseMatrix<ScalarType>& BasisSimilarity = Dictionary.BasisSimilarity();
-    DenseMatrix<ScalarType>& BasisRedundancy = Dictionary.BasisRedundancy();
+	int_max BasisCount = Dictionary.GetBasisCount();
 
-    int_max BasisCount = BasisID.GetElementCount();
-
-    //--------------------- update BasisID for new basis -------------------------//
-
+	//--------------------- update BasisID for new basis -------------------------//
+	auto& BasisID = Dictionary.BasisID();
     if (m_Parameter.Flag_Update_BasisID == true)
     {
         for (int_max k = 0; k < BasisCount; ++k)
