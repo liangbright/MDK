@@ -211,9 +211,7 @@ BuildDictionaryInMiniBatch(const ShapeDictionary<ScalarType>& Dictionary_init, c
     //------------------------------------------ select basis from Combined Data -----------------------------------------------------------------//   
     auto ShapeIndexList_Basis = this->SelectBasis(BasisCount_desired, ShapeSimilarityMatrix);
     int_max OutputBasisCount = ShapeIndexList_Basis.GetElementCount();
-
     // ------------- create Basis --------------------------------------------------//
-
     auto& Basis = Dictionary.Basis();     
     Basis.FastResize(OutputBasisCount);
     //for (int_max k = 0; k <= OutputBasisCount-1; ++k)
@@ -226,8 +224,8 @@ BuildDictionaryInMiniBatch(const ShapeDictionary<ScalarType>& Dictionary_init, c
         }
         else
         {
-            int_max tempIndex_k = ShapeIndex - BasisCount_init;
-			Basis[k] = ShapeData[tempIndex_k];
+            int_max DataIndex_k = ShapeIndex - BasisCount_init;
+			Basis[k] = ShapeData[DataIndex_k];
         }
     };
     ParallelForLoop(TempFunction_CreateBasis, 0, OutputBasisCount-1, m_Parameter.MaxThreadCount);
@@ -255,14 +253,22 @@ DenseVector<int_max> BasisSelectionBasedShapeDictionaryBuilder<ScalarType>::Sele
 
 	int_max TotalShapeCount = ShapeSimilarityMatrix.GetColCount();
 
+	int_max ShapeCountPerBasis = 1 + TotalShapeCount / BasisCount_desired;
+
 	DenseVector<ScalarType> ProbabilityList;
 	ProbabilityList.Resize(TotalShapeCount);
 	for (int_max k = 0; k < TotalShapeCount; ++k)
-	{
-		auto SimilarityList = ShapeSimilarityMatrix.RefCol(k);
-		ProbabilityList[k] = SimilarityList.Sum()/ScalarType(TotalShapeCount);
+	{		
+		auto SimilarityList = ShapeSimilarityMatrix.GetCol(k);
+		SimilarityList.SortInPlace("descend");
+		ProbabilityList[k] = 0;
+		for (int_max n = 0; n < ShapeCountPerBasis; ++n)
+		{
+			ProbabilityList[k] += SimilarityList[n];
+		}
+		ProbabilityList[k] /= ScalarType(ShapeCountPerBasis);
 	}
-	auto ShapeIndexList_sort = ProbabilityList.Sort("ascend");// or descend ?
+	auto ShapeIndexList_sort = ProbabilityList.Sort("descend");
 
 	DenseVector<int_max> ShapeIndexList_Basis;	
 	ScalarType Similarity_lb = 0;
@@ -287,10 +293,10 @@ DenseVector<int_max> BasisSelectionBasedShapeDictionaryBuilder<ScalarType>::Sele
 	}
 	for (int_max iter = 0; iter <= 10; ++iter)
 	{
-		auto SimilarityThreshold= Similarity_lb+(ScalarType(iter)/10)*(Similarity_ub- Similarity_lb);
+		auto SimilarityThreshold= Similarity_ub-(ScalarType(iter)/10)*(Similarity_ub- Similarity_lb);
 		ShapeIndexList_Basis = this->SelectBasis_By_SimilarityThreshold(ShapeIndexList_sort, ShapeSimilarityMatrix, SimilarityThreshold);
 		auto BasisCount_now = ShapeIndexList_Basis.GetLength();
-		if (BasisCount_now >= BasisCount_desired)
+		if (BasisCount_now <= BasisCount_desired)
 		{
 			break;
 		}

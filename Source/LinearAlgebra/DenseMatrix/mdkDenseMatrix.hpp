@@ -7533,13 +7533,6 @@ template<typename CompareFunctionType>
 inline 
 void DenseMatrix<ElementType>::SortInPlace(CompareFunctionType CompareFunction)
 {
-    //auto LinearIndexList = this->Sort(CompareFunction);
-    //if (LinearIndexList.IsEmpty() == true)
-    //{
-    //   return;
-    //}
-    //(*this) = (*this)(LinearIndexList);
-
 	if (this->IsEmpty() == true)
 	{
 		return;
@@ -7553,13 +7546,6 @@ template<typename CompareFunctionType>
 inline 
 void DenseMatrix<ElementType>::SortInPlace(int_max LinearIndex_start, int_max LinearIndex_end, CompareFunctionType CompareFunction)
 {
-    //auto LinearIndexList = this->Sort(LinearIndex_start, LinearIndex_end, CompareFunction);
-    //if (LinearIndexList.IsEmpty() == true)
-    //{
-    //   return;
-    //}
-    //(*this)(span(LinearIndex_start, LinearIndex_end)) = (*this)(LinearIndexList);	
-
 	if (this->IsEmpty() == true)
 	{
 		return;
@@ -7572,11 +7558,11 @@ template<typename ElementType>
 inline
 void DenseMatrix<ElementType>::SortInPlace(const char* ascend_or_descend)
 {
-	if (ascend_or_descend[0] == "a")
+	if (ascend_or_descend[0] == 'a')
 	{
 		this->SortInPlace([](const ElementType& ElementA, const ElementType& ElementB){ return ElementA < ElementB; });
 	}
-	else if (ascend_or_descend[0] == "d")
+	else if (ascend_or_descend[0] == 'd')
 	{
 		this->SortInPlace([](const ElementType& ElementA, const ElementType& ElementB){ return ElementA > ElementB; });
 	}

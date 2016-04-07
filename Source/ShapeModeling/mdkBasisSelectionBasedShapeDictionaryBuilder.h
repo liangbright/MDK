@@ -72,6 +72,7 @@ private:
 
 	// output dictionary
 	ShapeDictionary<ScalarType> m_Dictionary;
+	//{Basis_from_initial_dictionary, basis_from_traning_shape_data}
 
 public:
     BasisSelectionBasedShapeDictionaryBuilder();
@@ -84,7 +85,6 @@ public:
     bool CheckInput();
 	void Update();
 	ShapeDictionary<ScalarType>& OutputDictionary() { return m_Dictionary; }
-
 private:    
     ShapeDictionary<ScalarType> BuildDictionaryInMiniBatch(const ShapeDictionary<ScalarType>& Dictionary_init, const ObjectArray<DenseMatrix<ScalarType>>& ShapeData);
 

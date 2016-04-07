@@ -37,7 +37,7 @@ void test_a()
 	DictionaryBuilder.Parameter().BasisCount = 10;
 	DictionaryBuilder.Parameter().TransformName = "SimilarityTransform";
 	DictionaryBuilder.Parameter().MaxEpochCount = 1;
-	DictionaryBuilder.Parameter().MiniBatchSize = 12;
+	DictionaryBuilder.Parameter().MiniBatchSize = 125;
 	DictionaryBuilder.Parameter().MaxThreadCount = 8;
 	DictionaryBuilder.Parameter().Debug_Flag = true;
 	DictionaryBuilder.Parameter().Debug_FilePath = TestDataPath;
@@ -48,9 +48,31 @@ void test_a()
 
 	SaveDenseMatrixAsJsonDataFile(Dictionary.BasisSimilarity(), TestDataPath + "BasisSimilarity_select.json");
 
+	KNNSoftAssignBasedSparseShapeEncoder<double> Encoder;
+	Encoder.SetInputDictionary(&Dictionary.Basis());
+	Encoder.SetInputShapeData(&ShapeList);
+	Encoder.Parameter().MaxNeighbourCount = 1;
+	Encoder.Parameter().MaxThreadCount = 8;
+	Encoder.Parameter().SimilarityThreshold = 0;
+	Encoder.Parameter().TransformName= "SimilarityTransform";
+	Encoder.Update();
+	auto& Code = Encoder.OutputSimilarityCode();
+
+	DenseVector<int_max> ShapeIndexList_Basis;
+	ShapeIndexList_Basis.SetCapacity(Dictionary.GetBasisCount());
+	for (int_max k = 0; k < Code.GetLength(); ++k)
+	{
+		if (Code[k].IndexList()[0] >= 0.9999999999999)
+		{
+			ShapeIndexList_Basis.Append(k);
+		}
+	}
+	ShapeIndexList_Basis.SortInPlace("ascend");
+
+
 	for (int_max k = 0; k < Dictionary.GetBasisCount(); ++k)
 	{
-		AortaMesh.SetPointPosition(ALL, Dictionary.Basis()[k]);
+		AortaMesh.SetPointPosition(ALL, ShapeList[ShapeIndexList_Basis[k]]);
 		SavePolygonMeshAsVTKFile(AortaMesh, TestDataPath + std::to_string(k) + "_AortaModel_Basis_select.vtk");
 	}
 }
@@ -69,32 +91,48 @@ void test_b()
 		TrainingShapeList.Append(AortaMesh.GetPointPosition(ALL));
 	}
 
-	ShapeDictionary<double> Dictioanry_init;
-	Dictioanry_init.Initialize(TrainingShapeList);
-
 	std::cout << "done read mesh" << '\n';
 
 	KNNBasisSelectionBasedShapeDictionaryBuilder<double> DictionaryBuilder;
 	DictionaryBuilder.Parameter().BasisCount = 10;
-	DictionaryBuilder.Parameter().MaxNeighbourCount = 5;
-	DictionaryBuilder.Parameter().SimilarityThreshold = 0.3;
-	DictionaryBuilder.Parameter().ExperienceDiscountFactor = 0.2;
+	DictionaryBuilder.Parameter().MaxNeighbourCount = 5;	
+	DictionaryBuilder.Parameter().ExperienceDiscountFactor = 0.5;
 	DictionaryBuilder.Parameter().TransformName = "SimilarityTransform";
 	DictionaryBuilder.Parameter().MaxEpochCount = 1;
 	DictionaryBuilder.Parameter().MiniBatchSize = 125;
 	DictionaryBuilder.Parameter().MaxThreadCount = 8;
 	DictionaryBuilder.Parameter().Debug_Flag = true;
 	DictionaryBuilder.Parameter().Debug_FilePath = TestDataPath;
-	DictionaryBuilder.SetTrainingShapeData(&TrainingShapeList);
-	DictionaryBuilder.SetInitialDictionary(&Dictioanry_init);
+	DictionaryBuilder.SetTrainingShapeData(&TrainingShapeList);	
 	DictionaryBuilder.Update();
-	auto& SelectedBasisIndexList = DictionaryBuilder.OutputSelectedBasisIndexList();
+	auto& Dictionary = DictionaryBuilder.OutputDictionary();
 	std::cout << "done build dictionary" << '\n';
 
-	for (int_max k = 0; k < SelectedBasisIndexList.GetLength(); ++k)
+	KNNSoftAssignBasedSparseShapeEncoder<double> Encoder;
+	Encoder.SetInputDictionary(&Dictionary.Basis());
+	Encoder.SetInputShapeData(&TrainingShapeList);
+	Encoder.Parameter().MaxNeighbourCount = 1;
+	Encoder.Parameter().MaxThreadCount = 8;
+	Encoder.Parameter().SimilarityThreshold = 0;
+	Encoder.Parameter().TransformName = "SimilarityTransform";
+	Encoder.Update();
+	auto& Code = Encoder.OutputSimilarityCode();
+
+	DenseVector<int_max> ShapeIndexList_Basis;
+	ShapeIndexList_Basis.SetCapacity(Dictionary.GetBasisCount());
+	for (int_max k = 0; k < Code.GetLength(); ++k)
 	{
-		AortaMesh.SetPointPosition(ALL, Dictioanry_init.Basis()[SelectedBasisIndexList[k]]);
-		SavePolygonMeshAsVTKFile(AortaMesh, TestDataPath + std::to_string(k) + "_AortaModel_Basis_select2.vtk");
+		if (Code[k].IndexList()[0] >= 0.9999999999999)
+		{
+			ShapeIndexList_Basis.Append(k);
+		}
+	}
+	ShapeIndexList_Basis.SortInPlace("ascend");
+
+	for (int_max k = 0; k < Dictionary.GetBasisCount(); ++k)
+	{
+		AortaMesh.SetPointPosition(ALL, TrainingShapeList[ShapeIndexList_Basis[k]]);
+		SavePolygonMeshAsVTKFile(AortaMesh, TestDataPath + std::to_string(k) + "_AortaModel_Basis_knn_select.vtk");
 	}
 }
 
@@ -121,15 +159,15 @@ void test_c()
 		BasisShape.Append(AortaMesh.GetPointPosition(ALL));
 	}
 
-	ShapeDictionary<double> Dictioanry_init;
-	Dictioanry_init.Initialize(std::move(BasisShape));
+	ShapeDictionary<double> Dictionary_init;
+	Dictionary_init.Initialize(std::move(BasisShape));
 
 	std::cout << "done read mesh" << '\n';	
 
 	KNNAverageBasedShapeDictionaryBuilder<double> DictionaryBuilder;	
 	DictionaryBuilder.Parameter().MaxNeighbourCount = 5;
 	DictionaryBuilder.Parameter().SimilarityThreshold = 0.3;
-	DictionaryBuilder.Parameter().ExperienceDiscountFactor = 0.2;
+	DictionaryBuilder.Parameter().ExperienceDiscountFactor = 0.5;
 	DictionaryBuilder.Parameter().TransformName = "SimilarityTransform";
 	DictionaryBuilder.Parameter().MaxEpochCount = 1;
 	DictionaryBuilder.Parameter().MiniBatchSize = 125;
@@ -137,7 +175,7 @@ void test_c()
 	DictionaryBuilder.Parameter().Debug_Flag = true;
 	DictionaryBuilder.Parameter().Debug_FilePath = TestDataPath;
 	DictionaryBuilder.SetTrainingShapeData(&TrainingShapeList);
-	DictionaryBuilder.SetInitialDictionary(&Dictioanry_init);
+	DictionaryBuilder.SetInitialDictionary(&Dictionary_init);
 	DictionaryBuilder.Update();
 	auto& Dictionary = DictionaryBuilder.OutputDictionary();
 	std::cout << "done build dictionary" << '\n';

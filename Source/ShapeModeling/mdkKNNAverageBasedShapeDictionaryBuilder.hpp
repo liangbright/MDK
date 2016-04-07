@@ -130,7 +130,6 @@ void KNNAverageBasedShapeDictionaryBuilder<ScalarType>::Update()
     for (int_max iter = 0; iter < m_Parameter.MaxEpochCount; ++iter)
     {
 		this->AdjustBasisExperience_BeforeEachEpoch(OutputDictionary.BasisExperience());
-
 		int_max BatchCount = TotalDataCount / m_Parameter.MiniBatchSize;
 		if (BatchCount > 1)
 		{
@@ -445,6 +444,14 @@ AdjustBasisExperience_AfterEachEpoch(DenseMatrix<ScalarType>& BasisExperience, c
 
         MatrixAdd(BasisExperience, BasisExperience_init, BasisExperience_Diff);
     }
+
+	for (int_max k = 0; k < BasisExperience.GetElementCount(); ++k)
+	{
+		if (BasisExperience[k] < 1)
+		{
+			BasisExperience[k] = 1;
+		}
+	}
 }
 
 

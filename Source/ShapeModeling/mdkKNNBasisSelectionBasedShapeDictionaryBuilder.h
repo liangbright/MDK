@@ -3,7 +3,7 @@
 #include <random>
 
 #include "mdkShapeDictionary.h"
-#include "mdkKNNSoftAssignBasedSparseShapeEncoder.h"
+#include "mdkShapeSimilarityMeasurementFunction.h"
 
 namespace mdk
 {
@@ -11,27 +11,24 @@ namespace mdk
 template<typename ScalarType>
 struct Parameter_Of_KNNBasisSelectionBasedShapeDictionaryBuilder
 {
-	std::string Name;
+    std::string Name;
 
-	int_max BasisCount;// desired basis count
+    int_max BasisCount;
 
 	int_max MaxNeighbourCount;
-
-	ScalarType SimilarityThreshold;
-	// shape_a and shape_b not similar if Similarity(a,b) <= SimilarityThreshold
 
 	std::string TransformName;// IdentityTransform, RigidTransform, SimilarityTransform, ThinPlateSplineTransform
 
 	ScalarType ExperienceDiscountFactor;
-	// weight for the past experience when new training data is used
-	// When to use the weight : 
-	// discount the Experience of dictionary right after training is done on new data
-	// implemented in UpdateBasisExperienceForEachBasisShape(...)
 
-	//----------------------- parameter for data processing ------------------------------//
+    //----------------------- parameter for data processing ------------------------------//
 	int_max MiniBatchSize;  // mini-batch size
 	int_max MaxEpochCount;  // epoch: train once on all the input shape 
 	int_max MaxThreadCount; // CPU thread
+
+    //--------------------- parameter for updating some dictionary information -------------//
+    bool Flag_Update_BasisID;
+    bool Flag_Update_BasisSimilarity;
 
 	// -------------------------- debug -----------------------------------------------//
 	bool Debug_Flag;
@@ -44,17 +41,18 @@ struct Parameter_Of_KNNBasisSelectionBasedShapeDictionaryBuilder
     void Clear()
     {
 		Name = "";
-		BasisCount = 0;
-		MaxNeighbourCount = 0;
-		SimilarityThreshold = 0;
+        BasisCount = 0;
+		MaxNeighbourCount = 10;
 		TransformName = "RigidTransform";
-		
 		ExperienceDiscountFactor = 1;
-		
-		MiniBatchSize = 1;
+
+		MiniBatchSize = 100;
 		MaxEpochCount = 1;
 		MaxThreadCount = 1;
 
+        Flag_Update_BasisID  = true;
+		Flag_Update_BasisSimilarity = true;
+        
 		Debug_Flag = false;
 		Debug_FilePath = "";
     }
@@ -62,49 +60,66 @@ struct Parameter_Of_KNNBasisSelectionBasedShapeDictionaryBuilder
 
 
 template<typename Scalar_Type>
-class KNNBasisSelectionBasedShapeDictionaryBuilder : Object
+class KNNBasisSelectionBasedShapeDictionaryBuilder : public Object
 {
 public:
 	typedef Scalar_Type ScalarType;
 
 private:
-	Parameter_Of_KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType> m_Parameter;
+    Parameter_Of_KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType> m_Parameter;
 
-	// training data
-	const ObjectArray<DenseMatrix<ScalarType>>* m_TrainingShapeData;
+    // training data
+    const ObjectArray<DenseMatrix<ScalarType>>* m_TrainingShapeData;
 
-	// land mark index list of each traing shape
-	// to compute transform
-	DenseVector<int_max> m_LandmarkOnShape;
+	DenseVector<int_max> m_LandmarkOnShape; // to get transform
 
 	// input initial dictionary
-	const ShapeDictionary<ScalarType>* m_InitialDictionary;
+    const ShapeDictionary<ScalarType>* m_InitialDictionary;
 
-	// output selected basis from m_InitialDictionary
-	DenseVector<int_max> m_SelectedBasisIndexList;
-	DenseVector<ScalarType> m_SelectedBasisExperience;
+	// output dictionary
+	ShapeDictionary<ScalarType> m_Dictionary;
+	//{Basis_from_initial_dictionary, basis_from_traning_shape_data}
 
 public:
-	KNNBasisSelectionBasedShapeDictionaryBuilder();
-	~KNNBasisSelectionBasedShapeDictionaryBuilder();
-	void Clear();
+    KNNBasisSelectionBasedShapeDictionaryBuilder();
+    ~KNNBasisSelectionBasedShapeDictionaryBuilder();
+    void Clear();
 	Parameter_Of_KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>& Parameter() { return m_Parameter; }
 	void SetTrainingShapeData(const ObjectArray<DenseMatrix<ScalarType>>* ShapeData) { m_TrainingShapeData = ShapeData; }
-	void SetLandmarkOnShape(const DenseVector<int_max>& Landmark) { m_LandmarkOnShape = Landmark; }
+	void SetLandmarkOnShape(const DenseVector<int_max>& Landmark) { m_LandmarkOnShape = Landmark;	}
 	void SetInitialDictionary(const ShapeDictionary<ScalarType>* InitialDictionary) { m_InitialDictionary = InitialDictionary; }
-	bool CheckInput();
+    bool CheckInput();
 	void Update();
-	DenseVector<int_max>& OutputSelectedBasisIndexList() { return m_SelectedBasisIndexList; }
-	DenseVector<int_max>& OutputSelectedBasisExperience() {	return m_SelectedBasisExperience; }
+	ShapeDictionary<ScalarType>& OutputDictionary() { return m_Dictionary; }
 
-protected:
+private:    
 	void AdjustBasisExperience_BeforeEachEpoch(DenseMatrix<ScalarType>& BasisExperience);
-    void UpdateBasisExperience(DenseMatrix<ScalarType>& BasisExperience, const ObjectArray<SparseVector<ScalarType>>& CodeTable);
-    void AdjustBasisExperience_AfterEachEpoch(DenseMatrix<ScalarType>& BasisExperience, const DenseMatrix<ScalarType>& BasisExperience_init, int_max TotalDataCount);
+
+    ShapeDictionary<ScalarType> BuildDictionaryInMiniBatch(const ShapeDictionary<ScalarType>& Dictionary_init, const ObjectArray<DenseMatrix<ScalarType>>& ShapeData);
+
+	DenseVector<int_max> SelectBasis(const int_max BasisCount_desired, const DenseMatrix<ScalarType>& ShapeSimilarityMatrix, const DenseVector<ScalarType>& ShapeExperience_init);
+
+	DenseVector<int_max> SelectBasis_By_SimilarityThreshold(const DenseVector<int_max>& ShapeIndexList_sort, const DenseMatrix<ScalarType>& ShapeSimilarityMatrix, ScalarType SimilarityThreshold);
+
+    DenseMatrix<ScalarType> ComputeShapeSimilarityMatrix(const ShapeDictionary<ScalarType>& Dictionary_init, const ObjectArray<DenseMatrix<ScalarType>>& ShapeData);
+   
+	ScalarType ComputeShapeSimilarity(const DenseMatrix<ScalarType>& ShapeA, const DenseMatrix<ScalarType>& ShapeB);
+
+	void UpdateDictionaryInformation_AtEachMiniBatch(ShapeDictionary<ScalarType>& Dictionary,
+													 const ObjectArray<DenseMatrix<ScalarType>>& ShapeData,													 
+													 const DenseMatrix<ScalarType>& ShapeSimilarityMatrix,
+													 const DenseMatrix<int_max>& ShapeIndexList_Basis,
+													 const ShapeDictionary<ScalarType>& Dictionary_init);
+
+	void AdjustBasisExperience_AfterEachEpoch(DenseMatrix<ScalarType>& BasisExperience, ScalarType TotalBasisExperience_init, int_max TotalDataCount);
+
+	void UpdateDictionaryInformation_AfterALLEpoch(ShapeDictionary<ScalarType>& Dictionary, int_max TotalDataCount);
+
+private:
+    KNNBasisSelectionBasedShapeDictionaryBuilder(const KNNBasisSelectionBasedShapeDictionaryBuilder&) = delete;
+    void operator=(const KNNBasisSelectionBasedShapeDictionaryBuilder&) = delete;
 };
 
-
-}// namespace mdk
-
+}//namespace mdk
 
 #include "mdkKNNBasisSelectionBasedShapeDictionaryBuilder.hpp"
