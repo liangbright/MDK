@@ -54,7 +54,7 @@ void test_a()
 	Encoder.Parameter().MaxNeighbourCount = 1;
 	Encoder.Parameter().MaxThreadCount = 8;
 	Encoder.Parameter().SimilarityThreshold = 0;
-	Encoder.Parameter().TransformName= "SimilarityTransform";
+	Encoder.Parameter().TransformName= "RigidTransform";
 	Encoder.Update();
 	auto& Code = Encoder.OutputSimilarityCode();
 
@@ -62,15 +62,14 @@ void test_a()
 	ShapeIndexList_Basis.SetCapacity(Dictionary.GetBasisCount());
 	for (int_max k = 0; k < Code.GetLength(); ++k)
 	{
-		if (Code[k].IndexList()[0] >= 0.9999999999999)
+		if (Code[k].ElementList()[0] >= 0.9999999999999)
 		{
 			ShapeIndexList_Basis.Append(k);
 		}
 	}
 	ShapeIndexList_Basis.SortInPlace("ascend");
 
-
-	for (int_max k = 0; k < Dictionary.GetBasisCount(); ++k)
+	for (int_max k = 0; k < ShapeIndexList_Basis.GetLength(); ++k)
 	{
 		AortaMesh.SetPointPosition(ALL, ShapeList[ShapeIndexList_Basis[k]]);
 		SavePolygonMeshAsVTKFile(AortaMesh, TestDataPath + std::to_string(k) + "_AortaModel_Basis_select.vtk");
@@ -114,7 +113,7 @@ void test_b()
 	Encoder.Parameter().MaxNeighbourCount = 1;
 	Encoder.Parameter().MaxThreadCount = 8;
 	Encoder.Parameter().SimilarityThreshold = 0;
-	Encoder.Parameter().TransformName = "SimilarityTransform";
+	Encoder.Parameter().TransformName = "RigidTransform";
 	Encoder.Update();
 	auto& Code = Encoder.OutputSimilarityCode();
 
@@ -122,14 +121,14 @@ void test_b()
 	ShapeIndexList_Basis.SetCapacity(Dictionary.GetBasisCount());
 	for (int_max k = 0; k < Code.GetLength(); ++k)
 	{
-		if (Code[k].IndexList()[0] >= 0.9999999999999)
+		if (Code[k].ElementList()[0] >= 0.9999999999999)
 		{
 			ShapeIndexList_Basis.Append(k);
 		}
 	}
 	ShapeIndexList_Basis.SortInPlace("ascend");
 
-	for (int_max k = 0; k < Dictionary.GetBasisCount(); ++k)
+	for (int_max k = 0; k < ShapeIndexList_Basis.GetLength(); ++k)
 	{
 		AortaMesh.SetPointPosition(ALL, TrainingShapeList[ShapeIndexList_Basis[k]]);
 		SavePolygonMeshAsVTKFile(AortaMesh, TestDataPath + std::to_string(k) + "_AortaModel_Basis_knn_select.vtk");
