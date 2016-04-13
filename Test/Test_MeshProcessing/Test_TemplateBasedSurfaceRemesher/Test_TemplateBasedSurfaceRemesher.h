@@ -134,3 +134,68 @@ void Test_a()
 
 	SavePolygonMeshAsVTKFile(Remesher.OutputMesh(), TestDataPath + "Leaflet_a_quad.vtk");
 }
+
+void test_hole()
+{
+	String TestDataPath = "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_TemplateBasedSurfaceRemesher/TestData/";
+
+	TemplateBasedSurfaceRemesher<double> Remesher;
+	LoadTriangleMeshFromVTKFile(Remesher.InputMesh(), TestDataPath + "sphere_hole.vtk");
+	LoadPolygonMeshFromVTKFile(Remesher.TemplateMesh(), TestDataPath + "disk_hole.vtk");
+
+	DenseVector<int_max> OuterBoundary_input, InnerBoundary_input, LandMark_input, OuterBoundary_template, InnerBounary_template, LandMark_template;
+	OuterBoundary_input = {0, 3, 13, 19, 25, 31, 37, 43, 49, 55, 61, 67, 73, 79, 85, 91, 0};
+	InnerBoundary_input = {10, 11, 17, 23, 29, 35, 41, 47, 53, 59, 65, 71, 77, 83, 89, 95, 10};
+	LandMark_input = {8};
+	OuterBoundary_template = {80, 71, 62, 53, 44, 35, 26, 17, 8, 287, 278, 269, 260, 251, 242, 233, 224, 215, 206, 197, 188, 179, 170, 161,152, 143, 134, 125, 116, 107, 98, 89, 80};
+	InnerBounary_template = {72, 63, 54, 45, 36, 27, 18, 9, 0, 279, 270, 261, 252, 243, 234, 225, 216, 207, 198, 189, 180, 171, 162, 153, 144, 135, 126, 117, 108, 99, 90, 81, 72};
+	LandMark_template = {73};
+
+	Remesher.BoundarySegmentListOfInputMesh().Resize(3);
+	Remesher.BoundarySegmentListOfInputMesh()[0] = OuterBoundary_input;
+	Remesher.BoundarySegmentListOfInputMesh()[1] = InnerBoundary_input;
+	Remesher.BoundarySegmentListOfInputMesh()[2] = LandMark_input;
+
+	Remesher.BoundarySegmentListOfTemplateMesh().Resize(3);
+	Remesher.BoundarySegmentListOfTemplateMesh()[0] = OuterBoundary_template;
+	Remesher.BoundarySegmentListOfTemplateMesh()[1] = InnerBounary_template;
+	Remesher.BoundarySegmentListOfTemplateMesh()[2] = LandMark_template;
+
+	//Remesher.SetDiffusionCoefficientOfMeshParameterization(0);
+	//Remesher.EnableTPSTransformOfTemplateMesh();
+	Remesher.Update();
+
+	SavePolygonMeshAsVTKFile(Remesher.OutputMesh(), TestDataPath + "sphere_hole_remesh.vtk");
+	SavePolygonMeshAsVTKFile(Remesher.TransfromedInputMesh(), TestDataPath + "sphere_hole_2D.vtk");
+}
+
+void test_tube()
+{
+	String TestDataPath = "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_TemplateBasedSurfaceRemesher/TestData/";
+
+	TemplateBasedSurfaceRemesher<double> Remesher;
+	LoadTriangleMeshFromVTKFile(Remesher.InputMesh(), TestDataPath + "62_AortaModel_Pimg.vtk");
+	LoadPolygonMeshFromVTKFile(Remesher.TemplateMesh(), TestDataPath + "disk_hole.vtk");
+
+	DenseVector<int_max> OuterBoundary_input, InnerBoundary_input, LandMark_input, OuterBoundary_template, InnerBounary_template, LandMark_template;
+	OuterBoundary_input = { span(0, 49), span(0,0) };
+	InnerBoundary_input = { span(4950, 4999), span(4950, 4950) };
+	
+	OuterBoundary_template = { 80, 71, 62, 53, 44, 35, 26, 17, 8, 287, 278, 269, 260, 251, 242, 233, 224, 215, 206, 197, 188, 179, 170, 161,152, 143, 134, 125, 116, 107, 98, 89, 80 };
+	InnerBounary_template = { 72, 63, 54, 45, 36, 27, 18, 9, 0, 279, 270, 261, 252, 243, 234, 225, 216, 207, 198, 189, 180, 171, 162, 153, 144, 135, 126, 117, 108, 99, 90, 81, 72 };
+	
+	Remesher.BoundarySegmentListOfInputMesh().Resize(2);
+	Remesher.BoundarySegmentListOfInputMesh()[0] = OuterBoundary_input;
+	Remesher.BoundarySegmentListOfInputMesh()[1] = InnerBoundary_input;
+
+	Remesher.BoundarySegmentListOfTemplateMesh().Resize(2);
+	Remesher.BoundarySegmentListOfTemplateMesh()[0] = OuterBoundary_template;
+	Remesher.BoundarySegmentListOfTemplateMesh()[1] = InnerBounary_template;
+
+	//Remesher.EnableTPSTransformOfTemplateMesh();
+	Remesher.Update();
+
+	SavePolygonMeshAsVTKFile(Remesher.OutputMesh(), TestDataPath + "62_AortaModel_Pimg_remesh.vtk");
+
+	SavePolygonMeshAsVTKFile(Remesher.TransfromedInputMesh(), TestDataPath + "62_AortaModel_Pimg_2D.vtk");
+}

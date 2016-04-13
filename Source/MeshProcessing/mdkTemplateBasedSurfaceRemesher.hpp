@@ -189,28 +189,41 @@ void TemplateBasedSurfaceRemesher<ScalarType>::FindBoundaryConstraint()
 		const auto& CurveHandle_template = m_BoundarySegmentListOfTemplateMesh[k];
 		auto Curve_input = m_InputMesh.GetPointPosition(CurveHandle_input);
 		auto Curve_template = m_TemplateMesh.GetPointPosition(CurveHandle_template);
-		auto CL_input = this->ComputeCumulativeCurveLength_Relative(Curve_input);
-		auto CL_template = this->ComputeCumulativeCurveLength_Relative(Curve_template);
-
-		int_max index_m = 0;
-		for (int_max n = 0; n < CurveHandle_input.GetLength(); ++n)
+		
+		if (CurveHandle_input.GetLength() >= 2 && CurveHandle_template.GetLength() >= 2)
 		{
-			for (int_max m = index_m; m < CurveHandle_template.GetLength()-1; ++m)
+			auto CL_input = this->ComputeCumulativeCurveLength_Relative(Curve_input);
+			auto CL_template = this->ComputeCumulativeCurveLength_Relative(Curve_template);
+
+			int_max index_m = 0;
+			for (int_max n = 0; n < CurveHandle_input.GetLength(); ++n)
 			{
-				if (CL_input[n] >= CL_template[m] && CL_input[n] <= CL_template[m + 1])
+				for (int_max m = index_m; m < CurveHandle_template.GetLength() - 1; ++m)
 				{
-					DenseVector<ScalarType, 3> TemplatePos2D_m, TemplatePos2D_m1;
-					Curve_template.GetCol(m, TemplatePos2D_m);
-					Curve_template.GetCol(m + 1, TemplatePos2D_m1);
+					if (CL_input[n] >= CL_template[m] && CL_input[n] <= CL_template[m + 1])
+					{
+						DenseVector<ScalarType, 3> TemplatePos2D_m, TemplatePos2D_m1;
+						Curve_template.GetCol(m, TemplatePos2D_m);
+						Curve_template.GetCol(m + 1, TemplatePos2D_m1);
 
-					auto Ratio = (CL_input[n] - CL_template[m]) / (CL_template[m + 1] - CL_template[m]);
-					auto InputPos2D = TemplatePos2D_m + (TemplatePos2D_m1 - TemplatePos2D_m)*Ratio;
-					UVTable_input.SetCol(n, InputPos2D);
+						auto Ratio = (CL_input[n] - CL_template[m]) / (CL_template[m + 1] - CL_template[m]);
+						auto InputPos2D = TemplatePos2D_m + (TemplatePos2D_m1 - TemplatePos2D_m)*Ratio;
+						UVTable_input.SetCol(n, InputPos2D);
 
-					index_m = m;
-					break;					
+						index_m = m;
+						break;
+					}
 				}
 			}
+		}
+		else if (CurveHandle_input.GetLength() == 1 && CurveHandle_template.GetLength() == 1)
+		{
+			UVTable_input = Curve_template;
+		}
+		else
+		{
+			MDK_Error("Something is wrong @ TemplateBasedSurfaceRemesher::FindBoundaryConstraint(...)")
+			return;
 		}
 
 		m_BoundaryPointIndexListOfInputMesh.Append(CurveHandle_input);
@@ -246,7 +259,7 @@ void TemplateBasedSurfaceRemesher<ScalarType>::FindBoundaryConstraint()
 
 	for (int_max k = 0; k < m_BoundarySegmentListOfTemplateMesh.GetLength(); ++k)
 	{
-		auto&Boundary_output = OutputBoundaryPosition[k];
+		auto& Boundary_output = OutputBoundaryPosition[k];
 		Boundary_output.Resize(3, m_BoundarySegmentListOfTemplateMesh[k].GetLength());
 		Boundary_output.Fill(0);
 
@@ -254,28 +267,36 @@ void TemplateBasedSurfaceRemesher<ScalarType>::FindBoundaryConstraint()
 		const auto& CurveHandle_template = m_BoundarySegmentListOfTemplateMesh[k];
 		auto Curve_input = m_InputMesh.GetPointPosition(CurveHandle_input);
 		auto Curve_template = m_TemplateMesh.GetPointPosition(CurveHandle_template);
-		auto CL_input = this->ComputeCumulativeCurveLength_Relative(Curve_input);
-		auto CL_template = this->ComputeCumulativeCurveLength_Relative(Curve_template);
-		
-		int_max index_m = 0;
-		for (int_max n = 0; n < CurveHandle_template.GetLength(); ++n)
+				
+		if (CurveHandle_input.GetLength() >= 2 && CurveHandle_template.GetLength() >= 2)
 		{
-			for (int_max m = index_m; m < CurveHandle_input.GetLength() - 1; ++m)
+			auto CL_input = this->ComputeCumulativeCurveLength_Relative(Curve_input);
+			auto CL_template = this->ComputeCumulativeCurveLength_Relative(Curve_template);
+
+			int_max index_m = 0;
+			for (int_max n = 0; n < CurveHandle_template.GetLength(); ++n)
 			{
-				if (CL_template[n] >= CL_input[m] && CL_template[n] <= CL_input[m + 1])
+				for (int_max m = index_m; m < CurveHandle_input.GetLength() - 1; ++m)
 				{
-					DenseVector<ScalarType, 3> InputPos3D_m, InputPos3D_m1;
-					Curve_input.GetCol(m, InputPos3D_m);
-					Curve_input.GetCol(m + 1, InputPos3D_m1);
+					if (CL_template[n] >= CL_input[m] && CL_template[n] <= CL_input[m + 1])
+					{
+						DenseVector<ScalarType, 3> InputPos3D_m, InputPos3D_m1;
+						Curve_input.GetCol(m, InputPos3D_m);
+						Curve_input.GetCol(m + 1, InputPos3D_m1);
 
-					auto Ratio = (CL_template[n] - CL_input[m]) / (CL_input[m + 1] - CL_input[m]);
-					auto Pos3D = InputPos3D_m + (InputPos3D_m1 - InputPos3D_m)*Ratio;
-					Boundary_output.SetCol(n, Pos3D);
+						auto Ratio = (CL_template[n] - CL_input[m]) / (CL_input[m + 1] - CL_input[m]);
+						auto Pos3D = InputPos3D_m + (InputPos3D_m1 - InputPos3D_m)*Ratio;
+						Boundary_output.SetCol(n, Pos3D);
 
-					index_m = m;
-					break;
+						index_m = m;
+						break;
+					}
 				}
 			}
+		}
+		else if (CurveHandle_input.GetLength() == 1 && CurveHandle_template.GetLength() == 1)
+		{
+			Boundary_output = Curve_input;
 		}
 
 		m_BoundaryPointIndexListOfTemplateMesh.Append(CurveHandle_template);
@@ -320,6 +341,19 @@ bool TemplateBasedSurfaceRemesher<ScalarType>::CheckBoundaryConstraint()
 			}
 		}
 	}
+
+	for (int_max k = 0; k < m_BoundarySegmentListOfInputMesh.GetLength(); ++k)
+	{
+		const auto& CurveHandle_input = m_BoundarySegmentListOfInputMesh[k];
+		const auto& CurveHandle_template = m_BoundarySegmentListOfTemplateMesh[k];
+
+		if (CurveHandle_input.GetLength() == 1 && CurveHandle_template.GetLength() > 1 || CurveHandle_input.GetLength() > 1 && CurveHandle_template.GetLength() == 1)
+		{
+			MDK_Error(" input boundary NOT match output boundary @ TemplateBasedSurfaceRemesher::CheckBoundaryConstraint()")
+			return false;
+		}
+	}
+
 	return true;
 }
 
@@ -444,14 +478,13 @@ DenseVector<ScalarType> TemplateBasedSurfaceRemesher<ScalarType>::ComputeCumulat
 {
 	DenseVector<ScalarType> LengthList;
 	LengthList.Resize(CurvePosition.GetColCount());
+	LengthList.Fill(0);
 
 	if (CurvePosition.GetColCount() < 2)
 	{
 		MDK_Error("CurvePosition  ColCount < 2 @ TemplateBasedSurfaceRemesher::ComputeCumulativeCurveLength(...)")
 		return LengthList;
-	}
-
-	LengthList.Fill(0);
+	}	
 
 	for (int_max k = 1; k < CurvePosition.GetColCount(); ++k)
 	{

@@ -200,7 +200,7 @@ void MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType>::ApplyStretchMinimi
 	ScalarType alpha = m_DiffusionCoef;
 	if (alpha <= std::numeric_limits<ScalarType>::epsilon())
 	{
-		MaxIter = 1;
+		MaxIter = 0;
 	}
 
 	ScalarType AverageStretch_old, AverageStretch;
