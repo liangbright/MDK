@@ -199,3 +199,47 @@ void test_tube()
 
 	SavePolygonMeshAsVTKFile(Remesher.TransfromedInputMesh(), TestDataPath + "62_AortaModel_Pimg_2D.vtk");
 }
+
+
+void Test_template()
+{
+	String TestDataPath = "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_TemplateBasedSurfaceRemesher/TestData/";
+	PolygonMesh<PolygonMeshStandardAttributeType<double>> Template;
+	LoadPolygonMeshFromVTKFile(Template, TestDataPath + "Template.vtk");
+
+	DenseVector<int_max> FreeEdge = { span(25, 0), span(705, 729) };
+	DenseVector<int_max> Attachment = { span(25, 65), span(768, 729) };
+
+	auto FreeEdgeCurve= Template.GetPointPosition(FreeEdge);
+	auto AttachmentCurve_source = Template.GetPointPosition(Attachment);
+	DenseMatrix<double> AttachmentCurve_target = AttachmentCurve_source;
+
+	double delta = 3.141592654 / double(Attachment.GetLength()-1);
+	for (int_max k = 1; k < Attachment.GetLength()-1; ++k)
+	{
+		double R = 0.453092;
+		double theta = double(k)*delta;
+		auto x = -R*std::cos(theta);
+		auto y = 0.222382 - R*std::sin(theta);
+
+		auto PointIndex = Attachment[k];
+		AttachmentCurve_target(0, k) = x;
+		AttachmentCurve_target(1, k) = y;
+		AttachmentCurve_target(2, k) = 0;
+	}
+
+	DenseMatrix<double> Source, Target;
+	Source = { &FreeEdgeCurve,  &AttachmentCurve_source };
+	Target = { &FreeEdgeCurve, &AttachmentCurve_target };
+	ThinPlateSplineTransform3D<double> TPSTransform;
+	TPSTransform.SetSourceLandmarkPointSet(&Source);
+	TPSTransform.SetTargetLandmarkPointSet(&Target);
+	TPSTransform.EstimateParameter();
+	for (auto it = Template.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	{
+		auto Pos = it.Point().GetPosition();
+		auto NewPos = TPSTransform.TransformPoint(Pos);
+		it.Point().SetPosition(NewPos);
+	}
+	SavePolygonMeshAsVTKFile(Template, TestDataPath + "Template_half_disk.vtk");
+}

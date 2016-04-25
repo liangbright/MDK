@@ -7,6 +7,8 @@ void main()
 	//Test_2();
 	//Test_a();
 
-	test_hole();
+	//test_hole();
 	//test_tube();
+
+	Test_template();
 }
