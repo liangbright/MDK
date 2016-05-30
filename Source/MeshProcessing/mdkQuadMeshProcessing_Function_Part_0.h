@@ -23,7 +23,7 @@ PolygonMesh<MeshAttributeType> SubdivideMixedTriangleQuadMeshToQuadMesh_Linear(c
 template<typename MeshAttributeType = PolygonMeshStandardAttributeType<double>>
 PolygonMesh<MeshAttributeType> CreateQuadMeshOfRectangularFlatSurface(int_max PointCount_x, int_max PointCount_y, double Spacing_x=1.0, double Spacing_y=1.0);
 
-template<typename MeshAttributeType>
+template<typename MeshAttributeType = PolygonMeshStandardAttributeType<double>>
 PolygonMesh<MeshAttributeType> CreateQuadMeshOfCylinderSurface(int_max PointCountPerRing, int_max RingCount, double Radius, double Height);
 
 }//namespace mdk
