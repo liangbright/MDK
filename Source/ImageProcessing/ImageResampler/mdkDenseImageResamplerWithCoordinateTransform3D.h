@@ -30,16 +30,18 @@ public:
 
 	void EnableSmoothingWhenDownsampling(bool On_Off = true);
 
-	// from (x1, y1, z1) in m_OutputImage to (x2, y2, z2) in m_InputImage 
+	// (x1, y1, z1) and (x2, y2, z2) are NOT in world coordinate system
+	// (x1, y1, z1) ~ 3D Position in m_OutputImage
+	// (x2, y2, z2) ~ 3D Position in m_InputImage
 	// (x2, y2, z2) = m_CoordinateTransform->TransformPoint(x1, y1, z1)
 	void SetCoordinateTransform(const CoordinateTransform3D<Scalar_Type>* CoordinateTransform);
 
 private:
 	bool Preprocess();
 	bool Postprocess();
-
-	inline OutputPixelType EvaluateAt3DPhysicalPosition(int_max PointIndex, ScalarType x, ScalarType y, ScalarType z, int_max ThreadIndex);
-
+	
+	inline OutputPixelType EvaluateAt3DPositionInOutputImage(int_max PointIndex, ScalarType x, ScalarType y, ScalarType z, int_max ThreadIndex);	
+	
 private:
 	void operator=(const DenseImageResamplerWithCoordinateTransform3D&) = delete;
 	DenseImageResamplerWithCoordinateTransform3D(const DenseImageResamplerWithCoordinateTransform3D&) = delete;

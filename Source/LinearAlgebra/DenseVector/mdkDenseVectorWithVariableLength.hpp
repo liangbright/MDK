@@ -1112,7 +1112,34 @@ template<int_max LengthParameter>
 inline 
 bool DenseVector<ElementType>::Append(const DenseVector<ElementType, LengthParameter>& InputData)
 {
-    return this->Append(InputData.GetElementPointer(), InputData.GetElementCount());
+	if (InputData.IsEmpty() == true)
+	{
+		return true;
+	}
+	else
+	{
+		return this->Append(InputData.GetElementPointer(), InputData.GetElementCount());
+	}
+}
+
+
+template<typename ElementType>
+inline
+bool DenseVector<ElementType>::Append(const DenseMatrix<ElementType>& InputData)
+{
+	if (InputData.IsEmpty() == true)
+	{
+		return true;
+	}
+	else if (InputData.IsVector() == true)
+	{
+		return this->Append(InputData.GetElementPointer(), InputData.GetElementCount());
+	}
+	else
+	{
+		MDK_Error("Input must be a vector @ DenseVector::Append(const DenseMatrix<ElementType>& InputData")
+		return false;
+	}
 }
 
 

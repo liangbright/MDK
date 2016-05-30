@@ -209,6 +209,8 @@ public:
 	template<int_max LengthParameter>
 	inline bool Append(const DenseVector<ElementType, LengthParameter>& InputData);
 
+	inline bool Append(const DenseMatrix<ElementType>& InputData);
+
     inline bool Append(const ElementType* InputData, int_max InputLength);
 
     inline bool Delete(int_max Index);

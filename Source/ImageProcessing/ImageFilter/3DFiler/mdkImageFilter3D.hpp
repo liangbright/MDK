@@ -1031,10 +1031,10 @@ void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::CompareOrientat
 	if (m_Flag_Input_Output_SameOrientation == false)
 	{
 		DenseMatrix<double> OrientationDiff = MatrixSubtract(m_InputImageInfo.Orientation, m_OutputImageInfo.Orientation);
-		OrientationDiff.ElementOperationInPlace("abs");
+		OrientationDiff.ElementOperation("abs");
 		auto SumAbsDiff = OrientationDiff.Sum();
 		auto Eps = std::numeric_limits<double>::epsilon();
-		if (SumAbsDiff < Eps*9.0)// 9 element in matrix
+		if (SumAbsDiff <= Eps*9.0)// 9 element in matrix
 		{
 			m_Flag_Input_Output_SameOrientation = true;
 		}
@@ -1078,11 +1078,11 @@ Transform3DPositionInInputImageTo3DPositionInOutputImage(const DenseVector<Scala
 	}
 	else
 	{
-		auto M = m_3DPositionTransformFromInputToOutput_Matrix.GetElementPointer();
+		auto R = m_3DPositionTransformFromInputToOutput_Matrix.GetElementPointer();
 		DenseVector<ScalarType, 3> Position_out;
-		Position_out[0] = M[0] * Position_in[0] + M[3] * Position_in[1] + M[6] * Position_in[2] + m_3DPositionTransformFromInputToOutput_Offset[0];
-		Position_out[1] = M[1] * Position_in[0] + M[4] * Position_in[1] + M[7] * Position_in[2] + m_3DPositionTransformFromInputToOutput_Offset[1];
-		Position_out[2] = M[2] * Position_in[0] + M[5] * Position_in[1] + M[8] * Position_in[2] + m_3DPositionTransformFromInputToOutput_Offset[2];
+		Position_out[0] = R[0] * Position_in[0] + R[3] * Position_in[1] + R[6] * Position_in[2] + m_3DPositionTransformFromInputToOutput_Offset[0];
+		Position_out[1] = R[1] * Position_in[0] + R[4] * Position_in[1] + R[7] * Position_in[2] + m_3DPositionTransformFromInputToOutput_Offset[1];
+		Position_out[2] = R[2] * Position_in[0] + R[5] * Position_in[1] + R[8] * Position_in[2] + m_3DPositionTransformFromInputToOutput_Offset[2];
 		return Position_out;
 	}
 }
@@ -1099,11 +1099,11 @@ Transform3DPositionInOutputImageTo3DPositionInInputImage(const DenseVector<Scala
 	}
 	else
 	{
-		auto M = m_3DPositionTransformFromOuputToInput_Matrix.GetElementPointer();
+		auto R = m_3DPositionTransformFromOuputToInput_Matrix.GetElementPointer();
 		DenseVector<ScalarType, 3> Position_in;
-		Position_in[0] = M[0] * Position_out[0] + M[3] * Position_out[1] + M[6] * Position_out[2] + m_3DPositionTransformFromOuputToInput_Offset[0];
-		Position_in[1] = M[1] * Position_out[0] + M[4] * Position_out[1] + M[7] * Position_out[2] + m_3DPositionTransformFromOuputToInput_Offset[1];
-		Position_in[2] = M[2] * Position_out[0] + M[5] * Position_out[1] + M[8] * Position_out[2] + m_3DPositionTransformFromOuputToInput_Offset[2];
+		Position_in[0] = R[0] * Position_out[0] + R[3] * Position_out[1] + R[6] * Position_out[2] + m_3DPositionTransformFromOuputToInput_Offset[0];
+		Position_in[1] = R[1] * Position_out[0] + R[4] * Position_out[1] + R[7] * Position_out[2] + m_3DPositionTransformFromOuputToInput_Offset[1];
+		Position_in[2] = R[2] * Position_out[0] + R[5] * Position_out[1] + R[8] * Position_out[2] + m_3DPositionTransformFromOuputToInput_Offset[2];
 		return Position_in;
 	}
 }

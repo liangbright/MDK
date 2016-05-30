@@ -20,6 +20,7 @@ template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void DenseImageResamplerWithCoordinateTransform3D<InputPixelType, OutputPixelType, ScalarType>::Clear()
 {
 	this->ImageFilter3D::Clear();
+	this->SelectCoordinateSystemForEvaluation(CoordinateSystemForEvaluation::OUTPUT);
 
 	m_Flag_SmoothWhenDownsmapling = false;
 	m_Flag_SmoothInputImage = false;
@@ -37,7 +38,7 @@ void DenseImageResamplerWithCoordinateTransform3D<InputPixelType, OutputPixelTyp
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void DenseImageResamplerWithCoordinateTransform3D<InputPixelType, OutputPixelType, ScalarType>::
-SetCoordinateTransform(const CoordinateTransform3D<ScalarType>* CoordinateTransform);
+SetCoordinateTransform(const CoordinateTransform3D<ScalarType>* CoordinateTransform)
 {
 	if (CoordinateTransform == nullptr)
 	{
@@ -99,18 +100,17 @@ bool DenseImageResamplerWithCoordinateTransform3D<InputPixelType, OutputPixelTyp
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-inline void DenseImageResamplerWithCoordinateTransform3D<InputPixelType, OutputPixelType, ScalarType>::
-EvaluateAt3DPhysicalPosition(int_max PointIndex, ScalarType x, ScalarType y, ScalarType z, int_max ThreadIndex)
+inline OutputPixelType DenseImageResamplerWithCoordinateTransform3D<InputPixelType, OutputPixelType, ScalarType>::
+EvaluateAt3DPositionInOutputImage(int_max PointIndex, ScalarType x, ScalarType y, ScalarType z, int_max ThreadIndex)
 {
-	auto PointPosition_OutputImage = m_OutputImage.Transform3DIndexTo3DPhysicalPosition<ScalarType>(x, y, z);
-	auto PointPosition_InputImage = m_CoordinateTransform->TransformPoint(PointPosition_OutputImage);
+	auto Pos_input = m_CoordinateTransform->TransformPoint(x, y, z);
 	if (m_Flag_SmoothInputImage == false)
 	{
-		return m_InputImage->GetPixelAt3DPhysicalPosition<OutputPixelType>(x, y, z, m_ImageInterpolationOption);
+		return m_InputImage->GetPixelAt3DWorldPosition<OutputPixelType>(Pos_input, m_ImageInterpolationOption);
 	}
 	else
 	{
-		return m_SmoothedImage.GetPixelAt3DPhysicalPosition<OutputPixelType>(x, y, z, m_ImageInterpolationOption);
+		return m_SmoothedImage.GetPixelAt3DWorldPosition<OutputPixelType>(Pos_input, m_ImageInterpolationOption);
 	}
 }
 

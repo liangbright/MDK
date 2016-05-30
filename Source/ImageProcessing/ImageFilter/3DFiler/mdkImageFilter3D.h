@@ -60,8 +60,24 @@ protected:
 	// m_OutputImage and m_InputImage have the same orientation
 
 	enum class CoordinateSystemForEvaluation {WORLD, INPUT, OUTPUT, UNKNOWN};
-
 	CoordinateSystemForEvaluation m_CoordinateSystemForEvaluation;
+	// WORLD: Update -> EvaluateAt3DWorldPosition
+	// INPUT: Update -> EvaluateAt3DPositionInInputImage
+	// OUTPUT: Update -> EvaluateAt3DPositionInOutputImage
+
+	// same point with P_in ~ 3D Positon in InputImage, P_out ~ 3D Position in OutputImage, and P_w ~ 3D World Position
+	// orientation matrix O_in ~ Orientation matrix of InputImage, O_out ~ Orientaiton Matrix of OutputImage
+	// Orign: In ~ origin of Inputimage, Out ~ origin of OutputImage 
+	// P_w = O_in*P_in + In
+	// P_w = O_out*P_out + Out
+	// P_in = inv(O_in)*D_out*P_out + inv(O_in)*(Out-In)
+	// P_out = inv(O_out)*D_in*P_in + inv(O_out)*(In-Out)
+	//
+	// inv(O_in)*O_out is m_3DPositionTransformFromOuputToInput_Matrix
+	// inv(O_in)*(Out-In) is m_3DPositionTransformFromOuputToInput_Offset
+	//
+	// inv(O_out)*O_in is m_3DPositionTransformFromInputToOutput_Matrix
+	// inv(O_out)*(In-Out) is m_3DPositionTransformFromInputToOutput_Offset
 
 	DenseMatrix<double> m_3DPositionTransformFromOuputToInput_Matrix;
 	DenseVector<double, 3> m_3DPositionTransformFromOuputToInput_Offset;

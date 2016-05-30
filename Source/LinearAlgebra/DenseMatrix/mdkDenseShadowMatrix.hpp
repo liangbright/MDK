@@ -1067,12 +1067,12 @@ void DenseShadowMatrix<ElementType>::operator+=(const DenseMatrix<ElementType>& 
     {
         if (m_RowIndexList_source.size() == 1 && m_Flag_All_Col == true)     // SourceMatrix(i,:) += InputMatrix
         {
-            m_SourceMatrixSharedCopy.RowOperationInPlace(m_RowIndexList_source[0], '+', InputMatrix, false);
+            m_SourceMatrixSharedCopy.RowOperation(m_RowIndexList_source[0], '+', InputMatrix, false);
             return;
         }
         else if (m_ColIndexList_source.size() == 1 && m_Flag_All_Row == true) // SourceMatrix(:,j) += InputMatrix
         {
-            m_SourceMatrixSharedCopy.ColOperationInPlace(m_ColIndexList_source[0], '+', InputMatrix, false);
+            m_SourceMatrixSharedCopy.ColOperation(m_ColIndexList_source[0], '+', InputMatrix, false);
             return;
         }
     }
@@ -1119,12 +1119,12 @@ void DenseShadowMatrix<ElementType>::operator-=(const DenseMatrix<ElementType>& 
     {
         if (m_RowIndexList_source.size() == 1 && m_Flag_All_Col == true)     // SourceMatrix(i,:) -= InputMatrix
         {
-            m_SourceMatrixSharedCopy.RowOperationInPlace(m_RowIndexList_source[0], '-', InputMatrix, false); // false: bound check has been done
+            m_SourceMatrixSharedCopy.RowOperation(m_RowIndexList_source[0], '-', InputMatrix, false); // false: bound check has been done
             return;
         }
         else if (m_ColIndexList_source.size() == 1 && m_Flag_All_Row == true) // SourceMatrix(:,j) -= Matrix
         {
-            m_SourceMatrixSharedCopy.ColOperationInPlace(m_ColIndexList_source[0], '-', InputMatrix, false); // false: bound check has been done
+            m_SourceMatrixSharedCopy.ColOperation(m_ColIndexList_source[0], '-', InputMatrix, false); // false: bound check has been done
             return;
         }
     }
@@ -1202,12 +1202,12 @@ void DenseShadowMatrix<ElementType>::operator/=(const DenseMatrix<ElementType>& 
     {
         if (m_RowIndexList_source.size() == 1 && m_Flag_All_Col == true)     // SourceMatrix(i,:) /= InputMatrix
         {
-            m_SourceMatrixSharedCopy.RowOperationInPlace(m_RowIndexList_source[0], '/', InputMatrix, false);
+            m_SourceMatrixSharedCopy.RowOperation(m_RowIndexList_source[0], '/', InputMatrix, false);
             return;
         }
         else if (m_ColIndexList_source.size() == 1 && m_Flag_All_Row == true) // SourceMatrix(:,j) /= InputMatrix
         {
-            m_SourceMatrixSharedCopy.ColOperationInPlace(m_ColIndexList_source[0], '/', InputMatrix, false);
+            m_SourceMatrixSharedCopy.ColOperation(m_ColIndexList_source[0], '/', InputMatrix, false);
             return;
         }
     }
@@ -1240,12 +1240,12 @@ void DenseShadowMatrix<ElementType>::operator+=(const ElementType& Element)
     {
         if (m_RowIndexList_source.size() == 1 && m_Flag_All_Col == true)     // SourceMatrix(i,:) += Element
         {
-            m_SourceMatrixSharedCopy.RowOperationInPlace(m_RowIndexList_source[0], '+', Element);
+            m_SourceMatrixSharedCopy.RowOperation(m_RowIndexList_source[0], '+', Element);
             return;
         }
         else if (m_ColIndexList_source.size() == 1 && m_Flag_All_Row == true) // SourceMatrix(:,j) += Element
         {
-            m_SourceMatrixSharedCopy.ColOperationInPlace(m_RowIndexList_source[0], '+', Element);
+            m_SourceMatrixSharedCopy.ColOperation(m_RowIndexList_source[0], '+', Element);
             return;
         }
     }
@@ -1275,12 +1275,12 @@ void DenseShadowMatrix<ElementType>::operator-=(const ElementType& Element)
     {
         if (m_RowIndexList_source.size() == 1 && m_Flag_All_Col == true)     // SourceMatrix(i,:) -= Element
         {
-            m_SourceMatrixSharedCopy.RowOperationInPlace(m_RowIndexList_source[0], '-', Element);
+            m_SourceMatrixSharedCopy.RowOperation(m_RowIndexList_source[0], '-', Element);
             return;
         }
         else if (m_ColIndexList_source.size() == 1 && m_Flag_All_Row == true) // SourceMatrix(:,j) -= Element
         {
-            m_SourceMatrixSharedCopy.ColOperationInPlace(m_ColIndexList_source[0], '-', Element);
+            m_SourceMatrixSharedCopy.ColOperation(m_ColIndexList_source[0], '-', Element);
             return;
         }
     }
@@ -1310,12 +1310,12 @@ void DenseShadowMatrix<ElementType>::operator*=(const ElementType& Element)
     {
         if (m_RowIndexList_source.size() == 1 && m_Flag_All_Col == true)     // SourceMatrix(i,:) *= Element
         {
-            m_SourceMatrixSharedCopy.RowOperationInPlace(m_RowIndexList_source[0], '*', Element);
+            m_SourceMatrixSharedCopy.RowOperation(m_RowIndexList_source[0], '*', Element);
             return;
         }
         else if (m_ColIndexList_source.size() == 1 && m_Flag_All_Row == true) // SourceMatrix(:,j) *= Element
         {
-            m_SourceMatrixSharedCopy.ColOperationInPlace(m_ColIndexList_source[0], '*', Element);
+            m_SourceMatrixSharedCopy.ColOperation(m_ColIndexList_source[0], '*', Element);
             return;
         }
     }
@@ -1345,12 +1345,12 @@ void DenseShadowMatrix<ElementType>::operator/=(const ElementType& Element)
     {
         if (m_RowIndexList_source.size() == 1 && m_Flag_All_Col == true)     // SourceMatrix(i,:) /= Element
         {
-            m_SourceMatrixSharedCopy.RowOperationInPlace(m_RowIndexList_source[0], '/', Element);
+            m_SourceMatrixSharedCopy.RowOperation(m_RowIndexList_source[0], '/', Element);
             return;
         }
         else if (m_ColIndexList_source.size() == 1 && m_Flag_All_Row == true) // SourceMatrix(:,j) /= Element
         {
-            m_SourceMatrixSharedCopy.ColOperationInPlace(m_RowIndexList_source[0], '/', Element);
+            m_SourceMatrixSharedCopy.ColOperation(m_RowIndexList_source[0], '/', Element);
             return;
         }
     }
