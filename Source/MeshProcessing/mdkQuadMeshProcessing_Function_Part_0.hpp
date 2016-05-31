@@ -146,7 +146,7 @@ void ConvertQuadMeshToTriangleMesh(const PolygonMesh<MeshAttributeTypeA>& InputM
 	auto FaceCount = FaceCount_input * 2;
 	OutputMesh.SetCapacity(PointCount, EdgeCount, FaceCount);
 
-	//------- add initial point by copying all point of InputMesh ----------------//
+	//------- copy all point of InputMesh ----------------//
 	DenseVector<int_max> PointIndexMap;
 	PointIndexMap.Resize(PointCount_input + InputMesh.GetDeletedPointCount());
 	PointIndexMap.Fill(-1);
@@ -183,6 +183,29 @@ void ConvertQuadMeshToTriangleMesh(const PolygonMesh<MeshAttributeTypeA>& InputM
 
 		OutputMesh.AddFaceByPoint(H0, H1, H2);
 		OutputMesh.AddFaceByPoint(H0, H2, H3);
+	}
+
+	//-----------------------------------------------------------
+	int_max NamedPointCount = InputMesh.GetNamedPointCount();
+	if (NamedPointCount > 0)
+	{
+		auto PointNameList = InputMesh.GetValidPointNameList();
+		for (int_max k = 0; k < PointNameList.GetLength(); ++k)
+		{
+			auto PointIndex = InputMesh.GetPointIndexByName(PointNameList[k]);
+			OutputMesh.Point(PointIndex).SetName(PointNameList[k]);
+		}
+	}
+	//----------------------------------------------------------
+	auto PointSetCount = InputMesh.GetPointSetCount();
+	if (PointSetCount > 0)
+	{
+		auto PointSetNameList = InputMesh.GetPointSetName(ALL);
+		for (int_max PointSetIndex = 0; PointSetIndex < PointSetCount; ++PointSetIndex)
+		{
+			auto PointSet = InputMesh.GetPointSet(PointSetIndex);
+			OutputMesh.SetPointSet(PointSetNameList[PointSetIndex], PointSet);
+		}
 	}
 }
 
@@ -331,7 +354,7 @@ void ConvertMixedTriangleQuadMeshToTriangleMesh(const PolygonMesh<MeshAttributeT
 	auto FaceCount = FaceCount_input * 2;
 	OutputMesh.SetCapacity(PointCount, EdgeCount, FaceCount);
 
-	//------- add initial point by copying all point of InputMesh ----------------//
+	//------- copy all point of InputMesh ----------------//
 	DenseVector<int_max> PointIndexMap;
 	PointIndexMap.Resize(PointCount_input + InputMesh.GetDeletedPointCount());
 	PointIndexMap.Fill(-1);
@@ -374,6 +397,31 @@ void ConvertMixedTriangleQuadMeshToTriangleMesh(const PolygonMesh<MeshAttributeT
 		{
 			MDK_Error("Input is NOT QuadMesh @ ConvertMixedTriangleQuadMeshToTriangleMesh(...)")
 			return;
+		}
+	}
+
+	//-----------------------------------------------------------
+	auto PointCount = InputMesh.GetPointCount();
+	int_max NamedPointCount = InputMesh.GetNamedPointCount();
+	auto PointSetCount = InputMesh.GetPointSetCount();
+	//----------------------------------------------------------
+	if (NamedPointCount > 0)
+	{
+		auto PointNameList = InputMesh.GetValidPointNameList();
+		for (int_max k = 0; k < PointNameList.GetLength(); ++k)
+		{
+			auto PointIndex = InputMesh.GetPointIndexByName(PointNameList[k]);
+			OutputMesh.Point(PointIndex).SetName(PointNameList[k]);
+		}
+	}
+	//----------------------------------------------------------
+	if (PointSetCount > 0)
+	{	
+		auto PointSetNameList = InputMesh.GetPointSetName(ALL);
+		for (int_max PointSetIndex = 0; PointSetIndex < PointSetCount; ++PointSetIndex)
+		{
+			auto PointSet = InputMesh.GetPointSet(PointSetIndex);
+			OutputMesh.SetPointSet(PointSetNameList[PointSetIndex], PointSet);
 		}
 	}
 }

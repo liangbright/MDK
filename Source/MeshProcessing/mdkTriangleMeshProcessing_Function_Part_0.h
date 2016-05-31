@@ -45,10 +45,17 @@ template<typename MeshAttributeType>
 void SmoothTriangleMeshByGaussianCurvature(TriangleMesh<MeshAttributeType>& TargetMesh, double MaxDisplacement, bool Flag_UpdateAttribute = true);
 
 template<typename MeshAttributeType>
-TriangleMesh<MeshAttributeType> SmoothMeshByVTKSmoothPolyDataFilter(const TriangleMesh<MeshAttributeType>& InputMesh, int_max Iter, bool Flag_FeatureEdgeSmoothing = true, bool Flag_BoundarySmoothing = true);
+TriangleMesh<MeshAttributeType> SmoothMeshByVTKSmoothPolyDataFilter(const TriangleMesh<MeshAttributeType>& InputMesh, int_max MaxIter, bool Flag_FeatureEdgeSmoothing = true, bool Flag_BoundarySmoothing = true);
 
 template<typename MeshAttributeType>
-TriangleMesh<MeshAttributeType> SmoothMeshByVTKWindowedSincPolyDataFilter(const TriangleMesh<MeshAttributeType>& InputMesh, double PassBand, int_max Iter, bool Flag_FeatureEdgeSmoothing = true, bool Flag_BoundarySmoothing = true);
+TriangleMesh<MeshAttributeType> SmoothMeshByVTKWindowedSincPolyDataFilter(const TriangleMesh<MeshAttributeType>& InputMesh, double PassBand, int_max MaxIter, bool Flag_FeatureEdgeSmoothing = true, bool Flag_BoundarySmoothing = true);
+
+// assume NormalBasedCurvature, FaceNormal, PointNormal has been computed 
+template<typename MeshAttributeType>
+void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<MeshAttributeType>& TargetMesh, int_max MaxIter, bool Flag_BoundarySmoothing = true);
+
+template<typename MeshAttributeType>
+void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<MeshAttributeType>& TargetMesh, int_max MaxIter, const DenseVector<int_max>& PointIndexList_NOSmoothing);
 
 }//namespace mdk
 

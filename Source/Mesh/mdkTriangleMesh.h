@@ -93,9 +93,13 @@ public:
 	void UpdateGaussianCurvatureAtPoint(const MDK_Symbol_ALL&);
     void UpdateGaussianCurvatureAtPoint(int_max PointIndex);
 
-	// run UpdateAreaOfFace() first
+	// run UpdateAreaOfFace first
 	void UpdateMeanCurvatureAtPoint(const MDK_Symbol_ALL&);
     void UpdateMeanCurvatureAtPoint(int_max PointIndex);
+
+	// run UpdateNormalAtFace first
+	void UpdateNormalBasedCurvatureAtPoint(const MDK_Symbol_ALL&);
+	void UpdateNormalBasedCurvatureAtPoint(int_max PointIndex);
 
 };
 

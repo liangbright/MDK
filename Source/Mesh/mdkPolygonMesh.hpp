@@ -3134,7 +3134,7 @@ PolygonMesh<MeshAttributeType>::GetSubMeshByFace(const DenseVector<int_max>& Fac
         for (int_max n = 0; n < EdgeIndexList_k.GetLength(); ++n)
         {
             // check if the edge has already been added to OutputMesh			
-			if (Map_EdgeIndex_OuputIndex[EdgeIndexList_k[n].GetIndex()] < 0)
+			if (Map_EdgeIndex_OuputIndex[EdgeIndexList_k[n]] < 0)
             {
                 auto EdgeID_n = this->Edge(EdgeIndexList_k[n]).GetID();             
                 if (EdgeID_n >= 0)

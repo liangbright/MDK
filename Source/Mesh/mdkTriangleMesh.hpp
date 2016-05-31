@@ -225,7 +225,7 @@ void TriangleMesh<MeshAttributeType>::UpdateAngleWeightedNormalAtPoint(int_max P
     auto AdjacentFaceIndexList = this->Point(PointIndex).GetAdjacentFaceIndexList();
     if (AdjacentFaceIndexList.IsEmpty() == true)
     {
-		MDK_Warning("The point (PointIndex = " << PointIndex.GetIndex() << ") has NO adjacent cell @ TriangleMesh::UpdateAngleWeightedNormalAtPoint(...)")
+		MDK_Warning("The point (PointIndex = " << PointIndex << ") has NO adjacent face @ TriangleMesh::UpdateAngleWeightedNormalAtPoint(...)")
         this->Point(PointIndex).Attribute().AngleWeightedNormal.Fill(0);
         return;
     }
@@ -302,7 +302,7 @@ void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint(int_max Poi
     auto AdjacentFaceCount = AdjacentFaceIndexList.GetLength();
     if (AdjacentFaceCount <= 1)
     {
-        //MDK_Warning("This point only has one or zero adjacent cell @ TriangleMesh::UpdateGaussianCurvatureAtPoint()")
+        //MDK_Warning("This point only has one or zero adjacent face @ TriangleMesh::UpdateGaussianCurvatureAtPoint()")
         this->Point(PointIndex).Attribute().GaussianCurvature = 0;
 		this->Point(PointIndex).Attribute().WeightedGaussianCurvature = 0;
         return;
@@ -519,6 +519,69 @@ void TriangleMesh<MeshAttributeType>::UpdateMeanCurvatureAtPoint(int_max PointIn
         this->Point(PointIndex).Attribute().MeanCurvatureNormal.Fill(0);
         this->Point(PointIndex).Attribute().MeanCurvature = 0;
     }
+}
+
+template<typename MeshAttributeType>
+void TriangleMesh<MeshAttributeType>::UpdateNormalBasedCurvatureAtPoint(const MDK_Symbol_ALL&)
+{ // run UpdateNormalAtFace first
+	for (auto it = this->GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	{
+		this->UpdateNormalBasedCurvatureAtPoint(it.GetPointIndex());
+	}
+}
+
+
+template<typename MeshAttributeType>
+void TriangleMesh<MeshAttributeType>::UpdateNormalBasedCurvatureAtPoint(int_max PointIndex)
+{ // run UpdateNormalAtFace first
+
+	if (this->IsValidPointIndex(PointIndex) == false)
+	{
+		MDK_Warning("PointIndex is invalid @ TriangleMesh::UpdateNormalBasedCurvatureAtPoint()")
+		return;
+	}
+
+	// measure the diviation of adjacent face normal 
+	// if all the adjacent face normal  point to the same direction, then curvature is zero
+	// NormalBasedCurvature is from 0 to 1
+	// 0: __ __ two adjacent face in a flat plane 
+	// 0.5: |__   two adjacent face 90' angle
+	// 1:   || two adjacent face fold to be parallel to each other
+	//
+	// Attention:
+	// if FaceA and FaceB is in the same plane and not fold, then Normal_of_FaceA and Normal_of_FaceB must be the same
+
+	auto AdjacentFaceIndexList = this->Point(PointIndex).GetAdjacentFaceIndexList();
+	auto AdjacentFaceCount = AdjacentFaceIndexList.GetLength();
+	if (AdjacentFaceCount <= 1)
+	{
+		this->Point(PointIndex).Attribute().NormalBasedCurvature = 0;
+		return;
+	}
+
+	ObjectArray<DenseVector<ScalarType, 3>> NormalList;
+	NormalList.Resize(AdjacentFaceCount);
+	for (int_max k = 0; k < AdjacentFaceCount; ++k)
+	{
+		NormalList[k] = this->Face(AdjacentFaceIndexList(k)).Attribute().Normal;
+	}
+
+	ScalarType MinProjection = 1;
+	for (int_max k = 0; k < AdjacentFaceCount-1; ++k)
+	{
+		auto Normal_k = NormalList[k];
+		for (int_max n = k+1; n < AdjacentFaceCount; ++n)
+		{
+			auto Normal_n = NormalList[n];
+			auto projection = Normal_k[0] * Normal_n[0] + Normal_k[1] * Normal_n[1] + Normal_k[2] * Normal_n[2];
+			if (MinProjection > projection)
+			{
+				MinProjection = projection;
+			}
+		}
+	}
+	
+	this->Point(PointIndex).Attribute().NormalBasedCurvature = (ScalarType(1) - MinProjection)/ ScalarType(2);
 }
 
 }// namespace mdk

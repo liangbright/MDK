@@ -27,6 +27,7 @@ enum class PolygonMeshPointStandardAttributeTypeEnum
 	GaussianCurvature,
 	WeightedGaussianCurvature,
     MeanCurvature,
+	NormalBasedCurvature,
     MeanCurvatureNormal,
 	AngleWeightedNormal
 };
@@ -37,6 +38,7 @@ struct StandardAttribute_Of_Point_Of_PolygonMesh
     ScalarType GaussianCurvature; // [-pi, pi]
     ScalarType WeightedGaussianCurvature; //Weighted by Area
     ScalarType MeanCurvature; // > 0
+	ScalarType NormalBasedCurvature;// 0 to 1
     DenseVector<ScalarType, 3> MeanCurvatureNormal; // may have different/opposite direction compared to AngleWeightedNormal
 	DenseVector<ScalarType, 3> AngleWeightedNormal; // unit normal
 
@@ -50,6 +52,7 @@ struct StandardAttribute_Of_Point_Of_PolygonMesh
         GaussianCurvature = InputAttribute.GaussianCurvature;
 		WeightedGaussianCurvature = InputAttribute.WeightedGaussianCurvature;
         MeanCurvature = InputAttribute.MeanCurvature;
+		NormalBasedCurvature = InputAttribute.NormalBasedCurvature;
         MeanCurvatureNormal = InputAttribute.MeanCurvatureNormal;
 		AngleWeightedNormal = InputAttribute.AngleWeightedNormal;
     }
@@ -59,6 +62,7 @@ struct StandardAttribute_Of_Point_Of_PolygonMesh
         GaussianCurvature = 0;
 		WeightedGaussianCurvature = 0;
         MeanCurvature = 0;
+		NormalBasedCurvature = 0;
         MeanCurvatureNormal.Fill(0);
 		AngleWeightedNormal.Fill(0);
     }

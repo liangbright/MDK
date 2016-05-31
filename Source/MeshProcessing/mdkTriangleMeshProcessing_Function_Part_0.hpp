@@ -14,6 +14,7 @@ void ConvertPolygonMeshToTriangleMesh(const PolygonMesh<MeshAttributeTypeA>& Inp
 
 	if (InputMesh.CheckIfTriangleMesh() == true)
 	{
+		typedef MeshAttributeTypeA::ScalarType ScalarType;
 		DenseMatrix<ScalarType> PointPositionMatrix;
 		ObjectArray<DenseVector<int_max>> FaceTable;
 		InputMesh.GetPointPositionMatrixAndFaceTable(PointPositionMatrix, FaceTable);
@@ -23,6 +24,29 @@ void ConvertPolygonMeshToTriangleMesh(const PolygonMesh<MeshAttributeTypeA>& Inp
 
 	auto VTKMesh = ConvertMDKPolygonMeshToVTKPolyData(InputMesh);
 	ConvertVTKPolyDataToMDKTriangleMesh(VTKMesh, OutputMesh);
+
+	//-----------------------------------------------------------
+	int_max NamedPointCount = InputMesh.GetNamedPointCount();
+	if (NamedPointCount > 0)
+	{
+		auto PointNameList = InputMesh.GetValidPointNameList();
+		for (int_max k = 0; k < PointNameList.GetLength(); ++k)
+		{
+			auto PointIndex = InputMesh.GetPointIndexByName(PointNameList[k]);
+			OutputMesh.Point(PointIndex).SetName(PointNameList[k]);			
+		}
+	}
+	//----------------------------------------------------------
+	auto PointSetCount = InputMesh.GetPointSetCount();
+	if (PointSetCount > 0)
+	{		
+		auto PointSetNameList = InputMesh.GetPointSetName(ALL);
+		for (int_max PointSetIndex = 0; PointSetIndex < PointSetCount; ++PointSetIndex)
+		{
+			auto PointSet = InputMesh.GetPointSet(PointSetIndex);
+			OutputMesh.SetPointSet(PointSetNameList[PointSetIndex], PointSet);
+		}
+	}
 }
 
 template<typename MeshAttributeType>
@@ -238,10 +262,10 @@ void SmoothTriangleMeshByGaussianCurvature(TriangleMesh<MeshAttributeType>& Targ
 }
 
 template<typename MeshAttributeType>
-TriangleMesh<MeshAttributeType> SmoothMeshByVTKSmoothPolyDataFilter(const TriangleMesh<MeshAttributeType>& InputMesh, int_max Iter, bool Flag_FeatureEdgeSmoothing, bool Flag_BoundarySmoothing)
+TriangleMesh<MeshAttributeType> SmoothMeshByVTKSmoothPolyDataFilter(const TriangleMesh<MeshAttributeType>& InputMesh, int_max MaxIter, bool Flag_FeatureEdgeSmoothing, bool Flag_BoundarySmoothing)
 {
 	const PolygonMesh<MeshAttributeType>& InputMesh_ref = InputMesh;
-	auto OutputMesh = SmoothMeshByVTKSmoothPolyDataFilter(InputMesh_ref, Iter, Flag_FeatureEdgeSmoothing, Flag_BoundarySmoothing);
+	auto OutputMesh = SmoothMeshByVTKSmoothPolyDataFilter(InputMesh_ref, MaxIter, Flag_FeatureEdgeSmoothing, Flag_BoundarySmoothing);
 	TriangleMesh<MeshAttributeType> OutputMesh_tri;
 	OutputMesh_tri.Construct(std::move(OutputMesh));
 	return OutputMesh_tri;
@@ -249,13 +273,154 @@ TriangleMesh<MeshAttributeType> SmoothMeshByVTKSmoothPolyDataFilter(const Triang
 
 
 template<typename MeshAttributeType>
-TriangleMesh<MeshAttributeType> SmoothMeshByVTKWindowedSincPolyDataFilter(const TriangleMesh<MeshAttributeType>& InputMesh, double PassBand, int_max Iter, bool Flag_FeatureEdgeSmoothing, bool Flag_BoundarySmoothing)
+TriangleMesh<MeshAttributeType> SmoothMeshByVTKWindowedSincPolyDataFilter(const TriangleMesh<MeshAttributeType>& InputMesh, double PassBand, int_max MaxIter, bool Flag_FeatureEdgeSmoothing, bool Flag_BoundarySmoothing)
 {
 	const PolygonMesh<MeshAttributeType>& InputMesh_ref = InputMesh;
-	auto OutputMesh = SmoothMeshByVTKWindowedSincPolyDataFilter(InputMesh_ref, PassBand, Iter, Flag_FeatureEdgeSmoothing, Flag_BoundarySmoothing);
+	auto OutputMesh = SmoothMeshByVTKWindowedSincPolyDataFilter(InputMesh_ref, PassBand, MaxIter, Flag_FeatureEdgeSmoothing, Flag_BoundarySmoothing);
 	TriangleMesh<MeshAttributeType> OutputMesh_tri;
 	OutputMesh_tri.Construct(std::move(OutputMesh));
 	return OutputMesh_tri;
 }
+
+template<typename MeshAttributeType>
+void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<MeshAttributeType>& TargetMesh, int_max MaxIter, bool Flag_BoundarySmoothing)
+{
+	DenseVector<int_max> PointIndexList_NOSmoothing;
+	auto PointCount = TargetMesh.GetPointCount();
+	PointIndexList_NOSmoothing.SetCapacity(PointCount/100);
+	for (auto it = TargetMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	{
+		if (it.Point().IsOnBoundaryEdge() == true)
+		{
+			if (Flag_BoundarySmoothing == false)
+			{
+				PointIndexList_NOSmoothing.Append(it.GetPointIndex());
+			}
+		}
+	}
+	SmoothTriangleMeshByNormalBasedCurvature(TargetMesh, MaxIter, PointIndexList_NOSmoothing);
+}
+
+
+template<typename MeshAttributeType>
+void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<MeshAttributeType>& TargetMesh, int_max MaxIter, const DenseVector<int_max>& PointIndexList_NOSmoothing)
+{
+	typedef MeshAttributeType::ScalarType ScalarType;
+	//------------------------------------------------------
+	DenseVector<int_max> PointIndexList_Smoothing;
+	auto PointCount = TargetMesh.GetPointCount();
+	PointIndexList_Smoothing.SetCapacity(PointCount);
+	for (auto it = TargetMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	{
+		auto temp = PointIndexList_NOSmoothing.ExactMatch("first", it.GetPointIndex());
+		if (temp < 0)
+		{
+			PointIndexList_Smoothing.Append(it.GetPointIndex());
+		}
+	}
+	//------------------------------------------------------------
+	TargetMesh.UpdateAreaOfFace(ALL);
+	TargetMesh.UpdateCornerAngleOfFace(ALL);
+	TargetMesh.UpdateNormalAtFace(ALL);
+	TargetMesh.UpdateAngleWeightedNormalAtPoint(ALL);
+	TargetMesh.UpdateNormalBasedCurvatureAtPoint(ALL);
+	//------------------------------------------------------------
+	DenseVector<ScalarType> CurvatureList_before, CurvatureList_after;
+	CurvatureList_before.Resize(PointIndexList_Smoothing.GetLength());
+	CurvatureList_after.Resize(PointIndexList_Smoothing.GetLength());
+
+	for (int_max iter = 0; iter < MaxIter; ++iter)
+	{
+		for(int_max k=0; k < PointIndexList_Smoothing.GetLength(); ++k)
+		{
+			auto PointIndex = PointIndexList_Smoothing(k);
+
+			bool Flag_smooth = true;
+			DenseVector<int_max> AdjacentPointIndexList;
+			if (Flag_smooth == true)
+			{
+				AdjacentPointIndexList = TargetMesh.Point(PointIndex).GetAdjacentPointIndexList();
+				auto AdjacentPointCount = AdjacentPointIndexList.GetLength();
+				if (AdjacentPointCount <= 1)
+				{
+					Flag_smooth = false;
+				}
+			}		
+
+			auto Curvature = TargetMesh.Point(PointIndex).Attribute().NormalBasedCurvature;
+			CurvatureList_before[k] = Curvature;
+			if (Curvature <= std::numeric_limits<ScalarType>::epsilon())
+			{
+				Flag_smooth = false;
+			}
+
+			if (Flag_smooth == true)
+			{				
+				auto Normal = TargetMesh.Point(PointIndex).Attribute().AngleWeightedNormal;
+				auto AdjacentPointCount = AdjacentPointIndexList.GetLength();
+				auto Position = TargetMesh.Point(PointIndex).GetPosition();
+				// find direction to move
+				ScalarType Projection = 0;
+				for (int_max k = 0; k < AdjacentPointCount; ++k)
+				{
+					auto Pos_k = TargetMesh.GetPointPosition(AdjacentPointIndexList[k]);
+					auto EdgeVector = Pos_k - Position;
+					auto Proj_k = EdgeVector[0] * Normal[0] + EdgeVector[1] * Normal[1] + EdgeVector[2] * Normal[2];					
+					if (k == 0)
+					{
+						Projection = Proj_k;
+					}
+					else
+					{
+						if (Projection > Proj_k)
+						{
+							Projection = Proj_k;
+						}
+					}
+				}
+				// move the point along normal or negtive normal direction
+				ScalarType delta = Curvature*Projection*(ScalarType(iter + 1) / ScalarType(MaxIter));
+				auto NewPosition = Position + delta*Normal;
+				// update
+				TargetMesh.Point(PointIndex).SetPosition(NewPosition);
+			}
+		}
+
+		TargetMesh.UpdateAreaOfFace(ALL);
+		TargetMesh.UpdateCornerAngleOfFace(ALL);
+		TargetMesh.UpdateNormalAtFace(ALL);
+		TargetMesh.UpdateAngleWeightedNormalAtPoint(ALL);
+		TargetMesh.UpdateNormalBasedCurvatureAtPoint(ALL);
+
+		for (int_max k = 0; k < PointIndexList_Smoothing.GetLength(); ++k)
+		{
+			auto PointIndex = PointIndexList_Smoothing(k);
+			auto Curvature = TargetMesh.Point(PointIndex).Attribute().NormalBasedCurvature;
+			CurvatureList_after[k] = Curvature;
+		}
+
+		auto total_curvature_before = CurvatureList_before.Sum();
+		auto total_curvature_after = CurvatureList_after.Sum();
+		//std::cout << "total_curvature_before=" << total_curvature_before << '\n';
+		//std::cout << "total_curvature_after=" << total_curvature_after << '\n';
+		auto max_curvature_before = CurvatureList_before.Max();
+		auto max_curvature_after = CurvatureList_after.Max();
+		//std::cout << "max_curvature_before=" << max_curvature_before << '\n';
+		//std::cout << "max_curvature_after=" << max_curvature_after << '\n';
+
+		if (max_curvature_after > max_curvature_before)
+		{
+			MDK_Warning("max_curvature_after > max_curvature_before at " + std::to_string(iter) + " @ SmoothTriangleMeshByNormalBasedCurvature(...)")
+			break;
+		}
+
+		if (total_curvature_after > total_curvature_before)
+		{
+			MDK_Warning("total_curvature_after > total_curvature_before at " + std::to_string(iter) + " @ SmoothTriangleMeshByNormalBasedCurvature(...)")
+			break;
+		}
+	}
+}
+
 
 }//namespace mdk
