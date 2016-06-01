@@ -976,6 +976,12 @@ template<typename ElementType>
 inline
 void ObjectArray<ElementType>::Delete(const int_max* IndexList, int_max ListLength)
 {
+	if (IndexList == nullptr || ListLength <= 0)
+	{
+		//MDK_Warning("Empty Input @ ObjectArray::Delete(const int_max* IndexList, int_max ListLength)")
+		return;
+	}
+
     if (this->IsSizeFixed() == true)
     {
         MDK_Error("Size can not change @ ObjectArray::Delete(const int_max* IndexList, int_max ListLength)")
@@ -987,12 +993,6 @@ void ObjectArray<ElementType>::Delete(const int_max* IndexList, int_max ListLeng
     if (SelfLength == 0)
     {
         MDK_Error("Self is empty @ ObjectArray::Delete(const int_max* IndexList, int_max ListLength)")
-        return;
-    }
-
-    if (IndexList == nullptr || ListLength <= 0)
-    {
-        MDK_Error("Empty Input @ ObjectArray::Delete(const int_max* IndexList, int_max ListLength)")
         return;
     }
 

@@ -571,17 +571,17 @@ template<typename ElementType>
 inline
 void StdObjectVector<ElementType>::Delete(const int_max* IndexList, int_max ListLength)
 {
+	if (IndexList == nullptr || ListLength <= 0)
+	{
+		//MDK_Warning("Empty Input @ StdObjectVector::Delete(const int_max* IndexList, int_max ListLength)")
+		return;
+	}
+
     auto SelfLength = this->GetElementCount();
 
     if (SelfLength == 0)
     {
         MDK_Error("Self is empty @ StdObjectVector::Delete(const int_max* IndexList, int_max ListLength)")
-        return;
-    }
-
-    if (IndexList == nullptr || ListLength <= 0)
-    {
-        MDK_Error("Empty Input @ StdObjectVector::Delete(const int_max* IndexList, int_max ListLength)")
         return;
     }
 
