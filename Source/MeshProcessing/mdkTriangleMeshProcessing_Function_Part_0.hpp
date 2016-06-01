@@ -283,7 +283,7 @@ TriangleMesh<MeshAttributeType> SmoothMeshByVTKWindowedSincPolyDataFilter(const 
 }
 
 template<typename MeshAttributeType>
-void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<MeshAttributeType>& TargetMesh, int_max MaxIter, bool Flag_BoundarySmoothing)
+void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<MeshAttributeType>& TargetMesh, int_max MaxIter, double Alpha, bool Flag_BoundarySmoothing)
 {
 	DenseVector<int_max> PointIndexList_NOSmoothing;
 	auto PointCount = TargetMesh.GetPointCount();
@@ -298,15 +298,44 @@ void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<MeshAttributeType>& T
 			}
 		}
 	}
-	SmoothTriangleMeshByNormalBasedCurvature(TargetMesh, MaxIter, PointIndexList_NOSmoothing);
+	SmoothTriangleMeshByNormalBasedCurvature(TargetMesh, MaxIter, Alpha, PointIndexList_NOSmoothing);
 }
 
 
 template<typename MeshAttributeType>
-void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<MeshAttributeType>& TargetMesh, int_max MaxIter, const DenseVector<int_max>& PointIndexList_NOSmoothing)
-{
+void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<MeshAttributeType>& TargetMesh, int_max MaxIter, double Alpha, const DenseVector<int_max>& PointIndexList_NOSmoothing)
+{	
+	//-------------------- check input ----------------------------
+	if (TargetMesh.IsEmpty() == true)
+	{
+		return;
+	}
+
+	if (MaxIter < 0)
+	{
+		MDK_Error("MaxIter < 0 @ SmoothTriangleMeshByNormalBasedCurvature(...)")
+		return;
+	}
+	else if (MaxIter == 0)
+	{
+		return;
+	}
+
+	if (Alpha < 0)
+	{
+		MDK_Error("Alpha < 0 @ SmoothTriangleMeshByNormalBasedCurvature(...)")
+		return;
+	}
+	else if (Alpha == 0)
+	{
+		return;
+	}
+
+	//-------------------------------------------------------------
+
 	typedef MeshAttributeType::ScalarType ScalarType;
-	//------------------------------------------------------
+	//-------------------------------------------------------------
+
 	DenseVector<int_max> PointIndexList_Smoothing;
 	auto PointCount = TargetMesh.GetPointCount();
 	PointIndexList_Smoothing.SetCapacity(PointCount);
@@ -318,8 +347,7 @@ void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<MeshAttributeType>& T
 			PointIndexList_Smoothing.Append(it.GetPointIndex());
 		}
 	}
-	//------------------------------------------------------------
-	TargetMesh.UpdateAreaOfFace(ALL);
+	//------------------------------------------------------------	
 	TargetMesh.UpdateCornerAngleOfFace(ALL);
 	TargetMesh.UpdateNormalAtFace(ALL);
 	TargetMesh.UpdateAngleWeightedNormalAtPoint(ALL);
@@ -379,14 +407,13 @@ void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<MeshAttributeType>& T
 					}
 				}
 				// move the point along normal or negtive normal direction
-				ScalarType delta = Curvature*Projection*(ScalarType(iter + 1) / ScalarType(MaxIter));
+				ScalarType delta = ScalarType(Alpha)*Curvature*Projection*(ScalarType(iter + 1) / ScalarType(MaxIter));
 				auto NewPosition = Position + delta*Normal;
 				// update
 				TargetMesh.Point(PointIndex).SetPosition(NewPosition);
 			}
 		}
 
-		TargetMesh.UpdateAreaOfFace(ALL);
 		TargetMesh.UpdateCornerAngleOfFace(ALL);
 		TargetMesh.UpdateNormalAtFace(ALL);
 		TargetMesh.UpdateAngleWeightedNormalAtPoint(ALL);
@@ -410,13 +437,13 @@ void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<MeshAttributeType>& T
 
 		if (max_curvature_after > max_curvature_before)
 		{
-			MDK_Warning("max_curvature_after > max_curvature_before at " + std::to_string(iter) + " @ SmoothTriangleMeshByNormalBasedCurvature(...)")
+			MDK_Warning("max_curvature_after > max_curvature_before at iter=" + std::to_string(iter) + " @ SmoothTriangleMeshByNormalBasedCurvature(...)")
 			break;
 		}
 
 		if (total_curvature_after > total_curvature_before)
 		{
-			MDK_Warning("total_curvature_after > total_curvature_before at " + std::to_string(iter) + " @ SmoothTriangleMeshByNormalBasedCurvature(...)")
+			MDK_Warning("total_curvature_after > total_curvature_before at iter=" + std::to_string(iter) + " @ SmoothTriangleMeshByNormalBasedCurvature(...)")
 			break;
 		}
 	}

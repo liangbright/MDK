@@ -51,11 +51,13 @@ template<typename MeshAttributeType>
 TriangleMesh<MeshAttributeType> SmoothMeshByVTKWindowedSincPolyDataFilter(const TriangleMesh<MeshAttributeType>& InputMesh, double PassBand, int_max MaxIter, bool Flag_FeatureEdgeSmoothing = true, bool Flag_BoundarySmoothing = true);
 
 // assume NormalBasedCurvature, FaceNormal, PointNormal has been computed 
+// Alpha: NewPos = Pos + Alpha*Displacement at each iteration, Alpha must >= 0
+// Set Alpha = 1 usually
 template<typename MeshAttributeType>
-void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<MeshAttributeType>& TargetMesh, int_max MaxIter, bool Flag_BoundarySmoothing = true);
+void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<MeshAttributeType>& TargetMesh, int_max MaxIter = 10, double Alpha = 1, bool Flag_BoundarySmoothing = true);
 
 template<typename MeshAttributeType>
-void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<MeshAttributeType>& TargetMesh, int_max MaxIter, const DenseVector<int_max>& PointIndexList_NOSmoothing);
+void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<MeshAttributeType>& TargetMesh, int_max MaxIter, double Alpha, const DenseVector<int_max>& PointIndexList_NOSmoothing);
 
 }//namespace mdk
 
