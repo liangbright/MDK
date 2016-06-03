@@ -21,7 +21,7 @@ StdObjectVector<ElementType>::StdObjectVector(const StdObjectVector<ElementType>
 
 template<typename ElementType>
 inline
-StdObjectVector<ElementType>::StdObjectVector(StdObjectVector<ElementType>&& InputArray) noexcept
+StdObjectVector<ElementType>::StdObjectVector(StdObjectVector<ElementType>&& InputArray)
 {
     m_StdVector = std::move(InputArray.m_StdVector);
 }

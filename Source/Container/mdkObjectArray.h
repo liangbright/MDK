@@ -345,7 +345,7 @@ public:
 
     inline ObjectArray();
     inline ObjectArray(const ObjectArray<ElementType>& InputArray);
-    inline ObjectArray(ObjectArray<ElementType>&& InputArray) noexcept;
+    inline ObjectArray(ObjectArray<ElementType>&& InputArray);
 
 	inline ObjectArray(const StdObjectVector<ElementType>& InputArray);
 	inline ObjectArray(const std::initializer_list<ElementType>& InputArray);

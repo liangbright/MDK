@@ -35,7 +35,7 @@ public:
 	inline String(const String& InputString);
 
     // move constructor
-	inline String(String&& InputString) noexcept;
+	inline String(String&& InputString);
 
 	inline ~String();
 

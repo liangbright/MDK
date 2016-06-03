@@ -155,10 +155,10 @@ protected:
 	virtual bool Preprocess();
 	virtual bool Postprocess() { return true; }
 
-	virtual void Evaluate();
-	virtual void Evaluate_3DWorldPosition();
-	virtual void Evaluate_3DPositionInInputImage();
-	virtual void Evaluate_3DPositionInOutputImage();
+	void Evaluate();
+	void Evaluate_3DWorldPosition();
+	void Evaluate_3DPositionInInputImage();
+	void Evaluate_3DPositionInOutputImage();
 
 	// Evaluate at Point (x, y, z) with PointIndex
 	// PointIndex may be LinearIndex in m_OutputImage, or index in m_PointList_XXX

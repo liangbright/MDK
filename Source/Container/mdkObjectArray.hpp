@@ -21,7 +21,7 @@ ObjectArray<ElementType>::ObjectArray(const ObjectArray<ElementType>& InputArray
 
 template<typename ElementType>
 inline
-ObjectArray<ElementType>::ObjectArray(ObjectArray<ElementType>&& InputArray) noexcept
+ObjectArray<ElementType>::ObjectArray(ObjectArray<ElementType>&& InputArray)
 {
 	m_Data = std::move(InputArray.m_Data);
 }

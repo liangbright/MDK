@@ -110,10 +110,10 @@ void ScalarDenseImageGaussianFilter3D<InputPixelType, OutputPixelType, ScalarTyp
 	int_max PointCount_max = 4 * int_max((MaxRadius_x / Spacing[0])*(MaxRadius_y / Spacing[1])*(MaxRadius_z / Spacing[2]));
 
 	m_MaskOf3DPosition.FastResize(0);
-	m_MaskOf3DPosition.ReserveCapacity(3 * PointCount_max);
+	m_MaskOf3DPosition.SetCapacity(3 * PointCount_max);
 
 	m_ConvolutionCoefficient.FastResize(0);
-	m_ConvolutionCoefficient.ReserveCapacity(PointCount_max);
+	m_ConvolutionCoefficient.SetCapacity(PointCount_max);
 
 	DenseMatrix<double> Position(3, 1);
 	DenseMatrix<double> Position_Transpose(1, 3);

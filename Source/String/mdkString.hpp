@@ -38,7 +38,7 @@ inline String::String(const String& InputString)
 }
 
 
-inline String::String(String&& InputString) noexcept
+inline String::String(String&& InputString)
 {
 	m_StringData = std::move(InputString.m_StringData);
 }

@@ -38,7 +38,7 @@ public:
 
     inline StdObjectVector();
 	inline StdObjectVector(const StdObjectVector<ElementType>& InputArray);
-	inline StdObjectVector(StdObjectVector<ElementType>&& InputArray) noexcept;
+	inline StdObjectVector(StdObjectVector<ElementType>&& InputArray);
     
 	inline StdObjectVector(const std::initializer_list<ElementType>& InputArray);
 	inline StdObjectVector(const ObjectArray<ElementType>& InputArray);

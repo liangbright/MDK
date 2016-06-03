@@ -1,5 +1,4 @@
-﻿#ifndef __TestScalarImageFilter3D_h
-#define __TestScalarImageFilter3D_h
+﻿#pragma once
 
 #include <ctime>
 #include <cstdlib>
@@ -57,5 +56,3 @@ void test_ScalarDenseImageGaussianFilter3D()
 }
 
 }//namespace mdk
-
-#endif
