@@ -108,6 +108,8 @@ public:
 
     inline void FastResize(int_max InputLength);
 
+	inline void SetCapacity(int_max Count);
+
 	inline bool IsEmpty() const; // vector length is 0 or pure empty
 
 	inline bool IsPureEmpty() const; // m_Data is empty

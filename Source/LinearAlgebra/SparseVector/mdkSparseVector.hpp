@@ -330,6 +330,23 @@ void SparseVector<ElementType>::FastResize(int_max InputLength)
 
 
 template<typename ElementType>
+inline
+void SparseVector<ElementType>::SetCapacity(int_max Count)
+{
+	if (!m_Data)
+	{
+		m_Data = std::make_unique<SparseVectorData<ElementType>>();
+		m_Data->ZeroElement = ElementType(0);
+	}
+	if (Count > m_Data->IndexList.GetLength())
+	{
+		m_Data->IndexList.SetCapacity(Count);
+		m_Data->ElementList.SetCapacity(Count);
+	}
+}
+
+
+template<typename ElementType>
 inline 
 bool SparseVector<ElementType>::IsEmpty() const
 {

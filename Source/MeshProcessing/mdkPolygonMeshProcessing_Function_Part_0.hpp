@@ -4,12 +4,12 @@ namespace mdk
 {
 
 template<typename MeshAttributeType>
-DenseVector<int_max> TraceMeshBoundaryCurve(const PolygonMesh<MeshAttributeType>& TargetMesh, int_max PointIndex_start)
+DenseVector<int_max> TraceMeshBoundaryCurve(const PolygonMesh<MeshAttributeType>& InputMesh, int_max PointIndex_start)
 {
     DenseVector<int_max> PointIndexListOfBoundaryCurve;
 
     int_max BoundaryEdgeCountOfInputMesh = 0;
-    for (auto it = TargetMesh.GetIteratorOfEdge(); it.IsNotEnd(); ++it)
+    for (auto it = InputMesh.GetIteratorOfEdge(); it.IsNotEnd(); ++it)
     {
         if (it.Edge().IsBoundary() == true)
         {
@@ -30,10 +30,10 @@ DenseVector<int_max> TraceMeshBoundaryCurve(const PolygonMesh<MeshAttributeType>
     auto BoundaryPointIndex_prev = PointIndex_start;
 	int_max BoundaryPointIndex_current = -1;
 
-    const auto& AdjacentPointIndexList_start = TargetMesh.Point(PointIndex_start).GetAdjacentPointIndexList();
+    const auto& AdjacentPointIndexList_start = InputMesh.Point(PointIndex_start).GetAdjacentPointIndexList();
     for (int_max k = 0; k < AdjacentPointIndexList_start.GetLength(); ++k)
     {
-        if (TargetMesh.Point(AdjacentPointIndexList_start[k]).IsOnBoundaryEdge() == true)
+        if (InputMesh.Point(AdjacentPointIndexList_start[k]).IsOnBoundaryEdge() == true)
         {
             BoundaryPointIndex_current = AdjacentPointIndexList_start[k];
             break;
@@ -52,15 +52,15 @@ DenseVector<int_max> TraceMeshBoundaryCurve(const PolygonMesh<MeshAttributeType>
 
     while (true)
     {
-        auto tempAdjacentEdgeIndexList_current = TargetMesh.Point(BoundaryPointIndex_current).GetAdjacentEdgeIndexList();
+        auto tempAdjacentEdgeIndexList_current = InputMesh.Point(BoundaryPointIndex_current).GetAdjacentEdgeIndexList();
 
         int_max BoundaryPointIndex_next = -1;
 
         for (int_max n = 0; n < tempAdjacentEdgeIndexList_current.GetLength(); ++n)
         {
-            if (TargetMesh.Edge(tempAdjacentEdgeIndexList_current[n]).IsBoundary() == true)
+            if (InputMesh.Edge(tempAdjacentEdgeIndexList_current[n]).IsBoundary() == true)
             {
-                auto tempPointIndexList = TargetMesh.Edge(tempAdjacentEdgeIndexList_current[n]).GetPointIndexList();
+                auto tempPointIndexList = InputMesh.Edge(tempAdjacentEdgeIndexList_current[n]).GetPointIndexList();
                 if (tempPointIndexList[0] != BoundaryPointIndex_current && tempPointIndexList[0] != BoundaryPointIndex_prev)
                 {
                     BoundaryPointIndex_next = tempPointIndexList[0];
@@ -110,11 +110,11 @@ DenseVector<int_max> TraceMeshBoundaryCurve(const PolygonMesh<MeshAttributeType>
 
 
 template<typename MeshAttributeType>
-ObjectArray<DenseVector<int_max>> TraceMeshBoundaryCurve(const PolygonMesh<MeshAttributeType>& TargetMesh)
+ObjectArray<DenseVector<int_max>> TraceMeshBoundaryCurve(const PolygonMesh<MeshAttributeType>& InputMesh)
 {
     // find boundary point
     DenseVector<int_max> BoundaryPointIndexList;
-    for (auto it = TargetMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+    for (auto it = InputMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
     {
         if (it.Point().IsOnBoundaryEdge() == true)
         {
@@ -149,7 +149,7 @@ ObjectArray<DenseVector<int_max>> TraceMeshBoundaryCurve(const PolygonMesh<MeshA
             break;
         }
 
-        auto BoundaryCurve = TraceMeshBoundaryCurve(TargetMesh, BoundaryPointIndex);
+        auto BoundaryCurve = TraceMeshBoundaryCurve(InputMesh, BoundaryPointIndex);
 
         // set flag
         for (int_max k = 0; k < BoundaryCurve.GetLength(); ++k)
@@ -166,7 +166,7 @@ ObjectArray<DenseVector<int_max>> TraceMeshBoundaryCurve(const PolygonMesh<MeshA
 
 
 template<typename MeshAttributeType>
-int_max FindNearestPointOnMesh(const PolygonMesh<MeshAttributeType>& TargetMesh, const DenseVector<typename MeshAttributeType::ScalarType, 3>& PointPosition)
+int_max FindNearestPointOnMesh(const PolygonMesh<MeshAttributeType>& InputMesh, const DenseVector<typename MeshAttributeType::ScalarType, 3>& PointPosition)
 {
     typedef typename MeshAttributeType::ScalarType ScalarType;
 
@@ -174,7 +174,7 @@ int_max FindNearestPointOnMesh(const PolygonMesh<MeshAttributeType>& TargetMesh,
 
     ScalarType Distance_sq_min = 0;
     bool IsFirstPoint = true;
-    for (auto it = TargetMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+    for (auto it = InputMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
     {
         ScalarType x, y, z;
         it.Point().GetPosition(x, y, z);
@@ -272,5 +272,76 @@ PolygonMesh<MeshAttributeType> SmoothMeshByVTKWindowedSincPolyDataFilter(const P
 	return OutputMesh;
 }
 
+
+template<typename MeshAttributeType>
+SparseVector<int_max> FindNeighbourPointOfPointOnMesh(const PolygonMesh<MeshAttributeType>& InputMesh, int_max PointIndex_input, int_max MaxGraphDistance)
+{
+	SparseVector<int_max> Output;
+
+	int_max PointCount = InputMesh.GetPointCount();
+
+	//--------------- check input ------------------------//
+	if (PointIndex_input < 0 || PointIndex_input > PointCount)
+	{
+		return Output;
+	}
+	
+	if (InputMesh.IsEmpty() == true)
+	{
+		return Output;
+	}
+
+	if (MaxGraphDistance <= 0)
+	{
+		return Output;
+	}
+	else if (MaxGraphDistance == 1)
+	{
+		auto AdjPointIndexList = InputMesh.Point(PointIndex_input).GetAdjacentPointIndexList();
+		Output.Resize(AdjPointIndexList.GetLength());
+		for (int_max k = 0; k < AdjPointIndexList.GetLength(); ++k)
+		{
+			Output.SetElement(AdjPointIndexList[k], 1);
+			return Output;
+		}
+	}
+	//----------------------------------------------------//
+
+	DenseVector<int> PointFlagList;
+	PointFlagList.Resize(PointCount);
+	PointFlagList.Fill(0); // 0 ~ not selected, 1 ~ selected as ouput
+
+	DenseVector<int_max> PointIndexList_boarder;	
+	PointIndexList_boarder = InputMesh.Point(PointIndex_input).GetAdjacentPointIndexList();
+
+	Output.SetCapacity(std::min(PointCount-1, 6*MaxGraphDistance));
+	for (int_max k = 0; k < PointIndexList_boarder.GetLength(); ++k)
+	{
+		Output.SetElement(PointIndexList_boarder[k], 1);
+		PointFlagList[PointIndexList_boarder[k]] = 1;
+	}	
+
+	for(int_max GraphDistance = 2; GraphDistance <= MaxGraphDistance; ++GraphDistance)
+	{
+		DenseVector<int_max> PointIndexList_boarder_next;
+		PointIndexList_boarder_next.SetCapacity(PointIndexList_boarder.GetLength() + 100);
+		for (int_max k = 0; k < PointIndexList_boarder.GetLength(); ++k)
+		{
+			auto AdjPointIndexList = InputMesh.Point(PointIndexList_boarder[k]).GetAdjacentPointIndexList();
+			for (int_max n = 0; n < AdjPointIndexList.GetLength(); ++n)
+			{
+				if (PointFlagList[AdjPointIndexList[n]] == 0)
+				{
+					Output.SetElement(AdjPointIndexList[n], GraphDistance);
+					PointIndexList_boarder_next.Append(AdjPointIndexList[n]);
+					PointFlagList[AdjPointIndexList[n]] = 1;
+				}				
+			}
+		}
+		PointIndexList_boarder = std::move(PointIndexList_boarder_next);
+	}
+
+	return Output;
+}
 
 }//namespace mdk
