@@ -64,6 +64,19 @@ void test_a()
 	std::cout << "done" << '\n';
 
 	Save3DScalarImageAsJsonDataFile(ResampledImage, FileNameAndPath_OutputImage);
+
+	//
+	t0 = std::chrono::system_clock::now();
+
+	DenseImage3D<double> CopyImage;
+	CopyImage.SetInfo(InputImage.GetInfo());
+	for (int_max k = 0; k < InputImage.GetPixelCount(); ++k)
+	{
+		CopyImage[k] = InputImage[k];
+	}
+	t1 = std::chrono::system_clock::now();
+	std::chrono::duration<double> raw_time2 = t1 - t0;
+	std::cout << "time " << raw_time2.count() << '\n';
 }
 
 void test_b()
