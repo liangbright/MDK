@@ -23,7 +23,8 @@ void test_a()
 	//std::string name;
 	//std::cin >> name;
 
-	String FilePath_InputImage =  "G:/AorticValveData/2014_7_25/P2115937/phase0";
+	String FilePath_InputImage = "C:/Research/AorticValve/Data/CT/Normal/2014_7_25/P2115937/phase0/";
+	//String FilePath_InputImage =  "G:/AorticValveData/2014_7_25/P2115937/phase0";
 	//String FilePath_InputImage = "G:/AorticValveData/2014_7_25/P2115937/Detection/TestImage.json";
 
 	String Test_Path = "C:/Research/MDK/MDK_Build/Test/Test_ImageProcessing/Test_ImageResampler/Test_DenseImageResampler3D/TestData/";
@@ -52,7 +53,7 @@ void test_a()
 	InterpolationOption.BoundaryOption = DenseImageResampler3D<double>::ImageInterpolationBoundaryOptionEnum::Replicate;
 	InterpolationOption.Pixel_OutsideImage = 0;
 	Resampler.SetImageInterpolationOption(InterpolationOption);
-	Resampler.EnableSmoothingWhenDownsampling();
+	//Resampler.EnableSmoothingWhenDownsampling();
 	Resampler.SetMaxThreadCount(8);
 	Resampler.Update();
 	const auto& ResampledImage = *Resampler.GetOutputImage();
@@ -70,10 +71,13 @@ void test_a()
 
 	DenseImage3D<double> CopyImage;
 	CopyImage.SetInfo(InputImage.GetInfo());
-	for (int_max k = 0; k < InputImage.GetPixelCount(); ++k)
+	//for (int_max k = 0; k <= InputImage.GetPixelCount()-1; ++k)
+	auto TempFunction=[&](int_max k)
 	{
 		CopyImage[k] = InputImage[k];
-	}
+	};
+	ParallelForLoop(TempFunction, 0, InputImage.GetPixelCount() - 1, 8);
+
 	t1 = std::chrono::system_clock::now();
 	std::chrono::duration<double> raw_time2 = t1 - t0;
 	std::cout << "time " << raw_time2.count() << '\n';

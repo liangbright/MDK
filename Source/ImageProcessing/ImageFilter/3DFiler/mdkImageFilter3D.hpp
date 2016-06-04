@@ -458,8 +458,6 @@ bool ImageFilter3D<InputImageType, OutputImageType, ScalarType>::Preprocess()
 
 	this->Update3DPositionTransform_Input_Output();
 
-	this->CompareOrientation_Input_Output();
-
 	//-------------
 	return true;
 }
@@ -672,6 +670,16 @@ void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::Evaluate_3DPosi
 			auto Pos3D_out = m_OutputImage.Transform3DIndexTo3DPosition(Index3D_out);
 			auto Pos3D_in = this->Transform3DPositionInOutputImageTo3DPositionInInputImage(Pos3D_out);
 			auto OutputPixel = this->EvaluateAt3DPositionInInputImage(k, Pos3D_in[0], Pos3D_in[1], Pos3D_in[2], ThreadIndex);
+			//if (m_Flag_EnableOutputImage == true)
+			//{
+				m_OutputImage(Index3D_out[0], Index3D_out[1], Index3D_out[2]) = OutputPixel;
+			//}
+
+			/*
+			auto Index3D_out = ImageCoordinateTransform_LinearIndexTo3DIndex(k, m_OutputImageInfo);
+			auto Pos3D_out = m_OutputImage.Transform3DIndexTo3DPosition(Index3D_out);
+			auto Pos3D_in = this->Transform3DPositionInOutputImageTo3DPositionInInputImage(Pos3D_out);
+			auto OutputPixel = this->EvaluateAt3DPositionInInputImage(k, Pos3D_in[0], Pos3D_in[1], Pos3D_in[2], ThreadIndex);
 			if (m_Flag_EnableOutputImage == true)
 			{
 				m_OutputImage(Index3D_out[0], Index3D_out[1], Index3D_out[2]) = OutputPixel;
@@ -684,6 +692,7 @@ void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::Evaluate_3DPosi
 			{
 				this->StoreOutputPixelToOtherPlace(OutputPixel, k, ThreadIndex);
 			}
+			*/
 		};
 		ParallelForLoop_WithThreadIndex(TempFunction, 0, m_OutputPixelCount - 1, m_MaxThreadCount);
 	}
@@ -1026,23 +1035,6 @@ void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::SelectCoordinat
 
 
 template<typename InputImageType, typename OutputImageType, typename ScalarType>
-void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::CompareOrientation_Input_Output()
-{
-	if (m_Flag_Input_Output_SameOrientation == false)
-	{
-		DenseMatrix<double> OrientationDiff = MatrixSubtract(m_InputImageInfo.Orientation, m_OutputImageInfo.Orientation);
-		OrientationDiff.ElementOperation("abs");
-		auto SumAbsDiff = OrientationDiff.Sum();
-		auto Eps = std::numeric_limits<double>::epsilon();
-		if (SumAbsDiff <= Eps*9.0)// 9 element in matrix
-		{
-			m_Flag_Input_Output_SameOrientation = true;
-		}
-	}
-}
-
-
-template<typename InputImageType, typename OutputImageType, typename ScalarType>
 void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::Update3DPositionTransform_Input_Output()
 {
 	{
@@ -1063,6 +1055,19 @@ void ImageFilter3D<InputImageType, OutputImageType, ScalarType>::Update3DPositio
 		m_3DPositionTransformFromInputToOutput_Offset[0] = M[0]*D[0] + M[3]*D[1] + M[6]*D[2];
 		m_3DPositionTransformFromInputToOutput_Offset[1] = M[1]*D[0] + M[4]*D[1] + M[7]*D[2];
 		m_3DPositionTransformFromInputToOutput_Offset[2] = M[2]*D[0] + M[5]*D[1] + M[8]*D[2];
+	}
+
+	DenseMatrix<double> OrientationDiff = MatrixSubtract(m_InputImageInfo.Orientation, m_OutputImageInfo.Orientation);
+	OrientationDiff.ElementOperation("abs");
+	auto SumAbsDiff = OrientationDiff.Sum();
+	auto Eps = std::numeric_limits<double>::epsilon();
+	if (SumAbsDiff <= Eps*9.0)// 9 element in matrix
+	{
+		m_Flag_Input_Output_SameOrientation = true;
+	}
+	else
+	{
+		m_Flag_Input_Output_SameOrientation = false;
 	}
 }
 

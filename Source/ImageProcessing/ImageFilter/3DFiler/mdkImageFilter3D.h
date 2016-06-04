@@ -56,9 +56,6 @@ protected:
 	bool m_Flag_EnableOutputPixelArray;
 	bool m_Flag_EnableOutputToOtherPlace;
 
-	bool m_Flag_Input_Output_SameOrientation;
-	// m_OutputImage and m_InputImage have the same orientation
-
 	enum class CoordinateSystemForEvaluation {WORLD, INPUT, OUTPUT, UNKNOWN};
 	CoordinateSystemForEvaluation m_CoordinateSystemForEvaluation;
 	// WORLD: Update -> EvaluateAt3DWorldPosition
@@ -78,6 +75,9 @@ protected:
 	//
 	// inv(O_out)*O_in is m_3DPositionTransformFromInputToOutput_Matrix
 	// inv(O_out)*(In-Out) is m_3DPositionTransformFromInputToOutput_Offset
+
+	bool m_Flag_Input_Output_SameOrientation;
+	// m_OutputImage and m_InputImage have the same orientation
 
 	DenseMatrix<double> m_3DPositionTransformFromOuputToInput_Matrix;
 	DenseVector<double, 3> m_3DPositionTransformFromOuputToInput_Offset;
@@ -174,8 +174,6 @@ protected:
 	int_max GetOptimalThreadCount();
 	
 	void SelectCoordinateSystemForEvaluation(CoordinateSystemForEvaluation Option);
-
-	void CompareOrientation_Input_Output();
 
 	void Update3DPositionTransform_Input_Output();
 

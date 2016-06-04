@@ -98,6 +98,7 @@ template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 inline OutputPixelType DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::
 EvaluateAt3DPositionInInputImage(int_max PointIndex, ScalarType x, ScalarType y, ScalarType z, int_max ThreadIndex)
 {
+	return (*m_InputImage)[PointIndex];//~~~~~~~~~~~~~~~~~~~~~~~~~~
 	if (m_Flag_SmoothInputImage == false)
 	{
 		return m_InputImage->GetPixelAt3DPosition<OutputPixelType>(x, y, z, m_ImageInterpolationOption);
