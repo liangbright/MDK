@@ -21,7 +21,6 @@ inline
 void DenseImageData3D<PixelType>::Clear()
 {
 	m_Info.Clear();
-	m_PixelCountPerZSlice = 0;
     m_PixelArray.Clear();
 	m_Pixel_OutsideImage = GetZeroPixel<PixelType>();
 }
@@ -63,8 +62,8 @@ template<typename PixelType>
 inline
 PixelType& DenseImageData3D<PixelType>::operator()(int_max xIndex, int_max yIndex, int_max zIndex)
 {
-    auto LinearIndex = zIndex*m_PixelCountPerZSlice + yIndex*m_Info.Size[0] + xIndex;
- 
+	auto PixelCountPerZSlice = m_Info.Size[1] * m_Info.Size[0];
+    auto LinearIndex = zIndex*PixelCountPerZSlice + yIndex*m_Info.Size[0] + xIndex; 
     return m_PixelArray[LinearIndex];
 }
 
@@ -73,8 +72,8 @@ template<typename PixelType>
 inline
 const PixelType& DenseImageData3D<PixelType>::operator()(int_max xIndex, int_max yIndex, int_max zIndex) const
 {
-    auto LinearIndex = zIndex*m_PixelCountPerZSlice + yIndex*m_Info.Size[0] + xIndex;
-
+	auto PixelCountPerZSlice = m_Info.Size[1] * m_Info.Size[0];
+    auto LinearIndex = zIndex*PixelCountPerZSlice + yIndex*m_Info.Size[0] + xIndex;
     return m_PixelArray[LinearIndex];
 }
 
@@ -84,7 +83,8 @@ template<typename ScalarType>
 inline 
 DenseVector<ScalarType, 3> DenseImageData3D<PixelType>::TransformLinearIndexTo3DIndex(int_max LinearIndex) const
 {
-    auto divresult = std::div(LinearIndex, m_PixelCountPerZSlice);
+	auto PixelCountPerZSlice = m_Info.Size[1] * m_Info.Size[0];
+    auto divresult = std::div(LinearIndex, PixelCountPerZSlice);
 
 	auto zIndex = divresult.quot; // z
             
@@ -127,7 +127,8 @@ template<typename PixelType>
 inline
 int_max DenseImageData3D<PixelType>::Transform3DIndexToLinearIndex(int_max xIndex, int_max yIndex, int_max zIndex) const
 {
-	return zIndex*m_PixelCountPerZSlice + yIndex*m_Info.Size[0] + xIndex;
+	auto PixelCountPerZSlice = m_Info.Size[1] * m_Info.Size[0];
+	return zIndex*PixelCountPerZSlice + yIndex*m_Info.Size[0] + xIndex;
 }
 
 
@@ -348,8 +349,7 @@ void DenseImage3D<PixelType>::Copy(DenseImage3D<PixelType>&& InputImage)
 		m_ImageData = std::make_shared<DenseImageData3D<PixelType>>();
 	}
 
-	m_ImageData->m_Info  = std::move(InputImage.m_ImageData->m_Info);
-	m_ImageData->m_PixelCountPerZSlice = InputImage.m_ImageData->m_PixelCountPerZSlice;
+	m_ImageData->m_Info  = std::move(InputImage.m_ImageData->m_Info);	
 	m_ImageData->m_PixelArray = std::move(InputImage.m_ImageData->m_PixelArray);
 	m_ImageData->m_Pixel_OutsideImage = InputImage.m_ImageData->m_Pixel_OutsideImage;
 
@@ -405,8 +405,7 @@ void DenseImage3D<PixelType>::Share(PixelType* InputImage, const ImageInfo3D& In
 	//this->SetSize(XXX); do not allocate memory for internal array
 	m_ImageData->m_Info.Size[0] = InputImageInfo.Size[0];
 	m_ImageData->m_Info.Size[1] = InputImageInfo.Size[1];
-	m_ImageData->m_Info.Size[2] = InputImageInfo.Size[2];
-	m_ImageData->m_PixelCountPerZSlice = InputImageInfo.Size[0] * InputImageInfo.Size[1];
+	m_ImageData->m_Info.Size[2] = InputImageInfo.Size[2];	
 	auto InputPixelCount = InputImageInfo.Size[0] * InputImageInfo.Size[1] * InputImageInfo.Size[2];
 	m_ImageData->m_PixelArray.Share(InputImage, InputPixelCount, true);
 }
@@ -509,7 +508,8 @@ PixelType* DenseImage3D<PixelType>::GetPixelPointerOfZSlice(int_max ZSliceIndex)
 		return nullptr;
 	}
 
-	auto PointerOfZSlice = this->GetPixelPointer() + ZSliceIndex*m_ImageData->m_PixelCountPerZSlice;
+	auto PixelCountPerZSlice = m_ImageData->m_Info.Size[1] * m_ImageData->m_Info.Size[0];
+	auto PointerOfZSlice = this->GetPixelPointer() + ZSliceIndex*PixelCountPerZSlice;
 	return PointerOfZSlice;
 }
 
@@ -528,7 +528,8 @@ const PixelType* DenseImage3D<PixelType>::GetPixelPointerOfZSlice(int_max ZSlice
 		return nullptr;
 	}
 
-	auto PointerOfZSlice = this->GetPixelPointer() + ZSliceIndex*m_ImageData->m_PixelCountPerZSlice;
+	auto PixelCountPerZSlice = m_ImageData->m_Info.Size[1] * m_ImageData->m_Info.Size[0];
+	auto PointerOfZSlice = this->GetPixelPointer() + ZSliceIndex*PixelCountPerZSlice;
 	return PointerOfZSlice;
 }
 
@@ -692,8 +693,7 @@ void DenseImage3D<PixelType>::SetSize(int_max Lx, int_max Ly, int_max Lz)
         m_ImageData->m_PixelArray.Clear();
         m_ImageData->m_Info.Size[0] = 0;
         m_ImageData->m_Info.Size[1] = 0;
-        m_ImageData->m_Info.Size[2] = 0;
-        m_ImageData->m_PixelCountPerZSlice = 0;
+        m_ImageData->m_Info.Size[2] = 0;        
         return;
     }
 
@@ -702,8 +702,7 @@ try
     m_ImageData->m_PixelArray.Resize(Lx*Ly*Lz); 
     m_ImageData->m_Info.Size[0] = Lx;
     m_ImageData->m_Info.Size[1] = Ly;
-    m_ImageData->m_Info.Size[2] = Lz;
-    m_ImageData->m_PixelCountPerZSlice = Ly*Lx;
+    m_ImageData->m_Info.Size[2] = Lz;    
 }
 catch (...)
 {
@@ -956,7 +955,7 @@ int_max DenseImage3D<PixelType>::GetPixelCount() const
 {
 	if (this->IsPureEmpty() == false)
 	{
-		return m_ImageData->m_PixelCountPerZSlice * m_ImageData->m_Info.Size[2];
+		return m_ImageData->m_Info.Size[0]* m_ImageData->m_Info.Size[1]*m_ImageData->m_Info.Size[2];
 	}
 	else
 	{
@@ -1717,7 +1716,7 @@ DenseImage3D<PixelType>::GetLinearIndexListInRegion(const BoxRegionOf3DIndexInIm
 	DenseVector<int_max>  List;
     List.Resize(Region_Lx*Region_Ly*Region_Lz);
 
-    auto PixelCountPerZSlice = m_ImageData->PixelCountPerZSlice;
+	auto PixelCountPerZSlice = m_ImageData->m_Info.Size[1] * m_ImageData->m_Info.Size[0];
 
 	int_max Counter = 0;
 
@@ -1959,7 +1958,7 @@ DenseImage3D<PixelType>::GetSubImage(const BoxRegionOf3DIndexInImage3D& RegionIn
 	auto SubPtr = SubImage.GetPixelPointer();
     auto RawPtr = this->GetPixelPointer();
 
-    auto PixelCountPerZSlice = m_ImageData->m_PixelCountPerZSlice;
+	auto PixelCountPerZSlice = m_ImageData->m_Info.Size[1] * m_ImageData->m_Info.Size[0];
 
     for (int_max k = zIndex_s; k <= zIndex_e; ++k)
     {

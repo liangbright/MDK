@@ -137,6 +137,7 @@ struct ImageInfo3D
 	// Column-2: DirectionZ * SpacingZ
 
 	DenseMatrix<double> TransformMatrix_3DWorldTo3DIndex;
+	// inv(TransformMatrix_3DIndexTo3DWorld)
 
 //-------------------------------------------
 	ImageInfo3D() { this->Clear(); }

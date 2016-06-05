@@ -55,8 +55,6 @@ struct DenseImageData3D
 {
 	ImageInfo3D m_Info;
 
-	int_max m_PixelCountPerZSlice;
-
 	ObjectArray<PixelType> m_PixelArray;
 
 	PixelType m_Pixel_OutsideImage;

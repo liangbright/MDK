@@ -1,15 +1,14 @@
-﻿#ifndef Test_GradientFilter3D_h
-#define Test_GradientFilter3D_h
+﻿#pragma once
 
 #include <ctime>
 #include <cstdlib>
 #include <array>
 
 #include "mdkDenseImage3D_FileIO.h"
-#include "mdkScalarDenseImageGradientFilter3D.h"
+#include "mdkGradientDenseImageFilter3D.h"
 
-namespace mdk
-{
+using namespace mdk;
+
 
 void test_a()
 {
@@ -25,7 +24,7 @@ void test_a()
 
 	std::cout << "start" << '\n';
 
-	ScalarDenseImageGradientFilter3D<double> GFilter;
+	GradientDenseImageFilter3D<double> GFilter;
 	GFilter.SetInputImage(&InputImage);
     
 	double CosT = 0.707;
@@ -43,18 +42,14 @@ void test_a()
 	//Resampler.SetOutputImageInfoBySize(256, 256);
 
 	auto InterpolationOption = GFilter.GetImageInterpolationOption();
-	InterpolationOption.MethodType = ScalarDenseImageGradientFilter3D<double>::ImageInterpolationMethodEnum::Linear;
-	InterpolationOption.BoundaryOption = ScalarDenseImageGradientFilter3D<double>::ImageInterpolationBoundaryOptionEnum::Constant;
+	InterpolationOption.MethodType = GradientDenseImageFilter3D<double>::ImageInterpolationMethodEnum::Linear;
+	InterpolationOption.BoundaryOption = GradientDenseImageFilter3D<double>::ImageInterpolationBoundaryOptionEnum::Constant;
 	InterpolationOption.Pixel_OutsideImage = 0;
 	GFilter.SetImageInterpolationOption(InterpolationOption);
 	GFilter.SetMaxThreadCount(8);
 
 	GFilter.SetRadius(2.0);
 	GFilter.SetSphereResolution(3600);
-
-	std::cout << "BuildMask" << '\n';
-
-	GFilter.BuildMask();
 
 	//DenseVector<double, 2> GradientPrior = { 1.0, 0.0 };
 	//DenseVector<int_max> MaskCountPerLevel = { 8, 32 };
@@ -63,7 +58,7 @@ void test_a()
 	std::cout << "Update" << '\n';
 
 	GFilter.Update();
-	const auto& GradientImage = *GFilter.GetOutputImage();
+	const auto& GradientImage = GFilter.OutputImage();
 
 	std::cout << "done" << '\n';
 
@@ -77,6 +72,3 @@ void test_a()
 	Save3DScalarImageAsJsonDataFile(GradientMagImage, FileNameAndPath_OutputImage);
 }
 
-}//namespace mdk
-
-#endif
