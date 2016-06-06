@@ -60,9 +60,13 @@ OutputPixelType InterpolateImageAt3DIndex_Nearest(const DenseImage3D<InputPixelT
 {
     auto Size = InputImage.GetSize();
 
-	auto x0 = int_max(std::round(x));
-	auto y0 = int_max(std::round(y));
-	auto z0 = int_max(std::round(z));
+	// too slow
+	//auto x0 = int_max(std::round(x));
+	//auto y0 = int_max(std::round(y));
+	//auto z0 = int_max(std::round(z));
+	auto x0 = int_max(x+0.5);
+	auto y0 = int_max(y+0.5);
+	auto z0 = int_max(z+0.5);
 
 	if (EnableBoundCheck == true)
 	{

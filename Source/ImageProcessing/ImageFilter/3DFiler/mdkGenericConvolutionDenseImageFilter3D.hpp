@@ -35,8 +35,8 @@ void GenericConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, Scala
 	m_3DPositionTransformFromInputToOutput_Matrix.Clear();
 	m_3DPositionTransformFromInputToOutput_Offset.Clear();
 
-	m_ConvolutionMask_InOuputImage.Clear();
-	m_ConvolutionMask_InInputImage.Clear();
+	m_ConvolutionMask_3DPosition_InOuputImage.Clear();
+	m_ConvolutionMask_3DIndex_InInputImage.Clear();
 	m_ConvolutionCoef.Clear();
 }
 
@@ -294,13 +294,13 @@ bool GenericConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, Scala
 		return false;
 	}
 
-	if (m_ConvolutionMask_InOuputImage.IsEmpty() == true)
+	if (m_ConvolutionMask_3DPosition_InOuputImage.IsEmpty() == true)
 	{
 		MDK_Error("ConvolutionMask is Empty @ GenericConvolutionDenseImageFilter3D::CheckInput()")
 		return false;
 	}
 
-	if (m_ConvolutionMask_InOuputImage.GetRowCount() != 3)
+	if (m_ConvolutionMask_3DPosition_InOuputImage.GetRowCount() != 3)
 	{
 		MDK_Error("ConvolutionMask size is wrong @ GenericConvolutionDenseImageFilter3D::CheckInput()")
 		return false;
@@ -312,7 +312,7 @@ bool GenericConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, Scala
 		return false;
 	}
 
-	if (m_ConvolutionMask_InOuputImage.GetColCount() != m_ConvolutionCoef.GetElementCount())
+	if (m_ConvolutionMask_3DPosition_InOuputImage.GetColCount() != m_ConvolutionCoef.GetElementCount())
 	{
 		MDK_Error("ConvolutionMask NOT match ConvolutionCoef @ GenericConvolutionDenseImageFilter3D::CheckInput()")
 		return false;
@@ -331,14 +331,15 @@ bool GenericConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, Scala
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void GenericConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::Transform3DPositionInMask()
 {
-	m_ConvolutionMask_InInputImage.Clear();
-	m_ConvolutionMask_InInputImage.Resize(m_ConvolutionMask_InOuputImage.GetSize());
-	for (int_max k = 0; k < m_ConvolutionMask_InOuputImage.GetColCount(); ++k)
+	m_ConvolutionMask_3DIndex_InInputImage.Clear();
+	m_ConvolutionMask_3DIndex_InInputImage.Resize(m_ConvolutionMask_3DPosition_InOuputImage.GetSize());	
+	for (int_max k = 0; k < m_ConvolutionMask_3DPosition_InOuputImage.GetColCount(); ++k)
 	{
 		DenseVector<ScalarType, 3> Pos_in, Pos_out;
-		m_ConvolutionMask_InOuputImage.GetCol(k, Pos_out);
+		m_ConvolutionMask_3DPosition_InOuputImage.GetCol(k, Pos_out);
 		Pos_in = this->Transform3DPositionInOutputImageTo3DPositionInInputImage(Pos_out);
-		m_ConvolutionMask_InInputImage.SetCol(k, Pos_in);
+		auto Index_in = m_InputImage->Transform3DPositionTo3DIndex(Pos_in);
+		m_ConvolutionMask_3DIndex_InInputImage.SetCol(k, Index_in);
 	}
 }
 
@@ -369,14 +370,14 @@ OutputPixelType GenericConvolutionDenseImageFilter3D<InputPixelType, OutputPixel
 {
 	auto Pos_out = m_OutputImage.TransformLinearIndexTo3DPosition<ScalarType>(LinearIndex);
 	auto Pos_in = this->Transform3DPositionInOutputImageTo3DPositionInInputImage(Pos_out);
-
+	auto Index_in = m_InputImage->Transform3DPositionTo3DIndex(Pos_in);
 	auto OutputPixel = OutputPixelType(0);
-	for (int_max k = 0; k < m_ConvolutionMask_InOuputImage.GetColCount(); ++k)
+	for (int_max k = 0; k < m_ConvolutionMask_3DIndex_InInputImage.GetColCount(); ++k)
 	{
-		auto x = m_ConvolutionMask_InInputImage(0, k) + Pos_in[0];
-		auto y = m_ConvolutionMask_InInputImage(1, k) + Pos_in[1];
-		auto z = m_ConvolutionMask_InInputImage(2, k) + Pos_in[2];
-		auto Pixel = OutputPixelType(m_InputImage->GetPixelAt3DPosition(x, y, z, m_ImageInterpolationOption));
+		auto x = m_ConvolutionMask_3DIndex_InInputImage(0, k) + Index_in[0];
+		auto y = m_ConvolutionMask_3DIndex_InInputImage(1, k) + Index_in[1];
+		auto z = m_ConvolutionMask_3DIndex_InInputImage(2, k) + Index_in[2];
+		auto Pixel = OutputPixelType(m_InputImage->GetPixelAt3DIndex(x, y, z, m_ImageInterpolationOption));
 		OutputPixel += Pixel*m_ConvolutionCoef[k];
 	}
 	return OutputPixel;
@@ -439,8 +440,8 @@ CreateGaussianMask(const DenseVector<ScalarType, 3>& Spacing, ScalarType Sigma_x
 	// at each point of the grid, compute the mahalanobis distance to the center (0,0,0), i.e., sqrt(SquaredRatio)
 	// add the point to mask if mahalanobis distance <= CutOffRatio
 
-	m_ConvolutionMask_InOuputImage.FastResize(0);
-	m_ConvolutionMask_InOuputImage.SetCapacity(3*PointCount_max);
+	m_ConvolutionMask_3DPosition_InOuputImage.FastResize(0);
+	m_ConvolutionMask_3DPosition_InOuputImage.SetCapacity(3*PointCount_max);
 
 	m_ConvolutionCoef.FastResize(0);
 	m_ConvolutionCoef.SetCapacity(PointCount_max);
@@ -462,14 +463,14 @@ CreateGaussianMask(const DenseVector<ScalarType, 3>& Spacing, ScalarType Sigma_x
 				if (tempRatio <= CutOffRatio*CutOffRatio)
 				{
 					ScalarType tempValue = std::exp(-ScalarType(0.5)*tempRatio);
-					m_ConvolutionMask_InOuputImage.AppendCol({ ScalarType(x), ScalarType(y), ScalarType(z) });
+					m_ConvolutionMask_3DPosition_InOuputImage.AppendCol({ ScalarType(x), ScalarType(y), ScalarType(z) });
 					m_ConvolutionCoef.Append(tempValue);
 				}
 			}
 		}
 	}
 
-	m_ConvolutionMask_InOuputImage.ReleaseUnusedCapacity();
+	m_ConvolutionMask_3DPosition_InOuputImage.ReleaseUnusedCapacity();
 	m_ConvolutionCoef.ReleaseUnusedCapacity();
 
 	m_ConvolutionCoef /= m_ConvolutionCoef.Sum();
@@ -491,8 +492,8 @@ CreateLaplacianOfGaussianMask(const DenseVector<ScalarType, 3>& Spacing, ScalarT
 	int_max PointCount_max =  int_max(Radius / Sigma) + 1;
 	PointCount_max = 8*PointCount_max*PointCount_max*PointCount_max;
 
-	m_ConvolutionMask_InOuputImage.FastResize(0);
-	m_ConvolutionMask_InOuputImage.SetCapacity(3* PointCount_max);
+	m_ConvolutionMask_3DPosition_InOuputImage.FastResize(0);
+	m_ConvolutionMask_3DPosition_InOuputImage.SetCapacity(3* PointCount_max);
 
 	m_ConvolutionCoef.FastResize(0);
 	m_ConvolutionCoef.SetCapacity(PointCount_max);
@@ -509,14 +510,14 @@ CreateLaplacianOfGaussianMask(const DenseVector<ScalarType, 3>& Spacing, ScalarT
 				if (temp <= CutOffRatio_square)
 				{
 					ScalarType tempValue = (1.0 - temp)*std::exp(-0.5*temp);
-					m_ConvolutionMask_InOuputImage.AppendCol({ x, y, z });
+					m_ConvolutionMask_3DPosition_InOuputImage.AppendCol({ x, y, z });
 					m_ConvolutionCoef.Append(tempValue);
 				}
 			}
 		}
 	}
 
-	m_ConvolutionMask_InOuputImage.ReleaseUnusedCapacity();
+	m_ConvolutionMask_3DPosition_InOuputImage.ReleaseUnusedCapacity();
 	m_ConvolutionCoef.ReleaseUnusedCapacity();
 
 	//normalize coefficient

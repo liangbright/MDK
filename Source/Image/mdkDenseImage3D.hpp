@@ -1069,9 +1069,13 @@ inline
 DenseVector<int_max, 3> DenseImage3D<PixelType>::Transform3DPositionToNearest3DDiscreteIndex(ScalarType x, ScalarType y, ScalarType z) const
 {
 	auto Index3D = m_ImageData->Transform3DPositionTo3DIndex(x, y, z);
-	auto x_Index = int_max(std::round(Index3D[0]));
-	auto y_Index = int_max(std::round(Index3D[1]));
-	auto z_Index = int_max(std::round(Index3D[2]));
+	//auto x_Index = int_max(std::round(Index3D[0]));
+	//auto y_Index = int_max(std::round(Index3D[1]));
+	//auto z_Index = int_max(std::round(Index3D[2]));
+	auto x_Index = int_max(Index3D[0]+0.5);
+	auto y_Index = int_max(Index3D[1]+0.5);
+	auto z_Index = int_max(Index3D[2]+0.5);
+
 	DenseVector<int_max, 3> Index3D_Nearest;
 	Index3D_Nearest[0] = x_Index;
 	Index3D_Nearest[1] = y_Index;
@@ -1096,9 +1100,12 @@ DenseVector<int_max, 3> DenseImage3D<PixelType>::Transform3DPositionToNearest3DD
 {
 	auto Index3D = m_ImageData->Transform3DPositionTo3DIndex(x, y, z);
 	auto Size = this->GetSize();
-	auto x_Index = int_max(std::round(Index3D[0]));
-	auto y_Index = int_max(std::round(Index3D[1]));
-	auto z_Index = int_max(std::round(Index3D[2]));
+	//auto x_Index = int_max(std::round(Index3D[0]));
+	//auto y_Index = int_max(std::round(Index3D[1]));
+	//auto z_Index = int_max(std::round(Index3D[2]));
+	auto x_Index = int_max(Index3D[0] + 0.5);
+	auto y_Index = int_max(Index3D[1] + 0.5);
+	auto z_Index = int_max(Index3D[2] + 0.5);
 	if (x_Index < 0)
 	{
 		x_Index = 0;
@@ -1186,9 +1193,12 @@ inline
 DenseVector<int_max, 3> DenseImage3D<PixelType>::Transform3DWorldPositionToNearest3DDiscreteIndex(ScalarType x, ScalarType y, ScalarType z) const
 {
 	auto Index3D = m_ImageData->Transform3DWorldPositionTo3DIndex(x, y, z);
-	auto x_Index = int_max(std::round(Index3D[0]));
-	auto y_Index = int_max(std::round(Index3D[1]));
-	auto z_Index = int_max(std::round(Index3D[2]));
+	//auto x_Index = int_max(std::round(Index3D[0]));
+	//auto y_Index = int_max(std::round(Index3D[1]));
+	//auto z_Index = int_max(std::round(Index3D[2]));
+	auto x_Index = int_max(Index3D[0] + 0.5);
+	auto y_Index = int_max(Index3D[1] + 0.5);
+	auto z_Index = int_max(Index3D[2] + 0.5);
 	DenseVector<int_max, 3> Index3D_Nearest;
 	Index3D_Nearest[0] = x_Index;
 	Index3D_Nearest[1] = y_Index;
@@ -1213,9 +1223,12 @@ DenseVector<int_max, 3> DenseImage3D<PixelType>::Transform3DWorldPositionToNeare
 {
 	auto Index3D = m_ImageData->Transform3DWorldPositionTo3DIndex(x, y, z);
 	auto Size = this->GetSize();
-	auto x_Index = int_max(std::round(Index3D[0]));
-	auto y_Index = int_max(std::round(Index3D[1]));
-	auto z_Index = int_max(std::round(Index3D[2]));
+	//auto x_Index = int_max(std::round(Index3D[0]));
+	//auto y_Index = int_max(std::round(Index3D[1]));
+	//auto z_Index = int_max(std::round(Index3D[2]));
+	auto x_Index = int_max(Index3D[0] + 0.5);
+	auto y_Index = int_max(Index3D[1] + 0.5);
+	auto z_Index = int_max(Index3D[2] + 0.5);
 	if (x_Index < 0)
 	{
 		x_Index = 0;
@@ -1497,9 +1510,12 @@ const PixelType& DenseImage3D<PixelType>::GetPixelNearestTo3DIndex(ScalarType xI
 
 	auto Size = this->GetSize();
 
-	auto x = int_max(std::round(xIndex));
-	auto y = int_max(std::round(yIndex));
-	auto z = int_max(std::round(zIndex));
+	//auto x = int_max(std::round(xIndex));
+	//auto y = int_max(std::round(yIndex));
+	//auto z = int_max(std::round(zIndex));
+	auto x = int_max(xIndex+0.5);
+	auto y = int_max(yIndex+0.5);
+	auto z = int_max(zIndex+0.5);
 
 	if (x < 0)
 	{
@@ -1922,12 +1938,18 @@ DenseImage3D<PixelType>::GetSubImage(const BoxRegionOf3DIndexInImage3D& RegionIn
         return SubImage;
     }
 
-	auto xIndex_s = int_max(std::round(RegionInfo.x_min));
-	auto yIndex_s = int_max(std::round(RegionInfo.y_min));
-	auto zIndex_s = int_max(std::round(RegionInfo.z_min));
-	auto xIndex_e = int_max(std::round(RegionInfo.x_max));
-	auto yIndex_e = int_max(std::round(RegionInfo.y_max));
-	auto zIndex_e = int_max(std::round(RegionInfo.z_max));
+	//auto xIndex_s = int_max(std::round(RegionInfo.x_min));
+	//auto yIndex_s = int_max(std::round(RegionInfo.y_min));
+	//auto zIndex_s = int_max(std::round(RegionInfo.z_min));
+	//auto xIndex_e = int_max(std::round(RegionInfo.x_max));
+	//auto yIndex_e = int_max(std::round(RegionInfo.y_max));
+	//auto zIndex_e = int_max(std::round(RegionInfo.z_max));
+	auto xIndex_s = int_max(RegionInfo.x_min+0.5);
+	auto yIndex_s = int_max(RegionInfo.y_min+0.5);
+	auto zIndex_s = int_max(RegionInfo.z_min+0.5);
+	auto xIndex_e = int_max(RegionInfo.x_max+0.5);
+	auto yIndex_e = int_max(RegionInfo.y_max+0.5);
+	auto zIndex_e = int_max(RegionInfo.z_max+0.5);
 
 	if (xIndex_e < xIndex_s || yIndex_e < yIndex_s || zIndex_e < zIndex_s)
 	{

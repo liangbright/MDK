@@ -60,8 +60,10 @@ OutputPixelType InterpolateImageAt2DIndex_Nearest(const DenseImage2D<InputPixelT
 {
     auto Size = InputImage.GetSize();
 
-	auto x0 = int_max(std::round(x));
-	auto y0 = int_max(std::round(y));
+	//auto x0 = int_max(std::round(x));
+	//auto y0 = int_max(std::round(y));
+	auto x0 = int_max(x+0.5);
+	auto y0 = int_max(y+0.5);
 
 	if (EnableBoundCheck == true)
 	{

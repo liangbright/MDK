@@ -26,11 +26,11 @@ private:
 
 	ImageInterpolationOptionType m_ImageInterpolationOption;
 
-	DenseMatrix<ScalarType> m_ConvolutionMask_InOuputImage;
+	DenseMatrix<ScalarType> m_ConvolutionMask_3DPosition_InOuputImage;
 	//m_ConvolutionMask(:,k): 3D Position of point-k in mask
 
-	DenseMatrix<ScalarType> m_ConvolutionMask_InInputImage;
-	//m_ConvolutionMask(:,k): 3D Position of point-k in mask
+	DenseMatrix<ScalarType> m_ConvolutionMask_3DIndex_InInputImage;
+	//m_ConvolutionMask(:,k): 3D Index of point-k in mask
 
  	DenseMatrix<ScalarType> m_ConvolutionCoef;
     // m_ConvolutionCoef[k]: convolution coef at point-k in mask
@@ -78,7 +78,7 @@ public:
 	void SetImageInterpolationOption(const ImageInterpolationOptionType& InputOption) { m_ImageInterpolationOption = InputOption; }
 	ImageInterpolationOptionType GetImageInterpolationOption() { return m_ImageInterpolationOption; }
 
-	DenseMatrix<ScalarType>& ConvolutionMask() { return m_ConvolutionMask_InOuputImage; }// in output image space
+	DenseMatrix<ScalarType>& ConvolutionMask() { return m_ConvolutionMask_3DPosition_InOuputImage; }
 	DenseMatrix<ScalarType>& ConvolutionCoef() { return m_ConvolutionCoef; }
 	void SetMaxThreadCount(int_max MaxNumber) { m_MaxThreadCount= MaxNumber; }
 	void Update();

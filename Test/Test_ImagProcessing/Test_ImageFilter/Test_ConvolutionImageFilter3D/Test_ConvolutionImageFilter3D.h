@@ -105,6 +105,10 @@ void test_GenericGaussianFilter3D()
 	imfilter.CreateGaussianMask(InputImage.GetSpacing(), 3, 3, 3, 1);
 	imfilter.SetMaxThreadCount(8);
 
+	auto InterpolationOption = imfilter.GetImageInterpolationOption();
+	InterpolationOption.MethodType = GenericConvolutionDenseImageFilter3D<double>::ImageInterpolationMethodEnum::Nearest;
+	imfilter.SetImageInterpolationOption(InterpolationOption);
+
 	std::cout << "Point in Mask " << imfilter.ConvolutionMask().GetColCount() << '\n';
 
 	std::cout << "start" << '\n';
@@ -138,6 +142,10 @@ void test_GenericLoGFilter3D()
 	imfilter.SetOutputImageInfo(InputImage.GetInfo());
 	imfilter.CreateLaplacianOfGaussianMask(InputImage.GetSpacing(), 1.5, 2);
 	imfilter.SetMaxThreadCount(8);
+
+	auto InterpolationOption = imfilter.GetImageInterpolationOption();
+	InterpolationOption.MethodType = GenericConvolutionDenseImageFilter3D<double>::ImageInterpolationMethodEnum::Nearest;
+	imfilter.SetImageInterpolationOption(InterpolationOption);
 
 	std::cout << "Point in Mask " << imfilter.ConvolutionMask().GetColCount() << '\n';
 

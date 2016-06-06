@@ -1016,8 +1016,10 @@ inline
 DenseVector<int_max, 2> DenseImage2D<PixelType>::Transform2DPositionToNearest2DDiscreteIndex(ScalarType x, ScalarType y) const
 {
 	auto Index2D = m_ImageData->Transform2DPositionTo2DIndex(x, y);
-	auto x_Index = int_max(std::round(Index2D[0]));
-	auto y_Index = int_max(std::round(Index2D[1]));
+	//auto x_Index = int_max(std::round(Index2D[0]));
+	//auto y_Index = int_max(std::round(Index2D[1]));
+	auto x_Index = int_max(Index2D[0]+0.5);
+	auto y_Index = int_max(Index2D[1]+0.5);
 	DenseVector<int_max, 2> Index2D_Nearest;
 	Index2D_Nearest[0] = x_Index;
 	Index2D_Nearest[1] = y_Index;
@@ -1041,8 +1043,10 @@ DenseVector<int_max, 2> DenseImage2D<PixelType>::Transform2DPositionToNearest2DD
 {
 	auto Index2D = m_ImageData->Transform2DPositionTo2DIndex(x, y);
 	auto Size = this->GetSize();
-	auto x_Index = int_max(std::round(Index2D[0]));
-	auto y_Index = int_max(std::round(Index2D[1]));
+	//auto x_Index = int_max(std::round(Index2D[0]));
+	//auto y_Index = int_max(std::round(Index2D[1]));
+	auto x_Index = int_max(Index2D[0]+0.5);
+	auto y_Index = int_max(Index2D[1]+0.5);
 	if (x_Index < 0)
 	{
 		x_Index = 0;
@@ -1119,8 +1123,10 @@ inline
 DenseVector<int_max, 2> DenseImage2D<PixelType>::Transform3DWorldPositionToNearest2DDiscreteIndex(ScalarType x, ScalarType y, ScalarType z) const
 {
 	auto Index2D = m_ImageData->Transform3DWorldPositionTo2DIndex(x, y, z);
-	auto x_Index = int_max(std::round(Index2D[0]));
-	auto y_Index = int_max(std::round(Index2D[1]));
+	//auto x_Index = int_max(std::round(Index2D[0]));
+	//auto y_Index = int_max(std::round(Index2D[1]));
+	auto x_Index = int_max(Index2D[0]+0.5);
+	auto y_Index = int_max(Index2D[1]+0.5);
 	DenseVector<int_max, 2> Index2D_Nearest;
 	Index2D_Nearest[0] = x_Index;
 	Index2D_Nearest[1] = y_Index;
@@ -1144,8 +1150,10 @@ DenseVector<int_max, 2> DenseImage2D<PixelType>::Transform3DWorldPositionToNeare
 {
 	auto Index2D = m_ImageData->Transform3DWorldPositionTo2DIndex(x, y, z);
 	auto Size = this->GetSize();
-	auto x_Index = int_max(std::round(Index2D[0]));
-	auto y_Index = int_max(std::round(Index2D[1]));
+	//auto x_Index = int_max(std::round(Index2D[0]));
+	//auto y_Index = int_max(std::round(Index2D[1]));
+	auto x_Index = int_max(Index2D[0]+0.5);
+	auto y_Index = int_max(Index2D[1]+0.5);
 	if (x_Index < 0)
 	{
 		x_Index = 0;
@@ -1417,8 +1425,10 @@ const PixelType& DenseImage2D<PixelType>::GetPixelNearestTo2DIndex(ScalarType xI
 
 	auto Size = this->GetSize();
 
-	auto x = int_max(std::round(xIndex));
-	auto y = int_max(std::round(yIndex));
+	//auto x = int_max(std::round(xIndex));
+	//auto y = int_max(std::round(yIndex));
+	auto x = int_max(xIndex+0.5);
+	auto y = int_max(yIndex+0.5);
 
 	if (x < 0)
 	{
@@ -1804,10 +1814,14 @@ DenseImage2D<PixelType>::GetSubImage(const BoxRegionOf2DIndexInImage2D& RegionIn
 			return SubImage;
 	}
 
-	auto xIndex_s = int_max(std::round(RegionInfo.x_min));
-	auto yIndex_s = int_max(std::round(RegionInfo.y_min));
-	auto xIndex_e = int_max(std::round(RegionInfo.x_max));
-	auto yIndex_e = int_max(std::round(RegionInfo.y_max));
+	//auto xIndex_s = int_max(std::round(RegionInfo.x_min));
+	//auto yIndex_s = int_max(std::round(RegionInfo.y_min));
+	//auto xIndex_e = int_max(std::round(RegionInfo.x_max));
+	//auto yIndex_e = int_max(std::round(RegionInfo.y_max));
+	auto xIndex_s = int_max(RegionInfo.x_min+0.5);
+	auto yIndex_s = int_max(RegionInfo.y_min+0.5);
+	auto xIndex_e = int_max(RegionInfo.x_max+0.5);
+	auto yIndex_e = int_max(RegionInfo.y_max+0.5);
 
 	if (xIndex_e < xIndex_s || yIndex_e < yIndex_s)
 	{
