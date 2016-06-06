@@ -775,7 +775,7 @@ void DenseImage2D<PixelType>::SetOrigin(double Origin_x, double Origin_y, double
 
 template<typename PixelType>
 inline
-DenseVector<double, 2> DenseImage2D<PixelType>::GetOrigin_xy() const
+DenseVector<double, 2> DenseImage2D<PixelType>::GetOrigin2D() const
 {
 	DenseVector<double, 2> Origin_xy = { 0.0, 0.0 };
 	if (this->IsPureEmpty() == false)

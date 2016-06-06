@@ -6,7 +6,6 @@
 #include "mdkDebugConfig.h"
 #include "mdkDenseMatrix.h"
 #include "mdkIntegralImageBuilder2D.h"
-#include "mdkImageFilter2D.h"
 
 namespace mdk
 {

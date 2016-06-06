@@ -228,7 +228,7 @@ Transform2DPositionInInputImageTo2DPositionInOutputImage(const DenseVector<Scala
 	}
 	else if (m_Flag_Input_Output_SameOrientation == true)
 	{
-		auto Position_out = m_InputImage->GetOrigin_xy() - m_OutputImage.GetOrigin_xy() + Position_in;
+		auto Position_out = m_InputImage->GetOrigin2D() - m_OutputImage.GetOrigin2D() + Position_in;
 		return Position_out;
 	}
 	else
@@ -254,7 +254,7 @@ Transform2DPositionInOutputImageTo2DPositionInInputImage(const DenseVector<Scala
 	}
 	else if (m_Flag_Input_Output_SameOrientation == true)
 	{
-		auto Position_in = m_OutputImage.GetOrigin_xy() - m_InputImage->GetOrigin_xy() + Position_out;
+		auto Position_in = m_OutputImage.GetOrigin2D() - m_InputImage->GetOrigin2D() + Position_out;
 		return Position_in;
 	}
 	else

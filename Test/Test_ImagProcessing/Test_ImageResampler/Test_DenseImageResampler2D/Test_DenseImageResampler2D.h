@@ -1,5 +1,4 @@
-﻿#ifndef Test_ScalarImageFilter2D_h
-#define Test_ScalarImageFilter2D_h
+﻿#pragma once
 
 #include <ctime>
 #include <cstdlib>
@@ -10,8 +9,7 @@
 #include "mdkDenseImage2D_FileIO.h"
 #include "mdkDenseImageResampler2D.h"
 
-namespace mdk
-{
+using namespace mdk;
 
 void test_a()
 {
@@ -65,6 +63,3 @@ void test_a()
 	Save2DScalarImageAsJsonDataFile(ResampledImage, FileNameAndPath_OutputImage);
 }
 
-}//namespace mdk
-
-#endif
