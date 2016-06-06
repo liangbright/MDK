@@ -25,18 +25,6 @@ void IntegralImageBuilder3D<InputPixelType, OutputPixelType>::Clear()
 }
 
 template<typename InputPixelType, typename OutputPixelType>
-void IntegralImageBuilder3D<InputPixelType, OutputPixelType>::SetInputImage(const DenseImage3D<InputPixelType>* InputImage)
-{
-	m_InputImage = InputImage;
-}
-
-template<typename InputPixelType, typename OutputPixelType>
-void IntegralImageBuilder3D<InputPixelType, OutputPixelType>::SetMaxThreadCount(int_max Number)
-{
-	m_MaxThreadCount = Number;
-}
-
-template<typename InputPixelType, typename OutputPixelType>
 bool IntegralImageBuilder3D<InputPixelType, OutputPixelType>::CheckInput()
 {
 	if (m_InputImage == nullptr)
@@ -158,11 +146,11 @@ ComputeSumInDirectionZ(int_max xy_LinearIndex_start, int_max xy_LinearIndex_end)
 
 
 template<typename InputPixelType, typename OutputPixelType>
-bool IntegralImageBuilder3D<InputPixelType, OutputPixelType>::Update()
+void IntegralImageBuilder3D<InputPixelType, OutputPixelType>::Update()
 {
     if (this->CheckInput() == false)
     {
-        return false;
+        return;
     }
 
     // compute each 2D ScalarIntegralDenseImage -------------------------------------------------------------------------------------
@@ -178,15 +166,6 @@ bool IntegralImageBuilder3D<InputPixelType, OutputPixelType>::Update()
 
 	ParallelBlock([&](int_max xy_Linear_start, int_max xy_Linear_end, int_max ThreadIndex){this->ComputeSumInDirectionZ(xy_Linear_start, xy_Linear_end); },
 				   0, InputSize[0]*InputSize[1] - 1, m_MaxThreadCount, MinNumberOfPositionPerThread);
-
-    return true;
-}
-
-
-template<typename InputPixelType, typename OutputPixelType>
-DenseImage3D<InputPixelType>* IntegralImageBuilder3D<InputPixelType, OutputPixelType>::GetOutputImage()
-{
-	return &m_OutputImage;
 }
 
 }//end namespace mdk

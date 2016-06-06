@@ -15,13 +15,13 @@ template<typename ScalarType>
 struct Mask_Of_GradientDenseImageFilter3D
 {
 	// Direction of Mask: PointN -> PointP
-	DenseVector<ScalarType, 3> PointP; // Positive pole, physical position in input image
-	DenseVector<ScalarType, 3> PointN; // Negtive pole, physical position in input image
+	DenseVector<ScalarType, 3> PointP; // Positive pole, physical position (transformed from output to in input image)
+	DenseVector<ScalarType, 3> PointN; // Negtive pole, physical position (transformed from output to in input image)
 
 	DenseVector<int_max> MaskIndexListAtNextLevel;
 };
 
-// compute Intensity Gradient in 3D space of InputImage (not OutputImage space, not world space)
+// compute Intensity Gradient in 3D space of OutputImage (not InputImage space, not world space)
 
 template<typename InputPixel_Type, typename Scalar_Type = double>
 class GradientDenseImageFilter3D : public Object
@@ -43,9 +43,9 @@ private:
 
 	double m_Radius; // distance between Position(+) and Position(-), in Physical unit (mm)
 
-	int_max m_MaxThreadCount;
+	DenseVector<Scalar_Type, 3> m_GradientDirection_Prior;// Direction in 3D space of OutputImage
 
-	DenseVector<Scalar_Type, 3> m_GradientDirection_Prior;
+	int_max m_MaxThreadCount;
 
 	//------------------------ internal ------------------------------------------------------//
 	bool m_Flag_Input_Output_SameOrigin;
@@ -119,6 +119,7 @@ private:
 	void BuildMaskWithGradientPrior(const DenseVector<ScalarType, 3>& GradientPrior);
 	void InitializeMaskList();
 	void BuildMaskLink(int_max Level, int_max MaskIndex);
+	void Transform3DPositonInMask_from_Output_to_Input();
 	inline OutputPixelType EvaluateAtPixelInOutputImage(int_max LinearIndex);
 	void EvaluateAt3DPositionInInputImage_SingleLevel(int_max& MaskIndex_max, OutputPixelType& Gradient_max, ScalarType x0, ScalarType y0, ScalarType z0, int_max Level, const DenseVector<int_max>& MaskIndexList);
 

@@ -198,6 +198,8 @@ public:
 
     inline void SetOrigin(double Origin_x, double Origin_y, double Origin_z);//origin in 3D
 
+	inline DenseVector<double, 2> GetOrigin_xy() const;// origin x and y
+
     inline DenseMatrix<double> GetOrientation() const;//orientation in 3D
 
     inline void SetOrientation(const DenseMatrix<double>& Orientation);

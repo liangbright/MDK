@@ -13,21 +13,21 @@ namespace mdk
 //similar to imfilter in Matlab
 
 template<typename InputPixel_Type, typename OutputPixel_Type = InputPixel_Type, typename Scalar_Type = double>
-class ConvolutionDenseImageFilter3D : public Object
+class DiscreteConvolutionDenseImageFilter3D : public Object
 {
 public:
 	typedef InputPixel_Type  InputPixelType;
 	typedef OutputPixel_Type OutputPixelType;
-	typedef Scalar_Type  ScalarType; // float or double
+	typedef Scalar_Type      ScalarType; // float or double
 
-	enum class BoundaryOptionEnum { Constant, Replicate };
+	enum class BoundaryOptionEnum { Constant, Replicate };// same as imfilter in Matlab
 
 private:
 	//-------------------------- input --------------------------------------------------//
 	const DenseImage3D<InputPixelType>* m_InputImage;
 
 	BoundaryOptionEnum m_BoundaryOption;
-	OutputPixelType m_BoundaryValue;
+	OutputPixelType    m_BoundaryValue;
 
 	DenseMatrix<int_max> m_ConvolutionMask;
 	//m_ConvolutionMask(:,k): 3D index of point-k in mask, can be negative
@@ -43,8 +43,8 @@ private:
 	DenseImage3D<OutputPixelType> m_OutputImage;
 
 public:
-	ConvolutionDenseImageFilter3D();
-	~ConvolutionDenseImageFilter3D();
+	DiscreteConvolutionDenseImageFilter3D();
+	~DiscreteConvolutionDenseImageFilter3D();
 	void Clear();
 	void SetInputImage(const DenseImage3D<InputPixelType>* InputImage) { m_InputImage = InputImage; }
 	void SetBoundaryOptionAsConstant(OutputPixelType BoundaryValue) { m_BoundaryOption = BoundaryOptionEnum::Constant; m_BoundaryValue = BoundaryValue; }
@@ -60,19 +60,21 @@ private:
 	OutputPixelType EvaluateAtPixel(int_max LinearIndex);
 
 private:
-	ConvolutionDenseImageFilter3D(const ConvolutionDenseImageFilter3D&) = delete;
-	void operator=(const ConvolutionDenseImageFilter3D&) = delete;
+	DiscreteConvolutionDenseImageFilter3D(const DiscreteConvolutionDenseImageFilter3D&) = delete;
+	void operator=(const DiscreteConvolutionDenseImageFilter3D&) = delete;
 
 //-------------------------------------- create mask --------------------------------------------------------------//
 public:
+	// Radius_x/y/z = Sigma_x/y/z * CutOffRatio
 	// set CutOffRatio = 1 for GaussianMask
 	// set GaussianMask = 1.5 for LoGMask
-	void CreateGaussianMask(const ImageInfo3D& InputImageInfo, ScalarType Sigma, ScalarType CutOffRatio);
-	void CreateGaussianMask(const ImageInfo3D& InputImageInfo, ScalarType Sigma_x, ScalarType Sigma_y, ScalarType Sigma_z, ScalarType CutOffRatio);
-	void CreateGaussianMask(const ImageInfo3D& InputImageInfo, ScalarType Sigma_x, ScalarType Sigma_y, ScalarType Sigma_z, const DenseMatrix<ScalarType>& RotationMatrix, ScalarType CutOffRatio);
-	void CreateLaplacianOfGaussianMask(const ImageInfo3D& InputImageInfo, ScalarType Sigma, ScalarType CutOffRatio);
+	// use Spacing of Input Image
+	void CreateGaussianMask(const DenseVector<ScalarType, 3>& Spacing, ScalarType Sigma, ScalarType CutOffRatio);
+	void CreateGaussianMask(const DenseVector<ScalarType, 3>& Spacing, ScalarType Sigma_x, ScalarType Sigma_y, ScalarType Sigma_z, ScalarType CutOffRatio);
+	void CreateGaussianMask(const DenseVector<ScalarType, 3>& Spacing, ScalarType Sigma_x, ScalarType Sigma_y, ScalarType Sigma_z, const DenseMatrix<ScalarType>& RotationMatrix, ScalarType CutOffRatio);
+	void CreateLaplacianOfGaussianMask(const DenseVector<ScalarType, 3>& Spacing, ScalarType Sigma, ScalarType CutOffRatio);
 };
 
 }// namespace mdk
 
-#include "mdkConvolutionDenseImageFilter3D.hpp"
+#include "mdkDiscreteConvolutionDenseImageFilter3D.hpp"

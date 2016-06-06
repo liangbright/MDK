@@ -4,24 +4,25 @@ namespace mdk
 {
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-ConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::ConvolutionDenseImageFilter3D()
+DiscreteConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::DiscreteConvolutionDenseImageFilter3D()
 {
 	this->Clear();
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-ConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::~ConvolutionDenseImageFilter3D()
+DiscreteConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::~DiscreteConvolutionDenseImageFilter3D()
 {
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void ConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::Clear()
+void DiscreteConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::Clear()
 {
 	m_InputImage = nullptr;	
 	m_BoundaryOption = BoundaryOptionEnum::Replicate;
 	m_BoundaryValue = OutputPixelType(0);
+	m_MaskBox.Clear();
 	m_ConvolutionMask.Clear();
 	m_ConvolutionCoef.Clear();
 	m_OutputImage.Clear();
@@ -30,47 +31,47 @@ void ConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>:
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-bool ConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::CheckInput()
+bool DiscreteConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::CheckInput()
 {
 	if (m_InputImage == nullptr)
 	{
-		MDK_Error("Input image is Empty (nullptr) @ ConvolutionDenseImageFilter3D::CheckInput()")
+		MDK_Error("Input image is Empty (nullptr) @ DiscreteConvolutionDenseImageFilter3D::CheckInput()")
 		return false;
 	}
 
 	if (m_InputImage->IsEmpty() == true)
 	{
-		MDK_Error("Input image is Empty @ ConvolutionDenseImageFilter3D::CheckInput()")
+		MDK_Error("Input image is Empty @ DiscreteConvolutionDenseImageFilter3D::CheckInput()")
 		return false;
 	}
 
 	if (m_ConvolutionMask.IsEmpty() == true)
 	{
-		MDK_Error("ConvolutionMask is Empty @ ConvolutionDenseImageFilter3D::CheckInput()")
+		MDK_Error("ConvolutionMask is Empty @ DiscreteConvolutionDenseImageFilter3D::CheckInput()")
 		return false;
 	}
 
 	if (m_ConvolutionMask.GetRowCount() != 3)
 	{
-		MDK_Error("ConvolutionMask size is wrong @ ConvolutionDenseImageFilter3D::CheckInput()")
+		MDK_Error("ConvolutionMask size is wrong @ DiscreteConvolutionDenseImageFilter3D::CheckInput()")
 		return false;
 	}
 
 	if (m_ConvolutionCoef.IsEmpty() == true)
 	{
-		MDK_Error("ConvolutionCoef is Empty @ ConvolutionDenseImageFilter3D::CheckInput()")
+		MDK_Error("ConvolutionCoef is Empty @ DiscreteConvolutionDenseImageFilter3D::CheckInput()")
 		return false;
 	}
 
 	if (m_ConvolutionMask.GetColCount() != m_ConvolutionCoef.GetElementCount())
 	{
-		MDK_Error("ConvolutionCoef NOT match ConvolutionCoef @ ConvolutionDenseImageFilter3D::CheckInput()")
+		MDK_Error("ConvolutionMask NOT match ConvolutionCoef @ DiscreteConvolutionDenseImageFilter3D::CheckInput()")
 		return false;
 	}
 	
 	if (m_MaxThreadCount <= 0)
 	{
-		MDK_Error("m_MaxThreadCount <= 0) @ ConvolutionDenseImageFilter3D::CheckInput()")
+		MDK_Error("m_MaxThreadCount <= 0) @ DiscreteConvolutionDenseImageFilter3D::CheckInput()")
 		return false;
 	}
 
@@ -79,7 +80,7 @@ bool ConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>:
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void ConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::Update()
+void DiscreteConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::Update()
 {
 	if (this->CheckInput() == false)
 	{
@@ -93,7 +94,10 @@ void ConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>:
 		m_OutputImage.Clear();
 		m_OutputImage.SetInfo(m_InputImage->GetInfo());
 	}
-	m_OutputImage.Fill(m_BoundaryValue);
+	else
+	{
+		m_OutputImage.SetInfo(m_InputImage->GetInfo(), false);
+	}
 
 	// [x_min, x_max, y_min, y_max, z_min, z_max]
 	auto MaskRowX = m_ConvolutionMask.GetRow(0);
@@ -117,7 +121,7 @@ void ConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>:
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-OutputPixelType ConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::EvaluateAtPixel(int_max LinearIndex)
+OutputPixelType DiscreteConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::EvaluateAtPixel(int_max LinearIndex)
 {
 	auto CenterIndex3D = m_OutputImage.TransformLinearIndexTo3DIndex(LinearIndex);
 	bool Flag_MaskOutsideImage = false;
@@ -213,42 +217,41 @@ OutputPixelType ConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, S
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void ConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::CreateGaussianMask(const ImageInfo3D& InputImageInfo, ScalarType Sigma, ScalarType CutOffRatio)
+void DiscreteConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::CreateGaussianMask(const DenseVector<ScalarType, 3>& Spacing, ScalarType Sigma, ScalarType CutOffRatio)
 {
-	this->CreateGaussianMask(InputImageInfo, Sigma, Sigma, Sigma, CutOffRatio);
+	this->CreateGaussianMask(Spacing, Sigma, Sigma, Sigma, CutOffRatio);
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void ConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::
-CreateGaussianMask(const ImageInfo3D& InputImageInfo, ScalarType Sigma_x, ScalarType Sigma_y, ScalarType Sigma_z, ScalarType CutOffRatio)
+void DiscreteConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::
+CreateGaussianMask(const DenseVector<ScalarType, 3>& Spacing, ScalarType Sigma_x, ScalarType Sigma_y, ScalarType Sigma_z, ScalarType CutOffRatio)
 {
 	DenseMatrix<ScalarType> RotationMatrix;
 	RotationMatrix.Resize(3, 3);
 	RotationMatrix.Fill(0);
 	RotationMatrix.FillDiagonal(1);
-	this->CreateGaussianMask(InputImageInfo, Sigma_x, Sigma_y, Sigma_z, RotationMatrix, CutOffRatio);
+	this->CreateGaussianMask(Spacing, Sigma_x, Sigma_y, Sigma_z, RotationMatrix, CutOffRatio);
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void ConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::
-CreateGaussianMask(const ImageInfo3D& InputImageInfo, ScalarType Sigma_x, ScalarType Sigma_y, ScalarType Sigma_z, const DenseMatrix<ScalarType>& RotationMatrix, ScalarType CutOffRatio)
+void DiscreteConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::
+CreateGaussianMask(const DenseVector<ScalarType, 3>& Spacing, ScalarType Sigma_x, ScalarType Sigma_y, ScalarType Sigma_z, const DenseMatrix<ScalarType>& RotationMatrix, ScalarType CutOffRatio)
 {	
 	if (Sigma_x <= 0 || Sigma_y <= 0 || Sigma_z <= 0 || CutOffRatio <= 0)
 	{
-		MDK_Error("Invalid input @ ConvolutionDenseImageFilter3D::CreateGaussianMask(...)")
+		MDK_Error("Invalid input @ DiscreteConvolutionDenseImageFilter3D::CreateGaussianMask(...)")
 		return;
 	}
 
 	if (RotationMatrix.GetColCount() != 3 || RotationMatrix.GetRowCount() != 3)
 	{
-		MDK_Error("RotationMatrix is invalid @ ConvolutionDenseImageFilter3D::CreateGaussianMask(...)")
+		MDK_Error("RotationMatrix is invalid @ DiscreteConvolutionDenseImageFilter3D::CreateGaussianMask(...)")
 		return;
 	}
 	//---------------------------------------------------------------------------------------------------
 	// Sigma is in real physical unit
-	auto Spacing = InputImageInfo.Spacing;
 	Sigma_x /= Spacing[0];
 	Sigma_y /= Spacing[1];
 	Sigma_z /= Spacing[2];
@@ -262,7 +265,7 @@ CreateGaussianMask(const ImageInfo3D& InputImageInfo, ScalarType Sigma_x, Scalar
 
 	ScalarType Sigma_max = std::max(std::max(Sigma_x, Sigma_y), Sigma_z);
 
-	auto Radius = int_max(Sigma_max*2.5) + 1;
+	auto Radius = int_max(1.5*CutOffRatio*Sigma_max) + 1;
 
 	// construct a grid of relative indexes according to the maximum sigma
 	// at each point of the grid, compute the mahalanobis distance to the center (0,0,0), i.e., sqrt(SquaredRatio)
@@ -306,17 +309,16 @@ CreateGaussianMask(const ImageInfo3D& InputImageInfo, ScalarType Sigma_x, Scalar
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void ConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::
-CreateLaplacianOfGaussianMask(const ImageInfo3D& InputImageInfo, ScalarType Sigma, ScalarType CutOffRatio)
+void DiscreteConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::
+CreateLaplacianOfGaussianMask(const DenseVector<ScalarType, 3>& Spacing, ScalarType Sigma, ScalarType CutOffRatio)
 {
 	if (Sigma <= 0 || CutOffRatio <= 1)
 	{
-		MDK_Error("Invalid input @ ConvolutionDenseImageFilter3D::CreateGaussianMask(...)")
+		MDK_Error("Invalid input @ DiscreteConvolutionDenseImageFilter3D::CreateGaussianMask(...)")
 		return;
 	}
 
-	auto Spacing = InputImageInfo.Spacing;	
-	auto Radius = int_max(2.5*Sigma/Spacing.Min()) + 1;
+	auto Radius = int_max(1.5*CutOffRatio*Sigma/Spacing.Min()) + 1;
 
 	m_ConvolutionMask.FastResize(0);
 	m_ConvolutionMask.SetCapacity(3*Radius*Radius*Radius);

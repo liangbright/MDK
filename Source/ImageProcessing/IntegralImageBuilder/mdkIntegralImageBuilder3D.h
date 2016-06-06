@@ -26,10 +26,10 @@ public:
     ~IntegralImageBuilder3D();
   
     void Clear();
-	void SetInputImage(const DenseImage3D<InputPixelType>* InputImage);
-	void SetMaxThreadCount(int_max Number);
-	bool Update();
-	DenseImage3D<InputPixelType>* GetOutputImage();
+	void SetInputImage(const DenseImage3D<InputPixelType>* InputImage) { m_InputImage = InputImage; }
+	void SetMaxThreadCount(int_max Number) { m_MaxThreadCount = Number; }
+	void Update();
+	DenseImage3D<InputPixelType>& OutputImage() {return m_OutputImage;}
 
 private:
     bool CheckInput();

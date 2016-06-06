@@ -503,12 +503,32 @@ void GradientDenseImageFilter3D<InputPixelType, ScalarType>::BuildMaskLink(int_m
 
 
 template<typename InputPixelType, typename ScalarType>
+void GradientDenseImageFilter3D<InputPixelType, ScalarType>::Transform3DPositonInMask_from_Output_to_Input()
+{
+	for (int_max Level = 0; Level < m_MaskList.GetLength(); ++Level)
+	{
+		for (int_max MaskIndex = 0; MaskIndex < m_MaskList[Level].GetLength(); ++MaskIndex)
+		{
+			auto PointP = m_MaskList[Level][MaskIndex].PointP;			
+			auto PointP_in = this->Transform3DPositionInOutputImageTo3DPositionInInputImage(PointP);
+			m_MaskList[Level][MaskIndex].PointP = PointP_in;
+
+			auto PointN = m_MaskList[Level][MaskIndex].PointN;
+			auto PointN_in = this->Transform3DPositionInOutputImageTo3DPositionInInputImage(PointN);
+			m_MaskList[Level][MaskIndex].PointN = PointN;
+		}
+	}
+}
+
+template<typename InputPixelType, typename ScalarType>
 void GradientDenseImageFilter3D<InputPixelType, ScalarType>::Update()
 {
 	if (this->CheckInput() == false)
 	{
 		return;
 	}
+
+	this->Update3DPositionTransform_Input_Output();
 
 	if (m_GradientDirection_Prior.L2Norm() < 0.001)
 	{
@@ -520,7 +540,7 @@ void GradientDenseImageFilter3D<InputPixelType, ScalarType>::Update()
 		this->BuildMaskWithGradientPrior(m_GradientDirection_Prior);
 	}
 
-	this->Update3DPositionTransform_Input_Output();
+	this->Transform3DPositonInMask_from_Output_to_Input();
 
 	//--------------------------------------------------------------------------------
 	auto PixelCount = m_OutputImage.GetPixelCount();
@@ -539,10 +559,10 @@ DenseVector<ScalarType, 3> GradientDenseImageFilter3D<InputPixelType, ScalarType
 EvaluateAtPixelInOutputImage(int_max LinearIndex)
 {
 	auto Pos_out = m_OutputImage.TransformLinearIndexTo3DPosition<ScalarType>(LinearIndex);
-	auto Post_in = this->Transform3DPositionInOutputImageTo3DPositionInInputImage(Pos_out);
-	auto x0 = Post_in[0];
-	auto y0 = Post_in[1];
-	auto z0 = Post_in[2];
+	auto Pos_in = this->Transform3DPositionInOutputImageTo3DPositionInInputImage(Pos_out);
+	auto x0 = Pos_in[0];
+	auto y0 = Pos_in[1];
+	auto z0 = Pos_in[2];
 
 	DenseVector<ScalarType, 3> Gradient_max;
 	int_max MaskIndex_max = -1;

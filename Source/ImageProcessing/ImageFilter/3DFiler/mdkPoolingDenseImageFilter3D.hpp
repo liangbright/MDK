@@ -427,7 +427,7 @@ PoolingOperation_Max(int_max x_min, int_max x_max, int_max y_min, int_max y_max,
 		{
 			for (int_max x = x_min; x <= x_max; ++x)
 			{
-				auto Pixel = (*m_InputImage)(x, y, z);
+				auto Pixel = OutputPixelType((*m_InputImage)(x, y, z));
 				if (Pixel > OutputPixel)
 				{
 					OutputPixel = Pixel;
@@ -450,7 +450,7 @@ PoolingOperation_MaxAbs(int_max x_min, int_max x_max, int_max y_min, int_max y_m
 		{
 			for (int_max x = x_min; x <= x_max; ++x)
 			{
-				auto Pixel = (*m_InputImage)(x, y, z);
+				auto Pixel = OutputPixelType((*m_InputImage)(x, y, z));
 				if (std::abs(Pixel) > std::abs(OutputPixel))
 				{
 					OutputPixel = std::abs(Pixel);
@@ -473,7 +473,7 @@ PoolingOperation_Min(int_max x_min, int_max x_max, int_max y_min, int_max y_max,
 		{
 			for (int_max x = x_min; x <= x_max; ++x)
 			{
-				auto Pixel = (*m_InputImage)(x, y, z);
+				auto Pixel = OutputPixelType((*m_InputImage)(x, y, z));
 				if (Pixel < OutputPixel)
 				{
 					OutputPixel = Pixel;
@@ -496,7 +496,7 @@ PoolingOperation_MinAbs(int_max x_min, int_max x_max, int_max y_min, int_max y_m
 		{
 			for (int_max x = x_min; x <= x_max; ++x)
 			{
-				auto Pixel = (*m_InputImage)(x, y, z);
+				auto Pixel = OutputPixelType((*m_InputImage)(x, y, z));
 				if (std::abs(Pixel) < std::abs(OutputPixel))
 				{
 					OutputPixel = std::abs(Pixel);
@@ -519,10 +519,12 @@ PoolingOperation_Averge(int_max x_min, int_max x_max, int_max y_min, int_max y_m
 		{
 			for (int_max x = x_min; x <= x_max; ++x)
 			{
-				OutputPixel += (*m_InputImage)(x, y, z);
+				OutputPixel += OutputPixelType((*m_InputImage)(x, y, z));
 			}
 		}
 	}
+	auto Count = (z_max - z_min + 1)*(y_max - y_min + 1)*(x_max - x_min + 1);
+	OutputPixel /= ScalarType(Count);
 	return OutputPixel;
 }
 

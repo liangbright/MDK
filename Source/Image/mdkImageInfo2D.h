@@ -123,6 +123,16 @@ struct ImageInfo2D
 	ImageInfo2D() { this->Clear(); }
 	~ImageInfo2D() {}
 
+	ImageInfo2D(const ImageInfo2D& Info)
+	{
+		(*this) = Info;
+	}
+
+	ImageInfo2D(ImageInfo2D&& Info)
+	{
+		(*this) = std::move(Info);
+	}
+
 	void operator=(const ImageInfo2D& Info)
 	{
 		Size = Info.Size;

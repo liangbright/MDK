@@ -81,7 +81,7 @@ template<typename ScalarType>
 inline 
 DenseVector<ScalarType, 2> DenseImageData2D<PixelType>::TransformLinearIndexTo2DIndex(int_max LinearIndex) const
 {            
-	auto divresult = std::div(LinearIndex m_Info.Size[0]);
+	auto divresult = std::div(LinearIndex, m_Info.Size[0]);
 	auto yIndex = divresult.quot;
 	auto xIndex = divresult.rem;
 
@@ -770,6 +770,20 @@ void DenseImage2D<PixelType>::SetOrigin(double Origin_x, double Origin_y, double
     m_ImageData->m_Info.Origin[0] = Origin_x;
     m_ImageData->m_Info.Origin[1] = Origin_y;
 	m_ImageData->m_Info.Origin[2] = Origin_z;
+}
+
+
+template<typename PixelType>
+inline
+DenseVector<double, 2> DenseImage2D<PixelType>::GetOrigin_xy() const
+{
+	DenseVector<double, 2> Origin_xy = { 0.0, 0.0 };
+	if (this->IsPureEmpty() == false)
+	{
+		Origin_xy[0] = m_ImageData->m_Info.Origin[0];
+		Origin_xy[1] = m_ImageData->m_Info.Origin[1];
+	}
+	return Origin_xy;
 }
 
 

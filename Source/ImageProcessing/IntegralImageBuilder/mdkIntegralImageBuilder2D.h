@@ -24,9 +24,9 @@ public:
     ~IntegralImageBuilder2D();
   
     void Clear();
-	void SetInputImage(const DenseImage2D<InputPixelType>* InputImage);
-	bool Update();
-	DenseImage2D<InputPixelType>* GetOutputImage();
+	void SetInputImage(const DenseImage2D<InputPixelType>* InputImage) { m_InputImage = InputImage;	}
+	void Update();
+	DenseImage2D<InputPixelType>& OutputImage() { return m_OutputImage;}
 
 private:
     bool CheckInput();

@@ -4,20 +4,20 @@ namespace mdk
 {
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::DenseImageResampler2D()
+IntegralImageBasedAverageDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::IntegralImageBasedAverageDenseImageFilter2D()
 {
-	this->Clear();
+    this->Clear();
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::~DenseImageResampler2D()
+IntegralImageBasedAverageDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::~IntegralImageBasedAverageDenseImageFilter2D()
 {
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::Clear()
+void IntegralImageBasedAverageDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::Clear()
 {
 	m_InputImage = nullptr;
 	m_ImageInterpolationOption.MethodType = ImageInterpolationMethodEnum::Linear;
@@ -35,56 +35,15 @@ void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::Clear()
 	m_3DPositionTransformFromInputToOutput_Matrix.Clear();
 	m_3DPositionTransformFromInputToOutput_Offset.Clear();
 
-	m_Flag_SmoothWhenDownsmapling = false;
-	m_Flag_SmoothInputImage = false;
-	m_SmoothedImage.Clear();
-
-	m_2DPositionTransform_from_OutputImage_to_InputImage = nullptr;
+	m_IntegralImage_Internal.Clear();
+	m_IntegralImage = &m_IntegralImage_Internal;
+	m_Radius = { 0, 0};
+	m_Radius_Index2D = { 0, 0};
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::EnableSmoothingWhenDownsampling(bool On_Off)
-{
-	m_Flag_SmoothWhenDownsmapling = On_Off;
-}
-
-
-template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::SmoothInputImageIfNecessary()
-{
-	m_Flag_SmoothInputImage = false;
-	m_SmoothedImage.Clear();
-
-	if (m_Flag_SmoothWhenDownsmapling == true)
-	{
-		auto InputSpacing = m_InputImage->GetSpacing();
-		auto OutputSpacing = m_OutputImage.GetSpacing();
-		for (int_max k = 0; k < 2; ++k)
-		{
-			auto Ratio = OutputSpacing[k] / InputSpacing[k];
-			if (Ratio > 1.5)
-			{
-				m_Flag_SmoothInputImage = true;
-			}
-		}
-
-		if (m_Flag_SmoothInputImage == true)
-		{			
-			IntegralImageBasedAverageDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType> SmoothingFilter;
-			SmoothingFilter.SetInputImage(m_InputImage);
-			SmoothingFilter.SetOutputImageInfo(m_InputImage->GetInfo());
-			SmoothingFilter.SetRadius(OutputSpacing[0], OutputSpacing[1]);
-			SmoothingFilter.SetMaxThreadCount(m_MaxThreadCount);
-			SmoothingFilter.Update();
-			m_SmoothedImage = std::move(SmoothingFilter.OutputImage());			
-		}
-	}
-}
-
-
-template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::SetOutputImageInfo(const ImageInfo2D& Info)
+void IntegralImageBasedAverageDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::SetOutputImageInfo(const ImageInfo2D& Info)
 {
 	auto Size_old = m_OutputImage.GetSize();
 	if (Size_old[0] != Info.Size[0] || Size_old[1] != Info.Size[1])
@@ -100,7 +59,7 @@ void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::SetOutp
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::
+void IntegralImageBasedAverageDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::
 SetOutputImageInfo(const DenseVector<double, 3>& Origin, const DenseVector<double, 2>& Spacing, const DenseVector<int_max, 2>& Size, const DenseMatrix<double>& Orientation)
 {
 	ImageInfo2D Info;
@@ -114,24 +73,24 @@ SetOutputImageInfo(const DenseVector<double, 3>& Origin, const DenseVector<doubl
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::SetOutputImageInfoBySize(const DenseVector<int_max, 2>& Size)
+void IntegralImageBasedAverageDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::SetOutputImageInfoBySize(const DenseVector<int_max, 2>& Size)
 {
 	this->SetOutputImageInfoBySize(Size[0], Size[1]);
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::SetOutputImageInfoBySize(int_max Lx, int_max Ly)
+void IntegralImageBasedAverageDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::SetOutputImageInfoBySize(int_max Lx, int_max Ly)
 {
 	if (m_InputImage == nullptr)
 	{
-		MDK_Error("InputImage is nullptr @ DenseImageResampler2D::SetOutputImageInfoBySize(...)")
+		MDK_Error("InputImage is nullptr @ IntegralImageBasedAverageDenseImageFilter2D::SetOutputImageInfoBySize(...)")
 		return;
 	}
 
 	if (Lx <= 0 || Ly <= 0)
 	{
-		MDK_Error("Invalid input @ DenseImageResampler2D::SetOutputImageInfoBySize(...)")
+		MDK_Error("Invalid input @ IntegralImageBasedAverageDenseImageFilter2D::SetOutputImageInfoBySize(...)")
 		return;
 	}
 
@@ -153,18 +112,18 @@ void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::SetOutp
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::SetOutputImageInfoBySpacing(const DenseVector<double, 2>& Spacing)
+void IntegralImageBasedAverageDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::SetOutputImageInfoBySpacing(const DenseVector<double, 2>& Spacing)
 {
 	this->SetOutputImageInfoBySpacing(Spacing[0], Spacing[1]);
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::SetOutputImageInfoBySpacing(double Spacing_x, double Spacing_y)
+void IntegralImageBasedAverageDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::SetOutputImageInfoBySpacing(double Spacing_x, double Spacing_y)
 {
 	if (m_InputImage == nullptr)
 	{
-		MDK_Error("InputImage is nullptr @ DenseImageResampler2D::SetOutputImageInfoBySpacing(...)")
+		MDK_Error("InputImage is nullptr @ IntegralImageBasedAverageDenseImageFilter2D::SetOutputImageInfoBySpacing(...)")
 		return;
 	}
 
@@ -172,7 +131,7 @@ void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::SetOutp
 
 	if (Spacing_x <= Zero || Spacing_y <= Zero)
 	{
-		MDK_Error("Invalid input (<= eps) @ DenseImageResampler2D::SetOutputImageInfoBySpacing(...)")
+		MDK_Error("Invalid input (<= eps) @ IntegralImageBasedAverageDenseImageFilter2D::SetOutputImageInfoBySpacing(...)")
 		return;
 	}
 
@@ -194,7 +153,7 @@ void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::SetOutp
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::Update3DPositionTransform_Input_Output()
+void IntegralImageBasedAverageDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::Update3DPositionTransform_Input_Output()
 {
 	auto InputImageInfo = m_InputImage->GetInfo();
 	auto OutputImageInfo = m_OutputImage.GetInfo();
@@ -260,7 +219,7 @@ void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::Update3
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-DenseVector<ScalarType, 2> DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::
+DenseVector<ScalarType, 2> IntegralImageBasedAverageDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::
 Transform2DPositionInInputImageTo2DPositionInOutputImage(const DenseVector<ScalarType, 2>& Position_in)
 {
 	if (m_Flag_Input_Output_SameOrigin_SameOrientation == true)
@@ -286,7 +245,7 @@ Transform2DPositionInInputImageTo2DPositionInOutputImage(const DenseVector<Scala
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-DenseVector<ScalarType, 2> DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::
+DenseVector<ScalarType, 2> IntegralImageBasedAverageDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::
 Transform2DPositionInOutputImageTo2DPositionInInputImage(const DenseVector<ScalarType, 2>& Position_out)
 {
 	if (m_Flag_Input_Output_SameOrigin_SameOrientation == true)
@@ -312,48 +271,93 @@ Transform2DPositionInOutputImageTo2DPositionInInputImage(const DenseVector<Scala
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-bool DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::CheckInput()
+void IntegralImageBasedAverageDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::SetIntegralImage(const DenseImage2D<InputPixelType>* IntegralImage)
+{
+	m_IntegralImage = IntegralImage;
+}
+
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+void IntegralImageBasedAverageDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::SetRadius(double RadiusX, double RadiusY)
+{
+	m_Radius[0] = RadiusX;
+	m_Radius[1] = RadiusY;
+}
+
+
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+bool IntegralImageBasedAverageDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::BuildIntegralImageIfNecessary()
+{
+	auto Size = m_InputImage->GetSize();
+	if (Size[0] < 2 || Size[1] < 2)
+	{
+		MDK_Error(" SizeX or SizeY of InputImage < 2 @ IntegralImageBasedAverageDenseImageFilter2D::BuildIntegralImageIfNecessary()")
+		return false;
+	}
+
+	if (m_IntegralImage == nullptr)
+	{
+		m_IntegralImage = &m_IntegralImage_Internal;
+	}
+	else
+	{
+		if (m_IntegralImage != &m_IntegralImage_Internal)
+		{
+			if (m_IntegralImage->IsEmpty() == true)
+			{
+				MDK_Error("Input IntegralImage is empty @ IntegralImageBasedAverageDenseImageFilter2D::BuildIntegralImageIfNecessary(...)")
+				return false;
+			}
+
+			auto Size = m_IntegralImage->GetSize();
+			if (Size[0] < 2 || Size[1] < 2)
+			{
+				MDK_Error(" SizeX or SizeY of Input IntegralImage < 2 @ IntegralImageBasedAverageDenseImageFilter2D::BuildIntegralImageIfNecessary()")
+				return false;
+			}
+		}
+	}
+
+	auto Spacing = m_OutputImage.GetSpacing();
+	m_Radius_Index2D[0] = m_Radius[0] / Spacing[0];
+	m_Radius_Index2D[1] = m_Radius[1] / Spacing[1];
+
+	if (m_Radius_Index2D[0] <= 0 || m_Radius_Index2D[1] <= 0)
+	{
+		MDK_Error(" RadiusX or RadiusY in Index2D <= 0 @ IntegralImageBasedAverageDenseImageFilter2D::BuildIntegralImageIfNecessary()")
+		return false;
+	}
+
+	m_IntegralImage_Internal.Clear();
+	if (m_IntegralImage == &m_IntegralImage_Internal)
+	{
+		IntegralImageBuilder2D<double> ImBuilder;
+		ImBuilder.SetInputImage(m_InputImage);
+		ImBuilder.Update();
+		m_IntegralImage_Internal = std::move(ImBuilder.OutputImage());
+	}
+
+	return true;
+}
+
+
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+bool IntegralImageBasedAverageDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::CheckInput()
 {
 	if (m_InputImage == nullptr)
 	{
-		MDK_Error("Input image is Empty (nullptr) @ DenseImageResampler2D::SelfCheckInput()")
+		MDK_Error("Input image is Empty (nullptr) @ IntegralImageBasedAverageDenseImageFilter2D::SelfCheckInput()")
 		return false;
 	}
 
 	if (m_InputImage->IsEmpty() == true)
 	{
-		MDK_Error("Input image is Empty @ DenseImageResampler2D::CheckInput()")
+		MDK_Error("Input image is Empty @ IntegralImageBasedAverageDenseImageFilter2D::CheckInput()")
 		return false;
 	}
-	
-	if (m_OutputImage.IsEmpty() == true)
-	{
-		MDK_Error("Output image is Empty, call SetOutputImageInfo first @ DenseImageResampler2D::CheckInput()")
-		return false;
-	}
-
-	// OutputImage and InputImage should be in the same x-y plane
-	auto Info_in = m_InputImage->GetInfo();
-	auto Info_out = m_OutputImage.GetInfo();
-	if (Info_in.Origin[2] != Info_out.Origin[2])
-	{
-		MDK_Error("OutputImage and InputImage NOT in the same x-y plane (Origin[2]) @ DenseImageResampler2D::CheckInput()")
-		return false;
-	}
-	DenseVector<double, 3> DirectionZ_in, DirectionZ_out;
-	Info_in.Orientation.GetCol(2, DirectionZ_in);
-	Info_out.Orientation.GetCol(2, DirectionZ_out);
-	double diff = (DirectionZ_in - DirectionZ_out).L2Norm();
-	if (diff > 0.000001)
-	{
-		MDK_Error("OutputImage and InputImage NOT in the same x-y plane (DirectionZ) @ DenseImageResampler2D::CheckInput()")
-		return false;
-	}
-	//------------------------------------------------------------
 
 	if (m_MaxThreadCount <= 0)
 	{
-		MDK_Error("m_MaxThreadCount <= 0 @ DenseImageResampler2D::CheckInput()")
+	    MDK_Error("m_MaxThreadCount <= 0 @ IntegralImageBasedAverageDenseImageFilter2D::CheckInput()")
 		return false;
 	}
 
@@ -362,7 +366,7 @@ bool DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::CheckIn
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::Update()
+void IntegralImageBasedAverageDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::Update()
 {
 	if (this->CheckInput() == false)
 	{
@@ -371,39 +375,104 @@ void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::Update(
 
 	this->Update3DPositionTransform_Input_Output();
 
-	this->SmoothInputImageIfNecessary();
+	if (this->BuildIntegralImageIfNecessary() == false)
+	{
+		return;
+	}
 
-	//---------------------------------------------------------------------------------
-	auto Size = m_OutputImage.GetSize();
-	//for (int_max y = 0; y <= Size[1]-1; ++y)
-	auto TempFunction = [&](int_max y)
-	{			
-		for (int_max x = 0; x < Size[0]; ++x)
-		{
-			auto Pos_out = m_OutputImage.Transform2DIndexTo2DPosition<ScalarType>(x, y);
-			DenseVector<ScalarType, 2> Pos_in;
-			if (m_2DPositionTransform_from_OutputImage_to_InputImage != nullptr)
-			{
-				Pos_in = m_2DPositionTransform_from_OutputImage_to_InputImage->TransformPoint(Pos_out);
-			}
-			else
-			{
-				Pos_in = this->Transform2DPositionInOutputImageTo2DPositionInInputImage(Pos_out);
-			}
-			if (m_Flag_SmoothInputImage == false)
-			{
-				m_OutputImage(x, y) = m_InputImage->GetPixelAt2DPosition<OutputPixelType>(Pos_in, m_ImageInterpolationOption);
-			}
-			else
-			{
-				m_OutputImage(x, y) = m_SmoothedImage.GetPixelAt2DPosition<OutputPixelType>(Pos_in, m_ImageInterpolationOption);
-			}
-		}		
+	//--------------------------------------------------------------------------------
+	auto PixelCount = m_OutputImage.GetPixelCount();
+	//for (int_max k = 0; k <= PixelCount-1; ++k)
+	auto TempFunction = [&](int_max k)
+	{
+		m_OutputImage[k] = this->EvaluateAtPixelInOutputImage(k);
 	};
-	ParallelForLoop(TempFunction, 0, Size[1]-1, m_MaxThreadCount);
+	ParallelForLoop(TempFunction, 0, PixelCount - 1, m_MaxThreadCount);
 	//---------------------------------------------------------------------------------
-	m_SmoothedImage.Clear();
 }
 
+
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+OutputPixelType IntegralImageBasedAverageDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::
+EvaluateAtPixelInOutputImage(int_max LinearIndex)
+{
+	auto Pos_out = m_OutputImage.TransformLinearIndexTo2DPosition<ScalarType>(LinearIndex);
+	auto Pos_in = this->Transform2DPositionInOutputImageTo2DPositionInInputImage(Pos_out);
+	auto x0 = Pos_in[0];
+	auto y0 = Pos_in[1];
+
+	// Index2D=[x, y] : ScalarType
+	auto Index2D = m_IntegralImage->Transform2DPositionTo2DIndex(x0, y0);
+	auto Size = m_IntegralImage->GetSize();
+	//---------------------------------------------------------
+	// x1 <= x0 <= x2, y1 <= y0 <= y2
+	//
+	// y 
+	// ^            X2
+	// |       X0
+	// |   X1 
+	// |------------->x
+
+	auto x1 = int_max(std::round(Index2D[0] - m_Radius_Index2D[0]-1));
+	auto x2 = int_max(std::round(Index2D[0] + m_Radius_Index2D[0]));
+	auto y1 = int_max(std::round(Index2D[1] - m_Radius_Index2D[1]-1));
+	auto y2 = int_max(std::round(Index2D[1] + m_Radius_Index2D[1]));
+
+	// if the window is outside the image
+	if (x1 >= Size[0] || x2 < 0 || y1 >= Size[1] || y2 < 0)
+	{
+		return OutputPixelType(m_ImageInterpolationOption.Pixel_OutsideImage);
+	}
+
+	// now, the window overlap with the image
+	
+	if (x1 < 0)	{ x1 = 0; }
+	if (x2 >= Size[0]) { x2 = Size[0] - 1; }
+	if (x1 == x2) 
+	{ 
+		if (x1 > 0)
+		{
+			x1 = x1 - 1;
+		}
+		else
+		{
+			x2 = x2 + 1;
+		}
+	} 
+	
+	if (y1 < 0)	{ y1 = 0; }
+	if (y2 >= Size[1]) {y2 = Size[1] - 1;}
+	if (y1 == y2)
+	{
+		if (y1 > 0)
+		{
+			y1 = y1 - 1;
+		}
+		else
+		{
+			y2 = y2 + 1;
+		}
+	}
+
+	//---------------------------------------------------------
+	auto Pixel_x1y1 = (*m_IntegralImage)(x1, y1);
+	auto Pixel_x1y2 = (*m_IntegralImage)(x1, y2);
+	auto Pixel_x2y1 = (*m_IntegralImage)(x2, y1);
+	auto Pixel_x2y2 = (*m_IntegralImage)(x2, y2);
+	//---------------------------------------------------------
+	OutputPixelType OutputPixel;
+	OutputPixel = Pixel_x2y2 - Pixel_x1y2 - Pixel_x2y1 + Pixel_x1y1;
+	OutputPixel /= ScalarType((y2 - y1)*(x2 - x1));
+	return OutputPixel;	
 }
+
+
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+const DenseImage2D<InputPixelType>* IntegralImageBasedAverageDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::GetIntegralImage()
+{
+	return m_IntegralImage;
+}
+
+
+}//end namespace mdk
 

@@ -4,6 +4,8 @@
 #include <ctime>
 #include <cstdlib>
 #include <array>
+#include <iostream>
+#include <chrono>
 
 #include "mdkDenseImage2D_FileIO.h"
 #include "mdkDenseImageResampler2D.h"
@@ -13,7 +15,7 @@ namespace mdk
 
 void test_a()
 {
-	String FilePath_InputImage = "C:/Research/SpineAnalysis/TestData/Patient1/T2W/T2W0005.dcm";
+	String FilePath_InputImage = "C:/Research/LumbarSpine/TestData/Patient1/T2W/T2W0005.dcm";
 
 	String Test_Path = "C:/Research/MDK/MDK_Build/Test/Test_ImageProcessing/Test_ImageResampler/Test_DenseImageResampler2D/TestData/";
 
@@ -24,6 +26,8 @@ void test_a()
 	//auto InputImage = Load3DScalarImageFromJsonDataFile<double>(FilePath_InputImage);
 
 	std::cout << "start" << '\n';
+
+	auto t0 = std::chrono::system_clock::now();
 
 	DenseImageResampler2D<double> Resampler;
 	Resampler.SetInputImage(&InputImage);
@@ -50,7 +54,11 @@ void test_a()
 	Resampler.EnableSmoothingWhenDownsampling();
 	Resampler.SetMaxThreadCount(6);
 	Resampler.Update();
-	const auto& ResampledImage = *Resampler.GetOutputImage();
+	const auto& ResampledImage = Resampler.OutputImage();
+
+	auto t1 = std::chrono::system_clock::now();
+	std::chrono::duration<double> raw_time = t1 - t0;
+	std::cout << "time " << raw_time.count() << '\n';
 
 	std::cout << "done" << '\n';
 

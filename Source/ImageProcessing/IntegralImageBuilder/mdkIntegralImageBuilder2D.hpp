@@ -23,11 +23,6 @@ void IntegralImageBuilder2D<InputPixelType, OutputPixelType>::Clear()
 	m_OutputImage.Clear();
 }
 
-template<typename InputPixelType, typename OutputPixelType>
-void IntegralImageBuilder2D<InputPixelType, OutputPixelType>::SetInputImage(const DenseImage2D<InputPixelType>* InputImage)
-{
-	m_InputImage = InputImage;
-}
 
 template<typename InputPixelType, typename OutputPixelType>
 bool IntegralImageBuilder2D<InputPixelType, OutputPixelType>::CheckInput()
@@ -74,11 +69,11 @@ bool IntegralImageBuilder2D<InputPixelType, OutputPixelType>::CheckInput()
 
 
 template<typename InputPixelType, typename OutputPixelType>
-bool IntegralImageBuilder2D<InputPixelType, OutputPixelType>::Update()
+void IntegralImageBuilder2D<InputPixelType, OutputPixelType>::Update()
 {
     if (this->CheckInput() == false)
     {
-        return false;
+        return;
     }
 
 	auto InputSize = m_InputImage->GetSize();
@@ -106,15 +101,6 @@ bool IntegralImageBuilder2D<InputPixelType, OutputPixelType>::Update()
 			m_OutputImage(x, y) = tempOutputPixel;
 		}
 	}
-
-    return true;
-}
-
-
-template<typename InputPixelType, typename OutputPixelType>
-DenseImage2D<InputPixelType>* IntegralImageBuilder2D<InputPixelType, OutputPixelType>::GetOutputImage()
-{
-	return &m_OutputImage;
 }
 
 }//end namespace mdk

@@ -23,12 +23,17 @@ void IntegralImageBasedAverageDenseImageFilter3D<InputPixelType, OutputPixelType
 	m_ImageInterpolationOption.MethodType = ImageInterpolationMethodEnum::Nearest;
 	m_ImageInterpolationOption.BoundaryOption = ImageInterpolationBoundaryOptionEnum::Replicate;
 	m_ImageInterpolationOption.Pixel_OutsideImage = InputPixelType(0);	
+	m_OutputImage.Clear();
+	m_MaxThreadCount = 1;
+
 	m_Flag_Input_Output_SameOrigin = false;
 	m_Flag_Input_Output_SameSpacing = false;
 	m_Flag_Input_Output_SameOrientation = false;
 	m_Flag_Input_Output_SameOrigin_SameOrientation = false;
-	m_OutputImage.Clear();
-	m_MaxThreadCount = 1;
+	m_3DPositionTransformFromOuputToInput_Matrix.Clear();
+	m_3DPositionTransformFromOuputToInput_Offset.Clear();
+	m_3DPositionTransformFromInputToOutput_Matrix.Clear();
+	m_3DPositionTransformFromInputToOutput_Offset.Clear();
 
 	m_IntegralImage_Internal.Clear();
 	m_IntegralImage = &m_IntegralImage_Internal;
@@ -210,12 +215,6 @@ bool IntegralImageBasedAverageDenseImageFilter3D<InputPixelType, OutputPixelType
 		return false;
 	}
 
-	if (m_Radius_Index3D[0] < 1 && m_Radius_Index3D[1] < 1 && m_Radius_Index3D[2] < 1)
-	{
-		MDK_Error(" RadiusX and RadiusY and RadiusZ in Index3D < 1 @ IntegralImageBasedAverageDenseImageFilter3D::BuildIntegralImageIfNecessary()")
-		return false;
-	}
-
 	m_IntegralImage_Internal.Clear();
 	if (m_IntegralImage == &m_IntegralImage_Internal)
 	{
@@ -223,7 +222,7 @@ bool IntegralImageBasedAverageDenseImageFilter3D<InputPixelType, OutputPixelType
 		ImBuilder.SetInputImage(m_InputImage);
 		ImBuilder.SetMaxThreadCount(m_MaxThreadCount);
 		ImBuilder.Update();
-		m_IntegralImage_Internal = std::move(*ImBuilder.GetOutputImage());
+		m_IntegralImage_Internal = std::move(ImBuilder.OutputImage());
 	}
 
 	return true;
@@ -360,6 +359,13 @@ bool IntegralImageBasedAverageDenseImageFilter3D<InputPixelType, OutputPixelType
 	if (m_InputImage->IsEmpty() == true)
 	{
 		MDK_Error("Input image is Empty @ IntegralImageBasedAverageDenseImageFilter3D::CheckInput()")
+		return false;
+	}
+
+	auto Size = m_InputImage->GetSize();
+	if (Size[0] < 2 || Size[1] < 2 || Size[2] < 2)
+	{
+		MDK_Error("Input image is too small @ IntegralImageBasedAverageDenseImageFilter3D::CheckInput()")
 		return false;
 	}
 

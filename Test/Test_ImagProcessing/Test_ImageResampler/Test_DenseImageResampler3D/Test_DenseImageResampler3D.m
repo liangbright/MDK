@@ -2,7 +2,10 @@ FilePath='G:/AorticValveData/2014_7_25/P2115937/phase0/';
 [Volume, GeometryInfo] = ReadDenseImage3DFromDICOMSeries(FilePath);
 %% read ResampledImage
 Test_Path = 'C:/Research/MDK/MDK_Build/Test/Test_ImageProcessing/Test_ImageResampler/Test_DenseImageResampler3D/TestData/';
+%%
 [ResampledImage, ResampledImageInfo]=ReadDenseImage3DFromJsonDataFile([Test_Path 'ResampledImage.json']);
+%%
+[ResampledImage_b, ResampledImageInfo_b]=ReadDenseImage3DFromJsonDataFile([Test_Path 'test_b_ResampledImage.json']);
 %% show 3D ResampledImage
 FigureHandle= vtkfigure();
 vtkshowvolume(FigureHandle, 'Volume', Volume, GeometryInfo.Origin, GeometryInfo.Spacing, [100, 1000]);

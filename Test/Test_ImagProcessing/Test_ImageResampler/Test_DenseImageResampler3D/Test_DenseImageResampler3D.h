@@ -13,6 +13,7 @@
 #include "itkResampleImageFilter.h"
 #include "itkGaussianBlurImageFunction.h"
 #include "itkImageRegionIterator.h"
+#include "itkLinearInterpolateImageFunction.h"
 
 namespace mdk
 {
@@ -46,11 +47,11 @@ void test_a()
 	//Resampler.SetOutputImageInfo(OutputImageInfo);
 	//OutputImageInfo.Spacing *= 2.0;
 	//OutputImageInfo.Size = {256, 256, 43};
-	Resampler.SetOutputImageInfoBySize(256*3, 256*3, 43*3);
+	Resampler.SetOutputImageInfoBySize(256, 256, 43);
 
 	auto InterpolationOption = Resampler.GetImageInterpolationOption();
 	InterpolationOption.MethodType = DenseImageResampler3D<double>::ImageInterpolationMethodEnum::Linear;
-	InterpolationOption.BoundaryOption = DenseImageResampler3D<double>::ImageInterpolationBoundaryOptionEnum::Replicate;
+	InterpolationOption.BoundaryOption = DenseImageResampler3D<double>::ImageInterpolationBoundaryOptionEnum::Constant;
 	InterpolationOption.Pixel_OutsideImage = 0;
 	Resampler.SetImageInterpolationOption(InterpolationOption);
 	//Resampler.EnableSmoothingWhenDownsampling();
@@ -67,10 +68,13 @@ void test_a()
 	Save3DScalarImageAsJsonDataFile(ResampledImage, FileNameAndPath_OutputImage);
 
 	//
-	t0 = std::chrono::system_clock::now();
+	
 
 	DenseImage3D<double> TestImage;
 	TestImage.SetInfo(ResampledImage.GetInfo());
+
+	t0 = std::chrono::system_clock::now();
+
 	//for (int_max k = 0; k <= ResampledImage.GetPixelCount()-1; ++k)
 	auto TempFunction=[&](int_max k)
 	{
@@ -84,8 +88,30 @@ void test_a()
 	ParallelForLoop(TempFunction, 0, ResampledImage.GetPixelCount() - 1, 8);
 
 	t1 = std::chrono::system_clock::now();
-	std::chrono::duration<double> raw_time2 = t1 - t0;
-	std::cout << "time " << raw_time2.count() << '\n';
+	raw_time = t1 - t0;
+	std::cout << "time " << raw_time.count() << '\n';
+
+	auto Size = ResampledImage.GetSize();
+
+	t0 = std::chrono::system_clock::now();
+
+	//for (int_max z = 0; z <= Size[2]-1; ++z)
+	auto TempFunctionZ = [&](int_max z)	
+	{
+		for (int_max y = 0; y < Size[1]; ++y)
+		{
+			for (int_max x = 0; x < Size[0]; ++x)
+			{
+				auto Pos3D = TestImage.Transform3DIndexTo3DPosition<double>(x, y, z);
+				TestImage(x,y,z) = InputImage.GetPixelAt3DPosition(Pos3D, InterpolationOption);
+			}
+		}
+	};
+	ParallelForLoop(TempFunctionZ, 0, Size[2] - 1, 8);
+
+	t1 = std::chrono::system_clock::now();
+	raw_time = t1 - t0;
+	std::cout << "time " << raw_time.count() << '\n';
 }
 
 void test_b()
@@ -113,14 +139,14 @@ void test_b()
 	auto Origin = InputImage.GetOrigin();
 	// Resize
 	ITKImageType::SizeType outputSize;
-	outputSize[0] = 256*3;
-	outputSize[1] = 256*3;
-	outputSize[2] = 43*3;
+	outputSize[0] = 256;
+	outputSize[1] = 256;
+	outputSize[2] = 43;
 
 	ITKImageType::SpacingType outputSpacing;
-	outputSpacing[0] = input->GetSpacing()[0] * (static_cast<double>(inputSize[0]) / static_cast<double>(outputSize[0]));
-	outputSpacing[1] = input->GetSpacing()[1] * (static_cast<double>(inputSize[1]) / static_cast<double>(outputSize[1]));
-	outputSpacing[2] = input->GetSpacing()[2] * (static_cast<double>(inputSize[2]) / static_cast<double>(outputSize[2]));
+	outputSpacing[0] = input->GetSpacing()[0] * (static_cast<double>(inputSize[0]-1) / static_cast<double>(outputSize[0]-1));
+	outputSpacing[1] = input->GetSpacing()[1] * (static_cast<double>(inputSize[1]-1) / static_cast<double>(outputSize[1]-1));
+	outputSpacing[2] = input->GetSpacing()[2] * (static_cast<double>(inputSize[2]-1) / static_cast<double>(outputSize[2]-1));
 
 	typedef itk::IdentityTransform<double, 3> TransformType;
 	typedef itk::ResampleImageFilter<ITKImageType, ITKImageType> ResampleImageFilterType;
@@ -130,6 +156,8 @@ void test_b()
 	outputOrigin[1] = Origin[1];
 	outputOrigin[2] = Origin[2];
 
+	auto Interpolator = itk::LinearInterpolateImageFunction<ITKImageType, double>::New();
+
 	auto resample = ResampleImageFilterType::New();
 	resample->SetInput(input);
 	resample->SetSize(outputSize);
@@ -137,6 +165,7 @@ void test_b()
 	resample->SetOutputSpacing(outputSpacing);
 	resample->SetTransform(TransformType::New());
 	resample->UpdateLargestPossibleRegion();
+	resample->SetInterpolator(Interpolator);
 	//resample->Update();
 	auto output = resample->GetOutput();
 

@@ -20,15 +20,15 @@ template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::Clear()
 {
 	m_InputImage = nullptr;
-	m_ImageInterpolationOption.MethodType = ImageInterpolationMethodEnum::Nearest;
-	m_ImageInterpolationOption.BoundaryOption = ImageInterpolationBoundaryOptionEnum::Replicate;
-	m_ImageInterpolationOption.Pixel_OutsideImage = InputPixelType(0);
-	m_MaxThreadCount = 1;
+	m_ImageInterpolationOption.MethodType = ImageInterpolationMethodEnum::Linear;
+	m_ImageInterpolationOption.BoundaryOption = ImageInterpolationBoundaryOptionEnum::Constant;
+	m_ImageInterpolationOption.Pixel_OutsideImage = InputPixelType(0);	
 	m_Flag_Input_Output_SameOrigin = false;
 	m_Flag_Input_Output_SameSpacing = false;
 	m_Flag_Input_Output_SameOrientation = false;
 	m_Flag_Input_Output_SameOrigin_SameOrientation = false;
 	m_OutputImage.Clear();
+	m_MaxThreadCount = 1;
 
 	m_Flag_SmoothWhenDownsmapling = false;
 	m_Flag_SmoothInputImage = false;
@@ -167,7 +167,7 @@ void DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::SetOutp
 
 	auto Zero = std::numeric_limits<double>::epsilon();
 
-	if (Spacing_x <= Zero || Spacing_x <= Zero || Spacing_x <= Zero)
+	if (Spacing_x <= Zero || Spacing_y <= Zero || Spacing_z <= Zero)
 	{
 		MDK_Error("Invalid input (<= eps) @ DenseImageResampler3D::SetOutputImageInfoBySpacing(...)")
 		return;
@@ -325,6 +325,12 @@ bool DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::CheckIn
 		return false;
 	}
 
+	if (m_OutputImage.IsEmpty() == true)
+	{
+		MDK_Error("OutputImage is Empty, call SetOutputImageInfo first  @ DenseImageResampler3D::CheckInput()")
+		return false;
+	}
+
 	if (m_MaxThreadCount <= 0)
 	{
 		MDK_Error("m_MaxThreadCount <= 0 @ DenseImageResampler3D::CheckInput()")
@@ -348,6 +354,8 @@ void DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::Update(
 	this->SmoothInputImageIfNecessary();
 
 	//--------------------------------------------------------------------------------
+	// this is slow
+	/*
 	auto PixelCount = m_OutputImage.GetPixelCount();
 	//for (int_max k = 0; k <= PixelCount-1; ++k)
 	auto TempFunction = [&](int_max k)
@@ -372,6 +380,38 @@ void DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::Update(
 		}
 	};
 	ParallelForLoop(TempFunction, 0, PixelCount - 1, m_MaxThreadCount);
+	*/
+	//---------------------------------------------------------------------------------
+	auto Size = m_OutputImage.GetSize();
+	//for (int_max z = 0; z <= Size[2]-1; ++z)
+	auto TempFunction = [&](int_max z)
+	{
+		for (int_max y = 0; y < Size[1]; ++y)
+		{
+			for (int_max x = 0; x < Size[0]; ++x)
+			{
+				auto Pos_out = m_OutputImage.Transform3DIndexTo3DPosition<ScalarType>(x,y,z);
+				DenseVector<ScalarType, 3> Pos_in;
+				if (m_3DPositionTransform_from_OutputImage_to_InputImage != nullptr)
+				{
+					Pos_in = m_3DPositionTransform_from_OutputImage_to_InputImage->TransformPoint(Pos_out);
+				}
+				else
+				{
+					Pos_in = this->Transform3DPositionInOutputImageTo3DPositionInInputImage(Pos_out);
+				}
+				if (m_Flag_SmoothInputImage == false)
+				{
+					m_OutputImage(x,y,z) = m_InputImage->GetPixelAt3DPosition<OutputPixelType>(Pos_in, m_ImageInterpolationOption);
+				}
+				else
+				{
+					m_OutputImage(x,y,z) = m_SmoothedImage.GetPixelAt3DPosition<OutputPixelType>(Pos_in, m_ImageInterpolationOption);
+				}
+			}
+		}
+	};
+	ParallelForLoop(TempFunction, 0, Size[2]-1, m_MaxThreadCount);
 	//---------------------------------------------------------------------------------
 	m_SmoothedImage.Clear();
 }
