@@ -827,6 +827,28 @@ void DenseImage2D<PixelType>::SetOrientation(const DenseMatrix<double>& Orientat
 
 
 template<typename PixelType>
+inline DenseMatrix<double> DenseImage2D<PixelType>::GetOrientation2D() const//orientation in 2D
+{
+	DenseMatrix<double> Orientation2D;
+	Orientation2D.Resize(2, 2);
+
+	if (this->IsPureEmpty() == false)
+	{
+		Orientation2D(0, 0) = m_ImageData->m_Info.Orientation(0, 0);
+		Orientation2D(1, 0) = m_ImageData->m_Info.Orientation(1, 0);
+		Orientation2D(0, 1) = m_ImageData->m_Info.Orientation(0, 1);
+		Orientation2D(1, 1) = m_ImageData->m_Info.Orientation(1, 1);
+	}
+	else
+	{
+		Orientation2D.Fill(0.0);
+		Orientation2D.FillDiagonal(1.0);	
+	}
+	return Orientation2D;
+}
+
+
+template<typename PixelType>
 inline 
 DenseMatrix<double> DenseImage2D<PixelType>::GetTransformMatrix_2DIndexTo3DWorld() const
 {

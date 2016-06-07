@@ -124,7 +124,7 @@ void DenseImageResampler3D<InputPixelType, OutputPixelType, ScalarType>::SetOutp
 		return;
 	}
 
-	if (Lx <= 0 || Ly <= 0 || Lz <= 0)
+	if (Lx <= 1 || Ly <= 1 || Lz <= 1)
 	{
 		MDK_Error("Invalid input @ DenseImageResampler3D::SetOutputImageInfoBySize(...)")
 		return;

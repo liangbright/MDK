@@ -520,6 +520,7 @@ void GradientDenseImageFilter3D<InputPixelType, ScalarType>::Transform3DPositonI
 	}
 }
 
+
 template<typename InputPixelType, typename ScalarType>
 void GradientDenseImageFilter3D<InputPixelType, ScalarType>::Update()
 {

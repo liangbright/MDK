@@ -129,7 +129,7 @@ void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::SetOutp
 		return;
 	}
 
-	if (Lx <= 0 || Ly <= 0)
+	if (Lx <= 1 || Ly <= 1)
 	{
 		MDK_Error("Invalid input @ DenseImageResampler2D::SetOutputImageInfoBySize(...)")
 		return;
@@ -277,9 +277,11 @@ Transform2DPositionInInputImageTo2DPositionInOutputImage(const DenseVector<Scala
 		auto R = m_3DPositionTransformFromInputToOutput_Matrix.GetElementPointer();
 		auto T = m_3DPositionTransformFromInputToOutput_Offset.GetElementPointer();
 		DenseVector<ScalarType, 2> Position_out;
-		Position_out[0] = R[0] * Position_in[0] + R[3] * Position_in[1] + R[6] * Position_in[2] + T[0];
-		Position_out[1] = R[1] * Position_in[0] + R[4] * Position_in[1] + R[7] * Position_in[2] + T[1];
+		//Position_out[0] = R[0] * Position_in[0] + R[3] * Position_in[1] + R[6] * Position_in[2] + T[0];
+		//Position_out[1] = R[1] * Position_in[0] + R[4] * Position_in[1] + R[7] * Position_in[2] + T[1];
 		//Position_out[2] = R[2] * Position_in[0] + R[5] * Position_in[1] + R[8] * Position_in[2] + T[2];
+		Position_out[0] = R[0] * Position_in[0] + R[3] * Position_in[1] + T[0];
+		Position_out[1] = R[1] * Position_in[0] + R[4] * Position_in[1] + T[1];
 		return Position_out;
 	}
 }
@@ -303,9 +305,11 @@ Transform2DPositionInOutputImageTo2DPositionInInputImage(const DenseVector<Scala
 		auto R = m_3DPositionTransformFromOuputToInput_Matrix.GetElementPointer();
 		auto T = m_3DPositionTransformFromOuputToInput_Offset.GetElementPointer();
 		DenseVector<ScalarType, 2> Position_in;
-		Position_in[0] = R[0] * Position_out[0] + R[3] * Position_out[1] + R[6] * Position_out[2] + T[0];
-		Position_in[1] = R[1] * Position_out[0] + R[4] * Position_out[1] + R[7] * Position_out[2] + T[1];
+		//Position_in[0] = R[0] * Position_out[0] + R[3] * Position_out[1] + R[6] * Position_out[2] + T[0];
+		//Position_in[1] = R[1] * Position_out[0] + R[4] * Position_out[1] + R[7] * Position_out[2] + T[1];
 		//Position_in[2] = R[2] * Position_out[0] + R[5] * Position_out[1] + R[8] * Position_out[2] + T[2];
+		Position_in[0] = R[0] * Position_out[0] + R[3] * Position_out[1] + T[0];
+		Position_in[1] = R[1] * Position_out[0] + R[4] * Position_out[1] + T[1];
 		return Position_in;
 	}
 }

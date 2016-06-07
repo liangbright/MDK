@@ -204,6 +204,8 @@ public:
 
     inline void SetOrientation(const DenseMatrix<double>& Orientation);
 
+	inline DenseMatrix<double> GetOrientation2D() const;//orientation in 2D
+
 	inline DenseMatrix<double> GetTransformMatrix_2DIndexTo3DWorld() const;
 
 	inline DenseMatrix<double> GetTransformMatrix_3DWorldTo2DIndex() const;

@@ -4,14 +4,14 @@
 #include <cmath>
 
 #include "mdkDebugConfig.h"
-#include "mdkDenseMatrix.h"
+#include "mdkDenseImage3D.h"
 #include "mdkParallelForLoop.h"
 
 namespace mdk
 {
 
 template<typename InputPixel_Type, typename OutputPixel_Type = InputPixel_Type, typename Scalar_Type = double>
-class PoolingDenseImageFilter : public Object
+class PoolingDenseImageFilter3D : public Object
 {
 public:
 	typedef InputPixel_Type  InputPixelType;
@@ -47,9 +47,6 @@ private:
 	// see description in DenseImageResampler3D
 	DenseMatrix<double> m_3DPositionTransformFromOuputToInput_Matrix;
 	DenseVector<double, 3> m_3DPositionTransformFromOuputToInput_Offset;
-
-	DenseMatrix<double> m_3DPositionTransformFromInputToOutput_Matrix;
-	DenseVector<double, 3> m_3DPositionTransformFromInputToOutput_Offset;
 
 //------------------------- output ----------------------------------------------------//
 	DenseImage3D<OutputPixelType> m_OutputImage;
@@ -97,12 +94,11 @@ private:
 	OutputPixelType PoolingOperation_Average(int_max x_min, int_max x_max, int_max y_min, int_max y_max, int_max z_min, int_max z_max);
 	//---------- Coordinate Transform between Input and Output --------------------------------//	
 	void Update3DPositionTransform_Input_Output();
-	DenseVector<ScalarType, 3> Transform3DPositionInInputImageTo3DPositionInOutputImage(const DenseVector<ScalarType, 3>& Position_in);
 	DenseVector<ScalarType, 3> Transform3DPositionInOutputImageTo3DPositionInInputImage(const DenseVector<ScalarType, 3>& Position_out);
 
 private:
-    PoolingDenseImageFilter(const PoolingDenseImageFilter&) = delete;
-    void operator=(const PoolingDenseImageFilter&) = delete;
+    PoolingDenseImageFilter3D(const PoolingDenseImageFilter3D&) = delete;
+    void operator=(const PoolingDenseImageFilte3Dr&) = delete;
 };
 
 }//end namespace mdk

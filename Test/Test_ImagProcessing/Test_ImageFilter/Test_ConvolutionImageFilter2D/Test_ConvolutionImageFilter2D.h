@@ -16,8 +16,8 @@ void test_DiscreteGaussianFilter2D()
 {
     String TestDataPath = "C:/Research/MDK/MDK_Build/Test/Test_ImageProcessing/Test_ImageFilter/Test_ConvolutionImageFilter2D/TestData/";
 
-	//String FilePath_InputImage = "G:/AorticValveData/2014_7_25/P2115937/phase0";
-	String FilePath_InputImage = "C:/Research/AorticValve/Data/CT/Normal/2014_7_25/P2115937/phase0/i0000_0000b.dcm";
+	String FilePath_InputImage = "G:/AorticValveData/2014_7_25/P2115937/phase0/i0000_0000b.dcm";
+	//String FilePath_InputImage = "C:/Research/AorticValve/Data/CT/Normal/2014_7_25/P2115937/phase0/i0000_0000b.dcm";
 
 	DenseImage2D<double> InputImage;
 	//Load2DScalarImageFromJsonDataFile(InputImage, FilePath + "TestImage.json");
@@ -55,8 +55,8 @@ void test_DiscreteLoGFilter2D()
 {
 	String TestDataPath = "C:/Research/MDK/MDK_Build/Test/Test_ImageProcessing/Test_ImageFilter/Test_ConvolutionImageFilter2D/TestData/";
 
-	//String FilePath_InputImage = "G:/AorticValveData/2014_7_25/P2115937/phase0";
-	String FilePath_InputImage = "C:/Research/AorticValve/Data/CT/Normal/2014_7_25/P2115937/phase0/i0000_0000b.dcm";
+	String FilePath_InputImage = "G:/AorticValveData/2014_7_25/P2115937/phase0/i0000_0000b.dcm";
+	//String FilePath_InputImage = "C:/Research/AorticValve/Data/CT/Normal/2014_7_25/P2115937/phase0/i0000_0000b.dcm";
 
 	DenseImage2D<double> InputImage;
 	//Load2DScalarImageFromJsonDataFile(InputImage, FilePath + "TestImage.json");

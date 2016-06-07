@@ -44,9 +44,6 @@ private:
 	DenseMatrix<double> m_3DPositionTransformFromOuputToInput_Matrix;
 	DenseVector<double, 3> m_3DPositionTransformFromOuputToInput_Offset;
 
-	DenseMatrix<double> m_3DPositionTransformFromInputToOutput_Matrix;
-	DenseVector<double, 3> m_3DPositionTransformFromInputToOutput_Offset;
-
 	//------------------------- output ----------------------------------------------------//
 	DenseImage2D<OutputPixelType> m_OutputImage;
 
@@ -95,7 +92,6 @@ private:
 	OutputPixelType EvaluateAtPixelInOutputImage(int_max LinearIndex);
 	//---------- Coordinate Transform between Input and Output --------------------------------//	
 	void Update3DPositionTransform_Input_Output();
-	DenseVector<ScalarType, 2> Transform2DPositionInInputImageTo2DPositionInOutputImage(const DenseVector<ScalarType, 2>& Position_in);
 	DenseVector<ScalarType, 2> Transform2DPositionInOutputImageTo2DPositionInInputImage(const DenseVector<ScalarType, 2>& Position_out);
 
 private:
