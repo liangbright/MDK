@@ -42,35 +42,38 @@ public:
 		return this->TransformPoint(Position[0], Position[1], Position[2]);
 	}
 
+	DenseVector<ScalarType> TransformPoint(const DenseVector<ScalarType>& Position) const
+	{
+		auto Dim = Position.GetLength();
+		DenseVector<ScalarType> NewPosition;
+		NewPosition.Resize(Dim);
+		if (Dim == 2)//2D vector
+		{
+			NewPosition = this->TransformPoint(Position[0], Position[1]);
+		}
+		else if (Dim == 3)
+		{		
+			NewPosition = this->TransformPoint(Position[0], Position[1], Position[2]);
+		}
+		else
+		{
+			MDK_Error("Invalid input @ CoordinateTransform::TransformPoint(...)")
+		}
+		return NewPosition;
+	}
+
 	DenseMatrix<ScalarType> TransformPoint(const DenseMatrix<ScalarType>& Position) const
 	{
-		auto ColCount = Position.GetColCount();
-		auto RowCount = Position.GetRowCount();
+		auto Dim = Position.GetElementCount();
 		DenseMatrix<ScalarType> NewPosition;
-		NewPosition.Resize(RowCount, ColCount);
-		if (ColCount == 1 && RowCount == 2 || ColCount == 2 && RowCount == 1)//2D vector
+		NewPosition.Resize(Position.GetSize());
+		if (Dim == 2)//2D vector
+		{
+			NewPosition = this->TransformPoint(Position[0], Position[1]);
+		}
+		else if (Dim == 3)
 		{
 			NewPosition = this->TransformPoint(Position[0], Position[1], Position[2]);
-		}
-		else if (RowCount == 2 && ColCount > 1)
-		{
-			for (int_max k = 0; k < ColCount; ++k)
-			{
-				auto Pos_k = this->TransformPoint(Position(0, k), Position(1, k));
-				NewPosition.SetCol(k, Pos_k);
-			}
-		}
-		else if (ColCount == 1 && RowCount == 3 || ColCount == 3 && RowCount == 1)//3D vector
-		{
-			NewPosition = this->TransformPoint(Position[0], Position[1], Position[2]);
-		}
-		else if(RowCount == 3 && ColCount > 1)
-		{
-			for (int_max k = 0; k < ColCount; ++k)
-			{
-				auto Pos_k = this->TransformPoint(Position(0, k), Position(1, k), Position(2, k));
-				NewPosition.SetCol(k, Pos_k);
-			}
 		}
 		else
 		{
