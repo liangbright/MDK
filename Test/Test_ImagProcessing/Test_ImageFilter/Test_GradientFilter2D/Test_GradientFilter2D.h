@@ -1,12 +1,11 @@
-﻿#ifndef Test_GradientFilter2D_h
-#define Test_GradientFilter2D_h
+﻿#pragma once
 
 #include <ctime>
 #include <cstdlib>
 #include <array>
 
 #include "mdkDenseImage2D_FileIO.h"
-#include "mdkScalarDenseImageGradientFilter2D.h"
+#include "mdkGradientDenseImageFilter2D.h"
 
 namespace mdk
 {
@@ -25,7 +24,7 @@ void test_a()
 
 	std::cout << "start" << '\n';
 
-	ScalarDenseImageGradientFilter2D<double> GFilter;
+	GradientDenseImageFilter2D<double> GFilter;
 	GFilter.SetInputImage(&InputImage);
     
 	double CosT = 0.707;
@@ -43,8 +42,8 @@ void test_a()
 	//Resampler.SetOutputImageInfoBySize(256, 256);
 
 	auto InterpolationOption = GFilter.GetImageInterpolationOption();
-	InterpolationOption.MethodType = ScalarDenseImageGradientFilter2D<double>::ImageInterpolationMethodEnum::Linear;
-	InterpolationOption.BoundaryOption = ScalarDenseImageGradientFilter2D<double>::ImageInterpolationBoundaryOptionEnum::Constant;
+	InterpolationOption.MethodType = GradientDenseImageFilter2D<double>::ImageInterpolationMethodEnum::Linear;
+	InterpolationOption.BoundaryOption = GradientDenseImageFilter2D<double>::ImageInterpolationBoundaryOptionEnum::Constant;
 	InterpolationOption.Pixel_OutsideImage = 0;
 	GFilter.SetImageInterpolationOption(InterpolationOption);
 	GFilter.SetMaxThreadCount(4);
@@ -74,5 +73,3 @@ void test_a()
 }
 
 }//namespace mdk
-
-#endif
