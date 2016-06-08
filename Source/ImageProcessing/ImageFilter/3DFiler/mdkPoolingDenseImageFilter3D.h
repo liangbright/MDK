@@ -52,8 +52,8 @@ private:
 	DenseImage3D<OutputPixelType> m_OutputImage;
 
 public:		
-    PoolingDenseImageFilter();
-    ~PoolingDenseImageFilter();  
+    PoolingDenseImageFilter3D();
+    ~PoolingDenseImageFilter3D();  
 	void Clear();
 
 	void SetInputImage(const DenseImage3D<InputPixelType>* InputImage) { m_InputImage = InputImage; }
@@ -98,10 +98,10 @@ private:
 
 private:
     PoolingDenseImageFilter3D(const PoolingDenseImageFilter3D&) = delete;
-    void operator=(const PoolingDenseImageFilte3Dr&) = delete;
+    void operator=(const PoolingDenseImageFilter3D&) = delete;
 };
 
 }//end namespace mdk
 
-#include "mdkPoolingDenseImageFilter.hpp"
+#include "mdkPoolingDenseImageFilter3D.hpp"
 

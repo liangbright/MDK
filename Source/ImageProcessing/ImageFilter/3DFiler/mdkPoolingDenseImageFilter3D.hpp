@@ -477,7 +477,7 @@ PoolingOperation_MinAbs(int_max x_min, int_max x_max, int_max y_min, int_max y_m
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 OutputPixelType PoolingDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::
-PoolingOperation_Averge(int_max x_min, int_max x_max, int_max y_min, int_max y_max, int_max z_min, int_max z_max)
+PoolingOperation_Average(int_max x_min, int_max x_max, int_max y_min, int_max y_max, int_max z_min, int_max z_max)
 {
 	auto OutputPixel = OutputPixelType(0);
 	for (int_max z = z_min; z <= z_max; ++z)
