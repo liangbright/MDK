@@ -22,7 +22,7 @@ public:
 	typedef MethodEnum_Of_Image3DInterpolation              ImageInterpolationMethodEnum;
 	typedef BoundaryOptionEnum_Of_Image3DInterpolation      ImageInterpolationBoundaryOptionEnum;
 
-	enum class PoolingTypeEnum { Max, Min, Average, AbsMax, AbsMin, Unknown};
+	enum struct PoolingTypeEnum { Max, Min, Average, AbsMax, AbsMin, Unknown};
 
 private:
 	//-------------------------- input --------------------------------------------------//

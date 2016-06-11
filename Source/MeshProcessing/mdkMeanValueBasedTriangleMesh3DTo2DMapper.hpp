@@ -175,7 +175,8 @@ DenseMatrix<ScalarType> MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::Comp
 	auto PointCount_inner = WeightMatrix.GetLength();
 
 	std::vector<Eigen::Triplet<ScalarType, int_max>> CoefList;
-	Eigen::VectorXd Ub(PointCount_inner), Vb(PointCount_inner);
+	//Eigen::VectorXd Ub(PointCount_inner), Vb(PointCount_inner);
+	Eigen::Matrix<ScalarType, Eigen::Dynamic, 1> Ub(PointCount_inner), Vb(PointCount_inner);
 
 	for (int_max k = 0; k < PointCount_inner; ++k)
 	{

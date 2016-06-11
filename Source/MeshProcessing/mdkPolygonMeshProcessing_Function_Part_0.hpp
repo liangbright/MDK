@@ -344,4 +344,5 @@ SparseVector<int_max> FindNeighbourPointOfPointOnMesh(const PolygonMesh<MeshAttr
 	return Output;
 }
 
+
 }//namespace mdk
