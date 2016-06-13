@@ -11,3 +11,4 @@
 //---------------------------------------------------//
 #include "mdkGeodesicSphereBuilder.h"
 #include "mdkTemplateBasedSurfaceRemesher.h"
+#include "mdkDisplacementBasedPolygonMeshDeformer.h"
