@@ -277,6 +277,8 @@ template<typename MeshAttributeType>
 SparseVector<int_max> FindNeighbourPointOfPointOnMesh(const PolygonMesh<MeshAttributeType>& InputMesh, int_max PointIndex_input, int_max MaxGraphDistance)
 {
 	SparseVector<int_max> Output;
+	//Output.IndexList[n] is PointIndex
+	//Output.ElementList[n] is GraphDistance between Point(PointIndex) and Point(PointIndex_input)
 
 	int_max PointCount = InputMesh.GetPointCount();
 
@@ -298,7 +300,7 @@ SparseVector<int_max> FindNeighbourPointOfPointOnMesh(const PolygonMesh<MeshAttr
 	else if (MaxGraphDistance == 1)
 	{
 		auto AdjPointIndexList = InputMesh.Point(PointIndex_input).GetAdjacentPointIndexList();
-		Output.Resize(AdjPointIndexList.GetLength());
+		Output.Resize(PointCount);
 		for (int_max k = 0; k < AdjPointIndexList.GetLength(); ++k)
 		{
 			Output.SetElement(AdjPointIndexList[k], 1);
@@ -314,7 +316,7 @@ SparseVector<int_max> FindNeighbourPointOfPointOnMesh(const PolygonMesh<MeshAttr
 	DenseVector<int_max> PointIndexList_boarder;	
 	PointIndexList_boarder = InputMesh.Point(PointIndex_input).GetAdjacentPointIndexList();
 
-	Output.SetCapacity(std::min(PointCount-1, 6*MaxGraphDistance));
+	Output.Resize(PointCount);
 	for (int_max k = 0; k < PointIndexList_boarder.GetLength(); ++k)
 	{
 		Output.SetElement(PointIndexList_boarder[k], 1);
