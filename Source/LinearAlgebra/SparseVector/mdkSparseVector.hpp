@@ -152,18 +152,18 @@ bool SparseVector<ElementType>::Initialize(const DenseMatrix<int_max>& IndexList
 
 template<typename ElementType>
 inline
-bool SparseVector<ElementType>::Initialize(const int_max* IndexList, const ElementType* ElementList, int_max RecordedElementNumber, int_max Length)
+bool SparseVector<ElementType>::Initialize(const int_max* IndexList, const ElementType* ElementList, int_max RecordedElementCount, int_max Length)
 {
-	if (IndexList == nullptr && ElementList == nullptr && RecordedElementNumber == 0 && Length == 0)
+	if (IndexList == nullptr && ElementList == nullptr && RecordedElementCount == 0 && Length == 0)
 	{
 		this->Initialize(0);
 		return true;
 	}
 	else if ((IndexList == nullptr && ElementList != nullptr) 
 		     || (IndexList != nullptr && ElementList == nullptr)
-		     || (IndexList == nullptr && RecordedElementNumber > 0)
-			 || (ElementList == nullptr && RecordedElementNumber > 0)
-			 || RecordedElementNumber < 0
+		     || (IndexList == nullptr && RecordedElementCount > 0)
+			 || (ElementList == nullptr && RecordedElementCount > 0)
+			 || RecordedElementCount < 0
 			 || Length < 0)
 	{
 		MDK_Error("Invalid Input @ SparseVector::Construct(pointer ...)")
@@ -176,14 +176,14 @@ bool SparseVector<ElementType>::Initialize(const int_max* IndexList, const Eleme
 		m_Data = std::make_unique<SparseVectorData<ElementType>>();
 	}
 	m_Data->Length = Length;
-	m_Data->IndexList.FastResize(RecordedElementNumber);
-	m_Data->ElementList.FastResize(RecordedElementNumber);
+	m_Data->IndexList.FastResize(RecordedElementCount);
+	m_Data->ElementList.FastResize(RecordedElementCount);
 	m_Data->ZeroElement = ElementType(0);
     //--------------------------------------------------------------
 
 	auto tempRelativeIndexList = m_Data->IndexList.Sort("ascend");
 
-    for (int_max i = 0; i < RecordedElementNumber; ++i)
+    for (int_max i = 0; i < RecordedElementCount; ++i)
     {
 		m_Data->IndexList[i] = IndexList[tempRelativeIndexList[i]];
 		m_Data->ElementList[i] = ElementList[tempRelativeIndexList[i]];
@@ -297,11 +297,11 @@ void SparseVector<ElementType>::Resize(int_max InputLength)
 
 	if (InputLength < m_Data->Length)
     {
-		auto RecordedElementNumber = int_max(m_Data->IndexList.GetLength());
+		auto RecordedElementCount = int_max(m_Data->IndexList.GetLength());
 
-        auto StartIndex_erase = RecordedElementNumber;
+        auto StartIndex_erase = RecordedElementCount;
 
-        for (int_max i = RecordedElementNumber - 1; i >= 0; --i)
+        for (int_max i = RecordedElementCount - 1; i >= 0; --i)
         {
 			if (m_Data->IndexList[i] >= InputLength)
             {
@@ -422,12 +422,12 @@ bool SparseVector<ElementType>::SetElement(int_max Index, const ElementType& Ele
 		return false;
 	}
 
-	auto RecordedElementNumber = m_Data->ElementList.GetLength();
+	auto RecordedElementCount = m_Data->ElementList.GetLength();
 
 	int_max IndexInElementList = -1;
-	int_max IndexInElementList_insert = RecordedElementNumber;
+	int_max IndexInElementList_insert = RecordedElementCount;
 
-	for (int_max i = 0; i < RecordedElementNumber; ++i)
+	for (int_max i = 0; i < RecordedElementCount; ++i)
 	{
 		if (m_Data->IndexList[i] == Index)
 		{
@@ -601,8 +601,8 @@ DenseMatrix<ElementType> SparseVector<ElementType>::ConvertToDenseMatrixAsColVec
 	}
 	OutputVector.Fill(0);
 
-	auto RecordedElementNumber = m_Data->IndexList.GetLength();
-	for (int_max i = 0; i < RecordedElementNumber; ++i)
+	auto RecordedElementCount = m_Data->IndexList.GetLength();
+	for (int_max i = 0; i < RecordedElementCount; ++i)
 	{
 		OutputVector[m_Data->IndexList[i]] = m_Data->ElementList[i];
 	}
@@ -620,8 +620,8 @@ DenseMatrix<ElementType> SparseVector<ElementType>::ConvertToDenseMatrixAsRowVec
 	}
 	OutputVector.Fill(0);
 
-	auto RecordedElementNumber = m_Data->IndexList.GetLength();
-	for (int_max i = 0; i < RecordedElementNumber; ++i)
+	auto RecordedElementCount = m_Data->IndexList.GetLength();
+	for (int_max i = 0; i < RecordedElementCount; ++i)
 	{
 		OutputVector[m_Data->IndexList[i]] = m_Data->ElementList[i];
 	}
@@ -639,8 +639,8 @@ DenseVector<ElementType> SparseVector<ElementType>::ConvertToDenseVector() const
 	}
 	OutputVector.Fill(0);
 
-	auto RecordedElementNumber = m_Data->IndexList.GetLength();
-	for (int_max i = 0; i < RecordedElementNumber; ++i)
+	auto RecordedElementCount = m_Data->IndexList.GetLength();
+	for (int_max i = 0; i < RecordedElementCount; ++i)
 	{
 		OutputVector[m_Data->IndexList[i]] = m_Data->ElementList[i];
 	}
