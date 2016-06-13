@@ -84,18 +84,18 @@ void DisplacementBasedPolygonMeshDeformer<MeshAttribute>::ComputeWeightMatrix()
 
 	for (int_max k = 0; k < PointCount; ++k)
 	{		
+		auto Pos_k = m_InputMesh.GetPointPosition(k);
 		auto AdjPointIndexList = m_InputMesh.Point(k).GetAdjacentPointIndexList();
 		DenseVector<ScalarType> WeightList;
-		WeightList.Resize(AdjPointIndexList.GetLength());
-		auto Pos_k = m_InputMesh.GetPointPosition(k);
+		WeightList.Resize(AdjPointIndexList.GetLength());		
 		for (int_max n = 0; n < AdjPointIndexList.GetLength(); ++n)
 		{
 			auto Pos_n = m_InputMesh.GetPointPosition(AdjPointIndexList[n]);
-			WeightList[n] = (Pos_k - Pos_n).L2Norm() + 0.0000001;
+			auto Distance = (Pos_k - Pos_n).L2Norm();
+			WeightList[n] = ScalarType(1)/(Distance + 0.000001);
 			//WeightList[n] = 1;
 		}
 		WeightList /= WeightList.Sum();
-		WeightList = ScalarType(1) - WeightList;
 
 		m_WeightMatrix[k].Resize(PointCount);
 		m_WeightMatrix[k].IndexList() = AdjPointIndexList;
