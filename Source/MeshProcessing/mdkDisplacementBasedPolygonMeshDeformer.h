@@ -38,7 +38,7 @@ public:
 	DenseMatrix<ScalarType>& InputDisplacementField() { return m_InputDisplacementField; }
 	DenseMatrix<ScalarType>& ConfidenceOfInputDisplacementField() { return m_ConfidenceOfInputDisplacementField; }
 	DenseMatrix<ScalarType>& ConfidenceOfSmoothness() { return m_ConfidenceOfSmoothness; }
-	
+	void SetWeightType(WeightTypeEnum Type) { m_WeigthType = Type; };
 	void Update();
 	PolygonMesh<MeshAttribute>& OutputMesh() { return m_OutputMesh; }
 	DenseMatrix<ScalarType>& OutputDisplacementField() { return m_OutputDisplacementField; }
@@ -46,6 +46,8 @@ public:
 private:
 	bool CheckInput();
 	void ComputeWeightMatrix();
+	void ComputeWeightMatrix_Type_One();
+	void ComputeWeightMatrix_Type_Distance();
 	void ComputeDisplacementField();
 
 private:

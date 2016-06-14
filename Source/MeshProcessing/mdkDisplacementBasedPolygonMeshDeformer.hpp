@@ -77,6 +77,46 @@ void DisplacementBasedPolygonMeshDeformer<MeshAttribute>::Update()
 template<typename MeshAttribute>
 void DisplacementBasedPolygonMeshDeformer<MeshAttribute>::ComputeWeightMatrix()
 {
+	switch (m_WeigthType)
+	{
+	case WeightTypeEnum::One:
+		this->ComputeWeightMatrix_Type_One();
+		return;
+	case WeightTypeEnum::Distance:
+		this->ComputeWeightMatrix_Type_Distance();
+		return;
+	default:
+		this->ComputeWeightMatrix_Type_One();
+		return;
+	}
+}
+
+
+template<typename MeshAttribute>
+void DisplacementBasedPolygonMeshDeformer<MeshAttribute>::ComputeWeightMatrix_Type_One()
+{
+	auto PointCount = m_InputMesh.GetPointCount();
+	m_WeightMatrix.Clear();
+	m_WeightMatrix.Resize(PointCount);
+	// sum_j {Lambda[i][j]} = 1 for a fixed i
+
+	for (int_max k = 0; k < PointCount; ++k)
+	{
+		auto Pos_k = m_InputMesh.GetPointPosition(k);
+		auto AdjPointIndexList = m_InputMesh.Point(k).GetAdjacentPointIndexList();
+		DenseVector<ScalarType> WeightList;
+		WeightList.Resize(AdjPointIndexList.GetLength());		
+		WeightList.Fill(ScalarType(1) / AdjPointIndexList.GetLength());
+		m_WeightMatrix[k].Resize(PointCount);
+		m_WeightMatrix[k].IndexList() = AdjPointIndexList;
+		m_WeightMatrix[k].ElementList() = WeightList;
+	}
+}
+
+
+template<typename MeshAttribute>
+void DisplacementBasedPolygonMeshDeformer<MeshAttribute>::ComputeWeightMatrix_Type_Distance()
+{
 	auto PointCount = m_InputMesh.GetPointCount();
 	m_WeightMatrix.Clear();
 	m_WeightMatrix.Resize(PointCount);
@@ -87,7 +127,7 @@ void DisplacementBasedPolygonMeshDeformer<MeshAttribute>::ComputeWeightMatrix()
 		auto Pos_k = m_InputMesh.GetPointPosition(k);
 		auto AdjPointIndexList = m_InputMesh.Point(k).GetAdjacentPointIndexList();
 		DenseVector<ScalarType> WeightList;
-		WeightList.Resize(AdjPointIndexList.GetLength());		
+		WeightList.Resize(AdjPointIndexList.GetLength());
 		for (int_max n = 0; n < AdjPointIndexList.GetLength(); ++n)
 		{
 			auto Pos_n = m_InputMesh.GetPointPosition(AdjPointIndexList[n]);
