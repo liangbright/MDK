@@ -13,7 +13,9 @@ I4=ReadDenseImage3DFromJsonDataFile([FilePath 'test_GenericGaussianFilter3D_Outp
 %%
 I5=ReadDenseImage3DFromJsonDataFile([FilePath 'test_GenericLoGFilter3D_OutputImage.json']);
 %%
-implay(-I2)
+I6=ReadDenseImage3DFromJsonDataFile([FilePath 'test_DiscreteTriangleFilter3D_OutputImage.json']);
+%%
+implay(I6)
 %%
 for k=84:-1:0
     Info=dicominfo(['G:/AorticValveData/2014_7_25/P2115937/phase0/i00' num2str(k) '_0000b.dcm']);    

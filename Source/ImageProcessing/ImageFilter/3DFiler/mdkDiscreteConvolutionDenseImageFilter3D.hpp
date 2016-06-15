@@ -271,10 +271,10 @@ CreateGaussianMask(const DenseVector<ScalarType, 3>& Spacing, ScalarType Sigma_x
 	// at each point of the grid, compute the mahalanobis distance to the center (0,0,0), i.e., sqrt(SquaredRatio)
 	// add the point to mask if mahalanobis distance <= CutOffRatio
 
-	m_ConvolutionMask.FastResize(0);
+	m_ConvolutionMask.Clear();
 	m_ConvolutionMask.SetCapacity(3*Radius*Radius*Radius);
 
-	m_ConvolutionCoef.FastResize(0);
+	m_ConvolutionCoef.Clear();
 	m_ConvolutionCoef.SetCapacity(Radius*Radius*Radius);
 
 	DenseMatrix<ScalarType> Relative3DIndex(3, 1);
@@ -294,7 +294,7 @@ CreateGaussianMask(const DenseVector<ScalarType, 3>& Spacing, ScalarType Sigma_x
 				if (tempRatio <= CutOffRatio*CutOffRatio)
 				{
 					auto tempValue = std::exp(-ScalarType(0.5)*tempRatio);
-					m_ConvolutionMask.AppendCol({ ScalarType(x), ScalarType(y), ScalarType(z) });
+					m_ConvolutionMask.AppendCol({x, y, z});
 					m_ConvolutionCoef.Append(tempValue);
 				}
 			}
@@ -320,10 +320,10 @@ CreateLaplacianOfGaussianMask(const DenseVector<ScalarType, 3>& Spacing, ScalarT
 
 	auto Radius = int_max(1.5*CutOffRatio*Sigma/Spacing.Min()) + 1;
 
-	m_ConvolutionMask.FastResize(0);
+	m_ConvolutionMask.Clear();
 	m_ConvolutionMask.SetCapacity(3*Radius*Radius*Radius);
 
-	m_ConvolutionCoef.FastResize(0);
+	m_ConvolutionCoef.Clear();
 	m_ConvolutionCoef.SetCapacity(Radius*Radius*Radius);
 
 	auto CutOffRatio_square = CutOffRatio*CutOffRatio;
@@ -338,7 +338,7 @@ CreateLaplacianOfGaussianMask(const DenseVector<ScalarType, 3>& Spacing, ScalarT
 				if (temp <= CutOffRatio_square)
 				{
 					ScalarType tempValue = (1.0 - temp)*std::exp(-0.5*temp);
-					m_ConvolutionMask.AppendCol({ x, y, z });
+					m_ConvolutionMask.AppendCol({x, y, z});
 					m_ConvolutionCoef.Append(tempValue);
 				}
 			}
@@ -374,6 +374,45 @@ CreateLaplacianOfGaussianMask(const DenseVector<ScalarType, 3>& Spacing, ScalarT
 	{
 		m_ConvolutionCoef[IndexList_n[k]] /= Sum_n;
 	}
+}
+
+
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+void DiscreteConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::
+CreateTriangleMask(const DenseVector<ScalarType, 3>& Spacing, ScalarType Radius_x, ScalarType Radius_y, ScalarType Radius_z)
+{
+	if (Radius_x <= 0 || Radius_y <= 0 || Radius_z <= 0)
+	{
+		MDK_Error("Invalid input @ DiscreteConvolutionDenseImageFilter3D::CreateTriangleMask(...)")
+		return;
+	}
+
+	//---------------------------------------------------------------------------------------------------
+	// Radius_x/y/z is in real physical unit
+	auto Rx = int_max(Radius_x / Spacing[0] + 0.5) + 1;
+	auto Ry = int_max(Radius_y / Spacing[1] + 0.5) + 1;
+	auto Rz = int_max(Radius_z / Spacing[2] + 0.5) + 1;
+	//---------------------------------------------------------------------------------------------------
+	m_ConvolutionMask.Clear();
+	m_ConvolutionMask.SetCapacity(3*8*(Rx-1)*(Ry-1)*(Rz-1));
+
+	m_ConvolutionCoef.Clear();
+	m_ConvolutionCoef.SetCapacity(8*(Rx-1)*(Ry-1)*(Rz-1));
+
+	for (int_max z = -Rz+1; z <= Rz-1; ++z)
+	{
+		for (int_max y = -Ry+1; y <= Ry-1; ++y)
+		{
+			for (int_max x = -Rx+1; x <= Rx-1; ++x)
+			{
+				ScalarType tempValue = 1 - (ScalarType(std::abs(x))/ScalarType(Rx))*(ScalarType(std::abs(y))/ScalarType(Ry))*(ScalarType(std::abs(z))/ScalarType(Rz));
+				m_ConvolutionMask.AppendCol({x, y, z});
+				m_ConvolutionCoef.Append(tempValue);
+			}
+		}
+	}
+
+	m_ConvolutionCoef /= m_ConvolutionCoef.Sum();
 }
 
 }// namespace mdk
