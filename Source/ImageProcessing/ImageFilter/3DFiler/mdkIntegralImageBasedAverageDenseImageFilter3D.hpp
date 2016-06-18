@@ -26,14 +26,10 @@ void IntegralImageBasedAverageDenseImageFilter3D<InputPixelType, OutputPixelType
 	m_OutputImage.Clear();
 	m_MaxThreadCount = 1;
 
-	m_Flag_Input_Output_SameOrigin = false;
-	m_Flag_Input_Output_SameSpacing = false;
-	m_Flag_Input_Output_SameOrientation = false;
+	m_Flag_Input_Output_Orientation_IdentityMatrix = false;
 	m_Flag_Input_Output_SameOrigin_SameOrientation = false;
 	m_3DPositionTransformFromOuputToInput_Matrix.Clear();
 	m_3DPositionTransformFromOuputToInput_Offset.Clear();
-	m_3DPositionTransformFromInputToOutput_Matrix.Clear();
-	m_3DPositionTransformFromInputToOutput_Offset.Clear();
 
 	m_IntegralImage_Internal.Clear();
 	m_IntegralImage = &m_IntegralImage_Internal;
@@ -244,79 +240,33 @@ void IntegralImageBasedAverageDenseImageFilter3D<InputPixelType, OutputPixelType
 		m_3DPositionTransformFromOuputToInput_Offset[2] = M[2] * D[0] + M[5] * D[1] + M[8] * D[2];
 	}
 
-	{
-		auto M = OutputImageInfo.Orientation.Inv();
-		m_3DPositionTransformFromInputToOutput_Matrix = MatrixMultiply(M, InputImageInfo.Orientation);
-		auto D = InputImageInfo.Origin - OutputImageInfo.Origin;
-		// m_3DPositionTransformFromInputToOutput_Offset = M*D
-		m_3DPositionTransformFromInputToOutput_Offset[0] = M[0] * D[0] + M[3] * D[1] + M[6] * D[2];
-		m_3DPositionTransformFromInputToOutput_Offset[1] = M[1] * D[0] + M[4] * D[1] + M[7] * D[2];
-		m_3DPositionTransformFromInputToOutput_Offset[2] = M[2] * D[0] + M[5] * D[1] + M[8] * D[2];
-	}
-
 	auto Eps = std::numeric_limits<double>::epsilon();
 
+	bool Flag_Input_Output_SameOrigin = false;
 	auto OriginDiff = (InputImageInfo.Origin - OutputImageInfo.Origin).L2Norm();
 	if (OriginDiff <= Eps * 3)
 	{
-		m_Flag_Input_Output_SameOrigin = true;
-	}
-	else
-	{
-		m_Flag_Input_Output_SameOrigin = false;
+		Flag_Input_Output_SameOrigin = true;
 	}
 
-	auto SpacingDiff = (InputImageInfo.Spacing - OutputImageInfo.Spacing).L2Norm();
-	if (SpacingDiff <= Eps * 3)
-	{
-		m_Flag_Input_Output_SameSpacing = true;
-	}
-	else
-	{
-		m_Flag_Input_Output_SameSpacing = false;
-	}
-
+	bool Flag_Input_Output_SameOrientation = false;
 	DenseMatrix<double> OrientationDiff = MatrixSubtract(InputImageInfo.Orientation, OutputImageInfo.Orientation);
 	OrientationDiff.ElementOperation("abs");
 	auto SumAbsDiff = OrientationDiff.Sum();
 	if (SumAbsDiff <= Eps*9.0)// 9 element in matrix
 	{
-		m_Flag_Input_Output_SameOrientation = true;
-	}
-	else
-	{
-		m_Flag_Input_Output_SameOrientation = false;
+		Flag_Input_Output_SameOrientation = true;
 	}
 
-	if (m_Flag_Input_Output_SameOrigin == true && m_Flag_Input_Output_SameOrientation == true)
+	if (Flag_Input_Output_SameOrigin == true && Flag_Input_Output_SameOrientation == true)
 	{
 		m_Flag_Input_Output_SameOrigin_SameOrientation = true;
 	}
-}
 
-
-template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-DenseVector<ScalarType, 3> IntegralImageBasedAverageDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::
-Transform3DPositionInInputImageTo3DPositionInOutputImage(const DenseVector<ScalarType, 3>& Position_in)
-{
-	if (m_Flag_Input_Output_SameOrigin_SameOrientation == true)
+	m_Flag_Input_Output_Orientation_IdentityMatrix = false;
+	if (InputImageInfo.Orientation.IsIdentityMatrix() == true && OutputImageInfo.Orientation.IsIdentityMatrix() == true)
 	{
-		return Position_in;
-	}
-	else if (m_Flag_Input_Output_SameOrientation == true)
-	{
-		auto Position_out = m_InputImage->GetOrigin() - m_OutputImage.GetOrigin() + Position_in;
-		return Position_out;
-	}
-	else
-	{
-		auto R = m_3DPositionTransformFromInputToOutput_Matrix.GetElementPointer();
-		auto T = m_3DPositionTransformFromInputToOutput_Offset.GetElementPointer();
-		DenseVector<ScalarType, 3> Position_out;
-		Position_out[0] = R[0] * Position_in[0] + R[3] * Position_in[1] + R[6] * Position_in[2] + T[0];
-		Position_out[1] = R[1] * Position_in[0] + R[4] * Position_in[1] + R[7] * Position_in[2] + T[1];
-		Position_out[2] = R[2] * Position_in[0] + R[5] * Position_in[1] + R[8] * Position_in[2] + T[2];
-		return Position_out;
+		m_Flag_Input_Output_Orientation_IdentityMatrix = true;
 	}
 }
 
@@ -329,7 +279,7 @@ Transform3DPositionInOutputImageTo3DPositionInInputImage(const DenseVector<Scala
 	{
 		return Position_out;
 	}
-	else if (m_Flag_Input_Output_SameOrientation == true)
+	else if (m_Flag_Input_Output_Orientation_IdentityMatrix == true)
 	{
 		auto Position_in = m_OutputImage.GetOrigin() - m_InputImage->GetOrigin() + Position_out;
 		return Position_in;
@@ -420,12 +370,20 @@ OutputPixelType IntegralImageBasedAverageDenseImageFilter3D<InputPixelType, Outp
 	auto Size = m_IntegralImage->GetSize();
 	//---------------------------------------------------------
 	// x1 <= x <= x2, y1 <= y <= y2, z1 <= z <= z2
-	auto x1 = int_max(std::round(Index3D[0] - m_Radius_Index3D[0]-1));
-	auto x2 = int_max(std::round(Index3D[0] + m_Radius_Index3D[0]));
-	auto y1 = int_max(std::round(Index3D[1] - m_Radius_Index3D[1]-1));
-	auto y2 = int_max(std::round(Index3D[1] + m_Radius_Index3D[1]));
-	auto z1 = int_max(std::round(Index3D[2] - m_Radius_Index3D[2]-1));
-	auto z2 = int_max(std::round(Index3D[2] + m_Radius_Index3D[2]));
+	//
+	//auto x1 = int_max(std::round(Index3D[0] - m_Radius_Index3D[0]-1));
+	//auto x2 = int_max(std::round(Index3D[0] + m_Radius_Index3D[0]));
+	//auto y1 = int_max(std::round(Index3D[1] - m_Radius_Index3D[1]-1));
+	//auto y2 = int_max(std::round(Index3D[1] + m_Radius_Index3D[1]));
+	//auto z1 = int_max(std::round(Index3D[2] - m_Radius_Index3D[2]-1));
+	//auto z2 = int_max(std::round(Index3D[2] + m_Radius_Index3D[2]));
+	auto x1 = int_max(Index3D[0] - m_Radius_Index3D[0] - 1);
+	auto x2 = int_max(Index3D[0] + m_Radius_Index3D[0] + 0.5);
+	auto y1 = int_max(Index3D[1] - m_Radius_Index3D[1] - 1);
+	auto y2 = int_max(Index3D[1] + m_Radius_Index3D[1] + 0.5);
+	auto z1 = int_max(Index3D[2] - m_Radius_Index3D[2] - 1);
+	auto z2 = int_max(Index3D[2] + m_Radius_Index3D[2] + 0.5);
+
 	// average window is outside the image
 	if (x1 >= Size[0] || x2 < 0 || y1 >= Size[1] || y2 < 0 || z1 >= Size[2] || z2 < 0)
 	{

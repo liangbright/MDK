@@ -38,17 +38,12 @@ private:
 	int_max m_MaxThreadCount;
 	//-------------------------- internal -----------------------------------------------//
 
-	bool m_Flag_Input_Output_SameOrigin;
-	bool m_Flag_Input_Output_SameSpacing;
-	bool m_Flag_Input_Output_SameOrientation;
+	bool m_Flag_Input_Output_Orientation_IdentityMatrix;
 	bool m_Flag_Input_Output_SameOrigin_SameOrientation;
 
 	// see description in DenseImageResampler3D
 	DenseMatrix<double> m_3DPositionTransformFromOuputToInput_Matrix;
 	DenseVector<double, 3> m_3DPositionTransformFromOuputToInput_Offset;
-
-	DenseMatrix<double> m_3DPositionTransformFromInputToOutput_Matrix;
-	DenseVector<double, 3> m_3DPositionTransformFromInputToOutput_Offset;
 
 	//------------------------- output ----------------------------------------------------//
 	DenseImage3D<OutputPixelType> m_OutputImage;
@@ -90,7 +85,6 @@ private:
 	OutputPixelType EvaluateAtPixelInOutputImage(int_max LinearIndex);
 	//---------- Coordinate Transform between Input and Output --------------------------------//	
 	void Update3DPositionTransform_Input_Output();
-	DenseVector<ScalarType, 3> Transform3DPositionInInputImageTo3DPositionInOutputImage(const DenseVector<ScalarType, 3>& Position_in);
 	DenseVector<ScalarType, 3> Transform3DPositionInOutputImageTo3DPositionInInputImage(const DenseVector<ScalarType, 3>& Position_out);
 
 private:

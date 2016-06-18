@@ -26,27 +26,32 @@ void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::Clear()
 	m_OutputImage.Clear();
 	m_MaxThreadCount = 1;
 
-	m_Flag_Input_Output_SameOrigin = false;
-	m_Flag_Input_Output_SameSpacing = false;
-	m_Flag_Input_Output_SameOrientation = false;
+	m_Flag_Input_Output_Orientation_IdentityMatrix = false;
 	m_Flag_Input_Output_SameOrigin_SameOrientation = false;
 	m_3DPositionTransformFromOuputToInput_Matrix.Clear();
 	m_3DPositionTransformFromOuputToInput_Offset.Clear();
 	m_3DPositionTransformFromInputToOutput_Matrix.Clear();
 	m_3DPositionTransformFromInputToOutput_Offset.Clear();
-
-	m_Flag_SmoothWhenDownsmapling = false;
-	m_Flag_SmoothInputImage = false;
-	m_SmoothedImage.Clear();
-
 	m_2DPositionTransform_from_OutputImage_to_InputImage = nullptr;
+
+	m_Flag_TriangleSmoothWhenDownsmapling = false;
+	m_Flag_AverageSmoothWhenDownsmapling = false;
+	m_Flag_SmoothInputImage = false;
+	m_SmoothedImage.Clear();	
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
-void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::EnableSmoothingWhenDownsampling(bool On_Off)
+void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::EnableTriangleSmoothingWhenDownsampling(bool On_Off)
 {
-	m_Flag_SmoothWhenDownsmapling = On_Off;
+	m_Flag_TriangleSmoothWhenDownsmapling = On_Off;
+}
+
+
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::EnableAverageSmoothingWhenDownsampling(bool On_Off)
+{
+	m_Flag_AverageSmoothWhenDownsmapling = On_Off;
 }
 
 
@@ -56,14 +61,14 @@ void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::SmoothI
 	m_Flag_SmoothInputImage = false;
 	m_SmoothedImage.Clear();
 
-	if (m_Flag_SmoothWhenDownsmapling == true)
+	if (m_Flag_TriangleSmoothWhenDownsmapling == true || m_Flag_AverageSmoothWhenDownsmapling == true)
 	{
 		auto InputSpacing = m_InputImage->GetSpacing();
 		auto OutputSpacing = m_OutputImage.GetSpacing();
 		for (int_max k = 0; k < 2; ++k)
 		{
 			auto Ratio = OutputSpacing[k] / InputSpacing[k];
-			if (Ratio > 1.5)
+			if (Ratio > 1.2)
 			{
 				m_Flag_SmoothInputImage = true;
 			}
@@ -71,13 +76,25 @@ void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::SmoothI
 
 		if (m_Flag_SmoothInputImage == true)
 		{			
-			IntegralImageBasedAverageDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType> SmoothingFilter;
-			SmoothingFilter.SetInputImage(m_InputImage);
-			SmoothingFilter.SetOutputImageInfo(m_InputImage->GetInfo());
-			SmoothingFilter.SetRadius(OutputSpacing[0], OutputSpacing[1]);
-			SmoothingFilter.SetMaxThreadCount(m_MaxThreadCount);
-			SmoothingFilter.Update();
-			m_SmoothedImage = std::move(SmoothingFilter.OutputImage());			
+			if (m_Flag_AverageSmoothWhenDownsmapling == true)
+			{
+				IntegralImageBasedAverageDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType> SmoothingFilter;
+				SmoothingFilter.SetInputImage(m_InputImage);
+				SmoothingFilter.SetOutputImageInfo(m_InputImage->GetInfo());
+				SmoothingFilter.SetRadius(OutputSpacing[0], OutputSpacing[1]);
+				SmoothingFilter.SetMaxThreadCount(m_MaxThreadCount);
+				SmoothingFilter.Update();
+				m_SmoothedImage = std::move(SmoothingFilter.OutputImage());
+			}
+			else if (m_Flag_TriangleSmoothWhenDownsmapling == true)
+			{
+				DiscreteConvolutionDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType> SmoothingFilter;
+				SmoothingFilter.SetInputImage(m_InputImage);				
+				SmoothingFilter.CreateTriangleMask(m_InputImage->GetSpacing(), OutputSpacing[0], OutputSpacing[1]);
+				SmoothingFilter.SetMaxThreadCount(m_MaxThreadCount);
+				SmoothingFilter.Update();
+				m_SmoothedImage = std::move(SmoothingFilter.OutputImage());
+			}
 		}
 	}
 }
@@ -220,41 +237,39 @@ void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::Update3
 
 	auto Eps = std::numeric_limits<double>::epsilon();
 
+	bool Flag_Input_Output_SameOrigin = false;
 	auto OriginDiff = (InputImageInfo.Origin - OutputImageInfo.Origin).L2Norm();
 	if (OriginDiff <= Eps * 3)
 	{
-		m_Flag_Input_Output_SameOrigin = true;
+		Flag_Input_Output_SameOrigin = true;
 	}
 	else
 	{
-		m_Flag_Input_Output_SameOrigin = false;
+		Flag_Input_Output_SameOrigin = false;
 	}
 
-	auto SpacingDiff = (InputImageInfo.Spacing - OutputImageInfo.Spacing).L2Norm();
-	if (SpacingDiff <= Eps * 3)
-	{
-		m_Flag_Input_Output_SameSpacing = true;
-	}
-	else
-	{
-		m_Flag_Input_Output_SameSpacing = false;
-	}
-
+	bool Flag_Input_Output_SameOrientation = false;
 	DenseMatrix<double> OrientationDiff = MatrixSubtract(InputImageInfo.Orientation, OutputImageInfo.Orientation);
 	OrientationDiff.ElementOperation("abs");
 	auto SumAbsDiff = OrientationDiff.Sum();
 	if (SumAbsDiff <= Eps*9.0)// 9 element in matrix
 	{
-		m_Flag_Input_Output_SameOrientation = true;
+		Flag_Input_Output_SameOrientation = true;
 	}
 	else
 	{
-		m_Flag_Input_Output_SameOrientation = false;
+		Flag_Input_Output_SameOrientation = false;
 	}
 
-	if (m_Flag_Input_Output_SameOrigin == true && m_Flag_Input_Output_SameOrientation == true)
+	if (Flag_Input_Output_SameOrigin == true && Flag_Input_Output_SameOrientation == true)
 	{
 		m_Flag_Input_Output_SameOrigin_SameOrientation = true;
+	}
+
+	m_Flag_Input_Output_Orientation_IdentityMatrix = false;
+	if (InputImageInfo.Orientation.IsIdentityMatrix() == true && OutputImageInfo.Orientation.IsIdentityMatrix() == true)
+	{
+		m_Flag_Input_Output_Orientation_IdentityMatrix = true;
 	}
 }
 
@@ -267,7 +282,7 @@ Transform2DPositionInInputImageTo2DPositionInOutputImage(const DenseVector<Scala
 	{
 		return Position_in;
 	}
-	else if (m_Flag_Input_Output_SameOrientation == true)
+	else if (m_Flag_Input_Output_Orientation_IdentityMatrix == true)
 	{
 		auto Position_out = m_InputImage->GetOrigin2D() - m_OutputImage.GetOrigin2D() + Position_in;
 		return Position_out;
@@ -295,7 +310,7 @@ Transform2DPositionInOutputImageTo2DPositionInInputImage(const DenseVector<Scala
 	{
 		return Position_out;
 	}
-	else if (m_Flag_Input_Output_SameOrientation == true)
+	else if (m_Flag_Input_Output_Orientation_IdentityMatrix == true)
 	{
 		auto Position_in = m_OutputImage.GetOrigin2D() - m_InputImage->GetOrigin2D() + Position_out;
 		return Position_in;
@@ -339,12 +354,7 @@ bool DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::CheckIn
 	// OutputImage and InputImage should be in the same x-y plane
 	auto Info_in = m_InputImage->GetInfo();
 	auto Info_out = m_OutputImage.GetInfo();
-	if (Info_in.Origin[2] != Info_out.Origin[2])
-	{
-		MDK_Error("OutputImage and InputImage NOT in the same x-y plane (Origin[2]) @ DenseImageResampler2D::CheckInput()")
-		return false;
-	}
-	DenseVector<double, 3> DirectionZ_in, DirectionZ_out;
+	DenseVector<double, 3> DirectionZ_in, DirectionZ_out;	
 	Info_in.Orientation.GetCol(2, DirectionZ_in);
 	Info_out.Orientation.GetCol(2, DirectionZ_out);
 	double diff = (DirectionZ_in - DirectionZ_out).L2Norm();
@@ -353,6 +363,14 @@ bool DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::CheckIn
 		MDK_Error("OutputImage and InputImage NOT in the same x-y plane (DirectionZ) @ DenseImageResampler2D::CheckInput()")
 		return false;
 	}
+	auto Displacement = Info_out.Origin - Info_in.Origin;
+	auto Proj = Displacement[0] * DirectionZ_in[0] + Displacement[1] * DirectionZ_in[1] + Displacement[2] * DirectionZ_in[2];
+	Proj = std::abs(Proj);
+	if (Proj > 0.000001)
+	{
+		MDK_Error("OutputImage and InputImage NOT in the same x-y plane (Origin) @ DenseImageResampler2D::CheckInput()")
+		return false;
+	}	
 	//------------------------------------------------------------
 
 	if (m_MaxThreadCount <= 0)

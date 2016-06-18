@@ -26,9 +26,7 @@ void PoolingDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::Cle
 	m_OutputImage.Clear();
 	m_MaxThreadCount = 1;
 
-	m_Flag_Input_Output_SameOrigin = false;
-	m_Flag_Input_Output_SameSpacing = false;
-	m_Flag_Input_Output_SameOrientation = false;
+	m_Flag_Input_Output_Orientation_IdentityMatrix = false;
 	m_Flag_Input_Output_SameOrigin_SameOrientation = false;
 	m_3DPositionTransformFromOuputToInput_Matrix.Clear();
 	m_3DPositionTransformFromOuputToInput_Offset.Clear();
@@ -166,41 +164,39 @@ void PoolingDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::Upd
 
 	auto Eps = std::numeric_limits<double>::epsilon();
 
+	bool Flag_Input_Output_SameOrigin = false;
 	auto OriginDiff = (InputImageInfo.Origin - OutputImageInfo.Origin).L2Norm();
 	if (OriginDiff <= Eps * 3)
 	{
-		m_Flag_Input_Output_SameOrigin = true;
+		Flag_Input_Output_SameOrigin = true;
 	}
 	else
 	{
-		m_Flag_Input_Output_SameOrigin = false;
+		Flag_Input_Output_SameOrigin = false;
 	}
 
-	auto SpacingDiff = (InputImageInfo.Spacing - OutputImageInfo.Spacing).L2Norm();
-	if (SpacingDiff <= Eps * 3)
-	{
-		m_Flag_Input_Output_SameSpacing = true;
-	}
-	else
-	{
-		m_Flag_Input_Output_SameSpacing = false;
-	}
-
+	bool Flag_Input_Output_SameOrientation = false;
 	DenseMatrix<double> OrientationDiff = MatrixSubtract(InputImageInfo.Orientation, OutputImageInfo.Orientation);
 	OrientationDiff.ElementOperation("abs");
 	auto SumAbsDiff = OrientationDiff.Sum();
 	if (SumAbsDiff <= Eps*9.0)// 9 element in matrix
 	{
-		m_Flag_Input_Output_SameOrientation = true;
+		Flag_Input_Output_SameOrientation = true;
 	}
 	else
 	{
-		m_Flag_Input_Output_SameOrientation = false;
+		Flag_Input_Output_SameOrientation = false;
 	}
 
-	if (m_Flag_Input_Output_SameOrigin == true && m_Flag_Input_Output_SameOrientation == true)
+	if (Flag_Input_Output_SameOrigin == true && Flag_Input_Output_SameOrientation == true)
 	{
 		m_Flag_Input_Output_SameOrigin_SameOrientation = true;
+	}
+
+	m_Flag_Input_Output_Orientation_IdentityMatrix = false;
+	if (InputImageInfo.Orientation.IsIdentityMatrix() == true && OutputImageInfo.Orientation.IsIdentityMatrix() == true)
+	{
+		m_Flag_Input_Output_Orientation_IdentityMatrix = true;
 	}
 }
 
@@ -213,7 +209,7 @@ Transform2DPositionInOutputImageTo2DPositionInInputImage(const DenseVector<Scala
 	{
 		return Position_out;
 	}
-	else if (m_Flag_Input_Output_SameOrientation == true)
+	else if (m_Flag_Input_Output_Orientation_IdentityMatrix == true)
 	{
 		auto Position_in = m_OutputImage.GetOrigin2D() - m_InputImage->GetOrigin2D() + Position_out;
 		return Position_in;

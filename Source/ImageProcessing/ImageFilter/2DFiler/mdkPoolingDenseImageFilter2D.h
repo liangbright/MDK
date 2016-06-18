@@ -38,10 +38,7 @@ private:
 	int_max m_MaxThreadCount;
 
 	//-------------------------- internal -----------------------------------------------//
-
-	bool m_Flag_Input_Output_SameOrigin;
-	bool m_Flag_Input_Output_SameSpacing;
-	bool m_Flag_Input_Output_SameOrientation;
+	bool m_Flag_Input_Output_Orientation_IdentityMatrix;
 	bool m_Flag_Input_Output_SameOrigin_SameOrientation;
 
 	// see description in DenseImageResampler3D

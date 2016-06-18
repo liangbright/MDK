@@ -1884,28 +1884,32 @@ bool DenseMatrix<ElementType>::IsIdentityMatrix(ElementType Threshold) const
         return false;
     }
 
-    auto Value_sum = this->Sum();
-
-	if (std::abs(Value_sum - ElementType(SelfSize.RowCount)) > Threshold)
-    {
-        return false;
-    }
-
-    auto RawPointer = this->GetElementPointer();
-
-    int_max Index = 0;
-
-    for (int_max i = 0; i < SelfSize.RowCount; ++i)
-    {
-        auto DiagonalElement_j = RawPointer[Index + i];
-
-        if (std::abs(DiagonalElement_j - ElementType(1)) > Threshold) // must use ">" becuause ElementType may be int and Threshold is 0
-        {
-            return false;
-        }
-
-        Index += SelfSize.RowCount;
-    }
+	auto SelfSize = this->GetSize();
+	auto RawPointer = this->GetElementPointer();
+	int_max LinearIndex = -1;
+	for (int_max j = 0; j < SelfSize.ColCount; ++j)
+	{
+		for (int_max i = 0; j < SelfSize.RowCount; ++i)
+		{
+			LinearIndex += 1;
+			if (i == j)
+			{//compare DiagonalElement to 1
+				auto Element = RawPointer[LinearIndex];
+				if (std::abs(Element - ElementType(1)) > Threshold) // must use ">" becuause ElementType may be int and Threshold is 0
+				{
+					return false;
+				}
+			}
+			else
+			{//compare NonDiagonalElement to 0
+				auto Element = RawPointer[LinearIndex];
+				if (std::abs(Element) > Threshold) // must use ">" becuause ElementType may be int and Threshold is 0
+				{
+					return false;
+				}
+			}
+		}
+	}
 
     return true;
 }

@@ -65,7 +65,7 @@ private:
 
 //-------------------------------------- create mask --------------------------------------------------------------//
 public:
-	// Radius_x/y/z = Sigma_x/y * CutOffRatio
+	// Radius_x/y = Sigma_x/y * CutOffRatio
 	// set CutOffRatio = 1 for GaussianMask
 	// set GaussianMask = 1.5 for LoGMask
 	// use Spacing of Input Image
@@ -73,6 +73,7 @@ public:
 	void CreateGaussianMask(const DenseVector<ScalarType, 2>& Spacing, ScalarType Sigma_x, ScalarType Sigma_y, ScalarType CutOffRatio);
 	void CreateGaussianMask(const DenseVector<ScalarType, 2>& Spacing, ScalarType Sigma_x, ScalarType Sigma_y, const DenseMatrix<ScalarType>& RotationMatrix, ScalarType CutOffRatio);
 	void CreateLaplacianOfGaussianMask(const DenseVector<ScalarType, 2>& Spacing, ScalarType Sigma, ScalarType CutOffRatio);
+	void CreateTriangleMask(const DenseVector<ScalarType, 2>& Spacing, ScalarType Radius_x, ScalarType Radius_y);
 };
 
 }// namespace mdk

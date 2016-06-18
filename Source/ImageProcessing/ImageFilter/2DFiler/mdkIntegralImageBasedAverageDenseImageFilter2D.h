@@ -35,10 +35,8 @@ private:
 	DenseVector<double, 2> m_Radius;         // Physical radius
 	DenseVector<double, 2> m_Radius_Index2D; // Index radius in m_InputImage and m_IntegralImage
 
-	//------------------------------------ internal ----------------------------------------//
-	bool m_Flag_Input_Output_SameOrigin;
-	bool m_Flag_Input_Output_SameSpacing;
-	bool m_Flag_Input_Output_SameOrientation;
+	//------------------------------------ internal ----------------------------------------//	
+	bool m_Flag_Input_Output_Orientation_IdentityMatrix;
 	bool m_Flag_Input_Output_SameOrigin_SameOrientation;
 
 	DenseMatrix<double> m_3DPositionTransformFromOuputToInput_Matrix;

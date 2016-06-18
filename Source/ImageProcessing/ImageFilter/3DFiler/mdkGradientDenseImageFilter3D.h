@@ -47,18 +47,13 @@ private:
 
 	int_max m_MaxThreadCount;
 
-	//------------------------ internal ------------------------------------------------------//
-	bool m_Flag_Input_Output_SameOrigin;
-	bool m_Flag_Input_Output_SameSpacing;
-	bool m_Flag_Input_Output_SameOrientation;
+	//------------------------ internal ------------------------------------------------------//	
+	bool m_Flag_Input_Output_Orientation_IdentityMatrix;
 	bool m_Flag_Input_Output_SameOrigin_SameOrientation;
 
 	// see description in DenseImageResampler3D
 	DenseMatrix<double> m_3DPositionTransformFromOuputToInput_Matrix;
 	DenseVector<double, 3> m_3DPositionTransformFromOuputToInput_Offset;
-
-	DenseMatrix<double> m_3DPositionTransformFromInputToOutput_Matrix;
-	DenseVector<double, 3> m_3DPositionTransformFromInputToOutput_Offset;
 
 	ObjectArray<ObjectArray<Mask_Of_GradientDenseImageFilter3D<ScalarType>>> m_MaskList;  // m_MaskList[k] is MaskList at Level k
 
@@ -124,8 +119,7 @@ private:
 	void EvaluateAt3DPositionInInputImage_SingleLevel(int_max& MaskIndex_max, OutputPixelType& Gradient_max, ScalarType x0, ScalarType y0, ScalarType z0, int_max Level, const DenseVector<int_max>& MaskIndexList);
 
 	//---------- Coordinate Transform between Input and Output --------------------------------//	
-	void Update3DPositionTransform_Input_Output();
-	DenseVector<ScalarType, 3> Transform3DPositionInInputImageTo3DPositionInOutputImage(const DenseVector<ScalarType, 3>& Position_in);
+	void Update3DPositionTransform_Input_Output();	
 	DenseVector<ScalarType, 3> Transform3DPositionInOutputImageTo3DPositionInInputImage(const DenseVector<ScalarType, 3>& Position_out);
 
 private:

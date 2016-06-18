@@ -54,7 +54,7 @@ void test_a()
 	InterpolationOption.BoundaryOption = DenseImageResampler3D<double>::ImageInterpolationBoundaryOptionEnum::Constant;
 	InterpolationOption.Pixel_OutsideImage = 0;
 	Resampler.SetImageInterpolationOption(InterpolationOption);
-	//Resampler.EnableSmoothingWhenDownsampling();
+	//Resampler.EnableTriangleSmoothingWhenDownsampling();
 	Resampler.SetMaxThreadCount(8);
 	Resampler.Update();
 	auto& ResampledImage = Resampler.OutputImage();
@@ -69,11 +69,10 @@ void test_a()
 
 	//
 	
+	t0 = std::chrono::system_clock::now();
 
 	DenseImage3D<double> TestImage;
-	TestImage.SetInfo(ResampledImage.GetInfo());
-
-	t0 = std::chrono::system_clock::now();
+	TestImage.SetInfo(ResampledImage.GetInfo());	
 
 	//for (int_max k = 0; k <= ResampledImage.GetPixelCount()-1; ++k)
 	auto TempFunction=[&](int_max k)
@@ -93,7 +92,12 @@ void test_a()
 
 	auto Size = ResampledImage.GetSize();
 
+	//---------------------------------------------------------------------
+	TestImage.Clear();
+
 	t0 = std::chrono::system_clock::now();
+
+	TestImage.SetInfo(ResampledImage.GetInfo());
 
 	//for (int_max z = 0; z <= Size[2]-1; ++z)
 	auto TempFunctionZ = [&](int_max z)	
