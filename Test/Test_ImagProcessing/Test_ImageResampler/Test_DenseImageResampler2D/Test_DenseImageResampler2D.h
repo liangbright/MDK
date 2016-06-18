@@ -46,6 +46,7 @@ void test_a()
 	                           { SinT, CosT,  0.0 },
 	                           { 0.0,  0.0, 1.0 } };
 
+	/*
 	auto OutputImageInfo = InputImage.GetInfo();
 	OutputImageInfo.Origin = InputImage.Transform2DIndexTo3DWorldPosition(185, 400);
 	auto Index2D = InputImage.Transform3DWorldPositionTo2DIndex(OutputImageInfo.Origin);
@@ -53,8 +54,11 @@ void test_a()
 	OutputImageInfo.Size = {21, 21};
 	OutputImageInfo.Orientation = OutputImageInfo.Orientation*Rz;
 	Resampler.SetOutputImageInfo(OutputImageInfo);
+	*/
 
 	//Resampler.SetOutputImageInfoBySize(256, 256);
+
+	Resampler.SetOutputImageInfoBySpacing(2.5, 2.5);
 
 	auto InterpolationOption = Resampler.GetImageInterpolationOption();
 	InterpolationOption.MethodType = DenseImageResampler2D<double>::ImageInterpolationMethodEnum::Linear;
