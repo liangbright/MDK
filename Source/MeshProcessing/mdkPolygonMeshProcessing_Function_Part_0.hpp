@@ -8,6 +8,18 @@ DenseVector<int_max> TraceMeshBoundaryCurve(const PolygonMesh<MeshAttributeType>
 {
     DenseVector<int_max> PointIndexListOfBoundaryCurve;
 
+	if (InputMesh.IsValidPointIndex(PointIndex_start) == false)
+	{
+		MDK_Error("PointIndex_start is invalid @ mdkPolygonMeshProcessing TraceMeshBoundaryCurve(...)")
+		return PointIndexListOfBoundaryCurve;
+	}
+
+	if (InputMesh.Point(PointIndex_start).IsOnBoundaryEdge() == false)
+	{
+		MDK_Error("PointIndex_start is NOT on boundary edge @ mdkPolygonMeshProcessing TraceMeshBoundaryCurve(...)")
+		return PointIndexListOfBoundaryCurve;
+	}
+
     int_max BoundaryEdgeCountOfInputMesh = 0;
     for (auto it = InputMesh.GetIteratorOfEdge(); it.IsNotEnd(); ++it)
     {
