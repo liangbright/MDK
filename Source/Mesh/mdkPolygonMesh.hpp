@@ -901,7 +901,7 @@ int_max PolygonMesh<MeshAttributeType>::GetPointIndexByPosition(ScalarType x, Sc
                 PointIndex_min = k;
             }
 
-            if (Distance_sq <= Distance_sq_min)
+            if (Distance_sq < Distance_sq_min)
             {
                 Distance_sq_min = Distance_sq;
                 PointIndex_min = k;

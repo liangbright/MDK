@@ -283,7 +283,7 @@ TriangleMesh<MeshAttributeType> SmoothMeshByVTKWindowedSincPolyDataFilter(const 
 }
 
 template<typename MeshAttributeType>
-void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<MeshAttributeType>& TargetMesh, int_max MaxIter, double Alpha, bool Flag_BoundarySmoothing)
+void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<MeshAttributeType>& TargetMesh, int_max MaxIter, double Alpha, bool Flag_BoundarySmoothing, bool Flag_TerminateIfTotalCurvatureIncrease)
 {
 	DenseVector<int_max> PointIndexList_NOSmoothing;
 	auto PointCount = TargetMesh.GetPointCount();
@@ -298,12 +298,12 @@ void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<MeshAttributeType>& T
 			}
 		}
 	}
-	SmoothTriangleMeshByNormalBasedCurvature(TargetMesh, MaxIter, Alpha, PointIndexList_NOSmoothing);
+	SmoothTriangleMeshByNormalBasedCurvature(TargetMesh, MaxIter, Alpha, PointIndexList_NOSmoothing, Flag_TerminateIfTotalCurvatureIncrease);
 }
 
 
 template<typename MeshAttributeType>
-void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<MeshAttributeType>& TargetMesh, int_max MaxIter, double Alpha, const DenseVector<int_max>& PointIndexList_NOSmoothing)
+void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<MeshAttributeType>& TargetMesh, int_max MaxIter, double Alpha, const DenseVector<int_max>& PointIndexList_NOSmoothing, bool Flag_TerminateIfTotalCurvatureIncrease)
 {	
 	//-------------------- check input ----------------------------
 	if (TargetMesh.IsEmpty() == true)
@@ -400,7 +400,7 @@ void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<MeshAttributeType>& T
 					}
 					else
 					{
-						if (Projection > Proj_k)
+						if (std::abs(Projection) < std::abs(Proj_k))
 						{
 							Projection = Proj_k;
 						}
@@ -426,25 +426,28 @@ void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<MeshAttributeType>& T
 			CurvatureList_after[k] = Curvature;
 		}
 
-		auto total_curvature_before = CurvatureList_before.Sum();
-		auto total_curvature_after = CurvatureList_after.Sum();
-		//std::cout << "total_curvature_before=" << total_curvature_before << '\n';
-		//std::cout << "total_curvature_after=" << total_curvature_after << '\n';
-		auto max_curvature_before = CurvatureList_before.Max();
-		auto max_curvature_after = CurvatureList_after.Max();
-		//std::cout << "max_curvature_before=" << max_curvature_before << '\n';
-		//std::cout << "max_curvature_after=" << max_curvature_after << '\n';
-
-		if (max_curvature_after > max_curvature_before)
+		if (Flag_TerminateIfTotalCurvatureIncrease == true)
 		{
-			MDK_Warning("max_curvature_after > max_curvature_before at iter=" + std::to_string(iter) + " @ SmoothTriangleMeshByNormalBasedCurvature(...)")
-			break;
-		}
+			auto total_curvature_before = CurvatureList_before.Sum();
+			auto total_curvature_after = CurvatureList_after.Sum();
+			//std::cout << "total_curvature_before=" << total_curvature_before << '\n';
+			//std::cout << "total_curvature_after=" << total_curvature_after << '\n';
+			auto max_curvature_before = CurvatureList_before.Max();
+			auto max_curvature_after = CurvatureList_after.Max();
+			//std::cout << "max_curvature_before=" << max_curvature_before << '\n';
+			//std::cout << "max_curvature_after=" << max_curvature_after << '\n';
 
-		if (total_curvature_after > total_curvature_before)
-		{
-			MDK_Warning("total_curvature_after > total_curvature_before at iter=" + std::to_string(iter) + " @ SmoothTriangleMeshByNormalBasedCurvature(...)")
-			break;
+			if (max_curvature_after > max_curvature_before)
+			{
+				MDK_Warning("max_curvature_after > max_curvature_before at iter=" + std::to_string(iter) + " @ SmoothTriangleMeshByNormalBasedCurvature(...)")
+				//break;
+			}
+
+			if (total_curvature_after > total_curvature_before)
+			{
+				MDK_Warning("total_curvature_after > total_curvature_before at iter=" + std::to_string(iter) + " @ SmoothTriangleMeshByNormalBasedCurvature(...)")
+				break;
+			}
 		}
 	}
 }

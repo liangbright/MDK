@@ -54,10 +54,10 @@ TriangleMesh<MeshAttributeType> SmoothMeshByVTKWindowedSincPolyDataFilter(const 
 // Alpha: NewPos = Pos + Alpha*Displacement at each iteration, Alpha must >= 0
 // Set Alpha = 1 usually
 template<typename MeshAttributeType>
-void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<MeshAttributeType>& TargetMesh, int_max MaxIter = 10, double Alpha = 1, bool Flag_BoundarySmoothing = true);
+void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<MeshAttributeType>& TargetMesh, int_max MaxIter = 10, double Alpha = 1, bool Flag_BoundarySmoothing = true, bool Flag_TerminateIfTotalCurvatureIncrease = true);
 
 template<typename MeshAttributeType>
-void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<MeshAttributeType>& TargetMesh, int_max MaxIter, double Alpha, const DenseVector<int_max>& PointIndexList_NOSmoothing);
+void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<MeshAttributeType>& TargetMesh, int_max MaxIter, double Alpha, const DenseVector<int_max>& PointIndexList_NOSmoothing, bool Flag_TerminateIfTotalCurvatureIncrease);
 
 }//namespace mdk
 
