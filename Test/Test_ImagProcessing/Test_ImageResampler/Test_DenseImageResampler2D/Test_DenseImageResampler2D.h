@@ -9,6 +9,7 @@
 #include "mdkDenseImage2D_FileIO.h"
 #include "mdkDenseImageResampler2D.h"
 
+
 using namespace mdk;
 
 void test_a()
@@ -30,27 +31,42 @@ void test_a()
 	DenseImageResampler2D<double> Resampler;
 	Resampler.SetInputImage(&InputImage);
 
-	double CosT = 0.707;
-	double SinT = 0.707;
-	DenseMatrix<double> R = { {1.0, 0.0, 0.0},
+	double Theta = -3.141592654 / 4;
+	double CosT = std::cos(Theta);
+	double SinT = std::sin(Theta);
+	DenseMatrix<double> Rx = { {1.0, 0.0, 0.0},
 							  {0.0, CosT, -SinT },
 	                          {0.0, SinT, CosT} };
+	
+	DenseMatrix<double> Ry = { { CosT, 0.0, SinT },
+	                           { 0.0,  1.0, 0.0 },
+	                           { -SinT, 0.0, CosT } };
 
+	DenseMatrix<double> Rz = { { CosT, -SinT, 0.0 },
+	                           { SinT, CosT,  0.0 },
+	                           { 0.0,  0.0, 1.0 } };
+
+	/*
 	auto OutputImageInfo = InputImage.GetInfo();
-	OutputImageInfo.Spacing *= 2.0;
-	OutputImageInfo.Size = {256, 256};
-	OutputImageInfo.Orientation = R*OutputImageInfo.Orientation;
+	OutputImageInfo.Origin = InputImage.Transform2DIndexTo3DWorldPosition(185, 400);
+	auto Index2D = InputImage.Transform3DWorldPositionTo2DIndex(OutputImageInfo.Origin);
+	OutputImageInfo.Spacing = {2.5, 2.5};
+	OutputImageInfo.Size = {21, 21};
+	OutputImageInfo.Orientation = OutputImageInfo.Orientation*Rz;
 	Resampler.SetOutputImageInfo(OutputImageInfo);
+	*/
 
 	//Resampler.SetOutputImageInfoBySize(256, 256);
+
+	Resampler.SetOutputImageInfoBySpacing(2.5, 2.5);
 
 	auto InterpolationOption = Resampler.GetImageInterpolationOption();
 	InterpolationOption.MethodType = DenseImageResampler2D<double>::ImageInterpolationMethodEnum::Linear;
 	InterpolationOption.BoundaryOption = DenseImageResampler2D<double>::ImageInterpolationBoundaryOptionEnum::Constant;
 	InterpolationOption.Pixel_OutsideImage = 0;
 	Resampler.SetImageInterpolationOption(InterpolationOption);
-	Resampler.EnableSmoothingWhenDownsampling();
-	Resampler.SetMaxThreadCount(6);
+	Resampler.EnableTriangleSmoothingWhenDownsampling();
+	Resampler.SetMaxThreadCount(8);
 	Resampler.Update();
 	const auto& ResampledImage = Resampler.OutputImage();
 
@@ -62,4 +78,3 @@ void test_a()
 
 	Save2DScalarImageAsJsonDataFile(ResampledImage, FileNameAndPath_OutputImage);
 }
-

@@ -253,10 +253,10 @@ CreateGaussianMask(const DenseVector<ScalarType, 2>& Spacing, ScalarType Sigma_x
 	// add the point to mask if mahalanobis distance <= CutOffRatio
 
 	m_ConvolutionMask.FastResize(0);
-	m_ConvolutionMask.SetCapacity(3*Radius*Radius*Radius);
+	m_ConvolutionMask.SetCapacity(3*Radius*Radius);
 
 	m_ConvolutionCoef.FastResize(0);
-	m_ConvolutionCoef.SetCapacity(Radius*Radius*Radius);
+	m_ConvolutionCoef.SetCapacity(Radius*Radius);
 
 	DenseMatrix<ScalarType> Relative2DIndex(2, 1);
 	DenseMatrix<ScalarType> Relative2DIndex_Transpose(1, 2);
@@ -348,6 +348,41 @@ CreateLaplacianOfGaussianMask(const DenseVector<ScalarType, 2>& Spacing, ScalarT
 	{
 		m_ConvolutionCoef[IndexList_n[k]] /= Sum_n;
 	}
+}
+
+
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+void DiscreteConvolutionDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::
+CreateTriangleMask(const DenseVector<ScalarType, 2>& Spacing, ScalarType Radius_x, ScalarType Radius_y)
+{
+	if (Radius_x <= 0 || Radius_y <= 0)
+	{
+		MDK_Error("Invalid input @ DiscreteConvolutionDenseImageFilter2D::CreateTriangleMask(...)")
+		return;
+	}
+
+	//---------------------------------------------------------------------------------------------------
+	// Radius_x/y is in real physical unit
+	auto Rx = int_max(Radius_x / Spacing[0] + 0.5) + 1;
+	auto Ry = int_max(Radius_y / Spacing[1] + 0.5) + 1;	
+	//---------------------------------------------------------------------------------------------------
+	m_ConvolutionMask.Clear();
+	m_ConvolutionMask.SetCapacity(3*4*(Rx-1)*(Ry-1));
+
+	m_ConvolutionCoef.Clear();
+	m_ConvolutionCoef.SetCapacity(4*(Rx-1)*(Ry-1));
+
+	for (int_max y = -Ry + 1; y <= Ry - 1; ++y)
+	{
+		for (int_max x = -Rx + 1; x <= Rx - 1; ++x)
+		{
+			ScalarType tempValue = 1 - (ScalarType(std::abs(x))/ScalarType(Rx))*(ScalarType(std::abs(y))/ScalarType(Ry));
+			m_ConvolutionMask.AppendCol({x, y});
+			m_ConvolutionCoef.Append(tempValue);
+		}
+	}
+
+	m_ConvolutionCoef /= m_ConvolutionCoef.Sum();
 }
 
 }// namespace mdk

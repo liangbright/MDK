@@ -2,6 +2,7 @@
 
 #include "mdkCoordinateTransform.h"
 #include "mdkIntegralImageBasedAverageDenseImageFilter3D.h"
+#include "mdkDiscreteConvolutionDenseImageFilter3D.h"
 
 namespace mdk
 {
@@ -26,7 +27,8 @@ private:
 
 	int_max m_MaxThreadCount; // max number of threads
 
-	bool m_Flag_SmoothWhenDownsmapling; // user input
+	bool m_Flag_TriangleSmoothWhenDownsmapling; // user input
+	bool m_Flag_AverageSmoothWhenDownsmapling; // user input
 	bool m_Flag_SmoothInputImage;
 
 	const CoordinateTransform<ScalarType>* m_3DPositionTransform_from_OutputImage_to_InputImage;
@@ -48,9 +50,7 @@ private:
 	// inv(O_out)*O_in is m_3DPositionTransformFromInputToOutput_Matrix
 	// inv(O_out)*(In-Out) is m_3DPositionTransformFromInputToOutput_Offset
 
-	bool m_Flag_Input_Output_SameOrigin;
-	bool m_Flag_Input_Output_SameSpacing;
-	bool m_Flag_Input_Output_SameOrientation;
+	bool m_Flag_Input_Output_Orientation_IdentityMatrix;
 	bool m_Flag_Input_Output_SameOrigin_SameOrientation;
 
 	DenseMatrix<double> m_3DPositionTransformFromOuputToInput_Matrix;
@@ -94,7 +94,8 @@ public:
 
 	void SetMaxThreadCount(int_max MaxNumber) { m_MaxThreadCount = MaxNumber; }
 
-	void EnableSmoothingWhenDownsampling(bool On_Off = true);
+	void EnableTriangleSmoothingWhenDownsampling(bool On_Off = true);
+	void EnableAverageSmoothingWhenDownsampling(bool On_Off = true);
 
 	void Update();
 	DenseImage3D<OutputPixelType>& OutputImage() { return m_OutputImage; }

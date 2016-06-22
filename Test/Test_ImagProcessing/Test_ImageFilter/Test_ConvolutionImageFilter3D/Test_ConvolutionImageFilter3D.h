@@ -168,8 +168,8 @@ void test_DiscreteTriangleFilter3D()
 {
 	String TestDataPath = "C:/Research/MDK/MDK_Build/Test/Test_ImageProcessing/Test_ImageFilter/Test_ConvolutionImageFilter3D/TestData/";
 
-	//String FilePath_InputImage = "G:/AorticValveData/2014_7_25/P2115937/phase0";
-	String FilePath_InputImage = "C:/Research/AorticValve/Data/CT/Normal/2014_7_25/P2115937/phase0";
+	String FilePath_InputImage = "G:/AorticValveData/2014_7_25/P2115937/phase0";
+	//String FilePath_InputImage = "C:/Research/AorticValve/Data/CT/Normal/2014_7_25/P2115937/phase0";
 
 	DenseImage3D<double> InputImage;
 	//Load3DScalarImageFromJsonDataFile(InputImage, FilePath + "TestImage.json");

@@ -47,10 +47,8 @@ private:
 
 	int_max m_MaxThreadCount;
 
-	//------------------------ internal ------------------------------------------------------//
-	bool m_Flag_Input_Output_SameOrigin;
-	bool m_Flag_Input_Output_SameSpacing;
-	bool m_Flag_Input_Output_SameOrientation;
+	//------------------------ internal ------------------------------------------------------//	
+	bool m_Flag_Input_Output_Orientation_IdentityMatrix;
 	bool m_Flag_Input_Output_SameOrigin_SameOrientation;
 
 	// see description in DenseImageResampler3D
@@ -125,7 +123,6 @@ private:
 	//---------- Coordinate Transform between Input and Output --------------------------------//	
 	void Update3DPositionTransform_Input_Output();
 	DenseVector<ScalarType, 2> Transform2DPositionInOutputImageTo2DPositionInInputImage(const DenseVector<ScalarType, 2>& Position_out);
-
 
 private:
     GradientDenseImageFilter2D(const GradientDenseImageFilter2D&) = delete;
