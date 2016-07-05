@@ -19,11 +19,6 @@ template<typename T>
 class Edge_Of_PolygonMesh;
 
 template<typename T>
-class DirectedEdge_Of_PolygonMesh;
-
-struct DirectedEdgeIndex_Of_PolygonMesh;
-
-template<typename T>
 class Face_Of_PolygonMesh;
 //----------------------------------------------------------------------------------------------------------------------------//
 
@@ -125,12 +120,6 @@ public:
 	inline int_max GetAdjacentEdgeCount() const;
     inline DenseVector<int_max> GetAdjacentEdgeIndexList() const;
 
-	inline int_max GetOutgoingDirectedEdgeCount() const;
-    inline DenseVector<DirectedEdgeIndex_Of_PolygonMesh> GetOutgoingDirectedEdgeIndexList() const;
-
-	inline int_max GetIncomingDirectedEdgeCount() const;
-    inline DenseVector<DirectedEdgeIndex_Of_PolygonMesh> GetIncomingDirectedEdgeIndexList() const;
-
 	inline int_max GetAdjacentFaceCount() const;
     inline DenseVector<int_max> GetAdjacentFaceIndexList() const;
 
@@ -157,7 +146,7 @@ struct Data_Of_Edge_Of_PolygonMesh
     int_max PointIndex0;
     int_max PointIndex1;
 
-	DenseVector<DirectedEdgeIndex_Of_PolygonMesh> DirectedEdgeIndexList;
+	DenseVector<int_max> AdjacentFaceIndexList;// Face share this edge, maybe more than two
 
     //--------------------------------
 
@@ -180,9 +169,6 @@ public:
 
     template<typename T>
     friend class Point_Of_PolygonMesh;
-
-    template<typename T>
-    friend class DirectedEdge_Of_PolygonMesh;
 
     template<typename T>
     friend class Face_Of_PolygonMesh;
@@ -210,8 +196,8 @@ private:
     inline void SetPointIndexList(int_max PointIndex0, int_max PointIndex1);
 	inline void SetPointIndexList(const DenseVector<int_max, 2>& PointIndexList);
 
-	inline DenseVector<DirectedEdgeIndex_Of_PolygonMesh>& DirectedEdgeIndexList();
-	inline const DenseVector<DirectedEdgeIndex_Of_PolygonMesh>& DirectedEdgeIndexList() const;
+	inline DenseVector<int_max>& AdjacentFaceIndexList();
+	inline const DenseVector<int_max>& AdjacentFaceIndexList() const;
     //--------------------------------------------------------------------------//
 public:
 
@@ -235,9 +221,6 @@ public:
 	inline void GetPointIndexList(int_max& PointIndex0, int_max& PointIndex1) const;
 	inline DenseVector<int_max, 2> GetPointIndexList() const;
 
-	inline int_max GetDirectedEdgeCount() const;
-    inline DenseVector<DirectedEdgeIndex_Of_PolygonMesh> GetDirectedEdgeIndexList() const;
-
 	inline int_max GetAdjacentEdgeCount() const;
 	inline DenseVector<int_max> GetAdjacentEdgeIndexList() const;
 
@@ -251,210 +234,6 @@ public:
 
     inline EdgeAttributeType& Attribute();
     inline const EdgeAttributeType& Attribute() const;
-};
-
-//====================================== DirectedEdge_Of_PolygonMesh (Face Boundary) ===================================================//
-// DirectedEdge is owned by Face: one DirectedEdge only belong to one face
-
-struct DirectedEdgeIndex_Of_PolygonMesh
-{
-	int_max FaceIndex;
-	int_max RelativeIndex;
-//------------------------------------------
-	DirectedEdgeIndex_Of_PolygonMesh() 
-	{
-		FaceIndex = -1;
-		RelativeIndex = -1;
-	}
-
-	DirectedEdgeIndex_Of_PolygonMesh(const DirectedEdgeIndex_Of_PolygonMesh& InputIndex)
-	{
-		(*this) = InputIndex;
-	}
-
-	~DirectedEdgeIndex_Of_PolygonMesh() {}
-	
-	void SetIndex(DirectedEdgeIndex_Of_PolygonMesh InputIndex)
-	{
-		FaceIndex = InputIndex.FaceIndex;
-		RelativeIndex = InputIndex.RelativeIndex;
-	}
-	
-	void operator=(const DirectedEdgeIndex_Of_PolygonMesh& InputIndex)
-	{
-		FaceIndex = InputIndex.FaceIndex;
-		RelativeIndex = InputIndex.RelativeIndex;
-	}
-
-	bool operator==(const DirectedEdgeIndex_Of_PolygonMesh& InputIndex) const
-	{
-		return (FaceIndex == InputIndex.FaceIndex) && (RelativeIndex == InputIndex.RelativeIndex);
-	}
-
-	bool operator!=(const DirectedEdgeIndex_Of_PolygonMesh& InputIndex) const
-	{
-		return (FaceIndex != InputIndex.FaceIndex) || (RelativeIndex == InputIndex.RelativeIndex);
-	}
-
-	bool operator>(const DirectedEdgeIndex_Of_PolygonMesh& InputIndex) const
-	{
-		if (FaceIndex != InputIndex.FaceIndex)
-		{
-			return FaceIndex > InputIndex.FaceIndex;
-		}
-		else
-		{
-			return RelativeIndex > InputIndex.RelativeIndex;
-		}
-	}
-
-	bool operator>=(const DirectedEdgeIndex_Of_PolygonMesh& InputIndex) const
-	{
-		if (FaceIndex != InputIndex.FaceIndex)
-		{
-			return FaceIndex >= InputIndex.FaceIndex;
-		}
-		else
-		{
-			return RelativeIndex >= InputIndex.RelativeIndex;
-		}
-	}
-
-	bool operator<(const DirectedEdgeIndex_Of_PolygonMesh& InputIndex) const
-	{
-		if (FaceIndex != InputIndex.FaceIndex)
-		{
-			return FaceIndex < InputIndex.FaceIndex;
-		}
-		else
-		{
-			return RelativeIndex < InputIndex.RelativeIndex;
-		}
-	}
-
-	bool operator<=(const DirectedEdgeIndex_Of_PolygonMesh& InputIndex) const
-	{
-		if (FaceIndex != InputIndex.FaceIndex)
-		{
-			return FaceIndex <= InputIndex.FaceIndex;
-		}
-		else
-		{
-			return RelativeIndex <= InputIndex.RelativeIndex;
-		}
-	}
-};
-
-
-template<typename MeshAttributeType>
-struct Data_Of_DirectedEdge_Of_PolygonMesh
-{
-    typedef typename MeshAttributeType::ScalarType                 ScalarType;
-    typedef typename MeshAttributeType::DirectedEdgeAttributeType  DirectedEdgeAttributeType;
-
-    PolygonMesh<MeshAttributeType> Mesh;
-
-    DirectedEdgeIndex_Of_PolygonMesh Index; // DirectedEdgeIndex of this DirectedEdge, it may change after Mesh.CleanDataStructure()
-
-    int_max ID; // unique identifier (valid if >=0, invalid if < 0), it will not change after Mesh.CleanDataStructure()
-
-	String Name;// may be empty, if not empty it must be unique
-
-    int_max EdgeIndex;          // index in Mesh.m_MeshData->EdgeList
-
-    int_max PointIndex_start;   // index in Mesh.m_MeshData->PointList, the start point of the DirectedEdge 
-    int_max PointIndex_end;     // index in Mesh.m_MeshData->PointList, the end point of the DirectedEdge
-
-    //--------------------------------------
-    
-    DirectedEdgeAttributeType Attribute;
-
-//------------------------------------------------------------------------
-    Data_Of_DirectedEdge_Of_PolygonMesh() : Mesh(MDK_PURE_EMPTY) {}
-    ~Data_Of_DirectedEdge_Of_PolygonMesh() {};
-};
-
-template<typename MeshAttributeType>
-class DirectedEdge_Of_PolygonMesh : public Object
-{
-public:
-    typedef typename MeshAttributeType::ScalarType                 ScalarType;
-    typedef typename MeshAttributeType::DirectedEdgeAttributeType  DirectedEdgeAttributeType;
-
-    template<typename T>
-    friend class PolygonMesh;
-
-	template<typename T>
-	friend class Point_Of_PolygonMesh;
-
-    template<typename T>
-    friend class Edge_Of_PolygonMesh;
-
-    template<typename T>
-    friend class Face_Of_PolygonMesh;
-
-private:
-    std::unique_ptr<Data_Of_DirectedEdge_Of_PolygonMesh<MeshAttributeType>> m_Data;
-
-public:
-	DirectedEdge_Of_PolygonMesh();
-    DirectedEdge_Of_PolygonMesh(const DirectedEdge_Of_PolygonMesh<MeshAttributeType>& InputDirectedEdge);
-    DirectedEdge_Of_PolygonMesh(DirectedEdge_Of_PolygonMesh<MeshAttributeType>&& InputDirectedEdge);
-    ~DirectedEdge_Of_PolygonMesh();
-
-    void operator=(const DirectedEdge_Of_PolygonMesh<MeshAttributeType>& InputDirectedEdge);
-    void operator=(DirectedEdge_Of_PolygonMesh<MeshAttributeType>&& InputDirectedEdge);
-
-private:
-    inline void ReCreate();
-	inline void Clear(const MDK_Symbol_PureEmpty&);
-
-    inline void SetParentMesh(PolygonMesh<MeshAttributeType>& ParentMesh);
-    inline void SetIndex(DirectedEdgeIndex_Of_PolygonMesh DirectedEdgeIndex);
-    inline void SetIndex(int_max FaceIndex, int_max RelativeIndex);
-
-    inline void SetStartPointIndex(int_max PointIndex);
-    inline void SetEndPointIndex(int_max PointIndex);    
-    inline void SetEdgeIndex(int_max EdgeIndex);
-    //-----------------------------------------------------------------------------------//
-public:
-    inline bool IsValid() const;
-
-    inline bool IsBoundary() const;
-
-    inline PolygonMesh<MeshAttributeType>& GetParentMesh();
-    inline const PolygonMesh<MeshAttributeType>& GetParentMesh() const;
-	inline DirectedEdgeIndex_Of_PolygonMesh GetIndex() const;
-	inline int_max GetFaceIndex() const;
-	inline int_max GetEdgeIndex() const;
-	inline int_max GetStartPointIndex() const;
-	inline int_max GetEndPointIndex() const;
-	
-    inline void SetID(int_max DirectedEdgeID);
-    inline void EraseID();
-    inline int_max GetID() const;
-
-	inline void SetName(String DirectedEdgeName);
-	inline void EraseName();
-	inline String GetName() const;
-
-	inline DirectedEdgeIndex_Of_PolygonMesh GetNextDirectedEdgeIndex() const;
-	inline DirectedEdgeIndex_Of_PolygonMesh GetPreviousDirectedEdgeIndex() const;
-
-	//friend on the same edge
-	inline int_max GetFriendDirectedEdgeCount() const;
-	inline DenseVector<DirectedEdgeIndex_Of_PolygonMesh> GetFriendDirectedEdgeIndexList() const;
-
-	//face share the same edge, include the face that own the directed-edge
-	inline int_max GetAdjacentFaceCount() const;
-	inline DenseVector<int_max> GetAdjacentFaceIndexList() const;
-
-	//face share any point of the directed edge, include the face that own the directed-edge
-	inline int_max GetNeighbourFaceCount() const;
-	inline DenseVector<int_max> GetNeighbourFaceIndexList() const;
-
-    inline DirectedEdgeAttributeType& Attribute();
-    inline const DirectedEdgeAttributeType& Attribute() const;
 };
 
 //====================================== Face_Of_PolygonMesh ==============================================================//
@@ -473,10 +252,12 @@ struct Data_Of_Face_Of_PolygonMesh
 
 	String Name;// may be empty, if not empty it must be unique
 
-    // do NOT need this
-	//DenseVector<int_max> PointIndexList;
-
-	StdObjectVector<DirectedEdge_Of_PolygonMesh<MeshAttributeType>> DirectedEdgeList;
+	DenseVector<int_max> PointIndexList;// this is an ordered set
+	// PointIndexList[0]->PointIndexList[1]->PointIndexList[2] define the normal direction using right-hand system
+	
+	DenseVector<int_max> EdgeIndexList;// this is an ordered set
+	// EdgeIndexList[0] is between PointIndexList[0] and PointIndexList[1]
+	// PointIndexList[end] is between PointIndexList[end] and PointIndexList[0]
 
     //--------------------------------------
 
@@ -519,8 +300,11 @@ private:
     inline void SetParentMesh(PolygonMesh<MeshAttributeType>& ParentMesh);
     inline void SetIndex(int_max FaceIndex);   
 
-	inline StdObjectVector<DirectedEdge_Of_PolygonMesh<MeshAttributeType>>& DirectedEdgeList();
-	inline const StdObjectVector<DirectedEdge_Of_PolygonMesh<MeshAttributeType>>& DirectedEdgeList() const;
+	inline DenseVector<int_max>& PointIndexList();
+	inline const DenseVector<int_max>& PointIndexList() const;
+
+	inline DenseVector<int_max>& EdgeIndexList();
+	inline const DenseVector<int_max>& EdgeIndexList() const;
 
     //--------------------------------------------------------------------------------//
 public:
@@ -544,9 +328,6 @@ public:
 	inline int_max GetEdgeCount() const;
 	inline DenseVector<int_max> GetEdgeIndexList() const;
 
-	inline int_max GetDirectedEdgeCount() const;
-	inline DenseVector<DirectedEdgeIndex_Of_PolygonMesh> GetDirectedEdgeIndexList() const;
-
 	// Face share any Edge of this face, not include this face
 	inline int_max GetAdjacentFaceCount() const;
 	inline DenseVector<int_max> GetAdjacentFaceIndexList() const;
@@ -562,8 +343,8 @@ public:
 
 	inline int_max GetEdgeIndexByPoint(int_max PointIndexA, int_max PointIndexB) const;
 
-	//Direction: A -> B
-	DirectedEdgeIndex_Of_PolygonMesh GetDirectedEdgeIndexByPoint(int_max PointIndexA, int_max PointIndexB) const;
+	// true: A -> B ; false: B->A
+	bool CheckPointOrder(int_max PointIndexA, int_max PointIndexB) const;
 
 	// output list {PointIndexA, ...}, the point-order determine face normal (right hand rule) 
 	inline DenseVector<int_max> GetPointIndexList_LeadBy(int_max PointIndexA) const;
@@ -571,6 +352,7 @@ public:
 	// output list {PointIndexA, PointIndexB, ...}, the point-order may determine the opposite of face normal 
 	inline DenseVector<int_max> GetPointIndexList_LeadBy(int_max PointIndexA, int_max PointIndexB) const;
 
+	// change P0->P1->P2->...->Pn to Pn->...->P2->P1->P0
 	inline void ReversePointOrder();
 };
 

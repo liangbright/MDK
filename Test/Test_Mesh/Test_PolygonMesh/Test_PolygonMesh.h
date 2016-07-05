@@ -72,7 +72,7 @@ void Test_ReversePointOrder()
 	LoadPolygonMeshFromVTKFile(InputMesh, FilePathAndName + ".vtk");
 
 	auto FaceIndexList = InputMesh.GetFaceIndexList();
-	InputMesh.ReversePointOrderOfFace(FaceIndexList[0]);
+	InputMesh.Face(FaceIndexList[0]).ReversePointOrder();
 	SavePolygonMeshAsVTKFile(InputMesh, FilePathAndName + "_ReversePointOrder.vtk");
 }
 
@@ -102,11 +102,11 @@ void Test_AddtionalInfo()
 
 	SavePolygonMeshAsJsonDataFile(SquareMesh, FilePathAndName + "_att_re.json");
 
-	auto Set1 = InputMesh.GetPointSet("0_name");
-	auto Set2 = InputMesh.GetPointSet("a");
+	auto Set1 = InputMesh.GetPointSet("0_PointSet");
+	auto Set2 = InputMesh.GetPointSet("1_PointSet");
 
-	auto Set3 = InputMesh.GetFaceSet("0_name");
-	auto Set4 = InputMesh.GetFaceSet("b");
+	auto Set3 = InputMesh.GetFaceSet("0_FaceSet");
+	auto Set4 = InputMesh.GetFaceSet("1_FaceSet");
 }
 
 void Test_AddtionalInfo_Name()

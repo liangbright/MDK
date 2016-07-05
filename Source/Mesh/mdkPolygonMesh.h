@@ -16,8 +16,7 @@ struct PolygonMeshStandardAttributeType
     typedef ScalarType  ScalarType;
 	typedef GlobalStandardAttribute_Of_PolygonMesh<ScalarType>             GlobalAttribute;
 	typedef StandardAttribute_Of_Point_Of_PolygonMesh<ScalarType>          PointAttributeType;
-	typedef StandardAttribute_Of_Edge_Of_PolygonMesh<ScalarType>           EdgeAttributeType;
-	typedef StandardAttribute_Of_DirectedEdge_Of_PolygonMesh<ScalarType>   DirectedEdgeAttributeType;
+	typedef StandardAttribute_Of_Edge_Of_PolygonMesh<ScalarType>           EdgeAttributeType;	
 	typedef StandardAttribute_Of_Face_Of_PolygonMesh<ScalarType>           FaceAttributeType;
 };
 
@@ -27,8 +26,7 @@ struct PolygonMeshEmptyAttributeType
 	typedef ScalarType  ScalarType;
 	typedef GlobalStandardAttribute_Of_PolygonMesh<ScalarType>             GlobalAttribute;
 	typedef StandardAttribute_Of_Point_Of_PolygonMesh<ScalarType>          PointAttributeType;
-	typedef StandardAttribute_Of_Edge_Of_PolygonMesh<ScalarType>           EdgeAttributeType;
-	typedef StandardAttribute_Of_DirectedEdge_Of_PolygonMesh<ScalarType>   DirectedEdgeAttributeType;
+	typedef StandardAttribute_Of_Edge_Of_PolygonMesh<ScalarType>           EdgeAttributeType;	
 	typedef StandardAttribute_Of_Face_Of_PolygonMesh<ScalarType>           FaceAttributeType;
 };
 //------------------------------------------------------------------------------------------------//
@@ -58,9 +56,6 @@ struct PolygonMeshData
 
 	StdObjectVector<Edge_Of_PolygonMesh<MeshAttributeType>> EdgeList;
 
-    // do not use this, DirectedEdge_Of_PolygonMesh::operator(&&) will not work when append to the list
-    //StdObjectVector<DenseVector<DirectedEdge_Of_PolygonMesh<MeshAttributeType>, 2>> DirectedEdgePairList;
-
     DenseVector<int_max> EdgeValidityFlagList;
     // 1: Edge is an element of the mesh 
     // 0: Edge is deleted
@@ -74,12 +69,10 @@ struct PolygonMeshData
     // Attention: ID must >= 0
     std::unordered_map<int_max, int_max> Map_PointID_to_PointIndex;
     std::unordered_map<int_max, int_max> Map_EdgeID_to_EdgeIndex;
-    std::unordered_map<int_max, DirectedEdgeIndex_Of_PolygonMesh> Map_DirectedEdgeID_to_DirectedEdgeIndex;
     std::unordered_map<int_max, int_max> Map_FaceID_to_FaceIndex;
 	
 	std::unordered_map<String, int_max, StringHash<String>> Map_PointName_to_PointIndex;
 	std::unordered_map<String, int_max, StringHash<String>> Map_EdgeName_to_EdgeIndex;
-	std::unordered_map<String, DirectedEdgeIndex_Of_PolygonMesh, StringHash<String>> Map_DirectedEdgeName_to_DirectedEdgeIndex;
 	std::unordered_map<String, int_max, StringHash<String>> Map_FaceName_to_FaceIndex;
 
 	StdObjectVector<DenseVector<int_max>>  PointSetList;// PointSetList[k] is PointIndexList Of a PointSet indexed by k
@@ -106,27 +99,22 @@ public:
     typedef typename MeshAttributeType::GlobalAttribute           GlobalAttribute;
     typedef typename MeshAttributeType::PointAttributeType        PointAttributeType;
     typedef typename MeshAttributeType::EdgeAttributeType         EdgeAttributeType;
-    typedef typename MeshAttributeType::DirectedEdgeAttributeType DirectedEdgeAttributeType;
     typedef typename MeshAttributeType::FaceAttributeType         FaceAttributeType;
     //--------------------------------------------------------------------------------------------//
     typedef Point_Of_PolygonMesh<MeshAttributeType>           PointType;
     typedef Edge_Of_PolygonMesh<MeshAttributeType>            EdgeType;
-    typedef DirectedEdge_Of_PolygonMesh<MeshAttributeType>    DirectedEdgeType;
     typedef Face_Of_PolygonMesh<MeshAttributeType>            FaceType;
 
     typedef int_max                            PointIndexType;
     typedef int_max                            EdgeIndexType;
-    typedef DirectedEdgeIndex_Of_PolygonMesh   DirectedEdgeIndexType;
     typedef int_max                            FaceIndexType;
 
     typedef Iterator_Of_Point_Of_PolygonMesh<MeshAttributeType>           PointIteratorType;
     typedef Iterator_Of_Edge_Of_PolygonMesh<MeshAttributeType>            EdgeIteratorType;
-    typedef Iterator_Of_DirectedEdge_Of_PolygonMesh<MeshAttributeType>    DirectedEdgeIteratorType;
     typedef Iterator_Of_Face_Of_PolygonMesh<MeshAttributeType>            FaceIteratorType;
     //--------------------------------------------------------------------------------------------------//
 	typedef StdObjectVector<Point_Of_PolygonMesh<MeshAttributeType>>          PointListType;
 	typedef StdObjectVector<Edge_Of_PolygonMesh<MeshAttributeType>>           EdgeListType;
-	typedef StdObjectVector<DirectedEdge_Of_PolygonMesh<MeshAttributeType>>   DirectedEdgeListType;
 	typedef StdObjectVector<Face_Of_PolygonMesh<MeshAttributeType>>           FaceListType;
 	//--------------------------------------------------------------------------------------------------//
 
@@ -145,12 +133,6 @@ protected:
 
     template<typename T>
     friend struct Iterator_Of_Edge_Of_PolygonMesh;
-
-    template<typename T>
-    friend class DirectedEdge_Of_PolygonMesh;
-
-    template<typename T>
-    friend struct Iterator_Of_DirectedEdge_Of_PolygonMesh;
 
     template<typename T>
     friend class Face_Of_PolygonMesh;    
@@ -185,7 +167,6 @@ public:
 
     inline int_max GetPointCount() const;
     inline int_max GetEdgeCount() const;
-    inline int_max GetDirectedEdgeCount() const;
     inline int_max GetFaceCount() const;
  
 	inline int_max GetNamedPointCount() const;
@@ -227,16 +208,13 @@ public:
     inline DenseMatrix<ScalarType> GetPointPosition(const DenseVector<int_max>& PointIndexList) const;
     inline void GetPointPosition(const DenseVector<int_max>& PointIndexList, DenseMatrix<ScalarType>& PointPositionMatrix) const;
     
-    //----- Get/Set Mesh Item {Point, , Edge, DirectedEdge, Face} by using index  ------//
+    //----- Get/Set Mesh Item {Point, , Edge, Face} by using index  ------//
 
     inline PointType& Point(int_max PointIndex);
     inline const PointType& Point(int_max PointIndex) const;
 
     inline EdgeType& Edge(int_max EdgeIndex);
     inline const EdgeType& Edge(int_max EdgeIndex) const;
-
-    inline DirectedEdgeType& DirectedEdge(DirectedEdgeIndexType DirectedEdgeIndex);
-    inline const DirectedEdgeType& DirectedEdge(DirectedEdgeIndexType DirectedEdgeIndex) const;
 
     inline FaceType& Face(int_max FaceIndex);
     inline const FaceType& Face(int_max FaceIndex) const;
@@ -245,13 +223,11 @@ public:
 	// true: exist, false: not-exist
     inline bool IsValidPointIndex(int_max PointIndex) const;
     inline bool IsValidEdgeIndex(int_max EdgeIndex) const;
-    inline bool IsValidDirectedEdgeIndex(DirectedEdgeIndexType DirectedEdgeIndex) const;
     inline bool IsValidFaceIndex(int_max FaceIndex) const;
 
     //--------- get IndexList ------------------------------------------------------------//
     inline DenseVector<int_max> GetPointIndexList() const;
     inline DenseVector<int_max> GetEdgeIndexList() const;
-    inline DenseVector<DirectedEdgeIndexType> GetDirectedEdgeIndexList() const;
     inline DenseVector<int_max> GetFaceIndexList() const;
 
     //----------- get PointIndex by Position, ID, Name ----------------------------------------------//
@@ -266,17 +242,9 @@ public:
     inline int_max GetEdgeIndexByID(int_max EdgeID) const;
 	inline int_max GetEdgeIndexByName(const String& EdgeName) const;
 
-    //----------- get DirectedEdgeIndex by Point, ID, Name -------------------------------//
-	// non-manifold is allowed: maybe more than one DirectedEdge from PointIndex_start to PointIndex_end
-	//                          there are many face containing PointIndex_start and  PointIndex_end
-	//                          each face has a DirectedEdge from PointIndex_start to PointIndex_end
-    inline DenseVector<DirectedEdgeIndexType> GetDirectedEdgeIndexListByPoint(int_max PointIndex_start, int_max PointIndex_end) const;
-	inline DirectedEdgeIndexType GetDirectedEdgeIndexByID(int_max DirectedEdgeID) const;
-	inline DirectedEdgeIndexType GetDirectedEdgeIndexByName(const String& DirectedEdgeName) const;
-
     //----------- get FaceIndex by Point, Edge, ID, Name ----------//    
 	// PointIndexList/EdgeIndexList can have random order of point/edge
-    inline int_max GetFaceIndexByPoint(const DenseVector<int_max>& PointIndexList) const;
+	inline int_max GetFaceIndexByPoint(const DenseVector<int_max>& PointIndexList) const;
     inline int_max GetFaceIndexByEdge(const DenseVector<int_max>& EdgeIndexList) const;
 	inline int_max GetFaceIndexByID(int_max FaceID) const;
 	inline int_max GetFaceIndexByName(const String& Name) const;
@@ -284,46 +252,38 @@ public:
 	//-------------- check ID -------------------------------------------------------//
 	// true: exist, false: not-exist
 	inline bool IsValidPointID(int_max PointID) const;
-	inline bool IsValidEdgeID(int_max EdgeID) const;
-	inline bool IsValidDirectedEdgeID(int_max DirectedEdgeID) const;
+	inline bool IsValidEdgeID(int_max EdgeID) const;	
 	inline bool IsValidFaceID(int_max FaceID) const;
 
 	//--------- get Valid IDList ------------------------------------------------------------//
 	inline DenseVector<int_max> GetValidPointIDList() const;
 	inline DenseVector<int_max> GetValidEdgeIDList() const;
-	inline DenseVector<int_max> GetValidDirectedEdgeIDList() const;
 	inline DenseVector<int_max> GetValidFaceIDList() const;
 
-    //----------- get Point/Edge/DirectedEdge/Face ID by Index -----------------------------------------------------------//
+    //----------- get Point/Edge/Face ID by Index -----------------------------------------------------------//
     inline int_max GetPointID(int_max PointIndex) const;
 	inline DenseVector<int_max> GetPointID(const DenseVector<int_max>& PointIndexList) const;	
     inline int_max GetEdgeID(int_max EdgeIndex) const;
-	inline DenseVector<int_max> GetEdgeID(const DenseVector<int_max>& EdgeIndexList) const;
-    inline int_max GetDirectedEdgeID(DirectedEdgeIndexType DirectedEdgeIndex) const;
-	inline DenseVector<int_max> GetDirectedEdgeID(const DenseVector<DirectedEdgeIndexType>& DirectedEdgeIndexList) const;
+	inline DenseVector<int_max> GetEdgeID(const DenseVector<int_max>& EdgeIndexList) const;    
     inline int_max GetFaceID(int_max FaceIndex) const;
     inline DenseVector<int_max> GetFaceID(const DenseVector<int_max>& FaceIndexList) const;
 	
 	//-------------- check Name -------------------------------------------------------//
 	// true: exist, false: not-exist
 	inline bool IsValidPointName(const String& PointName) const;
-	inline bool IsValidEdgeName(const String& EdgeName) const;
-	inline bool IsValidDirectedEdgeName(const String& DirectedEdgeName) const;
+	inline bool IsValidEdgeName(const String& EdgeName) const;	
 	inline bool IsValidFaceName(const String& FaceName) const;
 	
 	//--------- get Valid NameList ------------------------------------------------------------//
 	ObjectArray<String> GetValidPointNameList() const;
-	ObjectArray<String> GetValidEdgeNameList() const;
-	ObjectArray<String> GetValidDirectedEdgeNameList() const;
+	ObjectArray<String> GetValidEdgeNameList() const;	
 	ObjectArray<String> GetValidFaceNameList() const;
 
-	//----------- get Point/Edge/DirectedEdge/Face Name by Index -----------------------------------------------------------//
+	//----------- get Point/Edge/Face Name by Index -----------------------------------------------------------//
 	inline String GetPointName(int_max PointIndex) const;
 	inline ObjectArray<String> GetPointName(const DenseVector<int_max>& PointIndexList) const;
 	inline String GetEdgeName(int_max EdgeIndex) const;
 	inline ObjectArray<String> GetEdgeName(const DenseVector<int_max>& EdgeIndexList) const;	
-	inline String GetDirectedEdgeName(DirectedEdgeIndexType DirectedEdgeIndex) const;
-	inline ObjectArray<String> GetDirectedEdgeName(const DenseVector<DirectedEdgeIndexType>& DirectedEdgeIndexList) const;
 	inline String GetFaceName(int_max FaceIndex) const;
 	inline ObjectArray<String> GetFaceName(const DenseVector<int_max>& FaceIndexList) const;
 
@@ -360,8 +320,6 @@ public:
     inline const PointIteratorType  GetIteratorOfPoint() const;
     inline EdgeIteratorType   GetIteratorOfEdge();
     inline const EdgeIteratorType   GetIteratorOfEdge() const;
-    inline DirectedEdgeIteratorType   GetIteratorOfDirectedEdge();
-    inline const DirectedEdgeIteratorType   GetIteratorOfDirectedEdge() const;
     inline FaceIteratorType   GetIteratorOfFace();
     inline const FaceIteratorType   GetIteratorOfFace() const;
 
@@ -384,7 +342,6 @@ public:
 	DenseVector<int_max> AddPoint_batch(DenseMatrix<ScalarType>&& PointSet);
 
     // add an Edge and return EdgeIndex in m_MeshData->EdgeList
-    // also create invalid DirectedEdge to hold place at m_MeshData->DirectedEdgeList[EdgeIndex]
     // Check is performed in the function to ensure that an edge will not be added more than once
 	int_max AddEdge(int_max PointIndex0, int_max PointIndex1);
 
@@ -392,8 +349,7 @@ public:
 	int_max AddEdge(int_max PointIndex0, int_max PointIndex1, int_max EdgeIndex_input);
 
     // add a face and return FaceIndex in m_MeshData->FaceList
-    // add DirectedEdge of the face
-    // the order of Edge in EdgeIndexList determine the direction of each DirectedEdge and the direction/sign of the normal vector
+    // the order of Edge in EdgeIndexList determine the direction/sign of the normal vector
 	int_max AddFaceByEdge(const DenseVector<int_max>& EdgeIndexList);
 
 	//FaceIndex_input may be the Index of a deleted face, so to reused old FaceIndex if necessary
@@ -409,7 +365,7 @@ public:
     // Delete Mesh Item ----------------------------------------------------------------------------//
 
     // m_MeshData->FaceList[FaceIndex].Clear() only release memory
-    // this function will delete each DirectedEdge of the Face, and modify any information related to the face
+    // this function will modify any information related to the face
     // FaceIndex, FaceID, FaceName become invalid after the face is deleted
 	void DeleteFace(int_max FaceIndex);
 
@@ -418,7 +374,7 @@ public:
     // EdgeIndex, EdgeID, EdgeName become invalid after the edge is deleted
     // Check is performed in the function to make sure an edge can not be deleted if any adjacent face exit
 	//
-	// note:  Call Edge(EdgeIndex).GetAdjacentFaceCount() to check if the edge can be deleted or not
+	// note: Call Edge(EdgeIndex).GetAdjacentFaceCount() to check if the edge can be deleted or not
 	void DeleteEdge(int_max EdgeIndex);
 
     // m_MeshData->PointList[PointIndex].Cear() only release memory
@@ -458,10 +414,6 @@ public:
 
     // other basic operation ----------------------------------------------------------------------------------------
 	
-	// change P0->P1->P2->...->Pn to Pn->...->P2->P1->P0
-	// change AddFaceByPoint({P0, P1, P2,...,Pn}) to AddFaceByPoint({Pn,..., P2, P1, P0})
-	void ReversePointOrderOfFace(int_max FaceIndex);
-
 	// swap PointA and PointB: move A to B, move B to A, NOT change the mesh topology
 	// A, B, C, D are point ID/name
 	//------------------------
@@ -481,7 +433,7 @@ public:
 	//   A   B  => A   B
 	//       |       \
 	//       D         D
-    //------------------------	
+	//------------------------------
 	bool SwapConnectivityOfPoint(int_max PointIndexA, int_max PointIndexB);
 
 	// merge the connection of PointB to the connection of PointA, then PointB become an isolated point
@@ -493,6 +445,13 @@ public:
 	// ---A---B =>    ---A   B
 	//    |   |          | \
     //-------------------------------
+	// special case: may produce duplicated edge
+	// C---B                 C   B
+	// |  /   Merge(A, B)    ||
+	// A                     A
+	// ABC may not be a face, i.e., ABC is a hole
+	// check is performed in the function to prevent this case
+	//------------------------------
 	bool MergeConnectivityOfPoint(int_max PointIndexA, int_max PointIndexB);
 
 	// Point may not be on the edge
@@ -501,13 +460,19 @@ public:
 
 	DenseVector<int_max, 2> SplitEdgeByPoint(int_max EdgeIndex, int_max PointIndex);
 
+	// if sucess, return the index of the newly merged edge
+	// if Flag_MergeToA is true, then NO new edge will be created, EdgeA will be reused.
+	// int_max MergeAdjacentEdge(int_max EdgeIndexA, int_max EdgeIndexB, bool Flag_MergeToA);
+
 	// Point may not be on the face
 	// return true if success
-	// can NOT shrink if it lead to merge of two point of a triangle face: return false
+	// can NOT shrink if it lead to merge of two point of a triangle face/hole: return false
 	bool ShrinkFaceToPoint(int_max FaceIndex, int_max PointIndex);
 
 	/*
-	int_max MergeAdjacentFace(int_max FaceIndexA, int_max FaceIndexB);
+	// if sucess, return the index of the newly merged face
+	// if Flag_MergeToA is true, then NO new face will be created, FaceA will be reused.
+	int_max MergeAdjacentFace(int_max FaceIndexA, int_max FaceIndexB, bool Flag_MergeToA);
 
 	DenseVector<int_max, 2> SplitFaceByEdge(int_max FaceIndex, int_max EdgeIndex);
 	*/
@@ -516,13 +481,6 @@ protected:
     void UpdateRecord_DeletePoint(int_max PointIndex);
     void UpdateRecord_DeleteEdge(int_max EdgeIndex);
     void UpdateRecord_DeleteFace(int_max FaceIndex);
-	
-	// the DirectedEdge is deleted in this function
-	void UpdateRecord_DeleteDirectedEdge(DirectedEdgeIndex_Of_PolygonMesh DirectedEdgeIndex_delete);
-		
-	// DirectedEdge_insert has complete information including index, adjacency, etc
-	void UpdateRecord_InsertDirectedEdge(DirectedEdgeType DirectedEdge_insert);
-
 };
 
 }// namespace mdk

@@ -73,40 +73,6 @@ public:
     inline bool IsNotEnd() const;
 };
 
-//================================================= Iterator_Of_DirectedEdge_Of_PolygonMesh ==================================//
-
-template<typename MeshAttribute>
-struct Iterator_Of_DirectedEdge_Of_PolygonMesh
-{
-private:
-    mutable PolygonMesh<MeshAttribute> m_Mesh;
-	mutable DirectedEdgeIndex_Of_PolygonMesh m_DirectedEdgeIndex;
-
-    //----------------------------------
-private:
-    Iterator_Of_DirectedEdge_Of_PolygonMesh() = delete;
-public:
-    inline Iterator_Of_DirectedEdge_Of_PolygonMesh(const PolygonMesh<MeshAttribute>& ParentMesh);
-    inline Iterator_Of_DirectedEdge_Of_PolygonMesh(const Iterator_Of_DirectedEdge_Of_PolygonMesh& InputIterator);
-    inline ~Iterator_Of_DirectedEdge_Of_PolygonMesh();
-
-    inline void operator=(const Iterator_Of_DirectedEdge_Of_PolygonMesh& InputIterator) const;
-
-    inline DirectedEdgeIndex_Of_PolygonMesh GetDirectedEdgeIndex() const;
-
-    inline DirectedEdge_Of_PolygonMesh<MeshAttribute>& DirectedEdge();
-    inline const DirectedEdge_Of_PolygonMesh<MeshAttribute>& DirectedEdge() const;
-
-    inline void operator+=(int_max Offset) const;
-    inline void operator-=(int_max Offset) const;
-    inline void operator++() const;
-    inline void operator--() const;
-
-    inline void SetToBegin() const;
-
-    inline bool IsNotEnd() const;
-};
-
 //================================================= Iterator_Of_Face_Of_PolygonMesh ==================================//
 
 template<typename MeshAttribute>

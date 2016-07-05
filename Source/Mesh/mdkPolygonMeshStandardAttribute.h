@@ -96,33 +96,6 @@ struct StandardAttribute_Of_Edge_Of_PolygonMesh
     }
 };
 
-//============================================== StandardAttribute_Of_DirectedEdge_Of_PolygonMesh ===========================================//
-enum class PolygonMeshDirectedEdgeStandardAttributeEnum
-{
-	Direction,
-};
-
-template<typename ScalarType>
-struct StandardAttribute_Of_DirectedEdge_Of_PolygonMesh
-{
-	DenseVector<ScalarType, 3> Direction; // [X, Y, Z]
-//-------------------------------------------------------
-	StandardAttribute_Of_DirectedEdge_Of_PolygonMesh() { this->Clear(); }
-	StandardAttribute_Of_DirectedEdge_Of_PolygonMesh(const StandardAttribute_Of_DirectedEdge_Of_PolygonMesh& InputAttribute) { (*this) = InputAttribute; }
-	~StandardAttribute_Of_DirectedEdge_Of_PolygonMesh() {}
-
-	void operator=(const StandardAttribute_Of_DirectedEdge_Of_PolygonMesh& InputAttribute)
-    {
-		Direction = InputAttribute.Direction;
-    }
-
-    void Clear()
-    {
-		Direction.Fill(0);
-    }
-
-};
-
 //============================================== StandardAttribute_Of_Face_Of_PolygonMesh ===========================================//
 enum class PolygonMeshFaceStandardAttributeEnum
 {
