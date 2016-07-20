@@ -1097,12 +1097,10 @@ template<typename ElementType>
 inline
 bool DenseVector<ElementType>::Append(ElementType Element)
 {
-    auto SelfLength = this->GetElementCount();
-
-    this->Resize(SelfLength + 1);
-
-    m_StdVector[SelfLength] = std::move(Element);
-
+    //auto SelfLength = this->GetElementCount();
+    //this->Resize(SelfLength + 1);
+    //m_StdVector[SelfLength] = std::move(Element);
+	m_StdVector.push_back(std::move(Element));
     return true;
 }
 
