@@ -144,9 +144,7 @@ struct ObjectArrayData
 		}
 
 		//copy data ----------------------------------------------------------
-
 		auto tempPtr = InputElementPointer;
-
 		for (auto Ptr = ElementPointer; Ptr < ElementPointer + Length; ++Ptr, ++tempPtr)
 		{
 			Ptr[0] = tempPtr[0];
@@ -489,14 +487,6 @@ public:
 	inline void Insert(int_max Index, const ObjectArray<ElementType>& InputArray);	
 	inline void Insert(int_max Index, const ElementType* InputArray, int_max InputLength);
 
-    //------------- use ObjectArray as a stack ----------------------------//
-
-	inline void PushBack(ElementType Element);
-    inline ElementType PopBack();
-
-	inline void Push(ElementType Element);
-	inline ElementType Pop();
-
     //----------------------- Get a subset ------------------------------//
 
     inline ObjectArray<ElementType> GetSubSet(int_max Index_start, int_max Index_end);
@@ -549,7 +539,7 @@ public:
 
 	inline ObjectArray<int_max> Sort(const char* Order) const;
 	// Order: ascend or descend
-	inline ObjectArray<int_max> Sort(const String& Order) const;
+	inline ObjectArray<int_max> Sort(const std::string& Order) const;
 
     template<typename CompareFunctionType>
     inline void SortInPlace(CompareFunctionType CompareFunction);
@@ -559,8 +549,7 @@ public:
 
 	inline void SortInPlace(const char* Order);
 	// Order: ascend or descend
-	inline void SortInPlace(const String& Order);
-
+	inline void SortInPlace(const std::string& Order);
 
 private:
 

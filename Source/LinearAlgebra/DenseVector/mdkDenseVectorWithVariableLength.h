@@ -237,12 +237,6 @@ public:
 
     inline bool Insert(int_max Index, const ElementType* InputData, int_max InputLength);
 
-    //------------------- push/ pop the last element ----------------------//
-
-    inline bool PushBack(ElementType Element);
-
-    inline ElementType PopBack();
-
     //-------------------- find ---------------------------------------//
     // return index list
 
@@ -275,8 +269,8 @@ public:
     inline DenseVector<int_max> Sort(int_max Index_start, int_max Index_end, CompareFunctionType CompareFunction) const;
 
 	// Order: ascend or descend
-	inline DenseVector<int_max> Sort(const char* ascend_or_descend) const;
-	inline DenseVector<int_max> Sort(const std::string& ascend_or_descend) const;
+	inline DenseVector<int_max> Sort(const char* Order) const;
+	inline DenseVector<int_max> Sort(const std::string& Order) const;
 
     template<typename CompareFunctionType>
     inline void SortInPlace(CompareFunctionType CompareFunction);
@@ -285,8 +279,8 @@ public:
     inline void SortInPlace(int_max Index_start, int_max Index_end, CompareFunctionType CompareFunction);
 
 	// Order: ascend or descend
-	inline void SortInPlace(const char* ascend_or_descend);
-	inline void SortInPlace(const std::string& ascend_or_descend);
+	inline void SortInPlace(const char* Order);
+	inline void SortInPlace(const std::string& Order);
 
     //------------------------- unique --------------------------------//
     // return index list of unique element

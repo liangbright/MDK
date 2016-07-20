@@ -1195,51 +1195,6 @@ void ObjectArray<ElementType>::Insert(int_max Index, const ElementType* InputArr
 
 
 template<typename ElementType>
-inline 
-void ObjectArray<ElementType>::PushBack(ElementType Element)
-{
-    this->Append(std::move(Element));
-}
-
-
-template<typename ElementType>
-inline
-ElementType ObjectArray<ElementType>::PopBack()
-{
-    auto CurrentElementNumber = this->GetElementCount();
-
-    if (CurrentElementNumber > 0)
-    {
-        auto tempIndex = CurrentElementNumber - 1;
-        auto OutputElement = std::move((*this)[tempIndex]);
-        this->Delete(tempIndex);
-		return OutputElement;
-    }
-    else
-    {
-		MDK_Error("Self is empty @ ObjectArray::PopBack()")
-		return m_Data->ErrorElement;
-    }
-}
-
-
-template<typename ElementType>
-inline
-void ObjectArray<ElementType>::Push(ElementType Element)
-{
-	this->Append(std::move(Element));
-}
-
-
-template<typename ElementType>
-inline
-ElementType ObjectArray<ElementType>::Pop()
-{
-	this->PopBack();
-}
-
-
-template<typename ElementType>
 inline
 ObjectArray<ElementType> ObjectArray<ElementType>::GetSubSet(int_max Index_start, int_max Index_end)
 {
@@ -1615,14 +1570,14 @@ template<typename ElementType>
 inline
 ObjectArray<int_max> ObjectArray<ElementType>::Sort(const char* Order) const
 {
-	String Order_str(Order);
+	std::string Order_str(Order);
 	return this->Sort(Order_str);
 }
 
 
 template<typename ElementType>
 inline
-ObjectArray<int_max> ObjectArray<ElementType>::Sort(const String& Order) const
+ObjectArray<int_max> ObjectArray<ElementType>::Sort(const std::string& Order) const
 {
 	// Order: ascend or descend
 
@@ -1675,14 +1630,14 @@ template<typename ElementType>
 inline
 void ObjectArray<ElementType>::SortInPlace(const char* Order)
 {
-	String Order_str(Order);
+	std::string Order_str(Order);
 	this->SortInPlace(Order_str);
 }
 
 
 template<typename ElementType>
 inline
-void ObjectArray<ElementType>::SortInPlace(const String& Order)
+void ObjectArray<ElementType>::SortInPlace(const std::string& Order)
 {
 	// Order: ascend or descend
 

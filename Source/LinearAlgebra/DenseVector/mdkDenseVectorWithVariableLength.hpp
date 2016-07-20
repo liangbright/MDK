@@ -1365,24 +1365,6 @@ bool DenseVector<ElementType>::Insert(int_max Index, const ElementType* InputDat
 // ------------------------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-inline 
-bool DenseVector<ElementType>::PushBack(ElementType Element)
-{
-    m_StdVector.push_back(std::move(Element));
-}
-
-
-template<typename ElementType>
-inline
-ElementType DenseVector<ElementType>::PopBack()
-{
-    m_StdVector.pop_back(std::move(Element));
-}
-
-
-// ------------------------------------------------------------------------------------------------------------//
-
-template<typename ElementType>
 template<typename MatchFunctionType>
 inline
 DenseVector<int_max> DenseVector<ElementType>::Find(MatchFunctionType MatchFunction) const
