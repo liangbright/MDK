@@ -1,7 +1,10 @@
 #pragma once
 
 
-//2D
+//---------------Filter for 2D DenseImage--------------------------------------//
+#include "mdkDiscreteConvolutionDenseImageFilter2D.h"
+#include "mdkDenseImageResampler2D.h"
+#include "mdkIntegralImageBuilder2D.h"
 
 //---------------Filter for 3D DenseImage--------------------------------------//
 #include "mdkDiscreteConvolutionDenseImageFilter3D.h"
@@ -9,14 +12,11 @@
 #include "mdkGradientDenseImageFilter3D.h"
 #include "mdkIntegralImageBasedAverageDenseImageFilter3D.h"
 #include "mdkPoolingDenseImageFilter3D.h"
-// resample
 #include "mdkDenseImageResampler3D.h"
-//Integral Image
 #include "mdkIntegralImageBuilder3D.h"
 
 //------------------ Function -----------------------------------------------//
 #include "mdkImageInterpolation3D.h"
-#include "mdkDenseImageResampler3D.h"
 #include "mdkHistogram.h"
 
 //------------------------ FileIO ---------------------------------------------//
