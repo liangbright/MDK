@@ -324,15 +324,18 @@ public:
     inline ElementType Std() const;
 
     inline ElementType Max() const;
-
     inline int_max IndexOfMax() const;
 
-    inline ElementType Min() const;
+	inline ElementType MaxAbs() const;
+	inline int_max IndexOfMaxAbs() const;
 
+    inline ElementType Min() const;
     inline int_max IndexOfMin() const;
 
-    inline ElementType L1Norm() const;
+	inline ElementType MinAbs() const;
+	inline int_max IndexOfMinAbs() const;
 
+    inline ElementType L1Norm() const;
     inline ElementType L2Norm() const;
 };
 

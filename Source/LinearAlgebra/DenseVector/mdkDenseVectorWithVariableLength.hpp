@@ -1893,7 +1893,7 @@ int_max DenseVector<ElementType>::IndexOfMax() const
 {
     if (this->IsEmpty() == true)
     {
-        MDK_Error("Self is empty @ DenseVector::Max()")
+        MDK_Error("Self is empty @ DenseVector::IndexOfMax()")
         return -1;
     }
 
@@ -1911,6 +1911,49 @@ int_max DenseVector<ElementType>::IndexOfMax() const
 
     return Index;
 }
+
+
+template<typename ElementType>
+inline
+ElementType DenseVector<ElementType>::MaxAbs() const
+{
+	if (this->IsEmpty() == true)
+	{
+		MDK_Error("Self is empty @ DenseVector::MaxAbs()")
+		return 0;
+	}
+
+	auto Index = this->IndexOfMaxAbs();
+	return std::abs(m_StdVector[Index]);
+}
+
+
+template<typename ElementType>
+inline
+int_max DenseVector<ElementType>::IndexOfMaxAbs() const
+{
+	if (this->IsEmpty() == true)
+	{
+		MDK_Error("Self is empty @ DenseVector::IndexOfMaxAbs()")
+		return -1;
+	}
+
+	auto Index = int_max(0);
+	auto Value = std::abs(m_StdVector[0]);
+
+	for (int_max i = 1; i < this->GetLength(); ++i)
+	{
+		auto abs_i = std::abs(m_StdVector[i]);
+		if (abs_i > Value)
+		{
+			Value = abs_i;
+			Index = i;
+		}
+	}
+
+	return Index;
+}
+
 
 
 template<typename ElementType>
@@ -1934,7 +1977,7 @@ int_max DenseVector<ElementType>::IndexOfMin() const
 {
     if (this->IsEmpty() == true)
     {
-        MDK_Error("Self is empty @ DenseVector::Min()")
+        MDK_Error("Self is empty @ DenseVector::IndexOfMin()")
         return 0;
     }
 
@@ -1951,6 +1994,48 @@ int_max DenseVector<ElementType>::IndexOfMin() const
     }
 
     return Index;
+}
+
+
+template<typename ElementType>
+inline
+ElementType DenseVector<ElementType>::MinAbs() const
+{
+	if (this->IsEmpty() == true)
+	{
+		MDK_Error("Self is empty @ DenseVector::MinAbs()")
+		return 0;
+	}
+
+	auto Index = this->IndexOfMinAbs();
+	return std::abs(m_StdVector[Index]);
+}
+
+
+template<typename ElementType>
+inline
+int_max DenseVector<ElementType>::IndexOfMinAbs() const
+{
+	if (this->IsEmpty() == true)
+	{
+		MDK_Error("Self is empty @ DenseVector::IndexOfMinAbs()")
+		return 0;
+	}
+
+	auto Index = int_max(0);
+	auto Value = std::abs(m_StdVector[0]);
+
+	for (int_max i = 1; i < this->GetLength(); ++i)
+	{
+		auto abs_i = std::abs(m_StdVector[i]);
+		if (abs_i < Value)
+		{
+			Value = abs_i;
+			Index = i;
+		}
+	}
+
+	return Index;
 }
 
 
