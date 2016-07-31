@@ -111,11 +111,15 @@ bool LoadDenseMatrixFromJsonDataFile(DenseMatrix<ScalarType>& OutputMatrix, cons
 	}
 	//-------------------------------------------------
 	OutputMatrix.FastResize(RowCount, ColCount);
-	// Read data
-	if (LoadScalarArrayFromDataFile(OutputMatrix.GetElementPointer(), OutputMatrix.GetElementCount(), DataFilePathAndName, ScalarTypeInDataFile) == false)
+	if (OutputMatrix.IsEmpty() == false)
 	{
-		OutputMatrix.Clear();
-		return false;
+		// Read data
+		if (LoadScalarArrayFromDataFile(OutputMatrix.GetElementPointer(), OutputMatrix.GetElementCount(), DataFilePathAndName, ScalarTypeInDataFile) == false)
+		{
+			MDK_Error("Couldn't load ScalarArray from file @ LoadDenseMatrixFromJsonDataFile(...)")
+			//OutputMatrix.Clear();
+			return false;
+		}
 	}
 	return true;
 }

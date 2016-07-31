@@ -196,13 +196,13 @@ bool LoadScalarArrayFromDataFile(ScalarType* ScalarArray, int_max ArrayLength, c
 template<typename ScalarType, typename ScalarTypeInDataFile>
 bool LoadScalarArrayFromDataFile(ScalarType* ScalarArray, int_max ArrayLength, const String& FilePathAndName)
 {
-	if (ScalarArray == nullptr)
+	if (ArrayLength <= 0)
 	{
-		if (ArrayLength == 0)
-		{
-			return true;
-		}
-		else
+		return true;
+	}
+	else
+	{
+		if (ScalarArray == nullptr)
 		{
 			MDK_Error("Invalid input @ LoadScalarArrayFromDataFile(...)")
 			return false;

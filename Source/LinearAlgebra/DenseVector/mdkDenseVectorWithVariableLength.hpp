@@ -450,13 +450,7 @@ template<typename ElementType>
 inline
 void DenseVector<ElementType>::Fill(const ElementType& Element)
 {
-	auto SelfLength = this->GetLength();
-	if (SelfLength == 0)
-    {
-        MDK_Error("Self is empty @ DenseVector::Fill(Element)")
-    }
-
-	for (int_max i = 0; i < SelfLength; ++i)
+	for (int_max i = 0; i < int_max(m_StdVector.size()); ++i)
     {
         m_StdVector[i] = Element;
     }

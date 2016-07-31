@@ -711,9 +711,9 @@ void DenseMatrix<ElementType>::Copy(const ElementType_Input* InputElementPointer
 
     auto tempPtr = InputElementPointer;
 
-    auto Self_ElementNumber = SelfSize.RowCount * SelfSize.ColCount;
+    auto Self_ElementCount = SelfSize.RowCount * SelfSize.ColCount;
 
-    for (auto Ptr = BeginPointer; Ptr < BeginPointer + Self_ElementNumber; ++Ptr)
+    for (auto Ptr = BeginPointer; Ptr < BeginPointer + Self_ElementCount; ++Ptr)
     {
         Ptr[0] = ElementType(tempPtr[0]);
 
@@ -1059,17 +1059,15 @@ template<typename ElementType>
 inline
 void DenseMatrix<ElementType>::Fill(const ElementType& Element)
 {
-    auto Self_ElementNumber = this->GetElementCount();
-
-    if (Self_ElementNumber <= 0)
+    auto Self_ElementCount = this->GetElementCount();
+    if (Self_ElementCount <= 0)
     {
-        MDK_Error("Self is empty @ DenseMatrix::Fill")
+        //MDK_Warning("Self is empty @ DenseMatrix::Fill(...)")
         return;
     }
 
     auto BeginPointer = this->GetElementPointer();
-
-    for (auto Ptr = BeginPointer; Ptr < BeginPointer + Self_ElementNumber; ++Ptr)
+    for (auto Ptr = BeginPointer; Ptr < BeginPointer + Self_ElementCount; ++Ptr)
     {
         Ptr[0] = Element;
     }
@@ -1301,12 +1299,12 @@ try
 
     if (InputRowCount == SelfSize.RowCount)
     {
-        auto Self_ElementNumber = SelfSize.RowCount * SelfSize.ColCount;
+        auto Self_ElementCount = SelfSize.RowCount * SelfSize.ColCount;
 
         //m_MatrixData->CopyDataToInternalArrayIfNecessary();
         if (m_MatrixData->ElementPointer != m_MatrixData->StdVector.data())
         {
-            auto ElementNumber_min = std::min(Self_ElementNumber, InputColCount*InputRowCount);
+            auto ElementNumber_min = std::min(Self_ElementCount, InputColCount*InputRowCount);
 
             m_MatrixData->StdVector.resize(ElementNumber_min);
 
@@ -1579,11 +1577,11 @@ void DenseMatrix<ElementType>::SetCapacity(int_max InputElementNumber)
 		this->Resize(0, 0);
 	}
 
-	auto Self_ElementNumber = this->GetElementCount();
+	auto Self_ElementCount = this->GetElementCount();
 
 	if (this->IsSizeFixed() == true)
 	{
-		if (Self_ElementNumber != InputElementNumber)
+		if (Self_ElementCount != InputElementNumber)
 		{
 			MDK_Error("Size can not change @ DenseMatrix::SetCapacity(...)")
 		}
@@ -1592,7 +1590,7 @@ void DenseMatrix<ElementType>::SetCapacity(int_max InputElementNumber)
 
 try
 {
-    if (InputElementNumber > Self_ElementNumber)
+    if (InputElementNumber > Self_ElementCount)
     {
         m_MatrixData->CopyDataToInternalArrayIfNecessary();
         m_MatrixData->StdVector.reserve(InputElementNumber);
@@ -2295,11 +2293,11 @@ DenseMatrix<ElementType>::operator()(const std::initializer_list<int_max>& Linea
         return tempShadowMatrix;
     }
 
-    auto Self_ElementNumber = this->GetElementCount();
+    auto Self_ElementCount = this->GetElementCount();
 
     for (auto it = LinearIndexList.begin(); it != LinearIndexList.end(); ++it)
     {
-        if (*it >= Self_ElementNumber || *it < 0)
+        if (*it >= Self_ElementCount || *it < 0)
         {
             MDK_Error("Invalid LinearIndexList @ DenseMatrix::operator()(std::initializer_list {LinearIndexList})")
             DenseShadowMatrix<ElementType> tempShadowMatrix;
@@ -2329,11 +2327,11 @@ DenseMatrix<ElementType>::operator()(const std::initializer_list<int_max>& Linea
         return tempShadowMatrix;
     }
 
-    auto Self_ElementNumber = this->GetElementCount();
+    auto Self_ElementCount = this->GetElementCount();
 
     for (auto it = LinearIndexList.begin(); it != LinearIndexList.end(); ++it)
     {
-        if (*it >= Self_ElementNumber || *it < 0)
+        if (*it >= Self_ElementCount || *it < 0)
         {
             MDK_Error("Invalid LinearIndexList @ DenseMatrix::operator()(std::initializer_list {LinearIndexList}) const")
             DenseShadowMatrix<ElementType> tempShadowMatrix;
@@ -2363,11 +2361,11 @@ DenseMatrix<ElementType>::operator()(DenseVector<int_max> LinearIndexList)
         return tempShadowMatrix;
     }
 
-    auto Self_ElementNumber = this->GetElementCount();
+    auto Self_ElementCount = this->GetElementCount();
 
     for (auto it = LinearIndexList.begin(); it != LinearIndexList.end(); ++it)
     {
-        if (*it >= Self_ElementNumber || *it < 0)
+        if (*it >= Self_ElementCount || *it < 0)
         {
             MDK_Error("Invalid LinearIndexList @ DenseMatrix::operator()(DenseVector {LinearIndexList})")
             DenseShadowMatrix<ElementType> tempShadowMatrix;
@@ -2397,11 +2395,11 @@ DenseMatrix<ElementType>::operator()(DenseVector<int_max> LinearIndexList) const
         return tempShadowMatrix;
     }
 
-    auto Self_ElementNumber = this->GetElementCount();
+    auto Self_ElementCount = this->GetElementCount();
 
     for (auto it = LinearIndexList.begin(); it != LinearIndexList.end(); ++it)
     {
-        if (*it >= Self_ElementNumber || *it < 0)
+        if (*it >= Self_ElementCount || *it < 0)
         {
             MDK_Error("Invalid LinearIndexList @ DenseMatrix::operator()(DenseVector {LinearIndexList}) const")
             DenseShadowMatrix<ElementType> tempShadowMatrix;
@@ -2451,11 +2449,11 @@ DenseMatrix<ElementType>::operator()(const DenseMatrix<int_max>& LinearIndexList
         return tempShadowMatrix;
     }
 
-    auto Self_ElementNumber = this->GetElementCount();
+    auto Self_ElementCount = this->GetElementCount();
 
     for (auto it = LinearIndexList.begin(); it != LinearIndexList.end(); ++it)
     {
-        if (*it >= Self_ElementNumber || *it < 0)
+        if (*it >= Self_ElementCount || *it < 0)
         {
             MDK_Error("Invalid LinearIndexList @ DenseMatrix::operator()(const DenseMatrix<int_max>& {LinearIndexList})")
             DenseShadowMatrix<ElementType> tempShadowMatrix;
@@ -2484,11 +2482,11 @@ DenseMatrix<ElementType>::operator()(const DenseMatrix<int_max>& LinearIndexList
         return tempShadowMatrix;
     }
 
-    auto Self_ElementNumber = this->GetElementCount();
+    auto Self_ElementCount = this->GetElementCount();
 
     for (auto it = LinearIndexList.begin(); it != LinearIndexList.end(); ++it)
     {
-        if (*it >= Self_ElementNumber || *it < 0)
+        if (*it >= Self_ElementCount || *it < 0)
         {
             MDK_Error("Invalid LinearIndexList @ DenseMatrix::operator()(const DenseMatrix<int_max>& {LinearIndexList}) const")
             DenseShadowMatrix<ElementType> tempShadowMatrix;
@@ -2536,11 +2534,11 @@ DenseMatrix<ElementType>::at(const std::initializer_list<int_max>& LinearIndexLi
         return tempShadowMatrix;
     }
 
-    auto Self_ElementNumber = this->GetElementCount();
+    auto Self_ElementCount = this->GetElementCount();
 
     for (auto it = LinearIndexList.begin(); it != LinearIndexList.end(); ++it)
     {
-        if (*it >= Self_ElementNumber || *it < 0)
+        if (*it >= Self_ElementCount || *it < 0)
         {
             MDK_Error("Invalid LinearIndexList @ DenseMatrix::at(std::initializer_list {LinearIndexList})")
             DenseShadowMatrix<ElementType> tempShadowMatrix;
@@ -2565,11 +2563,11 @@ DenseMatrix<ElementType>::at(const std::initializer_list<int_max>& LinearIndexLi
         return tempShadowMatrix;
     }
 
-    auto Self_ElementNumber = this->GetElementCount();
+    auto Self_ElementCount = this->GetElementCount();
 
     for (auto it = LinearIndexList.begin(); it != LinearIndexList.end(); ++it)
     {
-        if (*it >= Self_ElementNumber || *it < 0)
+        if (*it >= Self_ElementCount || *it < 0)
         {
             MDK_Error("Invalid LinearIndexList @ DenseMatrix::at(std::initializer_list {LinearIndexList}) const")
             DenseShadowMatrix<ElementType> tempShadowMatrix;
@@ -2594,11 +2592,11 @@ DenseMatrix<ElementType>::at(DenseVector<int_max> LinearIndexList)
         return tempShadowMatrix;
     }
 
-    auto Self_ElementNumber = this->GetElementCount();
+    auto Self_ElementCount = this->GetElementCount();
 
     for (auto it = LinearIndexList.begin(); it != LinearIndexList.end(); ++it)
     {
-        if (*it >= Self_ElementNumber || *it < 0)
+        if (*it >= Self_ElementCount || *it < 0)
         {
             MDK_Error("Invalid LinearIndexList @ DenseMatrix::at(DenseVector {LinearIndexList})")
             DenseShadowMatrix<ElementType> tempShadowMatrix;
@@ -2623,11 +2621,11 @@ DenseMatrix<ElementType>::at(DenseVector<int_max> LinearIndexList) const
         return tempShadowMatrix;
     }
 
-    auto Self_ElementNumber = this->GetElementCount();
+    auto Self_ElementCount = this->GetElementCount();
 
     for (auto it = LinearIndexList.begin(); it != LinearIndexList.end(); ++it)
     {
-        if (*it >= Self_ElementNumber || *it < 0)
+        if (*it >= Self_ElementCount || *it < 0)
         {
             MDK_Error("Invalid LinearIndexList @ DenseMatrix::at(DenseVector {LinearIndexList} const)")
             DenseShadowMatrix<ElementType> tempShadowMatrix;
@@ -2674,9 +2672,9 @@ DenseMatrix<ElementType>::at(const DenseMatrix<int_max>& LinearIndexList)
         return EmptyShadowMatrix;
     }
 
-    auto Self_ElementNumber = this->GetElementCount();
+    auto Self_ElementCount = this->GetElementCount();
 
-    if (Self_ElementNumber <= 0)
+    if (Self_ElementCount <= 0)
     {
         MDK_Error("LinearIndexList is empty @ DenseMatrix::at(DenseMatrix {LinearIndexList})")
         DenseShadowMatrix<ElementType> tempShadowMatrix;
@@ -2685,7 +2683,7 @@ DenseMatrix<ElementType>::at(const DenseMatrix<int_max>& LinearIndexList)
 
     for (auto it = LinearIndexList.begin(); it != LinearIndexList.end(); ++it)
     {
-        if (*it >= Self_ElementNumber || *it < 0)
+        if (*it >= Self_ElementCount || *it < 0)
         {
             MDK_Error("Invalid LinearIndexList @ DenseMatrix::at(DenseMatrix {LinearIndexList})")
             DenseShadowMatrix<ElementType> tempShadowMatrix;
@@ -2710,9 +2708,9 @@ DenseMatrix<ElementType>::at(const DenseMatrix<int_max>& LinearIndexList) const
         return EmptyShadowMatrix;
     }
 
-    auto Self_ElementNumber = this->GetElementCount();
+    auto Self_ElementCount = this->GetElementCount();
 
-    if (Self_ElementNumber <= 0)
+    if (Self_ElementCount <= 0)
     {
         MDK_Error("LinearIndexList is empty @ DenseMatrix::at(DenseMatrix {LinearIndexList}) const")
         DenseShadowMatrix<ElementType> tempShadowMatrix;
@@ -2721,7 +2719,7 @@ DenseMatrix<ElementType>::at(const DenseMatrix<int_max>& LinearIndexList) const
 
     for (auto it = LinearIndexList.begin(); it != LinearIndexList.end(); ++it)
     {
-        if (*it >= Self_ElementNumber || *it < 0)
+        if (*it >= Self_ElementCount || *it < 0)
         {
             MDK_Error("Invalid LinearIndexList @ DenseMatrix::at(DenseMatrix {LinearIndexList}) const")
             DenseShadowMatrix<ElementType> tempShadowMatrix;
@@ -4471,9 +4469,9 @@ DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const int_max* L
 {
     DenseMatrix<ElementType> OutputMatrix;
 
-    auto Self_ElementNumber = this->GetElementCount();
+    auto Self_ElementCount = this->GetElementCount();
 
-    if (LinearIndexList == nullptr || ListLength <= 0 || ListLength >= Self_ElementNumber)
+    if (LinearIndexList == nullptr || ListLength <= 0 || ListLength >= Self_ElementCount)
     {
         MDK_Warning("Input is empty @ DenseMatrix::GetSubMatrix(LinearIndexList)")
         return OutputMatrix;
@@ -4485,7 +4483,7 @@ DenseMatrix<ElementType> DenseMatrix<ElementType>::GetSubMatrix(const int_max* L
     for (int_max i = 0; i < ListLength; ++i)
     {
         auto Index = LinearIndexList[i];
-        if (Index < 0 || Index >= Self_ElementNumber)
+        if (Index < 0 || Index >= Self_ElementCount)
         {
             OutputMatrix.Clear();
             MDK_Error("Invalid Index @ DenseMatrix::GetSubMatrix(LinearIndexList)")
@@ -6756,7 +6754,7 @@ void DenseMatrix<ElementType>::operator+=(const DenseShadowMatrix<ElementType>& 
 
     auto SelfSize = this->GetSize();
 
-    auto Self_ElementNumber = SelfSize.RowCount * SelfSize.ColCount;
+    auto Self_ElementCount = SelfSize.RowCount * SelfSize.ColCount;
 
     if (InputSize.RowCount != SelfSize.RowCount || InputSize.ColCount != SelfSize.ColCount)
     {
@@ -6766,7 +6764,7 @@ void DenseMatrix<ElementType>::operator+=(const DenseShadowMatrix<ElementType>& 
 
     auto RawPointer = this->GetElementPointer();
 
-    for (int_max i = 0; i < Self_ElementNumber; ++i)
+    for (int_max i = 0; i < Self_ElementCount; ++i)
     {
         RawPointer[i] += ShadowMatrix[i];
     }
@@ -6794,7 +6792,7 @@ void DenseMatrix<ElementType>::operator-=(const DenseShadowMatrix<ElementType>& 
 
     auto SelfSize = this->GetSize();
 
-    auto Self_ElementNumber = SelfSize.RowCount * SelfSize.ColCount;
+    auto Self_ElementCount = SelfSize.RowCount * SelfSize.ColCount;
 
     if (InputSize.RowCount != SelfSize.RowCount || InputSize.ColCount != SelfSize.ColCount)
     {
@@ -6804,7 +6802,7 @@ void DenseMatrix<ElementType>::operator-=(const DenseShadowMatrix<ElementType>& 
 
     auto RawPointer = this->GetElementPointer();
 
-    for (int_max i = 0; i < Self_ElementNumber; ++i)
+    for (int_max i = 0; i < Self_ElementCount; ++i)
     {
         RawPointer[i] -= ShadowMatrix[i];
     }
@@ -6840,7 +6838,7 @@ void DenseMatrix<ElementType>::operator/=(const DenseShadowMatrix<ElementType>& 
 
     auto SelfSize = this->GetSize();
 
-    auto Self_ElementNumber = SelfSize.RowCount * SelfSize.ColCount;
+    auto Self_ElementCount = SelfSize.RowCount * SelfSize.ColCount;
 
     if (InputSize.RowCount != SelfSize.RowCount || InputSize.ColCount != SelfSize.ColCount)
     {
@@ -6850,7 +6848,7 @@ void DenseMatrix<ElementType>::operator/=(const DenseShadowMatrix<ElementType>& 
 
     auto RawPointer = this->GetElementPointer();
 
-    for (int_max i = 0; i < Self_ElementNumber; ++i)
+    for (int_max i = 0; i < Self_ElementCount; ++i)
     {
         RawPointer[i] /= ShadowMatrix[i];
     }
