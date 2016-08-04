@@ -31,27 +31,27 @@ DenseMatrix<int_max> FindElementInMatrix(const DenseMatrix<ElementType>& InputMa
         return LinearIndexList;
     }
 
-    auto InputElementNumber = InputMatrix.GetElementCount();
+    auto InputElementCount = InputMatrix.GetElementCount();
 
-    if (MaxOutputNumber < 0 || MaxOutputNumber > InputElementNumber)
+    if (MaxOutputNumber < 0 || MaxOutputNumber > InputElementCount)
     {
         MDK_Error("MaxOutputNumber is invalid @ mdkLinearAlgebra_DenseMatrix FindElementInMatrix(...)")
         return LinearIndexList;
     }
 
-    if (LinearIndex_start < 0 || LinearIndex_start >= InputElementNumber || LinearIndex_start > LinearIndex_end)
+    if (LinearIndex_start < 0 || LinearIndex_start >= InputElementCount || LinearIndex_start > LinearIndex_end)
     {
         MDK_Error("LinearIndex_start is invalid @ mdkLinearAlgebra_DenseMatrix FindElementInMatrix(...)")
         return LinearIndexList;
     }
 
-    if (LinearIndex_end < 0 || LinearIndex_end >= InputElementNumber)
+    if (LinearIndex_end < 0 || LinearIndex_end >= InputElementCount)
     {
         MDK_Error("LinearIndex_end is invalid @ mdkLinearAlgebra_DenseMatrix FindElementInMatrix(...)")
         return LinearIndexList;
     }
 
-    if (InputElementNumber == 0)
+    if (InputElementCount == 0)
     {
         return LinearIndexList;
     }
@@ -530,9 +530,9 @@ template<typename ElementType>
 inline
 ElementType MatrixMean(const DenseMatrix<ElementType>& InputMatrix)
 {
-    auto ElementNumber = InputMatrix.GetElementCount();
+    auto ElementCount = InputMatrix.GetElementCount();
 
-    if (ElementNumber <= 0)
+    if (ElementCount <= 0)
     {
         MDK_Error("Input is an empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMean(InputMatrix)")
         return InputMatrix.GetErrorElement();
@@ -542,12 +542,12 @@ ElementType MatrixMean(const DenseMatrix<ElementType>& InputMatrix)
 
     ElementType value = RawPointer[0];
 
-    for (auto Ptr = RawPointer + 1; Ptr < RawPointer + ElementNumber; ++Ptr)
+    for (auto Ptr = RawPointer + 1; Ptr < RawPointer + ElementCount; ++Ptr)
     {
         value += Ptr[0];
     }
 
-    value /= ElementType(ElementNumber);
+    value /= ElementType(ElementCount);
 
     return value;
 }
@@ -636,9 +636,9 @@ template<typename ElementType>
 inline
 ElementType MatrixStd(const DenseMatrix<ElementType>& InputMatrix) // standard deviation
 {
-	auto ElementNumber = InputMatrix.GetElementCount();
+	auto ElementCount = InputMatrix.GetElementCount();
 
-	if (ElementNumber <= 0)
+	if (ElementCount <= 0)
 	{
 		MDK_Error("Input is an empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixStd(InputMatrix)")
 		return InputMatrix.GetErrorElement();
@@ -649,12 +649,12 @@ ElementType MatrixStd(const DenseMatrix<ElementType>& InputMatrix) // standard d
 	auto RawPointer = InputMatrix.GetElementPointer();
 
 	auto Value = ElementType(0);
-	for (int_max i = 0; i < ElementNumber; ++i)
+	for (int_max i = 0; i < ElementCount; ++i)
 	{
 		auto temp = RawPointer[i] - MeanValue;
 		Value += temp*temp;
 	}
-	Value /= ElementType(ElementNumber);
+	Value /= ElementType(ElementCount);
 	Value = std::sqrt(Value);
 
 	return Value;
@@ -664,9 +664,9 @@ template<typename ElementType>
 inline
 int_max FindLinearIndexOfMaxInMatrix(const DenseMatrix<ElementType>& InputMatrix)
 {
-    auto Input_ElementNumber = InputMatrix.GetElementCount();
+    auto Input_ElementCount = InputMatrix.GetElementCount();
 
-    if (Input_ElementNumber <= 0)
+    if (Input_ElementCount <= 0)
     {
         MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix FindLinearIndexOfMaxInMatrix(InputMatrix)")
 
@@ -679,7 +679,7 @@ int_max FindLinearIndexOfMaxInMatrix(const DenseMatrix<ElementType>& InputMatrix
 
     int_max LinearIndex = 0;
 
-    for (int_max k = 1; k < Input_ElementNumber; ++k)
+    for (int_max k = 1; k < Input_ElementCount; ++k)
     {
         if (InputPtr[k] > MaxValue)
         {
@@ -793,9 +793,9 @@ DenseMatrix<ElementType> MatrixMaxOfEachRow(const DenseMatrix<ElementType>& Inpu
 template<typename ElementType>
 int_max FindLinearIndexOfMinInMatrix(const DenseMatrix<ElementType>& InputMatrix)
 {
-    auto Input_ElementNumber = InputMatrix.GetElementCount();
+    auto Input_ElementCount = InputMatrix.GetElementCount();
 
-    if (Input_ElementNumber <= 0)
+    if (Input_ElementCount <= 0)
     {
         MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix FindLinearIndexOfMinInMatrix(InputMatrix)")
         return -1;
@@ -807,7 +807,7 @@ int_max FindLinearIndexOfMinInMatrix(const DenseMatrix<ElementType>& InputMatrix
 
     int_max LinearIndex = 0;
 
-    for (int_max k = 1; k < Input_ElementNumber; ++k)
+    for (int_max k = 1; k < Input_ElementCount; ++k)
     {
         if (InputPtr[k] < MinValue)
         {
@@ -922,9 +922,9 @@ template<typename ElementType>
 inline
 ElementType MatrixSum(const DenseMatrix<ElementType>& InputMatrix)
 {
-    auto Input_ElementNumber = InputMatrix.GetElementCount();
+    auto Input_ElementCount = InputMatrix.GetElementCount();
 
-    if (Input_ElementNumber <= 0)
+    if (Input_ElementCount <= 0)
     {
         MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixSum(InputMatrix)")
         return InputMatrix.GetErrorElement();
@@ -934,7 +934,7 @@ ElementType MatrixSum(const DenseMatrix<ElementType>& InputMatrix)
 
     ElementType value = RawPointer[0];
 
-    for (auto Ptr = RawPointer + 1; Ptr < RawPointer + Input_ElementNumber; ++Ptr)
+    for (auto Ptr = RawPointer + 1; Ptr < RawPointer + Input_ElementCount; ++Ptr)
     {
         value += Ptr[0];
     }
@@ -1029,11 +1029,35 @@ DenseMatrix<ElementType> MatrixSumOfEachRow(const DenseMatrix<ElementType>& Inpu
 
 template<typename ElementType>
 inline
+int_max MatrixNorm_L0(const DenseMatrix<ElementType>& InputMatrix, ElementType Zero)
+{
+	auto ElementCount = InputMatrix.GetElementCount();
+	if (ElementCount == 0)
+	{
+		MDK_Warning("empty input matrix @ mdkLinearAlgebra_DenseMatrix MatrixNorm_L0(...)")
+		return 0;
+	}
+
+	int_max Count = 0;
+	auto BeginPointer = InputMatrix.GetElementPointer();
+	for (auto Ptr = BeginPointer; Ptr < BeginPointer + ElementCount; ++Ptr)
+	{
+		if (Ptr[0] > Zero)
+		{
+			Count += 1;
+		}		
+	}
+	return Count;
+}
+
+
+template<typename ElementType>
+inline
 ElementType MatrixNorm_L1(const DenseMatrix<ElementType>& InputMatrix)
 {
-    auto ElementNumber = InputMatrix.GetElementCount();
+    auto ElementCount = InputMatrix.GetElementCount();
 
-    if (ElementNumber == 0)
+    if (ElementCount == 0)
     {
         MDK_Error("empty input matrix @ mdkLinearAlgebra_DenseMatrix MatrixNorm_L1(InputMatrix)")
         return InputMatrix.GetErrorElement();
@@ -1043,7 +1067,7 @@ ElementType MatrixNorm_L1(const DenseMatrix<ElementType>& InputMatrix)
 
     auto BeginPointer = InputMatrix.GetElementPointer();
 
-    for (auto Ptr = BeginPointer; Ptr < BeginPointer + ElementNumber; ++Ptr)
+    for (auto Ptr = BeginPointer; Ptr < BeginPointer + ElementCount; ++Ptr)
     {
         Value += std::abs(Ptr[0]);
     }
@@ -1056,9 +1080,9 @@ template<typename ElementType>
 inline
 ElementType MatrixNorm_L2(const DenseMatrix<ElementType>& InputMatrix)
 {
-    auto ElementNumber = InputMatrix.GetElementCount();
+    auto ElementCount = InputMatrix.GetElementCount();
 
-    if (ElementNumber == 0)
+    if (ElementCount == 0)
     {
         MDK_Error("empty input matrix @ mdkLinearAlgebra_DenseMatrix MatrixNorm_L2(InputMatrix)")
         return InputMatrix.GetErrorElement();
@@ -1068,7 +1092,7 @@ ElementType MatrixNorm_L2(const DenseMatrix<ElementType>& InputMatrix)
 
     auto Value = BeginPointer[0] * BeginPointer[0];
 
-    for (auto Ptr = BeginPointer + 1; Ptr < BeginPointer + ElementNumber; ++Ptr)
+    for (auto Ptr = BeginPointer + 1; Ptr < BeginPointer + ElementCount; ++Ptr)
     {
         Value += Ptr[0] * Ptr[0];
     }

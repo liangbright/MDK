@@ -2034,6 +2034,27 @@ int_max DenseVector<ElementType>::IndexOfMinAbs() const
 
 
 template<typename ElementType>
+int_max DenseVector<ElementType>::L0Norm(ElementType Zero) const
+{
+	if (this->IsEmpty() == true)
+	{
+		MDK_Warning("Self is empty @ DenseVector::L0Norm()")
+		return 0;
+	}
+
+	int_max Count = 0;
+	for (int_max i = 0; i < this->GetLength(); ++i)
+	{
+		if (m_StdVector[i] > Zero)
+		{
+			Count += 1;
+		}
+	}
+	return Count;
+}
+
+
+template<typename ElementType>
 ElementType DenseVector<ElementType>::L1Norm() const
 {
     if (this->IsEmpty() == true)

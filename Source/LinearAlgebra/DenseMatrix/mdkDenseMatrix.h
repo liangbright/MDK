@@ -1323,6 +1323,7 @@ public:
     inline DenseMatrix MinOfEachRow() const;
 
     //------------------------------------ norm ----------------------------------------------//
+	inline int_max L0Norm(ElementType Zero = ElementType(0)) const;
     inline ElementType L1Norm() const;
     inline ElementType L2Norm() const;
 

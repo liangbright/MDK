@@ -7831,6 +7831,14 @@ inline DenseMatrix<ElementType> DenseMatrix<ElementType>::MinOfEachRow() const
 
 
 template<typename ElementType>
+inline
+int_max DenseMatrix<ElementType>::L0Norm(ElementType Zero) const
+{
+	return MatrixNorm_L0(*this, Zero);
+}
+
+
+template<typename ElementType>
 inline 
 ElementType DenseMatrix<ElementType>::L1Norm() const
 {
