@@ -1368,7 +1368,7 @@ DenseVector<int_max> Face_Of_PolygonMesh<MeshAttributeType>::GetPointIndexList_L
 
 	if (tempIndexA == 0)
 	{
-		return PointIndexList;
+		return m_Data->PointIndexList;
 	}
 
 	DenseVector<int_max> PointIndexList_output;
