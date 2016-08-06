@@ -2465,16 +2465,28 @@ void PolygonMesh<MeshAttributeType>::CleanDataStructure(DenseVector<int_max>& Po
 	for (int_max FaceIndex_new = 0; FaceIndex_new < m_MeshData->FaceList.GetLength(); ++FaceIndex_new)
 	{
 		//take reference
-		auto& PointIndexList = m_MeshData->FaceList[FaceIndex_new].GetPointIndexList();
-		for (int_max n = 0; n < PointIndexList.GetLength(); ++n)
+		auto& PointIndexList_new = m_MeshData->FaceList[FaceIndex_new].PointIndexList();
+		auto PointIndexList_old = PointIndexList_new;
+		PointIndexList_new.Clear();
+		for (int_max n = 0; n < PointIndexList_old.GetLength(); ++n)
 		{
-			PointIndexList[n] = PointIndexMap_Old_To_New[PointIndexList[n]];
-		}
+			auto PointIndex_new = PointIndexMap_Old_To_New[PointIndexList_old[n]];
+			if (PointIndex_new >= 0)
+			{
+				PointIndexList_new.Append(PointIndex_new);
+			}
+		}		
 		//take reference
-		auto& EdgeIndexList = m_MeshData->FaceList[FaceIndex_new].GetEdgeIndexList();
-		for (int_max n = 0; n < EdgeIndexList.GetLength(); ++n)
+		auto& EdgeIndexList_new = m_MeshData->FaceList[FaceIndex_new].EdgeIndexList();
+		auto EdgeIndexList_old = EdgeIndexList_new;
+		EdgeIndexList_new.Clear();
+		for (int_max n = 0; n < EdgeIndexList_old.GetLength(); ++n)
 		{
-			EdgeIndexList[n] = EdgeIndexMap_Old_To_New[EdgeIndexList[n]];
+			auto EdgeIndex_new = EdgeIndexMap_Old_To_New[EdgeIndexList_old[n]];
+			if (EdgeIndex_new >= 0)
+			{
+				EdgeIndexList_new.Append(EdgeIndex_new);
+			}
 		}
 	}
 
@@ -2485,8 +2497,9 @@ void PolygonMesh<MeshAttributeType>::CleanDataStructure(DenseVector<int_max>& Po
 		PointIndexList[1] = PointIndexMap_Old_To_New[PointIndexList[1]];
 		m_MeshData->EdgeList[EdgeIndex_new].SetPointIndexList(PointIndexList);
 
-		const auto& AdjacentFaceIndexList_old = m_MeshData->EdgeList[EdgeIndex_new].AdjacentFaceIndexList();
-		DenseVector<int_max> AdjacentFaceIndexList_new;
+		auto& AdjacentFaceIndexList_new = m_MeshData->EdgeList[EdgeIndex_new].AdjacentFaceIndexList();		
+		auto AdjacentFaceIndexList_old = AdjacentFaceIndexList_new;
+		AdjacentFaceIndexList_new.Clear();
 		for (int_max n = 0; n < AdjacentFaceIndexList_old.GetLength(); ++n)
 		{
 			auto Index_new = FaceIndexMap_Old_To_New[AdjacentFaceIndexList_old[n]];
@@ -2495,13 +2508,13 @@ void PolygonMesh<MeshAttributeType>::CleanDataStructure(DenseVector<int_max>& Po
 				AdjacentFaceIndexList_new.Append(Index_new);
 			}
 		}
-		m_MeshData->EdgeList[EdgeIndex_new].AdjacentFaceIndexList() = std::move(AdjacentFaceIndexList_new);
 	}
 
 	for (int_max PointIndex_new = 0; PointIndex_new < m_MeshData->PointList.GetLength(); ++PointIndex_new)
 	{
-		const auto& AdjacentEdgeIndexList_old = m_MeshData->PointList[PointIndex_new].AdjacentEdgeIndexList();
-		DenseVector<int_max> AdjacentEdgeIndexList_new;
+		auto& AdjacentEdgeIndexList_new = m_MeshData->PointList[PointIndex_new].AdjacentEdgeIndexList();
+		auto AdjacentEdgeIndexList_old = AdjacentEdgeIndexList_new;
+		AdjacentEdgeIndexList_new.Clear();
 		for (int_max n = 0; n < AdjacentEdgeIndexList_old.GetLength(); ++n)
 		{
 			auto Index_new = EdgeIndexMap_Old_To_New[AdjacentEdgeIndexList_old[n]];
@@ -2509,8 +2522,7 @@ void PolygonMesh<MeshAttributeType>::CleanDataStructure(DenseVector<int_max>& Po
 			{
 				AdjacentEdgeIndexList_new.Append(Index_new);
 			}
-		}
-		m_MeshData->PointList[PointIndex_new].AdjacentEdgeIndexList() = std::move(AdjacentEdgeIndexList_new);
+		}		
 	}
 
 	// update additional info
@@ -2561,8 +2573,9 @@ void PolygonMesh<MeshAttributeType>::CleanDataStructure(DenseVector<int_max>& Po
 
 	for (int_max k = 0; k < m_MeshData->PointSetList.GetLength(); ++k)
 	{
-		const auto& PointSet_old = m_MeshData->PointSetList[k];
-		DenseVector<int_max> PointSet_new;
+		auto& PointSet_new = m_MeshData->PointSetList[k];
+		auto PointSet_old = PointSet_new;
+		PointSet_new.Clear();
 		for (int_max n = 0; n < PointSet_old.GetLength(); ++n)
 		{
 			auto PointIndex_old = PointSet_old[n];
@@ -2572,13 +2585,13 @@ void PolygonMesh<MeshAttributeType>::CleanDataStructure(DenseVector<int_max>& Po
 				PointSet_new.Append(PointIndex_new);
 			}
 		}
-		m_MeshData->PointSetList[k] = std::move(PointSet_new);
 	}
 
 	for (int_max k = 0; k < m_MeshData->EdgeSetList.GetLength(); ++k)
 	{
-		const auto& EdgeSet_old = m_MeshData->EdgeSetList[k];
-		DenseVector<int_max> EdgeSet_new;
+		auto& EdgeSet_new = m_MeshData->EdgeSetList[k];
+		auto EdgeSet_old = EdgeSet_new;
+		EdgeSet_new.Clear();
 		for (int_max n = 0; n < EdgeSet_old.GetLength(); ++n)
 		{
 			auto EdgeIndex_old = EdgeSet_old[n];
@@ -2587,14 +2600,14 @@ void PolygonMesh<MeshAttributeType>::CleanDataStructure(DenseVector<int_max>& Po
 			{
 				EdgeSet_new.Append(EdgeIndex_new);
 			}
-		}
-		m_MeshData->EdgeSetList[k] = std::move(EdgeSet_new);
+		}		
 	}
 
 	for (int_max k = 0; k < m_MeshData->FaceSetList.GetLength(); ++k)
 	{
-		const auto& FaceSet_old = m_MeshData->FaceSetList[k];
-		DenseVector<int_max> FaceSet_new;
+		auto& FaceSet_new = m_MeshData->FaceSetList[k];
+		auto FaceSet_old = FaceSet_new;
+		FaceSet_new.Clear();
 		for (int_max n = 0; n < FaceSet_old.GetLength(); ++n)
 		{
 			auto FaceIndex_old = FaceSet_old[n];
@@ -2604,7 +2617,6 @@ void PolygonMesh<MeshAttributeType>::CleanDataStructure(DenseVector<int_max>& Po
 				FaceSet_new.Append(FaceIndex_new);
 			}
 		}
-		m_MeshData->FaceSetList[k] = std::move(FaceSet_new);
 	}
 }
 
@@ -3044,7 +3056,7 @@ bool PolygonMesh<MeshAttributeType>::MergeConnectivityOfPoint(int_max PointIndex
 		return false;
 	}
 	//triangle check
-	{
+	{// A and B may belong to the same triangle face
 		auto AdjacentPointIndexListA = m_MeshData->PointList[PointIndexA].GetAdjacentPointIndexList();
 		auto AdjacentPointIndexListB = m_MeshData->PointList[PointIndexB].GetAdjacentPointIndexList();
 		auto AdjacentPointIndexListAB = Intersect(AdjacentPointIndexListA, AdjacentPointIndexListB);
