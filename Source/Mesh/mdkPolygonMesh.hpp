@@ -2689,7 +2689,14 @@ void PolygonMesh<MeshAttributeType>::Construct(DenseMatrix<ScalarType> InputPoin
 	for (int_max k = 0; k < InputFaceTable.GetLength(); ++k)
 	{
 		auto PointIndexList_k = PointIndexList.GetSubSet(InputFaceTable[k]);
-		this->AddFaceByPoint(PointIndexList_k);
+		if (PointIndexList_k.IsEmpty() == false)
+		{
+			this->AddFaceByPoint(PointIndexList_k);
+		}
+		else
+		{
+			MDK_Warning("PointIndexList is empty at Face " << k << ", the Face is ignored")
+		}
 	}
 }
 
