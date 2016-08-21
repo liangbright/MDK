@@ -1,5 +1,6 @@
 #pragma once
 
+#include "mdkTextFile.h"
 #include "mdkVTKDataObject_FileIO.h"
 
 namespace mdk
@@ -35,7 +36,10 @@ bool SaveFiniteElementMeshAsJsonDataFile(const FiniteElementMesh<ScalarType>& In
 template<typename ScalarType>
 bool LoadFiniteElementMeshFromJsonDataFile(FiniteElementMesh<ScalarType>& OutputMesh, const String& FilePathAndName);
 
+//---------------------------------------------------------------------------------------------------------------------------
+template<typename ScalarType>
+bool SaveFiniteElementMeshAsAbaqusINPFile(const FiniteElementMesh<ScalarType>& InputMesh, const String& FilePathAndName);
+
 }
 
 #include "mdkFiniteElementMesh_FileIO.hpp"
-
