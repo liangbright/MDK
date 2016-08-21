@@ -421,7 +421,7 @@ bool LoadFiniteElementMeshFromJsonDataFile(FiniteElementMesh<ScalarType>& Output
 	it = JObject.find("Name");
 	if (it != JObject.end())
 	{
-		auto Name = it->second.ToString();
+		auto Name = it->second.GetString();
 		OutputMesh.SetName(Name);
 	}
 	else

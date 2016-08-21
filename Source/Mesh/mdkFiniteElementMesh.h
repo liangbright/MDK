@@ -8,7 +8,7 @@ namespace mdk
 
 //========================================================================//
 // This class represent a FE mesh
-// node and element can not be deleted
+// node, element, node-set, element-set can not be deleted after added
 //
 //========================================================================//
 
@@ -31,7 +31,7 @@ enum struct FiniteElementType
 template<typename ScalarType>
 struct Data_Of_FiniteElementMesh
 {
-	int_max ID; // ID of the mesh
+	int_max ID; // ID of the object
 	String Name;// name of the object
 
 	DenseMatrix<ScalarType>            NodeList;        //col = [x, y, z]

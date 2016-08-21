@@ -472,13 +472,13 @@ int_max FiniteElementMesh<ScalarType>::AddElementSet(const String& ElementSetNam
 
 
 template<typename ScalarType>
-void FiniteElementMesh<ScalarType>::SetNodeSet(const String& NodeSetName, const DenseVector<int_max>& NodeIndexListOfNodeSet)
+void FiniteElementMesh<ScalarType>::SetNodeSet(const String& NodeSetName, const DenseVector<int_max>& NodeSet)
 {
 	auto NodeSetIndex = this->GetNodeSetIndex(NodeSetName);
 	if (NodeSetIndex >= 0)
 	{
-		m_MeshData->NodeSetList[ElementIndex] = NodeIndexListOfNodeSet;
-		m_MeshData->NodeSetNameList[ElementIndex] = ElementName;
+		m_MeshData->NodeSetList[NodeSetIndex] = NodeSet;
+		m_MeshData->NodeSetNameList[NodeSetIndex] = NodeSetName;
 	}
 	else
 	{
@@ -488,17 +488,17 @@ void FiniteElementMesh<ScalarType>::SetNodeSet(const String& NodeSetName, const 
 
 
 template<typename ScalarType>
-void FiniteElementMesh<ScalarType>::SetNodeSet(int_max NodeSetIndex, const DenseVector<int_max>& NodeIndexListOfNodeSet)
+void FiniteElementMesh<ScalarType>::SetNodeSet(int_max NodeSetIndex, const DenseVector<int_max>& NodeSet)
 {
-	m_MeshData->NodeSetList[ElementIndex] = NodeIndexListOfNodeSet;
-	m_MeshData->NodeSetNameList[ElementIndex] = ElementName;
+	m_MeshData->NodeSetList[NodeSetIndex] = NodeSet;
+	m_MeshData->NodeSetNameList[NodeSetIndex] = ElementName;
 }
 
 
 template<typename ScalarType>
 void FiniteElementMesh<ScalarType>::SetElementSet(const String& ElementSetName, const DenseVector<int_max>& ElementIndexListOfElementSet)
 {
-	auto ElementSetIndex = this->GetNodeSetIndex(ElementSetName);
+	auto ElementSetIndex = this->GetElementSetIndex(ElementSetName);
 	if (ElementSetIndex >= 0)
 	{
 		m_MeshData->ElementSetList[ElementSetIndex] = ElementIndexListOfElementSet;

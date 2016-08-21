@@ -5,7 +5,7 @@
 namespace mdk
 {
 
-//------------------------------------ brick element mesh to VTKUnstructuredGrid ------------------------------------------
+//------------------------------------ solid element mesh to VTKUnstructuredGrid ------------------------------------------
 template<typename ScalarType>
 vtkSmartPointer<vtkUnstructuredGrid> ConvertFiniteElementMeshToVTKUnstructuredGrid(const FiniteElementMesh<ScalarType>& InputMesh);
 
@@ -37,5 +37,5 @@ bool LoadFiniteElementMeshFromJsonDataFile(FiniteElementMesh<ScalarType>& Output
 
 }
 
-#include "FiniteElementMesh_FileIO.hpp"
+#include "mdkFiniteElementMesh_FileIO.hpp"
 
