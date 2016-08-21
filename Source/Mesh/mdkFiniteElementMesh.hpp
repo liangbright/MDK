@@ -754,7 +754,7 @@ bool FiniteElementMesh<ScalarType>::IsShellElement(int_max ElementIndex) const
 }
 
 template<typename ScalarType>
-bool FiniteElementMesh<ScalarType>::IsBrickElement(int_max ElementIndex) const
+bool FiniteElementMesh<ScalarType>::IsSolidElement(int_max ElementIndex) const
 {
 	auto Type = this->GetElementType(ElementIndex);
 	switch (Type)

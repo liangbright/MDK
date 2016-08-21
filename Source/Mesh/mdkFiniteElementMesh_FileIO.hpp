@@ -281,6 +281,7 @@ bool SaveFiniteElementMeshAsJsonDataFile(const FiniteElementMesh<ScalarType>& In
 	JsonObject JObject;
 
 	JObject["ObjectType"] = "FiniteElementMesh";
+	JObject["ID"] = InputMesh.GetID();
 	JObject["Name"] = InputMesh.GetName();
 	JObject["ScalarType"] = GetScalarTypeName(ScalarType(0));
 	JObject["IndexType"] = GetScalarTypeName(int_max(0));
@@ -393,7 +394,6 @@ bool LoadFiniteElementMeshFromJsonDataFile(FiniteElementMesh<ScalarType>& Output
 	if (it != JObject.end())
 	{
 		auto ObjectType = it->second.GetString();
-
 		if (ObjectType != "FiniteElementMesh")
 		{
 			MDK_Error("ObjectType is not FiniteElementMesh @ LoadFiniteElementMeshFromJsonDataFile(...)")
@@ -403,6 +403,30 @@ bool LoadFiniteElementMeshFromJsonDataFile(FiniteElementMesh<ScalarType>& Output
 	else
 	{
 		MDK_Error("Couldn't get ObjectType @ LoadFiniteElementMeshFromJsonDataFile(...)")
+		return false;
+	}
+	//----------------------------------------------------------//
+	it = JObject.find("ID");
+	if (it != JObject.end())
+	{
+		auto ID = it->second.ToScalar<int_max>();
+		OutputMesh.SetID(ID);
+	}
+	else
+	{
+		MDK_Error("Couldn't get ID @ LoadFiniteElementMeshFromJsonDataFile(...)")
+		return false;
+	}
+	//----------------------------------------------------------//
+	it = JObject.find("Name");
+	if (it != JObject.end())
+	{
+		auto Name = it->second.ToString();
+		OutputMesh.SetName(Name);
+	}
+	else
+	{
+		MDK_Error("Couldn't get Name @ LoadFiniteElementMeshFromJsonDataFile(...)")
 		return false;
 	}
 	//----------------------------------------------------------//

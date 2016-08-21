@@ -31,6 +31,7 @@ enum struct FiniteElementType
 template<typename ScalarType>
 struct Data_Of_FiniteElementMesh
 {
+	int_max ID; // ID of the mesh
 	String Name;// name of the object
 
 	DenseMatrix<ScalarType>            NodeList;        //col = [x, y, z]
@@ -71,6 +72,8 @@ public:
 	void Clear();
 	bool IsEmpty() const;
 
+	void SetID(int_max ID) { m_MeshData->ID = ID; }
+	int_max GetID() const { return m_MeshData->ID; }
 	void SetName(const String& Name) { m_MeshData->Name = Name; }
 	String GetName() const { return m_MeshData->Name; }
 
@@ -148,7 +151,7 @@ public:
 	String GetElementSetName(int_max ElementSetIndex) const;
 
 	bool IsShellElement(int_max ElementIndex) const;
-	bool IsBrickElement(int_max ElementIndex) const;
+	bool IsSolidElement(int_max ElementIndex) const;
 
 	FiniteElementType GetElementType(int_max ElementIndex) const;
 	String GetElementTypeAsString(int_max ElementIndex) const;
