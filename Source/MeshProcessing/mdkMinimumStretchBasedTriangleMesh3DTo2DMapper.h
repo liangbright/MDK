@@ -17,52 +17,48 @@ public:
 	typedef Scalar_Type ScalarType;
 	typedef typename TriangleMeshStandardAttributeType<ScalarType>       MeshAttributeType;	
 
-private:
+public:
 	//------------------ input -------------------------------------------//
-	TriangleMesh<MeshAttributeType> m_InputMesh;
+	TriangleMesh<MeshAttributeType> InputMesh;
 
-	DenseVector<int_max> m_BoundaryPointIndexList;
-	// boundary point index in m_InputMesh
+	DenseVector<int_max> BoundaryPointIndexList;
+	// boundary point index in InputMesh
 	// Boundary Point include all the boundary point of input mesh
 	// Boundary Point may also include inner point of input mesh, such as landmark
 
-	DenseMatrix<ScalarType> m_UVTableOfBoundary;
-	// m_UVTableOfBoundary[k] = [u, v] of boundary point k in m_InputMesh
+	DenseMatrix<ScalarType> UVTableOfBoundary;
+	// UVTableOfBoundary[k] = [u, v] of boundary point k in InputMesh
 
-	ScalarType m_MaxInteration;// maximum
-	ScalarType m_DiffusionCoef;
+	ScalarType MaxInteration;// maximum
+	ScalarType DiffusionCoefficient;
 
+private:
 	//-------------- internal -------------------------------------------//
-	DenseVector<int_max> m_InnerPointIndexList;
-	// inner point index in m_InputMesh
+	DenseVector<int_max> InnerPointIndexList;
+	// inner point index in InputMesh
 
-	//ObjectArray<DenseVector<ScalarType>> m_WeightMatrix;
-	// m_WeightMatrix[i][j] is the weight from point_i to point_j
-	// i is from 0 to PointCount_inner, index in m_InnerPointIndexList
-	// j is from 0 to PointCount, index in m_InputMesh
+	//ObjectArray<DenseVector<ScalarType>> WeightMatrix;
+	// WeightMatrix[i][j] is the weight from point_i to point_j
+	// i is from 0 to PointCount_inner, index in InnerPointIndexList
+	// j is from 0 to PointCount, index in InputMesh
 
-	//DenseVector<PointIndexType> m_PointIndexList;
-	//m_PointIndexList={m_InnerPointIndexList, m_BoundaryPointIndexList};
+	//DenseVector<PointIndexType> PointIndexList;
+	//PointIndexList={InnerPointIndexList, BoundaryPointIndexList};
 
-	DenseVector<int_max> m_Map_PointIndex_to_Inner;
-	//m_Map_PointIndex_to_Inner[PointIndex] is Index in WeightMatrix
+	DenseVector<int_max> Map_PointIndex_to_Inner;
+	//Map_PointIndex_to_Inner[PointIndex] is Index in WeightMatrix
 
-	DenseVector<int_max> m_Map_PointIndex_to_Boundary;
-	//m_Map_PointIndex_to_Boundary[PointIndex] is Index in m_BoundaryPointIndexList
+	DenseVector<int_max> Map_PointIndex_to_Boundary;
+	//Map_PointIndex_to_Boundary[PointIndex] is Index in BoundaryPointIndexList
 
+public:
 	//-------------- output -------------------------------------------//
-	TriangleMesh<MeshAttributeType> m_OutputMesh;// [x,y,z]->[u,v,0]
+	TriangleMesh<MeshAttributeType> OutputMesh;// [x,y,z]->[u,v,0]
 
 public:
 	MinimumStretchBasedTriangleMesh3DTo2DMapper();
 	~MinimumStretchBasedTriangleMesh3DTo2DMapper();
 	void Clear();
-	void SetDiffusionCoefficient(ScalarType Coef);
-	void SetMaxIteration(int_max MaxIteration);
-	TriangleMesh<MeshAttributeType>& InputMesh() { return m_InputMesh; }
-	DenseVector<int_max>& BoundaryPointIndexList() { return m_BoundaryPointIndexList; }
-	DenseMatrix<ScalarType>& UVTableOfBoundary() { return m_UVTableOfBoundary; }
-	TriangleMesh<MeshAttributeType>& OutputMesh() { return m_OutputMesh; }
 	void Update();
 
 private:

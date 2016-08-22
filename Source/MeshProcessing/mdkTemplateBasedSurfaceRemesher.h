@@ -18,60 +18,53 @@ public:
 	typedef typename PolygonMesh<OutputMeshAttribute>    TemplateMeshType;
 	typedef typename PolygonMesh<OutputMeshAttribute>    OutputMeshType;
 
-private:
+public:
 	//-------------------- input -------------------------------//
 
 	// input mesh must be triangle mesh
-	TriangleMesh<InputMeshAttribute> m_InputMesh;
+	TriangleMesh<InputMeshAttribute> InputMesh;
 
-	ObjectArray<DenseVector<int_max>> m_BoundarySegmentListOfInputMesh;
-	//m_BoundaryListOfInputMesh[k] is BoundarySegment: a set of boundary point index
+	ObjectArray<DenseVector<int_max>> BoundarySegmentListOfInputMesh;
+	//BoundaryListOfInputMesh[k] is BoundarySegment: a set of boundary point index
 	//BoundarySegment = {PointIndex_start, ..., PointIndex_end}
 	//BoundarySegment[k] overlap with BoundarySegment[k-1] and BoundarySegment[k+1] at start/end point
-	//m_BoundaryListOfInputMesh[k] ~ m_BoundarySegmentListOfOutputMesh[k] 
+	//BoundaryListOfInputMesh[k] ~ BoundarySegmentListOfOutputMesh[k] 
 
 	//template mesh point position is [u, v, 0]
-	PolygonMesh<TemplateMeshAttribute> m_TemplateMesh;
+	PolygonMesh<TemplateMeshAttribute> TemplateMesh;
 
-	ObjectArray<DenseVector<int_max>> m_BoundarySegmentListOfTemplateMesh;
-	//m_BoundarySegmentListOfOutputMesh[k] is BoundarySegment: a set of boundary point index
+	ObjectArray<DenseVector<int_max>> BoundarySegmentListOfTemplateMesh;
+	//BoundarySegmentListOfOutputMesh[k] is BoundarySegment: a set of boundary point index
 	//BoundarySegment = {PointIndex_start, ..., PointIndex_end}
 	//BoundarySegment[k] overlap with BoundarySegment[k-1] and BoundarySegment[k+1] at start/end point
-	//m_BoundarySegmentListOfOutputMesh[k] ~ m_BoundaryListOfInputMesh[k] 
+	//BoundarySegmentListOfOutputMesh[k] ~ BoundaryListOfInputMesh[k] 
 
 	//Parameter to MinimumStretchBasedTriangleMesh3DTo2DMapper
-	ScalarType m_DiffusionCoefficient;
-	int_max m_MaxInteration;
+	ScalarType DiffusionCoefficientOfMeshParameterization;
+	int_max MaxIterationOfMeshParameterization;
+
+	bool Flag_EnableTPSTransformOfTemplateMesh = false;
+
+private:
 	//-------------------- internal ---------------------------//
 
-	DenseVector<int_max> m_BoundaryPointIndexListOfInputMesh;
-	DenseMatrix<ScalarType> m_UVTalbleOfBoundaryOfInputMesh;// each col is [u,v]
+	DenseVector<int_max> BoundaryPointIndexListOfInputMesh;
+	DenseMatrix<ScalarType> UVTalbleOfBoundaryOfInputMesh;// each col is [u,v]
 
-	DenseVector<int_max> m_BoundaryPointIndexListOfTemplateMesh;
-	DenseMatrix<ScalarType> m_BoundaryPositionOfTemplateMesh;// each col is [u,v,0]
-	DenseMatrix<ScalarType> m_BoundaryPositionOfOutputMesh;  // each col is [x,y,z]
+	DenseVector<int_max> BoundaryPointIndexListOfTemplateMesh;
+	DenseMatrix<ScalarType> BoundaryPositionOfTemplateMesh;// each col is [u,v,0]
+	DenseMatrix<ScalarType> BoundaryPositionOfOutputMesh;  // each col is [x,y,z]
 
-	bool m_Flag_Use_TPS_Transform = false;
-
+public:
 	//------------------- output -----------------------------//
-	TriangleMesh<InputMeshAttribute> m_TransfromedInputMesh;//2D mesh
+	TriangleMesh<InputMeshAttribute> TransfromedInputMesh;//2D mesh
 
 	// OutputMesh is Transformed TemplateMesh from 2D to 3D
-	PolygonMesh<OutputMeshAttribute> m_OutputMesh;
+	PolygonMesh<OutputMeshAttribute> OutputMesh;
 
 public:
 	TemplateBasedSurfaceRemesher();
 	~TemplateBasedSurfaceRemesher();
-
-	TriangleMesh<InputMeshAttribute>& InputMesh() { return m_InputMesh; }
-	ObjectArray<DenseVector<int_max>>& BoundarySegmentListOfInputMesh() { return m_BoundarySegmentListOfInputMesh; }
-	PolygonMesh<TemplateMeshAttribute>& TemplateMesh() { return m_TemplateMesh; }
-	ObjectArray<DenseVector<int_max>>& BoundarySegmentListOfTemplateMesh() { return m_BoundarySegmentListOfTemplateMesh; }
-	PolygonMesh<OutputMeshAttribute>& OutputMesh() { return m_OutputMesh; }
-	TriangleMesh<InputMeshAttribute>& TransfromedInputMesh() { return m_TransfromedInputMesh; }
-	void SetDiffusionCoefficientOfMeshParameterization(ScalarType Coef) { m_DiffusionCoefficient = Coef; }
-	void SetMaxIterationOfMeshParameterization(int_max MaxIter) { m_MaxInteration = MaxIter; }
-	void EnableTPSTransformOfTemplateMesh(bool Flag = true) { m_Flag_Use_TPS_Transform = Flag; }
 
 	void Clear();
 	void Update();
