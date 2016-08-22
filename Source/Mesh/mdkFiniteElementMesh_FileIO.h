@@ -1,11 +1,12 @@
 #pragma once
 
+#include "mdkTextFile.h"
 #include "mdkVTKDataObject_FileIO.h"
 
 namespace mdk
 {
 
-//------------------------------------ brick element mesh to VTKUnstructuredGrid ------------------------------------------
+//------------------------------------ solid element mesh to VTKUnstructuredGrid ------------------------------------------
 template<typename ScalarType>
 vtkSmartPointer<vtkUnstructuredGrid> ConvertFiniteElementMeshToVTKUnstructuredGrid(const FiniteElementMesh<ScalarType>& InputMesh);
 
@@ -35,7 +36,10 @@ bool SaveFiniteElementMeshAsJsonDataFile(const FiniteElementMesh<ScalarType>& In
 template<typename ScalarType>
 bool LoadFiniteElementMeshFromJsonDataFile(FiniteElementMesh<ScalarType>& OutputMesh, const String& FilePathAndName);
 
+//---------------------------------------------------------------------------------------------------------------------------
+template<typename ScalarType>
+bool SaveFiniteElementMeshAsAbaqusINPFile(const FiniteElementMesh<ScalarType>& InputMesh, const String& FilePathAndName);
+
 }
 
-#include "FiniteElementMesh_FileIO.hpp"
-
+#include "mdkFiniteElementMesh_FileIO.hpp"

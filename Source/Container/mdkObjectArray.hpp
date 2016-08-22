@@ -321,7 +321,7 @@ template<typename ElementType>
 inline
 void ObjectArray<ElementType>::Share(ObjectArray<ElementType>& InputArray)
 {
-	if (IsSizeFixed == true)
+	if (this->IsSizeFixed() == true)
 	{
 		if (this->GetElementCount() != InputArray.GetElementCount())
 		{
