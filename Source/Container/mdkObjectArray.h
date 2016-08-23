@@ -418,6 +418,9 @@ public:
 	inline bool IsSharedWith(const ObjectArray& InputArray) const;
 
 	inline bool IsDataInInternalArray() const;
+	//attention: error if self is pure_empty, always use IsDataInInternalArray() before the following two funciton
+	inline std::vector<ElementType>& InternalArray();
+	inline const std::vector<ElementType>& InternalArray() const;
 
     inline int_max GetLength() const;
     inline int_max GetElementCount() const; // the same as GetLength();
