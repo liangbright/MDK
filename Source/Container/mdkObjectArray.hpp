@@ -565,6 +565,22 @@ bool ObjectArray<ElementType>::IsDataInInternalArray() const
 
 template<typename ElementType>
 inline
+std::vector<ElementType>& ObjectArray<ElementType>::InternalArray()
+{
+	return m_Data->StdVector;
+}
+
+
+template<typename ElementType>
+inline
+const std::vector<ElementType>& ObjectArray<ElementType>::InternalArray() const
+{
+	return m_Data->StdVector;
+}
+
+
+template<typename ElementType>
+inline
 int_max ObjectArray<ElementType>::GetLength() const
 {
     if (!m_Data)

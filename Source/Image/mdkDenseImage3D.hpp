@@ -419,6 +419,13 @@ void DenseImage3D<PixelType>::ForceShare(const PixelType* InputImage, const Imag
 
 
 template<typename PixelType>
+void DenseImage3D<PixelType>::ReCreate()
+{
+	m_ImageData = std::make_shared<DenseImageData3D<PixelType>>();
+}
+
+
+template<typename PixelType>
 void DenseImage3D<PixelType>::Clear()
 {
 	if (m_ImageData)

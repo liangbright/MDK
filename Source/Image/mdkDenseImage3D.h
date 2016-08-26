@@ -174,6 +174,7 @@ public:
     // specialization ?
 
 	//---------------------------------------------------------//
+	void ReCreate();
 	void Clear();
     inline bool IsEmpty() const;
 	inline bool IsPureEmpty() const;

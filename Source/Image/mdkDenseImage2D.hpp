@@ -405,6 +405,13 @@ void DenseImage2D<PixelType>::ForceShare(const PixelType* InputImage, const Imag
 
 
 template<typename PixelType>
+void DenseImage2D<PixelType>::ReCreate()
+{
+	m_ImageData = std::make_shared<DenseImageData2D<PixelType>>();
+}
+
+
+template<typename PixelType>
 void DenseImage2D<PixelType>::Clear()
 {
 	if (m_ImageData)
