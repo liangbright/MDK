@@ -15,33 +15,27 @@ public:
 	typedef typename MeshAttribute::ScalarType  ScalarType;
 
 	enum struct WeightTypeEnum { One, Distance, Unknown };
-private:
+public:
 	//-------------------- input -------------------------------//
-	PolygonMesh<MeshAttribute> m_InputMesh;
-	DenseMatrix<ScalarType> m_InputDisplacementField;
-	DenseMatrix<ScalarType> m_ConfidenceOfInputDisplacementField;
-	DenseMatrix<ScalarType> m_ConfidenceOfSmoothness;
-	WeightTypeEnum m_WeigthType;
-
+	PolygonMesh<MeshAttribute> InputMesh;
+	DenseMatrix<ScalarType> InputDisplacementField;
+	DenseMatrix<ScalarType> ConfidenceOfInputDisplacementField;
+	DenseMatrix<ScalarType> ConfidenceOfSmoothness;
+	WeightTypeEnum WeigthType;
+private:
 	//----------------- internal ----------------------------//
-	ObjectArray<SparseVector<ScalarType>> m_WeightMatrix;
-	
+	ObjectArray<SparseVector<ScalarType>> WeightMatrix;
+
+public:	
     //--------------- output ------------------------------//
-	DenseMatrix<ScalarType> m_OutputDisplacementField;
-	PolygonMesh<MeshAttribute> m_OutputMesh;
+	DenseMatrix<ScalarType> OutputDisplacementField;
+	PolygonMesh<MeshAttribute> OutputMesh;
 
 public:
 	DisplacementBasedPolygonMeshDeformer();
 	~DisplacementBasedPolygonMeshDeformer();
 	void Clear();
-	PolygonMesh<MeshAttribute>& InputMesh() { return m_InputMesh; }
-	DenseMatrix<ScalarType>& InputDisplacementField() { return m_InputDisplacementField; }
-	DenseMatrix<ScalarType>& ConfidenceOfInputDisplacementField() { return m_ConfidenceOfInputDisplacementField; }
-	DenseMatrix<ScalarType>& ConfidenceOfSmoothness() { return m_ConfidenceOfSmoothness; }
-	void SetWeightType(WeightTypeEnum Type) { m_WeigthType = Type; };
 	void Update();
-	PolygonMesh<MeshAttribute>& OutputMesh() { return m_OutputMesh; }
-	DenseMatrix<ScalarType>& OutputDisplacementField() { return m_OutputDisplacementField; }
 
 private:
 	bool CheckInput();
