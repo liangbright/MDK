@@ -1438,7 +1438,7 @@ int_max PolygonMesh<MeshAttributeType>::GetPointSetIndex(const String& PointSetN
 	}
 	else
 	{
-		MDK_Error("PointSet NOT exist @ PolygonMesh::GetPointSetIndex(...)")
+		MDK_Warning("PointSet " << PointSetName << " NOT exist @ PolygonMesh::GetPointSetIndex(...)")
 		return -1;
 	}
 }
@@ -1455,7 +1455,7 @@ String PolygonMesh<MeshAttributeType>::GetPointSetName(int_max PointSetIndex) co
 		}
 	}
 
-	MDK_Error("PointSet NOT exist @  PolygonMesh::GetPointSetName(...)")
+	MDK_Warning("PointSet " << PointSetIndex << " NOT exist @  PolygonMesh::GetPointSetName(...)")
 	String EmptyName;
 	return EmptyName;
 }
@@ -1478,8 +1478,8 @@ DenseVector<int_max> PolygonMesh<MeshAttributeType>::GetPointSet(const String& P
 	}
 	else
 	{
-		DenseVector<int_max> EmptySet;
-		MDK_Error("Unknown PointSetName: " << PointSetName << " @ PolygonMesh::GetPointSet()")
+		MDK_Warning("Unknown PointSetName: " << PointSetName << " @ PolygonMesh::GetPointSet()")
+		DenseVector<int_max> EmptySet;		
 		return EmptySet;
 	}
 }
@@ -1548,7 +1548,7 @@ int_max PolygonMesh<MeshAttributeType>::GetEdgeSetIndex(const String& EdgeSetNam
 	}
 	else
 	{
-		MDK_Error("EdgeSet NOT exist @ PolygonMesh::GetEdgeSetIndex(...)")
+		MDK_Warning("EdgeSet NOT exist @ PolygonMesh::GetEdgeSetIndex(...)")
 		return -1;
 	}
 }
@@ -1565,7 +1565,7 @@ String PolygonMesh<MeshAttributeType>::GetEdgeSetName(int_max EdgeSetIndex) cons
 		}
 	}
 
-	MDK_Error("EdgeSet NOT exist @  PolygonMesh::GetEdgeSetName(...)")
+	MDK_Warning("EdgeSet " << EdgeSetIndex << " NOT exist @  PolygonMesh::GetEdgeSetName(...)")
 	String EmptyName;
 	return EmptyName;
 }
@@ -1588,8 +1588,8 @@ DenseVector<int_max> PolygonMesh<MeshAttributeType>::GetEdgeSet(const String& Ed
 	}
 	else
 	{
-		DenseVector<int_max> EmptySet;
-		MDK_Error("Unknown EdgeSetName: " << EdgeSetName << " @ PolygonMesh::GetEdgeSet()")
+		MDK_Warning("Unknown EdgeSetName: " << EdgeSetName << " @ PolygonMesh::GetEdgeSet()")
+		DenseVector<int_max> EmptySet;		
 		return EmptySet;
 	}
 }
@@ -1659,7 +1659,7 @@ int_max PolygonMesh<MeshAttributeType>::GetFaceSetIndex(const String& FaceSetNam
 	}
 	else
 	{
-		MDK_Error("FaceSet NOT exist @ PolygonMesh::GetFaceSetIndex(...)")
+		MDK_Warning("FaceSet " << FaceSetName << " NOT exist @ PolygonMesh::GetFaceSetIndex(...)")
 		return -1;
 	}
 }
@@ -1676,7 +1676,7 @@ String PolygonMesh<MeshAttributeType>::GetFaceSetName(int_max FaceSetIndex) cons
 		}
 	}
 
-	MDK_Error("FaceSet NOT exist @  PolygonMesh::GetFaceSetName(...)")
+	MDK_Warning("FaceSet " << FaceSetIndex << "NOT exist @  PolygonMesh::GetFaceSetName(...)")
 	String EmptyName;
 	return EmptyName;
 }
@@ -1699,8 +1699,8 @@ DenseVector<int_max> PolygonMesh<MeshAttributeType>::GetFaceSet(const String& Fa
 	}
 	else
 	{
-		DenseVector<int_max> EmptySet;
-		MDK_Error("Unknown FaceSetName: " << FaceSetName << " @ PolygonMesh::GetFaceSet()")
+		MDK_Warning("Unknown FaceSetName: " << FaceSetName << " @ PolygonMesh::GetFaceSet()")
+		DenseVector<int_max> EmptySet;		
 		return EmptySet;
 	}
 }
