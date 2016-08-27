@@ -35,48 +35,46 @@ public:
 	typedef MethodEnum_Of_Image3DInterpolation              ImageInterpolationMethodEnum;
 	typedef BoundaryOptionEnum_Of_Image3DInterpolation      ImageInterpolationBoundaryOptionEnum;
 
-private:
+public:
 	//-------------------------- input --------------------------------------------------//
-	const DenseImage3D<InputPixelType>* m_InputImage;
+	const DenseImage3D<InputPixelType>* InputImage;
 
-	ImageInterpolationOptionType m_ImageInterpolationOption;
+	ImageInterpolationOptionType ImageInterpolationOption;
 
-	double m_Radius; // distance between Position(+) and Position(-), in Physical unit (mm)
+	double Radius; // distance between Position(+) and Position(-), in Physical unit (mm)
 
-	DenseVector<Scalar_Type, 3> m_GradientDirection_Prior;// Direction in 3D space of OutputImage
-
-	int_max m_MaxThreadCount;
-
-	//------------------------ internal ------------------------------------------------------//	
-	bool m_Flag_Input_Output_Orientation_IdentityMatrix;
-	bool m_Flag_Input_Output_SameOrigin_SameOrientation;
-
-	// see description in DenseImageResampler3D
-	DenseMatrix<double> m_3DPositionTransformFromOuputToInput_Matrix;
-	DenseVector<double, 3> m_3DPositionTransformFromOuputToInput_Offset;
-
-	ObjectArray<ObjectArray<Mask_Of_GradientDenseImageFilter3D<ScalarType>>> m_MaskList;  // m_MaskList[k] is MaskList at Level k
-
-	int_max m_Flag_MaskOriginLocation;
+	int_max Flag_MaskOriginLocation;
 	//  0: Middle ~ default
 	//  1: PositivePole
 	// -1: NegativePole
 
-	int_max m_SphereResolution;	// PointCount of SphereMesh from m_SphereBuilder
-	                            // 20, 42, 162, 642, 2562, 10242, 40962
+	int_max SphereResolution;	// PointCount of SphereMesh from SphereBuilder
+								// 20, 42, 162, 642, 2562, 10242, 40962
+
+	DenseVector<Scalar_Type, 3> GradientDirection_Prior;// Direction in 3D space of OutputImage
+
+	int_max MaxThreadCount;
 
 	//------------------------- output ----------------------------------------------------//
-	DenseImage3D<OutputPixelType> m_OutputImage;
+	DenseImage3D<OutputPixelType> OutputImage;
+
+private:
+	//------------------------ internal ------------------------------------------------------//	
+	bool Flag_Input_Output_Orientation_IdentityMatrix;
+	bool Flag_Input_Output_SameOrigin_SameOrientation;
+
+	// see description in DenseImageResampler3D
+	DenseMatrix<double>    Position3DTransformFromOuputToInput_Matrix;
+	DenseVector<double, 3> Position3DTransformFromOuputToInput_Offset;
+
+	ObjectArray<ObjectArray<Mask_Of_GradientDenseImageFilter3D<ScalarType>>> MaskList;  // MaskList[k] is MaskList at Level k
 
 public:		
     GradientDenseImageFilter3D();
     ~GradientDenseImageFilter3D();
 	void Clear();
 	
-	void SetInputImage(const DenseImage3D<InputPixelType>* InputImage) { m_InputImage = InputImage; }
-
 	void SetOutputImageInfo(const ImageInfo3D& Info);
-
 	void SetOutputImageInfo(const DenseVector<double, 3>& Origin, const DenseVector<double, 3>& Spacing, const DenseVector<int_max, 3>& Size, const DenseMatrix<double>& Orientation);
 
 	// Number of Pixel in x/y/z direction
@@ -90,23 +88,11 @@ public:
 	void SetOutputImageInfoBySpacing(const DenseVector<double, 3>& Spacing);
 	void SetOutputImageInfoBySpacing(double Spacing_x, double Spacing_y, double Spacing_z);
 
-	void SetImageInterpolationOption(const ImageInterpolationOptionType& InputOption) { m_ImageInterpolationOption = InputOption; }
-	ImageInterpolationOptionType GetImageInterpolationOption() { return m_ImageInterpolationOption; }
-
-	void SetMaxThreadCount(int_max MaxNumber) { m_MaxThreadCount = MaxNumber; }
-
-	void SetRadius(double Radius);
-	void SetMaskOriginInMiddle();//default
-	void SetMaskOriginAsPositivePole();
-	void SetMaskOriginAsNegativePole();
-
-	void SetSphereResolution(int_max Resolution);
+	void SetMaskOriginInMiddle() { this->Flag_MaskOriginLocation = 0;}
+	void SetMaskOriginAsPositivePole() { this->Flag_MaskOriginLocation = 1; }
+	void SetMaskOriginAsNegativePole() { this->Flag_MaskOriginLocation = -1; }
 	
-	void SetGradientDirectionPrior(const DenseVector<Scalar_Type, 3>& Direction) {m_GradientDirection_Prior = Direction; }
-
 	void Update();
-
-	DenseImage3D<OutputPixelType>& OutputImage() { return m_OutputImage; }
 
 private:
 	bool CheckInput();	

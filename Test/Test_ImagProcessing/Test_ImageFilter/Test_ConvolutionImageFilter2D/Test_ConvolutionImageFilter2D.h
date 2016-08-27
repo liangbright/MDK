@@ -29,13 +29,13 @@ void test_DiscreteGaussianFilter2D()
 	//InputImage.SetSize(100, 100, 100);
 
 	DiscreteConvolutionDenseImageFilter2D<double> imfilter;
-    imfilter.SetInputImage(&InputImage);
+    imfilter.InputImage = &InputImage;
 	imfilter.SetBoundaryOptionAsReplicate();	
 	//imfilter.CreateGaussianMask(9, 9, 6, 1.8);
 	imfilter.CreateGaussianMask(InputImage.GetSpacing(), 3, 3, 1);
-	imfilter.SetMaxThreadCount(8);
+	imfilter.MaxThreadCount = 8;
 	
-	std::cout << "Point in Mask " << imfilter.ConvolutionMask().GetColCount() << '\n';
+	std::cout << "Point in Mask " << imfilter.ConvolutionMask.GetColCount() << '\n';
 
 	std::cout << "start" << '\n';
 	auto t0 = std::chrono::system_clock::now();
@@ -44,7 +44,7 @@ void test_DiscreteGaussianFilter2D()
 	std::chrono::duration<double> raw_time = t1 - t0;
 	std::cout << "time " << raw_time.count() << '\n';
 
-    auto& OutputImage = imfilter.OutputImage();
+    auto& OutputImage = imfilter.OutputImage;
 
     Save2DScalarImageAsJsonDataFile(OutputImage, TestDataPath + "test_DiscreteGaussianFilter2D_OutputImage.json");
 
@@ -66,12 +66,12 @@ void test_DiscreteLoGFilter2D()
 	//InputImage.SetSize(100, 100, 100);
 
 	DiscreteConvolutionDenseImageFilter2D<double> imfilter;
-	imfilter.SetInputImage(&InputImage);
+	imfilter.InputImage = &InputImage;
 	imfilter.SetBoundaryOptionAsReplicate();
 	imfilter.CreateLaplacianOfGaussianMask(InputImage.GetSpacing(), 1.5, 2);
-	imfilter.SetMaxThreadCount(8);
+	imfilter.MaxThreadCount = 8;
 
-	std::cout << "Point in Mask " << imfilter.ConvolutionMask().GetColCount() << '\n';
+	std::cout << "Point in Mask " << imfilter.ConvolutionMask.GetColCount() << '\n';
 
 	std::cout << "start" << '\n';
 	auto t0 = std::chrono::system_clock::now();
@@ -80,7 +80,7 @@ void test_DiscreteLoGFilter2D()
 	std::chrono::duration<double> raw_time = t1 - t0;
 	std::cout << "time " << raw_time.count() << '\n';
 
-	auto& OutputImage = imfilter.OutputImage();
+	auto& OutputImage = imfilter.OutputImage;
 
 	Save2DScalarImageAsJsonDataFile(OutputImage, TestDataPath + "test_DiscreteLoGFilter2D_OutputImage.json");
 

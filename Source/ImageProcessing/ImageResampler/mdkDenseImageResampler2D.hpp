@@ -19,81 +19,97 @@ DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::~DenseImageR
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::Clear()
 {
-	m_InputImage = nullptr;
-	m_ImageInterpolationOption.MethodType = ImageInterpolationMethodEnum::Linear;
-	m_ImageInterpolationOption.BoundaryOption = ImageInterpolationBoundaryOptionEnum::Constant;
-	m_ImageInterpolationOption.Pixel_OutsideImage = InputPixelType(0);
-	m_OutputImage.Clear();
-	m_MaxThreadCount = 1;
+	auto& Self = *this;
+	Self.InputImage = nullptr;
+	Self.ImageInterpolationOption.MethodType = ImageInterpolationMethodEnum::Linear;
+	Self.ImageInterpolationOption.BoundaryOption = ImageInterpolationBoundaryOptionEnum::Constant;
+	Self.ImageInterpolationOption.Pixel_OutsideImage = InputPixelType(0);
+	Self.OutputImage.Clear();
+	Self.MaxThreadCount = 1;
 
-	m_Flag_Input_Output_Orientation_IdentityMatrix = false;
-	m_Flag_Input_Output_SameOrigin_SameOrientation = false;
-	m_3DPositionTransformFromOuputToInput_Matrix.Clear();
-	m_3DPositionTransformFromOuputToInput_Offset.Clear();
-	m_3DPositionTransformFromInputToOutput_Matrix.Clear();
-	m_3DPositionTransformFromInputToOutput_Offset.Clear();
-	m_2DPositionTransform_from_OutputImage_to_InputImage = nullptr;
+	Self.Flag_Input_Output_Orientation_IdentityMatrix = false;
+	Self.Flag_Input_Output_SameOrigin_SameOrientation = false;
+	Self.Position3DTransformFromOuputToInput_Matrix.Clear();
+	Self.Position3DTransformFromOuputToInput_Offset.Clear();
+	Self.Position3DTransformFromInputToOutput_Matrix.Clear();
+	Self.Position3DTransformFromInputToOutput_Offset.Clear();
+	Self.Position2DTransform_from_OutputImage_to_InputImage = nullptr;
 
-	m_Flag_TriangleSmoothWhenDownsmapling = false;
-	m_Flag_AverageSmoothWhenDownsmapling = false;
-	m_Flag_SmoothInputImage = false;
-	m_SmoothedImage.Clear();	
+	Self.SmoothingMethodWhenDownsmapling = SmoothingMethodTypeWhenDownsmapling::Nothing;
+	Self.Flag_SmoothInputImage = false;
+	Self.SmoothedImage.Clear();	
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::EnableTriangleSmoothingWhenDownsampling(bool On_Off)
 {
-	m_Flag_TriangleSmoothWhenDownsmapling = On_Off;
+	auto& Self = *this;
+	if (On_Off == true)
+	{
+		Self.SmoothingMethodWhenDownsmapling = SmoothingMethodTypeWhenDownsmapling::Triangle;
+	}
+	else
+	{
+		Self.SmoothingMethodWhenDownsmapling = SmoothingMethodTypeWhenDownsmapling::Nothing;
+	}
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::EnableAverageSmoothingWhenDownsampling(bool On_Off)
 {
-	m_Flag_AverageSmoothWhenDownsmapling = On_Off;
+	auto& Self = *this;
+	if (On_Off == true)
+	{
+		Self.SmoothingMethodWhenDownsmapling = SmoothingMethodTypeWhenDownsmapling::Average;
+	}
+	else
+	{
+		Self.SmoothingMethodWhenDownsmapling = SmoothingMethodTypeWhenDownsmapling::Nothing;
+	}
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::SmoothInputImageIfNecessary()
 {
-	m_Flag_SmoothInputImage = false;
-	m_SmoothedImage.Clear();
-
-	if (m_Flag_TriangleSmoothWhenDownsmapling == true || m_Flag_AverageSmoothWhenDownsmapling == true)
+	auto& Self = *this;
+	Self.SmoothedImage.Clear();
+	Self.Flag_SmoothInputImage = false;
+	if (Self.SmoothingMethodWhenDownsmapling != SmoothingMethodTypeWhenDownsmapling::Nothing)
 	{
-		auto InputSpacing = m_InputImage->GetSpacing();
-		auto OutputSpacing = m_OutputImage.GetSpacing();
+		auto InputSpacing = Self.InputImage->GetSpacing();
+		auto OutputSpacing = Self.OutputImage.GetSpacing();
 		for (int_max k = 0; k < 2; ++k)
 		{
 			auto Ratio = OutputSpacing[k] / InputSpacing[k];
 			if (Ratio > 1.2)
 			{
-				m_Flag_SmoothInputImage = true;
+				Self.Flag_SmoothInputImage = true;
 			}
 		}
 
-		if (m_Flag_SmoothInputImage == true)
+		if (Flag_SmoothInputImage == true)
 		{			
-			if (m_Flag_AverageSmoothWhenDownsmapling == true)
+			if (Self.SmoothingMethodWhenDownsmapling == SmoothingMethodTypeWhenDownsmapling::Average)
 			{
 				IntegralImageBasedAverageDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType> SmoothingFilter;
-				SmoothingFilter.SetInputImage(m_InputImage);
-				SmoothingFilter.SetOutputImageInfo(m_InputImage->GetInfo());
-				SmoothingFilter.SetRadius(OutputSpacing[0], OutputSpacing[1]);
-				SmoothingFilter.SetMaxThreadCount(m_MaxThreadCount);
+				SmoothingFilter.InputImage = Self.InputImage;
+				SmoothingFilter.SetOutputImageInfo(Self.InputImage->GetInfo());
+				SmoothingFilter.Radius = OutputSpacing;
+				SmoothingFilter.MaxThreadCount = Self.MaxThreadCount;
 				SmoothingFilter.Update();
-				m_SmoothedImage = std::move(SmoothingFilter.OutputImage());
+				Self.SmoothedImage = std::move(SmoothingFilter.OutputImage);
 			}
-			else if (m_Flag_TriangleSmoothWhenDownsmapling == true)
+			else if (Self.SmoothingMethodWhenDownsmapling == SmoothingMethodTypeWhenDownsmapling::Triangle)
 			{
 				DiscreteConvolutionDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType> SmoothingFilter;
-				SmoothingFilter.SetInputImage(m_InputImage);				
-				SmoothingFilter.CreateTriangleMask(m_InputImage->GetSpacing(), OutputSpacing[0], OutputSpacing[1]);
-				SmoothingFilter.SetMaxThreadCount(m_MaxThreadCount);
+				SmoothingFilter.InputImage = Self.InputImage;
+				SmoothingFilter.CreateTriangleMask(Self.InputImage->GetSpacing(), OutputSpacing[0], OutputSpacing[1]);
+				SmoothingFilter.MaxThreadCount = Self.MaxThreadCount;
 				SmoothingFilter.Update();
-				m_SmoothedImage = std::move(SmoothingFilter.OutputImage());
+				Self.SmoothedImage = std::move(SmoothingFilter.OutputImage);
 			}
 		}
 	}
@@ -103,15 +119,16 @@ void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::SmoothI
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::SetOutputImageInfo(const ImageInfo2D& Info)
 {
-	auto Size_old = m_OutputImage.GetSize();
+	auto& Self = *this;
+	auto Size_old = Self.OutputImage.GetSize();
 	if (Size_old[0] != Info.Size[0] || Size_old[1] != Info.Size[1])
 	{
-		m_OutputImage.Clear();
-		m_OutputImage.SetInfo(Info);
+		Self.OutputImage.Clear();
+		Self.OutputImage.SetInfo(Info);
 	}
 	else
 	{// no new memory allocation
-		m_OutputImage.SetInfo(Info, false);
+		Self.OutputImage.SetInfo(Info, false);
 	}
 }
 
@@ -140,7 +157,8 @@ void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::SetOutp
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::SetOutputImageInfoBySize(int_max Lx, int_max Ly)
 {
-	if (m_InputImage == nullptr)
+	auto& Self = *this;
+	if (Self.InputImage == nullptr)
 	{
 		MDK_Error("InputImage is nullptr @ DenseImageResampler2D::SetOutputImageInfoBySize(...)")
 		return;
@@ -156,13 +174,13 @@ void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::SetOutp
 	Info.Size[0] = Lx;
 	Info.Size[1] = Ly;
 
-	auto Size_input = m_InputImage->GetSize();
-	auto Spacing_input = m_InputImage->GetSpacing();
+	auto Size_input = Self.InputImage->GetSize();
+	auto Spacing_input = Self.InputImage->GetSpacing();
 	Info.Spacing[0] = double(Size_input[0] - 1) * Spacing_input[0] / double(Lx - 1);
 	Info.Spacing[1] = double(Size_input[1] - 1) * Spacing_input[1] / double(Ly - 1);
 
-	Info.Origin = m_InputImage->GetOrigin();
-	Info.Orientation = m_InputImage->GetOrientation();
+	Info.Origin = Self.InputImage->GetOrigin();
+	Info.Orientation = Self.InputImage->GetOrientation();
 	Info.UpdateTransformMatrix();
 
 	this->SetOutputImageInfo(Info);
@@ -179,7 +197,8 @@ void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::SetOutp
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::SetOutputImageInfoBySpacing(double Spacing_x, double Spacing_y)
 {
-	if (m_InputImage == nullptr)
+	auto& Self = *this;
+	if (Self.InputImage == nullptr)
 	{
 		MDK_Error("InputImage is nullptr @ DenseImageResampler2D::SetOutputImageInfoBySpacing(...)")
 		return;
@@ -198,13 +217,13 @@ void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::SetOutp
 	Info.Spacing[0] = Spacing_x;
 	Info.Spacing[1] = Spacing_y;
 
-	auto Size_input = m_InputImage->GetSize();
-	auto Spacing_input = m_InputImage->GetSpacing();
+	auto Size_input = Self.InputImage->GetSize();
+	auto Spacing_input = Self.InputImage->GetSpacing();
 	Info.Size[0] = int_max(std::ceil(Size_input[0] * Spacing_input[0] / Spacing_x));
 	Info.Size[1] = int_max(std::ceil(Size_input[1] * Spacing_input[1] / Spacing_y));
 
-	Info.Origin = m_InputImage->GetOrigin();
-	Info.Orientation = m_InputImage->GetOrientation();
+	Info.Origin = Self.InputImage->GetOrigin();
+	Info.Orientation = Self.InputImage->GetOrientation();
 	Info.UpdateTransformMatrix();
 	this->SetOutputImageInfo(Info);
 }
@@ -213,26 +232,27 @@ void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::SetOutp
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::Update3DPositionTransform_Input_Output()
 {
-	auto InputImageInfo = m_InputImage->GetInfo();
-	auto OutputImageInfo = m_OutputImage.GetInfo();
+	auto& Self = *this;
+	auto InputImageInfo = Self.InputImage->GetInfo();
+	auto OutputImageInfo = Self.OutputImage.GetInfo();
 	{
 		auto M = InputImageInfo.Orientation.Inv();
-		m_3DPositionTransformFromOuputToInput_Matrix = MatrixMultiply(M, OutputImageInfo.Orientation);
+		Self.Position3DTransformFromOuputToInput_Matrix = MatrixMultiply(M, OutputImageInfo.Orientation);
 		auto D = OutputImageInfo.Origin - InputImageInfo.Origin;
-		// m_2DPositionTransformFromOuputToInput_Offset = M*D
-		m_3DPositionTransformFromOuputToInput_Offset[0] = M[0] * D[0] + M[3] * D[1] + M[6] * D[2];
-		m_3DPositionTransformFromOuputToInput_Offset[1] = M[1] * D[0] + M[4] * D[1] + M[7] * D[2];
-		m_3DPositionTransformFromOuputToInput_Offset[2] = M[2] * D[0] + M[5] * D[1] + M[8] * D[2];
+		// Self.Position2DTransformFromOuputToInput_Offset = M*D
+		Self.Position3DTransformFromOuputToInput_Offset[0] = M[0] * D[0] + M[3] * D[1] + M[6] * D[2];
+		Self.Position3DTransformFromOuputToInput_Offset[1] = M[1] * D[0] + M[4] * D[1] + M[7] * D[2];
+		Self.Position3DTransformFromOuputToInput_Offset[2] = M[2] * D[0] + M[5] * D[1] + M[8] * D[2];
 	}
 
 	{
 		auto M = OutputImageInfo.Orientation.Inv();
-		m_3DPositionTransformFromInputToOutput_Matrix = MatrixMultiply(M, InputImageInfo.Orientation);
+		Self.Position3DTransformFromInputToOutput_Matrix = MatrixMultiply(M, InputImageInfo.Orientation);
 		auto D = InputImageInfo.Origin - OutputImageInfo.Origin;
-		// m_2DPositionTransformFromInputToOutput_Offset = M*D
-		m_3DPositionTransformFromInputToOutput_Offset[0] = M[0] * D[0] + M[3] * D[1] + M[6] * D[2];
-		m_3DPositionTransformFromInputToOutput_Offset[1] = M[1] * D[0] + M[4] * D[1] + M[7] * D[2];
-		m_3DPositionTransformFromInputToOutput_Offset[2] = M[2] * D[0] + M[5] * D[1] + M[8] * D[2];
+		// Self.Position2DTransformFromInputToOutput_Offset = M*D
+		Self.Position3DTransformFromInputToOutput_Offset[0] = M[0] * D[0] + M[3] * D[1] + M[6] * D[2];
+		Self.Position3DTransformFromInputToOutput_Offset[1] = M[1] * D[0] + M[4] * D[1] + M[7] * D[2];
+		Self.Position3DTransformFromInputToOutput_Offset[2] = M[2] * D[0] + M[5] * D[1] + M[8] * D[2];
 	}
 
 	auto Eps = std::numeric_limits<double>::epsilon();
@@ -263,13 +283,13 @@ void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::Update3
 
 	if (Flag_Input_Output_SameOrigin == true && Flag_Input_Output_SameOrientation == true)
 	{
-		m_Flag_Input_Output_SameOrigin_SameOrientation = true;
+		Self.Flag_Input_Output_SameOrigin_SameOrientation = true;
 	}
 
-	m_Flag_Input_Output_Orientation_IdentityMatrix = false;
+	Self.Flag_Input_Output_Orientation_IdentityMatrix = false;
 	if (InputImageInfo.Orientation.IsIdentityMatrix() == true && OutputImageInfo.Orientation.IsIdentityMatrix() == true)
 	{
-		m_Flag_Input_Output_Orientation_IdentityMatrix = true;
+		Self.Flag_Input_Output_Orientation_IdentityMatrix = true;
 	}
 }
 
@@ -278,19 +298,20 @@ template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 DenseVector<ScalarType, 2> DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::
 Transform2DPositionInInputImageTo2DPositionInOutputImage(const DenseVector<ScalarType, 2>& Position_in)
 {
-	if (m_Flag_Input_Output_SameOrigin_SameOrientation == true)
+	auto& Self = *this;
+	if (Self.Flag_Input_Output_SameOrigin_SameOrientation == true)
 	{
 		return Position_in;
 	}
-	else if (m_Flag_Input_Output_Orientation_IdentityMatrix == true)
+	else if (Self.Flag_Input_Output_Orientation_IdentityMatrix == true)
 	{
-		auto Position_out = m_InputImage->GetOrigin2D() - m_OutputImage.GetOrigin2D() + Position_in;
+		auto Position_out = Self.InputImage->GetOrigin2D() - Self.OutputImage.GetOrigin2D() + Position_in;
 		return Position_out;
 	}
 	else
 	{
-		auto R = m_3DPositionTransformFromInputToOutput_Matrix.GetElementPointer();
-		auto T = m_3DPositionTransformFromInputToOutput_Offset.GetElementPointer();
+		auto R = Self.Position3DTransformFromInputToOutput_Matrix.GetElementPointer();
+		auto T = Self.Position3DTransformFromInputToOutput_Offset.GetElementPointer();
 		DenseVector<ScalarType, 2> Position_out;
 		//Position_out[0] = R[0] * Position_in[0] + R[3] * Position_in[1] + R[6] * Position_in[2] + T[0];
 		//Position_out[1] = R[1] * Position_in[0] + R[4] * Position_in[1] + R[7] * Position_in[2] + T[1];
@@ -306,19 +327,20 @@ template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 DenseVector<ScalarType, 2> DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::
 Transform2DPositionInOutputImageTo2DPositionInInputImage(const DenseVector<ScalarType, 2>& Position_out)
 {
-	if (m_Flag_Input_Output_SameOrigin_SameOrientation == true)
+	auto& Self = *this;
+	if (Self.Flag_Input_Output_SameOrigin_SameOrientation == true)
 	{
 		return Position_out;
 	}
-	else if (m_Flag_Input_Output_Orientation_IdentityMatrix == true)
+	else if (Self.Flag_Input_Output_Orientation_IdentityMatrix == true)
 	{
-		auto Position_in = m_OutputImage.GetOrigin2D() - m_InputImage->GetOrigin2D() + Position_out;
+		auto Position_in = Self.OutputImage.GetOrigin2D() - Self.InputImage->GetOrigin2D() + Position_out;
 		return Position_in;
 	}
 	else
 	{
-		auto R = m_3DPositionTransformFromOuputToInput_Matrix.GetElementPointer();
-		auto T = m_3DPositionTransformFromOuputToInput_Offset.GetElementPointer();
+		auto R = Self.Position3DTransformFromOuputToInput_Matrix.GetElementPointer();
+		auto T = Self.Position3DTransformFromOuputToInput_Offset.GetElementPointer();
 		DenseVector<ScalarType, 2> Position_in;
 		//Position_in[0] = R[0] * Position_out[0] + R[3] * Position_out[1] + R[6] * Position_out[2] + T[0];
 		//Position_in[1] = R[1] * Position_out[0] + R[4] * Position_out[1] + R[7] * Position_out[2] + T[1];
@@ -333,27 +355,28 @@ Transform2DPositionInOutputImageTo2DPositionInInputImage(const DenseVector<Scala
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 bool DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::CheckInput()
 {
-	if (m_InputImage == nullptr)
+	auto& Self = *this;
+	if (Self.InputImage == nullptr)
 	{
 		MDK_Error("Input image is Empty (nullptr) @ DenseImageResampler2D::SelfCheckInput()")
 		return false;
 	}
 
-	if (m_InputImage->IsEmpty() == true)
+	if (Self.InputImage->IsEmpty() == true)
 	{
 		MDK_Error("Input image is Empty @ DenseImageResampler2D::CheckInput()")
 		return false;
 	}
 	
-	if (m_OutputImage.IsEmpty() == true)
+	if (Self.OutputImage.IsEmpty() == true)
 	{
 		MDK_Error("Output image is Empty, call SetOutputImageInfo first @ DenseImageResampler2D::CheckInput()")
 		return false;
 	}
 
 	// OutputImage and InputImage should be in the same x-y plane
-	auto Info_in = m_InputImage->GetInfo();
-	auto Info_out = m_OutputImage.GetInfo();
+	auto Info_in = Self.InputImage->GetInfo();
+	auto Info_out = Self.OutputImage.GetInfo();
 	DenseVector<double, 3> DirectionZ_in, DirectionZ_out;	
 	Info_in.Orientation.GetCol(2, DirectionZ_in);
 	Info_out.Orientation.GetCol(2, DirectionZ_out);
@@ -373,9 +396,9 @@ bool DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::CheckIn
 	}	
 	//------------------------------------------------------------
 
-	if (m_MaxThreadCount <= 0)
+	if (Self.MaxThreadCount <= 0)
 	{
-		MDK_Error("m_MaxThreadCount <= 0 @ DenseImageResampler2D::CheckInput()")
+		MDK_Error("MaxThreadCount <= 0 @ DenseImageResampler2D::CheckInput()")
 		return false;
 	}
 
@@ -396,35 +419,36 @@ void DenseImageResampler2D<InputPixelType, OutputPixelType, ScalarType>::Update(
 	this->SmoothInputImageIfNecessary();
 
 	//---------------------------------------------------------------------------------
-	auto Size = m_OutputImage.GetSize();
+	auto& Self = *this;
+	auto Size = Self.OutputImage.GetSize();
 	//for (int_max y = 0; y <= Size[1]-1; ++y)
 	auto TempFunction = [&](int_max y)
 	{			
 		for (int_max x = 0; x < Size[0]; ++x)
 		{
-			auto Pos_out = m_OutputImage.Transform2DIndexTo2DPosition<ScalarType>(x, y);
+			auto Pos_out = Self.OutputImage.Transform2DIndexTo2DPosition<ScalarType>(x, y);
 			DenseVector<ScalarType, 2> Pos_in;
-			if (m_2DPositionTransform_from_OutputImage_to_InputImage != nullptr)
+			if (Self.Position2DTransform_from_OutputImage_to_InputImage != nullptr)
 			{
-				Pos_in = m_2DPositionTransform_from_OutputImage_to_InputImage->TransformPoint(Pos_out);
+				Pos_in = Self.Position2DTransform_from_OutputImage_to_InputImage->TransformPoint(Pos_out);
 			}
 			else
 			{
 				Pos_in = this->Transform2DPositionInOutputImageTo2DPositionInInputImage(Pos_out);
 			}
-			if (m_Flag_SmoothInputImage == false)
+			if (Self.Flag_SmoothInputImage == false)
 			{
-				m_OutputImage(x, y) = m_InputImage->GetPixelAt2DPosition<OutputPixelType>(Pos_in, m_ImageInterpolationOption);
+				Self.OutputImage(x, y) = Self.InputImage->GetPixelAt2DPosition<OutputPixelType>(Pos_in, Self.ImageInterpolationOption);
 			}
 			else
 			{
-				m_OutputImage(x, y) = m_SmoothedImage.GetPixelAt2DPosition<OutputPixelType>(Pos_in, m_ImageInterpolationOption);
+				Self.OutputImage(x, y) = Self.SmoothedImage.GetPixelAt2DPosition<OutputPixelType>(Pos_in, Self.ImageInterpolationOption);
 			}
 		}		
 	};
-	ParallelForLoop(TempFunction, 0, Size[1]-1, m_MaxThreadCount);
+	ParallelForLoop(TempFunction, 0, Size[1]-1, Self.MaxThreadCount);
 	//---------------------------------------------------------------------------------
-	m_SmoothedImage.Clear();
+	Self.SmoothedImage.Clear();
 }
 
 }

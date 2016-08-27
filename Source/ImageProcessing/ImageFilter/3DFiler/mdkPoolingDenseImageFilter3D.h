@@ -24,39 +24,36 @@ public:
 
 	enum struct PoolingTypeEnum { Max, Min, Average, AbsMax, AbsMin, Unknown};
 
-private:
+public:
 	//-------------------------- input --------------------------------------------------//
-	const DenseImage3D<InputPixelType>* m_InputImage;
+	const DenseImage3D<InputPixelType>* InputImage;
 
-	ImageInterpolationOptionType m_ImageInterpolationOption;
+	ImageInterpolationOptionType ImageInterpolationOption;
 
-	DenseVector<double, 3> m_Radius;         // Physical radius
-	DenseVector<double, 3> m_Radius_Index3D; // Index radius in m_InputImage and m_IntegralImage
+	DenseVector<double, 3> Radius;         // Physical radius
+	
+	PoolingTypeEnum PoolingType;
 
-	PoolingTypeEnum m_PoolingType;
+	int_max MaxThreadCount;
 
-	int_max m_MaxThreadCount;
+	//------------------------- output ----------------------------------------------------//
+	DenseImage3D<OutputPixelType> m_OutputImage;
 
+private:
 	//-------------------------- internal -----------------------------------------------//
-	bool m_Flag_Input_Output_Orientation_IdentityMatrix;
-	bool m_Flag_Input_Output_SameOrigin_SameOrientation;
+	DenseVector<double, 3> Radius_Index3D; // Index radius in m_InputImage and m_IntegralImage
+	bool Flag_Input_Output_Orientation_IdentityMatrix;
+	bool Flag_Input_Output_SameOrigin_SameOrientation;
 
 	// see description in DenseImageResampler3D
-	DenseMatrix<double> m_3DPositionTransformFromOuputToInput_Matrix;
-	DenseVector<double, 3> m_3DPositionTransformFromOuputToInput_Offset;
-
-//------------------------- output ----------------------------------------------------//
-	DenseImage3D<OutputPixelType> m_OutputImage;
+	DenseMatrix<double>    Position3DTransformFromOuputToInput_Matrix;
+	DenseVector<double, 3> Position3DTransformFromOuputToInput_Offset;
 
 public:		
     PoolingDenseImageFilter3D();
     ~PoolingDenseImageFilter3D();  
 	void Clear();
 
-	void SetInputImage(const DenseImage3D<InputPixelType>* InputImage) { m_InputImage = InputImage; }
-
-	void SetRadius(double RadiusX, double RadiusY, double RadiusZ);
-	
 	void SetOutputImageInfo(const ImageInfo3D& Info);
 
 	void SetOutputImageInfo(const DenseVector<double, 3>& Origin, const DenseVector<double, 3>& Spacing, const DenseVector<int_max, 3>& Size, const DenseMatrix<double>& Orientation);
@@ -72,14 +69,7 @@ public:
 	void SetOutputImageInfoBySpacing(const DenseVector<double, 3>& Spacing);
 	void SetOutputImageInfoBySpacing(double Spacing_x, double Spacing_y, double Spacing_z);
 
-	void SetImageInterpolationOption(const ImageInterpolationOptionType& InputOption) { m_ImageInterpolationOption = InputOption; }
-	ImageInterpolationOptionType GetImageInterpolationOption() { return m_ImageInterpolationOption; }
-
-	void SetMaxThreadCount(int_max MaxNumber) { m_MaxThreadCount = MaxNumber; }	
-
 	void Update();
-
-	DenseImage3D<OutputPixelType>& OutputImage() { return m_OutputImage; }
 
 private:
 	bool CheckInput();

@@ -19,22 +19,31 @@ public:
 	typedef MethodEnum_Of_Image3DInterpolation              ImageInterpolationMethodEnum;
 	typedef BoundaryOptionEnum_Of_Image3DInterpolation      ImageInterpolationBoundaryOptionEnum;
 
-private:
+public:
 	//-------------------------- input --------------------------------------------------//
-	const DenseImage3D<InputPixelType>* m_InputImage;
+	const DenseImage3D<InputPixelType>* InputImage;
 
-	ImageInterpolationOptionType m_ImageInterpolationOption;
+	ImageInterpolationOptionType ImageInterpolationOption;
 
-	int_max m_MaxThreadCount; // max number of threads
+	int_max MaxThreadCount; // max number of threads
 
-	bool m_Flag_TriangleSmoothWhenDownsmapling; // user input
-	bool m_Flag_AverageSmoothWhenDownsmapling; // user input
-	bool m_Flag_SmoothInputImage;
+	enum struct SmoothingMethodTypeWhenDownsmapling
+	{
+		Nothing,
+		Triangle,
+		Average
+	};
+	SmoothingMethodTypeWhenDownsmapling SmoothingMethodWhenDownsmapling;
 
-	const CoordinateTransform<ScalarType>* m_3DPositionTransform_from_OutputImage_to_InputImage;
+	const CoordinateTransform<ScalarType>* Position3DTransform_from_OutputImage_to_InputImage;
 
+	//------------------------- output ----------------------------------------------------//
+	DenseImage3D<OutputPixelType> OutputImage;
+
+private:
 	//-------------------------- internal -----------------------------------------------//
-	DenseImage3D<OutputPixelType> m_SmoothedImage; // Smooth InputImage when down sampling 
+	bool Flag_SmoothInputImage;
+	DenseImage3D<OutputPixelType> SmoothedImage; // Smooth InputImage when down sampling 
 
     // same point with P_in ~ 3D Positon in InputImage, P_out ~ 3D Position in OutputImage, and P_w ~ 3D World Position
     // orientation matrix O_in ~ Orientation matrix of InputImage, O_out ~ Orientaiton Matrix of OutputImage
@@ -44,32 +53,25 @@ private:
 	// P_in = inv(O_in)*D_out*P_out + inv(O_in)*(Out-In)
 	// P_out = inv(O_out)*D_in*P_in + inv(O_out)*(In-Out)
 	//
-	// inv(O_in)*O_out is m_3DPositionTransformFromOuputToInput_Matrix
-	// inv(O_in)*(Out-In) is m_3DPositionTransformFromOuputToInput_Offset
+	// inv(O_in)*O_out is 3DPositionTransformFromOuputToInput_Matrix
+	// inv(O_in)*(Out-In) is 3DPositionTransformFromOuputToInput_Offset
 	//
-	// inv(O_out)*O_in is m_3DPositionTransformFromInputToOutput_Matrix
-	// inv(O_out)*(In-Out) is m_3DPositionTransformFromInputToOutput_Offset
+	// inv(O_out)*O_in is 3DPositionTransformFromInputToOutput_Matrix
+	// inv(O_out)*(In-Out) is 3DPositionTransformFromInputToOutput_Offset
 
-	bool m_Flag_Input_Output_Orientation_IdentityMatrix;
-	bool m_Flag_Input_Output_SameOrigin_SameOrientation;
+	bool Flag_Input_Output_Orientation_IdentityMatrix;
+	bool Flag_Input_Output_SameOrigin_SameOrientation;
 
-	DenseMatrix<double> m_3DPositionTransformFromOuputToInput_Matrix;
-	DenseVector<double, 3> m_3DPositionTransformFromOuputToInput_Offset;
+	DenseMatrix<double>    Position3DTransformFromOuputToInput_Matrix;
+	DenseVector<double, 3> Position3DTransformFromOuputToInput_Offset;
 
-	DenseMatrix<double> m_3DPositionTransformFromInputToOutput_Matrix;
-	DenseVector<double, 3> m_3DPositionTransformFromInputToOutput_Offset;
-
-	//------------------------- output ----------------------------------------------------//
-	DenseImage3D<OutputPixelType> m_OutputImage;
+	DenseMatrix<double>    Position3DTransformFromInputToOutput_Matrix;
+	DenseVector<double, 3> Position3DTransformFromInputToOutput_Offset;
 
 public:
 	DenseImageResampler3D();
 	~DenseImageResampler3D();
 	void Clear();
-
-	void SetInputImage(const DenseImage3D<InputPixelType>* InputImage) { m_InputImage = InputImage; }
-
-	void Set3DPositionTransformFromOutputToInput(const CoordinateTransform<Scalar_Type>* Transform) { m_3DPositionTransform_from_OutputImage_to_InputImage = Transform; }
 
 	void SetOutputImageInfo(const ImageInfo3D& Info);
 
@@ -89,16 +91,10 @@ public:
 	void SetOutputImageInfoBySpacing(const DenseVector<double, 3>& Spacing);
 	void SetOutputImageInfoBySpacing(double Spacing_x, double Spacing_y, double Spacing_z);
 
-	void SetImageInterpolationOption(const ImageInterpolationOptionType& InputOption) { m_ImageInterpolationOption = InputOption; }
-	ImageInterpolationOptionType GetImageInterpolationOption() { return m_ImageInterpolationOption; }
-
-	void SetMaxThreadCount(int_max MaxNumber) { m_MaxThreadCount = MaxNumber; }
-
 	void EnableTriangleSmoothingWhenDownsampling(bool On_Off = true);
 	void EnableAverageSmoothingWhenDownsampling(bool On_Off = true);
 
 	void Update();
-	DenseImage3D<OutputPixelType>& OutputImage() { return m_OutputImage; }
 
 private:	
 	bool CheckInput();

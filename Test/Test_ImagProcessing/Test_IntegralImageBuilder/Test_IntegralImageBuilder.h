@@ -27,9 +27,9 @@ void test_2D()
 
 	std::cout << "start IntegralImageBuilder2D" << '\n';
 	IntegralImageBuilder2D<double> imbuilder;
-	imbuilder.SetInputImage(&InputImage);	
+	imbuilder.InputImage = &InputImage; 
 	imbuilder.Update();
-	auto IntegralImageA = imbuilder.GetOutputImage();
+	auto IntegralImageA = imbuilder.OutputImage;
 	std::cout << "OK" << '\n';
 
 	std::cout << "start IntegralImageBasedImageAverageFilter2D" << '\n';

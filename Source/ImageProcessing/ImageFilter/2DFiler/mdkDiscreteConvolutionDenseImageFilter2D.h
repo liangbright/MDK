@@ -22,38 +22,36 @@ public:
 
 	enum class BoundaryOptionEnum { Constant, Replicate };// same as imfilter in Matlab
 
-private:
+public:
 	//-------------------------- input --------------------------------------------------//
-	const DenseImage2D<InputPixelType>* m_InputImage;
+	const DenseImage2D<InputPixelType>* InputImage;
 
-	BoundaryOptionEnum m_BoundaryOption;
-	OutputPixelType    m_BoundaryValue;
+	BoundaryOptionEnum BoundaryOption;
+	OutputPixelType    BoundaryValue;
 
-	DenseMatrix<int_max> m_ConvolutionMask;
-	//m_ConvolutionMask(:,k): 2D index of point-k in mask, can be negative
+	DenseMatrix<int_max> ConvolutionMask;
+	//ConvolutionMask(:,k): 2D index of point-k in mask, can be negative
 	
- 	DenseMatrix<ScalarType> m_ConvolutionCoef;
-    // m_ConvolutionCoef[k]: convolution coef at point-k in mask
+ 	DenseMatrix<ScalarType> ConvolutionCoef;
+    // ConvolutionCoef[k]: convolution coef at point-k in mask
 
-	DenseVector<int_max, 4> m_MaskBox;
-	// [x_min, x_max, y_min, y_max]: index range
+	int_max MaxThreadCount;
 
-	int_max m_MaxThreadCount;
 	//------------------------- output ----------------------------------------------------//
-	DenseImage2D<OutputPixelType> m_OutputImage;
+	DenseImage2D<OutputPixelType> OutputImage;
+
+private:
+	//--------------------------- internal---------------------------------------------//
+	DenseVector<int_max, 4> MaskBox;
+	// [x_min, x_max, y_min, y_max]: index range	
 
 public:
 	DiscreteConvolutionDenseImageFilter2D();
 	~DiscreteConvolutionDenseImageFilter2D();
 	void Clear();
-	void SetInputImage(const DenseImage2D<InputPixelType>* InputImage) { m_InputImage = InputImage; }
-	void SetBoundaryOptionAsConstant(OutputPixelType BoundaryValue) { m_BoundaryOption = BoundaryOptionEnum::Constant; m_BoundaryValue = BoundaryValue; }
-	void SetBoundaryOptionAsReplicate() { m_BoundaryOption = BoundaryOptionEnum::Replicate; }
-	DenseMatrix<int_max>& ConvolutionMask() { return m_ConvolutionMask; }
-	DenseMatrix<ScalarType>& ConvolutionCoef() { return m_ConvolutionCoef; }
-	void SetMaxThreadCount(int_max MaxNumber) { m_MaxThreadCount= MaxNumber; }
+	void SetBoundaryOptionAsConstant(OutputPixelType BoundaryValue) { this->BoundaryOption = BoundaryOptionEnum::Constant; this->BoundaryValue = BoundaryValue; }
+	void SetBoundaryOptionAsReplicate() { this->BoundaryOption = BoundaryOptionEnum::Replicate; }
 	void Update();
-	DenseImage2D<OutputPixelType>& OutputImage() { return m_OutputImage;}
 
 private:
 	bool CheckInput();	 

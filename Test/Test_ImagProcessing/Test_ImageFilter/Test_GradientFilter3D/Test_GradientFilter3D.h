@@ -25,7 +25,7 @@ void test_a()
 	std::cout << "start" << '\n';
 
 	GradientDenseImageFilter3D<double> GFilter;
-	GFilter.SetInputImage(&InputImage);
+	GFilter.InputImage = &InputImage;
     
 	double CosT = 0.707;
 	double SinT = 0.707;
@@ -41,15 +41,14 @@ void test_a()
 
 	//Resampler.SetOutputImageInfoBySize(256, 256);
 
-	auto InterpolationOption = GFilter.GetImageInterpolationOption();
-	InterpolationOption.MethodType = GradientDenseImageFilter3D<double>::ImageInterpolationMethodEnum::Linear;
-	InterpolationOption.BoundaryOption = GradientDenseImageFilter3D<double>::ImageInterpolationBoundaryOptionEnum::Constant;
-	InterpolationOption.Pixel_OutsideImage = 0;
-	GFilter.SetImageInterpolationOption(InterpolationOption);
-	GFilter.SetMaxThreadCount(8);
+	GFilter.ImageInterpolationOption.MethodType = GradientDenseImageFilter3D<double>::ImageInterpolationMethodEnum::Linear;
+	GFilter.ImageInterpolationOption.BoundaryOption = GradientDenseImageFilter3D<double>::ImageInterpolationBoundaryOptionEnum::Constant;
+	GFilter.ImageInterpolationOption.Pixel_OutsideImage = 0;
 
-	GFilter.SetRadius(2.0);
-	GFilter.SetSphereResolution(3600);
+	GFilter.MaxThreadCount = 8;
+
+	GFilter.Radius = 2.0;
+	GFilter.SphereResolution = 3600;
 
 	//DenseVector<double, 2> GradientPrior = { 1.0, 0.0 };
 	//DenseVector<int_max> MaskCountPerLevel = { 8, 32 };
@@ -58,7 +57,7 @@ void test_a()
 	std::cout << "Update" << '\n';
 
 	GFilter.Update();
-	const auto& GradientImage = GFilter.OutputImage();
+	const auto& GradientImage = GFilter.OutputImage;
 
 	std::cout << "done" << '\n';
 

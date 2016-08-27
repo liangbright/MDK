@@ -16,20 +16,16 @@ public:
 	typedef InputPixel_Type  InputPixelType;
 	typedef OutputPixel_Type OutputPixelType;
 
-private:
-	const DenseImage3D<InputPixelType>* m_InputImage;
-	DenseImage3D<OutputPixelType> m_OutputImage;
-	int_max  m_MaxThreadCount;
+public:
+	const DenseImage3D<InputPixelType>* InputImage;
+	DenseImage3D<OutputPixelType> OutputImage;
+	int_max  MaxThreadCount;
 
 public:		
     IntegralImageBuilder3D();
-    ~IntegralImageBuilder3D();
-  
+    ~IntegralImageBuilder3D(); 
     void Clear();
-	void SetInputImage(const DenseImage3D<InputPixelType>* InputImage) { m_InputImage = InputImage; }
-	void SetMaxThreadCount(int_max Number) { m_MaxThreadCount = Number; }
 	void Update();
-	DenseImage3D<InputPixelType>& OutputImage() {return m_OutputImage;}
 
 private:
     bool CheckInput();

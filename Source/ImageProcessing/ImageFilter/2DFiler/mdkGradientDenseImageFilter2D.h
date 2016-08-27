@@ -36,48 +36,47 @@ public:
 private:
 	typedef Mask_Of_GradientDenseImageFilter2D<ScalarType> MaskType;
 
+public:
 	//-------------------------- input --------------------------------------------------//
-	const DenseImage2D<InputPixelType>* m_InputImage;
+	const DenseImage2D<InputPixelType>* InputImage;
 
-	ImageInterpolationOptionType m_ImageInterpolationOption;
+	ImageInterpolationOptionType ImageInterpolationOption;
 
-	double m_Radius; // distance between Position(+) and Position(-), in Physical unit (mm)
+	double Radius; // distance between Position(+) and Position(-), in Physical unit (mm)
 
-	DenseVector<ScalarType, 2> m_GradientDirection_Prior; // Direction in 2D space of OutputImage
+	ScalarType AngleResolution;// the smallest angle
 
-	int_max m_MaxThreadCount;
-
-	//------------------------ internal ------------------------------------------------------//	
-	bool m_Flag_Input_Output_Orientation_IdentityMatrix;
-	bool m_Flag_Input_Output_SameOrigin_SameOrientation;
-
-	// see description in DenseImageResampler3D
-	DenseMatrix<double> m_3DPositionTransformFromOuputToInput_Matrix;
-	DenseVector<double, 3> m_3DPositionTransformFromOuputToInput_Offset;
-
-	ObjectArray<ObjectArray<MaskType>> m_MaskList; // m_MaskList[k] is MaskList at Level k
-
-	int_max m_Flag_MaskOriginLocation;
+	int_max Flag_MaskOriginLocation;
 	//  0: Middle
 	//  1: PositivePole
 	// -1: NegativePole
 
-	ScalarType m_AngleResolution;// the smallest angle
+	DenseVector<ScalarType, 2> GradientDirection_Prior; // Direction in 2D space of OutputImage
 
-	DenseVector<int_max> m_MaskCountAtEachLevel;
+	int_max MaxThreadCount;
 
 	//------------------------- output ----------------------------------------------------//
-	DenseImage2D<OutputPixelType> m_OutputImage;
+	DenseImage2D<OutputPixelType> OutputImage;
+
+private:
+	//------------------------ internal ------------------------------------------------------//	
+	bool Flag_Input_Output_Orientation_IdentityMatrix;
+	bool Flag_Input_Output_SameOrigin_SameOrientation;
+
+	// see description in DenseImageResampler3D
+	DenseMatrix<double>    Position3DTransformFromOuputToInput_Matrix;
+	DenseVector<double, 3> Position3DTransformFromOuputToInput_Offset;
+
+	ObjectArray<ObjectArray<MaskType>> MaskList; // MaskList[k] is MaskList at Level k
+
+	DenseVector<int_max> MaskCountAtEachLevel;
 
 public:		
     GradientDenseImageFilter2D();
     ~GradientDenseImageFilter2D();
 	void Clear();
 
-	void SetInputImage(const DenseImage2D<InputPixelType>* InputImage) { m_InputImage = InputImage; }
-
 	void SetOutputImageInfo(const ImageInfo2D& Info);
-
 	void SetOutputImageInfo(const DenseVector<double, 3>& Origin, const DenseVector<double, 2>& Spacing, const DenseVector<int_max, 2>& Size, const DenseMatrix<double>& Orientation);
 
 	// Number of Pixel in x/y/z direction
@@ -91,23 +90,11 @@ public:
 	void SetOutputImageInfoBySpacing(const DenseVector<double, 2>& Spacing);
 	void SetOutputImageInfoBySpacing(double Spacing_x, double Spacing_y);
 
-	void SetImageInterpolationOption(const ImageInterpolationOptionType& InputOption) { m_ImageInterpolationOption = InputOption; }
-	ImageInterpolationOptionType GetImageInterpolationOption() { return m_ImageInterpolationOption; }
-
-	void SetMaxThreadCount(int_max MaxNumber) { m_MaxThreadCount = MaxNumber; }
-
-	void SetRadius(double Radius);
-	void SetMaskOriginInMiddle();
-	void SetMaskOriginAsPositivePole();
-	void SetMaskOriginAsNegativePole();
-
-	void SetAngleResolution(ScalarType Resolution);
-
-	void SetGradientDirectionPrior(const DenseVector<Scalar_Type, 2>& Direction) { m_GradientDirection_Prior = Direction; }
+	void SetMaskOriginInMiddle() { this->Flag_MaskOriginLocation = 0; }
+	void SetMaskOriginAsPositivePole() { this->Flag_MaskOriginLocation = 1; }
+	void SetMaskOriginAsNegativePole() { this->Flag_MaskOriginLocation = 2; }
 
 	void Update();
-
-	DenseImage2D<OutputPixelType>& OutputImage() { return m_OutputImage; }
 
 private:
 	bool CheckInput();

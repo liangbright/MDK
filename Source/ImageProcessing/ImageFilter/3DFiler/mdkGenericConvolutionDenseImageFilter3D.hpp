@@ -19,36 +19,38 @@ GenericConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void GenericConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::Clear()
 {
-	m_InputImage = nullptr;
-	m_ImageInterpolationOption.MethodType = ImageInterpolationMethodEnum::Linear;
-	m_ImageInterpolationOption.BoundaryOption = ImageInterpolationBoundaryOptionEnum::Constant;
-	m_ImageInterpolationOption.Pixel_OutsideImage = InputPixelType(0);
-	m_OutputImage.Clear();
-	m_MaxThreadCount = 1;
+	auto& Self = *this;
+	Self.InputImage = nullptr;
+	Self.ImageInterpolationOption.MethodType = ImageInterpolationMethodEnum::Linear;
+	Self.ImageInterpolationOption.BoundaryOption = ImageInterpolationBoundaryOptionEnum::Constant;
+	Self.ImageInterpolationOption.Pixel_OutsideImage = InputPixelType(0);
+	Self.OutputImage.Clear();
+	Self.MaxThreadCount = 1;
 
-	m_Flag_Input_Output_Orientation_IdentityMatrix = false;
-	m_Flag_Input_Output_SameOrigin_SameOrientation = false;
-	m_3DPositionTransformFromOuputToInput_Matrix.Clear();
-	m_3DPositionTransformFromOuputToInput_Offset.Clear();
+	Self.Flag_Input_Output_Orientation_IdentityMatrix = false;
+	Self.Flag_Input_Output_SameOrigin_SameOrientation = false;
+	Self.Position3DTransformFromOuputToInput_Matrix.Clear();
+	Self.Position3DTransformFromOuputToInput_Offset.Clear();
 
-	m_ConvolutionMask_3DPosition_InOuputImage.Clear();
-	m_ConvolutionMask_3DIndex_InInputImage.Clear();
-	m_ConvolutionCoef.Clear();
+	Self.ConvolutionMask_3DPositionInOutputImage.Clear();
+	Self.ConvolutionMask_3DIndexInInputImage.Clear();
+	Self.ConvolutionCoef.Clear();
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void GenericConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::SetOutputImageInfo(const ImageInfo3D& Info)
 {
-	auto Size_old = m_OutputImage.GetSize();
+	auto& Self = *this;
+	auto Size_old = Self.OutputImage.GetSize();
 	if (Size_old[0] != Info.Size[0] || Size_old[1] != Info.Size[1] || Size_old[2] != Info.Size[2])
 	{
-		m_OutputImage.Clear();
-		m_OutputImage.SetInfo(Info);
+		Self.OutputImage.Clear();
+		Self.OutputImage.SetInfo(Info);
 	}
 	else
 	{// no new memory allocation
-		m_OutputImage.SetInfo(Info, false);
+		Self.OutputImage.SetInfo(Info, false);
 	}
 }
 
@@ -77,7 +79,8 @@ void GenericConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, Scala
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void GenericConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::SetOutputImageInfoBySize(int_max Lx, int_max Ly, int_max Lz)
 {
-	if (m_InputImage == nullptr)
+	auto& Self = *this;
+	if (Self.InputImage == nullptr)
 	{
 		MDK_Error("InputImage is nullptr @ GenericConvolutionDenseImageFilter3D::SetOutputImageInfoBySize(...)")
 		return;
@@ -94,14 +97,14 @@ void GenericConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, Scala
 	Info.Size[1] = Ly;
 	Info.Size[2] = Lz;
 
-	auto Size_input = m_InputImage->GetSize();
-	auto Spacing_input = m_InputImage->GetSpacing();
+	auto Size_input = Self.InputImage->GetSize();
+	auto Spacing_input = Self.InputImage->GetSpacing();
 	Info.Spacing[0] = double(Size_input[0] - 1) * Spacing_input[0] / double(Lx - 1);
 	Info.Spacing[1] = double(Size_input[1] - 1) * Spacing_input[1] / double(Ly - 1);
 	Info.Spacing[2] = double(Size_input[2] - 1) * Spacing_input[2] / double(Lz - 1);
 
-	Info.Origin = m_InputImage->GetOrigin();
-	Info.Orientation = m_InputImage->GetOrientation();
+	Info.Origin = Self.InputImage->GetOrigin();
+	Info.Orientation = Self.InputImage->GetOrientation();
 	Info.UpdateTransformMatrix();
 
 	this->SetOutputImageInfo(Info);
@@ -118,7 +121,8 @@ void GenericConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, Scala
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void GenericConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::SetOutputImageInfoBySpacing(double Spacing_x, double Spacing_y, double Spacing_z)
 {
-	if (m_InputImage == nullptr)
+	auto& Self = *this;
+	if (Self.InputImage == nullptr)
 	{
 		MDK_Error("InputImage is nullptr @ GenericConvolutionDenseImageFilter3D::SetOutputImageInfoBySpacing(...)")
 		return;
@@ -138,14 +142,14 @@ void GenericConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, Scala
 	Info.Spacing[1] = Spacing_y;
 	Info.Spacing[2] = Spacing_z;
 
-	auto Size_input = m_InputImage->GetSize();
-	auto Spacing_input = m_InputImage->GetSpacing();
+	auto Size_input = Self.InputImage->GetSize();
+	auto Spacing_input = Self.InputImage->GetSpacing();
 	Info.Size[0] = int_max(std::ceil(Size_input[0] * Spacing_input[0] / Spacing_x));
 	Info.Size[1] = int_max(std::ceil(Size_input[1] * Spacing_input[1] / Spacing_y));
 	Info.Size[2] = int_max(std::ceil(Size_input[2] * Spacing_input[2] / Spacing_z));
 
-	Info.Origin = m_InputImage->GetOrigin();
-	Info.Orientation = m_InputImage->GetOrientation();
+	Info.Origin = Self.InputImage->GetOrigin();
+	Info.Orientation = Self.InputImage->GetOrientation();
 	Info.UpdateTransformMatrix();
 	this->SetOutputImageInfo(Info);
 }
@@ -154,16 +158,17 @@ void GenericConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, Scala
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void GenericConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::Update3DPositionTransform_Input_Output()
 {
-	auto InputImageInfo = m_InputImage->GetInfo();
-	auto OutputImageInfo = m_OutputImage.GetInfo();
+	auto& Self = *this;
+	auto InputImageInfo = Self.InputImage->GetInfo();
+	auto OutputImageInfo = Self.OutputImage.GetInfo();
 	{
 		auto M = InputImageInfo.Orientation.Inv();
-		m_3DPositionTransformFromOuputToInput_Matrix = MatrixMultiply(M, OutputImageInfo.Orientation);
+		Self.Position3DTransformFromOuputToInput_Matrix = MatrixMultiply(M, OutputImageInfo.Orientation);
 		auto D = OutputImageInfo.Origin - InputImageInfo.Origin;
-		// m_3DPositionTransformFromOuputToInput_Offset = M*D
-		m_3DPositionTransformFromOuputToInput_Offset[0] = M[0] * D[0] + M[3] * D[1] + M[6] * D[2];
-		m_3DPositionTransformFromOuputToInput_Offset[1] = M[1] * D[0] + M[4] * D[1] + M[7] * D[2];
-		m_3DPositionTransformFromOuputToInput_Offset[2] = M[2] * D[0] + M[5] * D[1] + M[8] * D[2];
+		// Self.Position3DTransformFromOuputToInput_Offset = M*D
+		Self.Position3DTransformFromOuputToInput_Offset[0] = M[0] * D[0] + M[3] * D[1] + M[6] * D[2];
+		Self.Position3DTransformFromOuputToInput_Offset[1] = M[1] * D[0] + M[4] * D[1] + M[7] * D[2];
+		Self.Position3DTransformFromOuputToInput_Offset[2] = M[2] * D[0] + M[5] * D[1] + M[8] * D[2];
 	}
 
 	auto Eps = std::numeric_limits<double>::epsilon();
@@ -186,13 +191,13 @@ void GenericConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, Scala
 
 	if (Flag_Input_Output_SameOrigin == true && Flag_Input_Output_SameOrientation == true)
 	{
-		m_Flag_Input_Output_SameOrigin_SameOrientation = true;
+		Self.Flag_Input_Output_SameOrigin_SameOrientation = true;
 	}
 
-	m_Flag_Input_Output_Orientation_IdentityMatrix = false;
+	Self.Flag_Input_Output_Orientation_IdentityMatrix = false;
 	if (InputImageInfo.Orientation.IsIdentityMatrix() == true && OutputImageInfo.Orientation.IsIdentityMatrix() == true)
 	{
-		m_Flag_Input_Output_Orientation_IdentityMatrix = true;
+		Self.Flag_Input_Output_Orientation_IdentityMatrix = true;
 	}
 }
 
@@ -201,19 +206,20 @@ template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 DenseVector<ScalarType, 3> GenericConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::
 Transform3DPositionInOutputImageTo3DPositionInInputImage(const DenseVector<ScalarType, 3>& Position_out)
 {
-	if (m_Flag_Input_Output_SameOrigin_SameOrientation == true)
+	auto& Self = *this;
+	if (Self.Flag_Input_Output_SameOrigin_SameOrientation == true)
 	{
 		return Position_out;
 	}
-	else if (m_Flag_Input_Output_Orientation_IdentityMatrix == true)
+	else if (Self.Flag_Input_Output_Orientation_IdentityMatrix == true)
 	{
-		auto Position_in = m_OutputImage.GetOrigin() - m_InputImage->GetOrigin() + Position_out;
+		auto Position_in = Self.OutputImage.GetOrigin() - Self.InputImage->GetOrigin() + Position_out;
 		return Position_in;
 	}
 	else
 	{
-		auto R = m_3DPositionTransformFromOuputToInput_Matrix.GetElementPointer();
-		auto T = m_3DPositionTransformFromOuputToInput_Offset.GetElementPointer();
+		auto R = Self.Position3DTransformFromOuputToInput_Matrix.GetElementPointer();
+		auto T = Self.Position3DTransformFromOuputToInput_Offset.GetElementPointer();
 		DenseVector<ScalarType, 3> Position_in;
 		Position_in[0] = R[0] * Position_out[0] + R[3] * Position_out[1] + R[6] * Position_out[2] + T[0];
 		Position_in[1] = R[1] * Position_out[0] + R[4] * Position_out[1] + R[7] * Position_out[2] + T[1];
@@ -226,51 +232,52 @@ Transform3DPositionInOutputImageTo3DPositionInInputImage(const DenseVector<Scala
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 bool GenericConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::CheckInput()
 {
-	if (m_InputImage == nullptr)
+	auto& Self = *this;
+	if (Self.InputImage == nullptr)
 	{
 		MDK_Error("Input image is Empty (nullptr) @ GenericConvolutionDenseImageFilter3D::CheckInput()")
 		return false;
 	}
 
-	if (m_InputImage->IsEmpty() == true)
+	if (Self.InputImage->IsEmpty() == true)
 	{
 		MDK_Error("Input image is Empty @ GenericConvolutionDenseImageFilter3D::CheckInput()")
 		return false;
 	}
 
-	if (m_OutputImage.IsEmpty() == true)
+	if (Self.OutputImage.IsEmpty() == true)
 	{
 		MDK_Error("OutputImage is Empty, call SetOutputImageInfo first  @ GenericConvolutionDenseImageFilter3D::CheckInput()")
 		return false;
 	}
 
-	if (m_ConvolutionMask_3DPosition_InOuputImage.IsEmpty() == true)
+	if (Self.ConvolutionMask_3DPositionInOutputImage.IsEmpty() == true)
 	{
 		MDK_Error("ConvolutionMask is Empty @ GenericConvolutionDenseImageFilter3D::CheckInput()")
 		return false;
 	}
 
-	if (m_ConvolutionMask_3DPosition_InOuputImage.GetRowCount() != 3)
+	if (Self.ConvolutionMask_3DPositionInOutputImage.GetRowCount() != 3)
 	{
 		MDK_Error("ConvolutionMask size is wrong @ GenericConvolutionDenseImageFilter3D::CheckInput()")
 		return false;
 	}
 
-	if (m_ConvolutionCoef.IsEmpty() == true)
+	if (Self.ConvolutionCoef.IsEmpty() == true)
 	{
 		MDK_Error("ConvolutionCoef is Empty @ GenericConvolutionDenseImageFilter3D::CheckInput()")
 		return false;
 	}
 
-	if (m_ConvolutionMask_3DPosition_InOuputImage.GetColCount() != m_ConvolutionCoef.GetElementCount())
+	if (Self.ConvolutionMask_3DPositionInOutputImage.GetColCount() != Self.ConvolutionCoef.GetElementCount())
 	{
 		MDK_Error("ConvolutionMask NOT match ConvolutionCoef @ GenericConvolutionDenseImageFilter3D::CheckInput()")
 		return false;
 	}
 	
-	if (m_MaxThreadCount <= 0)
+	if (Self.MaxThreadCount <= 0)
 	{
-		MDK_Error("m_MaxThreadCount <= 0) @ GenericConvolutionDenseImageFilter3D::CheckInput()")
+		MDK_Error("MaxThreadCount <= 0) @ GenericConvolutionDenseImageFilter3D::CheckInput()")
 		return false;
 	}
 
@@ -281,15 +288,16 @@ bool GenericConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, Scala
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void GenericConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::Transform3DPositionInMask()
 {
-	m_ConvolutionMask_3DIndex_InInputImage.Clear();
-	m_ConvolutionMask_3DIndex_InInputImage.Resize(m_ConvolutionMask_3DPosition_InOuputImage.GetSize());	
-	for (int_max k = 0; k < m_ConvolutionMask_3DPosition_InOuputImage.GetColCount(); ++k)
+	auto& Self = *this;
+	Self.ConvolutionMask_3DIndexInInputImage.Clear();
+	Self.ConvolutionMask_3DIndexInInputImage.Resize(Self.ConvolutionMask_3DPositionInOutputImage.GetSize());	
+	for (int_max k = 0; k < Self.ConvolutionMask_3DPositionInOutputImage.GetColCount(); ++k)
 	{
 		DenseVector<ScalarType, 3> Pos_in, Pos_out;
-		m_ConvolutionMask_3DPosition_InOuputImage.GetCol(k, Pos_out);
+		Self.ConvolutionMask_3DPositionInOutputImage.GetCol(k, Pos_out);
 		Pos_in = this->Transform3DPositionInOutputImageTo3DPositionInInputImage(Pos_out);
-		auto Index_in = m_InputImage->Transform3DPositionTo3DIndex(Pos_in);
-		m_ConvolutionMask_3DIndex_InInputImage.SetCol(k, Index_in);
+		auto Index_in = Self.InputImage->Transform3DPositionTo3DIndex(Pos_in);
+		Self.ConvolutionMask_3DIndexInInputImage.SetCol(k, Index_in);
 	}
 }
 
@@ -305,30 +313,32 @@ void GenericConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, Scala
 	this->Update3DPositionTransform_Input_Output();
 	this->Transform3DPositionInMask();
 
-	auto PixelCount = m_OutputImage.GetPixelCount();
+	auto& Self = *this;
+	auto PixelCount = Self.OutputImage.GetPixelCount();
 	//for (int_max k = 0; k <= PixelCount-1; ++k)
 	auto TempFunction = [&](int_max k)
 	{
-		m_OutputImage[k] = this->EvaluateAtPixelInOutputImage(k);
+		Self.OutputImage[k] = this->EvaluateAtPixelInOutputImage(k);
 	};
-	ParallelForLoop(TempFunction, 0, PixelCount - 1, m_MaxThreadCount);
+	ParallelForLoop(TempFunction, 0, PixelCount - 1, Self.MaxThreadCount);
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 OutputPixelType GenericConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::EvaluateAtPixelInOutputImage(int_max LinearIndex)
 {
-	auto Pos_out = m_OutputImage.TransformLinearIndexTo3DPosition<ScalarType>(LinearIndex);
+	auto& Self = *this;
+	auto Pos_out = Self.OutputImage.TransformLinearIndexTo3DPosition<ScalarType>(LinearIndex);
 	auto Pos_in = this->Transform3DPositionInOutputImageTo3DPositionInInputImage(Pos_out);
-	auto Index_in = m_InputImage->Transform3DPositionTo3DIndex(Pos_in);
+	auto Index_in = Self.InputImage->Transform3DPositionTo3DIndex(Pos_in);
 	auto OutputPixel = OutputPixelType(0);
-	for (int_max k = 0; k < m_ConvolutionMask_3DIndex_InInputImage.GetColCount(); ++k)
+	for (int_max k = 0; k < Self.ConvolutionMask_3DIndexInInputImage.GetColCount(); ++k)
 	{
-		auto x = m_ConvolutionMask_3DIndex_InInputImage(0, k) + Index_in[0];
-		auto y = m_ConvolutionMask_3DIndex_InInputImage(1, k) + Index_in[1];
-		auto z = m_ConvolutionMask_3DIndex_InInputImage(2, k) + Index_in[2];
-		auto Pixel = OutputPixelType(m_InputImage->GetPixelAt3DIndex(x, y, z, m_ImageInterpolationOption));
-		OutputPixel += Pixel*m_ConvolutionCoef[k];
+		auto x = Self.ConvolutionMask_3DIndexInInputImage(0, k) + Index_in[0];
+		auto y = Self.ConvolutionMask_3DIndexInInputImage(1, k) + Index_in[1];
+		auto z = Self.ConvolutionMask_3DIndexInInputImage(2, k) + Index_in[2];
+		auto Pixel = OutputPixelType(Self.InputImage->GetPixelAt3DIndex(x, y, z, Self.ImageInterpolationOption));
+		OutputPixel += Pixel*Self.ConvolutionCoef[k];
 	}
 	return OutputPixel;
 }
@@ -390,11 +400,12 @@ CreateGaussianMask(const DenseVector<ScalarType, 3>& Spacing, ScalarType Sigma_x
 	// at each point of the grid, compute the mahalanobis distance to the center (0,0,0), i.e., sqrt(SquaredRatio)
 	// add the point to mask if mahalanobis distance <= CutOffRatio
 
-	m_ConvolutionMask_3DPosition_InOuputImage.Clear();
-	m_ConvolutionMask_3DPosition_InOuputImage.SetCapacity(3*PointCount_max);
+	auto& Self = *this;
+	Self.ConvolutionMask_3DPositionInOutputImage.Clear();
+	Self.ConvolutionMask_3DPositionInOutputImage.SetCapacity(3*PointCount_max);
 
-	m_ConvolutionCoef.Clear();
-	m_ConvolutionCoef.SetCapacity(PointCount_max);
+	Self.ConvolutionCoef.Clear();
+	Self.ConvolutionCoef.SetCapacity(PointCount_max);
 
 	DenseMatrix<ScalarType> Relative3DIndex(3, 1);
 	DenseMatrix<ScalarType> Relative3DIndex_Transpose(1, 3);
@@ -413,17 +424,17 @@ CreateGaussianMask(const DenseVector<ScalarType, 3>& Spacing, ScalarType Sigma_x
 				if (tempRatio <= CutOffRatio*CutOffRatio)
 				{
 					ScalarType tempValue = std::exp(-ScalarType(0.5)*tempRatio);
-					m_ConvolutionMask_3DPosition_InOuputImage.AppendCol({ ScalarType(x), ScalarType(y), ScalarType(z) });
-					m_ConvolutionCoef.Append(tempValue);
+					Self.ConvolutionMask_3DPositionInOutputImage.AppendCol({ ScalarType(x), ScalarType(y), ScalarType(z) });
+					Self.ConvolutionCoef.Append(tempValue);
 				}
 			}
 		}
 	}
 
-	m_ConvolutionMask_3DPosition_InOuputImage.ReleaseUnusedCapacity();
-	m_ConvolutionCoef.ReleaseUnusedCapacity();
+	Self.ConvolutionMask_3DPositionInOutputImage.ReleaseUnusedCapacity();
+	Self.ConvolutionCoef.ReleaseUnusedCapacity();
 
-	m_ConvolutionCoef /= m_ConvolutionCoef.Sum();
+	Self.ConvolutionCoef /= Self.ConvolutionCoef.Sum();
 }
 
 
@@ -442,11 +453,12 @@ CreateLaplacianOfGaussianMask(const DenseVector<ScalarType, 3>& Spacing, ScalarT
 	int_max PointCount_max =  int_max(Radius / Sigma) + 1;
 	PointCount_max = 8*PointCount_max*PointCount_max*PointCount_max;
 
-	m_ConvolutionMask_3DPosition_InOuputImage.Clear();
-	m_ConvolutionMask_3DPosition_InOuputImage.SetCapacity(3* PointCount_max);
+	auto& Self = *this;
+	Self.ConvolutionMask_3DPositionInOutputImage.Clear();
+	Self.ConvolutionMask_3DPositionInOutputImage.SetCapacity(3* PointCount_max);
 
-	m_ConvolutionCoef.Clear();
-	m_ConvolutionCoef.SetCapacity(PointCount_max);
+	Self.ConvolutionCoef.Clear();
+	Self.ConvolutionCoef.SetCapacity(PointCount_max);
 
 	auto CutOffRatio_square = CutOffRatio*CutOffRatio;
 
@@ -460,41 +472,41 @@ CreateLaplacianOfGaussianMask(const DenseVector<ScalarType, 3>& Spacing, ScalarT
 				if (temp <= CutOffRatio_square)
 				{
 					ScalarType tempValue = (1.0 - temp)*std::exp(-0.5*temp);
-					m_ConvolutionMask_3DPosition_InOuputImage.AppendCol({ x, y, z });
-					m_ConvolutionCoef.Append(tempValue);
+					Self.ConvolutionMask_3DPositionInOutputImage.AppendCol({ x, y, z });
+					Self.ConvolutionCoef.Append(tempValue);
 				}
 			}
 		}
 	}
 
-	m_ConvolutionMask_3DPosition_InOuputImage.ReleaseUnusedCapacity();
-	m_ConvolutionCoef.ReleaseUnusedCapacity();
+	Self.ConvolutionMask_3DPositionInOutputImage.ReleaseUnusedCapacity();
+	Self.ConvolutionCoef.ReleaseUnusedCapacity();
 
 	//normalize coefficient
-	auto IndexList_p = m_ConvolutionCoef.Find([](ScalarType Coef) { return Coef > ScalarType(0); });
-	auto IndexList_n = m_ConvolutionCoef.Find([](ScalarType Coef) { return Coef < ScalarType(0); });
+	auto IndexList_p = Self.ConvolutionCoef.Find([](ScalarType Coef) { return Coef > ScalarType(0); });
+	auto IndexList_n = Self.ConvolutionCoef.Find([](ScalarType Coef) { return Coef < ScalarType(0); });
 
 	ScalarType Sum_p = 0;
 	for (int_max k = 0; k < IndexList_p.GetElementCount(); ++k)
 	{
-		Sum_p += m_ConvolutionCoef[IndexList_p[k]];
+		Sum_p += Self.ConvolutionCoef[IndexList_p[k]];
 	}
 
 	for (int_max k = 0; k < IndexList_p.GetElementCount(); ++k)
 	{
-		m_ConvolutionCoef[IndexList_p[k]] /= Sum_p;
+		Self.ConvolutionCoef[IndexList_p[k]] /= Sum_p;
 	}
 
 	ScalarType Sum_n = 0;
 	for (int_max k = 0; k < IndexList_n.GetElementCount(); ++k)
 	{
-		Sum_n += m_ConvolutionCoef[IndexList_n[k]];
+		Sum_n += Self.ConvolutionCoef[IndexList_n[k]];
 	}
 	Sum_n = -Sum_n;
 
 	for (int_max k = 0; k < IndexList_n.GetElementCount(); ++k)
 	{
-		m_ConvolutionCoef[IndexList_n[k]] /= Sum_n;
+		Self.ConvolutionCoef[IndexList_n[k]] /= Sum_n;
 	}
 }
 
@@ -514,10 +526,12 @@ CreateTriangleMask(const DenseVector<ScalarType, 3>& Spacing, ScalarType Radius_
 	auto Rx = int_max(Radius_x / Spacing[0] + 0.5) + 1;
 	auto Ry = int_max(Radius_y / Spacing[1] + 0.5) + 1;
 	auto Rz = int_max(Radius_z / Spacing[2] + 0.5) + 1;
-	m_ConvolutionMask_3DPosition_InOuputImage.Clear();
-	m_ConvolutionMask_3DPosition_InOuputImage.SetCapacity(3 * 8 * (Rx - 1)*(Ry - 1)*(Rz - 1));
-	m_ConvolutionCoef.Clear();
-	m_ConvolutionCoef.SetCapacity(8 * (Rx - 1)*(Ry - 1)*(Rz - 1));
+
+	auto& Self = *this;
+	Self.ConvolutionMask_3DPositionInOutputImage.Clear();
+	Self.ConvolutionMask_3DPositionInOutputImage.SetCapacity(3 * 8 * (Rx - 1)*(Ry - 1)*(Rz - 1));
+	Self.ConvolutionCoef.Clear();
+	Self.ConvolutionCoef.SetCapacity(8 * (Rx - 1)*(Ry - 1)*(Rz - 1));
 	//---------------------------------------------------------------------------------------------------
 	for (int_max z = -Rz + 1; z <= Rz - 1; ++z)
 	{
@@ -526,13 +540,13 @@ CreateTriangleMask(const DenseVector<ScalarType, 3>& Spacing, ScalarType Radius_
 			for (int_max x = -Rx + 1; x <= Rx - 1; ++x)
 			{
 				ScalarType tempValue = 1 - (ScalarType(std::abs(x)) / ScalarType(Rx))*(ScalarType(std::abs(y)) / ScalarType(Ry))*(ScalarType(std::abs(z)) / ScalarType(Rz));
-				m_ConvolutionMask_3DPosition_InOuputImage.AppendCol({ Spacing[0]*x, Spacing[1]*y, Spacing[2]*z });
-				m_ConvolutionCoef.Append(tempValue);
+				Self.ConvolutionMask_3DPositionInOutputImage.AppendCol({ Spacing[0]*x, Spacing[1]*y, Spacing[2]*z });
+				Self.ConvolutionCoef.Append(tempValue);
 			}
 		}
 	}
 
-	m_ConvolutionCoef /= m_ConvolutionCoef.Sum();
+	Self.ConvolutionCoef /= Self.ConvolutionCoef.Sum();
 }
 
 }// namespace mdk

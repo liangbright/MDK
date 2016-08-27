@@ -42,22 +42,20 @@ void test_a()
 	auto t0 = std::chrono::system_clock::now();
 
 	DenseImageResampler3D<double> Resampler;
-	Resampler.SetInputImage(&InputImage);
+	Resampler.InputImage = &InputImage;
 	
 	//Resampler.SetOutputImageInfo(OutputImageInfo);
 	//OutputImageInfo.Spacing *= 2.0;
 	//OutputImageInfo.Size = {256, 256, 43};
 	Resampler.SetOutputImageInfoBySize(256, 256, 43);
 
-	auto InterpolationOption = Resampler.GetImageInterpolationOption();
-	InterpolationOption.MethodType = DenseImageResampler3D<double>::ImageInterpolationMethodEnum::Linear;
-	InterpolationOption.BoundaryOption = DenseImageResampler3D<double>::ImageInterpolationBoundaryOptionEnum::Constant;
-	InterpolationOption.Pixel_OutsideImage = 0;
-	Resampler.SetImageInterpolationOption(InterpolationOption);
+	Resampler.ImageInterpolationOption.MethodType = DenseImageResampler3D<double>::ImageInterpolationMethodEnum::Linear;
+	Resampler.ImageInterpolationOption.BoundaryOption = DenseImageResampler3D<double>::ImageInterpolationBoundaryOptionEnum::Constant;
+	Resampler.ImageInterpolationOption.Pixel_OutsideImage = 0;
 	//Resampler.EnableTriangleSmoothingWhenDownsampling();
-	Resampler.SetMaxThreadCount(8);
+	Resampler.MaxThreadCount = 8;
 	Resampler.Update();
-	auto& ResampledImage = Resampler.OutputImage();
+	auto& ResampledImage = Resampler.OutputImage;
 
 	auto t1 = std::chrono::system_clock::now();
 	std::chrono::duration<double> raw_time = t1 - t0;
@@ -80,7 +78,7 @@ void test_a()
 		auto Pos3D = TestImage.TransformLinearIndexTo3DPosition<double>(k);		
 		//auto PosW = InputImage.Transform3DPositionTo3DWorldPosition<double>(Pos3D);
 		//auto Index = InputImage.Transform3DWorldPositionTo3DIndex(PosW);
-		TestImage[k] = InputImage.GetPixelAt3DPosition(Pos3D, InterpolationOption);
+		TestImage[k] = InputImage.GetPixelAt3DPosition(Pos3D, Resampler.ImageInterpolationOption);
 		//TestImage[k] = InputImage.GetPixelNearestTo3DPosition(Pos3D);
         //TestImage[k] = 1;
 	};
@@ -107,7 +105,7 @@ void test_a()
 			for (int_max x = 0; x < Size[0]; ++x)
 			{
 				auto Pos3D = TestImage.Transform3DIndexTo3DPosition<double>(x, y, z);
-				TestImage(x,y,z) = InputImage.GetPixelAt3DPosition(Pos3D, InterpolationOption);
+				TestImage(x,y,z) = InputImage.GetPixelAt3DPosition(Pos3D, Resampler.ImageInterpolationOption);
 			}
 		}
 	};

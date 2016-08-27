@@ -20,43 +20,42 @@ public:
 	typedef MethodEnum_Of_Image3DInterpolation              ImageInterpolationMethodEnum;
 	typedef BoundaryOptionEnum_Of_Image3DInterpolation      ImageInterpolationBoundaryOptionEnum;
 
-private:
+public:
 	//-------------------------- input --------------------------------------------------//
-	const DenseImage3D<InputPixelType>* m_InputImage;
+	const DenseImage3D<InputPixelType>* InputImage;
 
-	ImageInterpolationOptionType m_ImageInterpolationOption;
+	ImageInterpolationOptionType ImageInterpolationOption;
 
-	DenseMatrix<ScalarType> m_ConvolutionMask_3DPosition_InOuputImage;
-	//m_ConvolutionMask(:,k): 3D Position of point-k in mask
+	DenseMatrix<ScalarType> ConvolutionMask_3DPositionInOutputImage;
+	//ConvolutionMask(:,k): 3D Position of point-k in mask
 
-	DenseMatrix<ScalarType> m_ConvolutionMask_3DIndex_InInputImage;
-	//m_ConvolutionMask(:,k): 3D Index of point-k in mask
+ 	DenseMatrix<ScalarType> ConvolutionCoef;
+    // ConvolutionCoef[k]: convolution coef at point-k in mask
 
- 	DenseMatrix<ScalarType> m_ConvolutionCoef;
-    // m_ConvolutionCoef[k]: convolution coef at point-k in mask
-
-	int_max m_MaxThreadCount;
-	//-------------------------- internal -----------------------------------------------//
-
-	bool m_Flag_Input_Output_Orientation_IdentityMatrix;
-	bool m_Flag_Input_Output_SameOrigin_SameOrientation;
-
-	// see description in DenseImageResampler3D
-	DenseMatrix<double> m_3DPositionTransformFromOuputToInput_Matrix;
-	DenseVector<double, 3> m_3DPositionTransformFromOuputToInput_Offset;
+	int_max MaxThreadCount;
 
 	//------------------------- output ----------------------------------------------------//
-	DenseImage3D<OutputPixelType> m_OutputImage;
+	DenseImage3D<OutputPixelType> OutputImage;
+
+private:
+	//-------------------------- internal -----------------------------------------------//
+
+	DenseMatrix<ScalarType> ConvolutionMask_3DIndexInInputImage;
+	//ConvolutionMask(:,k): 3D Index of point-k in mask
+
+	bool Flag_Input_Output_Orientation_IdentityMatrix;
+	bool Flag_Input_Output_SameOrigin_SameOrientation;
+
+	// see description in DenseImageResampler3D
+	DenseMatrix<double>    Position3DTransformFromOuputToInput_Matrix;
+	DenseVector<double, 3> Position3DTransformFromOuputToInput_Offset;
 
 public:
 	GenericConvolutionDenseImageFilter3D();
 	~GenericConvolutionDenseImageFilter3D();
 	void Clear();
 
-	void SetInputImage(const DenseImage3D<InputPixelType>* InputImage) { m_InputImage = InputImage; }
-	
 	void SetOutputImageInfo(const ImageInfo3D& Info);
-
 	void SetOutputImageInfo(const DenseVector<double, 3>& Origin, const DenseVector<double, 3>& Spacing, const DenseVector<int_max, 3>& Size, const DenseMatrix<double>& Orientation);
 
 	// Number of Pixel in x/y/z direction
@@ -70,18 +69,11 @@ public:
 	void SetOutputImageInfoBySpacing(const DenseVector<double, 3>& Spacing);
 	void SetOutputImageInfoBySpacing(double Spacing_x, double Spacing_y, double Spacing_z);
 	
-	void SetImageInterpolationOption(const ImageInterpolationOptionType& InputOption) { m_ImageInterpolationOption = InputOption; }
-	ImageInterpolationOptionType GetImageInterpolationOption() { return m_ImageInterpolationOption; }
-
-	DenseMatrix<ScalarType>& ConvolutionMask() { return m_ConvolutionMask_3DPosition_InOuputImage; }
-	DenseMatrix<ScalarType>& ConvolutionCoef() { return m_ConvolutionCoef; }
-	void SetMaxThreadCount(int_max MaxNumber) { m_MaxThreadCount= MaxNumber; }
 	void Update();
-	DenseImage3D<OutputPixelType>& OutputImage() { return m_OutputImage;}
 
 private:
 	bool CheckInput();	 
-	void Transform3DPositionInMask();
+	void Transform3DPositionInMask();// from output image to input image
 	OutputPixelType EvaluateAtPixelInOutputImage(int_max LinearIndex);
 	//---------- Coordinate Transform between Input and Output --------------------------------//	
 	void Update3DPositionTransform_Input_Output();

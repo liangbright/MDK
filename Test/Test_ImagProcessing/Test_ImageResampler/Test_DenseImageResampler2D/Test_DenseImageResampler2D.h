@@ -29,7 +29,7 @@ void test_a()
 	auto t0 = std::chrono::system_clock::now();
 
 	DenseImageResampler2D<double> Resampler;
-	Resampler.SetInputImage(&InputImage);
+	Resampler.InputImage = &InputImage;
 
 	double Theta = -3.141592654 / 4;
 	double CosT = std::cos(Theta);
@@ -60,15 +60,15 @@ void test_a()
 
 	Resampler.SetOutputImageInfoBySpacing(2.5, 2.5);
 
-	auto InterpolationOption = Resampler.GetImageInterpolationOption();
-	InterpolationOption.MethodType = DenseImageResampler2D<double>::ImageInterpolationMethodEnum::Linear;
-	InterpolationOption.BoundaryOption = DenseImageResampler2D<double>::ImageInterpolationBoundaryOptionEnum::Constant;
-	InterpolationOption.Pixel_OutsideImage = 0;
-	Resampler.SetImageInterpolationOption(InterpolationOption);
-	Resampler.EnableTriangleSmoothingWhenDownsampling();
-	Resampler.SetMaxThreadCount(8);
+	Resampler.ImageInterpolationOption.MethodType = DenseImageResampler2D<double>::ImageInterpolationMethodEnum::Linear;
+	Resampler.ImageInterpolationOption.BoundaryOption = DenseImageResampler2D<double>::ImageInterpolationBoundaryOptionEnum::Constant;
+	Resampler.ImageInterpolationOption.Pixel_OutsideImage = 0;
+
+	//Resampler.EnableTriangleSmoothingWhenDownsampling();
+	Resampler.EnableAverageSmoothingWhenDownsampling();
+	Resampler.MaxThreadCount = 8;
 	Resampler.Update();
-	const auto& ResampledImage = Resampler.OutputImage();
+	const auto& ResampledImage = Resampler.OutputImage;
 
 	auto t1 = std::chrono::system_clock::now();
 	std::chrono::duration<double> raw_time = t1 - t0;

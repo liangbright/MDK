@@ -27,13 +27,13 @@ void test_DiscreteGaussianFilter3D()
 	//InputImage.SetSize(100, 100, 100);
 
 	DiscreteConvolutionDenseImageFilter3D<double> imfilter;
-    imfilter.SetInputImage(&InputImage);
+    imfilter.InputImage = &InputImage;
 	imfilter.SetBoundaryOptionAsReplicate();	
 	//imfilter.CreateGaussianMask(9, 9, 6, 1.8);
 	imfilter.CreateGaussianMask(InputImage.GetSpacing(), 3, 3, 3, 1);
-	imfilter.SetMaxThreadCount(8);
+	imfilter.MaxThreadCount = 8;
 	
-	std::cout << "Point in Mask " << imfilter.ConvolutionMask().GetColCount() << '\n';
+	std::cout << "Point in Mask " << imfilter.ConvolutionMask.GetColCount() << '\n';
 
 	std::cout << "start" << '\n';
 	auto t0 = std::chrono::system_clock::now();
@@ -42,7 +42,7 @@ void test_DiscreteGaussianFilter3D()
 	std::chrono::duration<double> raw_time = t1 - t0;
 	std::cout << "time " << raw_time.count() << '\n';
 
-    auto& OutputImage = imfilter.OutputImage();
+    auto& OutputImage = imfilter.OutputImage;
 
     Save3DScalarImageAsJsonDataFile(OutputImage, TestDataPath + "test_DiscreteGaussianFilter3D_OutputImage.json");
 
@@ -62,12 +62,12 @@ void test_DiscreteLoGFilter3D()
 	//InputImage.SetSize(100, 100, 100);
 
 	DiscreteConvolutionDenseImageFilter3D<double> imfilter;
-	imfilter.SetInputImage(&InputImage);
+	imfilter.InputImage = &InputImage;
 	imfilter.SetBoundaryOptionAsReplicate();
 	imfilter.CreateLaplacianOfGaussianMask(InputImage.GetSpacing(), 1.5, 2);
-	imfilter.SetMaxThreadCount(8);
+	imfilter.MaxThreadCount = 8;
 
-	std::cout << "Point in Mask " << imfilter.ConvolutionMask().GetColCount() << '\n';
+	std::cout << "Point in Mask " << imfilter.ConvolutionMask.GetColCount() << '\n';
 
 	std::cout << "start" << '\n';
 	auto t0 = std::chrono::system_clock::now();
@@ -76,7 +76,7 @@ void test_DiscreteLoGFilter3D()
 	std::chrono::duration<double> raw_time = t1 - t0;
 	std::cout << "time " << raw_time.count() << '\n';
 
-	auto& OutputImage = imfilter.OutputImage();
+	auto& OutputImage = imfilter.OutputImage;
 
 	Save3DScalarImageAsJsonDataFile(OutputImage, TestDataPath + "test_DiscreteLoGFilter3D_OutputImage.json");
 
@@ -99,17 +99,15 @@ void test_GenericGaussianFilter3D()
 	//InputImage.SetSize(100, 100, 100);
 
 	GenericConvolutionDenseImageFilter3D<double> imfilter;
-	imfilter.SetInputImage(&InputImage);	
+	imfilter.InputImage = &InputImage;	
 	imfilter.SetOutputImageInfo(InputImage.GetInfo());
 	//imfilter.CreateGaussianMask(9, 9, 6, 1.8);
 	imfilter.CreateGaussianMask(InputImage.GetSpacing(), 3, 3, 3, 1);
-	imfilter.SetMaxThreadCount(8);
+	imfilter.MaxThreadCount = 8;
 
-	auto InterpolationOption = imfilter.GetImageInterpolationOption();
-	InterpolationOption.MethodType = GenericConvolutionDenseImageFilter3D<double>::ImageInterpolationMethodEnum::Nearest;
-	imfilter.SetImageInterpolationOption(InterpolationOption);
+	imfilter.ImageInterpolationOption.MethodType = GenericConvolutionDenseImageFilter3D<double>::ImageInterpolationMethodEnum::Nearest;
 
-	std::cout << "Point in Mask " << imfilter.ConvolutionMask().GetColCount() << '\n';
+	std::cout << "Point in Mask " << imfilter.ConvolutionMask_3DPositionInOutputImage.GetColCount() << '\n';
 
 	std::cout << "start" << '\n';
 	auto t0 = std::chrono::system_clock::now();
@@ -118,7 +116,7 @@ void test_GenericGaussianFilter3D()
 	std::chrono::duration<double> raw_time = t1 - t0;
 	std::cout << "time " << raw_time.count() << '\n';
 
-	auto& OutputImage = imfilter.OutputImage();
+	auto& OutputImage = imfilter.OutputImage;
 
 	Save3DScalarImageAsJsonDataFile(OutputImage, TestDataPath + "test_GenericGaussianFilter3D_OutputImage.json");
 
@@ -138,16 +136,14 @@ void test_GenericLoGFilter3D()
 	//InputImage.SetSize(100, 100, 100);
 
 	GenericConvolutionDenseImageFilter3D<double> imfilter;
-	imfilter.SetInputImage(&InputImage);
+	imfilter.InputImage = &InputImage;
 	imfilter.SetOutputImageInfo(InputImage.GetInfo());
 	imfilter.CreateLaplacianOfGaussianMask(InputImage.GetSpacing(), 1.5, 2);
-	imfilter.SetMaxThreadCount(8);
+	imfilter.MaxThreadCount = 8;
 
-	auto InterpolationOption = imfilter.GetImageInterpolationOption();
-	InterpolationOption.MethodType = GenericConvolutionDenseImageFilter3D<double>::ImageInterpolationMethodEnum::Nearest;
-	imfilter.SetImageInterpolationOption(InterpolationOption);
-
-	std::cout << "Point in Mask " << imfilter.ConvolutionMask().GetColCount() << '\n';
+	imfilter.ImageInterpolationOption.MethodType = GenericConvolutionDenseImageFilter3D<double>::ImageInterpolationMethodEnum::Nearest;
+	
+	std::cout << "Point in Mask " << imfilter.ConvolutionMask_3DPositionInOutputImage.GetColCount() << '\n';
 
 	std::cout << "start" << '\n';
 	auto t0 = std::chrono::system_clock::now();
@@ -156,7 +152,7 @@ void test_GenericLoGFilter3D()
 	std::chrono::duration<double> raw_time = t1 - t0;
 	std::cout << "time " << raw_time.count() << '\n';
 
-	auto& OutputImage = imfilter.OutputImage();
+	auto& OutputImage = imfilter.OutputImage;
 
 	Save3DScalarImageAsJsonDataFile(OutputImage, TestDataPath + "test_GenericLoGFilter3D_OutputImage.json");
 
@@ -183,17 +179,15 @@ void test_GenericTriangleFilter3D()
 	auto InputSize = InputImage.GetSize();
 
 	GenericConvolutionDenseImageFilter3D<double> imfilter;
-	imfilter.SetInputImage(&InputImage);
+	imfilter.InputImage = &InputImage;
 	//imfilter.SetOutputImageInfo(InputImage.GetInfo());
 	imfilter.SetOutputImageInfoBySize(InputSize[0]/10, InputSize[1]/10, InputSize[2]/10);
 	imfilter.CreateTriangleMask(InputImage.GetSpacing(), 11, 11, 11);
-	imfilter.SetMaxThreadCount(8);
+	imfilter.MaxThreadCount = 8;
 
-	auto InterpolationOption = imfilter.GetImageInterpolationOption();
-	InterpolationOption.MethodType = GenericConvolutionDenseImageFilter3D<double>::ImageInterpolationMethodEnum::Nearest;
-	imfilter.SetImageInterpolationOption(InterpolationOption);
+	imfilter.ImageInterpolationOption.MethodType = GenericConvolutionDenseImageFilter3D<double>::ImageInterpolationMethodEnum::Nearest;
 
-	std::cout << "Point in Mask " << imfilter.ConvolutionMask().GetColCount() << '\n';
+	std::cout << "Point in Mask " << imfilter.ConvolutionMask_3DPositionInOutputImage.GetColCount() << '\n';
 
 	std::cout << "start" << '\n';
 	auto t0 = std::chrono::system_clock::now();
@@ -202,7 +196,7 @@ void test_GenericTriangleFilter3D()
 	std::chrono::duration<double> raw_time = t1 - t0;
 	std::cout << "time " << raw_time.count() << '\n';
 
-	auto& OutputImage = imfilter.OutputImage();
+	auto& OutputImage = imfilter.OutputImage;
 
 	Save3DScalarImageAsJsonDataFile(OutputImage, TestDataPath + "test_GenericTriangleFilter3D_OutputImage.json");
 
@@ -227,12 +221,12 @@ void test_DiscreteTriangleFilter3D()
 	//InputImage.SetSize(100, 100, 100);
 
 	DiscreteConvolutionDenseImageFilter3D<double> imfilter;
-	imfilter.SetInputImage(&InputImage);
+	imfilter.InputImage = &InputImage;
 	imfilter.SetBoundaryOptionAsReplicate();
 	imfilter.CreateTriangleMask(InputImage.GetSpacing(), 3, 3, 3);
-	imfilter.SetMaxThreadCount(8);
+	imfilter.MaxThreadCount = 8;
 
-	std::cout << "Point in Mask " << imfilter.ConvolutionMask().GetColCount() << '\n';
+	std::cout << "Point in Mask " << imfilter.ConvolutionMask.GetColCount() << '\n';
 
 	std::cout << "start" << '\n';
 	auto t0 = std::chrono::system_clock::now();
@@ -241,7 +235,7 @@ void test_DiscreteTriangleFilter3D()
 	std::chrono::duration<double> raw_time = t1 - t0;
 	std::cout << "time " << raw_time.count() << '\n';
 
-	auto& OutputImage = imfilter.OutputImage();
+	auto& OutputImage = imfilter.OutputImage;
 
 	Save3DScalarImageAsJsonDataFile(OutputImage, TestDataPath + "test_DiscreteTriangleFilter3D_OutputImage.json");
 

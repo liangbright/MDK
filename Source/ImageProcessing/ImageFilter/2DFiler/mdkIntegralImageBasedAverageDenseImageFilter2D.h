@@ -22,41 +22,36 @@ public:
 	typedef MethodEnum_Of_Image2DInterpolation              ImageInterpolationMethodEnum;
 	typedef BoundaryOptionEnum_Of_Image2DInterpolation      ImageInterpolationBoundaryOptionEnum;
 
-private:
+public:
 	//-------------------------- input --------------------------------------------------//
-	const DenseImage2D<InputPixelType>* m_InputImage;
+	const DenseImage2D<InputPixelType>* InputImage;
 
-	ImageInterpolationOptionType m_ImageInterpolationOption;
+	ImageInterpolationOptionType ImageInterpolationOption;
 
-	int_max m_MaxThreadCount; // max number of threads
-
-	const DenseImage2D<OutputPixelType>* m_IntegralImage;
-	DenseImage2D<OutputPixelType> m_IntegralImage_Internal;
-	DenseVector<double, 2> m_Radius;         // Physical radius
-	DenseVector<double, 2> m_Radius_Index2D; // Index radius in m_InputImage and m_IntegralImage
-
-	//------------------------------------ internal ----------------------------------------//	
-	bool m_Flag_Input_Output_Orientation_IdentityMatrix;
-	bool m_Flag_Input_Output_SameOrigin_SameOrientation;
-
-	DenseMatrix<double> m_3DPositionTransformFromOuputToInput_Matrix;
-	DenseVector<double, 3> m_3DPositionTransformFromOuputToInput_Offset;
+	const DenseImage2D<OutputPixelType>* IntegralImage;
+	
+	DenseVector<double, 2> Radius; // Physical radius
+	
+	int_max MaxThreadCount; // max number of threads
 
 	//------------------------- output ----------------------------------------------------//
-	DenseImage2D<OutputPixelType> m_OutputImage;
+	DenseImage2D<OutputPixelType> OutputImage;
+
+private:
+	//------------------------------------ internal ----------------------------------------//	
+	DenseVector<double, 2> Radius_Index2D; // Index radius in m_InputImage and m_IntegralImage
+	DenseImage2D<OutputPixelType> IntegralImage_Internal;
+	bool Flag_Input_Output_Orientation_IdentityMatrix;
+	bool Flag_Input_Output_SameOrigin_SameOrientation;
+
+	DenseMatrix<double>    Position3DTransformFromOuputToInput_Matrix;
+	DenseVector<double, 3> Position3DTransformFromOuputToInput_Offset;
 
 public:		
     IntegralImageBasedAverageDenseImageFilter2D();
     ~IntegralImageBasedAverageDenseImageFilter2D();
   
 	void Clear();
-
-	void SetInputImage(const DenseImage2D<InputPixelType>* InputImage) { m_InputImage = InputImage; }
-
-	void SetIntegralImage(const DenseImage2D<InputPixelType>* IntegralImage);// this is optional	
-	const DenseImage2D<InputPixelType>* GetIntegralImage();
-
-	void SetRadius(double RadiusX, double RadiusY);
 
 	void SetOutputImageInfo(const ImageInfo2D& Info);
 
@@ -76,13 +71,7 @@ public:
 	void SetOutputImageInfoBySpacing(const DenseVector<double, 2>& Spacing);
 	void SetOutputImageInfoBySpacing(double Spacing_x, double Spacing_y);
 
-	void SetImageInterpolationOption(const ImageInterpolationOptionType& InputOption) { m_ImageInterpolationOption = InputOption; }
-	ImageInterpolationOptionType GetImageInterpolationOption() { return m_ImageInterpolationOption; }
-
-	void SetMaxThreadCount(int_max MaxNumber) { m_MaxThreadCount = MaxNumber; }
-
 	void Update();
-	DenseImage2D<OutputPixelType>& OutputImage() { return m_OutputImage; }
 
 private:
 	bool CheckInput();

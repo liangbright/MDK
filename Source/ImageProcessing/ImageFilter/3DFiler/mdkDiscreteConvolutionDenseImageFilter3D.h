@@ -22,38 +22,37 @@ public:
 
 	enum class BoundaryOptionEnum { Constant, Replicate };// same as imfilter in Matlab
 
-private:
+public:
 	//-------------------------- input --------------------------------------------------//
-	const DenseImage3D<InputPixelType>* m_InputImage;
+	const DenseImage3D<InputPixelType>* InputImage;
 
-	BoundaryOptionEnum m_BoundaryOption;
-	OutputPixelType    m_BoundaryValue;
+	BoundaryOptionEnum BoundaryOption;
+	OutputPixelType    BoundaryValue;
 
-	DenseMatrix<int_max> m_ConvolutionMask;
-	//m_ConvolutionMask(:,k): 3D index of point-k in mask, can be negative
+	DenseMatrix<int_max> ConvolutionMask;
+	//ConvolutionMask(:,k): 3D index of point-k in mask, can be negative
 	
- 	DenseMatrix<ScalarType> m_ConvolutionCoef;
-    // m_ConvolutionCoef[k]: convolution coef at point-k in mask
+ 	DenseMatrix<ScalarType> ConvolutionCoef;
+    // ConvolutionCoef[k]: convolution coef at point-k in mask
 
-	DenseVector<int_max, 6> m_MaskBox;
+	int_max MaxThreadCount;
+
+private:
+	//-------------------- internal ----------------------------------------------------//
+	DenseVector<int_max, 6> MaskBox;
 	// [x_min, x_max, y_min, y_max, z_min, z_max]
 
-	int_max m_MaxThreadCount;
+public:
 	//------------------------- output ----------------------------------------------------//
-	DenseImage3D<OutputPixelType> m_OutputImage;
+	DenseImage3D<OutputPixelType> OutputImage;
 
 public:
 	DiscreteConvolutionDenseImageFilter3D();
 	~DiscreteConvolutionDenseImageFilter3D();
 	void Clear();
-	void SetInputImage(const DenseImage3D<InputPixelType>* InputImage) { m_InputImage = InputImage; }
-	void SetBoundaryOptionAsConstant(OutputPixelType BoundaryValue) { m_BoundaryOption = BoundaryOptionEnum::Constant; m_BoundaryValue = BoundaryValue; }
-	void SetBoundaryOptionAsReplicate() { m_BoundaryOption = BoundaryOptionEnum::Replicate; }
-	DenseMatrix<int_max>& ConvolutionMask() { return m_ConvolutionMask; }
-	DenseMatrix<ScalarType>& ConvolutionCoef() { return m_ConvolutionCoef; }
-	void SetMaxThreadCount(int_max MaxNumber) { m_MaxThreadCount= MaxNumber; }
+	void SetBoundaryOptionAsConstant(OutputPixelType BoundaryValue) { this->BoundaryOption = BoundaryOptionEnum::Constant; this->BoundaryValue = BoundaryValue; }
+	void SetBoundaryOptionAsReplicate() { this->BoundaryOption = BoundaryOptionEnum::Replicate; }
 	void Update();
-	DenseImage3D<OutputPixelType>& OutputImage() { return m_OutputImage;}
 
 private:
 	bool CheckInput();	 

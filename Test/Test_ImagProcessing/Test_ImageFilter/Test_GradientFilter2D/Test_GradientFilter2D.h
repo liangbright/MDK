@@ -29,7 +29,7 @@ void test_a()
 	auto t0 = std::chrono::system_clock::now();
 
 	GradientDenseImageFilter2D<double> GFilter;
-	GFilter.SetInputImage(&InputImage);
+	GFilter.InputImage = &InputImage;
     
 	auto OutputImageInfo = InputImage.GetInfo();
 	//OutputImageInfo.Spacing *= 2.0;
@@ -38,16 +38,14 @@ void test_a()
 
 	//Resampler.SetOutputImageInfoBySize(256, 256);
 
-	auto InterpolationOption = GFilter.GetImageInterpolationOption();
-	InterpolationOption.MethodType = GradientDenseImageFilter2D<double>::ImageInterpolationMethodEnum::Linear;
-	InterpolationOption.BoundaryOption = GradientDenseImageFilter2D<double>::ImageInterpolationBoundaryOptionEnum::Constant;
-	InterpolationOption.Pixel_OutsideImage = 0;
-	GFilter.SetImageInterpolationOption(InterpolationOption);
-	GFilter.SetMaxThreadCount(1);
+	GFilter.ImageInterpolationOption.MethodType = GradientDenseImageFilter2D<double>::ImageInterpolationMethodEnum::Linear;
+	GFilter.ImageInterpolationOption.BoundaryOption = GradientDenseImageFilter2D<double>::ImageInterpolationBoundaryOptionEnum::Constant;
+	GFilter.ImageInterpolationOption.Pixel_OutsideImage = 0;
+	GFilter.MaxThreadCount = 1;
 
-	GFilter.SetRadius(1.0);
+	GFilter.Radius = 1.0;
 
-	GFilter.SetAngleResolution(0.0175);
+	GFilter.AngleResolution = 0.0175;
 	
 	//GFilter.BuildMask();
 
@@ -55,7 +53,7 @@ void test_a()
 	//GFilter.SetGradientDirectionPrior(GradientPrior);
 
 	GFilter.Update();
-	const auto& GradientImage = GFilter.OutputImage();
+	const auto& GradientImage = GFilter.OutputImage;
 
 	auto t1 = std::chrono::system_clock::now();
 	std::chrono::duration<double> raw_time = t1 - t0;
@@ -90,14 +88,14 @@ void test_b()
 	auto t0 = std::chrono::system_clock::now();
 
 	DiscreteConvolutionDenseImageFilter2D<double> imfilter;
-	imfilter.SetInputImage(&InputImage);
+	imfilter.InputImage = &InputImage;
 	imfilter.SetBoundaryOptionAsReplicate();
 	imfilter.CreateGaussianMask(InputImage.GetSpacing(), 1, 1, 1.5);
-	imfilter.SetMaxThreadCount(8);
+	imfilter.MaxThreadCount = 8;
 	imfilter.Update();
 
 	GradientDenseImageFilter2D<double> GFilter;
-	GFilter.SetInputImage(&imfilter.OutputImage());
+	GFilter.InputImage = &imfilter.OutputImage;
 
 	auto OutputImageInfo = InputImage.GetInfo();
 	//OutputImageInfo.Spacing *= 2.0;
@@ -106,23 +104,21 @@ void test_b()
 
 	//Resampler.SetOutputImageInfoBySize(256, 256);
 
-	auto InterpolationOption = GFilter.GetImageInterpolationOption();
-	InterpolationOption.MethodType = GradientDenseImageFilter2D<double>::ImageInterpolationMethodEnum::Linear;
-	InterpolationOption.BoundaryOption = GradientDenseImageFilter2D<double>::ImageInterpolationBoundaryOptionEnum::Constant;
-	InterpolationOption.Pixel_OutsideImage = 0;
-	GFilter.SetImageInterpolationOption(InterpolationOption);
+	GFilter.ImageInterpolationOption.MethodType = GradientDenseImageFilter2D<double>::ImageInterpolationMethodEnum::Linear;
+	GFilter.ImageInterpolationOption.BoundaryOption = GradientDenseImageFilter2D<double>::ImageInterpolationBoundaryOptionEnum::Constant;
+	GFilter.ImageInterpolationOption.Pixel_OutsideImage = 0;
 	
-	GFilter.SetRadius(1.0);
-	GFilter.SetAngleResolution(0.0175);
+	GFilter.Radius= 1.0;
+	GFilter.AngleResolution = 0.0175;
 
 	//GFilter.BuildMask();
 
 	//DenseVector<double, 2> GradientPrior = { 1.0, 0.0 };
 	//GFilter.SetGradientDirectionPrior(GradientPrior);
 
-	GFilter.SetMaxThreadCount(8);
+	GFilter.MaxThreadCount = 8;
 	GFilter.Update();
-	const auto& GradientImage = GFilter.OutputImage();
+	const auto& GradientImage = GFilter.OutputImage;
 
 	auto t1 = std::chrono::system_clock::now();
 	std::chrono::duration<double> raw_time = t1 - t0;
