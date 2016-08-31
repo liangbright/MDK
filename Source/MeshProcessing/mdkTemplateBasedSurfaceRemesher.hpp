@@ -549,9 +549,8 @@ DenseVector<int_max, 3> TemplateBasedSurfaceRemesher<ScalarType>::Find3PointOfNe
 			auto Distance = (Point - Pos).L2Norm();
 			DistanceList.Append(Distance);
 		}
-		auto PointIndexList_sort = DistanceList.Sort("ascend");		
-		auto PointIndexList_nearest = PointIndexList_sort[0];
-		auto PointIndex_nearest = DistanceList.IndexOfMin();		
+		auto PointIndexList_sort = DistanceList.Sort("ascend");
+		PointIndex_nearest = DistanceList.IndexOfMin();
 		PointPosition_nearest = TargetMesh.GetPointPosition(PointIndex_nearest);
 
 		for (int_max n = 0; n < 3; ++n)

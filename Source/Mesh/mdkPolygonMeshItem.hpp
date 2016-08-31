@@ -46,7 +46,7 @@ void Point_Of_PolygonMesh<MeshAttributeType>::operator=(const Point_Of_PolygonMe
 		m_Data = std::make_unique<Data_Of_Point_Of_PolygonMesh<MeshAttributeType>>();
 	}
 
-    m_Data->Mesh.ForceShare(InputPoint.m_Data->Mesh);
+    m_Data->MeshData = InputPoint.m_Data->MeshData;
     m_Data->Index = InputPoint.m_Data->Index; 
     m_Data->ID = InputPoint.m_Data->ID;
 	m_Data->Name = InputPoint.m_Data->Name;
@@ -69,7 +69,7 @@ void Point_Of_PolygonMesh<MeshAttributeType>::ReCreate()
     {
         m_Data = std::make_unique<Data_Of_Point_Of_PolygonMesh<MeshAttributeType>>();
     }
-
+	m_Data->MeshData = nullptr;
     m_Data->Index = -1;
     m_Data->ID = -1;
 	m_Data->Name.Clear();
@@ -86,9 +86,9 @@ void Point_Of_PolygonMesh<MeshAttributeType>::Clear(const MDK_Symbol_PureEmpty&)
 
 template<typename MeshAttributeType>
 inline
-void Point_Of_PolygonMesh<MeshAttributeType>::SetParentMesh(PolygonMesh<MeshAttributeType>& InputMesh)
+void Point_Of_PolygonMesh<MeshAttributeType>::SetParentMesh(PolygonMesh<MeshAttributeType>& ParentMesh)
 {
-    m_Data->Mesh.Share(InputMesh);
+    m_Data->MeshData = ParentMesh.m_MeshData.get();
 }
 
 template<typename MeshAttributeType>
@@ -145,7 +145,7 @@ bool Point_Of_PolygonMesh<MeshAttributeType>::IsOnBoundaryEdge() const
     for (int_max k = 0; k < m_Data->AdjacentEdgeIndexList.GetLength(); ++k)
     {
         auto EdgeIndex = m_Data->AdjacentEdgeIndexList[k];
-        if (m_Data->Mesh.m_MeshData->EdgeList[EdgeIndex].IsBoundary() == true)
+        if (m_Data->MeshData->EdgeList[EdgeIndex].IsBoundary() == true)
         {
             return true;
         }
@@ -194,20 +194,20 @@ void Point_Of_PolygonMesh<MeshAttributeType>::SetID(int_max PointID)
     auto PointID_old = m_Data->ID;
     if (PointID_old != PointID)
     {
-        auto it = m_Data->Mesh.m_MeshData->Map_PointID_to_PointIndex.find(PointID);
-        if (it != m_Data->Mesh.m_MeshData->Map_PointID_to_PointIndex.end())
+        auto it = m_Data->MeshData->Map_PointID_to_PointIndex.find(PointID);
+        if (it != m_Data->MeshData->Map_PointID_to_PointIndex.end())
         {
             MDK_Error("Input PointID has already been used for another point @ Point_Of_PolygonMesh::SetID(...)")
             return;
         }
 
-        it = m_Data->Mesh.m_MeshData->Map_PointID_to_PointIndex.find(PointID_old);
-        if (it != m_Data->Mesh.m_MeshData->Map_PointID_to_PointIndex.end())
+        it = m_Data->MeshData->Map_PointID_to_PointIndex.find(PointID_old);
+        if (it != m_Data->MeshData->Map_PointID_to_PointIndex.end())
         {
-            m_Data->Mesh.m_MeshData->Map_PointID_to_PointIndex.erase(it);
+            m_Data->MeshData->Map_PointID_to_PointIndex.erase(it);
         }
 
-        m_Data->Mesh.m_MeshData->Map_PointID_to_PointIndex[PointID] = m_Data->Index;
+        m_Data->MeshData->Map_PointID_to_PointIndex[PointID] = m_Data->Index;
         m_Data->ID = PointID;
     }
 }
@@ -218,10 +218,10 @@ void Point_Of_PolygonMesh<MeshAttributeType>::EraseID()
 {   
     if (m_Data->ID >= 0)
     {
-        auto it = m_Data->Mesh.m_MeshData->Map_PointID_to_PointIndex.find(m_Data->ID);
-        if (it != m_Data->Mesh.m_MeshData->Map_PointID_to_PointIndex.end())
+        auto it = m_Data->MeshData->Map_PointID_to_PointIndex.find(m_Data->ID);
+        if (it != m_Data->MeshData->Map_PointID_to_PointIndex.end())
         {
-            m_Data->Mesh.m_MeshData->Map_PointID_to_PointIndex.erase(it);
+            m_Data->MeshData->Map_PointID_to_PointIndex.erase(it);
         }
 
         m_Data->ID = -1;
@@ -255,20 +255,20 @@ void Point_Of_PolygonMesh<MeshAttributeType>::SetName(String PointName)
 	auto PointName_old = m_Data->Name;
 	if (PointName_old != PointName)
 	{
-		auto it = m_Data->Mesh.m_MeshData->Map_PointName_to_PointIndex.find(PointName);
-		if (it != m_Data->Mesh.m_MeshData->Map_PointName_to_PointIndex.end())
+		auto it = m_Data->MeshData->Map_PointName_to_PointIndex.find(PointName);
+		if (it != m_Data->MeshData->Map_PointName_to_PointIndex.end())
 		{
 			MDK_Error("Input PointName has already been used for another point @ Point_Of_PolygonMesh::SetID(...)")
 			return;
 		}
 
-		it = m_Data->Mesh.m_MeshData->Map_PointName_to_PointIndex.find(PointName_old);
-		if (it != m_Data->Mesh.m_MeshData->Map_PointName_to_PointIndex.end())
+		it = m_Data->MeshData->Map_PointName_to_PointIndex.find(PointName_old);
+		if (it != m_Data->MeshData->Map_PointName_to_PointIndex.end())
 		{
-			m_Data->Mesh.m_MeshData->Map_PointName_to_PointIndex.erase(it);
+			m_Data->MeshData->Map_PointName_to_PointIndex.erase(it);
 		}
 
-		m_Data->Mesh.m_MeshData->Map_PointName_to_PointIndex[PointName] = m_Data->Index;
+		m_Data->MeshData->Map_PointName_to_PointIndex[PointName] = m_Data->Index;
 		m_Data->Name =std::move(PointName);
 	}
 }
@@ -279,10 +279,10 @@ void Point_Of_PolygonMesh<MeshAttributeType>::EraseName()
 {
 	if (m_Data->Name.IsEmpty() == false)
 	{
-		auto it = m_Data->Mesh.m_MeshData->Map_PointName_to_PointIndex.find(m_Data->Name);
-		if (it != m_Data->Mesh.m_MeshData->Map_PointName_to_PointIndex.end())
+		auto it = m_Data->MeshData->Map_PointName_to_PointIndex.find(m_Data->Name);
+		if (it != m_Data->MeshData->Map_PointName_to_PointIndex.end())
 		{
-			m_Data->Mesh.m_MeshData->Map_PointName_to_PointIndex.erase(it);
+			m_Data->MeshData->Map_PointName_to_PointIndex.erase(it);
 		}
 
 		m_Data->Name.Clear();
@@ -300,21 +300,21 @@ template<typename MeshAttributeType>
 inline
 void Point_Of_PolygonMesh<MeshAttributeType>::SetPosition(const DenseVector<ScalarType, 3>& Pos)
 {
-    m_Data->Mesh.m_MeshData->PointPositionTable.SetCol(m_Data->Index, Pos.GetPointer());
+    m_Data->MeshData->PointPositionTable.SetCol(m_Data->Index, Pos.GetPointer());
 }
 
 template<typename MeshAttributeType>
 inline
 void Point_Of_PolygonMesh<MeshAttributeType>::SetPosition(const ScalarType Pos[3])
 {
-    m_Data->Mesh.m_MeshData->PointPositionTable.SetCol(m_Data->Index, Pos);
+    m_Data->MeshData->PointPositionTable.SetCol(m_Data->Index, Pos);
 }
 
 template<typename MeshAttributeType>
 inline
 void Point_Of_PolygonMesh<MeshAttributeType>::SetPosition(ScalarType x, ScalarType y, ScalarType z)
 {
-    m_Data->Mesh.m_MeshData->PointPositionTable.SetCol(m_Data->Index, { x, y, z });
+    m_Data->MeshData->PointPositionTable.SetCol(m_Data->Index, { x, y, z });
 }
 
 template<typename MeshAttributeType>
@@ -341,7 +341,7 @@ template<typename MeshAttributeType>
 inline
 void Point_Of_PolygonMesh<MeshAttributeType>::GetPosition(ScalarType Pos[3]) const
 {
-    m_Data->Mesh.m_MeshData->PointPositionTable.GetCol(m_Data->Index, Pos);
+    m_Data->MeshData->PointPositionTable.GetCol(m_Data->Index, Pos);
 }
 
 template<typename MeshAttributeType>
@@ -361,7 +361,7 @@ DenseVector<int_max> Point_Of_PolygonMesh<MeshAttributeType>::GetAdjacentPointIn
 	{
 		auto EdgeIndex_k = m_Data->AdjacentEdgeIndexList[k];
 		int_max PointIndex0, PointIndex1;
-		m_Data->Mesh.m_MeshData->EdgeList[EdgeIndex_k].GetPointIndexList(PointIndex0, PointIndex1);
+		m_Data->MeshData->EdgeList[EdgeIndex_k].GetPointIndexList(PointIndex0, PointIndex1);
 		if (PointIndex0 == m_Data->Index)
 		{
 			AdjacentPointIndexList[k] = PointIndex1;
@@ -409,7 +409,7 @@ DenseVector<int_max> Point_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceInd
 	for (int_max k = 0; k < m_Data->AdjacentEdgeIndexList.GetLength(); ++k)
 	{
 		auto EdgeIndex_k = m_Data->AdjacentEdgeIndexList[k];
-		AdjacentFaceIndexList.Append(m_Data->Mesh.m_MeshData->EdgeList[EdgeIndex_k].AdjacentFaceIndexList());
+		AdjacentFaceIndexList.Append(m_Data->MeshData->EdgeList[EdgeIndex_k].AdjacentFaceIndexList());
 	}
 	AdjacentFaceIndexList = AdjacentFaceIndexList.GetSubSet(AdjacentFaceIndexList.FindUnique());
 	return AdjacentFaceIndexList;
@@ -473,7 +473,7 @@ void Edge_Of_PolygonMesh<MeshAttributeType>::operator=(const Edge_Of_PolygonMesh
 		m_Data = std::make_unique<Data_Of_Edge_Of_PolygonMesh<MeshAttributeType>>();
 	}
 
-    m_Data->Mesh.ForceShare(InputEdge.m_Data->Mesh);
+    m_Data->MeshData = InputEdge.m_Data->MeshData;
     m_Data->Index = InputEdge.m_Data->Index;
     m_Data->ID = InputEdge.m_Data->ID;
 	m_Data->Name = InputEdge.m_Data->Name;
@@ -498,7 +498,7 @@ void Edge_Of_PolygonMesh<MeshAttributeType>::ReCreate()
     {
         m_Data = std::make_unique<Data_Of_Edge_Of_PolygonMesh<MeshAttributeType>>();
     }    
-
+	m_Data->MeshData = nullptr;
     m_Data->Index = -1;
     m_Data->ID = -1;
 	m_Data->Name.Clear();
@@ -511,15 +511,15 @@ void Edge_Of_PolygonMesh<MeshAttributeType>::ReCreate()
 template<typename MeshAttributeType>
 inline
 void Edge_Of_PolygonMesh<MeshAttributeType>::Clear(const MDK_Symbol_PureEmpty&)
-{
-    m_Data.reset();
+{   
+	m_Data.reset();
 }
 
 template<typename MeshAttributeType>
 inline
-void Edge_Of_PolygonMesh<MeshAttributeType>::SetParentMesh(PolygonMesh<MeshAttributeType>& InputMesh)
+void Edge_Of_PolygonMesh<MeshAttributeType>::SetParentMesh(PolygonMesh<MeshAttributeType>& ParentMesh)
 {
-    m_Data->Mesh.Share(InputMesh);
+	m_Data->MeshData = ParentMesh.m_MeshData.get();
 }
 
 template<typename MeshAttributeType>
@@ -634,20 +634,20 @@ void Edge_Of_PolygonMesh<MeshAttributeType>::SetID(int_max EdgeID)
     auto EdgeID_old = m_Data->ID;
     if (EdgeID_old != EdgeID)
     {
-        auto it = m_Data->Mesh.m_MeshData->Map_EdgeID_to_EdgeIndex.find(EdgeID);
-        if (it != m_Data->Mesh.m_MeshData->Map_EdgeID_to_EdgeIndex.end())
+        auto it = m_Data->MeshData->Map_EdgeID_to_EdgeIndex.find(EdgeID);
+        if (it != m_Data->MeshData->Map_EdgeID_to_EdgeIndex.end())
         {
             MDK_Error("Input EdgeID has already been used for another edge @ Edge_Of_PolygonMesh::SetID(...)")
             return;
         }
 
-        it = m_Data->Mesh.m_MeshData->Map_EdgeID_to_EdgeIndex.find(EdgeID_old);
-        if (it != m_Data->Mesh.m_MeshData->Map_EdgeID_to_EdgeIndex.end())
+        it = m_Data->MeshData->Map_EdgeID_to_EdgeIndex.find(EdgeID_old);
+        if (it != m_Data->MeshData->Map_EdgeID_to_EdgeIndex.end())
         {
-            m_Data->Mesh.m_MeshData->Map_EdgeID_to_EdgeIndex.erase(it);
+            m_Data->MeshData->Map_EdgeID_to_EdgeIndex.erase(it);
         }
 
-        m_Data->Mesh.m_MeshData->Map_EdgeID_to_EdgeIndex[EdgeID] = m_Data->Index;
+        m_Data->MeshData->Map_EdgeID_to_EdgeIndex[EdgeID] = m_Data->Index;
         m_Data->ID = EdgeID;
     }
 }
@@ -658,10 +658,10 @@ void Edge_Of_PolygonMesh<MeshAttributeType>::EraseID()
 {
     if (m_Data->ID >= 0)
     {
-        auto it = m_Data->Mesh.m_MeshData->Map_EdgeID_to_EdgeIndex.find(m_Data->ID);
-        if (it != m_Data->Mesh.m_MeshData->Map_EdgeID_to_EdgeIndex.end())
+        auto it = m_Data->MeshData->Map_EdgeID_to_EdgeIndex.find(m_Data->ID);
+        if (it != m_Data->MeshData->Map_EdgeID_to_EdgeIndex.end())
         {
-            m_Data->Mesh.m_MeshData->Map_EdgeID_to_EdgeIndex.erase(it);
+            m_Data->MeshData->Map_EdgeID_to_EdgeIndex.erase(it);
         }
 
         m_Data->ID = -1;
@@ -695,20 +695,20 @@ void Edge_Of_PolygonMesh<MeshAttributeType>::SetName(String EdgeName)
 	auto EdgeName_old = m_Data->Name;
 	if (EdgeName_old != EdgeName)
 	{
-		auto it = m_Data->Mesh.m_MeshData->Map_EdgeName_to_EdgeIndex.find(EdgeName);
-		if (it != m_Data->Mesh.m_MeshData->Map_EdgeName_to_EdgeIndex.end())
+		auto it = m_Data->MeshData->Map_EdgeName_to_EdgeIndex.find(EdgeName);
+		if (it != m_Data->MeshData->Map_EdgeName_to_EdgeIndex.end())
 		{
 			MDK_Error("Input EdgeName has already been used for another edge @ Edge_Of_PolygonMesh::SetID(...)")
 			return;
 		}
 
-		it = m_Data->Mesh.m_MeshData->Map_EdgeName_to_EdgeIndex.find(EdgeName_old);
-		if (it != m_Data->Mesh.m_MeshData->Map_EdgeName_to_EdgeIndex.end())
+		it = m_Data->MeshData->Map_EdgeName_to_EdgeIndex.find(EdgeName_old);
+		if (it != m_Data->MeshData->Map_EdgeName_to_EdgeIndex.end())
 		{
-			m_Data->Mesh.m_MeshData->Map_EdgeName_to_EdgeIndex.erase(it);
+			m_Data->MeshData->Map_EdgeName_to_EdgeIndex.erase(it);
 		}
 
-		m_Data->Mesh.m_MeshData->Map_EdgeName_to_EdgeIndex[EdgeName] = m_Data->Index;
+		m_Data->MeshData->Map_EdgeName_to_EdgeIndex[EdgeName] = m_Data->Index;
 		m_Data->Name = std::move(EdgeName);
 	}
 }
@@ -719,10 +719,10 @@ void Edge_Of_PolygonMesh<MeshAttributeType>::EraseName()
 {
 	if (m_Data->Name.IsEmpty() == false)
 	{
-		auto it = m_Data->Mesh.m_MeshData->Map_EdgeName_to_EdgeIndex.find(m_Data->Name);
-		if (it != m_Data->Mesh.m_MeshData->Map_EdgeName_to_EdgeIndex.end())
+		auto it = m_Data->MeshData->Map_EdgeName_to_EdgeIndex.find(m_Data->Name);
+		if (it != m_Data->MeshData->Map_EdgeName_to_EdgeIndex.end())
 		{
-			m_Data->Mesh.m_MeshData->Map_EdgeName_to_EdgeIndex.erase(it);
+			m_Data->MeshData->Map_EdgeName_to_EdgeIndex.erase(it);
 		}
 
 		m_Data->Name.Clear();
@@ -765,8 +765,8 @@ template<typename MeshAttributeType>
 inline
 int_max Edge_Of_PolygonMesh<MeshAttributeType>::GetAdjacentEdgeCount() const
 {
-	const auto& AdjacentEdgeIndexList0 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex0].AdjacentEdgeIndexList();
-	const auto& AdjacentEdgeIndexList1 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex1].AdjacentEdgeIndexList();
+	const auto& AdjacentEdgeIndexList0 = m_Data->MeshData->PointList[m_Data->PointIndex0].AdjacentEdgeIndexList();
+	const auto& AdjacentEdgeIndexList1 = m_Data->MeshData->PointList[m_Data->PointIndex1].AdjacentEdgeIndexList();
 	return AdjacentEdgeIndexList0.GetLength() + AdjacentEdgeIndexList1.GetLength() - 2;
 }
 
@@ -774,8 +774,8 @@ template<typename MeshAttributeType>
 inline
 DenseVector<int_max> Edge_Of_PolygonMesh<MeshAttributeType>::GetAdjacentEdgeIndexList() const
 {
-	const auto& AdjacentEdgeIndexList0 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex0].GetAdjacentEdgeIndexList();
-	const auto& AdjacentEdgeIndexList1 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex1].GetAdjacentEdgeIndexList();
+	const auto& AdjacentEdgeIndexList0 = m_Data->MeshData->PointList[m_Data->PointIndex0].GetAdjacentEdgeIndexList();
+	const auto& AdjacentEdgeIndexList1 = m_Data->MeshData->PointList[m_Data->PointIndex1].GetAdjacentEdgeIndexList();
 
 	DenseVector<int_max> OutputIndexList;
 	OutputIndexList.SetCapacity(AdjacentEdgeIndexList0.GetLength() + AdjacentEdgeIndexList1.GetLength() - 2);
@@ -821,8 +821,8 @@ inline
 int_max Edge_Of_PolygonMesh<MeshAttributeType>::GetNeighbourFaceCount() const
 {
 	// wrong, may share more than 2 face
-	//auto Counter0 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex0].GetAdjacentFaceCount();
-	//auto Counter1 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex1].GetAdjacentFaceCount();
+	//auto Counter0 = m_Data->MeshData->PointList[m_Data->PointIndex0].GetAdjacentFaceCount();
+	//auto Counter1 = m_Data->MeshData->PointList[m_Data->PointIndex1].GetAdjacentFaceCount();
 	//return Counter0 + Counter1 - 2;
 
 	auto IndexList = this->GetNeighbourFaceIndexList();
@@ -836,8 +836,8 @@ DenseVector<int_max> Edge_Of_PolygonMesh<MeshAttributeType>::GetNeighbourFaceInd
 {
 	DenseVector<int_max> OutputIndexList;
 
-	const auto& AdjacentFaceIndexList0 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex0].AdjacentFaceIndexList();
-	const auto& AdjacentFaceIndexList1 = m_Data->Mesh.m_MeshData->PointList[m_Data->PointIndex1].AdjacentFaceIndexList();
+	const auto& AdjacentFaceIndexList0 = m_Data->MeshData->PointList[m_Data->PointIndex0].AdjacentFaceIndexList();
+	const auto& AdjacentFaceIndexList1 = m_Data->MeshData->PointList[m_Data->PointIndex1].AdjacentFaceIndexList();
 
 	if (AdjacentFaceIndexList0.IsEmpty() == true && AdjacentFaceIndexList1.IsEmpty() == true)
 	{
@@ -920,7 +920,7 @@ void Face_Of_PolygonMesh<MeshAttributeType>::operator=(const Face_Of_PolygonMesh
 		m_Data = std::make_unique<Data_Of_Face_Of_PolygonMesh<MeshAttributeType>>();
 	}
 
-    m_Data->Mesh.ForceShare(InputFace.m_Data->Mesh);
+    m_Data->MeshData = InputFace.m_Data->MeshData;
     m_Data->Index = InputFace.m_Data->Index;
     m_Data->ID = InputFace.m_Data->ID;
 	m_Data->Name = InputFace.m_Data->Name;
@@ -944,7 +944,7 @@ void Face_Of_PolygonMesh<MeshAttributeType>::ReCreate()
     {
         m_Data = std::make_unique<Data_Of_Face_Of_PolygonMesh<MeshAttributeType>>();
     }    
-
+	m_Data->MeshData = nullptr;
     m_Data->Index = -1;
     m_Data->ID = -1;
 	m_Data->Name.Clear();
@@ -962,9 +962,9 @@ void Face_Of_PolygonMesh<MeshAttributeType>::Clear(const MDK_Symbol_PureEmpty&)
 
 template<typename MeshAttributeType>
 inline
-void Face_Of_PolygonMesh<MeshAttributeType>::SetParentMesh(PolygonMesh<MeshAttributeType>& InputMesh)
+void Face_Of_PolygonMesh<MeshAttributeType>::SetParentMesh(PolygonMesh<MeshAttributeType>& ParentMesh)
 {
-    m_Data->Mesh.Share(InputMesh);
+	m_Data->MeshData = ParentMesh.m_MeshData.get();
 }
 
 template<typename MeshAttributeType>
@@ -1056,20 +1056,20 @@ void Face_Of_PolygonMesh<MeshAttributeType>::SetID(int_max FaceID)
     auto FaceID_old = m_Data->ID;
     if (FaceID_old != FaceID)
     {
-        auto it = m_Data->Mesh.m_MeshData->Map_FaceID_to_FaceIndex.find(FaceID);
-        if (it != m_Data->Mesh.m_MeshData->Map_FaceID_to_FaceIndex.end())
+        auto it = m_Data->MeshData->Map_FaceID_to_FaceIndex.find(FaceID);
+        if (it != m_Data->MeshData->Map_FaceID_to_FaceIndex.end())
         {
             MDK_Error("Input FaceID has already been used for another cell @ Face_Of_PolygonMesh::SetID(...)")
             return;
         }
 
-        it = m_Data->Mesh.m_MeshData->Map_FaceID_to_FaceIndex.find(FaceID_old);
-        if (it != m_Data->Mesh.m_MeshData->Map_FaceID_to_FaceIndex.end())
+        it = m_Data->MeshData->Map_FaceID_to_FaceIndex.find(FaceID_old);
+        if (it != m_Data->MeshData->Map_FaceID_to_FaceIndex.end())
         {
-            m_Data->Mesh.m_MeshData->Map_FaceID_to_FaceIndex.erase(it);
+            m_Data->MeshData->Map_FaceID_to_FaceIndex.erase(it);
         }
 
-        m_Data->Mesh.m_MeshData->Map_FaceID_to_FaceIndex[FaceID] = m_Data->Index;
+        m_Data->MeshData->Map_FaceID_to_FaceIndex[FaceID] = m_Data->Index;
         m_Data->ID = FaceID;
     }
 }
@@ -1080,10 +1080,10 @@ void Face_Of_PolygonMesh<MeshAttributeType>::EraseID()
 {
     if (m_Data->ID >= 0)
     {
-        auto it = m_Data->Mesh.m_MeshData->Map_FaceID_to_FaceIndex.find(m_Data->ID);
-        if (it != m_Data->Mesh.m_MeshData->Map_FaceID_to_FaceIndex.end())
+        auto it = m_Data->MeshData->Map_FaceID_to_FaceIndex.find(m_Data->ID);
+        if (it != m_Data->MeshData->Map_FaceID_to_FaceIndex.end())
         {
-            m_Data->Mesh.m_MeshData->Map_FaceID_to_FaceIndex.erase(it);
+            m_Data->MeshData->Map_FaceID_to_FaceIndex.erase(it);
         }
 
         m_Data->ID = -1;
@@ -1117,20 +1117,20 @@ void Face_Of_PolygonMesh<MeshAttributeType>::SetName(String FaceName)
 	auto FaceName_old = m_Data->Name;
 	if (FaceName_old != FaceName)
 	{
-		auto it = m_Data->Mesh.m_MeshData->Map_FaceName_to_FaceIndex.find(FaceName);
-		if (it != m_Data->Mesh.m_MeshData->Map_FaceName_to_FaceIndex.end())
+		auto it = m_Data->MeshData->Map_FaceName_to_FaceIndex.find(FaceName);
+		if (it != m_Data->MeshData->Map_FaceName_to_FaceIndex.end())
 		{
 			MDK_Error("Input FaceName has already been used for another cell @ Face_Of_PolygonMesh::SetName(...)")
 			return;
 		}
 
-		it = m_Data->Mesh.m_MeshData->Map_FaceName_to_FaceIndex.find(FaceName_old);
-		if (it != m_Data->Mesh.m_MeshData->Map_FaceName_to_FaceIndex.end())
+		it = m_Data->MeshData->Map_FaceName_to_FaceIndex.find(FaceName_old);
+		if (it != m_Data->MeshData->Map_FaceName_to_FaceIndex.end())
 		{
-			m_Data->Mesh.m_MeshData->Map_FaceName_to_FaceIndex.erase(it);
+			m_Data->MeshData->Map_FaceName_to_FaceIndex.erase(it);
 		}
 
-		m_Data->Mesh.m_MeshData->Map_FaceName_to_FaceIndex[FaceName] = m_Data->Index;
+		m_Data->MeshData->Map_FaceName_to_FaceIndex[FaceName] = m_Data->Index;
 		m_Data->Name = std::move(FaceName);
 	}
 }
@@ -1141,10 +1141,10 @@ void Face_Of_PolygonMesh<MeshAttributeType>::EraseName()
 {
 	if (m_Data->Name.IsEmpty() == false)
 	{
-		auto it = m_Data->Mesh.m_MeshData->Map_FaceName_to_FaceIndex.find(m_Data->Name);
-		if (it != m_Data->Mesh.m_MeshData->Map_FaceName_to_FaceIndex.end())
+		auto it = m_Data->MeshData->Map_FaceName_to_FaceIndex.find(m_Data->Name);
+		if (it != m_Data->MeshData->Map_FaceName_to_FaceIndex.end())
 		{
-			m_Data->Mesh.m_MeshData->Map_FaceName_to_FaceIndex.erase(it);
+			m_Data->MeshData->Map_FaceName_to_FaceIndex.erase(it);
 		}
 
 		m_Data->Name.Clear();
@@ -1193,7 +1193,7 @@ int_max Face_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceCount() const
 	for (int_max k = 0; k < m_Data->EdgeIndexList.GetLength(); ++k)
 	{
 		auto EdgeIndex_k = m_Data->EdgeIndexList[k];
-		Counter += m_Data->Mesh.m_MeshData->EdgeList[EdgeIndex_k].AdjacentFaceIndexList()-1;
+		Counter += m_Data->MeshData->EdgeList[EdgeIndex_k].AdjacentFaceIndexList()-1;
 	}
 	return Counter;
 }
@@ -1207,7 +1207,7 @@ DenseVector<int_max> Face_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceInde
 	for (int_max k = 0; k < m_Data->EdgeIndexList.GetLength(); ++k)
 	{
 		auto EdgeIndex_k = m_Data->EdgeIndexList[k];
-		const auto& TempList = m_Data->Mesh.m_MeshData->EdgeList[EdgeIndex_k].AdjacentFaceIndexList();
+		const auto& TempList = m_Data->MeshData->EdgeList[EdgeIndex_k].AdjacentFaceIndexList();
 		for (int_max n = 0; n < TempList.GetLength(); ++n)
 		{
 			if (TempList[n] != m_Data->Index)
@@ -1236,7 +1236,7 @@ DenseVector<int_max> Face_Of_PolygonMesh<MeshAttributeType>::GetNeighbourFaceInd
 	auto PointIndexList = this->GetPointIndexList();
 	for (int_max k = 0; k < PointIndexList.GetLength(); ++k)
 	{
-		const auto& FaceIndexList_k = m_Data->Mesh.m_MeshData->PointList[PointIndexList[k]].AdjacentFaceIndexList();
+		const auto& FaceIndexList_k = m_Data->MeshData->PointList[PointIndexList[k]].AdjacentFaceIndexList();
 		for (int_max n = 0; n < FaceIndexList_k.GetLength(); ++n)
 		{
 			if (FaceIndexList_k[n] != m_Data->Index)

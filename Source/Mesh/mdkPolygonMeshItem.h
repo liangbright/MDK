@@ -6,12 +6,13 @@
 
 namespace mdk
 {
-//----------------- forward declare ------------------//
-template<typename MeshAttributeType>
-class PolygonMesh;
-//---------------------------------------------------//
-
 //------------------------------------------------- forward declare --------------------------------------------------------//
+template<typename T>
+struct PolygonMeshData;
+
+template<typename T>
+class PolygonMesh;
+
 template<typename T>
 class Point_Of_PolygonMesh;
 
@@ -22,6 +23,7 @@ template<typename T>
 class Face_Of_PolygonMesh;
 //----------------------------------------------------------------------------------------------------------------------------//
 
+
 //====================================== Point_Of_PolygonMesh ==============================================================//
 
 template<typename MeshAttributeType>
@@ -30,7 +32,7 @@ struct Data_Of_Point_Of_PolygonMesh
     typedef typename MeshAttributeType::ScalarType           ScalarType;
     typedef typename MeshAttributeType::PointAttributeType   PointAttributeType;
 
-    PolygonMesh<MeshAttributeType> Mesh;
+	PolygonMeshData<MeshAttributeType>* MeshData;
 
     int_max Index;  // PointIndex : index in Mesh.m_MeshData->PointList; it may change after Mesh.CleanDataStructure()
 
@@ -43,10 +45,6 @@ struct Data_Of_Point_Of_PolygonMesh
     //------------------------------------------------
 
     PointAttributeType Attribute;
-
-//------------------------------------------------------------------------
-    Data_Of_Point_Of_PolygonMesh() : Mesh(MDK_PURE_EMPTY) {}
-    ~Data_Of_Point_Of_PolygonMesh() {};
 };
 
 template<typename MeshAttributeType>
@@ -135,7 +133,7 @@ struct Data_Of_Edge_Of_PolygonMesh
     typedef typename MeshAttributeType::ScalarType         ScalarType;
     typedef typename MeshAttributeType::EdgeAttributeType  EdgeAttributeType;
 
-    PolygonMesh<MeshAttributeType> Mesh;
+	PolygonMeshData<MeshAttributeType>* MeshData;
     
     int_max Index; // EdgeIndex: index of this Edge in Mesh.MeshData->EdgeList, it may change after Mesh.CleanDataStructure()
 
@@ -151,10 +149,6 @@ struct Data_Of_Edge_Of_PolygonMesh
     //--------------------------------
 
     EdgeAttributeType Attribute;
-
-//------------------------------------------------------------------------
-    Data_Of_Edge_Of_PolygonMesh() : Mesh(MDK_PURE_EMPTY) {}
-    ~Data_Of_Edge_Of_PolygonMesh() {};
 };
 
 template<typename MeshAttributeType>
@@ -244,7 +238,7 @@ struct Data_Of_Face_Of_PolygonMesh
     typedef typename MeshAttributeType::ScalarType           ScalarType;
     typedef typename MeshAttributeType::FaceAttributeType    FaceAttributeType;
 
-    PolygonMesh<MeshAttributeType> Mesh;
+	PolygonMeshData<MeshAttributeType>* MeshData;
 
     int_max Index; // FaceIndex: index of the Face in Mesh.m_MeshData->FaceList, it may change after Mesh.CleanDataStructure()
 
@@ -262,10 +256,6 @@ struct Data_Of_Face_Of_PolygonMesh
     //--------------------------------------
 
     FaceAttributeType Attribute;
-
-//------------------------------------------------------------------------
-    Data_Of_Face_Of_PolygonMesh() : Mesh(MDK_PURE_EMPTY) {}
-    ~Data_Of_Face_Of_PolygonMesh() {};
 };
 
 template<typename MeshAttributeType>
