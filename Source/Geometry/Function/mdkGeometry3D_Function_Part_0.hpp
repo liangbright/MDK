@@ -621,4 +621,53 @@ DenseMatrix<ScalarType> Resample3DCurve(const DenseMatrix<ScalarType>& Curve, co
 }
 
 
+template<typename ScalarType>
+DenseMatrix<ScalarType> FitSplineToOpenCurve(const DenseMatrix<ScalarType>& Curve, int_max PointCount)
+{
+	// output: SplineCurve(:, 0) is Curve(:, 0); SplineCurve(:, end) is Curve(:, end)
+
+	// fit spline to bounary curve
+	auto points = vtkSmartPointer<vtkPoints>::New();
+	for (int_max k = 0; k < Curve.GetColCount(); ++k)
+	{
+		auto x = Curve(0, k);
+		auto y = Curve(1, k);
+		auto z = Curve(2, k);
+		points->InsertPoint(k, x, y, z);
+	}
+	// Fit a spline to the points
+	auto spline = vtkSmartPointer<vtkParametricSpline>::New();
+	spline->SetPoints(points);
+	auto functionSource = vtkSmartPointer<vtkParametricFunctionSource>::New();
+	functionSource->SetParametricFunction(spline);
+	functionSource->SetUResolution(PointCount - 1);
+	functionSource->Update();
+	// convert to polydata
+	auto SplineCurve_VTK = vtkSmartPointer<vtkPolyData>::New();
+	SplineCurve_VTK = functionSource->GetOutput();
+	auto PointCount_out = SplineCurve_VTK->GetNumberOfPoints();
+
+	DenseMatrix<ScalarType> SplineCurve;
+	SplineCurve.Resize(3, PointCount_out);
+	for (int_max k = 0; k < PointCount_out; ++k)
+	{
+		double pos[3];
+		SplineCurve_VTK->GetPoint(k, pos);
+		SplineCurve.SetCol(k, pos);
+	}
+	return SplineCurve;
+}
+
+
+template<typename ScalarType>
+DenseMatrix<ScalarType> FitSplineToClosedCurve(const DenseMatrix<ScalarType>& Curve, int_max PointCount)
+{	//input: Curve(:,0) = Curve(:,end)
+	// 
+	//Attention: SplineCurve(:,0) is not Curve(:,0)
+
+	auto SplineCurve = FitSplineToOpenCurve(Curve, PointCount + 2);
+	return SplineCurve.GetSubMatrix(ALL, span(1, PointCount));
+}
+
+
 }// namespace mdk
