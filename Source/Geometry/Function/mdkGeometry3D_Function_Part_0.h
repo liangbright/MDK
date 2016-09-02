@@ -58,10 +58,10 @@ template<typename ScalarType>
 DenseMatrix<ScalarType> Resample3DCurve(const DenseMatrix<ScalarType>& Curve, const DenseVector<ScalarType>& SegmentRelativeLengthList_resampled, int_max MaxIterCount = 10, double Tolerance = 0.01);
 
 template<typename ScalarType>
-DenseMatrix<ScalarType> FitSplineToOpenCurve(const DenseMatrix<ScalarType>& Curve, int_max PointCount);
+DenseMatrix<ScalarType> FitCardinalSplineToOpenCurve(const DenseMatrix<ScalarType>& Curve, int_max PointCount);
 
 template<typename ScalarType>
-DenseMatrix<ScalarType> FitSplineToClosedCurve(const DenseMatrix<ScalarType>& Curve, int_max PointCount);
+DenseMatrix<ScalarType> FitCardinalSplineToClosedCurve(const DenseMatrix<ScalarType>& Curve, int_max PointCount);
 
 }// namespace mdk
 
