@@ -45,23 +45,16 @@ ScalarType Compute3DCurveLength(const DenseMatrix<ScalarType>& Curve);
 template<typename ScalarType>
 DenseVector<ScalarType> ComputeCumulative3DCurveLengthList(const DenseMatrix<ScalarType>& Curve);
 
-template<typename ScalarType>
-DenseMatrix<ScalarType> Subdivide3DCurve_Linear(const DenseMatrix<ScalarType>& Curve, int_max SubdivisionNumber = 1);
+//--------------  resample curve -------------------------------------------------------------------------------
 
 template<typename ScalarType>
-DenseMatrix<ScalarType> Resample3DCurveWithBoundedSegmentLength(const DenseMatrix<ScalarType>& Curve, ScalarType MaxSegmentLength);
+DenseMatrix<ScalarType> Subdivide3DCurve_Linear(const DenseMatrix<ScalarType>& Curve, int_max SubdivisionCount = 1);
 
 template<typename ScalarType>
-DenseMatrix<ScalarType> Resample3DCurveWithEqualSegmentLength(const DenseMatrix<ScalarType>& Curve, int_max PointCount_resampled, int_max MaxIterCount = 0, double Tolerance = 0.01);
+DenseMatrix<ScalarType> ResampleOpen3DCurveByCardinalSpline(const DenseMatrix<ScalarType>& Curve, int_max PointCount);
 
 template<typename ScalarType>
-DenseMatrix<ScalarType> Resample3DCurve(const DenseMatrix<ScalarType>& Curve, const DenseVector<ScalarType>& SegmentRelativeLengthList_resampled, int_max MaxIterCount = 10, double Tolerance = 0.01);
-
-template<typename ScalarType>
-DenseMatrix<ScalarType> FitCardinalSplineToOpenCurve(const DenseMatrix<ScalarType>& Curve, int_max PointCount);
-
-template<typename ScalarType>
-DenseMatrix<ScalarType> FitCardinalSplineToClosedCurve(const DenseMatrix<ScalarType>& Curve, int_max PointCount);
+DenseMatrix<ScalarType> ResampleClosed3DCurveByCardinalSpline(const DenseMatrix<ScalarType>& Curve, int_max PointCount);
 
 }// namespace mdk
 
