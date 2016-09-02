@@ -406,7 +406,7 @@ public:
 
 	//--- check --------------------------//
 	bool CheckIfTriangleMesh() const;
-
+	bool CheckIfQuadMesh() const;
     //---------------------------------------------------------------------------------------------------
 
     // get a sub mesh by FaceIndexList

@@ -2781,6 +2781,27 @@ bool PolygonMesh<MeshAttributeType>::CheckIfTriangleMesh() const
 	return true;
 }
 
+template<typename MeshAttributeType>
+bool PolygonMesh<MeshAttributeType>::CheckIfQuadMesh() const
+{
+	if (this->IsEmpty() == true)
+	{
+		return false;
+	}
+
+	for (auto it = this->GetIteratorOfFace(); it.IsNotEnd(); ++it)
+	{
+		auto FaceIndex = it.GetFaceIndex();
+		auto PointCount = this->Face(FaceIndex).GetPointCount();
+		if (PointCount != 4)
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
 //-------------------- get a sub mesh by FaceIndexList  -----------------------------------------//
 
 template<typename MeshAttributeType>
