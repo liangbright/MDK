@@ -3,6 +3,9 @@
 #include <vtkSmartPointer.h>
 #include <vtkParametricFunctionSource.h>
 #include <vtkParametricSpline.h>
+#include <vtkCardinalSpline.h>
+#include <vtkSplineFilter.h>
+
 
 namespace mdk
 {
