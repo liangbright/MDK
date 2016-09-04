@@ -168,13 +168,13 @@ TriangleMesh<MeshAttributeType> SubdivideTriangleMesh_Linear(const TriangleMesh<
 
 
 template<typename MeshAttributeType>
-TriangleMesh<MeshAttributeType> SubdivideTriangleMeshByVTKLinearSubdivisionFilter(const TriangleMesh<MeshAttributeType>& TargetMesh, int_max SubdivisionNumber)
+TriangleMesh<MeshAttributeType> SubdivideTriangleMeshByVTKLinearSubdivisionFilter(const TriangleMesh<MeshAttributeType>& TargetMesh, int_max SubdivisionCount)
 {
 	auto VTKMesh = ConvertMDKTriangleMeshToVTKPolyData(TargetMesh);
 
 	auto subdivisionFilter = vtkSmartPointer<vtkLinearSubdivisionFilter>::New();
 	subdivisionFilter->SetInputData(VTKMesh);
-	subdivisionFilter->SetNumberOfSubdivisions(SubdivisionNumber);
+	subdivisionFilter->SetNumberOfSubdivisions(SubdivisionCount);
 	subdivisionFilter->Update();
 	auto VTKMesh_new = subdivisionFilter->GetOutput();
 
