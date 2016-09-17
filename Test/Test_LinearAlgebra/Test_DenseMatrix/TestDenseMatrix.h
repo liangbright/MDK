@@ -11,6 +11,7 @@
 #include "mdkObjectArray.h"
 #include "mdkStdObjectVector.h"
 #include "mdkDenseMatrix.h"
+#include "mdkDenseMatrix_FileIO.h"
 
 namespace mdk
 {
@@ -1970,4 +1971,25 @@ void Test_DenseMatrix_DenseVector_ObjectArray()
 	DisplayMatrix("A4", A4);
 }
 
+void test_save_load()
+{
+	std::cout << "test_save_load" << '\n';
+
+	DenseMatrix<int_max> A = { { 0, 1, 2, 3 },
+							   { 1, 2, 3, 4 },
+							   { 2, 3, 4, 5 },
+						       { 3, 4, 5, 6 },
+							   { 4, 5, 6, 7 } };
+	DenseMatrix<double> B;
+	B.Copy(A);
+
+	DenseMatrix<float> C;
+	C.Copy(A);
+
+	SaveDenseMatrixAsJsonDataFile(A, "C:/Research/MatlabQtVTK/test/A.json");
+	SaveDenseMatrixAsJsonDataFile(B, "C:/Research/MatlabQtVTK/test/B.json");
+	SaveDenseMatrixAsJsonDataFile(C, "C:/Research/MatlabQtVTK/test/C.json");
+}
+
 }//namespace mdk
+
