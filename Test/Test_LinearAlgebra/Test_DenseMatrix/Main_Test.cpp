@@ -67,7 +67,7 @@ int aaa_main()
 
 int main()
 {
-	Test_SubMatrix_simple();
+	//Test_SubMatrix_simple();
 
     //Test_Operator_With_ElementPointer();
 
@@ -127,7 +127,7 @@ int main()
 
   //  Test_GlueMatrix_Speed1();
 
-    Test_GlueMatrix_Speed2();
+    //Test_GlueMatrix_Speed2();
 
     //Test_GlueMatrix_Create();
 
@@ -144,6 +144,8 @@ int main()
  //   Test_SortCol();
 
 	//Test_DenseMatrix_DenseVector_ObjectArray();
+
+	test_save_load();
 
     std::system("pause");
 
