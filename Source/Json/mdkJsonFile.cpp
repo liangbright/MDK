@@ -53,9 +53,13 @@ void JsonFile::Close()
 bool JsonFile::Save(const JsonObject& InputJObject, const String& FilePathAndName, bool Flag_PreserveOrder)
 {
 	JsonFile OutputFile(FilePathAndName);
-	auto IsOK = JsonFile::SaveJsonValue(InputJObject, OutputFile, 0, Flag_PreserveOrder);
-	OutputFile.Close();
-	return IsOK;
+	if (OutputFile.m_QTextStream)
+	{
+		auto IsOK = JsonFile::SaveJsonValue(InputJObject, OutputFile, 0, Flag_PreserveOrder);
+		OutputFile.Close();
+		return IsOK;
+	}
+	return false;
 }
 //==========================================================================================================================//
 bool JsonFile::Load(JsonObject& OutputJObject, const String& FilePathAndName)
