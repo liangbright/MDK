@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <complex>
 
+#include <Eigen/Dense>
+
 #include "mdkConstant.h"
 #include "mdkMatrix_Common.h"
 

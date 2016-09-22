@@ -1531,15 +1531,41 @@ DenseMatrixSVDResult<ElementType> MatrixSVD(const DenseMatrix<ElementType>& Inpu
 
     auto ptrData = const_cast<ElementType*>(InputMatrix.GetElementPointer());
 
-    // call Armadillo 
+    // call Armadillo : can not handle non-square matrix
+	//arma::Mat<ElementType> X(ptrData, arma::uword(Size.RowCount), arma::uword(Size.ColCount), false);
+	//arma::Mat<ElementType> U(Result.U.GetElementPointer(), arma::uword(Result.U.GetRowCount()), arma::uword(Result.U.GetColCount()), false);
+	//arma::Col<ElementType> S(Result.S.GetElementPointer(), arma::uword(Result.S.GetRowCount()), false);
+	//arma::Mat<ElementType> V(Result.V.GetElementPointer(), arma::uword(Result.V.GetRowCount()), arma::uword(Result.V.GetColCount()), false);
+    //arma::svd(U, S, V, X);
 
-	arma::Mat<ElementType> X(ptrData, arma::uword(Size.RowCount), arma::uword(Size.ColCount), false);
+	//call eigen	
+	typedef Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic> EigenMatrixType;
+	Eigen::Map<const EigenMatrixType> X(ptrData, Size.RowCount, Size.ColCount);
+	Eigen::JacobiSVD<EigenMatrixType> svd(X, Eigen::ComputeFullU | Eigen::ComputeFullV);	
+	const auto& S = svd.singularValues();
+	const auto& U = svd.matrixU();
+	const auto& V = svd.matrixV();
 
-	arma::Mat<ElementType> U(Result.U.GetElementPointer(), arma::uword(Result.U.GetRowCount()), arma::uword(Result.U.GetColCount()), false);
-	arma::Col<ElementType> S(Result.S.GetElementPointer(), arma::uword(Result.S.GetRowCount()), false);
-	arma::Mat<ElementType> V(Result.V.GetElementPointer(), arma::uword(Result.V.GetRowCount()), arma::uword(Result.V.GetColCount()), false);
+	for (int_max k = 0; k < Result.S.GetElementCount(); ++k)
+	{
+		Result.S[k] = S[k];
+	}
 
-    arma::svd(U, S, V, X);
+	for (int_max j = 0; j < Size.RowCount; ++j)
+	{
+		for (int_max i = 0; i < Size.RowCount; ++i)
+		{
+			Result.U(i, j) = U(i, j);
+		}
+	}
+
+	for (int_max j = 0; j < Size.ColCount; ++j)
+	{
+		for (int_max i = 0; i < Size.ColCount; ++i)
+		{
+			Result.V(i, j) = V(i, j);
+		}
+	}
 
     return Result;
 }
