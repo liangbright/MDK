@@ -329,7 +329,7 @@ bool JsonFile::SaveJsonValue(bool Flag, JsonFile& OutputFile)
 //==========================================================================================================================//
 bool JsonFile::SaveJsonValue(int Scalar, JsonFile& OutputFile)
 {
-	QString QStr = QString::number(Scalar).toUtf8();
+	QString QStr = QString::number(Scalar); // .toUtf8();
 	OutputFile << QStr.toStdString();
 	return true;
 }
@@ -352,7 +352,7 @@ bool JsonFile::SaveJsonValue(float Scalar, JsonFile& OutputFile)
 //==========================================================================================================================//
 bool JsonFile::SaveJsonValue(double Scalar, JsonFile& OutputFile)
 {
-	QString QStr = QString::number(Scalar); // .toUtf8();
+	QString QStr = QString::number(Scalar, 'g', 16); // .toUtf8();
 	String str = QStr.toStdString();
 	OutputFile << str;
 	return true;
