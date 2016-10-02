@@ -16,7 +16,9 @@ void test_DiscreteGaussianFilter3D()
 {
     String TestDataPath = "C:/Research/MDK/MDK_Build/Test/Test_ImageProcessing/Test_ImageFilter/Test_ConvolutionImageFilter3D/TestData/";
 
-	String FilePath_InputImage = "G:/AorticValveData/2014_7_25/P2115937/phase0";
+	//String FilePath_InputImage = "G:/AorticValveData/2014_7_25/P2115937/phase0/";
+	String FilePath_InputImage = "H:/Research/AorticValve/Data/CT/Normal/2014_7_25/P2115937/phase0/";
+
 	DenseImage3D<double> InputImage;
 	//Load3DScalarImageFromJsonDataFile(InputImage, FilePath + "TestImage.json");
 	Load3DScalarImageFromDICOMSeries(InputImage, FilePath_InputImage);
@@ -31,7 +33,7 @@ void test_DiscreteGaussianFilter3D()
 	imfilter.SetBoundaryOptionAsReplicate();	
 	//imfilter.CreateGaussianMask(9, 9, 6, 1.8);
 	imfilter.CreateGaussianMask(InputImage.GetSpacing(), 3, 3, 3, 1);
-	imfilter.MaxThreadCount = 8;
+	imfilter.MaxThreadCount = 12;
 	
 	std::cout << "Point in Mask " << imfilter.ConvolutionMask.GetColCount() << '\n';
 
