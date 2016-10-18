@@ -113,6 +113,29 @@ DenseVector<ElementType, Length>::~DenseVector()
 
 
 template<typename ElementType, int_max Length>
+inline 
+bool DenseVector<ElementType, Length>::operator==(const DenseVector<ElementType, Length>& InputVector) const
+{
+	return !(*this != InputVector);
+}
+
+
+template<typename ElementType, int_max Length>
+inline
+bool DenseVector<ElementType, Length>::operator!=(const DenseVector<ElementType, Length>& InputVector) const
+{
+	for (int_max k = 0; k < Length; ++k)
+	{
+		if (m_StdArray[k] != InputVector[k])
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+
+template<typename ElementType, int_max Length>
 inline
 void DenseVector<ElementType, Length>::operator=(const DenseVector<ElementType, Length>& InputVector)
 {

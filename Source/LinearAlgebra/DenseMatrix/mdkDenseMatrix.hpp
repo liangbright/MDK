@@ -213,6 +213,34 @@ DenseMatrix<ElementType>::~DenseMatrix()
 
 
 template<typename ElementType>
+inline 
+bool DenseMatrix<ElementType>::operator==(const DenseMatrix<ElementType>& InputMatrix) const
+{
+	return !(*this != InputMatrix)
+}
+
+
+template<typename ElementType>
+inline
+bool DenseMatrix<ElementType>::operator!=(const DenseMatrix<ElementType>& InputMatrix) const
+{
+	if (this->GetRowCount() != InputMatrix.GetRowCount() || this->GetColCount() != InputMatrix.GetColCount())
+	{
+		return true;
+	}
+	auto Ptr = this->GetElementPointer();
+	for (int_max k = 0; k < this->GetElementCount(); ++k)
+	{
+		if (Ptr[k] != InputMatrix[k])
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+
+template<typename ElementType>
 inline
 void DenseMatrix<ElementType>::operator=(const DenseMatrix<ElementType>& InputMatrix)
 {
@@ -7032,7 +7060,7 @@ DenseMatrix<ElementType> DenseMatrix<ElementType>::ElementMultiply(const DenseGl
 }
 
 //-------------------- element operation : Object.ElementOperation update the current data of the object ---------------//
-
+/*
 template<typename ElementType>
 template<typename OperationType>
 inline
@@ -7122,9 +7150,9 @@ void DenseMatrix<ElementType>::ElementOperation(const std::string& OperationName
 {
     MatrixElementNamedOperation(*this, OperationName, *this, Element);
 }
-
+*/
 //-------------------- general col operation : Object.ColOperation modify the object itself ---------------//
-
+/*
 template<typename ElementType>
 template<typename OperationType>
 inline
@@ -7214,9 +7242,9 @@ void DenseMatrix<ElementType>::ColOperation(int_max ColIndex, const std::string&
 {
     MatrixColNamedOperation(*this, ColIndex, OperationName, *this, ColIndex, Element, true);
 }
-
+*/
 //-------------------- general row operation : Object.RowOperation modify the object itself ---------------//
-
+/*
 template<typename ElementType>
 template<typename OperationType>
 inline
@@ -7308,7 +7336,7 @@ DenseMatrix<ElementType>::RowOperation(int_max RowIndex, const std::string& Oper
 {
     MatrixRowNamedOperation(*this, RowIndex, OperationName, *this, RowIndex, Element, true);
 }
-
+*/
 //--------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
@@ -7343,15 +7371,6 @@ DenseMatrix<ElementType>::Find(int_max MaxOutputNumber, int_max LinearIndex_star
 
 template<typename ElementType>
 template<typename MatchFunctionType>
-inline 
-int_max DenseMatrix<ElementType>::Find(const char* first_or_last, MatchFunctionType MatchFunction) const
-{
-	return FindElementInMatrix(*this, first_or_last, MatchFunction);
-}
-
-
-template<typename ElementType>
-template<typename MatchFunctionType>
 inline
 int_max DenseMatrix<ElementType>::Find(const std::string& first_or_last, MatchFunctionType MatchFunction) const
 {
@@ -7364,14 +7383,6 @@ inline
 DenseMatrix<int_max> DenseMatrix<ElementType>::ExactMatch(const ElementType& InputElement) const
 {
 	return ExactMatchElementInMatrix(*this, InputElement);
-}
-
-
-template<typename ElementType>
-inline
-int_max DenseMatrix<ElementType>::ExactMatch(const char* first_or_last, const ElementType& InputElement) const
-{
-	return ExactMatchElementInMatrix(*this, first_or_last, InputElement);
 }
 
 
@@ -7417,18 +7428,26 @@ DenseMatrix<ElementType>::FindCol(int_max MaxOutputColCount, int_max ColIndex_st
 template<typename ElementType>
 template<typename MatchFunctionType>
 inline
-int_max DenseMatrix<ElementType>::FindCol(const char* first_or_last, MatchFunctionType MatchFunction) const
+int_max DenseMatrix<ElementType>::FindCol(const std::string& first_or_last, MatchFunctionType MatchFunction) const
 {
 	return FindColInMatrix(*this, first_or_last, MatchFunction);
 }
 
+//-------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-template<typename MatchFunctionType>
 inline
-int_max DenseMatrix<ElementType>::FindCol(const std::string& first_or_last, MatchFunctionType MatchFunction) const
+DenseMatrix<int_max> DenseMatrix<ElementType>::ExactMatchCol(const DenseMatrix<ElementType>& InputCol) const
 {
-	return FindColInMatrix(*this, first_or_last, MatchFunction);
+	return ExactMatchColInMatrix(*this, InputCol);
+}
+
+
+template<typename ElementType>
+inline
+int_max DenseMatrix<ElementType>::ExactMatchCol(const std::string& first_or_last, const DenseMatrix<ElementType>& InputCol) const
+{
+	return ExactMatchColInMatrix(*this, first_or_last, InputCol);
 }
 
 //-------------------------------------------------------------------------------------------//
@@ -7490,27 +7509,6 @@ DenseMatrix<int_max> DenseMatrix<ElementType>::Sort(int_max LinearIndex_start, i
 
 template<typename ElementType>
 inline
-DenseMatrix<int_max> DenseMatrix<ElementType>::Sort(const char* ascend_or_descend) const
-{
-	if (ascend_or_descend[0] == 'a')
-	{
-		return this->Sort([](const ElementType& ElementA, const ElementType& ElementB){ return ElementA < ElementB; });
-	}
-	else if (ascend_or_descend[0] == 'd')
-	{
-		return this->Sort([](const ElementType& ElementA, const ElementType& ElementB){ return ElementA > ElementB; });
-	}
-	else
-	{
-		MDK_Error("Invalid order name @ DenseMatrix<ElementType>::Sort(...)")
-		DenseMatrix<int_max> IndexList;
-		return IndexList;
-	}
-}
-
-
-template<typename ElementType>
-inline
 DenseMatrix<int_max> DenseMatrix<ElementType>::Sort(const std::string& ascend_or_descend) const
 {
 	if (ascend_or_descend == "ascend")
@@ -7553,25 +7551,6 @@ void DenseMatrix<ElementType>::SortInPlace(int_max LinearIndex_start, int_max Li
 		return;
 	}
 	std::sort(this->begin() + Index_start, this->begin() + Index_end + 1, CompareFunction);
-}
-
-
-template<typename ElementType>
-inline
-void DenseMatrix<ElementType>::SortInPlace(const char* ascend_or_descend)
-{
-	if (ascend_or_descend[0] == 'a')
-	{
-		this->SortInPlace([](const ElementType& ElementA, const ElementType& ElementB){ return ElementA < ElementB; });
-	}
-	else if (ascend_or_descend[0] == 'd')
-	{
-		this->SortInPlace([](const ElementType& ElementA, const ElementType& ElementB){ return ElementA > ElementB; });
-	}
-	else
-	{
-		MDK_Error("Invalid order name @ DenseMatrix<ElementType>::SortInPlace(...)")
-	}
 }
 
 

@@ -29,13 +29,14 @@ DenseMatrix<int_max> FindElementInMatrix(const DenseMatrix<ElementType>& InputMa
                                          int_max LinearIndex_start, int_max LinearIndex_end, MatchFunctionType MatchFunction);
 
 template<typename ElementType, typename MatchFunctionType>
-int_max FindElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, const char* first_or_last, MatchFunctionType MatchFunction);
+int_max FindElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, const std::string& first_or_last, MatchFunctionType MatchFunction);
+
 //------------------------------------------------
 template<typename ElementType>
-inline DenseMatrix<int_max> ExactMatchElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, const ElementType& InputElement);
+DenseMatrix<int_max> ExactMatchElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, const ElementType& InputElement);
 
 template<typename ElementType>
-inline int_max ExactMatchElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, const char* first_or_last, const ElementType& InputElement);
+int_max ExactMatchElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, const std::string& first_or_last, const ElementType& InputElement);
 //---------------------------------------------------
 template<typename ElementType, typename MatchFunctionType>
 DenseMatrix<int_max> FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix, MatchFunctionType MatchFunction);
@@ -49,6 +50,12 @@ DenseMatrix<int_max> FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix
 
 template<typename ElementType, typename MatchFunctionType>
 int_max FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix, const std::string& first_or_last, MatchFunctionType MatchFunction);
+//---------------------------------------------------
+template<typename ElementType>
+DenseMatrix<int_max> ExactMatchColInMatrix(const DenseMatrix<ElementType>& InputMatrix, const DenseMatrix<ElementType>& InputCol);
+
+template<typename ElementType>
+int_max ExactMatchColInMatrix(const DenseMatrix<ElementType>& InputMatrix, const std::string& first_or_last, const DenseMatrix<ElementType>& InputCol);
 //---------------------------------------------------
 template<typename ElementType, typename CompareFunctionType>
 DenseMatrix<int_max> SortColInMatrix(const DenseMatrix<ElementType>& InputMatrix, CompareFunctionType CompareFunction);
@@ -74,100 +81,85 @@ DenseMatrix<int_max> FindUniqueColInMatrix(const DenseMatrix<ElementType>& Input
 //-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-inline
 ElementType MatrixMean(const DenseMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType>
-inline
 DenseMatrix<ElementType> MatrixMeanOfEachCol(const DenseMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType>
-inline
 DenseMatrix<ElementType> MatrixMeanOfEachRow(const DenseMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType>
 int_max FindLinearIndexOfMaxInMatrix(const DenseMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType>
-inline
 ElementType MatrixMax(const DenseMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType>
-inline
 DenseMatrix<ElementType> MatrixMaxOfEachCol(const DenseMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType>
-inline
 DenseMatrix<ElementType> MatrixMaxOfEachRow(const DenseMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType>
 int_max FindLinearIndexOfMinInMatrix(const DenseMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType>
-inline
 ElementType MatrixMin(const DenseMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType>
-inline
 DenseMatrix<ElementType> MatrixMinOfEachCol(const DenseMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType>
-inline
 DenseMatrix<ElementType> MatrixMinOfEachRow(const DenseMatrix<ElementType>& InputMatrix);
 
-
 template<typename ElementType>
-inline
 ElementType MatrixSum(const DenseMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType>
-inline
 DenseMatrix<ElementType> MatrixSumOfEachCol(const DenseMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType>
-inline
 DenseMatrix<ElementType> MatrixSumOfEachRow(const DenseMatrix<ElementType>& InputMatrix);
 
 //-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-inline
 ElementType MatrixNorm_L1(const DenseMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType>
-inline
 ElementType MatrixNorm_L2(const DenseMatrix<ElementType>& InputMatrix);
 
 //-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-inline DenseMatrix<ElementType> MatrixTranspose(const DenseMatrix<ElementType>& InputMatrix);
+DenseMatrix<ElementType> MatrixTranspose(const DenseMatrix<ElementType>& InputMatrix);
 
 //-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-inline void MatrixTransposeInPlace(DenseMatrix<ElementType>& InputMatrix);
+void MatrixTransposeInPlace(DenseMatrix<ElementType>& InputMatrix);
 
 //-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-inline int_max MatrixRank(const DenseMatrix<ElementType>& InputMatrix);
+int_max MatrixRank(const DenseMatrix<ElementType>& InputMatrix);
 
 //-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-inline ElementType MatrixDeterminant(const DenseMatrix<ElementType>& InputMatrix);
+ElementType MatrixDeterminant(const DenseMatrix<ElementType>& InputMatrix);
 
 //-----------------------------------------------------------------------------------------------//
 template<typename ElementType>
-inline DenseMatrix<ElementType> MatrixInverse(const DenseMatrix<ElementType>& InputMatrix);
+DenseMatrix<ElementType> MatrixInverse(const DenseMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType>
-inline DenseMatrix<ElementType> MatrixPseudoInverse(const DenseMatrix<ElementType>& InputMatrix);
+DenseMatrix<ElementType> MatrixPseudoInverse(const DenseMatrix<ElementType>& InputMatrix);
 //-----------------------------------------------------------------------------------------------//
 // solve A*X=B
 template<typename ElementType>
-inline DenseMatrix<ElementType> SolveMatrixLinearEquation(const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB);
+DenseMatrix<ElementType> SolveMatrixLinearEquation(const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB);
 //-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
@@ -204,10 +196,10 @@ struct DenseMatrixEigenResult
 };
 
 template<typename ElementType>
-inline DenseMatrixEigenResult<std::complex<ElementType>> NonSymmetricRealMatrixEigen(const DenseMatrix<ElementType>& InputMatrix);
+DenseMatrixEigenResult<std::complex<ElementType>> NonSymmetricRealMatrixEigen(const DenseMatrix<ElementType>& InputMatrix);
 
 template<typename ElementType>
-inline DenseMatrixEigenResult<ElementType> SymmetricRealMatrixEigen(const DenseMatrix<ElementType>& InputMatrix, bool CheckIfSymmetric = false);
+DenseMatrixEigenResult<ElementType> SymmetricRealMatrixEigen(const DenseMatrix<ElementType>& InputMatrix, bool CheckIfSymmetric = false);
 
 //-----------------------------------------------------------------------------------------------//
 
@@ -248,7 +240,7 @@ struct DenseMatrixPCAResult
 };
 
 template<typename ElementType>
-inline DenseMatrixPCAResult<ElementType> MatrixPCA(const DenseMatrix<ElementType>& InputMatrix);
+DenseMatrixPCAResult<ElementType> MatrixPCA(const DenseMatrix<ElementType>& InputMatrix);
 
 //-----------------------------------------------------------------------------------------------//
 
@@ -291,12 +283,12 @@ struct DenseMatrixSVDResult
 
 
 template<typename ElementType>
-inline DenseMatrixSVDResult<ElementType> MatrixSVD(const DenseMatrix<ElementType>& InputMatrix);
+DenseMatrixSVDResult<ElementType> MatrixSVD(const DenseMatrix<ElementType>& InputMatrix);
 
 //-----------------------------------------------------------------------------------------------//
 
 template<typename ElementType>
-inline DenseMatrix<ElementType> MatrixConvolution(const DenseMatrix<ElementType>& InputMatrix, const DenseMatrix<ElementType>& Mask, const char* Option);
+DenseMatrix<ElementType> MatrixConvolution(const DenseMatrix<ElementType>& InputMatrix, const DenseMatrix<ElementType>& Mask, const char* Option);
 
 }//end namespace mdk
 

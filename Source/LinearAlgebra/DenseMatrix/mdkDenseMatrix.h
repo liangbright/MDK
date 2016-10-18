@@ -206,6 +206,10 @@ public:
 
     inline ~DenseMatrix();
 
+	//----------------------  operator==  ----------------------------------------//
+	inline bool operator==(const DenseMatrix<ElementType>& InputMatrix) const;
+	inline bool operator!=(const DenseMatrix<ElementType>& InputMatrix) const;
+
     //----------------------  operator=  ----------------------------------------//
 
     // do not use function template for this function
@@ -1124,7 +1128,7 @@ public:
     inline DenseMatrix ElementMultiply(const DenseGlueMatrixForMultiplication<ElementType>& GlueMatrix) const;
 
     //-------------------- element operation :  modify every element of the matrix ---------------//
-
+	/*
 	// ElementOperation can be replaced by ranged for loop 
 	// DenseMatrix<double> A(10,10); 
 	// A.ElementOperation("abs"); <=> for(auto& i : A) { i = std::abs(i);}
@@ -1149,9 +1153,9 @@ public:
 	inline void ElementOperation(const char OperationName, const ElementType& Element);
     inline void ElementOperation(const char* OperationName, const ElementType& Element);
     inline void ElementOperation(const std::string& OperationName, const ElementType& Element);
-
+	*/
     //------------------------- col operation : modify selected col of the matrix ---------------//
-
+	/*
 	// ColOperation can be replaced by RefCol and ElementOperation
 	// DenseMatrix<double> A(10,100);
 	// A.ColOperation(0, "abs");  <=> auto temp=A.RefCol(0); temp.ElementOperation("abs");
@@ -1175,9 +1179,9 @@ public:
     inline void ColOperation(int_max ColIndex, const char OperationName, const ElementType& Element);
     inline void ColOperation(int_max ColIndex, const char* OperationName, const ElementType& Element);
     inline void ColOperation(int_max ColIndex, const std::string& OperationName, const ElementType& Element);
-
+	*/
     //-------------------- general row operation : modify selected row of the matrix ---------------//
-
+	/*
 	template<typename OperationType>
 	inline void RowOperation(int_max RowIndex, OperationType Operation);
 
@@ -1197,7 +1201,7 @@ public:
     inline void RowOperation(int_max RowIndex, const char OperationName, const ElementType& Element);
     inline void RowOperation(int_max RowIndex, const char* OperationName, const ElementType& Element);
     inline void RowOperation(int_max RowIndex, const std::string& OperationName, const ElementType& Element);
-
+	*/
     //------------------------ find element : return linear index ----------------------------//
 
     template<typename MatchFunctionType>
@@ -1210,9 +1214,6 @@ public:
     inline DenseMatrix<int_max> Find(int_max MaxOutputNumber, int_max LinearIndex_start, int_max LinearIndex_end, MatchFunctionType MatchFunction) const;
 
     // find the first/last element that match the condition, first_or_last = "first" or "last"
-    template<typename MatchFunctionType>
-	inline int_max Find(const char* first_or_last, MatchFunctionType MatchFunction) const;
-
 	template<typename MatchFunctionType>
 	inline int_max Find(const std::string& first_or_last, MatchFunctionType MatchFunction) const;
 
@@ -1220,8 +1221,7 @@ public:
 
     inline DenseMatrix<int_max> ExactMatch(const ElementType& InputElement) const;
 
-    inline int_max ExactMatch(const char* first_or_last, const ElementType& InputElement) const;//first_or_last = "first" or "last"
-	inline int_max ExactMatch(const std::string& first_or_last, const ElementType& InputElement) const;
+	inline int_max ExactMatch(const std::string& first_or_last, const ElementType& InputElement) const;//first_or_last = "first" or "last"
 
     //------------------------ find col : return col index list ------------------------------------//
 
@@ -1234,11 +1234,15 @@ public:
     template<typename MatchFunctionType>
     inline DenseMatrix<int_max> FindCol(int_max MaxOutputColCount, int_max ColIndex_start, int_max ColIndex_end, MatchFunctionType MatchFunction) const;
 
-	template<typename MatchFunctionType>
-	inline int_max FindCol(const char* first_or_last, MatchFunctionType MatchFunction) const;//first_or_last = "first" or "last"
-
     template<typename MatchFunctionType>
-    inline int_max FindCol(const std::string& first_or_last, MatchFunctionType MatchFunction) const;
+    inline int_max FindCol(const std::string& first_or_last, MatchFunctionType MatchFunction) const;//first_or_last = "first" or "last"
+
+
+	//-------------------- Match column (use == operater) : return col index -----------------------------------//
+
+	inline DenseMatrix<int_max> ExactMatchCol(const DenseMatrix<ElementType>& InputCol) const;
+
+	inline int_max ExactMatchCol(const std::string& first_or_last, const DenseMatrix<ElementType>& InputCol) const;//first_or_last = "first" or "last"
 
     //----------------------- sort element : return sorted linear index list ----------//
 
@@ -1248,8 +1252,7 @@ public:
     template<typename CompareFunctionType>
     inline DenseMatrix<int_max> Sort(int_max LinearIndex_start, int_max LinearIndex_end, CompareFunctionType CompareFunction) const;
 
-    inline DenseMatrix<int_max> Sort(const char* ascend_or_descend) const;//ascend_or_descend = "ascend" or "descend"
-    inline DenseMatrix<int_max> Sort(const std::string& ascend_or_descend) const;
+    inline DenseMatrix<int_max> Sort(const std::string& ascend_or_descend) const;//ascend_or_descend = "ascend" or "descend"
 
     template<typename CompareFunctionType>
     inline void SortInPlace(CompareFunctionType CompareFunction);
@@ -1257,8 +1260,7 @@ public:
     template<typename CompareFunctionType>
     inline void SortInPlace(int_max LinearIndex_start, int_max LinearIndex_end, CompareFunctionType CompareFunction);
 
-    inline void SortInPlace(const char* ascend_or_descend); //ascend_or_descend = "ascend" or "descend"
-    inline void SortInPlace(const std::string& ascend_or_descend);
+    inline void SortInPlace(const std::string& ascend_or_descend);//ascend_or_descend = "ascend" or "descend"
 
     //----------------------- sort col : return sorted col index list ----------------------------------//
 

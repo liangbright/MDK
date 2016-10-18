@@ -84,7 +84,7 @@ DenseMatrix<int_max> FindElementInMatrix(const DenseMatrix<ElementType>& InputMa
 
 
 template<typename ElementType, typename MatchFunctionType>
-int_max FindElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, const char* first_or_last, MatchFunctionType MatchFunction)
+int_max FindElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, const std::string& first_or_last, MatchFunctionType MatchFunction)
 {
     int_max Index_output = -1;
 
@@ -120,18 +120,16 @@ int_max FindElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, const c
 
 
 template<typename ElementType>
-inline
 DenseMatrix<int_max> ExactMatchElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, const ElementType& InputElement)
 {
-	return FindElementInMatrix(*this, InputElement, [&](const ElementType& Element){return Element == InputElement; });
+	return FindElementInMatrix(InputMatrix, [&](const ElementType& Element){return Element == InputElement; });
 }
 
 
 template<typename ElementType>
-inline
-int_max ExactMatchElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, const char* first_or_last, const ElementType& InputElement)
+int_max ExactMatchElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, const std::string& first_or_last, const ElementType& InputElement)
 {
-	return FindElementInMatrix(*this, first_or_last, InputElement, [&](const ElementType& Element){return Element == InputElement; });
+	return FindElementInMatrix(InputMatrix, first_or_last, [&](const ElementType& Element) {return Element == InputElement; });
 }
 
 
@@ -241,7 +239,7 @@ DenseMatrix<int_max> FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix
 
 
 template<typename ElementType, typename MatchFunctionType>
-DenseMatrix<int_max> FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix, const std::string& first_or_last, MatchFunctionType MatchFunction)
+int_max FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix, const std::string& first_or_last, MatchFunctionType MatchFunction)
 {
 	int_max ColIndex_output = -1;
 
@@ -277,10 +275,24 @@ DenseMatrix<int_max> FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix
 	}
 	else
 	{
-		MDK_Error("Wrong option @ mdkLinearAlgebra_DenseMatrix FindElementInMatrix(...)")
+		MDK_Error("Wrong option @ mdkLinearAlgebra_DenseMatrix FindColInMatrix(...)")
 	}	
 
 	return ColIndex_output;
+}
+
+
+template<typename ElementType>
+DenseMatrix<int_max> ExactMatchColInMatrix(const DenseMatrix<ElementType>& InputMatrix, const DenseMatrix<ElementType>& InputCol)
+{
+	return FindColInMatrix(InputMatrix, [&](const DenseMatrix<ElementType>& Col) {return Col == InputCol; });
+}
+
+
+template<typename ElementType>
+int_max ExactMatchColInMatrix(const DenseMatrix<ElementType>& InputMatrix, const std::string& first_or_last, const DenseMatrix<ElementType>& InputCol)
+{
+	return FindColInMatrix(InputMatrix, first_or_last, [&](const DenseMatrix<ElementType>& Col) {return Col == InputCol; });
 }
 
 
@@ -527,7 +539,6 @@ DenseMatrix<int_max> FindUniqueColInMatrix(const DenseMatrix<ElementType>& Input
 //================================================================================================================================//
 
 template<typename ElementType>
-inline
 ElementType MatrixMean(const DenseMatrix<ElementType>& InputMatrix)
 {
     auto ElementCount = InputMatrix.GetElementCount();
@@ -554,7 +565,6 @@ ElementType MatrixMean(const DenseMatrix<ElementType>& InputMatrix)
 
 
 template<typename ElementType>
-inline
 DenseMatrix<ElementType> MatrixMeanOfEachCol(const DenseMatrix<ElementType>& InputMatrix)
 {
     DenseMatrix<ElementType> tempMatrix;
@@ -592,7 +602,6 @@ DenseMatrix<ElementType> MatrixMeanOfEachCol(const DenseMatrix<ElementType>& Inp
 
 
 template<typename ElementType>
-inline
 DenseMatrix<ElementType> MatrixMeanOfEachRow(const DenseMatrix<ElementType>& InputMatrix)
 {
     DenseMatrix<ElementType> tempMatrix;
@@ -633,7 +642,6 @@ DenseMatrix<ElementType> MatrixMeanOfEachRow(const DenseMatrix<ElementType>& Inp
 
 
 template<typename ElementType>
-inline
 ElementType MatrixStd(const DenseMatrix<ElementType>& InputMatrix) // standard deviation
 {
 	auto ElementCount = InputMatrix.GetElementCount();
@@ -660,8 +668,8 @@ ElementType MatrixStd(const DenseMatrix<ElementType>& InputMatrix) // standard d
 	return Value;
 }
 
+
 template<typename ElementType>
-inline
 int_max FindLinearIndexOfMaxInMatrix(const DenseMatrix<ElementType>& InputMatrix)
 {
     auto Input_ElementCount = InputMatrix.GetElementCount();
@@ -693,7 +701,7 @@ int_max FindLinearIndexOfMaxInMatrix(const DenseMatrix<ElementType>& InputMatrix
 
 
 template<typename ElementType>
-inline
+
 ElementType MatrixMax(const DenseMatrix<ElementType>& InputMatrix)
 {   
     if (InputMatrix.IsEmpty() == true)
@@ -709,7 +717,6 @@ ElementType MatrixMax(const DenseMatrix<ElementType>& InputMatrix)
 
 
 template<typename ElementType>
-inline
 DenseMatrix<ElementType> MatrixMaxOfEachCol(const DenseMatrix<ElementType>& InputMatrix)
 {
     DenseMatrix<ElementType> tempMatrix;
@@ -750,7 +757,6 @@ DenseMatrix<ElementType> MatrixMaxOfEachCol(const DenseMatrix<ElementType>& Inpu
 
 
 template<typename ElementType>
-inline
 DenseMatrix<ElementType> MatrixMaxOfEachRow(const DenseMatrix<ElementType>& InputMatrix)
 {
     DenseMatrix<ElementType> tempMatrix;
@@ -821,7 +827,6 @@ int_max FindLinearIndexOfMinInMatrix(const DenseMatrix<ElementType>& InputMatrix
 
 
 template<typename ElementType>
-inline
 ElementType MatrixMin(const DenseMatrix<ElementType>& InputMatrix)
 {
     if (InputMatrix.IsEmpty() == true)
@@ -837,7 +842,6 @@ ElementType MatrixMin(const DenseMatrix<ElementType>& InputMatrix)
 
 
 template<typename ElementType>
-inline
 DenseMatrix<ElementType> MatrixMinOfEachCol(const DenseMatrix<ElementType>& InputMatrix)
 {
     DenseMatrix<ElementType> tempMatrix;
@@ -878,7 +882,6 @@ DenseMatrix<ElementType> MatrixMinOfEachCol(const DenseMatrix<ElementType>& Inpu
 
 
 template<typename ElementType>
-inline
 DenseMatrix<ElementType> MatrixMinOfEachRow(const DenseMatrix<ElementType>& InputMatrix)
 {
     DenseMatrix<ElementType> tempMatrix;
@@ -919,7 +922,6 @@ DenseMatrix<ElementType> MatrixMinOfEachRow(const DenseMatrix<ElementType>& Inpu
 
 
 template<typename ElementType>
-inline
 ElementType MatrixSum(const DenseMatrix<ElementType>& InputMatrix)
 {
     auto Input_ElementCount = InputMatrix.GetElementCount();
@@ -944,7 +946,6 @@ ElementType MatrixSum(const DenseMatrix<ElementType>& InputMatrix)
 
 
 template<typename ElementType>
-inline
 DenseMatrix<ElementType> MatrixSumOfEachCol(const DenseMatrix<ElementType>& InputMatrix)
 {
     DenseMatrix<ElementType> tempMatrix;
@@ -985,7 +986,6 @@ DenseMatrix<ElementType> MatrixSumOfEachCol(const DenseMatrix<ElementType>& Inpu
 
 
 template<typename ElementType>
-inline
 DenseMatrix<ElementType> MatrixSumOfEachRow(const DenseMatrix<ElementType>& InputMatrix)
 {
     DenseMatrix<ElementType> tempMatrix;
@@ -1028,7 +1028,6 @@ DenseMatrix<ElementType> MatrixSumOfEachRow(const DenseMatrix<ElementType>& Inpu
 //===================================================================================================================================//
 
 template<typename ElementType>
-inline
 int_max MatrixNorm_L0(const DenseMatrix<ElementType>& InputMatrix, ElementType Zero)
 {
 	auto ElementCount = InputMatrix.GetElementCount();
@@ -1052,7 +1051,6 @@ int_max MatrixNorm_L0(const DenseMatrix<ElementType>& InputMatrix, ElementType Z
 
 
 template<typename ElementType>
-inline
 ElementType MatrixNorm_L1(const DenseMatrix<ElementType>& InputMatrix)
 {
     auto ElementCount = InputMatrix.GetElementCount();
@@ -1077,7 +1075,6 @@ ElementType MatrixNorm_L1(const DenseMatrix<ElementType>& InputMatrix)
 
 
 template<typename ElementType>
-inline
 ElementType MatrixNorm_L2(const DenseMatrix<ElementType>& InputMatrix)
 {
     auto ElementCount = InputMatrix.GetElementCount();
@@ -1104,7 +1101,6 @@ ElementType MatrixNorm_L2(const DenseMatrix<ElementType>& InputMatrix)
 
 
 template<typename ElementType>
-inline 
 DenseMatrix<ElementType> MatrixTranspose(const DenseMatrix<ElementType>& InputMatrix)
 {
     DenseMatrix<ElementType> tempMatrix;
@@ -1157,7 +1153,6 @@ DenseMatrix<ElementType> MatrixTranspose(const DenseMatrix<ElementType>& InputMa
 
 
 template<typename ElementType>
-inline 
 void MatrixTransposeInPlace(DenseMatrix<ElementType>& InputMatrix)
 {
     auto Size = InputMatrix.GetSize();
@@ -1184,7 +1179,6 @@ void MatrixTransposeInPlace(DenseMatrix<ElementType>& InputMatrix)
 
 
 template<typename ElementType>
-inline 
 int_max MatrixRank(const DenseMatrix<ElementType>& InputMatrix)
 {
     auto Size = InputMatrix.GetSize();
@@ -1208,7 +1202,6 @@ int_max MatrixRank(const DenseMatrix<ElementType>& InputMatrix)
 
 
 template<typename ElementType>
-inline
 ElementType MatrixDeterminant(const DenseMatrix<ElementType>& InputMatrix)
 {
 	if (InputMatrix.IsEmpty() == true)
@@ -1238,7 +1231,6 @@ ElementType MatrixDeterminant(const DenseMatrix<ElementType>& InputMatrix)
 
 
 template<typename ElementType>
-inline
 DenseMatrix<ElementType> MatrixInverse(const DenseMatrix<ElementType>& InputMatrix)
 {
     DenseMatrix<ElementType> OutputMatrix;
@@ -1271,7 +1263,6 @@ DenseMatrix<ElementType> MatrixInverse(const DenseMatrix<ElementType>& InputMatr
 
 
 template<typename ElementType>
-inline
 DenseMatrix<ElementType> MatrixPseudoInverse(const DenseMatrix<ElementType>& InputMatrix)
 {
 	DenseMatrix<ElementType> OutputMatrix;
@@ -1302,7 +1293,6 @@ DenseMatrix<ElementType> MatrixPseudoInverse(const DenseMatrix<ElementType>& Inp
 
 
 template<typename ElementType>
-inline 
 DenseMatrix<ElementType> SolveMatrixLinearEquation(const DenseMatrix<ElementType>& MatrixA, const DenseMatrix<ElementType>& MatrixB)
 {	// A*X=B
 	DenseMatrix<ElementType> MatrixX;
@@ -1356,7 +1346,6 @@ DenseMatrix<ElementType> SolveMatrixLinearEquation(const DenseMatrix<ElementType
 
 
 template<typename ElementType>
-inline 
 DenseMatrixEigenResult<std::complex<ElementType>> NonSymmetricRealMatrixEigen(const DenseMatrix<ElementType>& InputMatrix)
 {
     DenseMatrixEigenResult<std::complex<ElementType>> Result;
@@ -1392,7 +1381,6 @@ DenseMatrixEigenResult<std::complex<ElementType>> NonSymmetricRealMatrixEigen(co
 
 
 template<typename ElementType>
-inline 
 DenseMatrixEigenResult<ElementType> SymmetricRealMatrixEigen(const DenseMatrix<ElementType>& InputMatrix, bool CheckIfSymmetric)
 {
     DenseMatrixEigenResult<ElementType> Result;
@@ -1448,7 +1436,6 @@ DenseMatrixEigenResult<ElementType> SymmetricRealMatrixEigen(const DenseMatrix<E
 
 
 template<typename ElementType>
-inline
 DenseMatrixPCAResult<ElementType> MatrixPCA(const DenseMatrix<ElementType>& InputMatrix)
 {
     DenseMatrixPCAResult<ElementType> PCAResult;
@@ -1477,9 +1464,7 @@ DenseMatrixPCAResult<ElementType> MatrixPCA(const DenseMatrix<ElementType>& Inpu
     //}
 
     DenseMatrix<ElementType> tempMatrix(Size.RowCount, Size.RowCount);
-
     DenseMatrix<ElementType> tempCol(Size.RowCount, 1);
-
     DenseMatrix<ElementType> tempColTranspose(1, Size.RowCount);
 
     for (int_max i = 0; i < Size.ColCount; ++i)
@@ -1512,7 +1497,6 @@ DenseMatrixPCAResult<ElementType> MatrixPCA(const DenseMatrix<ElementType>& Inpu
 
 
 template<typename ElementType>
-inline
 DenseMatrixSVDResult<ElementType> MatrixSVD(const DenseMatrix<ElementType>& InputMatrix)
 {
     DenseMatrixSVDResult<ElementType> Result;
@@ -1571,4 +1555,3 @@ DenseMatrixSVDResult<ElementType> MatrixSVD(const DenseMatrix<ElementType>& Inpu
 }
 
 }//end namespace mdk
-

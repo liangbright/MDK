@@ -126,6 +126,34 @@ DenseVector<ElementType>::~DenseVector()
 
 template<typename ElementType>
 inline
+bool DenseVector<ElementType>::operator==(const DenseVector<ElementType>& InputVector) const
+{
+	return !(*this != InputVector);
+}
+
+
+template<typename ElementType>
+inline
+bool DenseVector<ElementType>::operator!=(const DenseVector<ElementType>& InputVector) const
+{
+	if (this->GetLength() != InputVector.GetLength())
+	{
+		return true;
+	}
+
+	for (int_max k = 0; k < this->GetLength(); ++k)
+	{
+		if (m_StdVector[k] != InputVector[k])
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+
+template<typename ElementType>
+inline
 void DenseVector<ElementType>::operator=(const ElementType& Element)
 {
 	auto SelfLength = this->GetLength();

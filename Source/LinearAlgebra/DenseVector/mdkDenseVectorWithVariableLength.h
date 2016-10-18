@@ -58,6 +58,10 @@ public:
 
     inline ~DenseVector();
 
+	//------------------------------------------------------------
+	inline bool operator==(const DenseVector<ElementType>& InputVector) const;
+
+	inline bool operator!=(const DenseVector<ElementType>& InputVector) const;
     //------------------------------------------------------------
 
 	inline void operator=(const ElementType& Element);
