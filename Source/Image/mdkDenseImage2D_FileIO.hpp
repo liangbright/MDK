@@ -212,7 +212,7 @@ bool Load2DScalarImageFromSingleDICOMFile(DenseImage2D<PixelType>& OutputImage, 
     }
     catch (itk::ExceptionObject & err)
     {
-        std::cerr << "ExceptionObject caught while reading the DICOM file @ Load2DScalarImageFromSingleDICOMFile(...)" << std::endl;
+        std::cerr << "ExceptionObject caught while reading the DICOM file " << FilePathAndName.StdString() << " @ Load2DScalarImageFromSingleDICOMFile(...)" << std::endl;
         std::cerr << err << std::endl;
         return false;
     }
