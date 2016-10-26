@@ -1310,12 +1310,20 @@ void DenseShadowMatrix<ElementType>::operator*=(const ElementType& Element)
     {
         if (m_RowIndexList_source.size() == 1 && m_Flag_All_Col == true)     // SourceMatrix(i,:) *= Element
         {
-            m_SourceMatrixSharedCopy.RowOperation(m_RowIndexList_source[0], '*', Element);
+			auto i = m_RowIndexList_source[0];
+			for (int_max j = 0; j < m_SourceMatrixSharedCopy.GetColCount(); ++j)
+			{
+				m_SourceMatrixSharedCopy(i, j) *= Element;
+			}
             return;
         }
         else if (m_ColIndexList_source.size() == 1 && m_Flag_All_Row == true) // SourceMatrix(:,j) *= Element
-        {
-            m_SourceMatrixSharedCopy.ColOperation(m_ColIndexList_source[0], '*', Element);
+        {            
+			auto j = m_ColIndexList_source[0];
+			for (int_max i = 0; i < m_SourceMatrixSharedCopy.GetRowCount(); ++i)
+			{
+				m_SourceMatrixSharedCopy(i, j) *= Element;
+			}
             return;
         }
     }
