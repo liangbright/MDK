@@ -240,6 +240,7 @@ DenseMatrix<ScalarType> ResampleOpen3DCurveByCardinalSpline(const DenseMatrix<Sc
 {
 	// output: SplineCurve(:, 0) is Curve(:, 0); SplineCurve(:, end) is Curve(:, end)
 
+	auto PointCount_input = Curve.GetColCount();
 	if (Curve.GetColCount() < 2 || PointCount < 2)
 	{
 		DenseMatrix<ScalarType> EmptyCurve;
@@ -247,18 +248,19 @@ DenseMatrix<ScalarType> ResampleOpen3DCurveByCardinalSpline(const DenseMatrix<Sc
 	}
 
 	auto points = vtkSmartPointer<vtkPoints>::New();
-	for (int_max k = 0; k < Curve.GetColCount(); ++k)
+	points->SetNumberOfPoints(PointCount_input);
+	for (int_max k = 0; k < PointCount_input; ++k)
 	{
 		auto x = Curve(0, k);
 		auto y = Curve(1, k);
 		auto z = Curve(2, k);
-		points->InsertPoint(k, x, y, z);
+		points->SetPoint(k, x, y, z);
 	}
 	auto lines =vtkSmartPointer<vtkCellArray>::New();
-	lines->InsertNextCell(Curve.GetColCount());
-	for (unsigned int i = 0; i < Curve.GetColCount(); ++i)
+	lines->InsertNextCell(PointCount_input);
+	for (int_max k = 0; k < PointCount_input; ++k)
 	{
-		lines->InsertCellPoint(i);
+		lines->InsertCellPoint(k);
 	}
 	auto spline_data = vtkSmartPointer<vtkPolyData>::New();
 	spline_data->SetPoints(points);
@@ -298,31 +300,73 @@ DenseMatrix<ScalarType> ResampleOpen3DCurveByCardinalSpline(const DenseMatrix<Sc
 
 template<typename ScalarType>
 DenseMatrix<ScalarType> ResampleClosed3DCurveByCardinalSpline(const DenseMatrix<ScalarType>& Curve, int_max PointCount)
-{	//input: Curve(:,0) = Curve(:,end)
-
-	//auto SplineCurve = FitSplineToOpenCurve(Curve, PointCount + 1);
-	//return SplineCurve.GetSubMatrix(ALL, span(0, PointCount-1));
-
-	if (Curve.GetColCount() < 2 || PointCount < 2)
+{// Curve(:,1)=[x,y,z]	
+	auto PointCount_input = Curve.GetColCount();
+	if (PointCount_input < 2 || PointCount < 2)
 	{
 		DenseMatrix<ScalarType> EmptyCurve;
 		return EmptyCurve;
 	}
 
 	auto points = vtkSmartPointer<vtkPoints>::New();
-	for (int_max k = 0; k < Curve.GetColCount(); ++k)
+	auto lines = vtkSmartPointer<vtkCellArray>::New();	
+
+	//check if Curve(:,0) = Curve(:,end)
+	bool Flag_Start_End_Same = false;
 	{
-		auto x = Curve(0, k);
-		auto y = Curve(1, k);
-		auto z = Curve(2, k);
-		points->InsertPoint(k, x, y, z);
+		auto x1 = Curve(0, 0);
+		auto y1 = Curve(1, 0);
+		auto z1 = Curve(2, 0);
+		auto x2 = Curve(0, PointCount_input - 1);
+		auto y2 = Curve(1, PointCount_input - 1);
+		auto z2 = Curve(2, PointCount_input - 1);
+		auto dist = std::abs(x1 - x2) + std::abs(y1 - y2) + std::abs(z1 - z2);		
+		auto EPS = std::numeric_limits<ScalarType>::epsilon();
+		if (dist <= 3*EPS)
+		{
+			Flag_Start_End_Same = true;
+		}
 	}
-	auto lines = vtkSmartPointer<vtkCellArray>::New();
-	lines->InsertNextCell(Curve.GetColCount());
-	for (unsigned int i = 0; i < Curve.GetColCount(); ++i)
+
+	if (Flag_Start_End_Same == true)
 	{
-		lines->InsertCellPoint(i);
+		points->SetNumberOfPoints(PointCount_input);
+		for (int_max k = 0; k < PointCount_input; ++k)
+		{
+			auto x = Curve(0, k);
+			auto y = Curve(1, k);
+			auto z = Curve(2, k);
+			points->SetPoint(k, x, y, z);
+		}
+		lines->InsertNextCell(PointCount_input);
+		for (int_max k = 0; k < PointCount_input; ++k)
+		{
+			lines->InsertCellPoint(k);
+		}
 	}
+	else 
+	{
+		points->SetNumberOfPoints(PointCount_input+1);
+		for (int_max k = 0; k < PointCount_input; ++k)
+		{
+			auto x = Curve(0, k);
+			auto y = Curve(1, k);
+			auto z = Curve(2, k);
+			points->SetPoint(k, x, y, z);
+		}		
+		{//add the first point to the end
+			auto x = Curve(0, 0);
+			auto y = Curve(1, 0);
+			auto z = Curve(2, 0);
+			points->SetPoint(PointCount_input, x, y, z);
+		}
+		lines->InsertNextCell(PointCount_input+1);
+		for (int_max k = 0; k < PointCount_input+1; ++k)
+		{
+			lines->InsertCellPoint(k);
+		}
+	}
+
 	auto spline_data = vtkSmartPointer<vtkPolyData>::New();
 	spline_data->SetPoints(points);
 	spline_data->SetLines(lines);

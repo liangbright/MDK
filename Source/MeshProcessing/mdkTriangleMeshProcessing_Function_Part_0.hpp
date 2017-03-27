@@ -439,13 +439,13 @@ void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<MeshAttributeType>& T
 
 			if (max_curvature_after > max_curvature_before)
 			{
-				MDK_Warning("max_curvature_after > max_curvature_before at iter=" + std::to_string(iter) + " @ SmoothTriangleMeshByNormalBasedCurvature(...)")
+				//MDK_Warning("max_curvature_after > max_curvature_before at iter=" + std::to_string(iter) + " @ SmoothTriangleMeshByNormalBasedCurvature(...)")
 				//break;
 			}
 
 			if (total_curvature_after > total_curvature_before)
 			{
-				MDK_Warning("total_curvature_after > total_curvature_before at iter=" + std::to_string(iter) + " @ SmoothTriangleMeshByNormalBasedCurvature(...)")
+				//MDK_Warning("total_curvature_after > total_curvature_before at iter=" + std::to_string(iter) + " @ SmoothTriangleMeshByNormalBasedCurvature(...)")
 				break;
 			}
 		}

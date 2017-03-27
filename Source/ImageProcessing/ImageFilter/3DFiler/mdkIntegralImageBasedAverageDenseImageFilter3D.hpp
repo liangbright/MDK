@@ -241,8 +241,8 @@ void IntegralImageBasedAverageDenseImageFilter3D<InputPixelType, OutputPixelType
 	}
 
 	bool Flag_Input_Output_SameOrientation = false;
-	DenseMatrix<double> OrientationDiff = MatrixSubtract(InputImageInfo.Orientation, OutputImageInfo.Orientation);
-	OrientationDiff.ElementOperation("abs");
+	DenseMatrix<double> OrientationDiff = MatrixSubtract(InputImageInfo.Orientation, OutputImageInfo.Orientation);	
+	for (auto& Element : OrientationDiff) { Element = std::abs(Element); }
 	auto SumAbsDiff = OrientationDiff.Sum();
 	if (SumAbsDiff <= Eps*9.0)// 9 element in matrix
 	{

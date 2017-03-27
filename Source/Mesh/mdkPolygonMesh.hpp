@@ -563,6 +563,13 @@ PolygonMesh<MeshAttributeType>::GetPointPosition(int_max PointIndex) const
 }
 
 template<typename MeshAttributeType>
+inline
+void PolygonMesh<MeshAttributeType>::GetPointPosition(int_max PointIndex, DenseVector<typename MeshAttributeType::ScalarType, 3>& Position) const
+{
+	m_MeshData->PointPositionTable.GetCol(PointIndex, Position.GetPointer());
+}
+
+template<typename MeshAttributeType>
 inline 
 void PolygonMesh<MeshAttributeType>::
 GetPointPosition(int_max PointIndex, ScalarType& x, ScalarType& y, ScalarType& z) const
