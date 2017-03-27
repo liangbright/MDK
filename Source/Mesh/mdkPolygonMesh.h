@@ -450,9 +450,9 @@ public:
 	// |  /   Merge(A, B)    ||
 	// A                     A
 	// ABC may not be a face, i.e., ABC is a hole
-	// check is performed in the function to prevent this case
+	// Flag_CheckTriangle= ture then check is performed in the function to prevent this case
 	//------------------------------
-	bool MergeConnectivityOfPoint(int_max PointIndexA, int_max PointIndexB);
+	bool MergeConnectivityOfPoint(int_max PointIndexA, int_max PointIndexB, bool Flag_CheckTriangle = false);
 
 	// Point may not be on the edge
 	// return true if success

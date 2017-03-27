@@ -236,7 +236,7 @@ DenseVector<ScalarType, 3> ComputeCenterOfCircumcircleOfTriangleIn3D(const Dense
 template<typename ScalarType>
 DenseVector<ScalarType, 3> ComputeCenterOfCircumcircleOfTriangleIn3D(const ScalarType* PointA, const ScalarType* PointB, const ScalarType* PointC)
 {   // ref: http://mathworld.wolfram.com/Circumcircle.html
-	//choose PointA as origin
+	//choose PointA as origin, find the plane defined by point A,B,C
 	//
 	// Y
 	// ^
@@ -256,7 +256,7 @@ DenseVector<ScalarType, 3> ComputeCenterOfCircumcircleOfTriangleIn3D(const Scala
 	DenseVector<ScalarType, 3> AB, DirectionX;
 	AB[0] = PointB[0] - PointA[0];
 	AB[1] = PointB[1] - PointA[1];
-	AB[2] = PointB[2] - PointA[2];	
+	AB[2] = PointB[2] - PointA[2];
 	auto L_AB = std::sqrt(AB[0] * AB[0] + AB[1] * AB[1] + AB[2] * AB[2]);
 	DirectionX[0] = AB[0] / L_AB;
 	DirectionX[1] = AB[1] / L_AB;
@@ -284,17 +284,37 @@ DenseVector<ScalarType, 3> ComputeCenterOfCircumcircleOfTriangleIn3D(const Scala
 	DirectionY[2] = DC[2] / L_DC;
 
 	//------------- special case when A, B, C in a line ---------------------------
-
 	if (L_DC <= std::numeric_limits<ScalarType>::epsilon())
-	{		
-		auto inf = std::numeric_limits<ScalarType>::infinity();
-		DenseVector<ScalarType, 3> Center = { inf, inf, inf };
+	{
+		//compare distance AB AC CD
+		auto Ls_AB=L_AB*L_AB;
+		auto Ls_AC = (PointA[0]-PointC[0])*(PointA[0]-PointC[0])+(PointA[1]-PointC[1])*(PointA[1]-PointC[1])+(PointA[2]-PointC[2])*(PointA[2]-PointC[2]);
+		auto Ls_CD = (PointC[0]-PointD[0])*(PointC[0]-PointD[0])+(PointC[1]-PointD[1])*(PointC[1]-PointD[1])+(PointC[2]-PointD[2])*(PointC[2]-PointD[2]);		
+		DenseVector<ScalarType, 3> Center;
+		if (Ls_AB >= Ls_AC && Ls_AB >= Ls_CD)
+		{// center is middle point of AB
+			Center[0]=(PointA[0]+PointB[0])/2;
+			Center[1]=(PointA[1]+PointB[1])/2;
+			Center[2]=(PointA[2]+PointB[2])/2;
+		}
+		else if (Ls_AC >= Ls_AB && Ls_AC >= Ls_CD)
+		{// center is middle point of AC
+			Center[0]=(PointA[0]+PointC[0])/2;
+			Center[1]=(PointA[1]+PointC[1])/2;
+			Center[2]=(PointA[2]+PointC[2])/2;
+		}
+		else //if (Ls_CD >= Ls_AB && Ls_CD >= Ls_AC)
+		{// center is middle point of CD
+			Center[0]=(PointC[0]+PointD[0])/2;
+			Center[1]=(PointC[1]+PointD[1])/2;
+			Center[2]=(PointC[2]+PointD[2])/2;
+		}
 		return Center;
 	}
 
 	//-------------- general case when A, B, C not in a line --------------------
 
-	// convter PointA PointB PointC to the plane
+	// compute the coordiate of PointA PointB PointC in the plane
 	// PointA -> x1, y1; PointB->x2, y2; PointC->x3,y3
 	// x0, y0 is the center
 	ScalarType x0, y0, x1, y1, x2, y2, x3, y3;

@@ -3068,7 +3068,7 @@ bool PolygonMesh<MeshAttributeType>::SwapConnectivityOfPoint(int_max PointIndexA
 
 
 template<typename MeshAttributeType>
-bool PolygonMesh<MeshAttributeType>::MergeConnectivityOfPoint(int_max PointIndexA, int_max PointIndexB)
+bool PolygonMesh<MeshAttributeType>::MergeConnectivityOfPoint(int_max PointIndexA, int_max PointIndexB, bool Flag_CheckTriangle)
 {// merge connection of B to connection of A, B become isolated
 	//-------------------------
 	//   \         /
@@ -3091,6 +3091,7 @@ bool PolygonMesh<MeshAttributeType>::MergeConnectivityOfPoint(int_max PointIndex
 		return false;
 	}
 	//triangle check
+	if (Flag_CheckTriangle == true)
 	{// A and B may belong to the same triangle face
 		auto AdjacentPointIndexListA = m_MeshData->PointList[PointIndexA].GetAdjacentPointIndexList();
 		auto AdjacentPointIndexListB = m_MeshData->PointList[PointIndexB].GetAdjacentPointIndexList();
