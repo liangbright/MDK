@@ -473,9 +473,12 @@ public:
 	// if sucess, return the index of the newly merged face
 	// if Flag_MergeToA is true, then NO new face will be created, FaceA will be reused.
 	int_max MergeAdjacentFace(int_max FaceIndexA, int_max FaceIndexB, bool Flag_MergeToA);
-
-	DenseVector<int_max, 2> SplitFaceByEdge(int_max FaceIndex, int_max EdgeIndex);
 	*/
+
+	//PointA, PointB belong to the face
+	DenseVector<int_max, 2> SplitFace(int_max FaceIndex, int_max PointIndexA, int_max PointIndexB);
+
+	DenseVector<int_max, 2> SplitFaceByEdge(int_max FaceIndex, int_max EdgeABIndex);
 
 protected:
     void UpdateRecord_DeletePoint(int_max PointIndex);

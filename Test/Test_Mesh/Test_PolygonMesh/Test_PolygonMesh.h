@@ -118,3 +118,18 @@ void Test_AddtionalInfo_Name()
 		NameList[k] = "LandMark_abcedfg_0123456789";
 	}
 }
+
+void Test_SplitFace()
+{
+	std::string FilePathAndName = "C:/Research/MDK/MDK_Build/Test/Test_Mesh/Test_PolygonMesh/TestData/Square";
+
+	PolygonMesh<PolygonMeshStandardAttributeType<double>> InputMesh;
+	LoadPolygonMeshFromVTKFile(InputMesh, FilePathAndName + ".vtk");
+
+	auto FaceIndexList = InputMesh.GetFaceIndexList();
+	auto PointIndexList_Face = InputMesh.Face(FaceIndexList[0]).GetPointIndexList();
+	
+	InputMesh.SplitFace(FaceIndexList[0], 0, 11);
+
+	SavePolygonMeshAsVTKFile(InputMesh, FilePathAndName + "_SplitFace.vtk");
+}

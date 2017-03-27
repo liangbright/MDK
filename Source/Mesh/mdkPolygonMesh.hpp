@@ -3425,6 +3425,105 @@ DenseVector<int_max, 2> PolygonMesh<MeshAttributeType>::SplitFaceByEdge(int_max 
 }
 */
 
+template<typename MeshAttributeType>
+DenseVector<int_max, 2> PolygonMesh<MeshAttributeType>::SplitFace(int_max FaceIndex, int_max PointIndexA, int_max PointIndexB)
+{
+	auto EdgeIndex = this->AddEdge(PointIndexA, PointIndexB);
+	return this->SplitFaceByEdge(FaceIndex, EdgeIndex);
+}
+
+
+template<typename MeshAttributeType>
+DenseVector<int_max, 2> PolygonMesh<MeshAttributeType>::SplitFaceByEdge(int_max FaceIndex, int_max EdgeABIndex)
+{
+	//------------------------
+	//  ---<--A------   
+	//  |     |     |
+	//  |     |     |
+	//  '-----B-->--'
+	// 
+	// -> show the point order
+	//EdgeAB not adjacent to the face
+	//-----------------------
+
+	DenseVector<int_max, 2> NewFaceIndexList;
+	NewFaceIndexList[0] = -1;
+	NewFaceIndexList[1] = -1 ;
+
+	//--------------------- check input --------------------------------------------------
+	if (this->IsValidFaceIndex(FaceIndex) == false)
+	{
+		MDK_Error("Invalid FaceIndex @ PolygonMesh::SplitFaceByEdge(...)")
+		return NewFaceIndexList;
+	}
+
+	if (this->IsValidEdgeIndex(EdgeABIndex) == false)
+	{
+		MDK_Error("Invalid EdgeIndex @ PolygonMesh::SplitFaceByEdge(...)")
+		return NewFaceIndexList;
+	}
+
+	auto PointCountOftheFace = m_MeshData->FaceList[FaceIndex].GetPointCount();
+	if (PointCountOftheFace <= 3)
+	{
+		MDK_Error("Can not split face with <= 3 point @ PolygonMesh::SplitFaceByEdge(...)")
+		return NewFaceIndexList;
+	}
+
+	//------------------------------------------------------------------------------------
+	int_max PointIndexA, PointIndexB;
+	m_MeshData->EdgeList[EdgeABIndex].GetPointIndexList(PointIndexA, PointIndexB);
+
+	auto PointIndexList_A = m_MeshData->FaceList[FaceIndex].GetPointIndexList_LeadBy(PointIndexA);
+	if (PointIndexList_A.IsEmpty() == true)
+	{
+		MDK_Error("Edge and Face do not share point-A @ PolygonMesh::SplitFaceByEdge(...)")
+		return NewFaceIndexList;
+	}
+	for (int_max k = 1; k < PointIndexList_A.GetLength(); ++k)
+	{
+		if (PointIndexList_A[k] == PointIndexB)
+		{
+			PointIndexList_A = PointIndexList_A.GetSubSet(span(0, k));
+			break;
+		}
+	}
+
+	auto PointIndexList_B = m_MeshData->FaceList[FaceIndex].GetPointIndexList_LeadBy(PointIndexB);
+	if (PointIndexList_B.IsEmpty() == true)
+	{
+		MDK_Error("Edge and Face do not share point-B @ PolygonMesh::SplitFaceByEdge(...)")
+		return NewFaceIndexList;
+	}
+	for (int_max k = 1; k < PointIndexList_B.GetLength(); ++k)
+	{
+		if (PointIndexList_B[k] == PointIndexA)
+		{
+			PointIndexList_B = PointIndexList_B.GetSubSet(span(0, k));
+			break;
+		}
+	}
+
+	if (PointIndexList_A.GetLength() < 3 || PointIndexList_B.GetLength() < 3)
+	{
+		MDK_Error("less than 3 point for each split face @ PolygonMesh::SplitFaceByEdge(...)")
+		return NewFaceIndexList;
+	}
+	
+	if (PointIndexList_A.GetLength() == PointCountOftheFace || PointIndexList_B.GetLength() == PointCountOftheFace)
+	{
+		MDK_Error("Can not split: PointA and PointB are adjacent @ PolygonMesh::SplitFaceByEdge(...)")
+		return NewFaceIndexList;
+	}
+
+	this->DeleteFace(FaceIndex);
+	
+	NewFaceIndexList[0] =this->AddFaceByPoint(PointIndexList_A);
+	NewFaceIndexList[1] =this->AddFaceByPoint(PointIndexList_B);
+	return NewFaceIndexList;
+}
+
+
 //----------------------------------- protected function ---------------------------------------------------------//
 
 template<typename MeshAttributeType>
