@@ -16,20 +16,22 @@ MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::~MeanValueBasedTriangleMesh3
 template<typename ScalarType>
 void MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::Clear()
 {
-	m_InputMesh.Clear();
-	m_BoundaryPointHandleList.Clear();
-	m_UVTableOfBoundary.Clear();
-	m_InnerPointHandleList.Clear();
-	m_OutputMesh.Clear();
+	auto& Self = *this;
+	Self.InputMesh.Clear();
+	Self.BoundaryPointHandleList.Clear();
+	Self.UVTableOfBoundary.Clear();
+	Self.InnerPointHandleList.Clear();
+	Self.OutputMesh.Clear();
 }
 
 
 template<typename ScalarType>
 bool MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::CheckInput()
 {
-	if (m_InputMesh.Check_If_DataStructure_is_Clean() == false)
+	auto& Self = *this;
+	if (Self.InputMesh.Check_If_DataStructure_is_Clean() == false)
 	{
-		MDK_Error("m_InputMesh DataStructure is NOT Clean @ MeanValueBasedTriangleMesh3DTo2DMapper::CheckInput()")
+		MDK_Error("InputMesh DataStructure is NOT Clean @ MeanValueBasedTriangleMesh3DTo2DMapper::CheckInput()")
 		return false;
 	}
 	return true;
@@ -38,38 +40,40 @@ bool MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::CheckInput()
 template<typename ScalarType>
 void MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::Preprocess()
 {
-	auto PointCount = m_InputMesh.GetPointCount();
-	auto PointCount_boundary = m_BoundaryPointHandleList.GetLength();
+	auto& Self = *this;
+
+	auto PointCount = Self.InputMesh.GetPointCount();
+	auto PointCount_boundary = Self.BoundaryPointHandleList.GetLength();
 	auto PointCount_inner = PointCount - PointCount_boundary;
 
-	m_InnerPointHandleList.Clear();
-	m_InnerPointHandleList.SetCapacity(PointCount_inner);
-	for (auto it = m_InputMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	Self.InnerPointHandleList.Clear();
+	Self.InnerPointHandleList.SetCapacity(PointCount_inner);
+	for (auto it = Self.InputMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
 	{
-		auto tempIndex = m_BoundaryPointHandleList.ExactMatch("first", it.GetPointHandle());
+		auto tempIndex = Self.BoundaryPointHandleList.ExactMatch("first", it.GetPointHandle());
 		if (tempIndex < 0)
 		{
-			m_InnerPointHandleList.Append(it.GetPointHandle());
+			Self.InnerPointHandleList.Append(it.GetPointHandle());
 		}
 	}
 
-	m_Map_PointIndex_to_InnerIndex.Clear();
-	m_Map_PointIndex_to_InnerIndex.Resize(PointCount);
-	m_Map_PointIndex_to_InnerIndex.Fill(-1);
-	for (int_max k = 0; k < m_InnerPointHandleList.GetLength(); ++k)
+	Self.Map_PointIndex_to_InnerIndex.Clear();
+	Self.Map_PointIndex_to_InnerIndex.Resize(PointCount);
+	Self.Map_PointIndex_to_InnerIndex.Fill(-1);
+	for (int_max k = 0; k < Self.InnerPointHandleList.GetLength(); ++k)
 	{
-		m_Map_PointIndex_to_InnerIndex[m_InnerPointHandleList[k].GetIndex()] = k;
+		Self.Map_PointIndex_to_InnerIndex[Self.InnerPointHandleList[k].GetIndex()] = k;
 	}
 
-	m_Map_PointIndex_to_BoundaryIndex.Clear();
-	m_Map_PointIndex_to_BoundaryIndex.Resize(PointCount);
-	m_Map_PointIndex_to_BoundaryIndex.Fill(-1);
-	for (int_max k = 0; k < m_BoundaryPointHandleList.GetLength(); ++k)
+	Self.Map_PointIndex_to_BoundaryIndex.Clear();
+	Self.Map_PointIndex_to_BoundaryIndex.Resize(PointCount);
+	Self.Map_PointIndex_to_BoundaryIndex.Fill(-1);
+	for (int_max k = 0; k < Self.BoundaryPointHandleList.GetLength(); ++k)
 	{
-		m_Map_PointIndex_to_BoundaryIndex[m_BoundaryPointHandleList[k].GetIndex()] = k;
+		Self.Map_PointIndex_to_BoundaryIndex[Self.BoundaryPointHandleList[k].GetIndex()] = k;
 	}
 
-	m_InputMesh.UpdateAreaOfFace(ALL);
+	Self.InputMesh.UpdateAreaOfFace(ALL);
 }
 
 template<typename ScalarType>
@@ -87,24 +91,26 @@ void MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::Update()
 template<typename ScalarType>
 void MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::ApplyMeanValueBasedParameterization()
 {
-	auto PointCount_boundary = m_BoundaryPointHandleList.GetLength();
-	auto PointCount_inner = m_InnerPointHandleList.GetLength();
-	auto WeightMatrix = this->ComputeWeightMatrix_MeanValue(m_InputMesh);
+	auto& Self = *this;
+
+	auto PointCount_boundary = Self.BoundaryPointHandleList.GetLength();
+	auto PointCount_inner = Self.InnerPointHandleList.GetLength();
+	auto WeightMatrix = this->ComputeWeightMatrix_MeanValue(Self.InputMesh);
 	auto UVTable = this->ComputeUV_Given_WeightMatrix(WeightMatrix);
    //-------------------------------------------------------------------//
-	m_OutputMesh.Clear();
-	m_OutputMesh = m_InputMesh;
+	Self.OutputMesh.Clear();
+	Self.OutputMesh = Self.InputMesh;
 	for (int_max k = 0; k < PointCount_inner; ++k)
 	{
 		auto u = UVTable(0, k);
 		auto v = UVTable(1, k);
-		m_OutputMesh.SetPointPosition(m_InnerPointHandleList[k], u, v, 0);
+		Self.OutputMesh.SetPointPosition(Self.InnerPointHandleList[k], u, v, 0);
 	}
 	for (int_max k = 0; k < PointCount_boundary; ++k)
 	{
-		auto u = m_UVTableOfBoundary(0, k);
-		auto v = m_UVTableOfBoundary(1, k);
-		m_OutputMesh.SetPointPosition(m_BoundaryPointHandleList[k], u, v, 0);
+		auto u = Self.UVTableOfBoundary(0, k);
+		auto v = Self.UVTableOfBoundary(1, k);
+		Self.OutputMesh.SetPointPosition(Self.BoundaryPointHandleList[k], u, v, 0);
 	}
 }
 
@@ -112,15 +118,17 @@ void MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::ApplyMeanValueBasedPara
 template<typename ScalarType>
 ObjectArray<SparseVector<ScalarType>> MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::ComputeWeightMatrix_MeanValue(const TriangleMesh<MeshAttributeType>& TargetMesh)
 {
-	auto PointCount_boundary = m_BoundaryPointHandleList.GetLength();
-	auto PointCount_inner = m_InnerPointHandleList.GetLength();
+	auto& Self = *this;
+
+	auto PointCount_boundary = Self.BoundaryPointHandleList.GetLength();
+	auto PointCount_inner = Self.InnerPointHandleList.GetLength();
 	auto PointCount = PointCount_boundary + PointCount_inner;
 
 	ObjectArray<SparseVector<ScalarType>> WeightMatrix;
 	WeightMatrix.Resize(PointCount_inner);
 	for (int_max k = 0; k < PointCount_inner; ++k)
 	{
-		auto PointHandle = m_InnerPointHandleList[k];
+		auto PointHandle = Self.InnerPointHandleList[k];
 		auto AdjPointHandleList = TargetMesh.Point(PointHandle).GetAdjacentPointHandleList();
 		WeightMatrix[k].Resize(PointCount);
 		for (int_max n = 0; n < AdjPointHandleList.GetLength(); ++n)

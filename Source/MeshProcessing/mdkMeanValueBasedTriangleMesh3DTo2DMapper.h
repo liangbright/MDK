@@ -19,45 +19,43 @@ public:
 	typedef typename TriangleMesh<MeshAttributeType>::EdgeHandleType     EdgeHandleType;
 	typedef typename TriangleMesh<MeshAttributeType>::FaceHandleType     FaceHandleType;
 
-private:
+public:
 	//------------------ input -------------------------------------------//
-	TriangleMesh<MeshAttributeType> m_InputMesh;
+	TriangleMesh<MeshAttributeType> InputMesh;
 
-	DenseVector<PointHandleType> m_BoundaryPointHandleList;
+	DenseVector<PointHandleType> BoundaryPointHandleList;
 	// Boundary Point include all the boundary point of input mesh
 	// Boundary Point may also include inner point of input mesh, such as landmark
 
-	DenseMatrix<ScalarType> m_UVTableOfBoundary;
-	// m_UVTableOfBoundaryOfInputMesh[k] = [u, v] of boundary point k
+	DenseMatrix<ScalarType> UVTableOfBoundary;
+	//UVTableOfBoundary[k] = [u, v] of boundary point k of input mesh
 
+private:
 	//-------------- internal -------------------------------------------//
-	DenseVector<PointHandleType> m_InnerPointHandleList;
+	DenseVector<PointHandleType> InnerPointHandleList;
 
-	//ObjectArray<DenseVector<ScalarType>> m_WeightMatrix;
-	// m_WeightMatrix[i][j] is the weight from point_i to point_j
-	// i is from 0 to PointCount_inner, index in m_InnerPointHandleList
+	//ObjectArray<DenseVector<ScalarType>> WeightMatrix;
+	// WeightMatrix[i][j] is the weight from point_i to point_j
+	// i is from 0 to PointCount_inner, index in InnerPointHandleList
 	// j is from 0 to PointCount, index in m_InputMesh
 
-	//DenseVector<PointHandleType> m_PointHandleList;
-	//m_PointHandleList={m_InnerPointHandleList, m_BoundaryPointHandleList};
+	//DenseVector<PointHandleType> PointHandleList;
+	//PointHandleList={InnerPointHandleList, BoundaryPointHandleList};
 
-	DenseVector<int_max> m_Map_PointIndex_to_InnerIndex;
+	DenseVector<int_max> Map_PointIndex_to_InnerIndex;
 	//m_Map_PointIndex_to_InnerIndex[PointIndex] is Index of Weight Matrix A
 
-	DenseVector<int_max> m_Map_PointIndex_to_BoundaryIndex;
-	//m_Map_PointIndex_to_BoundaryIndex[PointIndex] is Index in m_BoundaryPointHandleList
+	DenseVector<int_max> Map_PointIndex_to_BoundaryIndex;
+	//Map_PointIndex_to_BoundaryIndex[PointIndex] is Index in BoundaryPointHandleList
 
+public:
 	//-------------- output -------------------------------------------//
-	TriangleMesh<MeshAttributeType> m_OutputMesh;// [x,y,z]->[u,v,0]
+	TriangleMesh<MeshAttributeType> OutputMesh;// [x,y,z]->[u,v,0]
 
 public:
 	MeanValueBasedTriangleMesh3DTo2DMapper();
 	~MeanValueBasedTriangleMesh3DTo2DMapper();
 	void Clear();
-	TriangleMesh<MeshAttributeType>& InputMesh() { return m_InputMesh; }
-	DenseVector<PointHandleType>& BoundaryPointHandleList() { return m_BoundaryPointHandleList; }
-	DenseMatrix<ScalarType>& UVTableOfBoundary() { return m_UVTableOfBoundary; }
-	TriangleMesh<MeshAttributeType>& OutputMesh() { return m_OutputMesh; }
 	void Update();
 
 private:

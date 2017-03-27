@@ -19,33 +19,25 @@ GeodesicSphereBuilder<ScalarType>::~GeodesicSphereBuilder()
 template<typename ScalarType>
 void GeodesicSphereBuilder<ScalarType>::Clear()
 {
-	m_SphereList.Recreate();
-	m_MaxDepth = -1;
+	this->SphereList.Recreate();
+	this->MaxDepth = -1;
 }
-
-
-template<typename ScalarType>
-void GeodesicSphereBuilder<ScalarType>::SetMaxDepth(int_max MaxDepth)
-{
-	m_MaxDepth = MaxDepth;
-}
-
 
 template<typename ScalarType>
 void GeodesicSphereBuilder<ScalarType>::Update()
 {
-	if (m_MaxDepth < 0)
+	if (this->MaxDepth < 0)
 	{
 		MDK_Error("m_MaxDepth < 0 @ GeodesicSphereBuilder::Update()")
 		return;
 	}
 
-	m_SphereList.Clear();
-	m_SphereList.Resize(m_MaxDepth+1);
+	this->SphereList.Clear();
+	this->SphereList.Resize(this->MaxDepth+1);
 
 	this->BuildInitialSphere();
 
-	for (int_max k = 1; k <= m_MaxDepth; ++k)
+	for (int_max k = 1; k <= this->MaxDepth; ++k)
 	{
 		this->BuildSphereAtDepth(k);
 	}
@@ -55,6 +47,8 @@ void GeodesicSphereBuilder<ScalarType>::Update()
 template<typename ScalarType>
 void GeodesicSphereBuilder<ScalarType>::BuildInitialSphere()
 {// icosahedron
+	auto& Self = *this;
+
 	const auto X = ScalarType(0.525731112119133606);
 	const auto Z = ScalarType(0.850650808352039932);
 	ObjectArray<DenseVector<ScalarType, 3>> vdata;//point
@@ -72,16 +66,16 @@ void GeodesicSphereBuilder<ScalarType>::BuildInitialSphere()
 	PointIndexList.Resize(12);
 	for (int_max k = 0; k < 12; ++k)
 	{
-		PointIndexList[k] = m_SphereList[0].AddPoint(vdata[k]);				
+		PointIndexList[k] = Self.SphereList[0].AddPoint(vdata[k]);
 	}
 
-	m_SphereList[0].SetCapacity(12, 30, 20);
+	Self.SphereList[0].SetCapacity(12, 30, 20);
 	for (int_max k = 0; k < 20; ++k)
 	{
 		auto H0 = PointIndexList[edata[k][0]];
 		auto H1 = PointIndexList[edata[k][1]];
 		auto H2 = PointIndexList[edata[k][2]];
-		m_SphereList[0].AddFaceByPoint(H0, H1, H2);
+		Self.SphereList[0].AddFaceByPoint(H0, H1, H2);
 	}
 }
 
@@ -89,39 +83,41 @@ void GeodesicSphereBuilder<ScalarType>::BuildInitialSphere()
 template<typename ScalarType>
 void GeodesicSphereBuilder<ScalarType>::BuildSphereAtDepth(int_max Depth)
 {
-	auto PointCount_prev = m_SphereList[Depth - 1].GetPointCount();
-	auto EdgeCount_prev = m_SphereList[Depth - 1].GetEdgeCount();
-	auto FaceCount_prev = m_SphereList[Depth - 1].GetFaceCount();
+	auto& Self = *this;
+
+	auto PointCount_prev = Self.SphereList[Depth - 1].GetPointCount();
+	auto EdgeCount_prev = Self.SphereList[Depth - 1].GetEdgeCount();
+	auto FaceCount_prev = Self.SphereList[Depth - 1].GetFaceCount();
 	auto PointCount = PointCount_prev + EdgeCount_prev;
 	auto EdgeCount  = EdgeCount_prev*2;
 	auto FaceCount = FaceCount_prev * 4;
-	m_SphereList[Depth].SetCapacity(PointCount, EdgeCount, FaceCount);
+	Self.SphereList[Depth].SetCapacity(PointCount, EdgeCount, FaceCount);
 	
 	//------- add initial point by copying all point of previous Sphere ----------------//
 	DenseVector<int_max> PointIndexList_init;
 	PointIndexList_init.Resize(PointCount_prev);
-	for (auto it = m_SphereList[Depth - 1].GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	for (auto it = Self.SphereList[Depth - 1].GetIteratorOfPoint(); it.IsNotEnd(); ++it)
 	{
 		auto Index = it.GetPointIndex();
 		auto Pos = it.Point().GetPosition();
-		PointIndexList_init[Index] = m_SphereList[Depth].AddPoint(Pos);
+		PointIndexList_init[Index] = Self.SphereList[Depth].AddPoint(Pos);
 	}
 
 	//------- add new point by splitting each edge of previous Sphere -----------------//   
 	DenseVector<int_max> PointIndexList_new;
-	for (auto it = m_SphereList[Depth - 1].GetIteratorOfEdge(); it.IsNotEnd(); ++it)
+	for (auto it = Self.SphereList[Depth - 1].GetIteratorOfEdge(); it.IsNotEnd(); ++it)
 	{
 		auto TempList = it.Edge().GetPointIndexList();
-		auto P0 = m_SphereList[Depth - 1].GetPointPosition(TempList[0]);
-		auto P1 = m_SphereList[Depth - 1].GetPointPosition(TempList[1]);
+		auto P0 = Self.SphereList[Depth - 1].GetPointPosition(TempList[0]);
+		auto P1 = Self.SphereList[Depth - 1].GetPointPosition(TempList[1]);
 		auto P3 = P0 + P1;
 		P3 /= P3.L2Norm();
-		auto H3 = m_SphereList[Depth].AddPoint(P3);
+		auto H3 = Self.SphereList[Depth].AddPoint(P3);
 		PointIndexList_new.Append(H3);
 	}
 
 	//------- add cell to current Sphere by splitting each cell of previous Sphere ----//   
-	for (auto it = m_SphereList[Depth - 1].GetIteratorOfFace(); it.IsNotEnd(); ++it)
+	for (auto it = Self.SphereList[Depth - 1].GetIteratorOfFace(); it.IsNotEnd(); ++it)
 	{
 		auto PointIndexList_prev = it.Face().GetPointIndexList(); // P0, P1, P2
 		auto EdgeIndexList_prev = it.Face().GetEdgeIndexList();   // P0-P1, P1-P2, P2-P1
@@ -136,10 +132,10 @@ void GeodesicSphereBuilder<ScalarType>::BuildSphereAtDepth(int_max Depth)
 		auto H3 = PointIndexList_new[EdgeIndexList_prev[0]];
 		auto H4 = PointIndexList_new[EdgeIndexList_prev[1]];
 		auto H5 = PointIndexList_new[EdgeIndexList_prev[2]];
-		m_SphereList[Depth].AddFaceByPoint(H0, H3, H5);
-		m_SphereList[Depth].AddFaceByPoint(H3, H1, H4);
-		m_SphereList[Depth].AddFaceByPoint(H3, H4, H5);
-		m_SphereList[Depth].AddFaceByPoint(H5, H4, H2);
+		Self.SphereList[Depth].AddFaceByPoint(H0, H3, H5);
+		Self.SphereList[Depth].AddFaceByPoint(H3, H1, H4);
+		Self.SphereList[Depth].AddFaceByPoint(H3, H4, H5);
+		Self.SphereList[Depth].AddFaceByPoint(H5, H4, H2);
 	}
 }
 

@@ -27,7 +27,7 @@ public:
 	// Boundary Point may also include inner point of input mesh, such as landmark
 
 	DenseMatrix<ScalarType> UVTableOfBoundary;
-	// UVTableOfBoundary[k] = [u, v] of boundary point k in InputMesh
+	// UVTableOfBoundary[k] = [u, v] of boundary point k of InputMesh
 
 	ScalarType MaxInteration;// maximum
 	ScalarType DiffusionCoefficient;
