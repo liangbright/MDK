@@ -40,6 +40,7 @@ SparseVector<int_max> FindNeighbourPointOfPointOnMesh(const PolygonMesh<MeshAttr
 //SparseVector<int_max> FindNeighbourPointOfFaceOnMesh(const PolygonMesh<MeshAttributeType>& InputMesh, int_max FaceIndex_input, int_max MaxGraphDistance);
 
 //output FaceIndexList with seed FaceIndex_seed
+//ClosedEdgeCurve_EdgeIndexList can be in random order
 template<typename MeshAttributeType>
 DenseVector<int_max> FindFaceEnclosedByEdgeCurve(const PolygonMesh<MeshAttributeType>& Surface, const DenseVector<int_max>& ClosedEdgeCurve_EdgeIndexList, const int_max FaceIndex_seed);
 
