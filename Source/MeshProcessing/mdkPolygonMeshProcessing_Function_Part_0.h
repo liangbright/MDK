@@ -39,6 +39,10 @@ SparseVector<int_max> FindNeighbourPointOfPointOnMesh(const PolygonMesh<MeshAttr
 //template<typename MeshAttributeType>
 //SparseVector<int_max> FindNeighbourPointOfFaceOnMesh(const PolygonMesh<MeshAttributeType>& InputMesh, int_max FaceIndex_input, int_max MaxGraphDistance);
 
+//output FaceIndexList with seed FaceIndex_seed
+template<typename MeshAttributeType>
+DenseVector<int_max>  FindFaceEnclosedByEdgeCurve(const PolygonMesh<MeshAttributeType>& Surface, const DenseVector<int_max>& ClosedEdgeCurve_EdgeIndexList, const int_max FaceIndex_seed);
+
 }//namespace mdk
 
 #include "mdkPolygonMeshProcessing_Function_Part_0.hpp"

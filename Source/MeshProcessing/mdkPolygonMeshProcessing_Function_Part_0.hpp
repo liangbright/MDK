@@ -359,4 +359,56 @@ SparseVector<int_max> FindNeighbourPointOfPointOnMesh(const PolygonMesh<MeshAttr
 }
 
 
+template<typename MeshAttributeType>
+DenseVector<int_max> FindFaceEnclosedByEdgeCurve(const PolygonMesh<MeshAttributeType>& Surface, const DenseVector<int_max>& ClosedEdgeCurve_EdgeIndexList, const int_max FaceIndex_seed)
+{
+	DenseVector<int> FaceFlagList;//1: the same group as FaceIndex_seed
+	FaceFlagList.Resize(Surface.GetFaceCount());
+	FaceFlagList.Fill(0);
+	FaceFlagList[FaceIndex_seed] = 1;
+
+	DenseVector<int_max> FaceIndexList_front;
+	FaceIndexList_front.Append(FaceIndex_seed);
+
+	//DenseVector<int_max> FaceIndexList_seg_a;
+	//FaceIndexList_seg_a.Append(FaceIndex_seed);
+
+	while (true)
+	{
+		//grow
+		DenseVector<int_max> FaceIndexList_new;
+		for (int_max k = 0; k < FaceIndexList_front.GetLength(); ++k)
+		{
+			auto EdgeIndexList_k = Surface.Face(FaceIndexList_front[k]).GetEdgeIndexList();
+			for (int_max n = 0; n < EdgeIndexList_k.GetLength(); ++n)
+			{
+				auto tempIndex = ClosedBoundaryEdgeIndexList.ExactMatch("first", EdgeIndexList_k[n]);
+				if (tempIndex < 0)
+				{
+					auto FaceIndexList_n = Surface.Edge(EdgeIndexList_k[n]).GetAdjacentFaceIndexList();
+					for (int_max m = 0; m < FaceIndexList_n.GetLength(); ++m)
+					{
+						if (FaceFlagList[FaceIndexList_n[m]] == 0)
+						{
+							FaceIndexList_new.Append(FaceIndexList_n[m]);
+							FaceFlagList[FaceIndexList_n[m]] = 1;
+						}
+					}
+				}
+			}
+		}
+		//update front
+		FaceIndexList_front = FaceIndexList_new.GetSubSet(FaceIndexList_new.FindUnique());
+		//stop?
+		if (FaceIndexList_front.GetLength() == 0)
+		{
+			break;
+		}
+		//FaceIndexList_seg_a.Append(FaceIndexList_front);
+	}
+
+	auto FaceIndexList_seg = FaceFlagList.Find([](int Flag) { return (Flag == 1); });
+	return FaceIndexList_seg;
+}
+
 }//namespace mdk
