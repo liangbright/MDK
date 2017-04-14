@@ -382,7 +382,7 @@ DenseVector<int_max> FindFaceEnclosedByEdgeCurve(const PolygonMesh<MeshAttribute
 			auto EdgeIndexList_k = Surface.Face(FaceIndexList_front[k]).GetEdgeIndexList();
 			for (int_max n = 0; n < EdgeIndexList_k.GetLength(); ++n)
 			{
-				auto tempIndex = ClosedBoundaryEdgeIndexList.ExactMatch("first", EdgeIndexList_k[n]);
+				auto tempIndex = ClosedEdgeCurve_EdgeIndexList.ExactMatch("first", EdgeIndexList_k[n]);
 				if (tempIndex < 0)
 				{
 					auto FaceIndexList_n = Surface.Edge(EdgeIndexList_k[n]).GetAdjacentFaceIndexList();
