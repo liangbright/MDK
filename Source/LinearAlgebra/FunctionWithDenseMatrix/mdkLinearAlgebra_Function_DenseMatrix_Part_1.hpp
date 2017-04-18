@@ -54,29 +54,41 @@ bool MatrixAdd(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<Elemen
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrA = MatrixA.GetElementPointer();
     auto ptrB = MatrixB.GetElementPointer();
-    auto ElementNumber = SizeA.RowCount*SizeA.ColCount;
+    auto ElementCount = SizeA.RowCount*SizeA.ColCount;
 
-    return MatrixAdd(ptrC, ptrA, ptrB, ElementNumber, false);
+    return MatrixAdd(ptrC, ptrA, ptrB, ElementCount, false);
 }
 
 
 template<typename ElementType>
 inline 
-bool MatrixAdd(ElementType* OutputMatrixC, const ElementType* MatrixA, const ElementType* MatrixB, int_max ElementNumber, bool CheckInput)
+bool MatrixAdd(ElementType* OutputMatrixC, const ElementType* MatrixA, const ElementType* MatrixB, int_max ElementCount, bool CheckInput)
 {
     if (CheckInput == true)
     {
-        if (OutputMatrixC == nullptr || MatrixA == nullptr || MatrixB == nullptr || ElementNumber <= 0)
+        if (OutputMatrixC == nullptr || MatrixA == nullptr || MatrixB == nullptr || ElementCount <= 0)
         {
             MDK_Error("Invlaid input @ mdkLinearAlgebra_DenseMatrix MatrixAdd(OutputMatrixC, MatrixA, MatrixB)")
             return false;
         }
     }
 
-    for (int_max i = 0; i < ElementNumber; ++i)
-    {
-        OutputMatrixC[i] = MatrixA[i] + MatrixB[i];
-    }
+	if (ElementCount < 128)
+	{
+		for (int_max i = 0; i < ElementCount; ++i)
+		{
+			OutputMatrixC[i] = MatrixA[i] + MatrixB[i];
+		}
+	}
+	else
+	{
+		//call Eigen
+		typedef Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic> EigenMatrixType;
+		Eigen::Map<EigenMatrixType> A(MatrixA, ElementCount, 1);
+		Eigen::Map<EigenMatrixType> B(MatrixB, ElementCount, 1);
+		Eigen::Map<EigenMatrixType> C(OutputMatrixC, ElementCount, 1);
+		C = A + B;
+	}
 
     return true;
 }
@@ -126,28 +138,40 @@ bool MatrixSubtract(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<E
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrA = MatrixA.GetElementPointer();
     auto ptrB = MatrixB.GetElementPointer();
-    auto ElementNumber = SizeA.RowCount*SizeA.ColCount;
+    auto ElementCount = SizeA.RowCount*SizeA.ColCount;
 
-    return MatrixSubtract(ptrC, ptrA, ptrB, ElementNumber, false);
+    return MatrixSubtract(ptrC, ptrA, ptrB, ElementCount, false);
 }
 
 
 template<typename ElementType>
-inline bool MatrixSubtract(ElementType* OutputMatrixC, const ElementType* MatrixA, const ElementType* MatrixB, int_max ElementNumber, bool CheckInput)
+inline bool MatrixSubtract(ElementType* OutputMatrixC, const ElementType* MatrixA, const ElementType* MatrixB, int_max ElementCount, bool CheckInput)
 {
     if (CheckInput == true)
     {
-        if (OutputMatrixC == nullptr || MatrixA == nullptr || MatrixB == nullptr || ElementNumber <= 0)
+        if (OutputMatrixC == nullptr || MatrixA == nullptr || MatrixB == nullptr || ElementCount <= 0)
         {
             MDK_Error("Invalid input @ mdkLinearAlgebra_DenseMatrix MatrixSubtract(OutputMatrixC, MatrixA, MatrixB)")
             return false;
         }
     }
 
-    for (int_max i = 0; i < ElementNumber; ++i)
-    {
-        OutputMatrixC[i] = MatrixA[i] - MatrixB[i];
-    }
+	if (ElementCount < 128)
+	{
+		for (int_max i = 0; i < ElementCount; ++i)
+		{
+			OutputMatrixC[i] = MatrixA[i] - MatrixB[i];
+		}
+	}
+	else
+	{
+		//call Eigen
+		typedef Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic> EigenMatrixType;
+		Eigen::Map<EigenMatrixType> A(MatrixA, ElementCount, 1);
+		Eigen::Map<EigenMatrixType> B(MatrixB, ElementCount, 1);
+		Eigen::Map<EigenMatrixType> C(OutputMatrixC, ElementCount, 1);
+		C = A - B;
+	}
 
     return true;
 }
@@ -350,13 +374,13 @@ bool MatrixMultiply(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<E
     auto ptrB = const_cast<ElementType*>(MatrixB.GetElementPointer());
     auto ptrC = OutputMatrixC.GetElementPointer();
 
-    //--------------------- call lapack via armadillo --------------------------------------------------------------------------------
+    //call armadillo
     //arma::Mat<ElementType> A(ptrA, arma::uword(MatrixA.GetRowCount()), arma::uword(MatrixA.GetColCount()), false);
     //arma::Mat<ElementType> B(ptrB, arma::uword(MatrixB.GetRowCount()), arma::uword(MatrixB.GetColCount()), false);
     //arma::Mat<ElementType> C(ptrC, arma::uword(OutputMatrixC.GetRowCount()), arma::uword(OutputMatrixC.GetColCount()), false);
     //C = A*B;
 
-	//-------------------- call eigen --------------------------------------------------------------------------------------------------
+	//call Eigen
 	Eigen::Map<const Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic>> A(ptrA, MatrixA.GetRowCount(), MatrixA.GetColCount());
 	Eigen::Map<const Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic>> B(ptrB, MatrixB.GetRowCount(), MatrixB.GetColCount());
 	Eigen::Map<Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic>> C(ptrC, OutputMatrixC.GetRowCount(), OutputMatrixC.GetColCount());
@@ -410,26 +434,26 @@ bool MatrixElementMultiply(DenseMatrix<ElementType>& OutputMatrixC, const DenseM
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrA = MatrixA.GetElementPointer();
     auto ptrB = MatrixB.GetElementPointer();
-    auto ElementNumber = SizeA.RowCount*SizeA.ColCount;
+    auto ElementCount = SizeA.RowCount*SizeA.ColCount;
 
-    return MatrixElementMultiply(ptrC, ptrA, ptrB, ElementNumber, false);
+    return MatrixElementMultiply(ptrC, ptrA, ptrB, ElementCount, false);
 }
 
 
 template<typename ElementType>
 inline 
-bool MatrixElementMultiply(ElementType* OutputMatrixC, const ElementType* MatrixA, const ElementType* MatrixB, int_max ElementNumber, bool CheckInput)
+bool MatrixElementMultiply(ElementType* OutputMatrixC, const ElementType* MatrixA, const ElementType* MatrixB, int_max ElementCount, bool CheckInput)
 {
     if (CheckInput == true)
     {
-        if (OutputMatrixC == nullptr || MatrixA == nullptr || MatrixB == nullptr || ElementNumber <= 0)
+        if (OutputMatrixC == nullptr || MatrixA == nullptr || MatrixB == nullptr || ElementCount <= 0)
         {
             MDK_Error("Invalid input @ mdkLinearAlgebra_DenseMatrix MatrixElementMultiply(OutputMatrixC, MatrixA, MatrixB)")
             return false;
         }
     }
 
-    for (int_max i = 0; i < ElementNumber; ++i)
+    for (int_max i = 0; i < ElementCount; ++i)
     {
         OutputMatrixC[i] = MatrixA[i] * MatrixB[i];
     }
@@ -482,26 +506,26 @@ bool MatrixElementDivide(DenseMatrix<ElementType>& OutputMatrixC, const DenseMat
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrA = MatrixA.GetElementPointer();
     auto ptrB = MatrixB.GetElementPointer();
-    auto ElementNumber = SizeA.RowCount*SizeA.ColCount;
+    auto ElementCount = SizeA.RowCount*SizeA.ColCount;
 
-    return MatrixElementDivide(ptrC, ptrA, ptrB, ElementNumber, false);
+    return MatrixElementDivide(ptrC, ptrA, ptrB, ElementCount, false);
 }
 
 
 template<typename ElementType>
 inline 
-bool MatrixElementDivide(ElementType* OutputMatrixC, const ElementType* MatrixA, const ElementType* MatrixB, int_max ElementNumber, bool CheckInput)
+bool MatrixElementDivide(ElementType* OutputMatrixC, const ElementType* MatrixA, const ElementType* MatrixB, int_max ElementCount, bool CheckInput)
 {
     if (CheckInput == true)
     {
-        if (OutputMatrixC == nullptr || MatrixA == nullptr || MatrixB == nullptr || ElementNumber <= 0)
+        if (OutputMatrixC == nullptr || MatrixA == nullptr || MatrixB == nullptr || ElementCount <= 0)
         {
             MDK_Error("Invalid input @ mdkLinearAlgebra_DenseMatrix MatrixElementDivide(OutputMatrixC, MatrixA, MatrixB)")
             return false;
         }
     }
 
-    for (int_max i = 0; i < ElementNumber; ++i)
+    for (int_max i = 0; i < ElementCount; ++i)
     {
         OutputMatrixC[i] = MatrixA[i] / MatrixB[i];
     }
@@ -537,18 +561,18 @@ bool MatrixAdd(DenseMatrix<ElementType>& OutputMatrixC, const ElementType& Eleme
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrB = MatrixB.GetElementPointer();
-    auto ElementNumber = SizeB.RowCount*SizeB.ColCount;
+    auto ElementCount = SizeB.RowCount*SizeB.ColCount;
 
     if (ptrC == ptrB) // in place
     {
-        for (auto tempPtr = ptrC; tempPtr < ptrC + ElementNumber; ++tempPtr)
+        for (auto tempPtr = ptrC; tempPtr < ptrC + ElementCount; ++tempPtr)
         {
             tempPtr[0] += ElementA;
         }
     }
     else
     {
-        for (int_max i = 0; i < ElementNumber; ++i)
+        for (int_max i = 0; i < ElementCount; ++i)
         {
             ptrC[i] = ElementA + ptrB[i];
         }
@@ -584,18 +608,18 @@ bool MatrixSubtract(DenseMatrix<ElementType>& OutputMatrixC, const ElementType& 
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrB = MatrixB.GetElementPointer();
-    auto ElementNumber = SizeB.RowCount*SizeB.ColCount;
+    auto ElementCount = SizeB.RowCount*SizeB.ColCount;
 
     if (ptrC == ptrB) // in place
     {
-        for (auto tempPtr = ptrC; tempPtr < ptrC + ElementNumber; ++tempPtr)
+        for (auto tempPtr = ptrC; tempPtr < ptrC + ElementCount; ++tempPtr)
         {
             tempPtr[0] -= ElementA;
         }
     }
     else
     {
-        for (int_max i = 0; i < ElementNumber; ++i)
+        for (int_max i = 0; i < ElementCount; ++i)
         {
             ptrC[i] = ElementA - ptrB[i];
         }
@@ -631,18 +655,18 @@ bool MatrixMultiply(DenseMatrix<ElementType>& OutputMatrixC, const ElementType& 
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrB = MatrixB.GetElementPointer();
-    auto ElementNumber = SizeB.RowCount*SizeB.ColCount;
+    auto ElementCount = SizeB.RowCount*SizeB.ColCount;
 
     if (ptrC == ptrB) // in place
     {
-        for (auto tempPtr = ptrC; tempPtr < ptrC + ElementNumber; ++tempPtr)
+        for (auto tempPtr = ptrC; tempPtr < ptrC + ElementCount; ++tempPtr)
         {
             tempPtr[0] *= ElementA;
         }
     }
     else
     {
-        for (int_max i = 0; i < ElementNumber; ++i)
+        for (int_max i = 0; i < ElementCount; ++i)
         {
             ptrC[i] = ElementA * ptrB[i];
         }
@@ -696,18 +720,18 @@ bool MatrixElementDivide(DenseMatrix<ElementType>& OutputMatrixC, const ElementT
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrB = MatrixB.GetElementPointer();
-    auto ElementNumber = SizeB.RowCount*SizeB.ColCount;
+    auto ElementCount = SizeB.RowCount*SizeB.ColCount;
 
     if (ptrC == ptrB) // in place
     {
-        for (auto tempPtr = ptrC; tempPtr < ptrC + ElementNumber; ++tempPtr)
+        for (auto tempPtr = ptrC; tempPtr < ptrC + ElementCount; ++tempPtr)
         {
             tempPtr[0] = ElementA / tempPtr[0];
         }
     }
     else
     {
-        for (int_max i = 0; i < ElementNumber; ++i)
+        for (int_max i = 0; i < ElementCount; ++i)
         {
             ptrC[i] = ElementA / ptrB[i];
         }
@@ -744,18 +768,18 @@ bool MatrixAdd(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<Elemen
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrA = MatrixA.GetElementPointer();
-    auto ElementNumber = SizeA.RowCount*SizeA.ColCount;
+    auto ElementCount = SizeA.RowCount*SizeA.ColCount;
 
     if (ptrC == ptrA) // in place
     {
-        for (auto tempPtr = ptrC; tempPtr < ptrC + ElementNumber; ++tempPtr)
+        for (auto tempPtr = ptrC; tempPtr < ptrC + ElementCount; ++tempPtr)
         {
             tempPtr[0] += ElementB;
         }
     }
     else
     {
-        for (int_max i = 0; i < ElementNumber; ++i)
+        for (int_max i = 0; i < ElementCount; ++i)
         {
             ptrC[i] = ptrA[i] + ElementB;
         }
@@ -791,18 +815,18 @@ bool MatrixSubtract(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<E
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrA = MatrixA.GetElementPointer();
-    auto ElementNumber = SizeA.RowCount*SizeA.ColCount;
+    auto ElementCount = SizeA.RowCount*SizeA.ColCount;
 
     if (ptrC == ptrA) // in place
     {
-        for (auto tempPtr = ptrC; tempPtr < ptrC + ElementNumber; ++tempPtr)
+        for (auto tempPtr = ptrC; tempPtr < ptrC + ElementCount; ++tempPtr)
         {
             tempPtr[0] -= ElementB;
         }
     }
     else
     {
-        for (int_max i = 0; i < ElementNumber; ++i)
+        for (int_max i = 0; i < ElementCount; ++i)
         {
             ptrC[i] = ptrA[i] - ElementB;
         }
@@ -840,18 +864,18 @@ bool MatrixMultiply(DenseMatrix<ElementType>& OutputMatrixC, const DenseMatrix<E
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrA = MatrixA.GetElementPointer();
-    auto ElementNumber = SizeA.RowCount*SizeA.ColCount;
+    auto ElementCount = SizeA.RowCount*SizeA.ColCount;
 
     if (ptrC == ptrA) // in place
     {
-        for (auto tempPtr = ptrC; tempPtr < ptrC + ElementNumber; ++tempPtr)
+        for (auto tempPtr = ptrC; tempPtr < ptrC + ElementCount; ++tempPtr)
         {
             tempPtr[0] *= ElementB;
         }
     }
     else
     {
-        for (int_max i = 0; i < ElementNumber; ++i)
+        for (int_max i = 0; i < ElementCount; ++i)
         {
             ptrC[i] = ptrA[i] * ElementB;
         }
@@ -905,18 +929,18 @@ bool MatrixElementDivide(DenseMatrix<ElementType>& OutputMatrixC, const DenseMat
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrA = MatrixA.GetElementPointer();
-    auto ElementNumber = SizeA.RowCount*SizeA.ColCount;
+    auto ElementCount = SizeA.RowCount*SizeA.ColCount;
 
     if (ptrC == ptrA) // in place
     {
-        for (auto tempPtr = ptrC; tempPtr < ptrC + ElementNumber; ++tempPtr)
+        for (auto tempPtr = ptrC; tempPtr < ptrC + ElementCount; ++tempPtr)
         {
             tempPtr[0] /= ElementB;
         }
     }
     else
     {
-        for (int_max i = 0; i < ElementNumber; ++i)
+        for (int_max i = 0; i < ElementCount; ++i)
         {
             ptrC[i] = ptrA[i] / ElementB;
         }
@@ -1010,18 +1034,18 @@ bool MatrixElementOperation(DenseMatrix<ElementType>& OutputMatrix, OperationTyp
 
     auto ptrOutput = OutputMatrix.GetElementPointer();
     auto ptrInput = InputMatrix.GetElementPointer();
-    auto ElementNumber = InputSize.ColCount * InputSize.RowCount;
+    auto ElementCount = InputSize.ColCount * InputSize.RowCount;
 
     if (ptrOutput == ptrInput) // in place operation
     {
-        for (auto Ptr = ptrOutput; Ptr < ptrOutput + ElementNumber; ++Ptr)
+        for (auto Ptr = ptrOutput; Ptr < ptrOutput + ElementCount; ++Ptr)
         {
             Ptr[0] = Operation(Ptr[0]);
         }
     }
     else
     {
-        for (int_max i = 0; i < ElementNumber; ++i)
+        for (int_max i = 0; i < ElementCount; ++i)
         {
             ptrOutput[i] = Operation(ptrInput[i]);
         }
@@ -1199,9 +1223,9 @@ bool MatrixElementOperation(DenseMatrix<ElementType>& OutputMatrixC,
 
     if (Flag_full == 1)
     {
-        auto ElementNumber = SizeA.RowCount * SizeA.ColCount;
+        auto ElementCount = SizeA.RowCount * SizeA.ColCount;
 
-        for (int_max i = 0; i < ElementNumber; ++i)
+        for (int_max i = 0; i < ElementCount; ++i)
         {
             ptrC[i] = Operation(ptrA[i], ptrB[i]);
         }
@@ -1371,18 +1395,18 @@ bool MatrixElementOperation(DenseMatrix<ElementType>& OutputMatrixC,
 
     auto ptrC = OutputMatrixC.GetElementPointer();
     auto ptrA = InputMatrixA.GetElementPointer();
-    auto ElementNumber = SizeA.RowCount * SizeA.ColCount;
+    auto ElementCount = SizeA.RowCount * SizeA.ColCount;
 
     if (ptrC == ptrA) // in place MatrixElementOperation
     {
-        for (auto Ptr = ptrC; Ptr < ptrC + ElementNumber; ++Ptr)
+        for (auto Ptr = ptrC; Ptr < ptrC + ElementCount; ++Ptr)
         {
             Ptr[0] = Operation(Ptr[0], InputElementB);
         }
     }
     else
     {
-        for (int_max i = 0; i < ElementNumber; ++i)
+        for (int_max i = 0; i < ElementCount; ++i)
         {
             ptrC[i] = Operation(ptrA[i], InputElementB);
         }
@@ -2568,7 +2592,7 @@ void MatrixLinearCombine(DenseMatrix<ElementType>& OutputMatrix,
 
 	auto OutputMatrixElementPointer = OutputMatrix.GetElementPointer();
 
-	auto ElementNumber = Size.ColCount*Size.RowCount;
+	auto ElementCount = Size.ColCount*Size.RowCount;
 
 	std::vector<const ElementType*> MatrixElementPointerList(MatrixNumber);
 	for (int_max k = 0; k < MatrixNumber; ++k)
@@ -2576,7 +2600,7 @@ void MatrixLinearCombine(DenseMatrix<ElementType>& OutputMatrix,
 		MatrixElementPointerList[k] = MatrixList[k].GetElementPointer();
 	}
 
-	MatrixLinearCombine(OutputMatrixElementPointer, ElementNumber, CoefList, MatrixElementPointerList, IndependentElement);
+	MatrixLinearCombine(OutputMatrixElementPointer, ElementCount, CoefList, MatrixElementPointerList, IndependentElement);
 }
 
 
@@ -2638,7 +2662,7 @@ void MatrixLinearCombine(DenseMatrix<ElementType>& OutputMatrix,
 
 	auto OutputMatrixElementPointer = OutputMatrix.GetElementPointer();
 
-	auto ElementNumber = Size.ColCount*Size.RowCount;
+	auto ElementCount = Size.ColCount*Size.RowCount;
 
 	std::vector<const ElementType*> MatrixElementPointerList(MatrixNumber);
 	for (int_max k = 0; k < MatrixNumber; ++k)
@@ -2646,14 +2670,14 @@ void MatrixLinearCombine(DenseMatrix<ElementType>& OutputMatrix,
 		MatrixElementPointerList[k] = MatrixList[k]->GetElementPointer();
 	}
 
-	MatrixLinearCombine(OutputMatrixElementPointer, ElementNumber, CoefList, MatrixElementPointerList, IndependentElement);
+	MatrixLinearCombine(OutputMatrixElementPointer, ElementCount, CoefList, MatrixElementPointerList, IndependentElement);
 }
 
 
 template<typename ElementType>
 inline 
 void MatrixLinearCombine(ElementType* OutputMatrixElementPointer,
-						 const int_max ElementNumber,
+						 const int_max ElementCount,
                          const std::vector<ElementType>& CoefList, 
 						 const std::vector<const ElementType*>& MatrixElementPointerList,
                          const ElementType& IndependentElement)
@@ -2662,43 +2686,43 @@ void MatrixLinearCombine(ElementType* OutputMatrixElementPointer,
     switch (MatrixNumber)
     {
     case 1:
-		MatrixLinearCombine_MatrixNumber_1(OutputMatrixElementPointer, ElementNumber, CoefList, MatrixElementPointerList, IndependentElement);
+		MatrixLinearCombine_MatrixNumber_1(OutputMatrixElementPointer, ElementCount, CoefList, MatrixElementPointerList, IndependentElement);
         break;
         
     case 2:
-		MatrixLinearCombine_MatrixNumber_2(OutputMatrixElementPointer, ElementNumber, CoefList, MatrixElementPointerList, IndependentElement);
+		MatrixLinearCombine_MatrixNumber_2(OutputMatrixElementPointer, ElementCount, CoefList, MatrixElementPointerList, IndependentElement);
         break;
 
     case 3:
-		MatrixLinearCombine_MatrixNumber_3(OutputMatrixElementPointer, ElementNumber, CoefList, MatrixElementPointerList, IndependentElement);
+		MatrixLinearCombine_MatrixNumber_3(OutputMatrixElementPointer, ElementCount, CoefList, MatrixElementPointerList, IndependentElement);
         break;
 
     case 4:
-		MatrixLinearCombine_MatrixNumber_4(OutputMatrixElementPointer, ElementNumber, CoefList, MatrixElementPointerList, IndependentElement);
+		MatrixLinearCombine_MatrixNumber_4(OutputMatrixElementPointer, ElementCount, CoefList, MatrixElementPointerList, IndependentElement);
         break;
 
     case 5:
-		MatrixLinearCombine_MatrixNumber_5(OutputMatrixElementPointer, ElementNumber, CoefList, MatrixElementPointerList, IndependentElement);
+		MatrixLinearCombine_MatrixNumber_5(OutputMatrixElementPointer, ElementCount, CoefList, MatrixElementPointerList, IndependentElement);
         break;
 
     case 6:       
-		MatrixLinearCombine_MatrixNumber_6(OutputMatrixElementPointer, ElementNumber, CoefList, MatrixElementPointerList, IndependentElement);
+		MatrixLinearCombine_MatrixNumber_6(OutputMatrixElementPointer, ElementCount, CoefList, MatrixElementPointerList, IndependentElement);
         break;
 
     case 7:
-		MatrixLinearCombine_MatrixNumber_7(OutputMatrixElementPointer, ElementNumber, CoefList, MatrixElementPointerList, IndependentElement);
+		MatrixLinearCombine_MatrixNumber_7(OutputMatrixElementPointer, ElementCount, CoefList, MatrixElementPointerList, IndependentElement);
         break;
 
     case 8:
-		MatrixLinearCombine_MatrixNumber_8(OutputMatrixElementPointer, ElementNumber, CoefList, MatrixElementPointerList, IndependentElement);
+		MatrixLinearCombine_MatrixNumber_8(OutputMatrixElementPointer, ElementCount, CoefList, MatrixElementPointerList, IndependentElement);
         break;
         
     case 9:
-		MatrixLinearCombine_MatrixNumber_9(OutputMatrixElementPointer, ElementNumber, CoefList, MatrixElementPointerList, IndependentElement);
+		MatrixLinearCombine_MatrixNumber_9(OutputMatrixElementPointer, ElementCount, CoefList, MatrixElementPointerList, IndependentElement);
         break;
 
     case 10:
-		MatrixLinearCombine_MatrixNumber_10(OutputMatrixElementPointer, ElementNumber, CoefList, MatrixElementPointerList, IndependentElement);
+		MatrixLinearCombine_MatrixNumber_10(OutputMatrixElementPointer, ElementCount, CoefList, MatrixElementPointerList, IndependentElement);
         break;
         
     default:
@@ -2709,7 +2733,7 @@ void MatrixLinearCombine(ElementType* OutputMatrixElementPointer,
 
         auto RawPtr_0 = MatrixElementPointerList[0];
 
-        for (int_max LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+        for (int_max LinearIndex = 0; LinearIndex < ElementCount; ++LinearIndex)
         {
 			OutputMatrixElementPointer[LinearIndex] = IndependentElement + Coef_0 * RawPtr_0[LinearIndex];
         }
@@ -2720,7 +2744,7 @@ void MatrixLinearCombine(ElementType* OutputMatrixElementPointer,
 
             auto RawPtr_k = MatrixElementPointerList[k];
 
-            for (int_max LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+            for (int_max LinearIndex = 0; LinearIndex < ElementCount; ++LinearIndex)
             {
 				OutputMatrixElementPointer[LinearIndex] += Coef_k * RawPtr_k[LinearIndex];
             }
@@ -2730,7 +2754,7 @@ void MatrixLinearCombine(ElementType* OutputMatrixElementPointer,
 
         // for-loop #2:
         /*
-        for (int_max LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+        for (int_max LinearIndex = 0; LinearIndex < ElementCount; ++LinearIndex)
         {
             ElementType tempElement = IndependentElement;
 
@@ -2749,21 +2773,21 @@ void MatrixLinearCombine(ElementType* OutputMatrixElementPointer,
 template<typename ElementType>
 inline
 void MatrixLinearCombine_MatrixNumber_1(ElementType* Output,
-						                const int_max ElementNumber,
+						                const int_max ElementCount,
                                         const std::vector<ElementType>& CoefList,  
                                         const std::vector<const ElementType*>& MatrixElementPointerList,
                                         const ElementType& IndependentElement)
 {
 	if (CoefList[0] != ElementType(1))
 	{
-		for (int_max LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+		for (int_max LinearIndex = 0; LinearIndex < ElementCount; ++LinearIndex)
 		{
 			Output[LinearIndex] = IndependentElement + CoefList[0] * MatrixElementPointerList[0][LinearIndex];
 		}
 	}
 	else
 	{
-		for (int_max LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+		for (int_max LinearIndex = 0; LinearIndex < ElementCount; ++LinearIndex)
 		{
 			Output[LinearIndex] = IndependentElement + MatrixElementPointerList[0][LinearIndex];
 		}
@@ -2774,14 +2798,14 @@ void MatrixLinearCombine_MatrixNumber_1(ElementType* Output,
 template<typename ElementType>
 inline
 void MatrixLinearCombine_MatrixNumber_2(ElementType* Output,
-						                const int_max ElementNumber,
+						                const int_max ElementCount,
                                         const std::vector<ElementType>& CoefList,  
                                         const std::vector<const ElementType*>& MatrixElementPointerList,
                                         const ElementType& IndependentElement)
 {
 	if (CoefList[0] != ElementType(1) || CoefList[1] != ElementType(1))
 	{
-		for (int_max LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+		for (int_max LinearIndex = 0; LinearIndex < ElementCount; ++LinearIndex)
 		{
 			Output[LinearIndex] = IndependentElement
 								  + CoefList[0] * MatrixElementPointerList[0][LinearIndex]
@@ -2790,7 +2814,7 @@ void MatrixLinearCombine_MatrixNumber_2(ElementType* Output,
 	}
 	else
 	{
-		for (int_max LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+		for (int_max LinearIndex = 0; LinearIndex < ElementCount; ++LinearIndex)
 		{
 			Output[LinearIndex] = IndependentElement + MatrixElementPointerList[0][LinearIndex] + MatrixElementPointerList[1][LinearIndex];
 		}
@@ -2801,14 +2825,14 @@ void MatrixLinearCombine_MatrixNumber_2(ElementType* Output,
 template<typename ElementType>
 inline
 void MatrixLinearCombine_MatrixNumber_3(ElementType* Output,
-						                const int_max ElementNumber,
+						                const int_max ElementCount,
                                         const std::vector<ElementType>& CoefList,  
                                         const std::vector<const ElementType*>& MatrixElementPointerList,
                                         const ElementType& IndependentElement)
 {
 	if (CoefList[0] != ElementType(1) || CoefList[1] != ElementType(1) || CoefList[2] != ElementType(1))
 	{
-		for (int_max LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+		for (int_max LinearIndex = 0; LinearIndex < ElementCount; ++LinearIndex)
 		{
 			Output[LinearIndex] = IndependentElement
 								  + CoefList[0] * MatrixElementPointerList[0][LinearIndex]
@@ -2818,7 +2842,7 @@ void MatrixLinearCombine_MatrixNumber_3(ElementType* Output,
 	}
 	else
 	{
-		for (int_max LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+		for (int_max LinearIndex = 0; LinearIndex < ElementCount; ++LinearIndex)
 		{
 			Output[LinearIndex] = IndependentElement 
 								  + MatrixElementPointerList[0][LinearIndex] 
@@ -2832,14 +2856,14 @@ void MatrixLinearCombine_MatrixNumber_3(ElementType* Output,
 template<typename ElementType>
 inline
 void MatrixLinearCombine_MatrixNumber_4(ElementType* Output,
-						                const int_max ElementNumber,
+						                const int_max ElementCount,
                                         const std::vector<ElementType>& CoefList,  
                                         const std::vector<const ElementType*>& MatrixElementPointerList,
                                         const ElementType& IndependentElement)
 {
 	if (CoefList[0] != ElementType(1) || CoefList[1] != ElementType(1) || CoefList[2] != ElementType(1) || CoefList[3] != ElementType(1))
 	{
-		for (int_max LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+		for (int_max LinearIndex = 0; LinearIndex < ElementCount; ++LinearIndex)
 		{
 			Output[LinearIndex] = IndependentElement
 								  + CoefList[0] * MatrixElementPointerList[0][LinearIndex]
@@ -2850,7 +2874,7 @@ void MatrixLinearCombine_MatrixNumber_4(ElementType* Output,
 	}
 	else
 	{
-		for (int_max LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+		for (int_max LinearIndex = 0; LinearIndex < ElementCount; ++LinearIndex)
 		{
 			Output[LinearIndex] = IndependentElement
 								  + MatrixElementPointerList[0][LinearIndex]
@@ -2865,7 +2889,7 @@ void MatrixLinearCombine_MatrixNumber_4(ElementType* Output,
 template<typename ElementType>
 inline
 void MatrixLinearCombine_MatrixNumber_5(ElementType* Output,
-						                const int_max ElementNumber,
+						                const int_max ElementCount,
                                         const std::vector<ElementType>& CoefList,  
                                         const std::vector<const ElementType*>& MatrixElementPointerList,
                                         const ElementType& IndependentElement)
@@ -2873,7 +2897,7 @@ void MatrixLinearCombine_MatrixNumber_5(ElementType* Output,
 	if (CoefList[0] != ElementType(1) || CoefList[1] != ElementType(1) || CoefList[2] != ElementType(1)
 		|| CoefList[3] != ElementType(1) || CoefList[4] != ElementType(1))
 	{
-		for (int_max LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+		for (int_max LinearIndex = 0; LinearIndex < ElementCount; ++LinearIndex)
 		{
 			Output[LinearIndex] = IndependentElement
 								  + CoefList[0] * MatrixElementPointerList[0][LinearIndex]
@@ -2885,7 +2909,7 @@ void MatrixLinearCombine_MatrixNumber_5(ElementType* Output,
 	}
 	else
 	{
-		for (int_max LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+		for (int_max LinearIndex = 0; LinearIndex < ElementCount; ++LinearIndex)
 		{
 			Output[LinearIndex] = IndependentElement
 								  + MatrixElementPointerList[0][LinearIndex]
@@ -2901,12 +2925,12 @@ void MatrixLinearCombine_MatrixNumber_5(ElementType* Output,
 template<typename ElementType>
 inline
 void MatrixLinearCombine_MatrixNumber_6(ElementType* Output,
-						                const int_max ElementNumber,
+						                const int_max ElementCount,
                                         const std::vector<ElementType>& CoefList,  
                                         const std::vector<const ElementType*>& MatrixElementPointerList,
                                         const ElementType& IndependentElement)
 {
-    for (int_max LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+    for (int_max LinearIndex = 0; LinearIndex < ElementCount; ++LinearIndex)
     {
         Output[LinearIndex] = IndependentElement
                              + CoefList[0] * MatrixElementPointerList[0][LinearIndex]
@@ -2922,12 +2946,12 @@ void MatrixLinearCombine_MatrixNumber_6(ElementType* Output,
 template<typename ElementType>
 inline
 void MatrixLinearCombine_MatrixNumber_7(ElementType* Output,
-						                const int_max ElementNumber,
+						                const int_max ElementCount,
                                         const std::vector<ElementType>& CoefList,  
                                         const std::vector<const ElementType*>& MatrixElementPointerList,
                                         const ElementType& IndependentElement)
 {
-    for (int_max LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+    for (int_max LinearIndex = 0; LinearIndex < ElementCount; ++LinearIndex)
     {
         Output[LinearIndex] = IndependentElement
                              + CoefList[0] * MatrixElementPointerList[0][LinearIndex]
@@ -2944,12 +2968,12 @@ void MatrixLinearCombine_MatrixNumber_7(ElementType* Output,
 template<typename ElementType>
 inline
 void MatrixLinearCombine_MatrixNumber_8(ElementType* Output,
-						                const int_max ElementNumber,
+						                const int_max ElementCount,
                                         const std::vector<ElementType>& CoefList,  
                                         const std::vector<const ElementType*>& MatrixElementPointerList,
                                         const ElementType& IndependentElement)
 {
-    for (int_max LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+    for (int_max LinearIndex = 0; LinearIndex < ElementCount; ++LinearIndex)
     {
         Output[LinearIndex] = IndependentElement
                              + CoefList[0] * MatrixElementPointerList[0][LinearIndex]
@@ -2967,12 +2991,12 @@ void MatrixLinearCombine_MatrixNumber_8(ElementType* Output,
 template<typename ElementType>
 inline
 void MatrixLinearCombine_MatrixNumber_9(ElementType* Output,
-						                const int_max ElementNumber,
+						                const int_max ElementCount,
                                         const std::vector<ElementType>& CoefList,  
                                         const std::vector<const ElementType*>& MatrixElementPointerList,
                                         const ElementType& IndependentElement)
 {
-    for (int_max LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+    for (int_max LinearIndex = 0; LinearIndex < ElementCount; ++LinearIndex)
     {
         Output[LinearIndex] = IndependentElement
                              + CoefList[0] * MatrixElementPointerList[0][LinearIndex]
@@ -2991,12 +3015,12 @@ void MatrixLinearCombine_MatrixNumber_9(ElementType* Output,
 template<typename ElementType>
 inline
 void MatrixLinearCombine_MatrixNumber_10(ElementType* Output,
-						                 const int_max ElementNumber,
+						                 const int_max ElementCount,
                                          const std::vector<ElementType>& CoefList,  
                                          const std::vector<const ElementType*>& MatrixElementPointerList,
                                          const ElementType& IndependentElement)
 {
-    for (int_max LinearIndex = 0; LinearIndex < ElementNumber; ++LinearIndex)
+    for (int_max LinearIndex = 0; LinearIndex < ElementCount; ++LinearIndex)
     {
         Output[LinearIndex] = IndependentElement
                              + CoefList[0] * MatrixElementPointerList[0][LinearIndex]

@@ -1170,28 +1170,33 @@ void MatrixTransposeInPlace(DenseMatrix<ElementType>& InputMatrix)
 template<typename ElementType>
 int_max MatrixRank(const DenseMatrix<ElementType>& InputMatrix)
 {
-    auto Size = InputMatrix.GetSize();
-
-    if (Size.RowCount == 0)
+	if (InputMatrix.IsEmpty() == true)
     {
-        MDK_Error("InputMatrix is empty  @ mdkLinearAlgebra_DenseMatrix MatrixRank(InputMatrix)")
+        //MDK_Error("InputMatrix is empty  @ mdkLinearAlgebra_DenseMatrix MatrixRank(InputMatrix)")
         return 0;
     }
+
+	if (InputMatrix.GetRowCount() == 1 || InputMatrix.GetColCount() == 1)
+	{
+		return 0;
+	}
 
     auto ptrInputMatrix = const_cast<ElementType*>(InputMatrix.GetElementPointer());
 
     //call Armadillo 
+	//auto Size = InputMatrix.GetSize();
     //arma::Mat<ElementType> tempMat(ptrInputMatrix, arma::uword(Size.RowCount), arma::uword(Size.ColCount), false);
     //int_max value = arma::rank(tempMat);
 
 	//call Eigen	
 	//http://stackoverflow.com/questions/31041921/how-to-get-rank-of-a-matrix-in-eigen-library
 	typedef Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic> EigenMatrixType;
-	Eigen::Map<EigenMatrixType> A(InputMatrix.GetElementPointer(), InputMatrix.GetRowCount(), InputMatrix.GetColCount());
+	Eigen::Map<EigenMatrixType> A(ptrInputMatrix, InputMatrix.GetRowCount(), InputMatrix.GetColCount());
 	//FullPivLU<EigenMatrixType> lu_decomp(A);
 	//auto rank = int_max(lu_decomp.rank());
-	Eigen::ColPivHouseholderQR<EigenMatrixType> qr_decomp;
-	auto rank = int_max(qr_decomp.rank());
+	Eigen::ColPivHouseholderQR<EigenMatrixType> qr_decomp(A);
+	auto value = int_max(qr_decomp.rank());
+
     return value;
 }
 
@@ -1204,30 +1209,31 @@ ElementType MatrixDeterminant(const DenseMatrix<ElementType>& InputMatrix)
 		return ElementType(0);
 	}
 
-	if (InputMatrix.IsVector() == true)
+	if (InputMatrix.GetRowCount() == 1 && InputMatrix.GetColCount() == 1)
 	{
-		auto Det = ElementType(1);
-		for (auto Ptr = InputMatrix.begin(); Ptr != InputMatrix.end(); ++Ptr)
-		{
-			Det *= Ptr[0];
-		}
-		return Det;
+		return InputMatrix[0];
 	}
+
+	if (InputMatrix.IsSquare() == false)
+	{
+		MDK_Error("InputMatrix is not square  @ mdkLinearAlgebra_DenseMatrix MatrixDeterminant(InputMatrix)")
+		return ElementType(0);
+	}
+
+	auto ptrInputMatrix = const_cast<ElementType*>(InputMatrix.GetElementPointer());
 
 	//call Armadillo 
 	//auto Size = InputMatrix.GetSize();
-	//auto ptrInputMatrix = const_cast<ElementType*>(InputMatrix.GetElementPointer());
 	//arma::Mat<ElementType> tempMat(ptrInputMatrix, arma::uword(Size.RowCount), arma::uword(Size.ColCount), false);
 	//auto Det = arma::det(tempMat);
 
 	//call Eigen
 	typedef Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic> EigenMatrixType;
-	Eigen::Map<EigenMatrixType> A(InputMatrix.GetElementPointer(), InputMatrix.GetRowCount(), InputMatrix.GetColCount());
+	Eigen::Map<EigenMatrixType> A(ptrInputMatrix, InputMatrix.GetRowCount(), InputMatrix.GetColCount());
 	auto Det = A.determinant();
 
 	return Det;
 }
-
 
 
 template<typename ElementType>
@@ -1468,9 +1474,9 @@ DenseMatrixEigenResult<ElementType> SymmetricRealMatrixEigen(const DenseMatrix<E
 	typedef Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic> EigenRealMatrixType;
 	typedef Eigen::Matrix<std::complex<ElementType>, Eigen::Dynamic, Eigen::Dynamic> EigenComplexMatrixType;
 	Eigen::Map<EigenRealMatrixType> A(ptrInputMatrix, Size.RowCount, Size.ColCount);
-	Eigen::Map<EigenComplexMatrixType> V(Result.EigenVector.GetElementPointer(), Result.EigenVector.GetRowCount(), Result.EigenVector.GetColCount());
-	Eigen::Map<EigenComplexMatrixType> S(Result.EigenValue.GetElementPointer(), Result.EigenValue.GetRowCount(), Result.EigenValue.GetColCount());
-	Eigen::SelfAdjointEigenSolver<EigenMatrixType> es(A);
+	Eigen::Map<EigenRealMatrixType> V(Result.EigenVector.GetElementPointer(), Result.EigenVector.GetRowCount(), Result.EigenVector.GetColCount());
+	Eigen::Map<EigenRealMatrixType> S(Result.EigenValue.GetElementPointer(), Result.EigenValue.GetRowCount(), Result.EigenValue.GetColCount());
+	Eigen::SelfAdjointEigenSolver<EigenRealMatrixType> es(A);
 	S = es.eigenvalues();
 	V = es.eigenvectors();
 
