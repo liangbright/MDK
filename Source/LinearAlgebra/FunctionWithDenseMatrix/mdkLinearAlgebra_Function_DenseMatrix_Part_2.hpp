@@ -1054,7 +1054,6 @@ template<typename ElementType>
 ElementType MatrixNorm_L1(const DenseMatrix<ElementType>& InputMatrix)
 {
     auto ElementCount = InputMatrix.GetElementCount();
-
     if (ElementCount == 0)
     {
         MDK_Error("empty input matrix @ mdkLinearAlgebra_DenseMatrix MatrixNorm_L1(InputMatrix)")
@@ -1062,14 +1061,11 @@ ElementType MatrixNorm_L1(const DenseMatrix<ElementType>& InputMatrix)
     }
 
     ElementType Value = ElementType(0);
-
     auto BeginPointer = InputMatrix.GetElementPointer();
-
     for (auto Ptr = BeginPointer; Ptr < BeginPointer + ElementCount; ++Ptr)
     {
         Value += std::abs(Ptr[0]);
     }
-
     return Value;
 }
 
@@ -1078,7 +1074,6 @@ template<typename ElementType>
 ElementType MatrixNorm_L2(const DenseMatrix<ElementType>& InputMatrix)
 {
     auto ElementCount = InputMatrix.GetElementCount();
-
     if (ElementCount == 0)
     {
         MDK_Error("empty input matrix @ mdkLinearAlgebra_DenseMatrix MatrixNorm_L2(InputMatrix)")
@@ -1086,14 +1081,11 @@ ElementType MatrixNorm_L2(const DenseMatrix<ElementType>& InputMatrix)
     }
 
     auto BeginPointer = InputMatrix.GetElementPointer();
-
     auto Value = BeginPointer[0] * BeginPointer[0];
-
     for (auto Ptr = BeginPointer + 1; Ptr < BeginPointer + ElementCount; ++Ptr)
     {
         Value += Ptr[0] * Ptr[0];
     }
-
     Value = std::sqrt(Value);
 
     return Value;
@@ -1113,7 +1105,6 @@ DenseMatrix<ElementType> MatrixTranspose(const DenseMatrix<ElementType>& InputMa
 
         return tempMatrix;
     }
-
     if (Size.ColCount == 1)
     {
         tempMatrix.Copy(InputMatrix.GetElementPointer(), 1, Size.RowCount);
@@ -1137,13 +1128,10 @@ DenseMatrix<ElementType> MatrixTranspose(const DenseMatrix<ElementType>& InputMa
     for (int_max i = 0; i < Size.RowCount; ++i)
     {
         int_max Index = 0;
-
         for (int_max j = 0; j < Size.ColCount; ++j)
         {
             tempRawPointer[0] = RawPointer[Index + i];
-
             Index += Size.RowCount;
-
             ++tempRawPointer;
         }
     }
@@ -1168,13 +1156,14 @@ void MatrixTransposeInPlace(DenseMatrix<ElementType>& InputMatrix)
         return;
     }
 
-    //--------------------- call armadillo
+    //call Armadillo
+    //arma::Mat<ElementType> A(InputMatrix.GetElementPointer(), arma::uword(InputMatrix.GetRowCount()), arma::uword(InputMatrix.GetColCount()), false);
+    //arma::inplace_trans(A);
+    //InputMatrix.Reshape(Size.ColCount, Size.RowCount);
 
-    arma::Mat<ElementType> A(InputMatrix.GetElementPointer(), arma::uword(InputMatrix.GetRowCount()), arma::uword(InputMatrix.GetColCount()), false);
-
-    arma::inplace_trans(A);
-
-    InputMatrix.Reshape(Size.ColCount, Size.RowCount);
+	//call Eigen
+	Eigen::Map<Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic>> A(InputMatrix.GetElementPointer(), InputMatrix.GetRowCount(), InputMatrix.GetColCount());
+	A.transposeInPlace();	
 }
 
 
@@ -1189,14 +1178,20 @@ int_max MatrixRank(const DenseMatrix<ElementType>& InputMatrix)
         return 0;
     }
 
-    auto ptrData = const_cast<ElementType*>(InputMatrix.GetElementPointer());
+    auto ptrInputMatrix = const_cast<ElementType*>(InputMatrix.GetElementPointer());
 
-    // call Armadillo 
+    //call Armadillo 
+    //arma::Mat<ElementType> tempMat(ptrInputMatrix, arma::uword(Size.RowCount), arma::uword(Size.ColCount), false);
+    //int_max value = arma::rank(tempMat);
 
-    arma::Mat<ElementType> tempMat(ptrData, arma::uword(Size.RowCount), arma::uword(Size.ColCount), false);
-
-    int_max value = arma::rank(tempMat);
-
+	//call Eigen	
+	//http://stackoverflow.com/questions/31041921/how-to-get-rank-of-a-matrix-in-eigen-library
+	typedef Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic> EigenMatrixType;
+	Eigen::Map<EigenMatrixType> A(InputMatrix.GetElementPointer(), InputMatrix.GetRowCount(), InputMatrix.GetColCount());
+	//FullPivLU<EigenMatrixType> lu_decomp(A);
+	//auto rank = int_max(lu_decomp.rank());
+	Eigen::ColPivHouseholderQR<EigenMatrixType> qr_decomp;
+	auto rank = int_max(qr_decomp.rank());
     return value;
 }
 
@@ -1211,7 +1206,7 @@ ElementType MatrixDeterminant(const DenseMatrix<ElementType>& InputMatrix)
 
 	if (InputMatrix.IsVector() == true)
 	{
-		auto Det = ElementType(0);
+		auto Det = ElementType(1);
 		for (auto Ptr = InputMatrix.begin(); Ptr != InputMatrix.end(); ++Ptr)
 		{
 			Det *= Ptr[0];
@@ -1219,11 +1214,16 @@ ElementType MatrixDeterminant(const DenseMatrix<ElementType>& InputMatrix)
 		return Det;
 	}
 
-	// call Armadillo 
-	auto Size = InputMatrix.GetSize();
-	auto ptrData = const_cast<ElementType*>(InputMatrix.GetElementPointer());
-	arma::Mat<ElementType> tempMat(ptrData, arma::uword(Size.RowCount), arma::uword(Size.ColCount), false);
-	auto Det = arma::det(tempMat);
+	//call Armadillo 
+	//auto Size = InputMatrix.GetSize();
+	//auto ptrInputMatrix = const_cast<ElementType*>(InputMatrix.GetElementPointer());
+	//arma::Mat<ElementType> tempMat(ptrInputMatrix, arma::uword(Size.RowCount), arma::uword(Size.ColCount), false);
+	//auto Det = arma::det(tempMat);
+
+	//call Eigen
+	typedef Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic> EigenMatrixType;
+	Eigen::Map<EigenMatrixType> A(InputMatrix.GetElementPointer(), InputMatrix.GetRowCount(), InputMatrix.GetColCount());
+	auto Det = A.determinant();
 
 	return Det;
 }
@@ -1251,12 +1251,18 @@ DenseMatrix<ElementType> MatrixInverse(const DenseMatrix<ElementType>& InputMatr
 
 	OutputMatrix.FastResize(Size.RowCount, Size.ColCount);
 
-    auto ptrData = const_cast<ElementType*>(InputMatrix.GetElementPointer());
+    auto ptrInputMatrix = const_cast<ElementType*>(InputMatrix.GetElementPointer());
 
     // call Armadillo 
-    arma::Mat<ElementType> tempMat(ptrData, arma::uword(Size.RowCount), arma::uword(Size.ColCount), false);
-	arma::Mat<ElementType> tempInv(OutputMatrix.GetElementPointer(), arma::uword(Size.RowCount), arma::uword(Size.ColCount), false);
-    tempInv = arma::inv(tempMat);
+    //arma::Mat<ElementType> tempMat(ptrInputMatrix, arma::uword(Size.RowCount), arma::uword(Size.ColCount), false);
+	//arma::Mat<ElementType> tempInv(OutputMatrix.GetElementPointer(), arma::uword(Size.RowCount), arma::uword(Size.ColCount), false);
+    //tempInv = arma::inv(tempMat);
+
+	//call Eigen
+	typedef Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic> EigenMatrixType;
+	Eigen::Map<EigenMatrixType> A(ptrInputMatrix, InputMatrix.GetRowCount(), InputMatrix.GetColCount());
+	Eigen::Map<EigenMatrixType> B(OutputMatrix.GetElementPointer(), OutputMatrix.GetRowCount(), OutputMatrix.GetColCount());
+	B = A.inverse();
 
 	return OutputMatrix;
 }
@@ -1277,17 +1283,41 @@ DenseMatrix<ElementType> MatrixPseudoInverse(const DenseMatrix<ElementType>& Inp
 
 	OutputMatrix.FastResize(Size.ColCount, Size.RowCount);// switch size
 
-	auto ptrData = const_cast<ElementType*>(InputMatrix.GetElementPointer());
+	auto ptrInputMatrix = const_cast<ElementType*>(InputMatrix.GetElementPointer());
 
-	// call Armadillo 
-	auto tolerance = ElementType(std::max(Size.RowCount, Size.ColCount))*InputMatrix.L1Norm()*std::numeric_limits<ElementType>::epsilon();
-	arma::Mat<ElementType> tempMat(ptrData, arma::uword(Size.RowCount), arma::uword(Size.ColCount), false);
-	arma::Mat<ElementType> tempInv(OutputMatrix.GetElementPointer(), arma::uword(Size.RowCount), arma::uword(Size.ColCount), false);	
-	bool Flag = arma::pinv(tempInv, tempMat, tolerance, "std"); // do not use "dc", it has problem
-	if (Flag == false)
+	//call Armadillo 
+	//http://arma.sourceforge.net/docs.html#pinv
+	//auto tolerance = ElementType(std::max(Size.RowCount, Size.ColCount))*InputMatrix.L1Norm()*std::numeric_limits<ElementType>::epsilon();
+	//arma::Mat<ElementType> tempMat(ptrInputMatrix, arma::uword(Size.RowCount), arma::uword(Size.ColCount), false);
+	//arma::Mat<ElementType> tempInv(OutputMatrix.GetElementPointer(), arma::uword(Size.RowCount), arma::uword(Size.ColCount), false);	
+	//bool Flag = arma::pinv(tempInv, tempMat, tolerance, "std"); // do not use "dc", it has problem
+	//if (Flag == false)
+	//{
+	//	MDK_Error("Armadillo pinv failed @ @ mdkLinearAlgebra_DenseMatrix MatrixPseudoInverse(InputMatrix)")
+	//}
+
+	//call Eigen
+	//http://eigen.tuxfamily.org/index.php?title=FAQ#Is_there_a_method_to_compute_the_.28Moore-Penrose.29_pseudo_inverse_.3F
+	// X=USV*
+	typedef Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic> EigenMatrixType;
+	Eigen::Map<EigenMatrixType> A(OutputMatrix.GetElementPointer(), OutputMatrix.GetRowCount(), OutputMatrix.GetColCount());
+	Eigen::Map<EigenMatrixType> X(ptrInputMatrix, InputMatrix.GetRowCount(), InputMatrix.GetColCount());
+	Eigen::JacobiSVD<EigenMatrixType> svd(X, Eigen::ComputeFullU | Eigen::ComputeFullV);
+	const auto& S = svd.singularValues();
+	const auto& U = svd.matrixU();
+	const auto& V = svd.matrixV();
+	EigenMatrixType invS(V.cols(), U.rows());
+	invS.setZero();
+	ElementType tolerance = ElementType(std::max(InputMatrix.GetRowCount(), InputMatrix.GetColCount()))*std::numeric_limits<ElementType>::epsilon();
+	for (int_max k = 0; k < S.size(); ++k)
 	{
-		MDK_Error("Armadillo pinv failed @ @ mdkLinearAlgebra_DenseMatrix MatrixPseudoInverse(InputMatrix)")
+		if (S[k] > tolerance)
+		{
+			invS(k, k) = ElementType(1) / S(k);
+		}
 	}
+	A = V*invS*U.adjoint();
+
 	return OutputMatrix;
 }
 
@@ -1328,7 +1358,7 @@ DenseMatrix<ElementType> SolveMatrixLinearEquation(const DenseMatrix<ElementType
 	//	MDK_Error("No solution @ mdkLinearAlgebra_DenseMatrix SolveMatrixLinearEquation(MatrixA, MatrixB)")
 	//}
 
-	// call eigen: SVD
+	//call eigen: SVD
 	Eigen::Map<Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic>> A(ptrA, SizeA.RowCount, SizeA.ColCount);
 	Eigen::Map<Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic>> B(ptrB, SizeB.RowCount, SizeB.ColCount);
 	Eigen::Map<Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic>> X(ptrX, SizeA.ColCount, SizeB.ColCount);
@@ -1368,13 +1398,23 @@ DenseMatrixEigenResult<std::complex<ElementType>> NonSymmetricRealMatrixEigen(co
 
     Result.EigenVector.FastResize(Size.RowCount, Size.RowCount);
     Result.EigenValue.FastResize(Size.RowCount, 1);
-    auto ptrData = const_cast<ElementType*>(InputMatrix.GetElementPointer());
+    auto ptrInputMatrix = const_cast<ElementType*>(InputMatrix.GetElementPointer());
 
-    // call Armadillo 
-    arma::Mat<ElementType> tempMat(ptrData, arma::uword(Size.RowCount), arma::uword(Size.RowCount), false);
-    arma::Mat<std::complex<ElementType>> tempEigenVector(Result.EigenVector.GetElementPointer(), arma::uword(Size.RowCount), arma::uword(Size.RowCount), false);
-    arma::Col<std::complex<ElementType>> tempEigenValue(Result.EigenValue.GetElementPointer(), arma::uword(Size.RowCount), false);
-    arma::eig_gen(tempEigenValue, tempEigenVector, tempMat);
+    //call Armadillo 
+    //arma::Mat<ElementType> tempMat(ptrInputMatrix, arma::uword(Size.RowCount), arma::uword(Size.RowCount), false);
+    //arma::Mat<std::complex<ElementType>> tempEigenVector(Result.EigenVector.GetElementPointer(), arma::uword(Size.RowCount), arma::uword(Size.RowCount), false);
+    //arma::Col<std::complex<ElementType>> tempEigenValue(Result.EigenValue.GetElementPointer(), arma::uword(Size.RowCount), false);
+    //arma::eig_gen(tempEigenValue, tempEigenVector, tempMat);
+
+	//call Eigen
+	typedef Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic> EigenRealMatrixType;
+	typedef Eigen::Matrix<std::complex<ElementType>, Eigen::Dynamic, Eigen::Dynamic> EigenComplexMatrixType;
+	Eigen::Map<EigenRealMatrixType> A(ptrInputMatrix, Size.RowCount, Size.ColCount);
+	Eigen::Map<EigenComplexMatrixType> V(Result.EigenVector.GetElementPointer(), Result.EigenVector.GetRowCount(), Result.EigenVector.GetColCount());
+	Eigen::Map<EigenComplexMatrixType> S(Result.EigenValue.GetElementPointer(), Result.EigenValue.GetRowCount(), Result.EigenValue.GetColCount());
+	Eigen::EigenSolver<EigenMatrixType> es(A);
+	S = es.eigenvalues();
+	V = es.eigenvectors();
 
     return Result;
 }
@@ -1390,46 +1430,49 @@ DenseMatrixEigenResult<ElementType> SymmetricRealMatrixEigen(const DenseMatrix<E
     if (Size.RowCount == 0)
     {
         MDK_Error("Matrix is empty matrix @ mdkLinearAlgebra_DenseMatrix SymmetricRealMatrixEigen(...)")
-
         return Result;
     }
 
     if (Size.RowCount != Size.ColCount)
     {
         MDK_Error("Matrix is not square @ mdkLinearAlgebra_DenseMatrix SymmetricRealMatrixEigen(...)")
-
         return Result;
     }
 
     if (CheckIfSymmetric == true)
     {
         DenseMatrix<ElementType> tempMatrix_2 = InputMatrix - InputMatrix.Transpose();
-
-        tempMatrix_2.ElementOperationInPlace("abs");
+		for (auto& i : tempMatrix_2) { i = std::abs(i); }
 
         double tempsum = double(tempMatrix_2.Sum());
 		auto EPS = std::numeric_limits<ElementType>::epsilon();
         if (std::abs(tempsum) > EPS)
         {
-            MDK_Error("Matrix is not Symmetric, try to generate result @ mdkLinearAlgebra_DenseMatrix SymmetricRealMatrixEigen(...)")
+			MDK_Error("Matrix is not Symmetric, abort @ mdkLinearAlgebra_DenseMatrix SymmetricRealMatrixEigen(...)")
+			return Result;
         }
     }
   
     Result.EigenVector.FastResize(Size.RowCount, Size.RowCount);
-
     Result.EigenValue.FastResize(Size.RowCount, 1);
 
-    auto ptrData = const_cast<ElementType*>(InputMatrix.GetElementPointer());
+    auto ptrInputMatrix = const_cast<ElementType*>(InputMatrix.GetElementPointer());
 
-    // call Armadillo 
+    //call Armadillo
+    //arma::Mat<ElementType> tempMat(ptrInputMatrix, arma::uword(Size.RowCount), arma::uword(Size.RowCount), false);
+    //arma::Mat<ElementType> tempEigenVector(Result.EigenVector.GetElementPointer(), arma::uword(Size.RowCount), arma::uword(Size.RowCount), false);
+    //arma::Col<ElementType> tempEigenValue(Result.EigenValue.GetElementPointer(), arma::uword(Size.RowCount), false);
+    //arma::eig_sym(tempEigenValue, tempEigenVector, tempMat);
 
-    arma::Mat<ElementType> tempMat(ptrData, arma::uword(Size.RowCount), arma::uword(Size.RowCount), false);
-
-    arma::Mat<ElementType> tempEigenVector(Result.EigenVector.GetElementPointer(), arma::uword(Size.RowCount), arma::uword(Size.RowCount), false);
-
-    arma::Col<ElementType> tempEigenValue(Result.EigenValue.GetElementPointer(), arma::uword(Size.RowCount), false);
-
-    arma::eig_sym(tempEigenValue, tempEigenVector, tempMat);
+	//call Eigen
+	typedef Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic> EigenRealMatrixType;
+	typedef Eigen::Matrix<std::complex<ElementType>, Eigen::Dynamic, Eigen::Dynamic> EigenComplexMatrixType;
+	Eigen::Map<EigenRealMatrixType> A(ptrInputMatrix, Size.RowCount, Size.ColCount);
+	Eigen::Map<EigenComplexMatrixType> V(Result.EigenVector.GetElementPointer(), Result.EigenVector.GetRowCount(), Result.EigenVector.GetColCount());
+	Eigen::Map<EigenComplexMatrixType> S(Result.EigenValue.GetElementPointer(), Result.EigenValue.GetRowCount(), Result.EigenValue.GetColCount());
+	Eigen::SelfAdjointEigenSolver<EigenMatrixType> es(A);
+	S = es.eigenvalues();
+	V = es.eigenvectors();
 
     return Result;
 }
@@ -1458,8 +1501,7 @@ DenseMatrixPCAResult<ElementType> MatrixPCA(const DenseMatrix<ElementType>& Inpu
     // reference only
     //for (int_max i = 0; i < Size.ColCount; ++i)
     //{
-    //    DenseMatrix<ElementType> tempCol = InputMatrix(ALL, { i }) - MeanCol;
-       
+    //    DenseMatrix<ElementType> tempCol = InputMatrix(ALL, { i }) - MeanCol;       
     //    CovarianceMatrix += tempCol * tempCol.Transpose();
     //}
 
@@ -1487,9 +1529,7 @@ DenseMatrixPCAResult<ElementType> MatrixPCA(const DenseMatrix<ElementType>& Inpu
     //--------------------------------------------------------------//
 
     PCAResult.Mean = std::move(MeanCol);
-
     PCAResult.EigenVector = std::move(EigenResult.EigenVector);
-
     PCAResult.EigenValue = std::move(EigenResult.EigenValue);
 
     return PCAResult;
@@ -1513,18 +1553,19 @@ DenseMatrixSVDResult<ElementType> MatrixSVD(const DenseMatrix<ElementType>& Inpu
     Result.S.FastResize(std::min(Size.RowCount, Size.ColCount), 1);
 	Result.V.FastResize(Size.ColCount, Size.ColCount);
 
-    auto ptrData = const_cast<ElementType*>(InputMatrix.GetElementPointer());
+    auto ptrInputMatrix = const_cast<ElementType*>(InputMatrix.GetElementPointer());
 
-    // call Armadillo : can not handle non-square matrix
-	//arma::Mat<ElementType> X(ptrData, arma::uword(Size.RowCount), arma::uword(Size.ColCount), false);
+    //call Armadillo : can not handle non-square matrix
+	//arma::Mat<ElementType> X(ptrInputMatrix, arma::uword(Size.RowCount), arma::uword(Size.ColCount), false);
 	//arma::Mat<ElementType> U(Result.U.GetElementPointer(), arma::uword(Result.U.GetRowCount()), arma::uword(Result.U.GetColCount()), false);
 	//arma::Col<ElementType> S(Result.S.GetElementPointer(), arma::uword(Result.S.GetRowCount()), false);
 	//arma::Mat<ElementType> V(Result.V.GetElementPointer(), arma::uword(Result.V.GetRowCount()), arma::uword(Result.V.GetColCount()), false);
     //arma::svd(U, S, V, X);
 
 	//call eigen	
+	// X=USV*
 	typedef Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic> EigenMatrixType;
-	Eigen::Map<const EigenMatrixType> X(ptrData, Size.RowCount, Size.ColCount);
+	Eigen::Map<const EigenMatrixType> X(ptrInputMatrix, Size.RowCount, Size.ColCount);
 	Eigen::JacobiSVD<EigenMatrixType> svd(X, Eigen::ComputeFullU | Eigen::ComputeFullV);	
 	const auto& S = svd.singularValues();
 	const auto& U = svd.matrixU();
@@ -1535,19 +1576,39 @@ DenseMatrixSVDResult<ElementType> MatrixSVD(const DenseMatrix<ElementType>& Inpu
 		Result.S[k] = S[k];
 	}
 
-	for (int_max j = 0; j < Size.RowCount; ++j)
+	if (U.IsColMajor == true)
 	{
-		for (int_max i = 0; i < Size.RowCount; ++i)
+		for (int_max k = 0; k < Result.U.GetElementCount(); ++k)
 		{
-			Result.U(i, j) = U(i, j);
+			Result.U[k] = U.data()[k];
+		}
+	}
+	else
+	{
+		for (int_max j = 0; j < Size.RowCount; ++j)
+		{
+			for (int_max i = 0; i < Size.RowCount; ++i)
+			{
+				Result.U(i, j) = U(i, j);
+			}
 		}
 	}
 
-	for (int_max j = 0; j < Size.ColCount; ++j)
+	if (V.IsColMajor == true)
 	{
-		for (int_max i = 0; i < Size.ColCount; ++i)
+		for (int_max k = 0; k < Result.V.GetElementCount(); ++k)
 		{
-			Result.V(i, j) = V(i, j);
+			Result.V[k] = V.data()[k];
+		}
+	}
+	else
+	{
+		for (int_max j = 0; j < Size.ColCount; ++j)
+		{
+			for (int_max i = 0; i < Size.ColCount; ++i)
+			{
+				Result.V(i, j) = V(i, j);
+			}
 		}
 	}
 
