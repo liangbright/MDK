@@ -8,7 +8,7 @@
 #include <functional>
 
 #include <Eigen/Dense>
-#include "armadillo.h"
+//#include "armadillo.h"
 
 namespace mdk
 {

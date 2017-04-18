@@ -1,6 +1,8 @@
 #pragma once
 
 //================================================
+#include "armadillo.h"
+
 #include <algorithm>
 #include <chrono>
 #include <ctime>
@@ -614,18 +616,23 @@ void Test_ElementOperation()
 
     DisplayMatrix("A", A);
 
-    A.ElementOperation('*', 2);
+    //A.ElementOperation('*', 2);
+	for (auto& i : A) { i *= 2; }
 
-    A.ElementOperation("*", 3);
+    //A.ElementOperation("*", 3);
+	for (auto& i : A) { i *= 3; }
 
-    A.ElementOperation(std::string("*"), 1);
+    //A.ElementOperation(std::string("*"), 1);
+	for (auto& i : A) { i *= 1; }
 
 	B = A;
-	B.ElementOperation("sqrt");
+	//B.ElementOperation("sqrt");
+	for (auto& i : B) { i = sqrt(i); }
 
     DisplayMatrix("B = A.ElementOperation(\"sqrt\")", B);
 
-    B.ElementOperation('+', 1);
+    //B.ElementOperation('+', 1);
+	for (auto& i : B) { i += 1; }
 
     DisplayMatrix("B.ElementOperation('+', 1)", B);
 
@@ -647,11 +654,11 @@ void Test_ColOperation()
     DisplayMatrix("A", A);
 
 	auto B = A.GetCol(0);
-    B.ColOperation(0, "sqrt");
+    //B.ColOperation(0, "sqrt");
 
     DisplayMatrix("B.ColOperation(0, \"sqrt\")", B);
 
-    B.ColOperation(0, '+', 1);
+   // B.ColOperation(0, '+', 1);
 
     DisplayMatrix("B.ColOperation(0, '+', 1)", B);
 }
@@ -1861,7 +1868,7 @@ void Test_MatrixMutiply()
     //DisplayMatrix("C2", C2);
 
     DenseMatrix<double> C_diff = C2 - C2;
-    C_diff.ElementOperation("abs");
+   // C_diff.ElementOperation("abs");
     auto diff = C_diff.Sum();
     std::cout << "diff  = " << diff << '\n';
 }
