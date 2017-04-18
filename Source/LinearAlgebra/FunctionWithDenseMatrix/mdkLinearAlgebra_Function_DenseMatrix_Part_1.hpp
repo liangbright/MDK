@@ -84,8 +84,8 @@ bool MatrixAdd(ElementType* OutputMatrixC, const ElementType* MatrixA, const Ele
 	{
 		//call Eigen
 		typedef Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic> EigenMatrixType;
-		Eigen::Map<EigenMatrixType> A(MatrixA, ElementCount, 1);
-		Eigen::Map<EigenMatrixType> B(MatrixB, ElementCount, 1);
+		Eigen::Map<EigenMatrixType> A(const_cast<ElementType*>(MatrixA), ElementCount, 1);
+		Eigen::Map<EigenMatrixType> B(const_cast<ElementType*>(MatrixB), ElementCount, 1);
 		Eigen::Map<EigenMatrixType> C(OutputMatrixC, ElementCount, 1);
 		C = A + B;
 	}
@@ -167,8 +167,8 @@ inline bool MatrixSubtract(ElementType* OutputMatrixC, const ElementType* Matrix
 	{
 		//call Eigen
 		typedef Eigen::Matrix<ElementType, Eigen::Dynamic, Eigen::Dynamic> EigenMatrixType;
-		Eigen::Map<EigenMatrixType> A(MatrixA, ElementCount, 1);
-		Eigen::Map<EigenMatrixType> B(MatrixB, ElementCount, 1);
+		Eigen::Map<EigenMatrixType> A(const_cast<ElementType*>(MatrixA), ElementCount, 1);
+		Eigen::Map<EigenMatrixType> B(const_cast<ElementType*>(MatrixB), ElementCount, 1);
 		Eigen::Map<EigenMatrixType> C(OutputMatrixC, ElementCount, 1);
 		C = A - B;
 	}
