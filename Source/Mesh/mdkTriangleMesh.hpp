@@ -298,13 +298,15 @@ void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint(int_max Poi
         return;
     }
 
+	//initialize
+	this->Point(PointIndex).Attribute().GaussianCurvature = 0;
+	this->Point(PointIndex).Attribute().WeightedGaussianCurvature = 0;
+
     auto AdjacentFaceIndexList = this->Point(PointIndex).GetAdjacentFaceIndexList();
     auto AdjacentFaceCount = AdjacentFaceIndexList.GetLength();
     if (AdjacentFaceCount <= 1)
     {
         //MDK_Warning("This point only has one or zero adjacent face @ TriangleMesh::UpdateGaussianCurvatureAtPoint()")
-        this->Point(PointIndex).Attribute().GaussianCurvature = 0;
-		this->Point(PointIndex).Attribute().WeightedGaussianCurvature = 0;
         return;
     }
 
@@ -324,12 +326,12 @@ void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint(int_max Poi
     }
 
     if (AdjacentFaceCount != AdjacentPointCount)
-    {// this point (e.g. b) is on boundary edge, an angle must be computed  (big angle a_b_c vs small angle a_b_c)
+    {// this point (PointIndex~b) is on boundary edge, an angle must be computed  (big angle a_b_c vs small angle a_b_c)
      //  a
 	 //  |  /c
 	 //  |/
      //  b
-
+	 //-------------
         if (AdjacentFaceCount != AdjacentPointCount - 1)
         {
             MDK_Error("AdjacentFaceCount != AdjacentPointCount -1 @ TriangleMesh::UpdateGaussianCurvatureAtPoint()")
@@ -337,7 +339,7 @@ void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint(int_max Poi
         }
 
         // check any edge boundary
-        DenseVector<int_max> AdjacentBoundaryPointIndexList;
+        DenseVector<int_max> AdjacentBoundaryPointIndexList;// point a and c
 
         auto AdjacentEdgeIndexList = this->Point(PointIndex).GetAdjacentEdgeIndexList();
         for (int_max k = 0; k < AdjacentEdgeIndexList.GetLength(); ++k)
@@ -359,7 +361,7 @@ void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint(int_max Poi
 
         if (AdjacentBoundaryPointIndexList.GetLength() != 2) // point is isolated or is a endpoint of a curve
         {
-            MDK_Error("AdjacentBoundaryPointIndexList length is not 2 @ TriangleMesh::UpdateGaussianCurvatureAtPoint()")
+			MDK_Error("AdjacentBoundaryPointIndexList length is not 2 @ TriangleMesh::UpdateGaussianCurvatureAtPoint()")
             return;
         }
 
