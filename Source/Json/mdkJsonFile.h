@@ -30,6 +30,7 @@ private:
 
 	JsonFile& operator<<(char InputChar);
 	JsonFile& operator<<(const char* InputString);
+	JsonFile& operator<<(const std::string& InputString);
 	JsonFile& operator<<(const String& InputString);
 
 	void Close();

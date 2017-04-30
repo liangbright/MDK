@@ -104,16 +104,23 @@ void Test_JsonFile_1()
 
 	JsonObject JObject;
 	JObject["ObjectType"] = "DenseMatrix";
-	JObject["RowNumber"] = 1;
-	JObject["ColNumber"] = 2.0;
+	JObject["RowNumber"] = int(1);
+	JObject["ColNumber"] = float(2.0);
 	JObject["ScalarType"] = "double";
 	JObject["ScalarArray"] = A;
 	JObject["ScalarArray_json"] = "A.json";
 	JObject["Empty"] = A;
 	JObject["Empty"].Clear();
+	JObject["bool"] = true;
 
-	String FileName = "C:/Research/MDK/MDK_Build/Test/Test_Json/TestData/testJsonFile1.json";
-	JsonFile::Save(JObject, FileName);
+	String FileName_a = "C:/Research/MDK/MDK_Build/Test/Test_Json/TestData/testJsonFile1a.json";
+	JsonFile::Save(JObject, FileName_a);
+
+	JsonObject JObject2;
+	JsonFile::Load(JObject2, FileName_a);
+
+	String FileName_b = "C:/Research/MDK/MDK_Build/Test/Test_Json/TestData/testJsonFile1b.json";
+	JsonFile::Save(JObject2, FileName_b);
 }
 
 void Test_UniquePtr()

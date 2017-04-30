@@ -30,6 +30,7 @@ public:
 	inline String(const char* InputString);
 
 	inline String(const std::basic_string<char>& InputString);
+	inline String(std::basic_string<char>&& InputString);
 
     // copy constructor
 	inline String(const String& InputString);

@@ -33,6 +33,12 @@ JsonFile& JsonFile::operator<<(const char* InputString)
 	return *this;
 }
 
+JsonFile& JsonFile::operator<<(const std::string& InputString)
+{
+	*m_QTextStream << InputString.c_str();
+	return *this;
+}
+
 JsonFile& JsonFile::operator<<(const String& InputString)
 {
 	*m_QTextStream << InputString.StdString().c_str();
@@ -310,8 +316,8 @@ bool JsonFile::SaveJsonValue(const JsonValue& JValue, JsonFile& OutputFile, int_
 //==========================================================================================================================//
 bool JsonFile::SaveJsonValue(const MDK_Symbol_Empty&, JsonFile& OutputFile)
 {
-	String NullStr = "null";
-	OutputFile << NullStr;
+	QString QStr = "null";
+	OutputFile << QStr.toStdString();
 	return true;
 }
 //==========================================================================================================================//
@@ -319,42 +325,42 @@ bool JsonFile::SaveJsonValue(bool Flag, JsonFile& OutputFile)
 {
 	if (Flag == true)
 	{
-		return JsonFile::SaveJsonValue(int(1), OutputFile);
+		QString QStr = "true";
+		OutputFile << QStr.toStdString();
 	}
 	else
 	{
-		return JsonFile::SaveJsonValue(int(0), OutputFile);
+		QString QStr = "false";
+		OutputFile << QStr.toStdString();
 	}
+	return true;
 }
 //==========================================================================================================================//
 bool JsonFile::SaveJsonValue(int Scalar, JsonFile& OutputFile)
 {
-	QString QStr = QString::number(Scalar); // .toUtf8();
+	QString QStr = QString::number(Scalar); // .toUtf8();	
 	OutputFile << QStr.toStdString();
 	return true;
 }
 //==========================================================================================================================//
 bool JsonFile::SaveJsonValue(long long Scalar, JsonFile& OutputFile)
 {
-	QString QStr = QString::number(Scalar); // .toUtf8();
-	String str = QStr.toStdString();	
-	OutputFile << str;
+	QString QStr = QString::number(Scalar); // .toUtf8();	
+	OutputFile << QStr.toStdString();
 	return true;
 }
 //==========================================================================================================================//
 bool JsonFile::SaveJsonValue(float Scalar, JsonFile& OutputFile)
 {
-	QString QStr = QString::number(Scalar, 'g', 8); // .toUtf8();
-	String str = QStr.toStdString();
-	OutputFile << str;
+	QString QStr = QString::number(Scalar, 'g', 8); // .toUtf8();	
+	OutputFile << QStr.toStdString();
 	return true;
 }
 //==========================================================================================================================//
 bool JsonFile::SaveJsonValue(double Scalar, JsonFile& OutputFile)
 {
-	QString QStr = QString::number(Scalar, 'g', 16); // .toUtf8();
-	String str = QStr.toStdString();
-	OutputFile << str;
+	QString QStr = QString::number(Scalar, 'g', 16); // .toUtf8();	
+	OutputFile << QStr.toStdString();
 	return true;
 }
 //==========================================================================================================================//
@@ -363,9 +369,8 @@ bool JsonFile::SaveJsonValue(const DenseMatrix<int>& IntArray, JsonFile& OutputF
 	OutputFile << "[";
 	for (int_max k = 0; k < IntArray.GetElementCount(); ++k)
 	{
-		QString QStr = QString::number(IntArray[k]); // .toUtf8();
-		String str = QStr.toStdString();
-		OutputFile << str;
+		QString QStr = QString::number(IntArray[k]); // .toUtf8();		
+		OutputFile << QStr.toStdString();
 		if (IntArray.GetElementCount() > 1 && k < IntArray.GetElementCount() - 1)
 		{
 			OutputFile << ", ";
@@ -389,9 +394,8 @@ bool JsonFile::SaveJsonValue(const DenseMatrix<long long>& LongLongArray, JsonFi
 	OutputFile << "[";
 	for (int_max k = 0; k < LongLongArray.GetElementCount(); ++k)
 	{
-		QString QStr = QString::number(LongLongArray[k]); // .toUtf8();
-		String str = QStr.toStdString();
-		OutputFile << str;
+		QString QStr = QString::number(LongLongArray[k]); // .toUtf8();		
+		OutputFile << QStr.toStdString();
 		if (LongLongArray.GetElementCount() > 1 && k < LongLongArray.GetElementCount() - 1)
 		{
 			OutputFile << ", ";
@@ -415,9 +419,8 @@ bool JsonFile::SaveJsonValue(const DenseMatrix<float>& FloatArray, JsonFile& Out
 	OutputFile << "[";
 	for (int_max k = 0; k < FloatArray.GetElementCount(); ++k)
 	{
-		QString QStr = QString::number(FloatArray[k], 'g', 8); // .toUtf8();
-		String str = QStr.toStdString();
-		OutputFile << str;
+		QString QStr = QString::number(FloatArray[k], 'g', 8); // .toUtf8();		
+		OutputFile << QStr.toStdString();
 		if (FloatArray.GetElementCount() > 1 && k < FloatArray.GetElementCount() - 1)
 		{
 			OutputFile << ", ";
@@ -441,9 +444,8 @@ bool JsonFile::SaveJsonValue(const DenseMatrix<double>& DoubleArray, JsonFile& O
 	OutputFile << "[";
 	for (int_max k = 0; k < DoubleArray.GetElementCount(); ++k)
 	{
-		QString QStr = QString::number(DoubleArray[k], 'g', 16); // .toUtf8();
-		String str = QStr.toStdString();
-		OutputFile << str;
+		QString QStr = QString::number(DoubleArray[k], 'g', 16); // .toUtf8();		
+		OutputFile << QStr.toStdString();
 		if (DoubleArray.GetElementCount() > 1 && k < DoubleArray.GetElementCount() - 1)
 		{
 			OutputFile << ", ";

@@ -32,6 +32,13 @@ inline String::String(const std::basic_string<char>& InputString)
 }
 
 
+inline String::String(std::basic_string<char>&& InputString)
+{
+	this->Resize(0);
+	(*m_StringData) = InputString;
+}
+
+
 inline String::String(const String& InputString)
 {
 	this->Copy(InputString);
