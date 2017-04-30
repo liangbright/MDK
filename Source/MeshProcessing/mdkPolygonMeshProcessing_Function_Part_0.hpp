@@ -21,13 +21,13 @@ DenseVector<int_max> TraceMeshBoundaryCurve(const PolygonMesh<MeshAttributeType>
 	}
 
     int_max BoundaryEdgeCountOfInputMesh = 0;
-    for (auto it = InputMesh.GetIteratorOfEdge(); it.IsNotEnd(); ++it)
-    {
-        if (it.Edge().IsBoundary() == true)
-        {
-            BoundaryEdgeCountOfInputMesh += 1;
-        }
-    }
+	for (auto it = InputMesh.GetIteratorOfEdge(); it.IsNotEnd(); ++it)
+	{
+		if (it.Edge().IsBoundary() == true)
+		{
+			BoundaryEdgeCountOfInputMesh += 1;
+		}
+	}
 
     if (BoundaryEdgeCountOfInputMesh <= 0)
     {
