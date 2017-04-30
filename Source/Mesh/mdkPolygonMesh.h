@@ -3,6 +3,7 @@
 #include <unordered_map>
 
 #include "mdkPolygonMeshItem.h"
+#include "mdkPolygonMeshItemIterator.h"
 #include "mdkPolygonMeshStandardAttribute.h"
 
 namespace mdk
@@ -103,16 +104,14 @@ public:
     typedef Point_Of_PolygonMesh<MeshAttributeType>           PointType;
     typedef Edge_Of_PolygonMesh<MeshAttributeType>            EdgeType;
     typedef Face_Of_PolygonMesh<MeshAttributeType>            FaceType;
-
-    typedef int_max                            PointIndexType;
-    typedef int_max                            EdgeIndexType;
-    typedef int_max                            FaceIndexType;
-
     //--------------------------------------------------------------------------------------------------//
 	typedef StdObjectVector<Point_Of_PolygonMesh<MeshAttributeType>>          PointListType;
 	typedef StdObjectVector<Edge_Of_PolygonMesh<MeshAttributeType>>           EdgeListType;
 	typedef StdObjectVector<Face_Of_PolygonMesh<MeshAttributeType>>           FaceListType;
 	//--------------------------------------------------------------------------------------------------//
+	typedef Iterator_Of_Point_Of_PolygonMesh<MeshAttributeType>           PointIteratorType;
+	typedef Iterator_Of_Edge_Of_PolygonMesh<MeshAttributeType>            EdgeIteratorType;
+	typedef Iterator_Of_Face_Of_PolygonMesh<MeshAttributeType>            FaceIteratorType;
 
 protected:
     std::shared_ptr<PolygonMeshData<MeshAttributeType>> m_MeshData;
@@ -312,6 +311,14 @@ public:
 	DenseVector<int_max> GetFaceSet(const String& FaceSetName) const;
 	ObjectArray<String> GetFaceSetName(MDK_Symbol_ALL&) const;
 	ObjectArray<DenseVector<int_max>> GetFaceSet(MDK_Symbol_ALL&) const;
+
+	//------------- Iterator --------------------------------------------------------------//
+	inline PointIteratorType  GetIteratorOfPoint();
+	inline const PointIteratorType  GetIteratorOfPoint() const;
+	inline EdgeIteratorType   GetIteratorOfEdge();
+	inline const EdgeIteratorType   GetIteratorOfEdge() const;
+	inline FaceIteratorType   GetIteratorOfFace();
+	inline const FaceIteratorType   GetIteratorOfFace() const;
 
 	//------------ SetCapacity, ReleaseUnusedCapacity -------------------------------------//
 	void SetCapacity(int_max PointCount, int_max EdgeCount, int_max FaceCount);

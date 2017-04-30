@@ -1739,6 +1739,58 @@ ObjectArray<DenseVector<int_max>> PolygonMesh<MeshAttributeType>::GetFaceSet(MDK
 	return FaceSetList;
 }
 
+//------------- Iterator --------------------------------------------------------------//
+
+template<typename MeshAttributeType>
+inline
+Iterator_Of_Point_Of_PolygonMesh<MeshAttributeType> PolygonMesh<MeshAttributeType>::GetIteratorOfPoint()
+{
+	PointIteratorType it(*this);
+	return it;
+}
+
+template<typename MeshAttributeType>
+inline
+const Iterator_Of_Point_Of_PolygonMesh<MeshAttributeType> PolygonMesh<MeshAttributeType>::GetIteratorOfPoint() const
+{
+	PointIteratorType it(*this);
+	return it;
+}
+
+template<typename MeshAttributeType>
+inline
+Iterator_Of_Edge_Of_PolygonMesh<MeshAttributeType> PolygonMesh<MeshAttributeType>::GetIteratorOfEdge()
+{
+	EdgeIteratorType it(*this);
+	return it;
+}
+
+template<typename MeshAttributeType>
+inline
+const Iterator_Of_Edge_Of_PolygonMesh<MeshAttributeType> PolygonMesh<MeshAttributeType>::GetIteratorOfEdge() const
+{
+	EdgeIteratorType it(*this);
+	return it;
+}
+
+
+template<typename MeshAttributeType>
+inline
+Iterator_Of_Face_Of_PolygonMesh<MeshAttributeType> PolygonMesh<MeshAttributeType>::GetIteratorOfFace()
+{
+	FaceIteratorType it(*this);
+	return it;
+}
+
+template<typename MeshAttributeType>
+inline
+const Iterator_Of_Face_Of_PolygonMesh<MeshAttributeType> PolygonMesh<MeshAttributeType>::GetIteratorOfFace() const
+{
+	FaceIteratorType it(*this);
+	return it;
+}
+
+
 //------------ SetCapacity, ReleaseUnusedCapacity -------------------------------------//
 template<typename MeshAttributeType>
 void PolygonMesh<MeshAttributeType>::SetCapacity(int_max PointCount, int_max EdgeCount, int_max FaceCount)

@@ -27,13 +27,13 @@ public:
     typedef typename MeshAttributeType::EdgeAttributeType           EdgeAttributeType;    
     typedef typename MeshAttributeType::FaceAttributeType           FaceAttributeType;
 
-    typedef Point_Of_PolygonMesh<MeshAttributeType>           PointType;
-    typedef Edge_Of_PolygonMesh<MeshAttributeType>            EdgeType;
-    typedef Face_Of_PolygonMesh<MeshAttributeType>            FaceType;
+    typedef Point_Of_PolygonMesh<MeshAttributeType>                 PointType;
+    typedef Edge_Of_PolygonMesh<MeshAttributeType>                  EdgeType;
+    typedef Face_Of_PolygonMesh<MeshAttributeType>                  FaceType;
 
-    typedef int_max                            PointIndexType;
-    typedef int_max                            EdgeIndexType;
-    typedef int_max                            FaceIndexType;
+	typedef Iterator_Of_Point_Of_PolygonMesh<MeshAttributeType>     PointIteratorType;
+	typedef Iterator_Of_Edge_Of_PolygonMesh<MeshAttributeType>      EdgeIteratorType;
+	typedef Iterator_Of_Face_Of_PolygonMesh<MeshAttributeType>      FaceIteratorType;
 
 public:
     TriangleMesh();
