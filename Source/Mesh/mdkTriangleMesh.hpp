@@ -68,27 +68,6 @@ void TriangleMesh<MeshAttributeType>::Construct(PolygonMesh<MeshAttributeType> I
     m_MeshData = std::move(InputMeshPtr->m_MeshData);
 }
 
-template<typename MeshAttributeType>
-bool TriangleMesh<MeshAttributeType>::CheckIfTriangleMesh() const
-{
-    if (this->IsEmpty() == true)
-    {
-        return false;
-    }
-
-    for (auto it = this->GetIteratorOfFace(); it.IsNotEnd(); ++it)
-    {
-        auto FaceIndex = it.GetFaceIndex();
-        auto PointCount = this->Face(FaceIndex).GetPointCount();
-        if (PointCount != 3)
-        {
-            return false;
-        }
-    }
-
-    return true;
-}
-
 // get a sub mesh by FaceIndexList or FaceIDList----------------------------//
 
 template<typename MeshAttributeType>
@@ -104,9 +83,13 @@ TriangleMesh<MeshAttributeType> TriangleMesh<MeshAttributeType>::GetSubMeshByFac
 template<typename MeshAttributeType>
 void TriangleMesh<MeshAttributeType>::UpdateNormalAtFace(const MDK_Symbol_ALL&)
 { 
-    for (auto it = this->GetIteratorOfFace(); it.IsNotEnd(); ++it)
+	int_max FaceIndex_max = this->GetMaxValueOfFaceIndex();
+    for (int_max k=0; k<= FaceIndex_max; ++k)
     {
-        this->UpdateNormalAtFace(it.GetFaceIndex());
+		if (this->IsValidFaceIndex(k) == true)
+		{
+			this->UpdateNormalAtFace(k);
+		}
     }
 }
 
@@ -132,10 +115,14 @@ void TriangleMesh<MeshAttributeType>::UpdateNormalAtFace(int_max FaceIndex)
 template<typename MeshAttributeType>
 void TriangleMesh<MeshAttributeType>::UpdateAreaOfFace(const MDK_Symbol_ALL&)
 {
-    for (auto it = this->GetIteratorOfFace(); it.IsNotEnd(); ++it)
-    {
-        this->UpdateAreaOfFace(it.GetFaceIndex());
-    }
+	int_max FaceIndex_max = this->GetMaxValueOfFaceIndex();
+	for (int_max k = 0; k <= FaceIndex_max; ++k)
+	{
+		if (this->IsValidFaceIndex(k) == true)
+		{
+			this->UpdateAreaOfFace(k);
+		}
+	}
 }
 
 
@@ -160,10 +147,14 @@ void TriangleMesh<MeshAttributeType>::UpdateAreaOfFace(int_max FaceIndex)
 template<typename MeshAttributeType>
 void TriangleMesh<MeshAttributeType>::UpdateCornerAngleOfFace(const MDK_Symbol_ALL&)
 {
-    for (auto it = this->GetIteratorOfFace(); it.IsNotEnd(); ++it)
-    {
-        this->UpdateCornerAngleOfFace(it.GetFaceIndex());
-    }
+	int_max FaceIndex_max = this->GetMaxValueOfFaceIndex();
+	for (int_max k = 0; k <= FaceIndex_max; ++k)
+	{
+		if (this->IsValidFaceIndex(k) == true)
+		{
+			this->UpdateCornerAngleOfFace(k);
+		}
+	}
 }
 
 
@@ -203,10 +194,14 @@ void TriangleMesh<MeshAttributeType>::UpdateCornerAngleOfFace(int_max FaceIndex)
 template<typename MeshAttributeType>
 void TriangleMesh<MeshAttributeType>::UpdateAngleWeightedNormalAtPoint(const MDK_Symbol_ALL&)
 {// FaceNormal must be available: call UpdateNormalAtFace() and UpdateCornerAngleOfFace()
-    for (auto it = this->GetIteratorOfPoint(); it.IsNotEnd(); ++it)
-    {
-        this->UpdateAngleWeightedNormalAtPoint(it.GetPointIndex());
-    }
+	int_max PointIndex_max = this->GetMaxValueOfPointIndex();
+	for (int_max k = 0; k <= PointIndex_max; ++k)
+	{
+		if (this->IsValidPointIndex(k) == true)
+		{
+			this->UpdateAngleWeightedNormalAtPoint(k);
+		}
+	}
 }
 
 
@@ -282,10 +277,14 @@ void TriangleMesh<MeshAttributeType>::UpdateAngleWeightedNormalAtPoint(int_max P
 template<typename MeshAttributeType>
 void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint(const MDK_Symbol_ALL&)
 {// run UpdateCornerAngleOfFace and UpdateAreaOfFace first
-    for (auto it = this->GetIteratorOfPoint(); it.IsNotEnd(); ++it)
-    {
-        this->UpdateGaussianCurvatureAtPoint(it.GetPointIndex());
-    }
+	int_max PointIndex_max = this->GetMaxValueOfPointIndex();
+	for (int_max k = 0; k <= PointIndex_max; ++k)
+	{
+		if (this->IsValidPointIndex(k) == true)
+		{
+			this->UpdateGaussianCurvatureAtPoint(k);
+		}
+	}
 }
 
 
@@ -387,10 +386,14 @@ void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint(int_max Poi
 template<typename MeshAttributeType>
 void TriangleMesh<MeshAttributeType>::UpdateMeanCurvatureAtPoint(const MDK_Symbol_ALL&)
 { // run UpdateAreaOfFace() first
-    for (auto it = this->GetIteratorOfPoint(); it.IsNotEnd(); ++it)
-    {
-        this->UpdateMeanCurvatureAtPoint(it.GetPointIndex());
-    }
+	int_max PointIndex_max = this->GetMaxValueOfPointIndex();
+	for (int_max k = 0; k <= PointIndex_max; ++k)
+	{
+		if (this->IsValidPointIndex(k) == true)
+		{
+			this->UpdateMeanCurvatureAtPoint(k);
+		}
+	}
 }
 
 
@@ -526,9 +529,13 @@ void TriangleMesh<MeshAttributeType>::UpdateMeanCurvatureAtPoint(int_max PointIn
 template<typename MeshAttributeType>
 void TriangleMesh<MeshAttributeType>::UpdateNormalBasedCurvatureAtPoint(const MDK_Symbol_ALL&)
 { // run UpdateNormalAtFace first
-	for (auto it = this->GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	int_max PointIndex_max = this->GetMaxValueOfPointIndex();
+	for (int_max k = 0; k <= PointIndex_max; ++k)
 	{
-		this->UpdateNormalBasedCurvatureAtPoint(it.GetPointIndex());
+		if (this->IsValidPointIndex(k) == true)
+		{
+			this->UpdateNormalBasedCurvatureAtPoint(k);
+		}
 	}
 }
 

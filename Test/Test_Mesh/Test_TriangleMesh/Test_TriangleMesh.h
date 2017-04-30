@@ -22,10 +22,7 @@ void Test_MeshAttribute()
 	TriangleMesh<TriangleMeshStandardAttributeType<double>> LeafletMesh;
 	LoadTriangleMeshFromVTKFile(LeafletMesh, FilePathAndName);
 
-	TriangleMesh<TriangleMeshStandardAttributeType<double>>::PointHandleType PointHandle;
-	PointHandle.SetIndex(0);
-
-	auto Normal = LeafletMesh.Point(PointHandle).Attribute().AngleWeightedNormal;
+	auto Normal = LeafletMesh.Point(0).Attribute().AngleWeightedNormal;
 }
 
 void Test_ShrinkEdge()
@@ -35,12 +32,9 @@ void Test_ShrinkEdge()
 	TriangleMesh<TriangleMeshStandardAttributeType<double>> LeafletMesh;
 	LoadTriangleMeshFromVTKFile(LeafletMesh, FilePathAndName + ".vtk");
 
-	TriangleMesh<TriangleMeshStandardAttributeType<double>>::PointHandleType PointHandle;
-	PointHandle.SetIndex(0);
+	auto EdgeHandleList = LeafletMesh.GetEdgeIndexList();
 
-	auto EdgeHandleList = LeafletMesh.GetEdgeHandleList();
-
-	LeafletMesh.ShrinkEdgeToPoint(EdgeHandleList[0], PointHandle);
+	LeafletMesh.ShrinkEdgeToPoint(EdgeHandleList[0], 0);
 	SaveTriangleMeshAsVTKFile(LeafletMesh, FilePathAndName + "_ShrinkEdge.vtk");
 }
 
@@ -52,12 +46,9 @@ void Test_ShrinkFace()
 	TriangleMesh<TriangleMeshStandardAttributeType<double>> LeafletMesh;
 	LoadTriangleMeshFromVTKFile(LeafletMesh, FilePathAndName + ".vtk");
 
-	TriangleMesh<TriangleMeshStandardAttributeType<double>>::PointHandleType PointHandle;
-	PointHandle.SetIndex(0);
+	auto FaceHandleList = LeafletMesh.GetFaceIndexList();
 
-	auto FaceHandleList = LeafletMesh.GetFaceHandleList();
-
-	LeafletMesh.ShrinkFaceToPoint(FaceHandleList[1], PointHandle);
+	LeafletMesh.ShrinkFaceToPoint(FaceHandleList[1], 0);
 	SaveTriangleMeshAsVTKFile(LeafletMesh, FilePathAndName + "_ShrinkFace.vtk");
 }
 
@@ -68,22 +59,11 @@ void Test_GlobalAttribute()
 	TriangleMesh<PolygonMeshStandardAttributeType<double>> InputMesh, SquareMesh;
 	LoadTriangleMeshFromVTKFile(InputMesh, FilePathAndName + ".vtk");
 
-	InputMesh.Attribute().ID = 1;
-	InputMesh.Attribute().Name = "Square";
-	InputMesh.Attribute().Map_PointName_to_PointHandle["0_name"].SetIndex(0);
-	InputMesh.Attribute().Map_PointName_to_PointHandle["1_name"].SetIndex(1);
-	InputMesh.Attribute().Map_FaceName_to_FaceHandle["0_name"].SetIndex(0);
-	InputMesh.Attribute().Map_FaceName_to_FaceHandle["1_name"].SetIndex(1);
-	InputMesh.Attribute().PointSetList.Resize(10);
-	InputMesh.Attribute().PointSetList[0] = InputMesh.ConvertPointIndexToPointHandle({ 1, 2, 3 });
-	InputMesh.Attribute().PointSetList[1] = InputMesh.ConvertPointIndexToPointHandle({ 4, 5, 6 });
-	InputMesh.Attribute().Map_PointSetName_to_PointSetIndex["0_name"] = 0;
-	InputMesh.Attribute().Map_PointSetName_to_PointSetIndex["1_name"] = 1;
-	InputMesh.Attribute().FaceSetList.Resize(2);
-	InputMesh.Attribute().FaceSetList[0] = InputMesh.ConvertFaceIndexToFaceHandle({ 1, 2, 3 });
-	InputMesh.Attribute().FaceSetList[1] = InputMesh.ConvertFaceIndexToFaceHandle({ 4, 5, 6 });
-	InputMesh.Attribute().Map_FaceSetName_to_FaceSetIndex["0_name"] = 0;
-	InputMesh.Attribute().Map_FaceSetName_to_FaceSetIndex["1_name"] = 1;
+	InputMesh.SetID(1);
+	InputMesh.SetName("Square");
+	InputMesh.Point(0).SetName("0_name");
+	InputMesh.Face(0).SetName("0_name");
+	InputMesh.SetPointSet("1", { 0,1 });
 
 	SaveTriangleMeshAsJsonDataFile(InputMesh, FilePathAndName + "_att.json");
 

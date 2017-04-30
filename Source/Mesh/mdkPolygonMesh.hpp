@@ -367,9 +367,9 @@ int_max PolygonMesh<MeshAttributeType>::GetMaxValueOfPointIndex() const
 {
 	if (!m_MeshData)
 	{
-		return 0;
+		return -1;
 	}
-	return m_MeshData->PointPositionTable.GetColCount();	
+	return m_MeshData->PointPositionTable.GetColCount()-1;	
 }
 
 
@@ -379,9 +379,9 @@ int_max PolygonMesh<MeshAttributeType>::GetMaxValueOfEdgeIndex() const
 {
 	if (!m_MeshData)
 	{
-		return 0;
+		return -1;
 	}
-	return m_MeshData->EdgeList.GetLength();
+	return m_MeshData->EdgeList.GetLength()-1;
 }
 
 
@@ -391,9 +391,9 @@ int_max PolygonMesh<MeshAttributeType>::GetMaxValueOfFaceIndex() const
 {
 	if (!m_MeshData)
 	{
-		return 0;
+		return -1;
 	}
-	return m_MeshData->FaceList.GetLength();	
+	return m_MeshData->FaceList.GetLength()-1;	
 }
 
 //------ Get/Set GlobalAttribute -----------------------------------//
@@ -1739,57 +1739,6 @@ ObjectArray<DenseVector<int_max>> PolygonMesh<MeshAttributeType>::GetFaceSet(MDK
 	return FaceSetList;
 }
 
-//------------- Iterator --------------------------------------------------------------//
-
-template<typename MeshAttributeType>
-inline
-Iterator_Of_Point_Of_PolygonMesh<MeshAttributeType> PolygonMesh<MeshAttributeType>::GetIteratorOfPoint()
-{
-    PointIteratorType it(*this);
-    return it;
-}
-
-template<typename MeshAttributeType>
-inline
-const Iterator_Of_Point_Of_PolygonMesh<MeshAttributeType> PolygonMesh<MeshAttributeType>::GetIteratorOfPoint() const
-{
-	PointIteratorType it(*this);
-    return it;
-}
-
-template<typename MeshAttributeType>
-inline
-Iterator_Of_Edge_Of_PolygonMesh<MeshAttributeType> PolygonMesh<MeshAttributeType>::GetIteratorOfEdge()
-{
-    EdgeIteratorType it(*this);
-    return it;
-}
-
-template<typename MeshAttributeType>
-inline
-const Iterator_Of_Edge_Of_PolygonMesh<MeshAttributeType> PolygonMesh<MeshAttributeType>::GetIteratorOfEdge() const
-{
-	EdgeIteratorType it(*this);
-    return it;
-}
-
-
-template<typename MeshAttributeType>
-inline
-Iterator_Of_Face_Of_PolygonMesh<MeshAttributeType> PolygonMesh<MeshAttributeType>::GetIteratorOfFace()
-{
-    FaceIteratorType it(*this);
-    return it;
-}
-
-template<typename MeshAttributeType>
-inline
-const Iterator_Of_Face_Of_PolygonMesh<MeshAttributeType> PolygonMesh<MeshAttributeType>::GetIteratorOfFace() const
-{
-	FaceIteratorType it(*this);
-    return it;
-}
-
 //------------ SetCapacity, ReleaseUnusedCapacity -------------------------------------//
 template<typename MeshAttributeType>
 void PolygonMesh<MeshAttributeType>::SetCapacity(int_max PointCount, int_max EdgeCount, int_max FaceCount)
@@ -2726,6 +2675,8 @@ GetPointPositionMatrixAndFaceTable(DenseMatrix<typename MeshAttributeType::Scala
 {
 	auto PointCount = this->GetPointCount();
 	auto FaceCount = this->GetFaceCount();
+	int_max PointIndex_max = this->GetMaxValueOfPointIndex();
+	int_max FaceIndex_max = this->GetMaxValueOfFaceIndex();
 
 	PointPositionTable.FastResize(3, PointCount);
 	FaceTable.FastResize(FaceCount);
@@ -2734,36 +2685,40 @@ GetPointPositionMatrixAndFaceTable(DenseMatrix<typename MeshAttributeType::Scala
 	std::unordered_map<int_max, int_max> Map_PointIndex_to_OutputIndex;
 
 	int_max PointCounter = 0;
-
-	for (auto it = this->GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	for (int_max k = 0; k <= PointIndex_max; ++k)
 	{
-		auto PointIndex = it.GetPointIndex();
-		it.Point().GetPosition(PointPositionTable.GetPointerOfCol(PointCounter));
-		Map_PointIndex_to_OutputIndex[PointIndex] = PointCounter;
-		PointCounter += 1;
+		if (this->IsValidPointIndex(k) == true)
+		{
+			auto Pos = this->GetPointPosition(k);
+			PointPositionTable.SetCol(PointCounter, Pos);
+			Map_PointIndex_to_OutputIndex[k] = PointCounter;
+			PointCounter += 1;
+		}
 	}
 
 	int_max FaceCounter = 0;
-
-	for (auto it = this->GetIteratorOfFace(); it.IsNotEnd(); ++it)
+	for (int_max n=0; n<= FaceIndex_max; ++n)
 	{
-		auto PointIndexList = it.Face().GetPointIndexList();
-		FaceTable[FaceCounter].FastResize(PointIndexList.GetLength());
-		for (int_max k = 0; k < PointIndexList.GetLength(); ++k)
+		if (this->IsValidFaceIndex(n) == true)
 		{
-			auto tempPointIndex = PointIndexList[k];
-			auto it_map = Map_PointIndex_to_OutputIndex.find(tempPointIndex);
-			if (it_map != Map_PointIndex_to_OutputIndex.end())
+			auto PointIndexList = this->Face(n).GetPointIndexList();
+			FaceTable[FaceCounter].FastResize(PointIndexList.GetLength());
+			for (int_max k = 0; k < PointIndexList.GetLength(); ++k)
 			{
-				FaceTable[FaceCounter][k] = it_map->second;
+				auto tempPointIndex = PointIndexList[k];
+				auto it_map = Map_PointIndex_to_OutputIndex.find(tempPointIndex);
+				if (it_map != Map_PointIndex_to_OutputIndex.end())
+				{
+					FaceTable[FaceCounter][k] = it_map->second;
+				}
+				else
+				{
+					MDK_Error("tempPointIndex is invalid @ PolygonMesh::GetPointPositionTableAndFaceTable(...)")
+					return;
+				}
 			}
-			else
-			{
-				MDK_Error("tempPointIndex is invalid @ PolygonMesh::GetPointPositionTableAndFaceTable(...)")
-				return;
-			}
+			FaceCounter += 1;
 		}
-		FaceCounter += 1;
 	}
 }
 
@@ -2775,13 +2730,16 @@ bool PolygonMesh<MeshAttributeType>::CheckIfTriangleMesh() const
 		return false;
 	}
 
-	for (auto it = this->GetIteratorOfFace(); it.IsNotEnd(); ++it)
+	int_max FaceIndex_max = this->GetMaxValueOfFaceIndex();
+	for (int_max k=0; k<= FaceIndex_max; ++k)
 	{
-		auto FaceIndex = it.GetFaceIndex();
-		auto PointCount = this->Face(FaceIndex).GetPointCount();
-		if (PointCount != 3)
+		if (this->IsValidFaceIndex(k) == true)
 		{
-			return false;
+			auto PointCount = this->Face(k).GetPointCount();
+			if (PointCount != 3)
+			{
+				return false;
+			}
 		}
 	}
 
@@ -2796,13 +2754,16 @@ bool PolygonMesh<MeshAttributeType>::CheckIfQuadMesh() const
 		return false;
 	}
 
-	for (auto it = this->GetIteratorOfFace(); it.IsNotEnd(); ++it)
+	int_max FaceIndex_max = this->GetMaxValueOfFaceIndex();
+	for (int_max k = 0; k <= FaceIndex_max; ++k)
 	{
-		auto FaceIndex = it.GetFaceIndex();
-		auto PointCount = this->Face(FaceIndex).GetPointCount();
-		if (PointCount != 4)
+		if (this->IsValidFaceIndex(k) == true)
 		{
-			return false;
+			auto PointCount = this->Face(k).GetPointCount();
+			if (PointCount != 4)
+			{
+				return false;
+			}
 		}
 	}
 

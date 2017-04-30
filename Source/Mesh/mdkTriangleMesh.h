@@ -35,10 +35,6 @@ public:
     typedef int_max                            EdgeIndexType;
     typedef int_max                            FaceIndexType;
 
-    typedef Iterator_Of_Point_Of_PolygonMesh<MeshAttributeType>         PointIteratorType;
-    typedef Iterator_Of_Edge_Of_PolygonMesh<MeshAttributeType>          EdgeIteratorType;
-    typedef Iterator_Of_Face_Of_PolygonMesh<MeshAttributeType>          FaceIteratorType;
-
 public:
     TriangleMesh();
     TriangleMesh(const TriangleMesh& InputMesh);
@@ -63,9 +59,6 @@ public:
     using PolygonMesh::Construct;
 
     void Construct(PolygonMesh<MeshAttributeType> InputPolygonMesh);
-
-    //--- check --------------------------//
-    bool CheckIfTriangleMesh() const;
 
     // get a sub mesh by FaceIndexList ----------------------------//
     TriangleMesh<MeshAttributeType> GetSubMeshByFace(const DenseVector<int_max>& FaceIndexList) const;
