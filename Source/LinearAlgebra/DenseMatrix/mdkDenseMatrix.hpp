@@ -5464,12 +5464,28 @@ void DenseMatrix<ElementType>::InsertCol(int_max ColIndex, const ElementType_Inp
         MDK_Error("Matrix Size can not change @ DenseMatrix::InsertCol(ColIndex, const ElementType_Input* ColVectorData, int_max Length)")
         return;
     }
-
-    auto SelfSize = this->GetSize();
-
+	auto SelfSize = this->GetSize();
+	if (ColVectorData == nullptr)
+	{
+		if (Length == 0)
+		{
+			return;
+		}
+		else
+		{
+			MDK_Error("Invalid Length @ DenseMatrix::InsertCol(ColIndex, const ElementType_Input* ColVectorData, int_max Length)")
+			return;
+		}
+	}
+	else if (Length != SelfSize.RowCount)
+	{
+		MDK_Error("Invalid Length @ DenseMatrix::InsertCol(ColIndex, const ElementType_Input* ColVectorData, int_max Length)")
+		return;
+	}
+    
     if (SelfSize.ColCount == 0)
     {
-        if (ColIndex != 0 || ColVectorData == nullptr || Length <= 0)
+        if (ColIndex != 0)
         {
             MDK_Error("Invalid Input @ DenseMatrix::InsertCol(ColIndex, const ElementType_Input* ColVectorData, int_max Length)")
             return;
@@ -5477,7 +5493,7 @@ void DenseMatrix<ElementType>::InsertCol(int_max ColIndex, const ElementType_Inp
     }
     else
     {
-        if (ColIndex >= SelfSize.ColCount || ColIndex < 0 || ColVectorData == nullptr || Length != SelfSize.RowCount || Length <= 0)
+        if (ColIndex > SelfSize.ColCount || ColIndex < 0)
         {
             MDK_Error("Invalid Input @ DenseMatrix::InsertCol(ColIndex, const ElementType_Input* ColVectorData, int_max Length)")
             return;
@@ -5953,6 +5969,24 @@ void DenseMatrix<ElementType>::InsertRow(int_max RowIndex, const ElementType_Inp
         return;
     }
 
+	if (RowVectorData == nullptr)
+	{
+		if (Length == 0)
+		{
+			return;
+		}
+		else
+		{
+			MDK_Error("Invalid Length @ DenseMatrix::InsertRow(RowIndex, const ElementType_Input* RowVectorData, int_max Length)")
+			return;
+		}
+	}
+	else if (Length != this->GetColCount())
+	{
+		MDK_Error("Invalid Length @ DenseMatrix::InsertRow(RowIndex, const ElementType_Input* RowVectorData, int_max Length)")
+		return;
+	}
+
     if (this->IsEmpty() == true)
     {
         if (RowIndex == 0 && RowVectorData != nullptr && Length > 0)
@@ -5969,23 +6003,18 @@ void DenseMatrix<ElementType>::InsertRow(int_max RowIndex, const ElementType_Inp
     // Self is not empty ----------------------------------------------------------------------------------------------------------
 
     auto SelfSize = this->GetSize();
-
-    if (RowIndex >= SelfSize.RowCount || RowIndex < 0 || RowVectorData == nullptr || Length != SelfSize.ColCount)
+    if (RowIndex > SelfSize.RowCount || RowIndex < 0)
     {
-        MDK_Error("Invalid Input @ DenseMatrix::InsertRow(RowIndex, const ElementType_Input* RowVectorData, int_max Length)")
+        MDK_Error("Invalid RowIndex @ DenseMatrix::InsertRow(RowIndex, const ElementType_Input* RowVectorData, int_max Length)")
         return;
     }
 
     DenseMatrix<ElementType> tempMatrix(SelfSize.RowCount + 1, SelfSize.ColCount);
-
     auto tempRawPointer = tempMatrix.GetElementPointer();
-
     auto RawPointer = this->GetElementPointer();
-
     for (int_max j = 0; j < SelfSize.ColCount; ++j)
     {
         auto tempIndex = j*SelfSize.RowCount;
-
         for (int_max i = 0; i < RowIndex; ++i)
         {
             tempRawPointer[tempIndex + j + i] = RawPointer[tempIndex + i];
@@ -6000,7 +6029,6 @@ void DenseMatrix<ElementType>::InsertRow(int_max RowIndex, const ElementType_Inp
     for (int_max j = 0; j < SelfSize.ColCount; ++j)
     {
         auto tempIndex = j*SelfSize.RowCount;
-
         for (int_max i = RowIndex + 1; i < SelfSize.RowCount + 1; ++i)
         {            
             tempRawPointer[tempIndex + j + i] = RawPointer[tempIndex + i - 1];

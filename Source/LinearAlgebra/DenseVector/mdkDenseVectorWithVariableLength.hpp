@@ -1358,21 +1358,33 @@ template<typename ElementType>
 inline
 bool DenseVector<ElementType>::Insert(int_max Index, const ElementType* InputData, int_max InputLength)
 {
-    auto SelfLength = this->GetElementCount();
+	if (InputData == nullptr)
+	{
+		if (InputLength == 0)
+		{
+			return true;
+		}
+		else
+		{
+			MDK_Error("Invalid InputLength @ DenseVector::Insert(Index, const ElementType* InputData, int_max InputLength)")
+			return false;
+		}
+	}
 
+    auto SelfLength = this->GetElementCount();
     if (SelfLength == 0)
     {
-        if (Index != 0 || InputData == nullptr || InputLength <= 0)
+        if (Index != 0)
         {
-            MDK_Error("Invalid Input @ DenseVector::Insert(Index, const ElementType* InputData, int_max InputLength)")
+            MDK_Error("Invalid Index @ DenseVector::Insert(Index, const ElementType* InputData, int_max InputLength)")
             return false;
         }
     }
     else
     {
-        if (Index >= SelfLength+1 || Index < 0 || InputData == nullptr || InputLength <= 0)
+        if (Index > SelfLength || Index < 0)
         {
-            MDK_Error("Invalid Input @ DenseVector::Insert(Index, const ElementType* InputData, int_max InputLength)")
+            MDK_Error("Invalid Index @ DenseVector::Insert(Index, const ElementType* InputData, int_max InputLength)")
             return false;
         }
     }
