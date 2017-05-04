@@ -696,21 +696,33 @@ template<typename ElementType>
 inline
 void StdObjectVector<ElementType>::Insert(int_max Index, const ElementType* InputArray, int_max InputLength)
 {
-    auto SelfLength = this->GetElementCount();
+	if (InputArray == nullptr)
+	{
+		if (InputLength == 0)
+		{
+			return;
+		}
+		else
+		{
+			MDK_Error("Invalid InputLength @ StdObjectVector::Insert(Index, const ElementType* InputArray, int_max InputLength)")
+			return;
+		}
+	}
 
+    auto SelfLength = this->GetElementCount();
     if (SelfLength == 0)
     {
-        if (Index != 0 || InputArray == nullptr || InputLength <= 0)
+        if (Index != 0)
         {
-            MDK_Error("Invalid Input @ StdObjectVector::Insert(Index, const ElementType* InputArray, int_max InputLength)")
+            MDK_Error("Invalid Index @ StdObjectVector::Insert(Index, const ElementType* InputArray, int_max InputLength)")
             return;
         }
     }
     else
     {
-        if (Index >= SelfLength || Index < 0 || InputArray == nullptr || InputLength <= 0)
+        if (Index > SelfLength || Index < 0)
         {
-            MDK_Error("Invalid Input @ StdObjectVector::Insert(Index, const ElementType* InputArray, int_max InputLength)")
+            MDK_Error("Invalid Index @ StdObjectVector::Insert(Index, const ElementType* InputArray, int_max InputLength)")
             return;
         }
     }

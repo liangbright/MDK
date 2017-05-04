@@ -53,6 +53,7 @@ struct PolygonMeshData
     DenseVector<int_max> PointValidityFlagList; // do not use bool (std::vector<bool> is compressed)
     // 1: point is an element of the mesh 
     // 0: point is deleted
+	// problem if using int8, PointValidityFlagList.Sum() will give weird result due to overflow
 
 	StdObjectVector<Edge_Of_PolygonMesh<MeshAttributeType>> EdgeList;
 
@@ -408,6 +409,9 @@ public:
 
     // get a sub mesh by FaceIndexList
     PolygonMesh<MeshAttributeType> GetSubMeshByFace(const DenseVector<int_max>& FaceIndexList) const;
+
+	// append a mesh, duplication of face/edge/point will not be checked
+	void Append(const PolygonMesh<MeshAttributeType>& InputMesh);
 
     // other basic operation ----------------------------------------------------------------------------------------
 	

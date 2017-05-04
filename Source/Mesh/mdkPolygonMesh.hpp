@@ -2953,6 +2953,109 @@ PolygonMesh<MeshAttributeType>::GetSubMeshByFace(const DenseVector<int_max>& Fac
 }
 
 
+template<typename MeshAttributeType>
+void PolygonMesh<MeshAttributeType>::Append(const PolygonMesh<MeshAttributeType>& InputMesh)
+{// append a mesh, duplication of face/edge/point will not be checked
+// this is not checked: append non-triangle mesh to triangle mesh
+    //prevent self append
+	if (&m_MeshData == &InputMesh.m_MeshData)
+	{
+		return;
+	}
+
+	if (this->IsPureEmpty() == true)
+	{
+		this->Recreate();
+	}
+
+	if (this->IsEmpty() == true)
+	{
+		if (InputMesh.IsEmpty() == false)
+		{
+			this->Copy(InputMesh);
+		}
+		return;
+	}
+
+	//no change on ID and Name
+	//m_MeshData->ID
+	//m_MeshData->Name
+
+	auto MaxPointIndex_init = m_MeshData->PointList.GetLength() - 1;
+	auto MaxEdgeIndex_init = m_MeshData->EdgeList.GetLength() - 1;
+	auto MaxFaceIndex_init = m_MeshData->FaceList.GetLength() - 1;
+
+	m_MeshData->PointPositionTable = { &m_MeshData->PointPositionTable, &InputMesh.m_MeshData->PointPositionTable };
+	m_MeshData->PointValidityFlagList.Append(InputMesh.m_MeshData->PointValidityFlagList);
+	m_MeshData->PointList.Insert(MaxPointIndex_init+1, InputMesh.m_MeshData->PointList);
+	for (int_max k = 0; k < m_MeshData->PointList.GetLength(); ++k)
+	{
+		if (k > MaxPointIndex_init)
+		{
+			if (m_MeshData->PointValidityFlagList[k] == 1)
+			{
+				m_MeshData->PointList[k].SetParentMesh(*this);
+				m_MeshData->PointList[k].SetIndex(k);
+				m_MeshData->PointList[k].AdjacentEdgeIndexList() += MaxEdgeIndex_init + 1;
+			}
+		}
+	}
+
+	m_MeshData->EdgeValidityFlagList.Append(InputMesh.m_MeshData->EdgeValidityFlagList);
+	m_MeshData->EdgeList.Insert(MaxEdgeIndex_init + 1, InputMesh.m_MeshData->EdgeList);
+	for (int_max k = 0; k < m_MeshData->EdgeList.GetLength(); ++k)
+	{		
+		if (k > MaxEdgeIndex_init)
+		{
+			if (m_MeshData->EdgeValidityFlagList[k] == 1)
+			{
+				m_MeshData->EdgeList[k].SetParentMesh(*this);
+				m_MeshData->EdgeList[k].SetIndex(k);
+				auto PIdxList = m_MeshData->EdgeList[k].GetPointIndexList();
+				m_MeshData->EdgeList[k].SetPointIndexList(PIdxList[0] + MaxPointIndex_init + 1, PIdxList[1] + MaxPointIndex_init + 1);
+				m_MeshData->EdgeList[k].AdjacentFaceIndexList() += MaxFaceIndex_init + 1;
+			}
+		}
+	}
+
+	m_MeshData->FaceValidityFlagList.Append(InputMesh.m_MeshData->FaceValidityFlagList);
+	m_MeshData->FaceList.Insert(MaxFaceIndex_init + 1, InputMesh.m_MeshData->FaceList);
+	for (int_max k = 0; k < m_MeshData->FaceList.GetLength(); ++k)
+	{		
+		if (k > MaxFaceIndex_init)
+		{
+			if (m_MeshData->FaceValidityFlagList[k] == 1)
+			{
+				m_MeshData->FaceList[k].SetParentMesh(*this);
+				m_MeshData->FaceList[k].SetIndex(k);
+				m_MeshData->FaceList[k].PointIndexList() += MaxPointIndex_init + 1;
+				m_MeshData->FaceList[k].EdgeIndexList() += MaxEdgeIndex_init + 1;
+			}
+		}
+	}
+
+	//no change --------------------------------------
+	//m_MeshData->Map_PointID_to_PointIndex
+	//m_MeshData->Map_EdgeID_to_EdgeIndex
+	//m_MeshData->Map_FaceID_to_FaceIndex
+	//
+	//m_MeshData->Map_PointName_to_PointIndex
+	//m_MeshData->Map_EdgeName_to_EdgeIndex
+	//m_MeshData->Map_FaceName_to_FaceIndex
+	//
+	//m_MeshData->PointSetList
+	//m_MeshData->Map_PointSetName_to_PointSetIndex
+	//
+	//m_MeshData->EdgeSetList
+	//m_MeshData->Map_EdgeSetName_to_EdgeSetIndex
+	//
+	//m_MeshData->FaceSetList
+	//m_MeshData->Map_FaceSetName_to_FaceSetIndex
+	//	
+	//m_MeshData->Attribute
+}
+
+
 // other basic operation ----------------------------------------------------------------------------------------
 
 template<typename MeshAttributeType>
