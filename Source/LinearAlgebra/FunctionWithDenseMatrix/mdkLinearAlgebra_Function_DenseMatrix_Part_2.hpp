@@ -1582,7 +1582,7 @@ DenseMatrixSVDResult<ElementType> MatrixSVD(const DenseMatrix<ElementType>& Inpu
 		Result.S[k] = S[k];
 	}
 
-	if (U.IsColMajor == true)
+	if (U.IsRowMajor == false)
 	{
 		for (int_max k = 0; k < Result.U.GetElementCount(); ++k)
 		{
@@ -1600,7 +1600,7 @@ DenseMatrixSVDResult<ElementType> MatrixSVD(const DenseMatrix<ElementType>& Inpu
 		}
 	}
 
-	if (V.IsColMajor == true)
+	if (V.IsRowMajor == false)
 	{
 		for (int_max k = 0; k < Result.V.GetElementCount(); ++k)
 		{
