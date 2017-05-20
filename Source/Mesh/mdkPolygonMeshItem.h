@@ -223,8 +223,8 @@ public:
 	inline DenseVector<int_max> GetAdjacentFaceIndexList() const;
 	
 	// Face share any vertex point of this edge
-	inline int_max GetNeighbourFaceCount() const;
-	inline DenseVector<int_max> GetNeighbourFaceIndexList() const;
+	inline int_max GetNeighborFaceCount() const;
+	inline DenseVector<int_max> GetNeighborFaceIndexList() const;
 
     inline EdgeAttributeType& Attribute();
     inline const EdgeAttributeType& Attribute() const;
@@ -323,8 +323,8 @@ public:
 	inline DenseVector<int_max> GetAdjacentFaceIndexList() const;
 
 	// Face share any point of this face, not include this face
-	inline int_max GetNeighbourFaceCount() const;
-	inline DenseVector<int_max> GetNeighbourFaceIndexList() const;
+	inline int_max GetNeighborFaceCount() const;
+	inline DenseVector<int_max> GetNeighborFaceIndexList() const;
 
     inline FaceAttributeType& Attribute();
     inline const FaceAttributeType& Attribute() const;

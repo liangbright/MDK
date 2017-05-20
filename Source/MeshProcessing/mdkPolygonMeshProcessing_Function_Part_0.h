@@ -1,5 +1,5 @@
 ﻿#pragma once
-
+neighbor
 #include "vtkSmoothPolyDataFilter.h"
 #include "vtkWindowedSincPolyDataFilter.h"
 
@@ -28,16 +28,16 @@ PolygonMesh<MeshAttributeType> SmoothMeshByVTKWindowedSincPolyDataFilter(const P
 // Output.ElementList[k] is the graph_distance between Point(PointIndex) and Point(PointIndex_input)
 // Output.IndexList[k] is PointIndex in TargetMesh
 template<typename MeshAttributeType>
-SparseVector<int_max> FindNeighbourPointOfPointOnMesh(const PolygonMesh<MeshAttributeType>& InputMesh, int_max PointIndex_input, int_max MaxGraphDistance);
+SparseVector<int_max> FindNeighborPointOfPointOnMesh(const PolygonMesh<MeshAttributeType>& InputMesh, int_max PointIndex_input, int_max MaxGraphDistance);
 
 //template<typename MeshAttributeType>
-//SparseVector<int_max> FindNeighbourFaceOfPointOnMesh(const PolygonMesh<MeshAttributeType>& InputMesh, int_max PointIndex_input, int_max MaxGraphDistance);
+//SparseVector<int_max> FindNeighborFaceOfPointOnMesh(const PolygonMesh<MeshAttributeType>& InputMesh, int_max PointIndex_input, int_max MaxGraphDistance);
 
 //template<typename MeshAttributeType>
-//SparseVector<int_max> FindNeighbourFaceOfFaceOnMesh(const PolygonMesh<MeshAttributeType>& InputMesh, int_max FaceIndex_input, int_max MaxGraphDistance);
+//SparseVector<int_max> FindNeighborFaceOfFaceOnMesh(const PolygonMesh<MeshAttributeType>& InputMesh, int_max FaceIndex_input, int_max MaxGraphDistance);
 
 //template<typename MeshAttributeType>
-//SparseVector<int_max> FindNeighbourPointOfFaceOnMesh(const PolygonMesh<MeshAttributeType>& InputMesh, int_max FaceIndex_input, int_max MaxGraphDistance);
+//SparseVector<int_max> FindNeighborPointOfFaceOnMesh(const PolygonMesh<MeshAttributeType>& InputMesh, int_max FaceIndex_input, int_max MaxGraphDistance);
 
 //output FaceIndexList with seed FaceIndex_seed
 //ClosedEdgeCurve_EdgeIndexList can be in random order

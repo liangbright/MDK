@@ -286,7 +286,7 @@ PolygonMesh<MeshAttributeType> SmoothMeshByVTKWindowedSincPolyDataFilter(const P
 
 
 template<typename MeshAttributeType>
-SparseVector<int_max> FindNeighbourPointOfPointOnMesh(const PolygonMesh<MeshAttributeType>& InputMesh, int_max PointIndex_input, int_max MaxGraphDistance)
+SparseVector<int_max> FindNeighborPointOfPointOnMesh(const PolygonMesh<MeshAttributeType>& InputMesh, int_max PointIndex_input, int_max MaxGraphDistance)
 {
 	SparseVector<int_max> Output;
 	//Output.IndexList[n] is PointIndex

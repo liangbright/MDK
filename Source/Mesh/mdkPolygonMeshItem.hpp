@@ -818,21 +818,21 @@ DenseVector<int_max> Edge_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceInde
 
 template<typename MeshAttributeType>
 inline
-int_max Edge_Of_PolygonMesh<MeshAttributeType>::GetNeighbourFaceCount() const
+int_max Edge_Of_PolygonMesh<MeshAttributeType>::GetNeighborFaceCount() const
 {
 	// wrong, may share more than 2 face
 	//auto Counter0 = m_Data->MeshData->PointList[m_Data->PointIndex0].GetAdjacentFaceCount();
 	//auto Counter1 = m_Data->MeshData->PointList[m_Data->PointIndex1].GetAdjacentFaceCount();
 	//return Counter0 + Counter1 - 2;
 
-	auto IndexList = this->GetNeighbourFaceIndexList();
+	auto IndexList = this->GetNeighborFaceIndexList();
 	return IndexList.GetLength();
 }
 
 // Face share any  point of this edge
 template<typename MeshAttributeType>
 inline
-DenseVector<int_max> Edge_Of_PolygonMesh<MeshAttributeType>::GetNeighbourFaceIndexList() const
+DenseVector<int_max> Edge_Of_PolygonMesh<MeshAttributeType>::GetNeighborFaceIndexList() const
 {
 	DenseVector<int_max> OutputIndexList;
 
@@ -1221,15 +1221,15 @@ DenseVector<int_max> Face_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceInde
 
 template<typename MeshAttributeType>
 inline
-int_max Face_Of_PolygonMesh<MeshAttributeType>::GetNeighbourFaceCount() const
+int_max Face_Of_PolygonMesh<MeshAttributeType>::GetNeighborFaceCount() const
 {// share a vertex point
-	auto IndexList = this->GetNeighbourFaceIndexList();
+	auto IndexList = this->GetNeighborFaceIndexList();
 	return IndexList.GetLength();
 }
 
 template<typename MeshAttributeType>
 inline
-DenseVector<int_max> Face_Of_PolygonMesh<MeshAttributeType>::GetNeighbourFaceIndexList() const
+DenseVector<int_max> Face_Of_PolygonMesh<MeshAttributeType>::GetNeighborFaceIndexList() const
 {
 	DenseVector<int_max> OutputIndexList;
 	OutputIndexList.SetCapacity(6);
