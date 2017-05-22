@@ -4,9 +4,6 @@
 #include <vtkQuadricDecimation.h>
 #include <vtkDecimatePro.h>
 
-#include "mdkDenseMatrix.h"
-#include "mdkTriangleMesh.h"
-
 namespace mdk
 {
 

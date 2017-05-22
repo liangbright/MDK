@@ -1,9 +1,4 @@
-﻿#ifndef mdk_QuadMeshProcessing_Function_Part_0_h
-#define mdk_QuadMeshProcessing_Function_Part_0_h
-
-#include "mdkDenseMatrix.h"
-#include "mdkPolygonMesh.h"
-#include "mdkTriangleMesh.h"
+﻿#pragma once
 
 namespace mdk
 {
@@ -29,5 +24,3 @@ PolygonMesh<MeshAttributeType> CreateQuadMeshOfCylinderSurface(int_max PointCoun
 }//namespace mdk
 
 #include "mdkQuadMeshProcessing_Function_Part_0.hpp"
-
-#endif

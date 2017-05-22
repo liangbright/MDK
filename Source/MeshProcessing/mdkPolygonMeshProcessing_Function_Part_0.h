@@ -1,10 +1,7 @@
 ﻿#pragma once
-neighbor
+
 #include "vtkSmoothPolyDataFilter.h"
 #include "vtkWindowedSincPolyDataFilter.h"
-
-#include "mdkDenseMatrix.h"
-#include "mdkPolygonMesh.h"
 
 namespace mdk
 {

@@ -133,6 +133,17 @@ int_max FindNearestPointOnCurve(const DenseMatrix<ScalarType>& Curve, const Dens
 
 
 template<typename ScalarType>
+int_max FindNearestPointOnCurve(const DenseMatrix<ScalarType>& Curve, ScalarType x_ref, ScalarType y_ref, ScalarType z_ref)
+{
+	DenseVector<ScalarType, 3> Point_ref;
+	Point_ref[0] = x_ref;
+	Point_ref[1] = y_ref;
+	Point_ref[2] = z_ref;
+	return FindNearestPointOnCurve(Curve, Point_ref);
+}
+
+
+template<typename ScalarType>
 ScalarType Compute3DCurveLength(const DenseMatrix<ScalarType>& Curve)
 {
 	if (Curve.GetColCount() < 2)

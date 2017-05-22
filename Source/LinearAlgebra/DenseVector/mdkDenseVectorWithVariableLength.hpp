@@ -1119,9 +1119,6 @@ template<typename ElementType>
 inline
 bool DenseVector<ElementType>::Append(ElementType Element)
 {
-    //auto SelfLength = this->GetElementCount();
-    //this->Resize(SelfLength + 1);
-    //m_StdVector[SelfLength] = std::move(Element);
 	m_StdVector.push_back(std::move(Element));
     return true;
 }
@@ -1173,14 +1170,10 @@ bool DenseVector<ElementType>::Append(const ElementType* InputData, int_max Inpu
         return true;
     }
 
-    auto SelfLength = this->GetElementCount();
-
-    this->Resize(SelfLength + InputLength);
-
-    for (int_max i = SelfLength; i < SelfLength + InputLength; ++i)
-    {
-        m_StdVector[i] = InputData[i - SelfLength];
-    }
+	for (int_max k = 0; k < InputLength; ++k)
+	{
+		m_StdVector.push_back(InputData[k]);
+	}
 
     return true;
 }

@@ -2251,6 +2251,20 @@ void PolygonMesh<MeshAttributeType>::DeleteFace(int_max FaceIndex)
     this->UpdateRecord_DeleteFace(FaceIndex);
 }
 
+template<typename MeshAttributeType>
+void PolygonMesh<MeshAttributeType>::DeleteFace(const DenseVector<int_max>& FaceIndexList)
+{
+	if (FaceIndexList.IsEmpty() == true)
+	{
+		//MDK_Warning("FaceIndexList is empty @ PolygonMesh::DeleteFace(...)")
+		return;
+	}
+
+	for (int_max k = 0; k < FaceIndexList.GetLength(); ++k)
+	{
+		this->DeleteFace(FaceIndexList[k]);
+	}
+}
 
 template<typename MeshAttributeType>
 void PolygonMesh<MeshAttributeType>::DeleteEdge(int_max EdgeIndex)
@@ -2271,6 +2285,20 @@ void PolygonMesh<MeshAttributeType>::DeleteEdge(int_max EdgeIndex)
     this->UpdateRecord_DeleteEdge(EdgeIndex);
 }
 
+template<typename MeshAttributeType>
+void PolygonMesh<MeshAttributeType>::DeleteEdge(const DenseVector<int_max>& EdgeIndexList)
+{
+	if (EdgeIndexList.IsEmpty() == true)
+	{
+		//MDK_Warning("EdgeIndexList is empty @ PolygonMesh::DeleteEdge(...)")
+		return;
+	}
+
+	for (int_max k = 0; k < EdgeIndexList.GetLength(); ++k)
+	{
+		this->DeleteEdge(EdgeIndexList[k]);
+	}
+}
 
 template<typename MeshAttributeType>
 void PolygonMesh<MeshAttributeType>::DeletePoint(int_max PointIndex)

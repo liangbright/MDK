@@ -852,9 +852,7 @@ void ObjectArray<ElementType>::Append(ElementType Element)
     m_Data->CopyDataToStdVectorIfNecessary();
 
     auto SelfLength = this->GetElementCount();
-
     this->Resize(SelfLength + 1);
-
     (*this)[SelfLength] = std::move(Element);
 }
 
@@ -917,7 +915,7 @@ void ObjectArray<ElementType>::Append(const ElementType* InputArray, int_max Inp
 
     if (InputArray == nullptr || InputLength <= 0)
     {
-        MDK_Warning("Empty Input @ ObjectArray::Append(const ElementType* InputArray, int_max InputLength)")
+        //MDK_Warning("Empty Input @ ObjectArray::Append(const ElementType* InputArray, int_max InputLength)")
         return;
     }
 

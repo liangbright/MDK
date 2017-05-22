@@ -336,6 +336,7 @@ public:
 	int_max AddPoint(ScalarType x, ScalarType y, ScalarType z);
     
     // add a set of points and return PointIndexList
+	// do not use the name "AddPointSet", PointSet mean something else
     DenseVector<int_max> AddPoint_batch(const DenseMatrix<ScalarType>& PointSet);
 	DenseVector<int_max> AddPoint_batch(DenseMatrix<ScalarType>&& PointSet);
 
@@ -366,6 +367,7 @@ public:
     // this function will modify any information related to the face
     // FaceIndex, FaceID, FaceName become invalid after the face is deleted
 	void DeleteFace(int_max FaceIndex);
+	void DeleteFace(const DenseVector<int_max>& FaceIndexList);
 
     // m_MeshData->EdgeList[EdgeIndex].Clear() only release memory
     // this function will modify any information related to the Edge
@@ -374,6 +376,7 @@ public:
 	//
 	// note: Call Edge(EdgeIndex).GetAdjacentFaceCount() to check if the edge can be deleted or not
 	void DeleteEdge(int_max EdgeIndex);
+	void DeleteEdge(const DenseVector<int_max>& EdgeIndexList);
 
     // m_MeshData->PointList[PointIndex].Cear() only release memory
     // this function will modify any information related to the point

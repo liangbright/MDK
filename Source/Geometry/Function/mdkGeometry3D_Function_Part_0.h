@@ -40,6 +40,9 @@ template<typename ScalarType>
 int_max FindNearestPointOnCurve(const DenseMatrix<ScalarType>& Curve, const DenseVector<ScalarType, 3>& Point_ref);
 
 template<typename ScalarType>
+int_max FindNearestPointOnCurve(const DenseMatrix<ScalarType>& Curve, ScalarType x_ref, ScalarType y_ref, ScalarType z_ref);
+
+template<typename ScalarType>
 ScalarType Compute3DCurveLength(const DenseMatrix<ScalarType>& Curve);
 
 template<typename ScalarType>

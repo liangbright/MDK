@@ -503,18 +503,13 @@ void StdObjectVector<ElementType>::Append(const ElementType* InputArray, int_max
 {
     if (InputArray == nullptr || InputLength <= 0)
     {
-        MDK_Error("Invalid Input: empty @ StdObjectVector::Append(const ElementType* InputArray, int_max InputLength)")
+        //MDK_Warning("Empty Input @ StdObjectVector::Append(const ElementType* InputArray, int_max InputLength)")
         return;
     }
-
-    auto SelfLength = this->GetElementCount();
-
-    this->Resize(SelfLength + InputLength);
-
-    for (int_max i = SelfLength; i < SelfLength + InputLength; ++i)
-    {
-        m_StdVector[i] = InputArray[i - SelfLength];
-    }
+	for (int_max k = 0; k < InputLength; ++k)
+	{
+		m_StdVector.push_back(InputArray[k]);
+	}
 }
 
 
