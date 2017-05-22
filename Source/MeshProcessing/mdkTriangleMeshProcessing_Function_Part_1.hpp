@@ -103,8 +103,18 @@ TriangleMesh<MeshAttributeType> ResampleMeshOpenBoundary(const TriangleMesh<Mesh
 		}
 		Curve_near_boundary.Append(PointIndex_start);
 		int_max PointIndex_current = PointIndex_start;
+		int_max while_counter = 0;
+		auto PointCount_InputMesh = InputMesh.GetPointCount();
 		while (true)
 		{
+			while_counter += 1;
+			if (while_counter > PointCount_InputMesh)
+			{
+				MDK_Error("infinit while loop, please modify BounaryPointIndexList, abort @ ResampleMeshOpenBoundary(...)")
+				TriangleMesh<MeshAttributeType> EmptyMesh;
+				return EmptyMesh;
+			}
+
 			auto CandidateList = InputMesh.Point(PointIndex_current).GetAdjacentPointIndexList();
 			CandidateList = SetDiff(CandidateList, BounaryPointIndexList);
 			CandidateList = SetDiff(CandidateList, Curve_near_boundary);
