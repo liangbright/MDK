@@ -192,8 +192,13 @@ void TriangleMesh<MeshAttributeType>::UpdateCornerAngleOfFace(int_max FaceIndex)
 
 
 template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateAngleWeightedNormalAtPoint(const MDK_Symbol_ALL&)
-{// FaceNormal must be available: call UpdateNormalAtFace() and UpdateCornerAngleOfFace()
+void TriangleMesh<MeshAttributeType>::UpdateAngleWeightedNormalAtPoint(const MDK_Symbol_ALL&, bool Flag_Update_RelativeInfo)
+{//if Flag_Update_RelativeInfo is false, then FaceNormal must be available: call UpdateNormalAtFace() and UpdateCornerAngleOfFace()
+	if (Flag_Update_RelativeInfo == true)
+	{
+		this->UpdateNormalAtFace(ALL);
+		this->UpdateCornerAngleOfFace(ALL);
+	}
 	int_max PointIndex_max = this->GetMaxValueOfPointIndex();
 	for (int_max k = 0; k <= PointIndex_max; ++k)
 	{
@@ -275,8 +280,13 @@ void TriangleMesh<MeshAttributeType>::UpdateAngleWeightedNormalAtPoint(int_max P
 
 
 template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint(const MDK_Symbol_ALL&)
-{// run UpdateCornerAngleOfFace and UpdateAreaOfFace first
+void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint(const MDK_Symbol_ALL&, bool Flag_Update_RelativeInfo)
+{//if Flag_Update_RelativeInfo is false, run UpdateCornerAngleOfFace and UpdateAreaOfFace first
+	if (Flag_Update_RelativeInfo == true)
+	{
+		this->UpdateCornerAngleOfFace(ALL);
+		this->UpdateAreaOfFace(ALL);
+	}
 	int_max PointIndex_max = this->GetMaxValueOfPointIndex();
 	for (int_max k = 0; k <= PointIndex_max; ++k)
 	{
@@ -384,8 +394,12 @@ void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint(int_max Poi
 
 
 template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateMeanCurvatureAtPoint(const MDK_Symbol_ALL&)
-{ // run UpdateAreaOfFace() first
+void TriangleMesh<MeshAttributeType>::UpdateMeanCurvatureAtPoint(const MDK_Symbol_ALL&, bool Flag_Update_RelativeInfo)
+{ //if Flag_Update_RelativeInfo is false, run UpdateAreaOfFace() first
+	if (Flag_Update_RelativeInfo == true)
+	{
+		this->UpdateAreaOfFace(ALL);
+	}
 	int_max PointIndex_max = this->GetMaxValueOfPointIndex();
 	for (int_max k = 0; k <= PointIndex_max; ++k)
 	{
@@ -527,8 +541,12 @@ void TriangleMesh<MeshAttributeType>::UpdateMeanCurvatureAtPoint(int_max PointIn
 }
 
 template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateNormalBasedCurvatureAtPoint(const MDK_Symbol_ALL&)
-{ // run UpdateNormalAtFace first
+void TriangleMesh<MeshAttributeType>::UpdateNormalBasedCurvatureAtPoint(const MDK_Symbol_ALL&, bool Flag_Update_RelativeInfo)
+{ //if Flag_Update_RelativeInfo is false, run UpdateNormalAtFace first
+	if (Flag_Update_RelativeInfo == true)
+	{
+		this->UpdateNormalAtFace(ALL);
+	}
 	int_max PointIndex_max = this->GetMaxValueOfPointIndex();
 	for (int_max k = 0; k <= PointIndex_max; ++k)
 	{

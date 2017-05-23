@@ -74,20 +74,24 @@ public:
 	void UpdateCornerAngleOfFace(const MDK_Symbol_ALL&);
     void UpdateCornerAngleOfFace(int_max FaceIndex);
 
-	// FaceNormal must be available: call UpdateNormalAtFace() and UpdateCornerAngleOfFace()
-	void UpdateAngleWeightedNormalAtPoint(const MDK_Symbol_ALL&);
+	// if Flag_Update_RelativeInfo is true, then  UpdateNormalAtFace() and UpdateCornerAngleOfFace() are called inside this function
+	// otherwise, FaceNormal must be available: call UpdateNormalAtFace() and UpdateCornerAngleOfFace()
+	void UpdateAngleWeightedNormalAtPoint(const MDK_Symbol_ALL&, bool Flag_Update_RelativeInfo = false);
 	void UpdateAngleWeightedNormalAtPoint(int_max PointIndex);
 
-	// run UpdateCornerAngleOfFace and UpdateAreaOfFace first
-	void UpdateGaussianCurvatureAtPoint(const MDK_Symbol_ALL&);
+	// if Flag_Update_RelativeInfo is true, then UpdateCornerAngleOfFace and UpdateAreaOfFace are called inside this function
+	// otherwise run UpdateCornerAngleOfFace and UpdateAreaOfFace first
+	void UpdateGaussianCurvatureAtPoint(const MDK_Symbol_ALL&, bool Flag_Update_RelativeInfo = false);
     void UpdateGaussianCurvatureAtPoint(int_max PointIndex);
 
-	// run UpdateAreaOfFace first
-	void UpdateMeanCurvatureAtPoint(const MDK_Symbol_ALL&);
+	// if Flag_Update_RelativeInfo is true, then UpdateAreaOfFace is called inside this function
+	// otherwise, run UpdateAreaOfFace first
+	void UpdateMeanCurvatureAtPoint(const MDK_Symbol_ALL&, bool Flag_Update_RelativeInfo = false);
     void UpdateMeanCurvatureAtPoint(int_max PointIndex);
 
-	// run UpdateNormalAtFace first
-	void UpdateNormalBasedCurvatureAtPoint(const MDK_Symbol_ALL&);
+	// if Flag_Update_RelativeInfo is true, then UpdateNormalAtFace is called inside this function
+	// otherwise, run UpdateNormalAtFace first
+	void UpdateNormalBasedCurvatureAtPoint(const MDK_Symbol_ALL&, bool Flag_Update_RelativeInfo = false);
 	void UpdateNormalBasedCurvatureAtPoint(int_max PointIndex);
 
 };
