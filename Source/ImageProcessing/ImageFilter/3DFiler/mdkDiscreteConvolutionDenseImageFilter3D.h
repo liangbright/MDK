@@ -12,6 +12,39 @@ namespace mdk
 //length is measured in Continious 3D index space. e.g., Sigma = Sigma_real_length / spacing
 //similar to imfilter in Matlab
 
+enum struct BoundaryOptionEnum_of_DiscreteConvolutionDenseImageFilter3D { Constant, Replicate };// same as imfilter in Matlab
+
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+struct Input_of_DiscreteConvolutionDenseImageFilter3D
+{
+	typedef BoundaryOptionEnum_of_DiscreteConvolutionDenseImageFilter3D BoundaryOptionEnum;
+
+	const DenseImage3D<InputPixelType>* Image;
+
+	BoundaryOptionEnum BoundaryOption;
+	OutputPixelType    BoundaryValue;
+
+	DenseMatrix<int_max> ConvolutionMask;
+	//ConvolutionMask(:,k): 3D index of point-k in mask, can be negative
+
+	DenseMatrix<ScalarType> ConvolutionCoef;
+	// ConvolutionCoef[k]: convolution coef at point-k in mask
+
+	int_max MaxThreadCount;
+};
+
+struct Internal_of_DiscreteConvolutionDenseImageFilter3D
+{
+	DenseVector<int_max, 6> MaskBox;
+	// [x_min, x_max, y_min, y_max, z_min, z_max]
+};
+
+template<typename PixelType>
+struct Output_of_DiscreteConvolutionDenseImageFilter3D
+{
+	DenseImage3D<PixelType> Image;
+};
+
 template<typename InputPixel_Type, typename OutputPixel_Type = InputPixel_Type, typename Scalar_Type = double>
 class DiscreteConvolutionDenseImageFilter3D : public Object
 {
@@ -19,39 +52,21 @@ public:
 	typedef InputPixel_Type  InputPixelType;
 	typedef OutputPixel_Type OutputPixelType;
 	typedef Scalar_Type      ScalarType; // float or double
-
-	enum class BoundaryOptionEnum { Constant, Replicate };// same as imfilter in Matlab
+	typedef BoundaryOptionEnum_of_DiscreteConvolutionDenseImageFilter3D BoundaryOptionEnum;
 
 public:
-	//-------------------------- input --------------------------------------------------//
-	const DenseImage3D<InputPixelType>* InputImage;
-
-	BoundaryOptionEnum BoundaryOption;
-	OutputPixelType    BoundaryValue;
-
-	DenseMatrix<int_max> ConvolutionMask;
-	//ConvolutionMask(:,k): 3D index of point-k in mask, can be negative
-	
- 	DenseMatrix<ScalarType> ConvolutionCoef;
-    // ConvolutionCoef[k]: convolution coef at point-k in mask
-
-	int_max MaxThreadCount;
-
+	Input_of_DiscreteConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType> Input;
 private:
-	//-------------------- internal ----------------------------------------------------//
-	DenseVector<int_max, 6> MaskBox;
-	// [x_min, x_max, y_min, y_max, z_min, z_max]
-
+	Internal_of_DiscreteConvolutionDenseImageFilter3D Internal;
 public:
-	//------------------------- output ----------------------------------------------------//
-	DenseImage3D<OutputPixelType> OutputImage;
+	Output_of_DiscreteConvolutionDenseImageFilter3D<OutputPixelType> Output;	
 
 public:
 	DiscreteConvolutionDenseImageFilter3D();
 	~DiscreteConvolutionDenseImageFilter3D();
 	void Clear();
-	void SetBoundaryOptionAsConstant(OutputPixelType BoundaryValue) { this->BoundaryOption = BoundaryOptionEnum::Constant; this->BoundaryValue = BoundaryValue; }
-	void SetBoundaryOptionAsReplicate() { this->BoundaryOption = BoundaryOptionEnum::Replicate; }
+	void SetBoundaryOptionAsConstant(OutputPixelType BoundaryValue) { Input.BoundaryOption = BoundaryOptionEnum::Constant; Input.BoundaryValue = BoundaryValue; }
+	void SetBoundaryOptionAsReplicate() { Input.BoundaryOption = BoundaryOptionEnum::Replicate; }
 	void Update();
 
 private:

@@ -9,6 +9,41 @@
 
 namespace mdk
 {
+enum struct PoolingTypeEnum_of_PoolingDenseImageFilter2D { Max, Min, Average, AbsMax, AbsMin, Unknown };
+
+template<typename PixelType>
+struct Input_of_PoolingDenseImageFilter2D
+{
+	typedef Option_Of_Image2DInterpolation<PixelType>       ImageInterpolationOptionType;
+	typedef PoolingTypeEnum_of_PoolingDenseImageFilter2D    PoolingTypeEnum;
+
+	const DenseImage2D<PixelType>* Image;
+
+	ImageInterpolationOptionType ImageInterpolationOption;
+
+	DenseVector<double, 2> Radius;  // Physical radius
+
+	PoolingTypeEnum PoolingType;
+
+	int_max MaxThreadCount;
+};
+
+template<typename PixelType>
+struct Output_of_PoolingDenseImageFilter2D
+{
+	DenseImage2D<PixelType> Image;
+};
+
+struct Internal_of_PoolingDenseImageFilter2D
+{
+	DenseVector<double, 2> Radius_Index2D; // Index radius in m_InputImage and m_IntegralImage
+	bool Flag_Input_Output_Orientation_IdentityMatrix;
+	bool Flag_Input_Output_SameOrigin_SameOrientation;
+
+	// see description in DenseImageResampler2D
+	DenseMatrix<double>    Position3DTransformFromOuputToInput_Matrix;
+	DenseVector<double, 3> Position3DTransformFromOuputToInput_Offset;
+};
 
 template<typename InputPixel_Type, typename OutputPixel_Type = InputPixel_Type, typename Scalar_Type = double>
 class PoolingDenseImageFilter2D : public Object
@@ -21,33 +56,12 @@ public:
 	typedef Option_Of_Image2DInterpolation<InputPixelType>  ImageInterpolationOptionType;
 	typedef MethodEnum_Of_Image2DInterpolation              ImageInterpolationMethodEnum;
 	typedef BoundaryOptionEnum_Of_Image2DInterpolation      ImageInterpolationBoundaryOptionEnum;
-
-	enum struct PoolingTypeEnum { Max, Min, Average, AbsMax, AbsMin, Unknown};
-
+	typedef PoolingTypeEnum_of_PoolingDenseImageFilter2D    PoolingTypeEnum;
 public:
-	//-------------------------- input --------------------------------------------------//
-	const DenseImage2D<InputPixelType>* InputImage;
-
-	ImageInterpolationOptionType ImageInterpolationOption;
-
-	DenseVector<double, 2> Radius;   // Physical radius in m_OutputImage
-
-	PoolingTypeEnum PoolingType;
-
-	int_max MaxThreadCount;
-
-	//------------------------- output ----------------------------------------------------//
-	DenseImage2D<OutputPixelType> OutputImage;
-
+	Input_of_PoolingDenseImageFilter2D<InputPixelType> Input;
+	Output_of_PoolingDenseImageFilter2D<OutputPixelType> Output;
 private:
-	//-------------------------- internal -----------------------------------------------//
-	DenseVector<double, 2> Radius_Index2D; // Index radius in m_OutputImage
-	bool Flag_Input_Output_Orientation_IdentityMatrix;
-	bool Flag_Input_Output_SameOrigin_SameOrientation;
-
-	// see description in DenseImageResampler3D
-	DenseMatrix<double>    Position3DTransformFromOuputToInput_Matrix;
-	DenseVector<double, 3> Position3DTransformFromOuputToInput_Offset;
+	Internal_of_PoolingDenseImageFilter2D Internal;
 
 public:		
     PoolingDenseImageFilter2D();

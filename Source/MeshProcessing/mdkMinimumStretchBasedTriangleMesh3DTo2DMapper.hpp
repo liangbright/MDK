@@ -16,7 +16,8 @@ MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType>::~MinimumStretchBasedTri
 template<typename ScalarType>
 void MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType>::Clear()
 {
-	Input.SourceMesh.Recreate();// do NOT use Clear
+	// do NOT use Clear for input
+	Input.SourceMesh.Recreate();
 	Input.BoundaryPointIndexList.Clear();
 	Input.UVTableOfBoundary.Clear();
 

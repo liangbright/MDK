@@ -7534,6 +7534,13 @@ DenseMatrix<int_max> DenseMatrix<ElementType>::Sort(int_max LinearIndex_start, i
     return LinearIndexList;
 }
 
+template<typename ElementType>
+inline
+DenseMatrix<int_max> DenseMatrix<ElementType>::Sort(const char* ascend_or_descend) const
+{
+	std::string str(ascend_or_descend);
+	return this->Sort(str);
+}
 
 template<typename ElementType>
 inline
@@ -7579,6 +7586,14 @@ void DenseMatrix<ElementType>::SortInPlace(int_max LinearIndex_start, int_max Li
 		return;
 	}
 	std::sort(this->begin() + Index_start, this->begin() + Index_end + 1, CompareFunction);
+}
+
+template<typename ElementType>
+inline
+void DenseMatrix<ElementType>::SortInPlace(const char* ascend_or_descend)
+{
+	std::string str(ascend_or_descend);
+	this->SortInPlace(str);
 }
 
 

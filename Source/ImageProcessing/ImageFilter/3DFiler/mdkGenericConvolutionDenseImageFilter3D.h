@@ -8,6 +8,46 @@
 namespace mdk
 {
 
+template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
+struct Input_of_GenericConvolutionDenseImageFilter3D
+{
+	typedef Option_Of_Image3DInterpolation<InputPixelType>  ImageInterpolationOptionType;
+
+	const DenseImage3D<InputPixelType>* Image;
+
+	ImageInterpolationOptionType ImageInterpolationOption;
+
+	DenseMatrix<ScalarType> ConvolutionMask_3DPositionInOutputImage;
+	//ConvolutionMask(:,k): 3D Position of point-k in mask
+
+	DenseMatrix<ScalarType> ConvolutionCoef;
+	// ConvolutionCoef[k]: convolution coef at point-k in mask
+
+	int_max MaxThreadCount;
+};
+
+template<typename ScalarType>
+struct Internal_of_GenericConvolutionDenseImageFilter3D
+{
+	DenseMatrix<ScalarType> ConvolutionMask_3DIndexInInputImage;
+	//ConvolutionMask(:,k): 3D Index of point-k in mask
+
+	bool Flag_Input_Output_Orientation_IdentityMatrix;
+	bool Flag_Input_Output_SameOrigin_SameOrientation;
+
+	// see description in DenseImageResampler3D
+	DenseMatrix<double>    Position3DTransformFromOuputToInput_Matrix;
+	DenseVector<double, 3> Position3DTransformFromOuputToInput_Offset;
+};
+
+
+template<typename PixelType>
+struct Output_of_GenericConvolutionDenseImageFilter3D
+{
+	DenseImage3D<PixelType> Image;
+};
+
+
 template<typename InputPixel_Type, typename OutputPixel_Type = InputPixel_Type, typename Scalar_Type = double>
 class GenericConvolutionDenseImageFilter3D : public Object
 {
@@ -21,34 +61,10 @@ public:
 	typedef BoundaryOptionEnum_Of_Image3DInterpolation      ImageInterpolationBoundaryOptionEnum;
 
 public:
-	//-------------------------- input --------------------------------------------------//
-	const DenseImage3D<InputPixelType>* InputImage;
-
-	ImageInterpolationOptionType ImageInterpolationOption;
-
-	DenseMatrix<ScalarType> ConvolutionMask_3DPositionInOutputImage;
-	//ConvolutionMask(:,k): 3D Position of point-k in mask
-
- 	DenseMatrix<ScalarType> ConvolutionCoef;
-    // ConvolutionCoef[k]: convolution coef at point-k in mask
-
-	int_max MaxThreadCount;
-
-	//------------------------- output ----------------------------------------------------//
-	DenseImage3D<OutputPixelType> OutputImage;
-
+	Input_of_GenericConvolutionDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType> Input;
+	Output_of_GenericConvolutionDenseImageFilter3D<OutputPixelType> Output;
 private:
-	//-------------------------- internal -----------------------------------------------//
-
-	DenseMatrix<ScalarType> ConvolutionMask_3DIndexInInputImage;
-	//ConvolutionMask(:,k): 3D Index of point-k in mask
-
-	bool Flag_Input_Output_Orientation_IdentityMatrix;
-	bool Flag_Input_Output_SameOrigin_SameOrientation;
-
-	// see description in DenseImageResampler3D
-	DenseMatrix<double>    Position3DTransformFromOuputToInput_Matrix;
-	DenseVector<double, 3> Position3DTransformFromOuputToInput_Offset;
+	Internal_of_GenericConvolutionDenseImageFilter3D<ScalarType> Internal;
 
 public:
 	GenericConvolutionDenseImageFilter3D();

@@ -16,7 +16,7 @@ DisplacementBasedPolygonMeshDeformer<MeshAttribute>::~DisplacementBasedPolygonMe
 template<typename MeshAttribute>
 void DisplacementBasedPolygonMeshDeformer<MeshAttribute>::Clear()
 {	
-	// dot NOT use Clear
+	// dot NOT use Clear for input
 	Input.SourceMesh.Recreate();
 	Input.DisplacementField.Recreate();
 	Input.ConfidenceOfDisplacementField.Recreate();

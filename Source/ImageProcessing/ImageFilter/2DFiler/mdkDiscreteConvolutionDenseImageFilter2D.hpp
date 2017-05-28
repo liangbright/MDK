@@ -19,59 +19,57 @@ DiscreteConvolutionDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarTyp
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void DiscreteConvolutionDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::Clear()
 {
-	auto& Self = *this;
-	Self.InputImage = nullptr;	
-	Self.BoundaryOption = BoundaryOptionEnum::Replicate;
-	Self.BoundaryValue = OutputPixelType(0);
-	Self.MaskBox.Clear();
-	Self.ConvolutionMask.Clear();
-	Self.ConvolutionCoef.Clear();
-	Self.OutputImage.Clear();
-	Self.MaxThreadCount = 1;
+	Input.Image = nullptr;	
+	Input.BoundaryOption = BoundaryOptionEnum::Replicate;
+	Input.BoundaryValue = OutputPixelType(0);	
+	Input.ConvolutionMask.Clear();
+	Input.ConvolutionCoef.Clear();
+	Input.MaxThreadCount = 1;
+	Internal.MaskBox.Clear();
+	Output.Image.Clear();	
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 bool DiscreteConvolutionDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::CheckInput()
 {
-	auto& Self = *this;
-	if (Self.InputImage == nullptr)
+	if (Input.Image == nullptr)
 	{
 		MDK_Error("Input image is Empty (nullptr) @ DiscreteConvolutionDenseImageFilter2D::CheckInput()")
 		return false;
 	}
 
-	if (Self.InputImage->IsEmpty() == true)
+	if (Input.Image->IsEmpty() == true)
 	{
 		MDK_Error("Input image is Empty @ DiscreteConvolutionDenseImageFilter2D::CheckInput()")
 		return false;
 	}
 
-	if (Self.ConvolutionMask.IsEmpty() == true)
+	if (Input.ConvolutionMask.IsEmpty() == true)
 	{
 		MDK_Error("ConvolutionMask is Empty @ DiscreteConvolutionDenseImageFilter2D::CheckInput()")
 		return false;
 	}
 
-	if (Self.ConvolutionMask.GetRowCount() != 2)
+	if (Input.ConvolutionMask.GetRowCount() != 2)
 	{
 		MDK_Error("ConvolutionMask size is wrong @ DiscreteConvolutionDenseImageFilter2D::CheckInput()")
 		return false;
 	}
 
-	if (Self.ConvolutionCoef.IsEmpty() == true)
+	if (Input.ConvolutionCoef.IsEmpty() == true)
 	{
 		MDK_Error("ConvolutionCoef is Empty @ DiscreteConvolutionDenseImageFilter2D::CheckInput()")
 		return false;
 	}
 
-	if (Self.ConvolutionMask.GetColCount() != Self.ConvolutionCoef.GetElementCount())
+	if (Input.ConvolutionMask.GetColCount() != Input.ConvolutionCoef.GetElementCount())
 	{
 		MDK_Error("ConvolutionMask NOT match ConvolutionCoef @ DiscreteConvolutionDenseImageFilter2D::CheckInput()")
 		return false;
 	}
 	
-	if (Self.MaxThreadCount <= 0)
+	if (Input.MaxThreadCount <= 0)
 	{
 		MDK_Error("MaxThreadCount <= 0) @ DiscreteConvolutionDenseImageFilter2D::CheckInput()")
 		return false;
@@ -89,46 +87,44 @@ void DiscreteConvolutionDenseImageFilter2D<InputPixelType, OutputPixelType, Scal
 		return;
 	}
 
-	auto& Self = *this;
-	auto Size_input = Self.InputImage->GetSize();
-	auto Size_output = Self.OutputImage.GetSize();
+	auto Size_input = Input.Image->GetSize();
+	auto Size_output = Output.Image.GetSize();
 	if (Size_output[0] != Size_input[0] || Size_output[1] != Size_input[1])
 	{
-		Self.OutputImage.Clear();
-		Self.OutputImage.SetInfo(Self.InputImage->GetInfo());
+		Output.Image.Clear();
+		Output.Image.SetInfo(Input.Image->GetInfo());
 	}
 	else
 	{
-		Self.OutputImage.SetInfo(Self.InputImage->GetInfo(), false);
+		Output.Image.SetInfo(Input.Image->GetInfo(), false);
 	}
 
 	// [x_min, x_max, y_min, y_max]
-	auto MaskRowX = Self.ConvolutionMask.GetRow(0);
-	auto MaskRowY = Self.ConvolutionMask.GetRow(1);
-	Self.MaskBox[0] = MaskRowX.Min();
-	Self.MaskBox[1] = MaskRowX.Max();
-	Self.MaskBox[2] = MaskRowY.Min();
-	Self.MaskBox[3] = MaskRowY.Max();
+	auto MaskRowX = Input.ConvolutionMask.GetRow(0);
+	auto MaskRowY = Input.ConvolutionMask.GetRow(1);
+	Internal.MaskBox[0] = MaskRowX.Min();
+	Internal.MaskBox[1] = MaskRowX.Max();
+	Internal.MaskBox[2] = MaskRowY.Min();
+	Internal.MaskBox[3] = MaskRowY.Max();
 
-	auto PixelCount = Self.OutputImage.GetPixelCount();
+	auto PixelCount = Output.Image.GetPixelCount();
 	//for (int_max k = 0; k <= PixelCount-1; ++k)
 	auto TempFunction = [&](int_max k)
 	{
-		Self.OutputImage[k] = this->EvaluateAtPixel(k);
+		Output.Image[k] = this->EvaluateAtPixel(k);
 	};
-	ParallelForLoop(TempFunction, 0, PixelCount - 1, Self.MaxThreadCount);
+	ParallelForLoop(TempFunction, 0, PixelCount - 1, Input.MaxThreadCount);
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 OutputPixelType DiscreteConvolutionDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::EvaluateAtPixel(int_max LinearIndex)
 {
-	auto& Self = *this;
-	auto CenterIndex2D = Self.OutputImage.TransformLinearIndexTo2DIndex(LinearIndex);
+	auto CenterIndex2D = Output.Image.TransformLinearIndexTo2DIndex(LinearIndex);
 	bool Flag_MaskOutsideImage = false;
-	auto ImageSize = Self.OutputImage.GetSize();
-	if (CenterIndex2D[0] + Self.MaskBox[0] < 0 || CenterIndex2D[0] + Self.MaskBox[1] >= ImageSize[0]
-		|| CenterIndex2D[1] + Self.MaskBox[2] < 0 || CenterIndex2D[1] + Self.MaskBox[3] >= ImageSize[1])
+	auto ImageSize = Output.Image.GetSize();
+	if (CenterIndex2D[0] + Internal.MaskBox[0] < 0 || CenterIndex2D[0] + Internal.MaskBox[1] >= ImageSize[0]
+		|| CenterIndex2D[1] + Internal.MaskBox[2] < 0 || CenterIndex2D[1] + Internal.MaskBox[3] >= ImageSize[1])
 	{
 		Flag_MaskOutsideImage = true;
 	}
@@ -136,44 +132,44 @@ OutputPixelType DiscreteConvolutionDenseImageFilter2D<InputPixelType, OutputPixe
 	if (Flag_MaskOutsideImage == false)
 	{
 		auto OutputPixel = OutputPixelType(0);
-		auto PtrMask_begin = Self.ConvolutionMask.GetPointer();
-		auto PtrCoef = Self.ConvolutionCoef.GetPointer();
-		auto PointCountInMask = Self.ConvolutionCoef.GetElementCount();
+		auto PtrMask_begin = Input.ConvolutionMask.GetPointer();
+		auto PtrCoef = Input.ConvolutionCoef.GetPointer();
+		auto PointCountInMask = Input.ConvolutionCoef.GetElementCount();
 		for (auto PtrMask = PtrMask_begin; PtrMask < PtrMask_begin + 2*PointCountInMask; PtrMask += 2, ++PtrCoef)
 		{
 			auto x = PtrMask[0] + CenterIndex2D[0];
 			auto y = PtrMask[1] + CenterIndex2D[1];
-			OutputPixel += OutputPixelType((*Self.InputImage)(x, y) * PtrCoef[0]);
+			OutputPixel += OutputPixelType((*Input.Image)(x, y) * PtrCoef[0]);
 		}
 		return OutputPixel;
 	}
 	else
 	{
 		auto OutputPixel = OutputPixelType(0);
-		auto PtrMask_begin = Self.ConvolutionMask.GetPointer();
-		auto PtrCoef = Self.ConvolutionCoef.GetPointer();
-		auto PointCountInMask = Self.ConvolutionCoef.GetElementCount();
+		auto PtrMask_begin = Input.ConvolutionMask.GetPointer();
+		auto PtrCoef = Input.ConvolutionCoef.GetPointer();
+		auto PointCountInMask = Input.ConvolutionCoef.GetElementCount();
 		for (auto PtrMask = PtrMask_begin; PtrMask < PtrMask_begin + 2*PointCountInMask; PtrMask += 2, ++PtrCoef)
 		{
 			auto x = PtrMask[0] + CenterIndex2D[0];
 			auto y = PtrMask[1] + CenterIndex2D[1];
 			
-			if (Self.BoundaryOption == BoundaryOptionEnum::Constant)
+			if (Input.BoundaryOption == BoundaryOptionEnum::Constant)
 			{
 				if (x < 0 || x >= ImageSize[0])
 				{
-					OutputPixel += Self.BoundaryValue*PtrCoef[0];
+					OutputPixel += Input.BoundaryValue*PtrCoef[0];
 				}
 				else  if (y < 0 || y >= ImageSize[1])
 				{
-					OutputPixel += Self.BoundaryValue*PtrCoef[0];
+					OutputPixel += Input.BoundaryValue*PtrCoef[0];
 				}
 				else
 				{
-					OutputPixel += OutputPixelType((*Self.InputImage)(x, y) * PtrCoef[0]);
+					OutputPixel += OutputPixelType((*Input.Image)(x, y) * PtrCoef[0]);
 				}
 			}
-			else if (Self.BoundaryOption == BoundaryOptionEnum::Replicate)
+			else if (Input.BoundaryOption == BoundaryOptionEnum::Replicate)
 			{
 				if (x < 0)
 				{
@@ -193,7 +189,7 @@ OutputPixelType DiscreteConvolutionDenseImageFilter2D<InputPixelType, OutputPixe
 					y = ImageSize[1] - 1;
 				}
 
-				OutputPixel += OutputPixelType((*Self.InputImage)(x, y) * PtrCoef[0]);
+				OutputPixel += OutputPixelType((*Input.Image)(x, y) * PtrCoef[0]);
 			}			
 		}
 		return OutputPixel;	
@@ -256,12 +252,11 @@ CreateGaussianMask(const DenseVector<ScalarType, 2>& Spacing, ScalarType Sigma_x
 	// at each point of the grid, compute the mahalanobis distance to the center (0,0), i.e., sqrt(SquaredRatio)
 	// add the point to mask if mahalanobis distance <= CutOffRatio
 
-	auto& Self = *this;
-	Self.ConvolutionMask.FastResize(0);
-	Self.ConvolutionMask.SetCapacity(3*Radius*Radius);
+	Input.ConvolutionMask.FastResize(0);
+	Input.ConvolutionMask.SetCapacity(3*Radius*Radius);
 
-	Self.ConvolutionCoef.FastResize(0);
-	Self.ConvolutionCoef.SetCapacity(Radius*Radius);
+	Input.ConvolutionCoef.FastResize(0);
+	Input.ConvolutionCoef.SetCapacity(Radius*Radius);
 
 	DenseMatrix<ScalarType> Relative2DIndex(2, 1);
 	DenseMatrix<ScalarType> Relative2DIndex_Transpose(1, 2);
@@ -278,15 +273,15 @@ CreateGaussianMask(const DenseVector<ScalarType, 2>& Spacing, ScalarType Sigma_x
 			if (tempRatio <= CutOffRatio*CutOffRatio)
 			{
 				auto tempValue = std::exp(-ScalarType(0.5)*tempRatio);
-				Self.ConvolutionMask.AppendCol({ ScalarType(x), ScalarType(y)});
-				Self.ConvolutionCoef.Append(tempValue);
+				Input.ConvolutionMask.AppendCol({ ScalarType(x), ScalarType(y)});
+				Input.ConvolutionCoef.Append(tempValue);
 			}
 		}
 	}
-	Self.ConvolutionMask.ReleaseUnusedCapacity();
-	Self.ConvolutionCoef.ReleaseUnusedCapacity();
+	Input.ConvolutionMask.ReleaseUnusedCapacity();
+	Input.ConvolutionCoef.ReleaseUnusedCapacity();
 
-	Self.ConvolutionCoef /= Self.ConvolutionCoef.Sum();
+	Input.ConvolutionCoef /= Input.ConvolutionCoef.Sum();
 }
 
 
@@ -302,12 +297,11 @@ CreateLaplacianOfGaussianMask(const DenseVector<ScalarType, 2>& Spacing, ScalarT
 
 	auto Radius = int_max(1.5*CutOffRatio*Sigma/Spacing.Min()) + 1;
 
-	auto& Self = *this;
-	Self.ConvolutionMask.FastResize(0);
-	Self.ConvolutionMask.SetCapacity(3*Radius*Radius*Radius);
+	Input.ConvolutionMask.FastResize(0);
+	Input.ConvolutionMask.SetCapacity(3*Radius*Radius*Radius);
 
-	Self.ConvolutionCoef.FastResize(0);
-	Self.ConvolutionCoef.SetCapacity(Radius*Radius*Radius);
+	Input.ConvolutionCoef.FastResize(0);
+	Input.ConvolutionCoef.SetCapacity(Radius*Radius*Radius);
 
 	auto CutOffRatio_square = CutOffRatio*CutOffRatio;
 
@@ -319,40 +313,40 @@ CreateLaplacianOfGaussianMask(const DenseVector<ScalarType, 2>& Spacing, ScalarT
 			if (temp <= CutOffRatio_square)
 			{
 				ScalarType tempValue = (1.0 - temp)*std::exp(-0.5*temp);
-				Self.ConvolutionMask.AppendCol({x, y});
-				Self.ConvolutionCoef.Append(tempValue);
+				Input.ConvolutionMask.AppendCol({x, y});
+				Input.ConvolutionCoef.Append(tempValue);
 			}
 		}
 	}
 
-	Self.ConvolutionMask.ReleaseUnusedCapacity();
-	Self.ConvolutionCoef.ReleaseUnusedCapacity();
+	Input.ConvolutionMask.ReleaseUnusedCapacity();
+	Input.ConvolutionCoef.ReleaseUnusedCapacity();
 
 	//normalize coefficient
-	auto IndexList_p = Self.ConvolutionCoef.Find([](ScalarType Coef) { return Coef > ScalarType(0); });
-	auto IndexList_n = Self.ConvolutionCoef.Find([](ScalarType Coef) { return Coef < ScalarType(0); });
+	auto IndexList_p = Input.ConvolutionCoef.Find([](ScalarType Coef) { return Coef > ScalarType(0); });
+	auto IndexList_n = Input.ConvolutionCoef.Find([](ScalarType Coef) { return Coef < ScalarType(0); });
 
 	ScalarType Sum_p = 0;
 	for (int_max k = 0; k < IndexList_p.GetElementCount(); ++k)
 	{
-		Sum_p += Self.ConvolutionCoef[IndexList_p[k]];
+		Sum_p += Input.ConvolutionCoef[IndexList_p[k]];
 	}
 
 	for (int_max k = 0; k < IndexList_p.GetElementCount(); ++k)
 	{
-		Self.ConvolutionCoef[IndexList_p[k]] /= Sum_p;
+		Input.ConvolutionCoef[IndexList_p[k]] /= Sum_p;
 	}
 
 	ScalarType Sum_n = 0;
 	for (int_max k = 0; k < IndexList_n.GetElementCount(); ++k)
 	{
-		Sum_n += Self.ConvolutionCoef[IndexList_n[k]];
+		Sum_n += Input.ConvolutionCoef[IndexList_n[k]];
 	}
 	Sum_n = -Sum_n;
 
 	for (int_max k = 0; k < IndexList_n.GetElementCount(); ++k)
 	{
-		Self.ConvolutionCoef[IndexList_n[k]] /= Sum_n;
+		Input.ConvolutionCoef[IndexList_n[k]] /= Sum_n;
 	}
 }
 
@@ -373,24 +367,23 @@ CreateTriangleMask(const DenseVector<ScalarType, 2>& Spacing, ScalarType Radius_
 	auto Ry = int_max(Radius_y / Spacing[1] + 0.5) + 1;	
 	//---------------------------------------------------------------------------------------------------
 	
-	auto& Self = *this;
-	Self.ConvolutionMask.Clear();
-	Self.ConvolutionMask.SetCapacity(3*4*(Rx-1)*(Ry-1));
+	Input.ConvolutionMask.Clear();
+	Input.ConvolutionMask.SetCapacity(3*4*(Rx-1)*(Ry-1));
 
-	Self.ConvolutionCoef.Clear();
-	Self.ConvolutionCoef.SetCapacity(4*(Rx-1)*(Ry-1));
+	Input.ConvolutionCoef.Clear();
+	Input.ConvolutionCoef.SetCapacity(4*(Rx-1)*(Ry-1));
 
 	for (int_max y = -Ry + 1; y <= Ry - 1; ++y)
 	{
 		for (int_max x = -Rx + 1; x <= Rx - 1; ++x)
 		{
 			ScalarType tempValue = 1 - (ScalarType(std::abs(x))/ScalarType(Rx))*(ScalarType(std::abs(y))/ScalarType(Ry));
-			Self.ConvolutionMask.AppendCol({x, y});
-			Self.ConvolutionCoef.Append(tempValue);
+			Input.ConvolutionMask.AppendCol({x, y});
+			Input.ConvolutionCoef.Append(tempValue);
 		}
 	}
 
-	Self.ConvolutionCoef /= Self.ConvolutionCoef.Sum();
+	Input.ConvolutionCoef /= Input.ConvolutionCoef.Sum();
 }
 
 }// namespace mdk

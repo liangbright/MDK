@@ -37,25 +37,25 @@ void test_a()
 	//auto InputImage = Load3DScalarImageFromJsonDataFile<double>(FilePath_InputImage);
 	auto InputImageInfo = InputImage.GetInfo();
 
-	std::cout << "start" << '\n';
+	std::cout << "test_a start" << '\n';
 	
 	auto t0 = std::chrono::system_clock::now();
 
 	DenseImageResampler3D<double> Resampler;
-	Resampler.InputImage = &InputImage;
+	Resampler.Input.Image = &InputImage;
 	
 	//Resampler.SetOutputImageInfo(OutputImageInfo);
 	//OutputImageInfo.Spacing *= 2.0;
 	//OutputImageInfo.Size = {256, 256, 43};
 	Resampler.SetOutputImageInfoBySize(256, 256, 43);
 
-	Resampler.ImageInterpolationOption.MethodType = DenseImageResampler3D<double>::ImageInterpolationMethodEnum::Linear;
-	Resampler.ImageInterpolationOption.BoundaryOption = DenseImageResampler3D<double>::ImageInterpolationBoundaryOptionEnum::Constant;
-	Resampler.ImageInterpolationOption.Pixel_OutsideImage = 0;
+	Resampler.Input.ImageInterpolationOption.MethodType = DenseImageResampler3D<double>::ImageInterpolationMethodEnum::Linear;
+	Resampler.Input.ImageInterpolationOption.BoundaryOption = DenseImageResampler3D<double>::ImageInterpolationBoundaryOptionEnum::Constant;
+	Resampler.Input.ImageInterpolationOption.Pixel_OutsideImage = 0;
 	//Resampler.EnableTriangleSmoothingWhenDownsampling();
-	Resampler.MaxThreadCount = 8;
+	Resampler.Input.MaxThreadCount = 8;
 	Resampler.Update();
-	auto& ResampledImage = Resampler.OutputImage;
+	auto& ResampledImage = Resampler.Output.Image;
 
 	auto t1 = std::chrono::system_clock::now();
 	std::chrono::duration<double> raw_time = t1 - t0;
@@ -78,7 +78,7 @@ void test_a()
 		auto Pos3D = TestImage.TransformLinearIndexTo3DPosition<double>(k);		
 		//auto PosW = InputImage.Transform3DPositionTo3DWorldPosition<double>(Pos3D);
 		//auto Index = InputImage.Transform3DWorldPositionTo3DIndex(PosW);
-		TestImage[k] = InputImage.GetPixelAt3DPosition(Pos3D, Resampler.ImageInterpolationOption);
+		TestImage[k] = InputImage.GetPixelAt3DPosition(Pos3D, Resampler.Input.ImageInterpolationOption);
 		//TestImage[k] = InputImage.GetPixelNearestTo3DPosition(Pos3D);
         //TestImage[k] = 1;
 	};
@@ -105,7 +105,7 @@ void test_a()
 			for (int_max x = 0; x < Size[0]; ++x)
 			{
 				auto Pos3D = TestImage.Transform3DIndexTo3DPosition<double>(x, y, z);
-				TestImage(x,y,z) = InputImage.GetPixelAt3DPosition(Pos3D, Resampler.ImageInterpolationOption);
+				TestImage(x,y,z) = InputImage.GetPixelAt3DPosition(Pos3D, Resampler.Input.ImageInterpolationOption);
 			}
 		}
 	};
@@ -132,7 +132,7 @@ void test_b()
 	auto input = ConvertMDK3DScalarImageToITK3DScalarImage(InputImage);
 	auto inputSize = input->GetLargestPossibleRegion().GetSize();
 
-	std::cout << "start" << '\n';
+	std::cout << "test_b start" << '\n';
 
 	auto t0 = std::chrono::system_clock::now();
 
@@ -195,7 +195,7 @@ void test_c()
 
 	auto inputImage = ConvertMDK3DScalarImageToITK3DScalarImage(InputImage);
 
-	std::cout << "start" << '/n';
+	std::cout << "test_c start" << '/n';
 
 	typedef itk::Image<double, 3> ImageType;
 	typedef itk::ImageRegionIterator< ImageType > IteratorType;

@@ -16,20 +16,18 @@ MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::~MeanValueBasedTriangleMesh3
 template<typename ScalarType>
 void MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::Clear()
 {
-	auto& Self = *this;
-	Self.InputMesh.Clear();
-	Self.BoundaryPointHandleList.Clear();
-	Self.UVTableOfBoundary.Clear();
-	Self.InnerPointHandleList.Clear();
-	Self.OutputMesh.Clear();
+	Input.SourceMesh.Recreate();
+	Input.BoundaryPointIndexList.Clear();
+	Input.UVTableOfBoundary.Clear();
+	Internal.InnerPointIndexList.Clear();
+	Output.ParameterizedSourceMesh.Clear();
 }
 
 
 template<typename ScalarType>
 bool MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::CheckInput()
 {
-	auto& Self = *this;
-	if (Self.InputMesh.Check_If_DataStructure_is_Clean() == false)
+	if (Input.SourceMesh.Check_If_DataStructure_is_Clean() == false)
 	{
 		MDK_Error("InputMesh DataStructure is NOT Clean @ MeanValueBasedTriangleMesh3DTo2DMapper::CheckInput()")
 		return false;
@@ -40,40 +38,38 @@ bool MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::CheckInput()
 template<typename ScalarType>
 void MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::Preprocess()
 {
-	auto& Self = *this;
-
-	auto PointCount = Self.InputMesh.GetPointCount();
-	auto PointCount_boundary = Self.BoundaryPointHandleList.GetLength();
+	auto PointCount = Input.SourceMesh.GetPointCount();
+	auto PointCount_boundary = Input.BoundaryPointIndexList.GetLength();
 	auto PointCount_inner = PointCount - PointCount_boundary;
 
-	Self.InnerPointHandleList.Clear();
-	Self.InnerPointHandleList.SetCapacity(PointCount_inner);
-	for (auto it = Self.InputMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	Internal.InnerPointIndexList.Clear();
+	Internal.InnerPointIndexList.SetCapacity(PointCount_inner);
+	for (auto it = Input.SourceMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
 	{
-		auto tempIndex = Self.BoundaryPointHandleList.ExactMatch("first", it.GetPointHandle());
+		auto tempIndex = Input.BoundaryPointIndexList.ExactMatch("first", it.GetPointIndex());
 		if (tempIndex < 0)
 		{
-			Self.InnerPointHandleList.Append(it.GetPointHandle());
+			Internal.InnerPointIndexList.Append(it.GetPointIndex());
 		}
 	}
 
-	Self.Map_PointIndex_to_InnerIndex.Clear();
-	Self.Map_PointIndex_to_InnerIndex.Resize(PointCount);
-	Self.Map_PointIndex_to_InnerIndex.Fill(-1);
-	for (int_max k = 0; k < Self.InnerPointHandleList.GetLength(); ++k)
+	Internal.Map_PointIndex_to_InnerIndex.Clear();
+	Internal.Map_PointIndex_to_InnerIndex.Resize(PointCount);
+	Internal.Map_PointIndex_to_InnerIndex.Fill(-1);
+	for (int_max k = 0; k < Internal.InnerPointIndexList.GetLength(); ++k)
 	{
-		Self.Map_PointIndex_to_InnerIndex[Self.InnerPointHandleList[k].GetIndex()] = k;
+		Internal.Map_PointIndex_to_InnerIndex[Internal.InnerPointIndexList[k]] = k;
 	}
 
-	Self.Map_PointIndex_to_BoundaryIndex.Clear();
-	Self.Map_PointIndex_to_BoundaryIndex.Resize(PointCount);
-	Self.Map_PointIndex_to_BoundaryIndex.Fill(-1);
-	for (int_max k = 0; k < Self.BoundaryPointHandleList.GetLength(); ++k)
+	Internal.Map_PointIndex_to_BoundaryIndex.Clear();
+	Internal.Map_PointIndex_to_BoundaryIndex.Resize(PointCount);
+	Internal.Map_PointIndex_to_BoundaryIndex.Fill(-1);
+	for (int_max k = 0; k < Input.BoundaryPointIndexList.GetLength(); ++k)
 	{
-		Self.Map_PointIndex_to_BoundaryIndex[Self.BoundaryPointHandleList[k].GetIndex()] = k;
+		Internal.Map_PointIndex_to_BoundaryIndex[Input.BoundaryPointIndexList[k]] = k;
 	}
 
-	Self.InputMesh.UpdateAreaOfFace(ALL);
+	Input.SourceMesh.UpdateAreaOfFace(ALL);
 }
 
 template<typename ScalarType>
@@ -91,26 +87,24 @@ void MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::Update()
 template<typename ScalarType>
 void MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::ApplyMeanValueBasedParameterization()
 {
-	auto& Self = *this;
-
-	auto PointCount_boundary = Self.BoundaryPointHandleList.GetLength();
-	auto PointCount_inner = Self.InnerPointHandleList.GetLength();
-	auto WeightMatrix = this->ComputeWeightMatrix_MeanValue(Self.InputMesh);
+	auto PointCount_boundary = Input.BoundaryPointIndexList.GetLength();
+	auto PointCount_inner = Internal.InnerPointIndexList.GetLength();
+	auto WeightMatrix = this->ComputeWeightMatrix_MeanValue(Input.SourceMesh);
 	auto UVTable = this->ComputeUV_Given_WeightMatrix(WeightMatrix);
    //-------------------------------------------------------------------//
-	Self.OutputMesh.Clear();
-	Self.OutputMesh = Self.InputMesh;
+	Output.ParameterizedSourceMesh.Clear();
+	Output.ParameterizedSourceMesh = Input.SourceMesh;
 	for (int_max k = 0; k < PointCount_inner; ++k)
 	{
 		auto u = UVTable(0, k);
 		auto v = UVTable(1, k);
-		Self.OutputMesh.SetPointPosition(Self.InnerPointHandleList[k], u, v, 0);
+		Output.ParameterizedSourceMesh.SetPointPosition(Internal.InnerPointIndexList[k], u, v, 0);
 	}
 	for (int_max k = 0; k < PointCount_boundary; ++k)
 	{
-		auto u = Self.UVTableOfBoundary(0, k);
-		auto v = Self.UVTableOfBoundary(1, k);
-		Self.OutputMesh.SetPointPosition(Self.BoundaryPointHandleList[k], u, v, 0);
+		auto u = Input.UVTableOfBoundary(0, k);
+		auto v = Input.UVTableOfBoundary(1, k);
+		Output.ParameterizedSourceMesh.SetPointPosition(Input.BoundaryPointIndexList[k], u, v, 0);
 	}
 }
 
@@ -118,30 +112,28 @@ void MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::ApplyMeanValueBasedPara
 template<typename ScalarType>
 ObjectArray<SparseVector<ScalarType>> MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::ComputeWeightMatrix_MeanValue(const TriangleMesh<MeshAttributeType>& TargetMesh)
 {
-	auto& Self = *this;
-
-	auto PointCount_boundary = Self.BoundaryPointHandleList.GetLength();
-	auto PointCount_inner = Self.InnerPointHandleList.GetLength();
+	auto PointCount_boundary = Input.BoundaryPointIndexList.GetLength();
+	auto PointCount_inner = Internal.InnerPointIndexList.GetLength();
 	auto PointCount = PointCount_boundary + PointCount_inner;
 
 	ObjectArray<SparseVector<ScalarType>> WeightMatrix;
 	WeightMatrix.Resize(PointCount_inner);
 	for (int_max k = 0; k < PointCount_inner; ++k)
 	{
-		auto PointHandle = Self.InnerPointHandleList[k];
-		auto AdjPointHandleList = TargetMesh.Point(PointHandle).GetAdjacentPointHandleList();
+		auto PointIndex = Internal.InnerPointIndexList[k];
+		auto AdjPointIndexList = TargetMesh.Point(PointIndex).GetAdjacentPointIndexList();
 		WeightMatrix[k].Resize(PointCount);
-		for (int_max n = 0; n < AdjPointHandleList.GetLength(); ++n)
+		for (int_max n = 0; n < AdjPointIndexList.GetLength(); ++n)
 		{
-			auto Weight = this->ComputeWeight_MeanValue(TargetMesh, PointHandle, AdjPointHandleList[n]);
-			WeightMatrix[k].SetElement(AdjPointHandleList[n].GetIndex(), Weight);
+			auto Weight = this->ComputeWeight_MeanValue(TargetMesh, PointIndex, AdjPointIndexList[n]);
+			WeightMatrix[k].SetElement(AdjPointIndexList[n], Weight);
 		}
 	}
 	return WeightMatrix;
 }
 
 template<typename ScalarType>
-ScalarType MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::ComputeWeight_MeanValue(const TriangleMesh<MeshAttributeType>& TargetMesh, PointHandleType PointH0, PointHandleType PointH1)
+ScalarType MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::ComputeWeight_MeanValue(const TriangleMesh<MeshAttributeType>& TargetMesh, int_max PointH0, int_max PointH1)
 {
 	// Weight_0_1 != Weight_1_0
 	//
@@ -152,9 +144,9 @@ ScalarType MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::ComputeWeight_Mea
 	//  2  1  3
 	//-----------------
 
-	auto AdjPointHandleList0 = TargetMesh.Point(PointH0).GetAdjacentPointHandleList();
-	auto AdjPointHandleList1 = TargetMesh.Point(PointH1).GetAdjacentPointHandleList();
-	auto Set23 = Intersect(AdjPointHandleList0, AdjPointHandleList1);
+	auto AdjPointIndexList0 = TargetMesh.Point(PointH0).GetAdjacentPointIndexList();
+	auto AdjPointIndexList1 = TargetMesh.Point(PointH1).GetAdjacentPointIndexList();
+	auto Set23 = Intersect(AdjPointIndexList0, AdjPointIndexList1);
 	auto PointH2 = Set23[0];
 	auto PointH3 = Set23[1];
 
@@ -265,19 +257,6 @@ DenseMatrix<ScalarType> MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::Comp
 		UVTable(1, k) = V(k);		
 	}
 	return UVTable;
-}
-
-template<typename ScalarType>
-DenseVector<typename MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::PointHandleType> 
-MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::ConvertIndexToHandle(const DenseVector<int_max>& IndexList)
-{
-	DenseVector<PointHandleType> HandleList;
-	HandleList.Resize(IndexList.GetLength());
-	for (int_max k = 0; k < IndexList.GetLength(); ++k)
-	{
-		HandleList[k].SetIndex(IndexList[k]);
-	}
-	return HandleList;
 }
 
 }//namespace

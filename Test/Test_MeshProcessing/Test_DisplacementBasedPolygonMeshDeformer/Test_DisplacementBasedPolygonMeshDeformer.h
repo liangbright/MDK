@@ -45,13 +45,13 @@ void Test_a()
 	}
 
 	DisplacementBasedPolygonMeshDeformer<TriangleMeshStandardAttributeType<double>> Deformer;
-	Deformer.InputMesh().Share(InputMesh);
-	Deformer.InputDisplacementField().Share(InputDisplacementField);
-	Deformer.ConfidenceOfInputDisplacementField().Share(ConfidenceOfInputDisplacementField);
-	Deformer.ConfidenceOfSmoothness().Share(ConfidenceOfSmoothness);
+	Deformer.Input.SourceMesh.Share(InputMesh);
+	Deformer.Input.DisplacementField.Share(InputDisplacementField);
+	Deformer.Input.ConfidenceOfDisplacementField.Share(ConfidenceOfInputDisplacementField);
+	Deformer.Input.ConfidenceOfSmoothness.Share(ConfidenceOfSmoothness);
 	Deformer.Update();
 
-	SavePolygonMeshAsVTKFile(Deformer.OutputMesh(), TestDataPath + "Test_a_OutputMesh.vtk");
+	SavePolygonMeshAsVTKFile(Deformer.Output.DeformedMesh, TestDataPath + "Test_a_OutputMesh.vtk");
 }
 
 
@@ -115,17 +115,17 @@ void Test_b()
 	}
 
 	DisplacementBasedPolygonMeshDeformer<TriangleMeshStandardAttributeType<double>> Deformer;
-	Deformer.InputMesh().Share(TemplateMesh);
-	Deformer.InputDisplacementField().Share(InputDisplacementField);
-	Deformer.ConfidenceOfInputDisplacementField().Share(ConfidenceOfInputDisplacementField);
-	Deformer.ConfidenceOfSmoothness().Share(ConfidenceOfSmoothness);
+	Deformer.Input.SourceMesh.Share(TemplateMesh);
+	Deformer.Input.DisplacementField.Share(InputDisplacementField);
+	Deformer.Input.ConfidenceOfDisplacementField.Share(ConfidenceOfInputDisplacementField);
+	Deformer.Input.ConfidenceOfSmoothness.Share(ConfidenceOfSmoothness);
 	Deformer.Update();
 
 	SavePolygonMeshAsVTKFile(TemplateMesh_TPS, TestDataPath + "Test_b_TemplateMesh_TPS_transform.vtk");
 
 	SavePolygonMeshAsVTKFile(TemplateMesh, TestDataPath + "Test_b_TemplateMesh_A_transform.vtk");
 
-	SavePolygonMeshAsVTKFile(Deformer.OutputMesh(), TestDataPath + "Test_b_OutputMesh.vtk");
+	SavePolygonMeshAsVTKFile(Deformer.Output.DeformedMesh, TestDataPath + "Test_b_OutputMesh.vtk");
 }
 
 void Test_c()
@@ -199,13 +199,13 @@ void Test_c()
 
 	DisplacementBasedPolygonMeshDeformer<TriangleMeshStandardAttributeType<double>> Deformer;
 	typedef DisplacementBasedPolygonMeshDeformer<TriangleMeshStandardAttributeType<double>>::WeightTypeEnum WeightTypeEnum;
-	Deformer.InputMesh().Share(P4Mesh_A);
-	Deformer.InputDisplacementField().Share(InputDisplacementField);
-	Deformer.ConfidenceOfInputDisplacementField().Share(ConfidenceOfInputDisplacementField);
-	Deformer.ConfidenceOfSmoothness().Share(ConfidenceOfSmoothness);
+	Deformer.Input.SourceMesh.Share(P4Mesh_A);
+	Deformer.Input.DisplacementField.Share(InputDisplacementField);
+	Deformer.Input.ConfidenceOfDisplacementField.Share(ConfidenceOfInputDisplacementField);
+	Deformer.Input.ConfidenceOfSmoothness.Share(ConfidenceOfSmoothness);
 	//Deformer.SetWeightType(WeightTypeEnum::One);
 	Deformer.Update();
 
 	SavePolygonMeshAsVTKFile(P4Mesh_TPS, TestDataPath + "Test_c_P4Mesh_TPS_transform_134p.vtk");
-	SavePolygonMeshAsVTKFile(Deformer.OutputMesh(), TestDataPath + "Test_c_OutputMesh_134p.vtk");
+	SavePolygonMeshAsVTKFile(Deformer.Output.DeformedMesh, TestDataPath + "Test_c_OutputMesh_134p.vtk");
 }

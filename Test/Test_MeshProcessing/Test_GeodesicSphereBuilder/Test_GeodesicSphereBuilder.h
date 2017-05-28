@@ -6,9 +6,9 @@ void Test_a()
     using namespace mdk;
 
 	GeodesicSphereBuilder<double> Builder;
-	Builder.SetMaxDepth(6);
+	Builder.Input.MaxDepth = 6;
 	Builder.Update();
-	auto& SphereList = Builder.OutputSphereList();
+	auto& SphereList = Builder.Output.SphereList;
 
 	String File0 = "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_GeodesicSphereBuilder/TestData/Sphere_d0.vtk";
 	String File1 = "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_GeodesicSphereBuilder/TestData/Sphere_d1.vtk";

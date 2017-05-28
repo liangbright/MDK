@@ -17,83 +17,83 @@ KNNAverageBasedShapeDictionaryBuilder<ScalarType>::~KNNAverageBasedShapeDictiona
 template<typename ScalarType>
 void KNNAverageBasedShapeDictionaryBuilder<ScalarType>::Clear()
 {
-    m_Parameter.Clear();
-	m_TrainingShapeData = nullptr;
-	m_LandmarkOnShape.Clear();
-    m_InitialDictionary = nullptr;
-	m_Dictionary.Clear();
+    Input.Parameter.Clear();
+	Input.TrainingShapeData = nullptr;
+	Input.LandmarkOnShape.Clear();
+    Input.InitialDictionary = nullptr;
+	Output.Dictionary.Clear();
 }
 
 
 template<typename ScalarType>
 bool KNNAverageBasedShapeDictionaryBuilder<ScalarType>::CheckInput()
 {
-	if (m_TrainingShapeData == nullptr)
+	if (Input.TrainingShapeData == nullptr)
 	{
-		MDK_Error("m_TrainingShapeData is nullptr @ KNNAverageBasedShapeDictionaryBuilder::CheckInput()")
+		MDK_Error("Input.TrainingShapeData is nullptr @ KNNAverageBasedShapeDictionaryBuilder::CheckInput()")
 		return false;
 	}
 
-	if (m_TrainingShapeData->IsEmpty() == true)
+	if (Input.TrainingShapeData->IsEmpty() == true)
 	{
 		MDK_Error("InputShapeData is empty @ KNNAverageBasedShapeDictionaryBuilder::CheckInput()")
 		return false;
 	}
 
-	int_max Dimension = (*m_TrainingShapeData)[0].GetRowCount();
+	int_max Dimension = (*Input.TrainingShapeData)[0].GetRowCount();
 	if (Dimension != 2 && Dimension != 3)
 	{
 		MDK_Error("Shape Dimension is NOT 2 or 3 @ KNNAverageBasedShapeDictionaryBuilder::CheckInput()")
 		return false;
 	}
 
-	if (m_InitialDictionary == nullptr)
+	if (Input.InitialDictionary == nullptr)
 	{
 		MDK_Error("InitialDictionary is nullptr @ KNNAverageBasedShapeDictionaryBuilder::CheckInput()")
 		return false;
 	}
 
-	if (m_InitialDictionary->GetBasisCount() == 0)
+	if (Input.InitialDictionary->GetBasisCount() == 0)
 	{
 		MDK_Error("InitialDictionary is empty @ KNNAverageBasedShapeDictionaryBuilder::CheckInput()")
 		return false;
 	}
 
-	if (m_Parameter.MaxNeighbourCount <= 0)
+	if (Input.Parameter.MaxNeighborCount <= 0)
 	{
-		MDK_Error("MaxNeighbourCount <= 0 @ KNNAverageBasedShapeDictionaryBuilder::CheckInput()")
+		MDK_Error("MaxNeighborCount <= 0 @ KNNAverageBasedShapeDictionaryBuilder::CheckInput()")
 		return false;
 	}
 
-	if (m_Parameter.MiniBatchSize < 0 || m_Parameter.MiniBatchSize > m_TrainingShapeData->GetLength())
+	if (Input.Parameter.BatchSize < 0 || Input.Parameter.BatchSize > Input.TrainingShapeData->GetLength())
 	{
-		MDK_Error("MiniBatchSize is out of range @ KNNAverageBasedShapeDictionaryBuilder::CheckInput()")
+		MDK_Error("BatchSize is out of range @ KNNAverageBasedShapeDictionaryBuilder::CheckInput()")
 		return false;
 	}
 
-	if (m_Parameter.SimilarityThreshold < 0 || m_Parameter.SimilarityThreshold > 1)
+	if (Input.Parameter.SimilarityThreshold < 0 || Input.Parameter.SimilarityThreshold > 1)
 	{
 		MDK_Error("SimilarityThreshold < 0 or > 1 @ KNNAverageBasedShapeDictionaryBuilder::CheckInput()")
 		return false;
 	}
 
-	if (m_Parameter.TransformName != "IdentityTransform" && m_Parameter.TransformName != "RigidTransform" 
-		&& m_Parameter.TransformName != "SimilarityTransform" && m_Parameter.TransformName != "ThinPlateSplineTransform")
+	if (Input.Parameter.TransformName != "IdentityTransform" && Input.Parameter.TransformName != "RigidTransform" 
+		&& Input.Parameter.TransformName != "SimilarityTransform" && Input.Parameter.TransformName != "ThinPlateSplineTransform")
 	{
 		MDK_Error("TransformName is unknown @ KNNAverageBasedShapeDictionaryBuilder::CheckInput()")
 		return false;
 	}
 
-	if (m_Parameter.TransformName == "ThinPlateSplineTransform")
+	if (Input.Parameter.TransformName == "ThinPlateSplineTransform")
 	{
-		if (m_LandmarkOnShape.GetLength() < 9)
+		if (Input.LandmarkOnShape.GetLength() < 9)
 		{
 			MDK_Error("too few Landmark for ThinPlateSplineTransform @ KNNAverageBasedShapeDictionaryBuilder::CheckInput()")
 			return false;
 		}
 	}
 
-	if (m_Parameter.MaxThreadCount <= 0)
+	if (Input.Parameter.MaxThreadCount <= 0)
 	{
 		MDK_Error("MaxThreadCount <= 0 @ KNNAverageBasedShapeDictionaryBuilder::CheckInput()")
 		return false;
@@ -112,13 +112,13 @@ void KNNAverageBasedShapeDictionaryBuilder<ScalarType>::Update()
 	}
 
 	ShapeDictionary<ScalarType> OutputDictionary;
-	OutputDictionary.Copy(*m_InitialDictionary);
+	OutputDictionary.Copy(*Input.InitialDictionary);
 
     DenseMatrix<ScalarType> BasisExperience_init;
     BasisExperience_init.Copy(OutputDictionary.BasisExperience());
-	BasisExperience_init *= m_Parameter.ExperienceDiscountFactor;
+	BasisExperience_init *= Input.Parameter.ExperienceDiscountFactor;
 
-    int_max TotalDataCount = m_TrainingShapeData->GetLength();
+    int_max TotalDataCount = Input.TrainingShapeData->GetLength();
 
     //------------------------------------------ run Epoch and Mini-batch -------------------------------------------------------//
         
@@ -127,10 +127,10 @@ void KNNAverageBasedShapeDictionaryBuilder<ScalarType>::Update()
     std::mt19937 gen(rd());
 	DenseVector<int_max> RandomDataIndexList = span(0, TotalDataCount - 1);
 
-    for (int_max iter = 0; iter < m_Parameter.MaxEpochCount; ++iter)
+    for (int_max iter = 0; iter < Input.Parameter.MaxEpochCount; ++iter)
     {
 		this->AdjustBasisExperience_BeforeEachEpoch(OutputDictionary.BasisExperience());
-		int_max BatchCount = TotalDataCount / m_Parameter.MiniBatchSize;
+		int_max BatchCount = TotalDataCount / Input.Parameter.BatchSize;
 		if (BatchCount > 1)
 		{
 			std::shuffle(RandomDataIndexList.begin(), RandomDataIndexList.end(), gen);
@@ -138,27 +138,27 @@ void KNNAverageBasedShapeDictionaryBuilder<ScalarType>::Update()
 		for (int_max n = 0; n < BatchCount; ++n)
 		{
 			ObjectArray<DenseMatrix<ScalarType>> ShapeData_CurrentBatch;
-			{// sample a subset from m_TrainingShapeData
-				int_max Idx_start = n*m_Parameter.MiniBatchSize;
-				int_max Idx_end = std::min(Idx_start + m_Parameter.MiniBatchSize - 1, TotalDataCount - 1);
+			{// sample a subset from Input.TrainingShapeData
+				int_max Idx_start = n*Input.Parameter.BatchSize;
+				int_max Idx_end = std::min(Idx_start + Input.Parameter.BatchSize - 1, TotalDataCount - 1);
 				auto SubSet = RandomDataIndexList.GetSubSet(Idx_start, Idx_end);
 				ShapeData_CurrentBatch.Resize(SubSet.GetLength());
 				for (int_max k = 0; k < SubSet.GetLength(); ++k)
 				{
-					ShapeData_CurrentBatch[k].ForceShare((*m_TrainingShapeData)[SubSet[k]]);
+					ShapeData_CurrentBatch[k].ForceShare((*Input.TrainingShapeData)[SubSet[k]]);
 				}
 			}
 			//encode data ------------------------------------------------
 			KNNSoftAssignBasedSparseShapeEncoder<ScalarType> Encoder;
-			Encoder.Parameter().MaxNeighbourCount = m_Parameter.MaxNeighbourCount;
-			Encoder.Parameter().TransformName = m_Parameter.TransformName;
-			Encoder.Parameter().SimilarityThreshold = m_Parameter.SimilarityThreshold;
-			Encoder.Parameter().MaxThreadCount = m_Parameter.MaxThreadCount;
-			Encoder.SetInputShapeData(m_TrainingShapeData);
-			Encoder.SetLandmarkOnShape(m_LandmarkOnShape);
-			Encoder.SetInputDictionary(&OutputDictionary.Basis());
+			Encoder.Input.Parameter.MaxNeighborCount = Input.Parameter.MaxNeighborCount;
+			Encoder.Input.Parameter.TransformName = Input.Parameter.TransformName;
+			Encoder.Input.Parameter.SimilarityThreshold = Input.Parameter.SimilarityThreshold;
+			Encoder.Input.Parameter.MaxThreadCount = Input.Parameter.MaxThreadCount;
+			Encoder.Input.ShapeData = Input.TrainingShapeData;
+			Encoder.Input.LandmarkOnShape = Input.LandmarkOnShape;
+			Encoder.Input.Dictionary = &OutputDictionary.Basis();
 			Encoder.Update();
-			const auto& CodeTable = Encoder.OutputMembershipCode();
+			const auto& CodeTable = Encoder.Output.MembershipCode;
 			//update basis -----------------------------------------------
 			this->UpdateBasisAndBasisExperience(OutputDictionary.Basis(), OutputDictionary.BasisExperience(), ShapeData_CurrentBatch, CodeTable);            
         }            
@@ -167,7 +167,7 @@ void KNNAverageBasedShapeDictionaryBuilder<ScalarType>::Update()
 
     this->UpdateDictionaryInformation_AfterALLEpoch(OutputDictionary, TotalDataCount);
 
-    m_Dictionary.Copy(std::move(OutputDictionary));
+    Output.Dictionary.Copy(std::move(OutputDictionary));
 }
 
 
@@ -175,7 +175,7 @@ template<typename ScalarType>
 void KNNAverageBasedShapeDictionaryBuilder<ScalarType>::AdjustBasisExperience_BeforeEachEpoch(DenseMatrix<ScalarType>& BasisExperience)
 {
     // discount the previous Experience
-    BasisExperience *= m_Parameter.ExperienceDiscountFactor;
+    BasisExperience *= Input.Parameter.ExperienceDiscountFactor;
     // Experience must >= 1
     for (int_max k = 0; k < BasisExperience.GetElementCount(); k++)
     {
@@ -242,7 +242,7 @@ UpdateBasisAndBasisExperience(ObjectArray<DenseMatrix<ScalarType>>& Basis,
 			}
 			BasisExperience[k] += ExperienceChange;
 			BasisChange /= BasisExperience[k];
-			if (m_Parameter.TransformName == "SimilarityTransform")
+			if (Input.Parameter.TransformName == "SimilarityTransform")
 			{	// transform basis to the orignal direction and size, prevent shrinking
 				DenseMatrix<ScalarType> Basis_new = Basis[k];
 				Basis_new += BasisChange;
@@ -254,20 +254,20 @@ UpdateBasisAndBasisExperience(ObjectArray<DenseMatrix<ScalarType>>& Basis,
 			}
 		}
 	};
-	ParallelForLoop(TempFunction, 0, BasisCount - 1, m_Parameter.MaxThreadCount);
+	ParallelForLoop(TempFunction, 0, BasisCount - 1, Input.Parameter.MaxThreadCount);
 }
 
 
 template<typename ScalarType>
 DenseMatrix<ScalarType> KNNAverageBasedShapeDictionaryBuilder<ScalarType>::TransformShape(const DenseMatrix<ScalarType>& Shape, const DenseMatrix<ScalarType>& Basis)
 {
-	if (m_Parameter.TransformName == "IdentityTransform")
+	if (Input.Parameter.TransformName == "IdentityTransform")
 	{
 		return Shape;
 	}
-	else if (m_Parameter.TransformName == "RigidTransform")
+	else if (Input.Parameter.TransformName == "RigidTransform")
 	{		
-		if (m_LandmarkOnShape.IsEmpty() == true)
+		if (Input.LandmarkOnShape.IsEmpty() == true)
 		{
 			int_max Dimension = Shape.GetRowCount();
 			if (Dimension == 3)
@@ -293,8 +293,8 @@ DenseMatrix<ScalarType> KNNAverageBasedShapeDictionaryBuilder<ScalarType>::Trans
 			if (Dimension == 3)
 			{
 				RigidTransform3D<ScalarType> Transform;
-				auto Shape_region = Shape.GetSubMatrix(ALL, m_LandmarkOnShape);
-				auto Basis_region = Basis.GetSubMatrix(ALL, m_LandmarkOnShape);
+				auto Shape_region = Shape.GetSubMatrix(ALL, Input.LandmarkOnShape);
+				auto Basis_region = Basis.GetSubMatrix(ALL, Input.LandmarkOnShape);
 				Transform.SetSourceLandmarkPointSet(&Shape_region);
 				Transform.SetTargetLandmarkPointSet(&Basis_region);
 				Transform.EstimateParameter();
@@ -303,8 +303,8 @@ DenseMatrix<ScalarType> KNNAverageBasedShapeDictionaryBuilder<ScalarType>::Trans
 			else//Dimension==2
 			{
 				RigidTransform2D<ScalarType> Transform;
-				auto Shape_region = Shape.GetSubMatrix(ALL, m_LandmarkOnShape);
-				auto Basis_region = Basis.GetSubMatrix(ALL, m_LandmarkOnShape);
+				auto Shape_region = Shape.GetSubMatrix(ALL, Input.LandmarkOnShape);
+				auto Basis_region = Basis.GetSubMatrix(ALL, Input.LandmarkOnShape);
 				Transform.SetSourceLandmarkPointSet(&Shape_region);
 				Transform.SetTargetLandmarkPointSet(&Basis_region);
 				Transform.EstimateParameter();
@@ -312,9 +312,9 @@ DenseMatrix<ScalarType> KNNAverageBasedShapeDictionaryBuilder<ScalarType>::Trans
 			}
 		}
 	}
-	else if (m_Parameter.TransformName == "SimilarityTransform")
+	else if (Input.Parameter.TransformName == "SimilarityTransform")
 	{
-		if (m_LandmarkOnShape.IsEmpty() == true)
+		if (Input.LandmarkOnShape.IsEmpty() == true)
 		{
 			int_max Dimension = Shape.GetRowCount();
 			if (Dimension == 3)
@@ -340,8 +340,8 @@ DenseMatrix<ScalarType> KNNAverageBasedShapeDictionaryBuilder<ScalarType>::Trans
 			if (Dimension == 3)
 			{
 				SimilarityTransform3D<ScalarType> Transform;
-				auto Shape_region = Shape.GetSubMatrix(ALL, m_LandmarkOnShape);
-				auto Basis_region = Basis.GetSubMatrix(ALL, m_LandmarkOnShape);
+				auto Shape_region = Shape.GetSubMatrix(ALL, Input.LandmarkOnShape);
+				auto Basis_region = Basis.GetSubMatrix(ALL, Input.LandmarkOnShape);
 				Transform.SetSourceLandmarkPointSet(&Shape_region);
 				Transform.SetTargetLandmarkPointSet(&Basis_region);
 				Transform.EstimateParameter();
@@ -350,8 +350,8 @@ DenseMatrix<ScalarType> KNNAverageBasedShapeDictionaryBuilder<ScalarType>::Trans
 			else//Dimension==2
 			{
 				SimilarityTransform3D<ScalarType> Transform;
-				auto Shape_region = Shape.GetSubMatrix(ALL, m_LandmarkOnShape);
-				auto Basis_region = Basis.GetSubMatrix(ALL, m_LandmarkOnShape);
+				auto Shape_region = Shape.GetSubMatrix(ALL, Input.LandmarkOnShape);
+				auto Basis_region = Basis.GetSubMatrix(ALL, Input.LandmarkOnShape);
 				Transform.SetSourceLandmarkPointSet(&Shape_region);
 				Transform.SetTargetLandmarkPointSet(&Basis_region);
 				Transform.EstimateParameter();
@@ -359,9 +359,9 @@ DenseMatrix<ScalarType> KNNAverageBasedShapeDictionaryBuilder<ScalarType>::Trans
 			}
 		}
 	}
-	else if (m_Parameter.TransformName == "ThinPlateSplineTransform")
+	else if (Input.Parameter.TransformName == "ThinPlateSplineTransform")
 	{
-		if (m_LandmarkOnShape.IsEmpty() == true)
+		if (Input.LandmarkOnShape.IsEmpty() == true)
 		{
 			MDK_Error("wrong @ KNNAverageBasedShapeDictionaryBuilder<ScalarType>::TransformShape(...)")
 			return Basis;
@@ -372,8 +372,8 @@ DenseMatrix<ScalarType> KNNAverageBasedShapeDictionaryBuilder<ScalarType>::Trans
 			if (Dimension == 3)
 			{
 				ThinPlateSplineTransform3D<ScalarType> Transform;
-				auto Shape_region = Shape.GetSubMatrix(ALL, m_LandmarkOnShape);
-				auto Basis_region = Basis.GetSubMatrix(ALL, m_LandmarkOnShape);
+				auto Shape_region = Shape.GetSubMatrix(ALL, Input.LandmarkOnShape);
+				auto Basis_region = Basis.GetSubMatrix(ALL, Input.LandmarkOnShape);
 				Transform.SetSourceLandmarkPointSet(&Shape_region);
 				Transform.SetTargetLandmarkPointSet(&Basis_region);
 				Transform.EstimateParameter();
@@ -382,8 +382,8 @@ DenseMatrix<ScalarType> KNNAverageBasedShapeDictionaryBuilder<ScalarType>::Trans
 			else//Dimension==2
 			{
 				ThinPlateSplineTransform2D<ScalarType> Transform;
-				auto Shape_region = Shape.GetSubMatrix(ALL, m_LandmarkOnShape);
-				auto Basis_region = Basis.GetSubMatrix(ALL, m_LandmarkOnShape);
+				auto Shape_region = Shape.GetSubMatrix(ALL, Input.LandmarkOnShape);
+				auto Basis_region = Basis.GetSubMatrix(ALL, Input.LandmarkOnShape);
 				Transform.SetSourceLandmarkPointSet(&Shape_region);
 				Transform.SetTargetLandmarkPointSet(&Basis_region);
 				Transform.EstimateParameter();
@@ -409,22 +409,22 @@ UpdateDictionaryInformation_AfterALLEpoch(ShapeDictionary<ScalarType>& Dictionar
 	int_max BasisCount = Dictionary.GetBasisCount();
 
 	//-------------------------- update other -----------------------------
-	if (m_Parameter.Flag_Update_BasisAge == true)
+	if (Input.Parameter.Flag_Update_BasisAge == true)
 	{
 		Dictionary.BasisAge() += TotalDataCount;
 	}
 
-	if (m_Parameter.Flag_Update_BasisSimilarity == true)
+	if (Input.Parameter.Flag_Update_BasisSimilarity == true)
 	{
 		this->UpdateBasisSimilarity(Dictionary.BasisSimilarity(), Dictionary.Basis());
 	}
 
-	if (m_Parameter.Flag_Update_BasisRedundancy == true)
+	if (Input.Parameter.Flag_Update_BasisRedundancy == true)
 	{
 		this->UpdateBasisRedundancy(Dictionary.BasisRedundancy(), Dictionary.BasisSimilarity());
 	}
 
-	Dictionary.SetSimilarityThreshold(m_Parameter.SimilarityThreshold);
+	Dictionary.SetSimilarityThreshold(Input.Parameter.SimilarityThreshold);
 }
 
 
@@ -469,12 +469,12 @@ UpdateBasisSimilarity(DenseMatrix<ScalarType>& BasisSimilarity, const ObjectArra
 		for (int_max n = k + 1; n < BasisCount; ++n) // start from k+1
 		{
 			const auto& Basis_n = Basis[n];
-			auto Similarity = ComputeSimilarityBetweenShapeWithPointCorrespondence(Basis[k], Basis[n], m_LandmarkOnShape, m_Parameter.TransformName, true);
+			auto Similarity = ComputeSimilarityBetweenShapeWithPointCorrespondence(Basis[k], Basis[n], Input.LandmarkOnShape, Input.Parameter.TransformName, true);
 			BasisSimilarity(k, n) = Similarity;
 			BasisSimilarity(n, k) = Similarity;
 		}
 	};
-	ParallelForLoop(TempFunction_ComputeSimilarity, 0, BasisCount - 2, m_Parameter.MaxThreadCount);
+	ParallelForLoop(TempFunction_ComputeSimilarity, 0, BasisCount - 2, Input.Parameter.MaxThreadCount);
 
 	for (int_max n = 0; n < BasisCount; ++n)
 	{
@@ -494,7 +494,7 @@ UpdateBasisRedundancy(DenseMatrix<ScalarType>& BasisRedundancy, const DenseMatri
         BasisRedundancy[0] = 0;
     }
 
-    auto SimilarityThreshold = m_Parameter.SimilarityThreshold;
+    auto SimilarityThreshold = Input.Parameter.SimilarityThreshold;
 
     //for (int_max k = 0; k <= BasisCount-1; ++k)
     auto TempFunction_UpdateRedundancy = [&](int_max k)
@@ -511,7 +511,7 @@ UpdateBasisRedundancy(DenseMatrix<ScalarType>& BasisRedundancy, const DenseMatri
             }
         }
     };
-    ParallelForLoop(TempFunction_UpdateRedundancy, 0, BasisCount - 1, m_Parameter.MaxThreadCount);
+    ParallelForLoop(TempFunction_UpdateRedundancy, 0, BasisCount - 1, Input.Parameter.MaxThreadCount);
 }
 
 

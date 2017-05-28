@@ -9,6 +9,42 @@
 
 namespace mdk
 {
+template<typename InputPixelType, typename OutputPixelType>
+struct Input_of_IntegralImageBasedAverageDenseImageFilter2D
+{
+	typedef Option_Of_Image2DInterpolation<InputPixelType>  ImageInterpolationOptionType;
+
+	const DenseImage2D<InputPixelType>* Image;
+
+	const DenseImage2D<OutputPixelType>* IntegralImage;// this is optional
+
+	ImageInterpolationOptionType ImageInterpolationOption;
+
+	DenseVector<double, 2> Radius; // Physical radius
+
+	int_max MaxThreadCount;
+};
+
+template<typename PixelType>
+struct Output_of_IntegralImageBasedAverageDenseImageFilter2D
+{
+	DenseImage2D<PixelType> Image;
+};
+
+template<typename PixelType>
+struct Internal_of_IntegralImageBasedAverageDenseImageFilter2D
+{
+	DenseVector<double, 2> Radius_Index2D; // Index radius in InputImage and IntegralImage
+
+	DenseImage2D<PixelType> IntegralImage;
+
+	bool Flag_Input_Output_Orientation_IdentityMatrix;
+	bool Flag_Input_Output_SameOrigin_SameOrientation;
+
+	// see description in DenseImageResampler3D
+	DenseMatrix<double>    Position3DTransformFromOuputToInput_Matrix;
+	DenseVector<double, 3> Position3DTransformFromOuputToInput_Offset;
+};
 
 template<typename InputPixel_Type, typename OutputPixel_Type = InputPixel_Type, typename Scalar_Type = double>
 class IntegralImageBasedAverageDenseImageFilter2D : Object
@@ -23,29 +59,10 @@ public:
 	typedef BoundaryOptionEnum_Of_Image2DInterpolation      ImageInterpolationBoundaryOptionEnum;
 
 public:
-	//-------------------------- input --------------------------------------------------//
-	const DenseImage2D<InputPixelType>* InputImage;
-
-	ImageInterpolationOptionType ImageInterpolationOption;
-
-	const DenseImage2D<OutputPixelType>* IntegralImage;
-	
-	DenseVector<double, 2> Radius; // Physical radius
-	
-	int_max MaxThreadCount; // max number of threads
-
-	//------------------------- output ----------------------------------------------------//
-	DenseImage2D<OutputPixelType> OutputImage;
-
+	Input_of_IntegralImageBasedAverageDenseImageFilter2D<InputPixelType, OutputPixelType> Input;
+	Output_of_IntegralImageBasedAverageDenseImageFilter2D<OutputPixelType> Output;
 private:
-	//------------------------------------ internal ----------------------------------------//	
-	DenseVector<double, 2> Radius_Index2D; // Index radius in m_InputImage and m_IntegralImage
-	DenseImage2D<OutputPixelType> IntegralImage_Internal;
-	bool Flag_Input_Output_Orientation_IdentityMatrix;
-	bool Flag_Input_Output_SameOrigin_SameOrientation;
-
-	DenseMatrix<double>    Position3DTransformFromOuputToInput_Matrix;
-	DenseVector<double, 3> Position3DTransformFromOuputToInput_Offset;
+	Internal_of_IntegralImageBasedAverageDenseImageFilter2D<OutputPixelType> Internal;
 
 public:		
     IntegralImageBasedAverageDenseImageFilter2D();

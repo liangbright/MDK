@@ -34,29 +34,29 @@ void test_a()
 	std::cout << "done read mesh" << '\n';
 
 	BasisSelectionBasedShapeDictionaryBuilder<double> DictionaryBuilder;
-	DictionaryBuilder.Parameter().BasisCount = 10;
-	DictionaryBuilder.Parameter().TransformName = "SimilarityTransform";
-	DictionaryBuilder.Parameter().MaxEpochCount = 1;
-	DictionaryBuilder.Parameter().MiniBatchSize = 125;
-	DictionaryBuilder.Parameter().MaxThreadCount = 8;
-	DictionaryBuilder.Parameter().Debug_Flag = true;
-	DictionaryBuilder.Parameter().Debug_FilePath = TestDataPath;
-	DictionaryBuilder.SetTrainingShapeData(&ShapeList);
+	DictionaryBuilder.Input.Parameter.BasisCount = 10;
+	DictionaryBuilder.Input.Parameter.TransformName = "SimilarityTransform";
+	DictionaryBuilder.Input.Parameter.MaxEpochCount = 1;
+	DictionaryBuilder.Input.Parameter.BatchSize = 125;
+	DictionaryBuilder.Input.Parameter.MaxThreadCount = 8;
+	DictionaryBuilder.Input.Parameter.Debug_Flag = true;
+	DictionaryBuilder.Input.Parameter.Debug_FilePath = TestDataPath;
+	DictionaryBuilder.Input.TrainingShapeData = &ShapeList;
 	DictionaryBuilder.Update();
-	auto& Dictionary = DictionaryBuilder.OutputDictionary();
+	auto& Dictionary = DictionaryBuilder.Output.Dictionary;
 	std::cout << "done build dictionary" << '\n';
 
 	SaveDenseMatrixAsJsonDataFile(Dictionary.BasisSimilarity(), TestDataPath + "BasisSimilarity_select.json");
 
 	KNNSoftAssignBasedSparseShapeEncoder<double> Encoder;
-	Encoder.SetInputDictionary(&Dictionary.Basis());
-	Encoder.SetInputShapeData(&ShapeList);
-	Encoder.Parameter().MaxNeighbourCount = 1;
-	Encoder.Parameter().MaxThreadCount = 8;
-	Encoder.Parameter().SimilarityThreshold = 0;
-	Encoder.Parameter().TransformName= "RigidTransform";
+	Encoder.Input.Dictionary = &Dictionary.Basis();
+	Encoder.Input.ShapeData = &ShapeList;
+	Encoder.Input.Parameter.MaxNeighborCount = 1;
+	Encoder.Input.Parameter.MaxThreadCount = 8;
+	Encoder.Input.Parameter.SimilarityThreshold = 0;
+	Encoder.Input.Parameter.TransformName= "RigidTransform";
 	Encoder.Update();
-	auto& Code = Encoder.OutputSimilarityCode();
+	auto& Code = Encoder.Output.SimilarityCode;
 
 	DenseVector<int_max> ShapeIndexList_Basis;
 	ShapeIndexList_Basis.SetCapacity(Dictionary.GetBasisCount());
@@ -93,29 +93,29 @@ void test_b()
 	std::cout << "done read mesh" << '\n';
 
 	KNNBasisSelectionBasedShapeDictionaryBuilder<double> DictionaryBuilder;
-	DictionaryBuilder.Parameter().BasisCount = 10;
-	DictionaryBuilder.Parameter().MaxNeighbourCount = 5;	
-	DictionaryBuilder.Parameter().ExperienceDiscountFactor = 0.5;
-	DictionaryBuilder.Parameter().TransformName = "SimilarityTransform";
-	DictionaryBuilder.Parameter().MaxEpochCount = 1;
-	DictionaryBuilder.Parameter().MiniBatchSize = 125;
-	DictionaryBuilder.Parameter().MaxThreadCount = 8;
-	DictionaryBuilder.Parameter().Debug_Flag = true;
-	DictionaryBuilder.Parameter().Debug_FilePath = TestDataPath;
-	DictionaryBuilder.SetTrainingShapeData(&TrainingShapeList);	
+	DictionaryBuilder.Input.Parameter.BasisCount = 10;
+	DictionaryBuilder.Input.Parameter.MaxNeighborCount = 5;	
+	DictionaryBuilder.Input.Parameter.ExperienceDiscountFactor = 0.5;
+	DictionaryBuilder.Input.Parameter.TransformName = "SimilarityTransform";
+	DictionaryBuilder.Input.Parameter.MaxEpochCount = 1;
+	DictionaryBuilder.Input.Parameter.BatchSize = 125;
+	DictionaryBuilder.Input.Parameter.MaxThreadCount = 8;
+	DictionaryBuilder.Input.Parameter.Debug_Flag = true;
+	DictionaryBuilder.Input.Parameter.Debug_FilePath = TestDataPath;
+	DictionaryBuilder.Input.TrainingShapeData = &TrainingShapeList;
 	DictionaryBuilder.Update();
-	auto& Dictionary = DictionaryBuilder.OutputDictionary();
+	auto& Dictionary = DictionaryBuilder.Output.Dictionary;
 	std::cout << "done build dictionary" << '\n';
 
 	KNNSoftAssignBasedSparseShapeEncoder<double> Encoder;
-	Encoder.SetInputDictionary(&Dictionary.Basis());
-	Encoder.SetInputShapeData(&TrainingShapeList);
-	Encoder.Parameter().MaxNeighbourCount = 1;
-	Encoder.Parameter().MaxThreadCount = 8;
-	Encoder.Parameter().SimilarityThreshold = 0;
-	Encoder.Parameter().TransformName = "RigidTransform";
+	Encoder.Input.Dictionary = &Dictionary.Basis();
+	Encoder.Input.ShapeData = &TrainingShapeList;
+	Encoder.Input.Parameter.MaxNeighborCount = 1;
+	Encoder.Input.Parameter.MaxThreadCount = 8;
+	Encoder.Input.Parameter.SimilarityThreshold = 0;
+	Encoder.Input.Parameter.TransformName = "RigidTransform";
 	Encoder.Update();
-	auto& Code = Encoder.OutputSimilarityCode();
+	auto& Code = Encoder.Output.SimilarityCode;
 
 	DenseVector<int_max> ShapeIndexList_Basis;
 	ShapeIndexList_Basis.SetCapacity(Dictionary.GetBasisCount());
@@ -164,19 +164,19 @@ void test_c()
 	std::cout << "done read mesh" << '\n';	
 
 	KNNAverageBasedShapeDictionaryBuilder<double> DictionaryBuilder;	
-	DictionaryBuilder.Parameter().MaxNeighbourCount = 5;
-	DictionaryBuilder.Parameter().SimilarityThreshold = 0.3;
-	DictionaryBuilder.Parameter().ExperienceDiscountFactor = 0.5;
-	DictionaryBuilder.Parameter().TransformName = "SimilarityTransform";
-	DictionaryBuilder.Parameter().MaxEpochCount = 1;
-	DictionaryBuilder.Parameter().MiniBatchSize = 125;
-	DictionaryBuilder.Parameter().MaxThreadCount = 8;
-	DictionaryBuilder.Parameter().Debug_Flag = true;
-	DictionaryBuilder.Parameter().Debug_FilePath = TestDataPath;
-	DictionaryBuilder.SetTrainingShapeData(&TrainingShapeList);
-	DictionaryBuilder.SetInitialDictionary(&Dictionary_init);
+	DictionaryBuilder.Input.Parameter.MaxNeighborCount = 5;
+	DictionaryBuilder.Input.Parameter.SimilarityThreshold = 0.3;
+	DictionaryBuilder.Input.Parameter.ExperienceDiscountFactor = 0.5;
+	DictionaryBuilder.Input.Parameter.TransformName = "SimilarityTransform";
+	DictionaryBuilder.Input.Parameter.MaxEpochCount = 1;
+	DictionaryBuilder.Input.Parameter.BatchSize = 125;
+	DictionaryBuilder.Input.Parameter.MaxThreadCount = 8;
+	DictionaryBuilder.Input.Parameter.Debug_Flag = true;
+	DictionaryBuilder.Input.Parameter.Debug_FilePath = TestDataPath;
+	DictionaryBuilder.Input.TrainingShapeData = &TrainingShapeList;
+	DictionaryBuilder.Input.InitialDictionary = &Dictionary_init;
 	DictionaryBuilder.Update();
-	auto& Dictionary = DictionaryBuilder.OutputDictionary();
+	auto& Dictionary = DictionaryBuilder.Output.Dictionary;
 	std::cout << "done build dictionary" << '\n';
 
 	for (int_max k = 0; k < Dictionary.GetBasisCount(); ++k)

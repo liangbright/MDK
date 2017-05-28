@@ -9,6 +9,44 @@
 
 namespace mdk
 {
+template<typename InputPixelType, typename OutputPixelType>
+struct Input_of_IntegralImageBasedAverageDenseImageFilter3D
+{
+	typedef Option_Of_Image3DInterpolation<InputPixelType>  ImageInterpolationOptionType;
+
+	const DenseImage3D<InputPixelType>* Image;
+
+	const DenseImage3D<OutputPixelType>* IntegralImage;// this is optional
+
+	ImageInterpolationOptionType ImageInterpolationOption;
+
+	DenseVector<double, 3> Radius; // Physical radius
+
+	int_max MaxThreadCount;
+};
+
+template<typename PixelType>
+struct Internal_of_IntegralImageBasedAverageDenseImageFilter3D
+{
+	DenseVector<double, 3> Radius_Index3D; // Index radius in InputImage and IntegralImage
+
+	DenseImage3D<PixelType> IntegralImage;
+
+	bool Flag_Input_Output_Orientation_IdentityMatrix;
+	bool Flag_Input_Output_SameOrigin_SameOrientation;
+
+	// see description in DenseImageResampler3D
+	DenseMatrix<double>    Position3DTransformFromOuputToInput_Matrix;
+	DenseVector<double, 3> Position3DTransformFromOuputToInput_Offset;
+};
+
+
+template<typename PixelType>
+struct Output_of_IntegralImageBasedAverageDenseImageFilter3D
+{
+	DenseImage3D<PixelType> Image;
+};
+
 
 template<typename InputPixel_Type, typename OutputPixel_Type = InputPixel_Type, typename Scalar_Type = double>
 class IntegralImageBasedAverageDenseImageFilter3D : public Object
@@ -23,32 +61,10 @@ public:
 	typedef BoundaryOptionEnum_Of_Image3DInterpolation      ImageInterpolationBoundaryOptionEnum;
 
 public:
-	//-------------------------- input --------------------------------------------------//
-	const DenseImage3D<InputPixelType>* InputImage;
-	
-	const DenseImage3D<OutputPixelType>* IntegralImage;// this is optional
-
-	ImageInterpolationOptionType ImageInterpolationOption;
-
-	DenseVector<double, 3> Radius; // Physical radius
-	
-	int_max MaxThreadCount;
-
-	//------------------------- output ----------------------------------------------------//
-	DenseImage3D<OutputPixelType> OutputImage;
-
+	Input_of_IntegralImageBasedAverageDenseImageFilter3D<InputPixelType, OutputPixelType> Input;
+	Output_of_IntegralImageBasedAverageDenseImageFilter3D<OutputPixelType> Output;
 private:
-	//-------------------------- internal -----------------------------------------------//
-	DenseVector<double, 3> Radius_Index3D; // Index radius in InputImage and IntegralImage
-
-	DenseImage3D<OutputPixelType> IntegralImage_Internal;
-
-	bool Flag_Input_Output_Orientation_IdentityMatrix;
-	bool Flag_Input_Output_SameOrigin_SameOrientation;
-
-	// see description in DenseImageResampler3D
-	DenseMatrix<double>    Position3DTransformFromOuputToInput_Matrix;
-	DenseVector<double, 3> Position3DTransformFromOuputToInput_Offset;
+	Internal_of_IntegralImageBasedAverageDenseImageFilter3D<OutputPixelType> Internal;	
 
 public:		
     IntegralImageBasedAverageDenseImageFilter3D();

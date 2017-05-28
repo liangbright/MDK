@@ -19,39 +19,37 @@ IntegralImageBasedAverageDenseImageFilter3D<InputPixelType, OutputPixelType, Sca
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void IntegralImageBasedAverageDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::Clear()
 {
-	auto& Self = *this;
-	Self.InputImage = nullptr;
-	Self.ImageInterpolationOption.MethodType = ImageInterpolationMethodEnum::Nearest;
-	Self.ImageInterpolationOption.BoundaryOption = ImageInterpolationBoundaryOptionEnum::Replicate;
-	Self.ImageInterpolationOption.Pixel_OutsideImage = InputPixelType(0);	
-	Self.OutputImage.Clear();
-	Self.MaxThreadCount = 1;
+	Input.Image = nullptr;
+	Input.ImageInterpolationOption.MethodType = ImageInterpolationMethodEnum::Nearest;
+	Input.ImageInterpolationOption.BoundaryOption = ImageInterpolationBoundaryOptionEnum::Replicate;
+	Input.ImageInterpolationOption.Pixel_OutsideImage = InputPixelType(0);
+	Input.IntegralImage = &Internal.IntegralImage;
+	Input.Radius = { 0, 0, 0 };
+	Input.MaxThreadCount = 1;
 
-	Self.Flag_Input_Output_Orientation_IdentityMatrix = false;
-	Self.Flag_Input_Output_SameOrigin_SameOrientation = false;
-	Self.Position3DTransformFromOuputToInput_Matrix.Clear();
-	Self.Position3DTransformFromOuputToInput_Offset.Clear();
+	Internal.Radius_Index3D = { 0, 0, 0 };
+	Internal.IntegralImage.Clear();
+	Internal.Flag_Input_Output_Orientation_IdentityMatrix = false;
+	Internal.Flag_Input_Output_SameOrigin_SameOrientation = false;
+	Internal.Position3DTransformFromOuputToInput_Matrix.Clear();
+	Internal.Position3DTransformFromOuputToInput_Offset.Clear();
 
-	Self.IntegralImage_Internal.Clear();
-	Self.IntegralImage = &Self.IntegralImage_Internal;
-	Self.Radius = { 0, 0, 0 };
-	Self.Radius_Index3D = { 0, 0, 0 };
+	Output.Image.Clear();
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void IntegralImageBasedAverageDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::SetOutputImageInfo(const ImageInfo3D& Info)
 {
-	auto& Self = *this;
-	auto Size_old = Self.OutputImage.GetSize();
+	auto Size_old = Output.Image.GetSize();
 	if (Size_old[0] != Info.Size[0] || Size_old[1] != Info.Size[1] || Size_old[2] != Info.Size[2])
 	{
-		Self.OutputImage.Clear();
-		Self.OutputImage.SetInfo(Info);
+		Output.Image.Clear();
+		Output.Image.SetInfo(Info);
 	}
 	else
 	{// no new memory allocation
-		Self.OutputImage.SetInfo(Info, false);
+		Output.Image.SetInfo(Info, false);
 	}
 }
 
@@ -80,8 +78,7 @@ void IntegralImageBasedAverageDenseImageFilter3D<InputPixelType, OutputPixelType
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void IntegralImageBasedAverageDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::SetOutputImageInfoBySize(int_max Lx, int_max Ly, int_max Lz)
 {
-	auto& Self = *this;
-	if (Self.InputImage == nullptr)
+	if (Input.Image == nullptr)
 	{
 		MDK_Error("InputImage is nullptr @ IntegralImageBasedAverageDenseImageFilter3D::SetOutputImageInfoBySize(...)")
 		return;
@@ -98,14 +95,14 @@ void IntegralImageBasedAverageDenseImageFilter3D<InputPixelType, OutputPixelType
 	Info.Size[1] = Ly;
 	Info.Size[2] = Lz;
 
-	auto Size_input = Self.InputImage->GetSize();
-	auto Spacing_input = Self.InputImage->GetSpacing();
+	auto Size_input = Input.Image->GetSize();
+	auto Spacing_input = Input.Image->GetSpacing();
 	Info.Spacing[0] = double(Size_input[0] - 1) * Spacing_input[0] / double(Lx - 1);
 	Info.Spacing[1] = double(Size_input[1] - 1) * Spacing_input[1] / double(Ly - 1);
 	Info.Spacing[2] = double(Size_input[2] - 1) * Spacing_input[2] / double(Lz - 1);
 
-	Info.Origin = Self.InputImage->GetOrigin();
-	Info.Orientation = Self.InputImage->GetOrientation();
+	Info.Origin = Input.Image->GetOrigin();
+	Info.Orientation = Input.Image->GetOrientation();
 	Info.UpdateTransformMatrix();
 
 	this->SetOutputImageInfo(Info);
@@ -122,8 +119,7 @@ void IntegralImageBasedAverageDenseImageFilter3D<InputPixelType, OutputPixelType
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void IntegralImageBasedAverageDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::SetOutputImageInfoBySpacing(double Spacing_x, double Spacing_y, double Spacing_z)
 {
-	auto& Self = *this;
-	if (Self.InputImage == nullptr)
+	if (Input.Image == nullptr)
 	{
 		MDK_Error("InputImage is nullptr @ IntegralImageBasedAverageDenseImageFilter3D::SetOutputImageInfoBySpacing(...)")
 		return;
@@ -143,14 +139,14 @@ void IntegralImageBasedAverageDenseImageFilter3D<InputPixelType, OutputPixelType
 	Info.Spacing[1] = Spacing_y;
 	Info.Spacing[2] = Spacing_z;
 
-	auto Size_input = Self.InputImage->GetSize();
-	auto Spacing_input = Self.InputImage->GetSpacing();
+	auto Size_input = Input.Image->GetSize();
+	auto Spacing_input = Input.Image->GetSpacing();
 	Info.Size[0] = int_max(std::ceil(Size_input[0] * Spacing_input[0] / Spacing_x));
 	Info.Size[1] = int_max(std::ceil(Size_input[1] * Spacing_input[1] / Spacing_y));
 	Info.Size[2] = int_max(std::ceil(Size_input[2] * Spacing_input[2] / Spacing_z));
 
-	Info.Origin = Self.InputImage->GetOrigin();
-	Info.Orientation = Self.InputImage->GetOrientation();
+	Info.Origin = Input.Image->GetOrigin();
+	Info.Orientation = Input.Image->GetOrientation();
 	Info.UpdateTransformMatrix();
 	this->SetOutputImageInfo(Info);
 }
@@ -159,29 +155,28 @@ void IntegralImageBasedAverageDenseImageFilter3D<InputPixelType, OutputPixelType
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 bool IntegralImageBasedAverageDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::BuildIntegralImageIfNecessary()
 {
-	auto& Self = *this;
-	auto Size = Self.InputImage->GetSize();
+	auto Size = Input.Image->GetSize();
 	if (Size[0] <= 1 || Size[1] <= 1 || Size[2] <= 1)
 	{
 		MDK_Error(" SizeX or SizeY or SizeZ of InputImage <= 1 @ IntegralImageBasedAverageDenseImageFilter3D::BuildIntegralImageIfNecessary()")
 		return false;
 	}
 
-	if (Self.IntegralImage == nullptr)
+	if (Input.IntegralImage == nullptr)
 	{
-		Self.IntegralImage = &Self.IntegralImage_Internal;
+		Input.IntegralImage = &Internal.IntegralImage;
 	}
 	else
 	{
-		if (Self.IntegralImage != &Self.IntegralImage_Internal)
+		if (Input.IntegralImage != &Internal.IntegralImage)
 		{
-			if (Self.IntegralImage->IsEmpty() == true)
+			if (Input.IntegralImage->IsEmpty() == true)
 			{
 				MDK_Error("Input IntegralImage is empty @ IntegralImageBasedAverageDenseImageFilter3D::BuildIntegralImageIfNecessary(...)")
 				return false;
 			}
 
-			auto Size = Self.IntegralImage->GetSize();
+			auto Size = Input.IntegralImage->GetSize();
 			if (Size[0] <= 1 || Size[1] <= 1 || Size[2] <= 1)
 			{
 				MDK_Error(" SizeX or SizeY or SizeZ of Input IntegralImage <= 1 @ IntegralImageBasedAverageDenseImageFilter3D::BuildIntegralImageIfNecessary()")
@@ -190,25 +185,25 @@ bool IntegralImageBasedAverageDenseImageFilter3D<InputPixelType, OutputPixelType
 		}
 	}
 
-	auto Spacing = Self.OutputImage.GetSpacing();
-	Self.Radius_Index3D[0] = Self.Radius[0] / Spacing[0];
-	Self.Radius_Index3D[1] = Self.Radius[1] / Spacing[1];
-	Self.Radius_Index3D[2] = Self.Radius[2] / Spacing[2];
+	auto Spacing = Output.Image.GetSpacing();
+	Internal.Radius_Index3D[0] = Input.Radius[0] / Spacing[0];
+	Internal.Radius_Index3D[1] = Input.Radius[1] / Spacing[1];
+	Internal.Radius_Index3D[2] = Input.Radius[2] / Spacing[2];
 
-	if (Self.Radius_Index3D[0] <= 0 || Self.Radius_Index3D[1] <= 0 || Self.Radius_Index3D[2] <= 0)
+	if (Internal.Radius_Index3D[0] <= 0 || Internal.Radius_Index3D[1] <= 0 || Internal.Radius_Index3D[2] <= 0)
 	{
 		MDK_Error(" RadiusX or RadiusY or RadiusZ in Index3D <= 0 @ IntegralImageBasedAverageDenseImageFilter3D::BuildIntegralImageIfNecessary()")
 		return false;
 	}
 
-	Self.IntegralImage_Internal.Clear();
-	if (Self.IntegralImage == &Self.IntegralImage_Internal)
+	Internal.IntegralImage.Clear();
+	if (Input.IntegralImage == &Internal.IntegralImage)
 	{
 		IntegralImageBuilder3D<double> ImBuilder;
-		ImBuilder.InputImage = Self.InputImage;
-		ImBuilder.MaxThreadCount = MaxThreadCount;
+		ImBuilder.Input.Image = Input.Image;
+		ImBuilder.Input.MaxThreadCount = Input.MaxThreadCount;
 		ImBuilder.Update();
-		Self.IntegralImage_Internal = std::move(ImBuilder.OutputImage);
+		Internal.IntegralImage = std::move(ImBuilder.Output.Image);
 	}
 
 	return true;
@@ -218,17 +213,16 @@ bool IntegralImageBasedAverageDenseImageFilter3D<InputPixelType, OutputPixelType
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void IntegralImageBasedAverageDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::Update3DPositionTransform_Input_Output()
 {
-	auto& Self = *this;
-	auto InputImageInfo = Self.InputImage->GetInfo();
-	auto OutputImageInfo = Self.OutputImage.GetInfo();
+	auto InputImageInfo = Input.Image->GetInfo();
+	auto OutputImageInfo = Output.Image.GetInfo();
 	{
 		auto M = InputImageInfo.Orientation.Inv();
-		Self.Position3DTransformFromOuputToInput_Matrix = MatrixMultiply(M, OutputImageInfo.Orientation);
+		Internal.Position3DTransformFromOuputToInput_Matrix = MatrixMultiply(M, OutputImageInfo.Orientation);
 		auto D = OutputImageInfo.Origin - InputImageInfo.Origin;
-		// Self.Position3DTransformFromOuputToInput_Offset = M*D
-		Self.Position3DTransformFromOuputToInput_Offset[0] = M[0] * D[0] + M[3] * D[1] + M[6] * D[2];
-		Self.Position3DTransformFromOuputToInput_Offset[1] = M[1] * D[0] + M[4] * D[1] + M[7] * D[2];
-		Self.Position3DTransformFromOuputToInput_Offset[2] = M[2] * D[0] + M[5] * D[1] + M[8] * D[2];
+		// Internal.Position3DTransformFromOuputToInput_Offset = M*D
+		Internal.Position3DTransformFromOuputToInput_Offset[0] = M[0] * D[0] + M[3] * D[1] + M[6] * D[2];
+		Internal.Position3DTransformFromOuputToInput_Offset[1] = M[1] * D[0] + M[4] * D[1] + M[7] * D[2];
+		Internal.Position3DTransformFromOuputToInput_Offset[2] = M[2] * D[0] + M[5] * D[1] + M[8] * D[2];
 	}
 
 	auto Eps = std::numeric_limits<double>::epsilon();
@@ -251,13 +245,13 @@ void IntegralImageBasedAverageDenseImageFilter3D<InputPixelType, OutputPixelType
 
 	if (Flag_Input_Output_SameOrigin == true && Flag_Input_Output_SameOrientation == true)
 	{
-		Self.Flag_Input_Output_SameOrigin_SameOrientation = true;
+		Internal.Flag_Input_Output_SameOrigin_SameOrientation = true;
 	}
 
-	Self.Flag_Input_Output_Orientation_IdentityMatrix = false;
+	Internal.Flag_Input_Output_Orientation_IdentityMatrix = false;
 	if (InputImageInfo.Orientation.IsIdentityMatrix() == true && OutputImageInfo.Orientation.IsIdentityMatrix() == true)
 	{
-		Self.Flag_Input_Output_Orientation_IdentityMatrix = true;
+		Internal.Flag_Input_Output_Orientation_IdentityMatrix = true;
 	}
 }
 
@@ -266,20 +260,19 @@ template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 DenseVector<ScalarType, 3> IntegralImageBasedAverageDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::
 Transform3DPositionInOutputImageTo3DPositionInInputImage(const DenseVector<ScalarType, 3>& Position_out)
 {
-	auto& Self = *this;
-	if (Self.Flag_Input_Output_SameOrigin_SameOrientation == true)
+	if (Internal.Flag_Input_Output_SameOrigin_SameOrientation == true)
 	{
 		return Position_out;
 	}
-	else if (Self.Flag_Input_Output_Orientation_IdentityMatrix == true)
+	else if (Internal.Flag_Input_Output_Orientation_IdentityMatrix == true)
 	{
-		auto Position_in = Self.OutputImage.GetOrigin() - Self.InputImage->GetOrigin() + Position_out;
+		auto Position_in = Output.Image.GetOrigin() - Input.Image->GetOrigin() + Position_out;
 		return Position_in;
 	}
 	else
 	{
-		auto R = Self.Position3DTransformFromOuputToInput_Matrix.GetElementPointer();
-		auto T = Self.Position3DTransformFromOuputToInput_Offset.GetElementPointer();
+		auto R = Internal.Position3DTransformFromOuputToInput_Matrix.GetElementPointer();
+		auto T = Internal.Position3DTransformFromOuputToInput_Offset.GetElementPointer();
 		DenseVector<ScalarType, 3> Position_in;
 		Position_in[0] = R[0] * Position_out[0] + R[3] * Position_out[1] + R[6] * Position_out[2] + T[0];
 		Position_in[1] = R[1] * Position_out[0] + R[4] * Position_out[1] + R[7] * Position_out[2] + T[1];
@@ -292,27 +285,26 @@ Transform3DPositionInOutputImageTo3DPositionInInputImage(const DenseVector<Scala
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 bool IntegralImageBasedAverageDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::CheckInput()
 {
-	auto& Self = *this;
-	if (Self.InputImage == nullptr)
+	if (Input.Image == nullptr)
 	{
 		MDK_Error("Input image is Empty (nullptr) @ IntegralImageBasedAverageDenseImageFilter3D::SelfCheckInput()")
 		return false;
 	}
 
-	if (Self.InputImage->IsEmpty() == true)
+	if (Input.Image->IsEmpty() == true)
 	{
 		MDK_Error("Input image is Empty @ IntegralImageBasedAverageDenseImageFilter3D::CheckInput()")
 		return false;
 	}
 
-	auto Size = Self.InputImage->GetSize();
+	auto Size = Input.Image->GetSize();
 	if (Size[0] < 2 || Size[1] < 2 || Size[2] < 2)
 	{
 		MDK_Error("Input image is too small @ IntegralImageBasedAverageDenseImageFilter3D::CheckInput()")
 		return false;
 	}
 
-	if (Self.MaxThreadCount <= 0)
+	if (Input.MaxThreadCount <= 0)
 	{
 		MDK_Error("MaxThreadCount <= 0 @ IntegralImageBasedAverageDenseImageFilter3D::CheckInput()")
 		return false;
@@ -338,15 +330,14 @@ void IntegralImageBasedAverageDenseImageFilter3D<InputPixelType, OutputPixelType
 		return;
 	}
 
-	auto& Self = *this;
 	//--------------------------------------------------------------------------------
-	auto PixelCount = Self.OutputImage.GetPixelCount();
+	auto PixelCount = Output.Image.GetPixelCount();
 	//for (int_max k = 0; k <= PixelCount-1; ++k)
 	auto TempFunction = [&](int_max k)
 	{
-		Self.OutputImage[k] = this->EvaluateAtPixelInOutputImage(k);
+		Output.Image[k] = this->EvaluateAtPixelInOutputImage(k);
 	};
-	ParallelForLoop(TempFunction, 0, PixelCount - 1, Self.MaxThreadCount);
+	ParallelForLoop(TempFunction, 0, PixelCount - 1, Input.MaxThreadCount);
 	//---------------------------------------------------------------------------------
 }
 
@@ -354,35 +345,34 @@ void IntegralImageBasedAverageDenseImageFilter3D<InputPixelType, OutputPixelType
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 OutputPixelType IntegralImageBasedAverageDenseImageFilter3D<InputPixelType, OutputPixelType, ScalarType>::EvaluateAtPixelInOutputImage(int_max LinearIndex)
 {
-	auto& Self = *this;
-	auto Pos_out = Self.OutputImage.TransformLinearIndexTo3DPosition<ScalarType>(LinearIndex);
+	auto Pos_out = Output.Image.TransformLinearIndexTo3DPosition<ScalarType>(LinearIndex);
 	auto Pos_in = this->Transform3DPositionInOutputImageTo3DPositionInInputImage(Pos_out);
 	auto x0 = Pos_in[0];
 	auto y0 = Pos_in[1];
 	auto z0 = Pos_in[2];
 	// Index3D=[x, y, z] : ScalarType
-	auto Index3D = Self.IntegralImage->Transform3DPositionTo3DIndex(x0, y0, z0);
-	auto Size = Self.IntegralImage->GetSize();
+	auto Index3D = Input.IntegralImage->Transform3DPositionTo3DIndex(x0, y0, z0);
+	auto Size = Input.IntegralImage->GetSize();
 	//---------------------------------------------------------
 	// x1 <= x <= x2, y1 <= y <= y2, z1 <= z <= z2
 	//
-	//auto x1 = int_max(std::round(Index3D[0] - Self.Radius_Index3D[0]-1));
-	//auto x2 = int_max(std::round(Index3D[0] + Self.Radius_Index3D[0]));
-	//auto y1 = int_max(std::round(Index3D[1] - Self.Radius_Index3D[1]-1));
-	//auto y2 = int_max(std::round(Index3D[1] + Self.Radius_Index3D[1]));
-	//auto z1 = int_max(std::round(Index3D[2] - Self.Radius_Index3D[2]-1));
-	//auto z2 = int_max(std::round(Index3D[2] + Self.Radius_Index3D[2]));
-	auto x1 = int_max(Index3D[0] - Self.Radius_Index3D[0] - 1);
-	auto x2 = int_max(Index3D[0] + Self.Radius_Index3D[0] + 0.5);
-	auto y1 = int_max(Index3D[1] - Self.Radius_Index3D[1] - 1);
-	auto y2 = int_max(Index3D[1] + Self.Radius_Index3D[1] + 0.5);
-	auto z1 = int_max(Index3D[2] - Self.Radius_Index3D[2] - 1);
-	auto z2 = int_max(Index3D[2] + Self.Radius_Index3D[2] + 0.5);
+	//auto x1 = int_max(std::round(Index3D[0] - Internal.Radius_Index3D[0]-1));
+	//auto x2 = int_max(std::round(Index3D[0] + Internal.Radius_Index3D[0]));
+	//auto y1 = int_max(std::round(Index3D[1] - Internal.Radius_Index3D[1]-1));
+	//auto y2 = int_max(std::round(Index3D[1] + Internal.Radius_Index3D[1]));
+	//auto z1 = int_max(std::round(Index3D[2] - Internal.Radius_Index3D[2]-1));
+	//auto z2 = int_max(std::round(Index3D[2] + Internal.Radius_Index3D[2]));
+	auto x1 = int_max(Index3D[0] - Internal.Radius_Index3D[0] - 1);
+	auto x2 = int_max(Index3D[0] + Internal.Radius_Index3D[0] + 0.5);
+	auto y1 = int_max(Index3D[1] - Internal.Radius_Index3D[1] - 1);
+	auto y2 = int_max(Index3D[1] + Internal.Radius_Index3D[1] + 0.5);
+	auto z1 = int_max(Index3D[2] - Internal.Radius_Index3D[2] - 1);
+	auto z2 = int_max(Index3D[2] + Internal.Radius_Index3D[2] + 0.5);
 
 	// average window is outside the image
 	if (x1 >= Size[0] || x2 < 0 || y1 >= Size[1] || y2 < 0 || z1 >= Size[2] || z2 < 0)
 	{
-		return OutputPixelType(Self.ImageInterpolationOption.Pixel_OutsideImage);
+		return OutputPixelType(Input.ImageInterpolationOption.Pixel_OutsideImage);
 	}
 	// now, the window overlap with the image
 	if (x1 < 0)	{ x1 = 0; }
@@ -427,15 +417,15 @@ OutputPixelType IntegralImageBasedAverageDenseImageFilter3D<InputPixelType, Outp
 		}
 	}
 	//---------------------------------------------------------
-	auto Pixel_x1y1z1 = (*Self.IntegralImage)(x1, y1, z1);
-	auto Pixel_x1y2z1 = (*Self.IntegralImage)(x1, y2, z1);
-	auto Pixel_x2y1z1 = (*Self.IntegralImage)(x2, y1, z1);
-	auto Pixel_x2y2z1 = (*Self.IntegralImage)(x2, y2, z1);
+	auto Pixel_x1y1z1 = (*Input.IntegralImage)(x1, y1, z1);
+	auto Pixel_x1y2z1 = (*Input.IntegralImage)(x1, y2, z1);
+	auto Pixel_x2y1z1 = (*Input.IntegralImage)(x2, y1, z1);
+	auto Pixel_x2y2z1 = (*Input.IntegralImage)(x2, y2, z1);
 
-	auto Pixel_x2y2z2 = (*Self.IntegralImage)(x2, y2, z2);
-	auto Pixel_x1y2z2 = (*Self.IntegralImage)(x1, y2, z2);
-	auto Pixel_x2y1z2 = (*Self.IntegralImage)(x2, y1, z2);
-	auto Pixel_x1y1z2 = (*Self.IntegralImage)(x1, y1, z2);
+	auto Pixel_x2y2z2 = (*Input.IntegralImage)(x2, y2, z2);
+	auto Pixel_x1y2z2 = (*Input.IntegralImage)(x1, y2, z2);
+	auto Pixel_x2y1z2 = (*Input.IntegralImage)(x2, y1, z2);
+	auto Pixel_x1y1z2 = (*Input.IntegralImage)(x1, y1, z2);
 	//---------------------------------------------------------
 	OutputPixelType OutputPixel;
 	OutputPixel = Pixel_x2y2z2 - Pixel_x1y2z2 - Pixel_x2y1z2 + Pixel_x1y1z2

@@ -9,6 +9,41 @@
 
 namespace mdk
 {
+enum struct PoolingTypeEnum_of_PoolingDenseImageFilter3D { Max, Min, Average, AbsMax, AbsMin, Unknown };
+
+template<typename PixelType>
+struct Input_of_PoolingDenseImageFilter3D
+{
+	typedef Option_Of_Image3DInterpolation<PixelType>       ImageInterpolationOptionType;
+	typedef PoolingTypeEnum_of_PoolingDenseImageFilter3D    PoolingTypeEnum;
+
+	const DenseImage3D<PixelType>* Image;
+
+	ImageInterpolationOptionType ImageInterpolationOption;
+
+	DenseVector<double, 3> Radius;         // Physical radius
+
+	PoolingTypeEnum PoolingType;
+
+	int_max MaxThreadCount;
+};
+
+template<typename PixelType>
+struct Output_of_PoolingDenseImageFilter3D
+{
+	DenseImage3D<PixelType> Image;
+};
+
+struct Internal_of_PoolingDenseImageFilter3D
+{
+	DenseVector<double, 3> Radius_Index3D; // Index radius in m_InputImage and m_IntegralImage
+	bool Flag_Input_Output_Orientation_IdentityMatrix;
+	bool Flag_Input_Output_SameOrigin_SameOrientation;
+
+	// see description in DenseImageResampler3D
+	DenseMatrix<double>    Position3DTransformFromOuputToInput_Matrix;
+	DenseVector<double, 3> Position3DTransformFromOuputToInput_Offset;
+};
 
 template<typename InputPixel_Type, typename OutputPixel_Type = InputPixel_Type, typename Scalar_Type = double>
 class PoolingDenseImageFilter3D : public Object
@@ -21,33 +56,13 @@ public:
 	typedef Option_Of_Image3DInterpolation<InputPixelType>  ImageInterpolationOptionType;
 	typedef MethodEnum_Of_Image3DInterpolation              ImageInterpolationMethodEnum;
 	typedef BoundaryOptionEnum_Of_Image3DInterpolation      ImageInterpolationBoundaryOptionEnum;
-
-	enum struct PoolingTypeEnum { Max, Min, Average, AbsMax, AbsMin, Unknown};
+	typedef PoolingTypeEnum_of_PoolingDenseImageFilter3D    PoolingTypeEnum;
 
 public:
-	//-------------------------- input --------------------------------------------------//
-	const DenseImage3D<InputPixelType>* InputImage;
-
-	ImageInterpolationOptionType ImageInterpolationOption;
-
-	DenseVector<double, 3> Radius;         // Physical radius
-	
-	PoolingTypeEnum PoolingType;
-
-	int_max MaxThreadCount;
-
-	//------------------------- output ----------------------------------------------------//
-	DenseImage3D<OutputPixelType> m_OutputImage;
-
+	Input_of_PoolingDenseImageFilter3D<InputPixelType> Input;
+	Output_of_PoolingDenseImageFilter3D<OutputPixelType> Output;	
 private:
-	//-------------------------- internal -----------------------------------------------//
-	DenseVector<double, 3> Radius_Index3D; // Index radius in m_InputImage and m_IntegralImage
-	bool Flag_Input_Output_Orientation_IdentityMatrix;
-	bool Flag_Input_Output_SameOrigin_SameOrientation;
-
-	// see description in DenseImageResampler3D
-	DenseMatrix<double>    Position3DTransformFromOuputToInput_Matrix;
-	DenseVector<double, 3> Position3DTransformFromOuputToInput_Offset;
+	Internal_of_PoolingDenseImageFilter3D Internal;
 
 public:		
     PoolingDenseImageFilter3D();

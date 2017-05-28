@@ -6,44 +6,40 @@
 
 namespace mdk
 {
-
-template<typename InputPixel_Type, typename OutputPixel_Type = InputPixel_Type, typename Scalar_Type = double>
-class DenseImageResampler3D : public Object
+enum struct SmoothingMethodTypeWhenDownsmapling_of_DenseImageResampler3D
 {
-public:
-	typedef InputPixel_Type  InputPixelType;
-	typedef OutputPixel_Type OutputPixelType;
-	typedef Scalar_Type  ScalarType; // float or double
+	Nothing,
+	Triangle,
+	Average
+};
 
-	typedef Option_Of_Image3DInterpolation<InputPixelType>  ImageInterpolationOptionType;
-	typedef MethodEnum_Of_Image3DInterpolation              ImageInterpolationMethodEnum;
-	typedef BoundaryOptionEnum_Of_Image3DInterpolation      ImageInterpolationBoundaryOptionEnum;
+template<typename PixelType, typename ScalarType>
+struct Input_of_DenseImageResampler3D
+{
+	typedef Option_Of_Image3DInterpolation<PixelType>  ImageInterpolationOptionType;
 
-public:
-	//-------------------------- input --------------------------------------------------//
-	const DenseImage3D<InputPixelType>* InputImage;
+	const DenseImage3D<PixelType>* Image;
 
 	ImageInterpolationOptionType ImageInterpolationOption;
 
 	int_max MaxThreadCount; // max number of threads
 
-	enum struct SmoothingMethodTypeWhenDownsmapling
-	{
-		Nothing,
-		Triangle,
-		Average
-	};
-	SmoothingMethodTypeWhenDownsmapling SmoothingMethodWhenDownsmapling;
+	SmoothingMethodTypeWhenDownsmapling_of_DenseImageResampler3D SmoothingMethodWhenDownsmapling;
 
 	const CoordinateTransform<ScalarType>* Position3DTransform_from_OutputImage_to_InputImage;
+};
 
-	//------------------------- output ----------------------------------------------------//
-	DenseImage3D<OutputPixelType> OutputImage;
+template<typename PixelType>
+struct Output_of_DenseImageResampler3D
+{
+	DenseImage3D<PixelType> Image;
+};
 
-private:
-	//-------------------------- internal -----------------------------------------------//
+template<typename PixelType>
+struct Internal_of_DenseImageResampler3D
+{
 	bool Flag_SmoothInputImage;
-	DenseImage3D<OutputPixelType> SmoothedImage; // Smooth InputImage when down sampling 
+	DenseImage3D<PixelType> SmoothedImage; // Smooth InputImage when down sampling 
 
     // same point with P_in ~ 3D Positon in InputImage, P_out ~ 3D Position in OutputImage, and P_w ~ 3D World Position
     // orientation matrix O_in ~ Orientation matrix of InputImage, O_out ~ Orientaiton Matrix of OutputImage
@@ -67,6 +63,26 @@ private:
 
 	DenseMatrix<double>    Position3DTransformFromInputToOutput_Matrix;
 	DenseVector<double, 3> Position3DTransformFromInputToOutput_Offset;
+};
+
+
+template<typename InputPixel_Type, typename OutputPixel_Type = InputPixel_Type, typename Scalar_Type = double>
+class DenseImageResampler3D : public Object
+{
+public:
+	typedef InputPixel_Type  InputPixelType;
+	typedef OutputPixel_Type OutputPixelType;
+	typedef Scalar_Type  ScalarType; // float or double
+
+	typedef Option_Of_Image3DInterpolation<InputPixelType>  ImageInterpolationOptionType;
+	typedef MethodEnum_Of_Image3DInterpolation              ImageInterpolationMethodEnum;
+	typedef BoundaryOptionEnum_Of_Image3DInterpolation      ImageInterpolationBoundaryOptionEnum;
+	typedef SmoothingMethodTypeWhenDownsmapling_of_DenseImageResampler3D SmoothingMethodTypeWhenDownsmapling;
+public:
+	Input_of_DenseImageResampler3D<InputPixelType, ScalarType> Input;
+	Output_of_DenseImageResampler3D<OutputPixelType> Output;
+private:
+	Internal_of_DenseImageResampler3D<OutputPixelType> Internal;	
 
 public:
 	DenseImageResampler3D();
@@ -91,8 +107,9 @@ public:
 	void SetOutputImageInfoBySpacing(const DenseVector<double, 3>& Spacing);
 	void SetOutputImageInfoBySpacing(double Spacing_x, double Spacing_y, double Spacing_z);
 
-	void EnableTriangleSmoothingWhenDownsampling(bool On_Off = true);
-	void EnableAverageSmoothingWhenDownsampling(bool On_Off = true);
+	void DisableSmoothingWhenDownsampling() { Input.SmoothingMethodWhenDownsmapling = SmoothingMethodTypeWhenDownsmapling::Nothing; }
+	void EnableTriangleSmoothingWhenDownsampling() { Input.SmoothingMethodWhenDownsmapling = SmoothingMethodTypeWhenDownsmapling::Triangle; }
+	void EnableAverageSmoothingWhenDownsampling() { Input.SmoothingMethodWhenDownsmapling = SmoothingMethodTypeWhenDownsmapling::Average; }
 
 	void Update();
 

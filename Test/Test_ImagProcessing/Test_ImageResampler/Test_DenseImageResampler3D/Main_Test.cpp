@@ -12,5 +12,5 @@ int main()
 
 	test_b();
 
-	//test_c();
+	test_c();
 }

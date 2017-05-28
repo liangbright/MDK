@@ -172,5 +172,5 @@ OutputPixelType InterpolateImageAt3DWorldPosition_Cubic(const SparseImage3D<Inpu
 }// namespace mdk
 
 #include "mdkDenseImageInterpolation3D.hpp"
-#include "mdkSparseImageInterpolation3D.hpp"
+//#include "mdkSparseImageInterpolation3D.hpp"
 

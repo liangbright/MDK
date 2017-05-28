@@ -13,7 +13,7 @@ struct Parameter_Of_KNNAverageBasedShapeDictionaryBuilder
 {
 	std::string Name;
 
-	int_max MaxNeighbourCount;
+	int_max MaxNeighborCount;
 
 	ScalarType SimilarityThreshold;
 	// shape_a and shape_b not similar if Similarity(a,b) <= SimilarityThreshold
@@ -27,7 +27,7 @@ struct Parameter_Of_KNNAverageBasedShapeDictionaryBuilder
 	// implemented in UpdateBasisExperienceForEachBasisShape(...)
 
 	//----------------------- parameter for data processing ------------------------------//
-	int_max MiniBatchSize;  // mini-batch size
+	int_max BatchSize;  // batch size
 	int_max MaxEpochCount;  // epoch: train once on all the input shape 
 	int_max MaxThreadCount; // CPU thread
 
@@ -47,13 +47,13 @@ struct Parameter_Of_KNNAverageBasedShapeDictionaryBuilder
     void Clear()
     {
 		Name = "";
-		MaxNeighbourCount = 0;
+		MaxNeighborCount = 0;
 		SimilarityThreshold = 0;
 		TransformName = "RigidTransform";
 		
 		ExperienceDiscountFactor = 1;
 		
-		MiniBatchSize = 1;
+		BatchSize = 1;
 		MaxEpochCount = 1;
 		MaxThreadCount = 1;
 
@@ -66,41 +66,40 @@ struct Parameter_Of_KNNAverageBasedShapeDictionaryBuilder
     }
 };
 
+template<typename ScalarType>
+struct Input_Of_KNNAverageBasedShapeDictionaryBuilder
+{
+	Parameter_Of_KNNAverageBasedShapeDictionaryBuilder<ScalarType> Parameter;
+
+	const ObjectArray<DenseMatrix<ScalarType>>* TrainingShapeData;
+
+	// land mark index list of each traing shape
+	// to compute transform
+	DenseVector<int_max> LandmarkOnShape;
+
+	const ShapeDictionary<ScalarType>* InitialDictionary;
+};
+
+template<typename ScalarType>
+struct Output_Of_KNNAverageBasedShapeDictionaryBuilder
+{
+	ShapeDictionary<ScalarType> Dictionary;
+};
 
 template<typename Scalar_Type>
 class KNNAverageBasedShapeDictionaryBuilder : Object
 {
 public:
 	typedef Scalar_Type ScalarType;
-
-private:
-	Parameter_Of_KNNAverageBasedShapeDictionaryBuilder<ScalarType> m_Parameter;
-
-	// training data
-	const ObjectArray<DenseMatrix<ScalarType>>* m_TrainingShapeData;
-
-	// land mark index list of each traing shape
-	// to compute transform
-	DenseVector<int_max> m_LandmarkOnShape;
-
-	// input initial dictionary
-	const ShapeDictionary<ScalarType>* m_InitialDictionary;
-
-	// output dictionary
-	ShapeDictionary<ScalarType> m_Dictionary;
-
+public:
+	Input_Of_KNNAverageBasedShapeDictionaryBuilder<ScalarType> Input;
+	Output_Of_KNNAverageBasedShapeDictionaryBuilder<ScalarType> Output;
 public:
 	KNNAverageBasedShapeDictionaryBuilder();
 	~KNNAverageBasedShapeDictionaryBuilder();
 	void Clear();
-	Parameter_Of_KNNAverageBasedShapeDictionaryBuilder<ScalarType>& Parameter() { return m_Parameter; }
-	void SetTrainingShapeData(const ObjectArray<DenseMatrix<ScalarType>>* ShapeData) { m_TrainingShapeData = ShapeData; }
-	void SetLandmarkOnShape(const DenseVector<int_max>& Landmark) { m_LandmarkOnShape = Landmark; }
-	void SetInitialDictionary(const ShapeDictionary<ScalarType>* InitialDictionary) { m_InitialDictionary = InitialDictionary; }
 	bool CheckInput();
 	void Update();
-	ShapeDictionary<ScalarType>& OutputDictionary() { return m_Dictionary; }
-
 protected:
 	void AdjustBasisExperience_BeforeEachEpoch(DenseMatrix<ScalarType>& BasisExperience);
 

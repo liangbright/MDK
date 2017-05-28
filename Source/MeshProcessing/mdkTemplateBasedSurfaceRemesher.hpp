@@ -16,7 +16,7 @@ TemplateBasedSurfaceRemesher<ScalarType>::~TemplateBasedSurfaceRemesher()
 template<typename ScalarType>
 void TemplateBasedSurfaceRemesher<ScalarType>::Clear()
 {
-	// dot NOT use Clear
+	// dot NOT use Clear for input
 	Input.SourceMesh.Recreate();
 	Input.BoundarySegmentListOfSourceMesh.Recreate();
 	Input.TemplateMesh.Recreate();
@@ -30,9 +30,8 @@ void TemplateBasedSurfaceRemesher<ScalarType>::Clear()
 	Internal.BoundaryPositionOfTemplateMesh.Clear();
 	Internal.BoundaryPositionOfDeformedTemplateMesh.Clear();
 
-	// dot NOT use Clear
-	Output.ParameterizedSourceMesh.Recreate();
-	Output.DeformedTemplateMesh.Recreate();
+	Output.ParameterizedSourceMesh.Clear();
+	Output.DeformedTemplateMesh.Clear();
 }
 
 

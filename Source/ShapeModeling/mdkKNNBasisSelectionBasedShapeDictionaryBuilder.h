@@ -15,14 +15,14 @@ struct Parameter_Of_KNNBasisSelectionBasedShapeDictionaryBuilder
 
     int_max BasisCount;
 
-	int_max MaxNeighbourCount;
+	int_max MaxNeighborCount;
 
 	std::string TransformName;// IdentityTransform, RigidTransform, SimilarityTransform, ThinPlateSplineTransform
 
 	ScalarType ExperienceDiscountFactor;
 
     //----------------------- parameter for data processing ------------------------------//
-	int_max MiniBatchSize;  // mini-batch size
+	int_max BatchSize;  // mini-batch size
 	int_max MaxEpochCount;  // epoch: train once on all the input shape 
 	int_max MaxThreadCount; // CPU thread
 
@@ -42,11 +42,11 @@ struct Parameter_Of_KNNBasisSelectionBasedShapeDictionaryBuilder
     {
 		Name = "";
         BasisCount = 0;
-		MaxNeighbourCount = 10;
+		MaxNeighborCount = 10;
 		TransformName = "RigidTransform";
 		ExperienceDiscountFactor = 1;
 
-		MiniBatchSize = 100;
+		BatchSize = 100;
 		MaxEpochCount = 1;
 		MaxThreadCount = 1;
 
@@ -58,40 +58,39 @@ struct Parameter_Of_KNNBasisSelectionBasedShapeDictionaryBuilder
     }
 };
 
+template<typename ScalarType>
+struct Input_Of_KNNBasisSelectionBasedShapeDictionaryBuilder
+{
+	Parameter_Of_KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType> Parameter;
+
+	const ObjectArray<DenseMatrix<ScalarType>>* TrainingShapeData;
+
+	DenseVector<int_max> LandmarkOnShape; // to get transform
+
+	const ShapeDictionary<ScalarType>* InitialDictionary;
+};
+
+template<typename ScalarType>
+struct Output_Of_KNNBasisSelectionBasedShapeDictionaryBuilder
+{
+	ShapeDictionary<ScalarType> Dictionary;
+	//{Basis_from_initial_dictionary, basis_from_traning_shape_data}
+};
 
 template<typename Scalar_Type>
 class KNNBasisSelectionBasedShapeDictionaryBuilder : public Object
 {
 public:
 	typedef Scalar_Type ScalarType;
-
-private:
-    Parameter_Of_KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType> m_Parameter;
-
-    // training data
-    const ObjectArray<DenseMatrix<ScalarType>>* m_TrainingShapeData;
-
-	DenseVector<int_max> m_LandmarkOnShape; // to get transform
-
-	// input initial dictionary
-    const ShapeDictionary<ScalarType>* m_InitialDictionary;
-
-	// output dictionary
-	ShapeDictionary<ScalarType> m_Dictionary;
-	//{Basis_from_initial_dictionary, basis_from_traning_shape_data}
-
+public:
+	Input_Of_KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType> Input;
+	Output_Of_KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType> Output;
 public:
     KNNBasisSelectionBasedShapeDictionaryBuilder();
     ~KNNBasisSelectionBasedShapeDictionaryBuilder();
     void Clear();
-	Parameter_Of_KNNBasisSelectionBasedShapeDictionaryBuilder<ScalarType>& Parameter() { return m_Parameter; }
-	void SetTrainingShapeData(const ObjectArray<DenseMatrix<ScalarType>>* ShapeData) { m_TrainingShapeData = ShapeData; }
-	void SetLandmarkOnShape(const DenseVector<int_max>& Landmark) { m_LandmarkOnShape = Landmark;	}
-	void SetInitialDictionary(const ShapeDictionary<ScalarType>* InitialDictionary) { m_InitialDictionary = InitialDictionary; }
     bool CheckInput();
 	void Update();
-	ShapeDictionary<ScalarType>& OutputDictionary() { return m_Dictionary; }
-
 private:    
 	void AdjustBasisExperience_BeforeEachEpoch(DenseMatrix<ScalarType>& BasisExperience);
 

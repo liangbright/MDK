@@ -18,39 +18,37 @@ PoolingDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::~Pooling
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void PoolingDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::Clear()
-{
-	auto& Self = *this;
-	Self.InputImage = nullptr;
-	Self.ImageInterpolationOption.MethodType = ImageInterpolationMethodEnum::Nearest;
-	Self.ImageInterpolationOption.BoundaryOption = ImageInterpolationBoundaryOptionEnum::Replicate;
-	Self.ImageInterpolationOption.Pixel_OutsideImage = InputPixelType(0);	
-	Self.OutputImage.Clear();
-	Self.MaxThreadCount = 1;
+{	
+	Input.Image = nullptr;
+	Input.ImageInterpolationOption.MethodType = ImageInterpolationMethodEnum::Nearest;
+	Input.ImageInterpolationOption.BoundaryOption = ImageInterpolationBoundaryOptionEnum::Replicate;
+	Input.ImageInterpolationOption.Pixel_OutsideImage = InputPixelType(0);	
+	Input.Radius = { 0, 0 };
+	Input.PoolingType = PoolingTypeEnum::Unknown;
+	Input.MaxThreadCount = 1;
 
-	Self.Flag_Input_Output_Orientation_IdentityMatrix = false;
-	Self.Flag_Input_Output_SameOrigin_SameOrientation = false;
-	Self.3DPositionTransformFromOuputToInput_Matrix.Clear();
-	Self.3DPositionTransformFromOuputToInput_Offset.Clear();
+	Internal.Flag_Input_Output_Orientation_IdentityMatrix = false;
+	Internal.Flag_Input_Output_SameOrigin_SameOrientation = false;
+	Internal.Position3DTransformFromOuputToInput_Matrix.Clear();
+	Internal.Position3DTransformFromOuputToInput_Offset.Clear();
+	Internal.Radius_Index2D = { 0, 0 };	
 
-	Self.Radius = { 0, 0};
-	Self.Radius_Index2D = { 0, 0};
-	Self.PoolingType = PoolingTypeEnum::Unknown;
+	Output.Image.Clear();
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void PoolingDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::SetOutputImageInfo(const ImageInfo2D& Info)
-{
-	auto& Self = *this;
-	auto Size_old = Self.OutputImage.GetSize();
+{	
+	auto Size_old = Output.Image.GetSize();
 	if (Size_old[0] != Info.Size[0] || Size_old[1] != Info.Size[1])
 	{
-		Self.OutputImage.Clear();
-		Self.OutputImage.SetInfo(Info);
+		Output.Image.Clear();
+		Output.Image.SetInfo(Info);
 	}
 	else
 	{// no new memory allocation
-		Self.OutputImage.SetInfo(Info, false);
+		Output.Image.SetInfo(Info, false);
 	}
 }
 
@@ -78,9 +76,8 @@ void PoolingDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::Set
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void PoolingDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::SetOutputImageInfoBySize(int_max Lx, int_max Ly)
-{
-	auto& Self = *this;
-	if (Self.InputImage == nullptr)
+{	
+	if (Input.Image == nullptr)
 	{
 		MDK_Error("InputImage is nullptr @ PoolingDenseImageFilter2D::SetOutputImageInfoBySize(...)")
 		return;
@@ -96,13 +93,13 @@ void PoolingDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::Set
 	Info.Size[0] = Lx;
 	Info.Size[1] = Ly;
 
-	auto Size_input = Self.InputImage->GetSize();
-	auto Spacing_input = Self.InputImage->GetSpacing();
+	auto Size_input = Input.Image->GetSize();
+	auto Spacing_input = Input.Image->GetSpacing();
 	Info.Spacing[0] = double(Size_input[0] - 1) * Spacing_input[0] / double(Lx - 1);
 	Info.Spacing[1] = double(Size_input[1] - 1) * Spacing_input[1] / double(Ly - 1);
 
-	Info.Origin = Self.InputImage->GetOrigin();
-	Info.Orientation = Self.InputImage->GetOrientation();
+	Info.Origin = Input.Image->GetOrigin();
+	Info.Orientation = Input.Image->GetOrientation();
 	Info.UpdateTransformMatrix();
 
 	this->SetOutputImageInfo(Info);
@@ -118,9 +115,8 @@ void PoolingDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::Set
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void PoolingDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::SetOutputImageInfoBySpacing(double Spacing_x, double Spacing_y)
-{
-	auto& Self = *this;
-	if (Self.InputImage == nullptr)
+{	
+	if (Input.Image == nullptr)
 	{
 		MDK_Error("InputImage is nullptr @ PoolingDenseImageFilter2D::SetOutputImageInfoBySpacing(...)")
 		return;
@@ -139,13 +135,13 @@ void PoolingDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::Set
 	Info.Spacing[0] = Spacing_x;
 	Info.Spacing[1] = Spacing_y;
 
-	auto Size_input = Self.InputImage->GetSize();
-	auto Spacing_input = Self.InputImage->GetSpacing();
+	auto Size_input = Input.Image->GetSize();
+	auto Spacing_input = Input.Image->GetSpacing();
 	Info.Size[0] = int_max(std::ceil(Size_input[0] * Spacing_input[0] / Spacing_x));
 	Info.Size[1] = int_max(std::ceil(Size_input[1] * Spacing_input[1] / Spacing_y));
 
-	Info.Origin = Self.InputImage->GetOrigin();
-	Info.Orientation = Self.InputImage->GetOrientation();
+	Info.Origin = Input.Image->GetOrigin();
+	Info.Orientation = Input.Image->GetOrientation();
 	Info.UpdateTransformMatrix();
 	this->SetOutputImageInfo(Info);
 }
@@ -153,18 +149,17 @@ void PoolingDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::Set
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 void PoolingDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::Update3DPositionTransform_Input_Output()
-{
-	auto& Self = *this;
-	auto InputImageInfo = Self.InputImage->GetInfo();
-	auto OutputImageInfo = Self.OutputImage.GetInfo();
+{	
+	auto InputImageInfo = Input.Image->GetInfo();
+	auto OutputImageInfo = Output.Image.GetInfo();
 	{
 		auto M = InputImageInfo.Orientation.Inv();
-		Self.3DPositionTransformFromOuputToInput_Matrix = MatrixMultiply(M, OutputImageInfo.Orientation);
+		Internal.Position3DTransformFromOuputToInput_Matrix = MatrixMultiply(M, OutputImageInfo.Orientation);
 		auto D = OutputImageInfo.Origin - InputImageInfo.Origin;
-		// Self.3DPositionTransformFromOuputToInput_Offset = M*D
-		Self.3DPositionTransformFromOuputToInput_Offset[0] = M[0] * D[0] + M[3] * D[1] + M[6] * D[2];
-		Self.3DPositionTransformFromOuputToInput_Offset[1] = M[1] * D[0] + M[4] * D[1] + M[7] * D[2];
-		Self.3DPositionTransformFromOuputToInput_Offset[2] = M[2] * D[0] + M[5] * D[1] + M[8] * D[2];
+		// Internal.Position3DTransformFromOuputToInput_Offset = M*D
+		Internal.Position3DTransformFromOuputToInput_Offset[0] = M[0] * D[0] + M[3] * D[1] + M[6] * D[2];
+		Internal.Position3DTransformFromOuputToInput_Offset[1] = M[1] * D[0] + M[4] * D[1] + M[7] * D[2];
+		Internal.Position3DTransformFromOuputToInput_Offset[2] = M[2] * D[0] + M[5] * D[1] + M[8] * D[2];
 	}
 
 	auto Eps = std::numeric_limits<double>::epsilon();
@@ -195,13 +190,13 @@ void PoolingDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::Upd
 
 	if (Flag_Input_Output_SameOrigin == true && Flag_Input_Output_SameOrientation == true)
 	{
-		Self.Flag_Input_Output_SameOrigin_SameOrientation = true;
+		Internal.Flag_Input_Output_SameOrigin_SameOrientation = true;
 	}
 
-	Self.Flag_Input_Output_Orientation_IdentityMatrix = false;
+	Internal.Flag_Input_Output_Orientation_IdentityMatrix = false;
 	if (InputImageInfo.Orientation.IsIdentityMatrix() == true && OutputImageInfo.Orientation.IsIdentityMatrix() == true)
 	{
-		Self.Flag_Input_Output_Orientation_IdentityMatrix = true;
+		Internal.Flag_Input_Output_Orientation_IdentityMatrix = true;
 	}
 }
 
@@ -209,21 +204,20 @@ void PoolingDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::Upd
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 DenseVector<ScalarType, 2> PoolingDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::
 Transform2DPositionInOutputImageTo2DPositionInInputImage(const DenseVector<ScalarType, 2>& Position_out)
-{
-	auto& Self = *this;
-	if (Self.Flag_Input_Output_SameOrigin_SameOrientation == true)
+{	
+	if (Internal.Flag_Input_Output_SameOrigin_SameOrientation == true)
 	{
 		return Position_out;
 	}
-	else if (Self.Flag_Input_Output_Orientation_IdentityMatrix == true)
+	else if (Internal.Flag_Input_Output_Orientation_IdentityMatrix == true)
 	{
-		auto Position_in = Self.OutputImage.GetOrigin2D() - Self.InputImage->GetOrigin2D() + Position_out;
+		auto Position_in = Output.Image.GetOrigin2D() - Input.Image->GetOrigin2D() + Position_out;
 		return Position_in;
 	}
 	else
 	{
-		auto R = Self.3DPositionTransformFromOuputToInput_Matrix.GetElementPointer();
-		auto T = Self.3DPositionTransformFromOuputToInput_Offset.GetElementPointer();
+		auto R = Internal.Position3DTransformFromOuputToInput_Matrix.GetElementPointer();
+		auto T = Internal.Position3DTransformFromOuputToInput_Offset.GetElementPointer();
 		DenseVector<ScalarType, 2> Position_in;		
 		//Position_in[0] = R[0] * Position_out[0] + R[3] * Position_out[1] + R[6] * Position_out[2] + T[0];
 		//Position_in[1] = R[1] * Position_out[0] + R[4] * Position_out[1] + R[7] * Position_out[2] + T[1];
@@ -237,27 +231,26 @@ Transform2DPositionInOutputImageTo2DPositionInInputImage(const DenseVector<Scala
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 bool PoolingDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::CheckInput()
-{
-	auto& Self = *this;
-	if (Self.InputImage == nullptr)
+{	
+	if (Input.Image == nullptr)
 	{
 		MDK_Error("Input image is Empty (nullptr) @ PoolingDenseImageFilter2D::SelfCheckInput()")
 		return false;
 	}
 
-	if (Self.InputImage->IsEmpty() == true)
+	if (Input.Image->IsEmpty() == true)
 	{
 		MDK_Error("Input image is Empty @ PoolingDenseImageFilter2D::CheckInput()")
 		return false;
 	}
 
-	if (Self.MaxThreadCount <= 0)
+	if (Input.MaxThreadCount <= 0)
 	{
 		MDK_Error("MaxThreadCount <= 0 @ PoolingDenseImageFilter2D::CheckInput()")
 		return false;
 	}
 
-	if (Self.Radius[0] <= 0 || Self.Radius[1] <= 0)
+	if (Input.Radius[0] <= 0 || Input.Radius[1] <= 0)
 	{
 		MDK_Error("Radius <= 0 @ PoolingDenseImageFilter2D::CheckInput()")
 		return false;
@@ -277,41 +270,39 @@ void PoolingDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::Upd
 
 	this->Update3DPositionTransform_Input_Output();
 	
-	//--------------------------------------------------------------------------------
-	auto& Self = *this;
-	auto PixelCount = Self.OutputImage.GetPixelCount();
+	//--------------------------------------------------------------------------------	
+	auto PixelCount = Output.Image.GetPixelCount();
 	//for (int_max k = 0; k <= PixelCount-1; ++k)
 	auto TempFunction = [&](int_max k)
 	{
-		Self.OutputImage[k] = this->EvaluateAtPixelInOutputImage(k);
+		Output.Image[k] = this->EvaluateAtPixelInOutputImage(k);
 	};
-	ParallelForLoop(TempFunction, 0, PixelCount - 1, Self.MaxThreadCount);
+	ParallelForLoop(TempFunction, 0, PixelCount - 1, Input.MaxThreadCount);
 	//---------------------------------------------------------------------------------
 }
 
 
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 OutputPixelType PoolingDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::EvaluateAtPixelInOutputImage(int_max LinearIndex)
-{
-	auto& Self = *this;
-	auto Pos_out = Self.OutputImage.TransformLinearIndexTo3DPosition<ScalarType>(LinearIndex);
+{	
+	auto Pos_out = Output.Image.TransformLinearIndexTo3DPosition<ScalarType>(LinearIndex);
 	auto Pos_in = this->Transform2DPositionInOutputImageTo2DPositionInInputImage(Pos_out);
 	auto x0 = Pos_in[0];
 	auto y0 = Pos_in[1];
 
 	// Index2D=[x, y] : ScalarType
-	auto Index2D = Self.IntegralImage->Transform2DPositionTo2DIndex(x0, y0);
-	auto Size = Self.IntegralImage->GetSize();
+	auto Index2D = Input.Image->Transform2DPositionTo2DIndex(x0, y0);
+	auto Size = Input.Image->GetSize();
 	//---------------------------------------------------------
 	// x1 <= x <= x2, y1 <= y <= y2
-	auto x1 = int_max(std::round(Index3D[0] - Self.Radius_Index3D[0]-1));
-	auto x2 = int_max(std::round(Index3D[0] + Self.Radius_Index3D[0]));
-	auto y1 = int_max(std::round(Index3D[1] - Self.Radius_Index3D[1]-1));
-	auto y2 = int_max(std::round(Index3D[1] + Self.Radius_Index3D[1]));
+	auto x1 = int_max(std::round(Index3D[0] - Input.Radius_Index3D[0]-1));
+	auto x2 = int_max(std::round(Index3D[0] + Input.Radius_Index3D[0]));
+	auto y1 = int_max(std::round(Index3D[1] - Input.Radius_Index3D[1]-1));
+	auto y2 = int_max(std::round(Index3D[1] + Input.Radius_Index3D[1]));
 	// window is outside the image
 	if (x1 >= Size[0] || x2 < 0 || y1 >= Size[1] || y2 < 0)
 	{
-		return OutputPixelType(Self.ImageInterpolationOption.Pixel_OutsideImage);
+		return OutputPixelType(Input.ImageInterpolationOption.Pixel_OutsideImage);
 	}
 	// now, the window overlap with the image
 	if (x1 < 0)	{ x1 = 0; }
@@ -342,7 +333,7 @@ OutputPixelType PoolingDenseImageFilter2D<InputPixelType, OutputPixelType, Scala
 		}
 	}
 	//---------------------------------------------------------
-	switch (Self.PoolingType)
+	switch (Input.PoolingType)
 	{
 	case PoolingTypeEnum::Max:
 		return this->PoolingOperation_Max(x1, x2, y1, y2);
@@ -355,7 +346,7 @@ OutputPixelType PoolingDenseImageFilter2D<InputPixelType, OutputPixelType, Scala
 	case PoolingTypeEnum::Average:
 		return this->PoolingOperation_Average(x1, x2, y1, y2);
 	default:
-		return OutputPixelType(Self.ImageInterpolationOption.Pixel_OutsideImage);
+		return OutputPixelType(Input.ImageInterpolationOption.Pixel_OutsideImage);
 	}	
 }
 
@@ -363,14 +354,13 @@ OutputPixelType PoolingDenseImageFilter2D<InputPixelType, OutputPixelType, Scala
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 OutputPixelType PoolingDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::
 PoolingOperation_Max(int_max x_min, int_max x_max, int_max y_min, int_max y_max)
-{
-	auto& Self = *this;
-	auto OutputPixel = (*Self.InputImage)(x_min, y_min);
+{	
+	auto OutputPixel = (*Input.Image)(x_min, y_min);
 	for (int_max y = y_min; y <= y_max; ++y)
 	{
 		for (int_max x = x_min; x <= x_max; ++x)
 		{
-			auto Pixel = OutputPixelType((*Self.InputImage)(x, y));
+			auto Pixel = OutputPixelType((*Input.Image)(x, y));
 			if (Pixel > OutputPixel)
 			{
 				OutputPixel = Pixel;
@@ -384,14 +374,13 @@ PoolingOperation_Max(int_max x_min, int_max x_max, int_max y_min, int_max y_max)
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 OutputPixelType PoolingDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::
 PoolingOperation_MaxAbs(int_max x_min, int_max x_max, int_max y_min, int_max y_max)
-{
-	auto& Self = *this;
-	auto OutputPixel = std::abs((*Self.InputImage)(x_min, y_min));
+{	
+	auto OutputPixel = std::abs((*Input.Image)(x_min, y_min));
 	for (int_max y = y_min; y <= y_max; ++y)
 	{
 		for (int_max x = x_min; x <= x_max; ++x)
 		{
-			auto Pixel = OutputPixelType((*Self.InputImage)(x, y));
+			auto Pixel = OutputPixelType((*Input.Image)(x, y));
 			if (std::abs(Pixel) > std::abs(OutputPixel))
 			{
 				OutputPixel = std::abs(Pixel);
@@ -405,14 +394,13 @@ PoolingOperation_MaxAbs(int_max x_min, int_max x_max, int_max y_min, int_max y_m
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 OutputPixelType PoolingDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::
 PoolingOperation_Min(int_max x_min, int_max x_max, int_max y_min, int_max y_max)
-{
-	auto& Self = *this;
-	auto OutputPixel = (*Self.InputImage)(x_min, y_min);
+{	
+	auto OutputPixel = (*Input.Image)(x_min, y_min);
 	for (int_max y = y_min; y <= y_max; ++y)
 	{
 		for (int_max x = x_min; x <= x_max; ++x)
 		{
-			auto Pixel = OutputPixelType((*Self.InputImage)(x, y));
+			auto Pixel = OutputPixelType((*Input.Image)(x, y));
 			if (Pixel < OutputPixel)
 			{
 				OutputPixel = Pixel;
@@ -426,14 +414,13 @@ PoolingOperation_Min(int_max x_min, int_max x_max, int_max y_min, int_max y_max)
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 OutputPixelType PoolingDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::
 PoolingOperation_MinAbs(int_max x_min, int_max x_max, int_max y_min, int_max y_max)
-{
-	auto& Self = *this;
-	auto OutputPixel = std::abs((*Self.InputImage)(x_min, y_min));
+{	
+	auto OutputPixel = std::abs((*Input.Image)(x_min, y_min));
 	for (int_max y = y_min; y <= y_max; ++y)
 	{
 		for (int_max x = x_min; x <= x_max; ++x)
 		{
-			auto Pixel = OutputPixelType((*Self.InputImage)(x, y));
+			auto Pixel = OutputPixelType((*Input.Image)(x, y));
 			if (std::abs(Pixel) < std::abs(OutputPixel))
 			{
 				OutputPixel = std::abs(Pixel);
@@ -447,14 +434,13 @@ PoolingOperation_MinAbs(int_max x_min, int_max x_max, int_max y_min, int_max y_m
 template<typename InputPixelType, typename OutputPixelType, typename ScalarType>
 OutputPixelType PoolingDenseImageFilter2D<InputPixelType, OutputPixelType, ScalarType>::
 PoolingOperation_Averge(int_max x_min, int_max x_max, int_max y_min, int_max y_max)
-{
-	auto& Self = *this;
+{	
 	auto OutputPixel = OutputPixelType(0);
 	for (int_max y = y_min; y <= y_max; ++y)
 	{
 		for (int_max x = x_min; x <= x_max; ++x)
 		{
-			OutputPixel += OutputPixelType((*Self.InputImage)(x, y));
+			OutputPixel += OutputPixelType((*Input.Image)(x, y));
 		}
 	}
 	auto Count = (y_max - y_min + 1)*(x_max - x_min + 1);

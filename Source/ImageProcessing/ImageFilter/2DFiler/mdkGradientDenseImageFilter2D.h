@@ -11,7 +11,7 @@ namespace mdk
 {
 
 template<typename ScalarType>
-struct Mask_Of_GradientDenseImageFilter2D
+struct Mask_of_GradientDenseImageFilter2D
 {
 	// Direction of Mask: PointN -> PointP
 	DenseVector<ScalarType, 2> PointP; // Positive pole, physical position in input image
@@ -20,24 +20,11 @@ struct Mask_Of_GradientDenseImageFilter2D
 	DenseVector<int_max> MaskIndexListAtNextLevel;
 };
 
-
-template<typename InputPixel_Type, typename Scalar_Type = double>
-class GradientDenseImageFilter2D : public Object
+template<typename InputPixelType, typename ScalarType>
+struct Input_of_GradientDenseImageFilter2D
 {
-public:
-	typedef InputPixel_Type				InputPixelType;
-	typedef DenseVector<Scalar_Type, 2> OutputPixelType; // Gradient Vector
-	typedef Scalar_Type				    ScalarType;
-
 	typedef Option_Of_Image2DInterpolation<InputPixelType>  ImageInterpolationOptionType;
-	typedef MethodEnum_Of_Image2DInterpolation              ImageInterpolationMethodEnum;
-	typedef BoundaryOptionEnum_Of_Image2DInterpolation      ImageInterpolationBoundaryOptionEnum;
 
-private:
-	typedef Mask_Of_GradientDenseImageFilter2D<ScalarType> MaskType;
-
-public:
-	//-------------------------- input --------------------------------------------------//
 	const DenseImage2D<InputPixelType>* InputImage;
 
 	ImageInterpolationOptionType ImageInterpolationOption;
@@ -54,12 +41,17 @@ public:
 	DenseVector<ScalarType, 2> GradientDirection_Prior; // Direction in 2D space of OutputImage
 
 	int_max MaxThreadCount;
+};
 
-	//------------------------- output ----------------------------------------------------//
-	DenseImage2D<OutputPixelType> OutputImage;
+template<typename PixelType>
+struct Output_of_GradientDenseImageFilter2D
+{
+	DenseImage2D<PixelType> Image;
+};
 
-private:
-	//------------------------ internal ------------------------------------------------------//	
+template<typename ScalarType>
+struct Internal_of_GradientDenseImageFilter2D
+{
 	bool Flag_Input_Output_Orientation_IdentityMatrix;
 	bool Flag_Input_Output_SameOrigin_SameOrientation;
 
@@ -67,9 +59,31 @@ private:
 	DenseMatrix<double>    Position3DTransformFromOuputToInput_Matrix;
 	DenseVector<double, 3> Position3DTransformFromOuputToInput_Offset;
 
-	ObjectArray<ObjectArray<MaskType>> MaskList; // MaskList[k] is MaskList at Level k
+	ObjectArray<ObjectArray<Mask_of_GradientDenseImageFilter2D<ScalarType>>> MaskList; // MaskList[k] is MaskList at Level k
 
 	DenseVector<int_max> MaskCountAtEachLevel;
+};
+
+template<typename InputPixel_Type, typename Scalar_Type = double>
+class GradientDenseImageFilter2D : public Object
+{
+public:
+	typedef InputPixel_Type				InputPixelType;
+	typedef DenseVector<Scalar_Type, 2> OutputPixelType; // Gradient Vector
+	typedef Scalar_Type				    ScalarType;
+
+	typedef Option_Of_Image2DInterpolation<InputPixelType>  ImageInterpolationOptionType;
+	typedef MethodEnum_Of_Image2DInterpolation              ImageInterpolationMethodEnum;
+	typedef BoundaryOptionEnum_Of_Image2DInterpolation      ImageInterpolationBoundaryOptionEnum;
+
+private:
+	typedef Mask_of_GradientDenseImageFilter2D<ScalarType> MaskType;
+
+public:
+	Input_of_GradientDenseImageFilter2D<InputPixelType, ScalarType> Input;
+	Output_of_GradientDenseImageFilter2D<OutputPixelType> Output;
+private:
+	Internal_of_GradientDenseImageFilter2D<ScalarType> Internal;
 
 public:		
     GradientDenseImageFilter2D();
@@ -90,9 +104,9 @@ public:
 	void SetOutputImageInfoBySpacing(const DenseVector<double, 2>& Spacing);
 	void SetOutputImageInfoBySpacing(double Spacing_x, double Spacing_y);
 
-	void SetMaskOriginInMiddle() { this->Flag_MaskOriginLocation = 0; }
-	void SetMaskOriginAsPositivePole() { this->Flag_MaskOriginLocation = 1; }
-	void SetMaskOriginAsNegativePole() { this->Flag_MaskOriginLocation = 2; }
+	void SetMaskOriginInMiddle() { Input.Flag_MaskOriginLocation = 0; }
+	void SetMaskOriginAsPositivePole() { Input.Flag_MaskOriginLocation = 1; }
+	void SetMaskOriginAsNegativePole() { Input.Flag_MaskOriginLocation = 2; }
 
 	void Update();
 

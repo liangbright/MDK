@@ -12,7 +12,7 @@ namespace mdk
 {
 
 template<typename ScalarType>
-struct Mask_Of_GradientDenseImageFilter3D
+struct Mask_of_GradientDenseImageFilter3D
 {
 	// Direction of Mask: PointN -> PointP
 	DenseVector<ScalarType, 3> PointP; // Positive pole, physical position (transformed from output to in input image)
@@ -20,6 +20,50 @@ struct Mask_Of_GradientDenseImageFilter3D
 
 	DenseVector<int_max> MaskIndexListAtNextLevel;
 };
+
+template<typename InputPixelType, typename ScalarType>
+struct Input_of_GradientDenseImageFilter3D
+{
+	typedef Option_Of_Image3DInterpolation<InputPixelType>  ImageInterpolationOptionType;
+
+	const DenseImage3D<InputPixelType>* Image;
+
+	ImageInterpolationOptionType ImageInterpolationOption;
+
+	double Radius; // distance between Position(+) and Position(-), in Physical unit (mm)
+
+	int_max Flag_MaskOriginLocation;
+	//  0: Middle ~ default
+	//  1: PositivePole
+	// -1: NegativePole
+
+	int_max SphereResolution;	// PointCount of SphereMesh from SphereBuilder
+								// 20, 42, 162, 642, 2562, 10242, 40962
+
+	DenseVector<ScalarType, 3> GradientDirection_Prior;// Direction in 3D space of OutputImage
+
+	int_max MaxThreadCount;
+};
+
+template<typename ScalarType>
+struct Internal_of_GradientDenseImageFilter3D
+{
+	bool Flag_Input_Output_Orientation_IdentityMatrix;
+	bool Flag_Input_Output_SameOrigin_SameOrientation;
+
+	// see description in DenseImageResampler3D
+	DenseMatrix<double>    Position3DTransformFromOuputToInput_Matrix;
+	DenseVector<double, 3> Position3DTransformFromOuputToInput_Offset;
+
+	ObjectArray<ObjectArray<Mask_of_GradientDenseImageFilter3D<ScalarType>>> MaskList;  // MaskList[k] is MaskList at Level k
+};
+
+template<typename PixelType>
+struct Output_of_GradientDenseImageFilter3D
+{
+	DenseImage3D<PixelType> Image;
+};
+
 
 // compute Intensity Gradient in 3D space of OutputImage (not InputImage space, not world space)
 
@@ -36,38 +80,10 @@ public:
 	typedef BoundaryOptionEnum_Of_Image3DInterpolation      ImageInterpolationBoundaryOptionEnum;
 
 public:
-	//-------------------------- input --------------------------------------------------//
-	const DenseImage3D<InputPixelType>* InputImage;
-
-	ImageInterpolationOptionType ImageInterpolationOption;
-
-	double Radius; // distance between Position(+) and Position(-), in Physical unit (mm)
-
-	int_max Flag_MaskOriginLocation;
-	//  0: Middle ~ default
-	//  1: PositivePole
-	// -1: NegativePole
-
-	int_max SphereResolution;	// PointCount of SphereMesh from SphereBuilder
-								// 20, 42, 162, 642, 2562, 10242, 40962
-
-	DenseVector<Scalar_Type, 3> GradientDirection_Prior;// Direction in 3D space of OutputImage
-
-	int_max MaxThreadCount;
-
-	//------------------------- output ----------------------------------------------------//
-	DenseImage3D<OutputPixelType> OutputImage;
-
+	Input_of_GradientDenseImageFilter3D<InputPixelType, ScalarType> Input;
+	Output_of_GradientDenseImageFilter3D<OutputPixelType> Output;
 private:
-	//------------------------ internal ------------------------------------------------------//	
-	bool Flag_Input_Output_Orientation_IdentityMatrix;
-	bool Flag_Input_Output_SameOrigin_SameOrientation;
-
-	// see description in DenseImageResampler3D
-	DenseMatrix<double>    Position3DTransformFromOuputToInput_Matrix;
-	DenseVector<double, 3> Position3DTransformFromOuputToInput_Offset;
-
-	ObjectArray<ObjectArray<Mask_Of_GradientDenseImageFilter3D<ScalarType>>> MaskList;  // MaskList[k] is MaskList at Level k
+	Internal_of_GradientDenseImageFilter3D<ScalarType> Internal;	
 
 public:		
     GradientDenseImageFilter3D();
@@ -88,9 +104,9 @@ public:
 	void SetOutputImageInfoBySpacing(const DenseVector<double, 3>& Spacing);
 	void SetOutputImageInfoBySpacing(double Spacing_x, double Spacing_y, double Spacing_z);
 
-	void SetMaskOriginInMiddle() { this->Flag_MaskOriginLocation = 0;}
-	void SetMaskOriginAsPositivePole() { this->Flag_MaskOriginLocation = 1; }
-	void SetMaskOriginAsNegativePole() { this->Flag_MaskOriginLocation = -1; }
+	void SetMaskOriginInMiddle() { Input.Flag_MaskOriginLocation = 0;}
+	void SetMaskOriginAsPositivePole() { Input.Flag_MaskOriginLocation = 1; }
+	void SetMaskOriginAsNegativePole() { Input.Flag_MaskOriginLocation = -1; }
 	
 	void Update();
 

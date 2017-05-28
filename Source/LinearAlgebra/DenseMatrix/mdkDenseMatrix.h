@@ -1252,6 +1252,9 @@ public:
     template<typename CompareFunctionType>
     inline DenseMatrix<int_max> Sort(int_max LinearIndex_start, int_max LinearIndex_end, CompareFunctionType CompareFunction) const;
 
+	//must have this, otherwise Sort("ascend") may be matched to Sort(CompareFunctionType CompareFunction)
+	inline DenseMatrix<int_max> Sort(const char* ascend_or_descend) const;//ascend_or_descend = "ascend" or "descend"
+
     inline DenseMatrix<int_max> Sort(const std::string& ascend_or_descend) const;//ascend_or_descend = "ascend" or "descend"
 
     template<typename CompareFunctionType>
@@ -1259,6 +1262,9 @@ public:
 
     template<typename CompareFunctionType>
     inline void SortInPlace(int_max LinearIndex_start, int_max LinearIndex_end, CompareFunctionType CompareFunction);
+
+	//must have this, otherwise SortInPlace("ascend") may be matched to SortInPlace(CompareFunctionType CompareFunction)
+	inline void SortInPlace(const char* ascend_or_descend);//ascend_or_descend = "ascend" or "descend"
 
     inline void SortInPlace(const std::string& ascend_or_descend);//ascend_or_descend = "ascend" or "descend"
 

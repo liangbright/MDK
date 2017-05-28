@@ -7,6 +7,17 @@
 
 namespace mdk
 {
+template<typename PixelType>
+struct Input_of_IntegralImageBuilder2D
+{
+	const DenseImage2D<PixelType>* Image;	
+};
+
+template<typename PixelType>
+struct Output_of_IntegralImageBuilder2D
+{
+	DenseImage2D<PixelType> Image;
+};
 
 template<typename InputPixel_Type, typename OutputPixel_Type = InputPixel_Type>
 class IntegralImageBuilder2D : public Object
@@ -14,23 +25,16 @@ class IntegralImageBuilder2D : public Object
 public:
 	typedef InputPixel_Type  InputPixelType;
 	typedef OutputPixel_Type OutputPixelType;
-
-private:
-	const DenseImage2D<InputPixelType>* m_InputImage;
-	DenseImage2D<OutputPixelType> m_OutputImage;
-
+public:
+	Input_of_IntegralImageBuilder2D<InputPixelType> Input;
+	Output_of_IntegralImageBuilder2D<OutputPixelType> Output;
 public:		
     IntegralImageBuilder2D();
-    ~IntegralImageBuilder2D();
-  
+    ~IntegralImageBuilder2D();  
     void Clear();
-	void SetInputImage(const DenseImage2D<InputPixelType>* InputImage) { m_InputImage = InputImage;	}
 	void Update();
-	DenseImage2D<InputPixelType>& OutputImage() { return m_OutputImage;}
-
 private:
     bool CheckInput();
-
 private:
     IntegralImageBuilder2D(const IntegralImageBuilder2D&) = delete;
     void operator=(const IntegralImageBuilder2D&) = delete;
