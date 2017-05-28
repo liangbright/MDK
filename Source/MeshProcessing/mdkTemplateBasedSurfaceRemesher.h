@@ -5,26 +5,14 @@
 
 namespace mdk
 {
-template<typename Scalar_Type>
-class TemplateBasedSurfaceRemesher : public Object
+
+template<typename InputMeshAttribute, typename TemplateMeshAttribute>
+struct Input_of_TemplateBasedSurfaceRemesher
 {
-public:
-	typedef Scalar_Type ScalarType;
-	typedef typename TriangleMeshStandardAttributeType<ScalarType>      InputMeshAttribute;
-	typedef typename PolygonMeshStandardAttributeType<ScalarType>       OutputMeshAttribute;
-	typedef OutputMeshAttribute                                         TemplateMeshAttribute;
-	
-	typedef typename TriangleMesh<InputMeshAttribute>    InputMeshType;
-	typedef typename PolygonMesh<OutputMeshAttribute>    TemplateMeshType;
-	typedef typename PolygonMesh<OutputMeshAttribute>    OutputMeshType;
-
-public:
-	//-------------------- input -------------------------------//
-
 	// input mesh must be triangle mesh
-	TriangleMesh<InputMeshAttribute> InputMesh;
+	TriangleMesh<InputMeshAttribute> SourceMesh;
 
-	ObjectArray<DenseVector<int_max>> BoundarySegmentListOfInputMesh;
+	ObjectArray<DenseVector<int_max>> BoundarySegmentListOfSourceMesh;
 	//BoundaryListOfInputMesh[k] is BoundarySegment: a set of boundary point index
 	//BoundarySegment = {PointIndex_start, ..., PointIndex_end}
 	//BoundarySegment[k] overlap with BoundarySegment[k-1] and BoundarySegment[k+1] at start/end point
@@ -45,22 +33,48 @@ public:
 
 	bool Flag_EnableTPSTransformOfTemplateMesh = false;
 
-private:
-	//-------------------- internal ---------------------------//
+};
 
-	DenseVector<int_max> BoundaryPointIndexListOfInputMesh;
-	DenseMatrix<ScalarType> UVTalbleOfBoundaryOfInputMesh;// each col is [u,v]
+template<typename ScalarType>
+struct Internal_of_TemplateBasedSurfaceRemesher
+{
+	DenseVector<int_max> BoundaryPointIndexListOfSourceMesh;
+	DenseMatrix<ScalarType> UVTalbleOfBoundaryOfSourceMesh;// each col is [u,v]
 
 	DenseVector<int_max> BoundaryPointIndexListOfTemplateMesh;
 	DenseMatrix<ScalarType> BoundaryPositionOfTemplateMesh;// each col is [u,v,0]
-	DenseMatrix<ScalarType> BoundaryPositionOfOutputMesh;  // each col is [x,y,z]
+	DenseMatrix<ScalarType> BoundaryPositionOfDeformedTemplateMesh;  // each col is [x,y,z]
+};
+
+
+template<typename InputMeshAttribute, typename OutputMeshAttribute>
+struct Output_of_TemplateBasedSurfaceRemesher
+{
+	TriangleMesh<InputMeshAttribute> ParameterizedSourceMesh;//2D mesh
+	// OutputMesh is Transformed TemplateMesh from 2D to 3D
+	PolygonMesh<OutputMeshAttribute> DeformedTemplateMesh;
+};
+
+
+template<typename Scalar_Type>
+class TemplateBasedSurfaceRemesher : public Object
+{
+public:
+	typedef Scalar_Type ScalarType;
+	typedef typename TriangleMeshStandardAttributeType<ScalarType>      InputMeshAttribute;
+	typedef typename PolygonMeshStandardAttributeType<ScalarType>       OutputMeshAttribute;
+	typedef OutputMeshAttribute                                         TemplateMeshAttribute;
+	
+	typedef typename TriangleMesh<InputMeshAttribute>    InputMeshType;
+	typedef typename PolygonMesh<OutputMeshAttribute>    TemplateMeshType;
+	typedef typename PolygonMesh<OutputMeshAttribute>    OutputMeshType;
 
 public:
-	//------------------- output -----------------------------//
-	TriangleMesh<InputMeshAttribute> TransfromedInputMesh;//2D mesh
-
-	// OutputMesh is Transformed TemplateMesh from 2D to 3D
-	PolygonMesh<OutputMeshAttribute> OutputMesh;
+	Input_of_TemplateBasedSurfaceRemesher<InputMeshAttribute, TemplateMeshAttribute> Input;
+private:
+	Internal_of_TemplateBasedSurfaceRemesher<ScalarType> Internal;
+public:
+	Output_of_TemplateBasedSurfaceRemesher<InputMeshAttribute, OutputMeshAttribute> Output;
 
 public:
 	TemplateBasedSurfaceRemesher();

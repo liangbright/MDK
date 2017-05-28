@@ -16,113 +16,101 @@ TemplateBasedSurfaceRemesher<ScalarType>::~TemplateBasedSurfaceRemesher()
 template<typename ScalarType>
 void TemplateBasedSurfaceRemesher<ScalarType>::Clear()
 {
-	auto& Self = *this;
+	// dot NOT use Clear
+	Input.SourceMesh.Recreate();
+	Input.BoundarySegmentListOfSourceMesh.Recreate();
+	Input.TemplateMesh.Recreate();
+	Input.BoundarySegmentListOfTemplateMesh.Recreate();
 
-	Self.InputMesh.Recreate();// dot NOT use Clear
-	Self.BoundarySegmentListOfInputMesh.Clear();
-	Self.TemplateMesh.Recreate();// dot NOT use Clear
-	Self.BoundarySegmentListOfTemplateMesh.Clear();
+	Internal.BoundaryPointIndexListOfSourceMesh.Clear();
+	Internal.UVTalbleOfBoundaryOfSourceMesh.Clear();
+	Internal.DiffusionCoefficientOfMeshParameterization = 0.5;
+	Internal.MaxIterationOfMeshParameterization = 10;
+	Internal.BoundaryPointIndexListOfTemplateMesh.Clear();
+	Internal.BoundaryPositionOfTemplateMesh.Clear();
+	Internal.BoundaryPositionOfOutputMesh.Clear();
 
-	Self.BoundaryPointIndexListOfInputMesh.Clear();
-	Self.UVTalbleOfBoundaryOfInputMesh.Clear();
-
-	Self.DiffusionCoefficientOfMeshParameterization = 0.5;
-	Self.MaxIterationOfMeshParameterization = 10;
-
-	this->ClearInternalData();
-
-	Self.OutputMesh.Clear();
-}
-
-
-template<typename ScalarType>
-void TemplateBasedSurfaceRemesher<ScalarType>::ClearInternalData()
-{
-	auto& Self = *this;
-	Self.BoundaryPointIndexListOfTemplateMesh.Clear();
-	Self.BoundaryPositionOfTemplateMesh.Clear();
-	Self.BoundaryPositionOfOutputMesh.Clear();
-	Self.TransfromedInputMesh.Clear();
+	// dot NOT use Clear
+	Output.ParameterizedSourceMesh.Recreate();
+	Output.DeformedTemplateMesh.Recreate();
 }
 
 
 template<typename ScalarType>
 bool TemplateBasedSurfaceRemesher<ScalarType>::CheckInput()
 {
-	auto& Self = *this;
-
-	if (Self.InputMesh.IsEmpty() == true)
+	if (Input.SourceMesh.IsEmpty() == true)
 	{
 		MDK_Error("InputMesh is empty @ TemplateBasedSurfaceRemesher::CheckInput()")
 		return false;
 	}
 
-	if (Self.InputMesh.GetPointCount() < 3)
+	if (Input.SourceMesh.GetPointCount() < 3)
 	{
 		MDK_Error("InputMesh PointCount < 3 @ TemplateBasedSurfaceRemesher::CheckInput()")
 		return false;
 	}
 
-	if (Self.InputMesh.Check_If_DataStructure_is_Clean() == false)
+	if (Input.SourceMesh.Check_If_DataStructure_is_Clean() == false)
 	{
 		MDK_Error("InputMesh DataStructure is NOT Clean @ TemplateBasedSurfaceRemesher::CheckInput()")
 		return false;
 	}
 
-	if (Self.InputMesh.CheckIfTriangleMesh() == false)
+	if (Input.SourceMesh.CheckIfTriangleMesh() == false)
 	{
 		MDK_Error("InputMesh is NOT TriangleMesh @ TemplateBasedSurfaceRemesher::CheckInput()")
 		return false;
 	}
 
-	if (Self.BoundarySegmentListOfInputMesh.IsEmpty() == true)
+	if (Input.BoundarySegmentListOfSourceMesh.IsEmpty() == true)
 	{
 		MDK_Error("BoundarySegmentListOfInputMesh is empty @ TemplateBasedSurfaceRemesher::CheckInput()")
 		return false;
 	}
 
-	if (Self.TemplateMesh.IsEmpty() == true)
+	if (Input.TemplateMesh.IsEmpty() == true)
 	{
 		MDK_Error("TemplateMesh is empty @ TemplateBasedSurfaceRemesher::CheckInput()")
 		return false;
 	}
 
-	if (Self.BoundarySegmentListOfTemplateMesh.IsEmpty() == true)
+	if (Input.BoundarySegmentListOfTemplateMesh.IsEmpty() == true)
 	{
 		MDK_Error("BoundarySegmentListOfTemplateMesh is empty @ TemplateBasedSurfaceRemesher::CheckInput()")
 		return false;
 	}
 
-	if (Self.BoundarySegmentListOfInputMesh.GetLength() != Self.BoundarySegmentListOfTemplateMesh.GetLength())
+	if (Input.BoundarySegmentListOfSourceMesh.GetLength() != Input.BoundarySegmentListOfTemplateMesh.GetLength())
 	{
 		MDK_Error("BoundarySegmentList not match @ TemplateBasedSurfaceRemesher::CheckInput()")
 		return false;
 	}
 
-	for (int_max k = 0; k < Self.BoundarySegmentListOfInputMesh.GetLength(); ++k)
+	for (int_max k = 0; k < Input.BoundarySegmentListOfSourceMesh.GetLength(); ++k)
 	{
-		if (Self.BoundarySegmentListOfInputMesh[k].GetLength() == 0 || Self.BoundarySegmentListOfTemplateMesh[k].GetLength() == 0)
+		if (Input.BoundarySegmentListOfSourceMesh[k].GetLength() == 0 || Input.BoundarySegmentListOfTemplateMesh[k].GetLength() == 0)
 		{
 			MDK_Error("BoundarySegment is empty @ TemplateBasedSurfaceRemesher::CheckInput()")
 			return false;
 		}
 	}
 
-	if (Self.DiffusionCoefficientOfMeshParameterization < 0 || Self.DiffusionCoefficientOfMeshParameterization > 1)
+	if (Internal.DiffusionCoefficientOfMeshParameterization < 0 || Internal.DiffusionCoefficientOfMeshParameterization > 1)
 	{
 		MDK_Error("DiffusionCoefficientOfMeshParameterization is out of range [0, 1] @ TemplateBasedSurfaceRemesher::CheckInput()")
 		return false;
 	}
 
-	if (Self.MaxIterationOfMeshParameterization <= 0)
+	if (Internal.MaxIterationOfMeshParameterization <= 0)
 	{
 		MDK_Error("MaxIterationOfMeshParameterization <= 0 @ TemplateBasedSurfaceRemesher::CheckInput()")
 		return false;
 	}
 
-	//check if all the boundary point of inputmesh included in Self.BoundarySegmentListOfInputMesh
+	//check if all the boundary point of inputmesh included in Input.BoundarySegmentListOfSourceMesh
 	/*
-	auto BoundarySet_input = TraceMeshBoundaryCurve(Self.InputMesh);
+	auto BoundarySet_input = TraceMeshBoundaryCurve(Input.SourceMesh);
 	bool Flag_all_in = true;
 	for (int_max k = 0; k < BoundarySet_input.GetLength(); ++k)
 	{
@@ -130,9 +118,9 @@ bool TemplateBasedSurfaceRemesher<ScalarType>::CheckInput()
 		for (int_max n = 0; n < Boundary_k.GetLength(); ++n)
 		{
 			bool Flag_n_in = false;
-			for (int_max m = 0; m < Self.BoundarySegmentListOfInputMesh.GetLength(); ++m)
+			for (int_max m = 0; m < Input.BoundarySegmentListOfSourceMesh.GetLength(); ++m)
 			{
-				auto tempIndex = Self.BoundarySegmentListOfInputMesh[m].ExactMatch("first", Boundary_k[n]);
+				auto tempIndex = Input.BoundarySegmentListOfSourceMesh[m].ExactMatch("first", Boundary_k[n]);
 				if (tempIndex >= 0)
 				{
 					Flag_n_in = true;
@@ -163,7 +151,7 @@ void TemplateBasedSurfaceRemesher<ScalarType>::Update()
 	{
 		return;
 	}
-	this->ClearInternalData();
+	
 	this->FindBoundaryConstraint();
 
 	if (this->CheckBoundaryConstraint() == false)
@@ -178,24 +166,22 @@ void TemplateBasedSurfaceRemesher<ScalarType>::Update()
 template<typename ScalarType>
 void TemplateBasedSurfaceRemesher<ScalarType>::FindBoundaryConstraint()
 {
-	auto& Self = *this;
-
-	Self.BoundaryPointIndexListOfInputMesh.Clear();
-	Self.BoundaryPointIndexListOfInputMesh.SetCapacity(100 * Self.BoundarySegmentListOfInputMesh.GetLength());
+	Internal.BoundaryPointIndexListOfSourceMesh.Clear();
+	Internal.BoundaryPointIndexListOfSourceMesh.SetCapacity(100 * Input.BoundarySegmentListOfSourceMesh.GetLength());
 
 	ObjectArray<DenseMatrix<ScalarType>> UVTalbleOfInputBoundary;
-	UVTalbleOfInputBoundary.Resize(Self.BoundarySegmentListOfInputMesh.GetLength());
+	UVTalbleOfInputBoundary.Resize(Input.BoundarySegmentListOfSourceMesh.GetLength());
 
-	for (int_max k = 0; k < Self.BoundarySegmentListOfInputMesh.GetLength(); ++k)
+	for (int_max k = 0; k < Input.BoundarySegmentListOfSourceMesh.GetLength(); ++k)
 	{
 		auto& UVTable_input = UVTalbleOfInputBoundary[k];
-		UVTable_input.Resize(3, Self.BoundarySegmentListOfInputMesh[k].GetLength());
+		UVTable_input.Resize(3, Input.BoundarySegmentListOfSourceMesh[k].GetLength());
 		UVTable_input.Fill(0);
 
-		const auto& CurveHandle_input = Self.BoundarySegmentListOfInputMesh[k];
-		const auto& CurveHandle_template = Self.BoundarySegmentListOfTemplateMesh[k];
-		auto Curve_input = Self.InputMesh.GetPointPosition(CurveHandle_input);
-		auto Curve_template = Self.TemplateMesh.GetPointPosition(CurveHandle_template);
+		const auto& CurveHandle_input = Input.BoundarySegmentListOfSourceMesh[k];
+		const auto& CurveHandle_template = Input.BoundarySegmentListOfTemplateMesh[k];
+		auto Curve_input = Input.SourceMesh.GetPointPosition(CurveHandle_input);
+		auto Curve_template = Input.TemplateMesh.GetPointPosition(CurveHandle_template);
 		
 		if (CurveHandle_input.GetLength() >= 2 && CurveHandle_template.GetLength() >= 2)
 		{
@@ -233,47 +219,47 @@ void TemplateBasedSurfaceRemesher<ScalarType>::FindBoundaryConstraint()
 			return;
 		}
 
-		Self.BoundaryPointIndexListOfInputMesh.Append(CurveHandle_input);
+		Internal.BoundaryPointIndexListOfSourceMesh.Append(CurveHandle_input);
 	}
 
-	Self.BoundaryPointIndexListOfInputMesh = Self.BoundaryPointIndexListOfInputMesh.GetSubSet(Self.BoundaryPointIndexListOfInputMesh.FindUnique());
+	Internal.BoundaryPointIndexListOfSourceMesh = Internal.BoundaryPointIndexListOfSourceMesh.GetSubSet(Internal.BoundaryPointIndexListOfSourceMesh.FindUnique());
 	
 	//-----------------------------------------------------------------------------------------------//
-	Self.UVTalbleOfBoundaryOfInputMesh.Clear();
-	Self.UVTalbleOfBoundaryOfInputMesh.Resize(2, Self.BoundaryPointIndexListOfInputMesh.GetLength());
-	Self.UVTalbleOfBoundaryOfInputMesh.Fill(0);
+	Internal.UVTalbleOfBoundaryOfSourceMesh.Clear();
+	Internal.UVTalbleOfBoundaryOfSourceMesh.Resize(2, Internal.BoundaryPointIndexListOfSourceMesh.GetLength());
+	Internal.UVTalbleOfBoundaryOfSourceMesh.Fill(0);
 
-	for (int_max k = 0; k < Self.BoundarySegmentListOfInputMesh.GetLength(); ++k)
+	for (int_max k = 0; k < Input.BoundarySegmentListOfSourceMesh.GetLength(); ++k)
 	{
-		const auto& CurveHandle = Self.BoundarySegmentListOfInputMesh[k];
+		const auto& CurveHandle = Input.BoundarySegmentListOfSourceMesh[k];
 		const auto& UVCurve = UVTalbleOfInputBoundary[k];
 
 		for (int_max n = 0; n < CurveHandle.GetLength(); ++n)
 		{
-			auto tempIndex = Self.BoundaryPointIndexListOfInputMesh.ExactMatch("first", CurveHandle[n]);
+			auto tempIndex = Internal.BoundaryPointIndexListOfSourceMesh.ExactMatch("first", CurveHandle[n]);
 			auto u = UVCurve(0, n);
 			auto v = UVCurve(1, n);
-			Self.UVTalbleOfBoundaryOfInputMesh.SetCol(tempIndex, {u,v});
+			Internal.UVTalbleOfBoundaryOfSourceMesh.SetCol(tempIndex, {u,v});
 		}
 	}
 	//-----------------------------------------------------------------------------------------------//
 
-	Self.BoundaryPointIndexListOfTemplateMesh.Clear();
-	Self.BoundaryPointIndexListOfTemplateMesh.SetCapacity(100 * Self.BoundarySegmentListOfInputMesh.GetLength());
+	Internal.BoundaryPointIndexListOfTemplateMesh.Clear();
+	Internal.BoundaryPointIndexListOfTemplateMesh.SetCapacity(100 * Input.BoundarySegmentListOfSourceMesh.GetLength());
 
 	ObjectArray<DenseMatrix<ScalarType>> OutputBoundaryPosition;
-	OutputBoundaryPosition.Resize(Self.BoundarySegmentListOfTemplateMesh.GetLength());
+	OutputBoundaryPosition.Resize(Input.BoundarySegmentListOfTemplateMesh.GetLength());
 
-	for (int_max k = 0; k < Self.BoundarySegmentListOfTemplateMesh.GetLength(); ++k)
+	for (int_max k = 0; k < Input.BoundarySegmentListOfTemplateMesh.GetLength(); ++k)
 	{
 		auto& Boundary_output = OutputBoundaryPosition[k];
-		Boundary_output.Resize(3, Self.BoundarySegmentListOfTemplateMesh[k].GetLength());
+		Boundary_output.Resize(3, Input.BoundarySegmentListOfTemplateMesh[k].GetLength());
 		Boundary_output.Fill(0);
 
-		const auto& CurveHandle_input = Self.BoundarySegmentListOfInputMesh[k];
-		const auto& CurveHandle_template = Self.BoundarySegmentListOfTemplateMesh[k];
-		auto Curve_input = Self.InputMesh.GetPointPosition(CurveHandle_input);
-		auto Curve_template = Self.TemplateMesh.GetPointPosition(CurveHandle_template);
+		const auto& CurveHandle_input = Input.BoundarySegmentListOfSourceMesh[k];
+		const auto& CurveHandle_template = Input.BoundarySegmentListOfTemplateMesh[k];
+		auto Curve_input = Input.SourceMesh.GetPointPosition(CurveHandle_input);
+		auto Curve_template = Input.TemplateMesh.GetPointPosition(CurveHandle_template);
 				
 		if (CurveHandle_input.GetLength() >= 2 && CurveHandle_template.GetLength() >= 2)
 		{
@@ -306,43 +292,41 @@ void TemplateBasedSurfaceRemesher<ScalarType>::FindBoundaryConstraint()
 			Boundary_output = Curve_input;
 		}
 
-		Self.BoundaryPointIndexListOfTemplateMesh.Append(CurveHandle_template);
+		Internal.BoundaryPointIndexListOfTemplateMesh.Append(CurveHandle_template);
 	}
 
-	Self.BoundaryPointIndexListOfTemplateMesh = Self.BoundaryPointIndexListOfTemplateMesh.GetSubSet(Self.BoundaryPointIndexListOfTemplateMesh.FindUnique());
+	Internal.BoundaryPointIndexListOfTemplateMesh = Internal.BoundaryPointIndexListOfTemplateMesh.GetSubSet(Internal.BoundaryPointIndexListOfTemplateMesh.FindUnique());
 
 	//-----------------------------------------------------------------------------------------------//
-	Self.BoundaryPositionOfOutputMesh.Clear();
-	Self.BoundaryPositionOfOutputMesh.Resize(3, Self.BoundaryPointIndexListOfTemplateMesh.GetLength());
-	Self.BoundaryPositionOfOutputMesh.Fill(0);
+	Internal.BoundaryPositionOfOutputMesh.Clear();
+	Internal.BoundaryPositionOfOutputMesh.Resize(3, Internal.BoundaryPointIndexListOfTemplateMesh.GetLength());
+	Internal.BoundaryPositionOfOutputMesh.Fill(0);
 
-	for (int_max k = 0; k < Self.BoundarySegmentListOfTemplateMesh.GetLength(); ++k)
+	for (int_max k = 0; k < Input.BoundarySegmentListOfTemplateMesh.GetLength(); ++k)
 	{
-		const auto& CurveHandle = Self.BoundarySegmentListOfTemplateMesh[k];
+		const auto& CurveHandle = Input.BoundarySegmentListOfTemplateMesh[k];
 		const auto& Curve = OutputBoundaryPosition[k];
 
 		for (int_max n = 0; n < CurveHandle.GetLength(); ++n)
 		{
-			auto tempIndex = Self.BoundaryPointIndexListOfTemplateMesh.ExactMatch("first", CurveHandle[n]);
-			Self.BoundaryPositionOfOutputMesh.SetCol(tempIndex, Curve.GetPointerOfCol(n));
+			auto tempIndex = Internal.BoundaryPointIndexListOfTemplateMesh.ExactMatch("first", CurveHandle[n]);
+			Internal.BoundaryPositionOfOutputMesh.SetCol(tempIndex, Curve.GetPointerOfCol(n));
 		}
 	}
 
-	Self.BoundaryPositionOfTemplateMesh = Self.TemplateMesh.GetPointPosition(Self.BoundaryPointIndexListOfTemplateMesh);
+	Internal.BoundaryPositionOfTemplateMesh = Input.TemplateMesh.GetPointPosition(Internal.BoundaryPointIndexListOfTemplateMesh);
 }
 
 
 template<typename ScalarType>
 bool TemplateBasedSurfaceRemesher<ScalarType>::CheckBoundaryConstraint()
 {
-	auto& Self = *this;
-
-	//check if all the boundary point of input mesh is included in Self.BoundaryPointIndexListOfInputMesh
-	for (auto it = Self.InputMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	//check if all the boundary point of input mesh is included in Internal.BoundaryPointIndexListOfSourceMesh
+	for (auto it = Input.SourceMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
 	{
 		if (it.Point().IsOnBoundaryEdge() == true)
 		{
-			auto tempIndex = Self.BoundaryPointIndexListOfInputMesh.ExactMatch("first", it.GetPointIndex());
+			auto tempIndex = Internal.BoundaryPointIndexListOfSourceMesh.ExactMatch("first", it.GetPointIndex());
 			if (tempIndex < 0)
 			{
 				MDK_Error(" Some boundary point of input mesh is NOT included in BoundarySegmentListOfInputMesh @ TemplateBasedSurfaceRemesher::CheckBoundaryConstraint()")
@@ -351,10 +335,10 @@ bool TemplateBasedSurfaceRemesher<ScalarType>::CheckBoundaryConstraint()
 		}
 	}
 
-	for (int_max k = 0; k < Self.BoundarySegmentListOfInputMesh.GetLength(); ++k)
+	for (int_max k = 0; k < Input.BoundarySegmentListOfSourceMesh.GetLength(); ++k)
 	{
-		const auto& CurveHandle_input = Self.BoundarySegmentListOfInputMesh[k];
-		const auto& CurveHandle_template = Self.BoundarySegmentListOfTemplateMesh[k];
+		const auto& CurveHandle_input = Input.BoundarySegmentListOfSourceMesh[k];
+		const auto& CurveHandle_template = Input.BoundarySegmentListOfTemplateMesh[k];
 
 		if (CurveHandle_input.GetLength() == 1 && CurveHandle_template.GetLength() > 1 || CurveHandle_input.GetLength() > 1 && CurveHandle_template.GetLength() == 1)
 		{
@@ -369,23 +353,21 @@ bool TemplateBasedSurfaceRemesher<ScalarType>::CheckBoundaryConstraint()
 
 template<typename ScalarType>
 void TemplateBasedSurfaceRemesher<ScalarType>::TransformInputMeshFrom3DTo2D()
-{
-	auto& Self = *this;
+{	
 	MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType> Mapper;
-	Mapper.InputMesh.Share(Self.InputMesh);
-	Mapper.BoundaryPointIndexList = Self.BoundaryPointIndexListOfInputMesh;
-	Mapper.UVTableOfBoundary = Self.UVTalbleOfBoundaryOfInputMesh;
-	Mapper.DiffusionCoefficient = Self.DiffusionCoefficientOfMeshParameterization;
+	Mapper.Input.SourceMesh.Share(Input.SourceMesh);
+	Mapper.Input.BoundaryPointIndexList = Internal.BoundaryPointIndexListOfSourceMesh;
+	Mapper.Input.UVTableOfBoundary = Internal.UVTalbleOfBoundaryOfSourceMesh;
+	Mapper.Input.DiffusionCoefficient = Internal.DiffusionCoefficientOfMeshParameterization;
 	Mapper.Update();
-	Self.TransfromedInputMesh = std::move(Mapper.OutputMesh);
+	Output.ParameterizedSourceMesh = std::move(Mapper.Output.ParameterizedSourceMesh);
 }
 
 
 template<typename ScalarType>
 void TemplateBasedSurfaceRemesher<ScalarType>::TransfromTemplateMeshFrom2Dto3D()
-{
-	auto& Self = *this;
-	if (Self.Flag_EnableTPSTransformOfTemplateMesh == true)
+{	
+	if (Input.Flag_EnableTPSTransformOfTemplateMesh == true)
 	{
 		this->TransfromTemplateMeshFrom2Dto3D_Method0_TPS();
 	}
@@ -399,22 +381,21 @@ void TemplateBasedSurfaceRemesher<ScalarType>::TransfromTemplateMeshFrom2Dto3D()
 template<typename ScalarType>
 void TemplateBasedSurfaceRemesher<ScalarType>::TransfromTemplateMeshFrom2Dto3D_Method0_TPS()
 {		
-	auto& Self = *this;
-	auto PointSet3D_input = Self.InputMesh.GetPointPosition(ALL);    
-	auto PointSet2D_input = Self.TransfromedInputMesh.GetPointPosition(ALL);
+	auto PointSet3D_input = Input.SourceMesh.GetPointPosition(ALL);    
+	auto PointSet2D_input = Output.ParameterizedSourceMesh.GetPointPosition(ALL);
 
 	DenseMatrix<ScalarType> PointSet2D, PointSet3D;
-	PointSet2D = { &PointSet2D_input, &Self.BoundaryPositionOfTemplateMesh };
-	PointSet3D = { &PointSet3D_input, &Self.BoundaryPositionOfOutputMesh };
+	PointSet2D = { &PointSet2D_input, &Internal.BoundaryPositionOfTemplateMesh };
+	PointSet3D = { &PointSet3D_input, &Internal.BoundaryPositionOfOutputMesh };
 
 	ThinPlateSplineTransform3D<ScalarType> TPSWarper;
 	TPSWarper.SetSourceLandmarkPointSet(&PointSet2D);
 	TPSWarper.SetTargetLandmarkPointSet(&PointSet3D);
 	TPSWarper.EstimateParameter();
 
-	Self.OutputMesh.Clear();
-	Self.OutputMesh = Self.TemplateMesh;
-	for (auto it = Self.OutputMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	Output.DeformedTemplateMesh.Clear();
+	Output.DeformedTemplateMesh = Input.TemplateMesh;
+	for (auto it = Output.DeformedTemplateMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
 	{
 		auto Pos2D = it.Point().GetPosition();
 		auto Pos3D = TPSWarper.TransformPoint(Pos2D);
@@ -426,29 +407,28 @@ void TemplateBasedSurfaceRemesher<ScalarType>::TransfromTemplateMeshFrom2Dto3D_M
 template<typename ScalarType>
 void TemplateBasedSurfaceRemesher<ScalarType>::TransfromTemplateMeshFrom2Dto3D_Method1_Interpolation()
 {
-	auto& Self = *this;
-	Self.OutputMesh.Clear();
-	Self.OutputMesh = Self.TemplateMesh;
-	for (auto it = Self.OutputMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	Output.DeformedTemplateMesh.Clear();
+	Output.DeformedTemplateMesh = Input.TemplateMesh;
+	for (auto it = Output.DeformedTemplateMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
 	{
-		auto tempIndex = Self.BoundaryPointIndexListOfTemplateMesh.ExactMatch("first", it.GetPointIndex());
+		auto tempIndex = Internal.BoundaryPointIndexListOfTemplateMesh.ExactMatch("first", it.GetPointIndex());
 		if (tempIndex >= 0)
 		{
 			DenseVector<ScalarType, 3> Pos3D;
-			Self.BoundaryPositionOfOutputMesh.GetCol(tempIndex, Pos3D);
+			Internal.BoundaryPositionOfOutputMesh.GetCol(tempIndex, Pos3D);
 			it.Point().SetPosition(Pos3D);
 		}
 		else
 		{
 			auto Pos2D = it.Point().GetPosition();
-			auto PointIndexList_nearest = this->Find3PointOfNearestFace(Pos2D, Self.TransfromedInputMesh);
+			auto PointIndexList_nearest = this->Find3PointOfNearestFace(Pos2D, Output.ParameterizedSourceMesh);
 
 			DenseVector<ScalarType, 3> Weight;
 			Weight.Fill(0);
 			{
-				auto Point0 = Self.TransfromedInputMesh.GetPointPosition(PointIndexList_nearest[0]);
-				auto Point1 = Self.TransfromedInputMesh.GetPointPosition(PointIndexList_nearest[1]);
-				auto Point2 = Self.TransfromedInputMesh.GetPointPosition(PointIndexList_nearest[2]);
+				auto Point0 = Output.ParameterizedSourceMesh.GetPointPosition(PointIndexList_nearest[0]);
+				auto Point1 = Output.ParameterizedSourceMesh.GetPointPosition(PointIndexList_nearest[1]);
+				auto Point2 = Output.ParameterizedSourceMesh.GetPointPosition(PointIndexList_nearest[2]);
 
 				auto x = Pos2D[0];
 				auto y = Pos2D[1];
@@ -478,9 +458,9 @@ void TemplateBasedSurfaceRemesher<ScalarType>::TransfromTemplateMeshFrom2Dto3D_M
 				
 			}
 
-			auto Point0 = Self.InputMesh.GetPointPosition(PointIndexList_nearest[0]);
-			auto Point1 = Self.InputMesh.GetPointPosition(PointIndexList_nearest[1]);
-			auto Point2 = Self.InputMesh.GetPointPosition(PointIndexList_nearest[2]);
+			auto Point0 = Input.SourceMesh.GetPointPosition(PointIndexList_nearest[0]);
+			auto Point1 = Input.SourceMesh.GetPointPosition(PointIndexList_nearest[1]);
+			auto Point2 = Input.SourceMesh.GetPointPosition(PointIndexList_nearest[2]);
 			auto Pos3D = Weight[0] * Point0 + Weight[1] * Point1 + Weight[2] * Point2;
 			it.Point().SetPosition(Pos3D);
 		}

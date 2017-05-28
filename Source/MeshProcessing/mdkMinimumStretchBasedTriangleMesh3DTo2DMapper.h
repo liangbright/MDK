@@ -10,16 +10,10 @@ namespace mdk
 {
 //paper:Shin Yoshizawa Alexander Belyaev Hans-Peter Seidel, "A fast and simple stretch-minimizing mesh parameterization"
 
-template<typename Scalar_Type>
-class MinimumStretchBasedTriangleMesh3DTo2DMapper : public Object
+template<typename MeshAttributeType>
+struct Input_of_MinimumStretchBasedTriangleMesh3DTo2DMapper
 {
-public:
-	typedef Scalar_Type ScalarType;
-	typedef typename TriangleMeshStandardAttributeType<ScalarType>       MeshAttributeType;	
-
-public:
-	//------------------ input -------------------------------------------//
-	TriangleMesh<MeshAttributeType> InputMesh;
+	TriangleMesh<MeshAttributeType> SourceMesh;
 
 	DenseVector<int_max> BoundaryPointIndexList;
 	// boundary point index in InputMesh
@@ -31,9 +25,11 @@ public:
 
 	ScalarType MaxInteration;// maximum
 	ScalarType DiffusionCoefficient;
+};
 
-private:
-	//-------------- internal -------------------------------------------//
+
+struct Internal_of_MinimumStretchBasedTriangleMesh3DTo2DMapper
+{
 	DenseVector<int_max> InnerPointIndexList;
 	// inner point index in InputMesh
 
@@ -50,10 +46,28 @@ private:
 
 	DenseVector<int_max> Map_PointIndex_to_Boundary;
 	//Map_PointIndex_to_Boundary[PointIndex] is Index in BoundaryPointIndexList
+};
+
+template<typename MeshAttributeType>
+struct Output_of_MinimumStretchBasedTriangleMesh3DTo2DMapper
+{
+	TriangleMesh<MeshAttributeType> ParameterizedSourceMesh;// [x,y,z]->[u,v,0]
+};
+
+
+template<typename Scalar_Type>
+class MinimumStretchBasedTriangleMesh3DTo2DMapper : public Object
+{
+public:
+	typedef Scalar_Type ScalarType;
+	typedef typename TriangleMeshStandardAttributeType<ScalarType> MeshAttributeType;	
 
 public:
-	//-------------- output -------------------------------------------//
-	TriangleMesh<MeshAttributeType> OutputMesh;// [x,y,z]->[u,v,0]
+	Input_of_MinimumStretchBasedTriangleMesh3DTo2DMapper<MeshAttributeType> Input;	
+private:
+	Internal_of_MinimumStretchBasedTriangleMesh3DTo2DMapper Internal;
+public:
+	Output_of_MinimumStretchBasedTriangleMesh3DTo2DMapper<MeshAttributeType> Output;	
 
 public:
 	MinimumStretchBasedTriangleMesh3DTo2DMapper();
