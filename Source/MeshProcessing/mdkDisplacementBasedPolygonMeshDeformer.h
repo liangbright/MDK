@@ -13,6 +13,7 @@ enum struct WeightTypeEnum_of_DisplacementBasedPolygonMeshDeformer { One, Distan
 template<typename MeshAttribute>
 struct Input_of_DisplacementBasedPolygonMeshDeformer
 {
+	typedef typename MeshAttribute::ScalarType ScalarType;
 	typedef WeightTypeEnum_of_DisplacementBasedPolygonMeshDeformer WeightTypeEnum;
 
 	PolygonMesh<MeshAttribute> SourceMesh;

@@ -21,14 +21,14 @@ void TemplateBasedSurfaceRemesher<ScalarType>::Clear()
 	Input.BoundarySegmentListOfSourceMesh.Recreate();
 	Input.TemplateMesh.Recreate();
 	Input.BoundarySegmentListOfTemplateMesh.Recreate();
+	Input.DiffusionCoefficientOfMeshParameterization = 0.5;
+	Input.MaxIterationOfMeshParameterization = 10;
 
 	Internal.BoundaryPointIndexListOfSourceMesh.Clear();
 	Internal.UVTalbleOfBoundaryOfSourceMesh.Clear();
-	Internal.DiffusionCoefficientOfMeshParameterization = 0.5;
-	Internal.MaxIterationOfMeshParameterization = 10;
 	Internal.BoundaryPointIndexListOfTemplateMesh.Clear();
 	Internal.BoundaryPositionOfTemplateMesh.Clear();
-	Internal.BoundaryPositionOfOutputMesh.Clear();
+	Internal.BoundaryPositionOfDeformedTemplateMesh.Clear();
 
 	// dot NOT use Clear
 	Output.ParameterizedSourceMesh.Recreate();
@@ -96,13 +96,13 @@ bool TemplateBasedSurfaceRemesher<ScalarType>::CheckInput()
 		}
 	}
 
-	if (Internal.DiffusionCoefficientOfMeshParameterization < 0 || Internal.DiffusionCoefficientOfMeshParameterization > 1)
+	if (Input.DiffusionCoefficientOfMeshParameterization < 0 || Input.DiffusionCoefficientOfMeshParameterization > 1)
 	{
 		MDK_Error("DiffusionCoefficientOfMeshParameterization is out of range [0, 1] @ TemplateBasedSurfaceRemesher::CheckInput()")
 		return false;
 	}
 
-	if (Internal.MaxIterationOfMeshParameterization <= 0)
+	if (Input.MaxIterationOfMeshParameterization <= 0)
 	{
 		MDK_Error("MaxIterationOfMeshParameterization <= 0 @ TemplateBasedSurfaceRemesher::CheckInput()")
 		return false;
@@ -298,9 +298,9 @@ void TemplateBasedSurfaceRemesher<ScalarType>::FindBoundaryConstraint()
 	Internal.BoundaryPointIndexListOfTemplateMesh = Internal.BoundaryPointIndexListOfTemplateMesh.GetSubSet(Internal.BoundaryPointIndexListOfTemplateMesh.FindUnique());
 
 	//-----------------------------------------------------------------------------------------------//
-	Internal.BoundaryPositionOfOutputMesh.Clear();
-	Internal.BoundaryPositionOfOutputMesh.Resize(3, Internal.BoundaryPointIndexListOfTemplateMesh.GetLength());
-	Internal.BoundaryPositionOfOutputMesh.Fill(0);
+	Internal.BoundaryPositionOfDeformedTemplateMesh.Clear();
+	Internal.BoundaryPositionOfDeformedTemplateMesh.Resize(3, Internal.BoundaryPointIndexListOfTemplateMesh.GetLength());
+	Internal.BoundaryPositionOfDeformedTemplateMesh.Fill(0);
 
 	for (int_max k = 0; k < Input.BoundarySegmentListOfTemplateMesh.GetLength(); ++k)
 	{
@@ -310,7 +310,7 @@ void TemplateBasedSurfaceRemesher<ScalarType>::FindBoundaryConstraint()
 		for (int_max n = 0; n < CurveHandle.GetLength(); ++n)
 		{
 			auto tempIndex = Internal.BoundaryPointIndexListOfTemplateMesh.ExactMatch("first", CurveHandle[n]);
-			Internal.BoundaryPositionOfOutputMesh.SetCol(tempIndex, Curve.GetPointerOfCol(n));
+			Internal.BoundaryPositionOfDeformedTemplateMesh.SetCol(tempIndex, Curve.GetPointerOfCol(n));
 		}
 	}
 
@@ -358,7 +358,7 @@ void TemplateBasedSurfaceRemesher<ScalarType>::TransformInputMeshFrom3DTo2D()
 	Mapper.Input.SourceMesh.Share(Input.SourceMesh);
 	Mapper.Input.BoundaryPointIndexList = Internal.BoundaryPointIndexListOfSourceMesh;
 	Mapper.Input.UVTableOfBoundary = Internal.UVTalbleOfBoundaryOfSourceMesh;
-	Mapper.Input.DiffusionCoefficient = Internal.DiffusionCoefficientOfMeshParameterization;
+	Mapper.Input.DiffusionCoefficient = Input.DiffusionCoefficientOfMeshParameterization;
 	Mapper.Update();
 	Output.ParameterizedSourceMesh = std::move(Mapper.Output.ParameterizedSourceMesh);
 }
@@ -386,7 +386,7 @@ void TemplateBasedSurfaceRemesher<ScalarType>::TransfromTemplateMeshFrom2Dto3D_M
 
 	DenseMatrix<ScalarType> PointSet2D, PointSet3D;
 	PointSet2D = { &PointSet2D_input, &Internal.BoundaryPositionOfTemplateMesh };
-	PointSet3D = { &PointSet3D_input, &Internal.BoundaryPositionOfOutputMesh };
+	PointSet3D = { &PointSet3D_input, &Internal.BoundaryPositionOfDeformedTemplateMesh };
 
 	ThinPlateSplineTransform3D<ScalarType> TPSWarper;
 	TPSWarper.SetSourceLandmarkPointSet(&PointSet2D);
@@ -415,7 +415,7 @@ void TemplateBasedSurfaceRemesher<ScalarType>::TransfromTemplateMeshFrom2Dto3D_M
 		if (tempIndex >= 0)
 		{
 			DenseVector<ScalarType, 3> Pos3D;
-			Internal.BoundaryPositionOfOutputMesh.GetCol(tempIndex, Pos3D);
+			Internal.BoundaryPositionOfDeformedTemplateMesh.GetCol(tempIndex, Pos3D);
 			it.Point().SetPosition(Pos3D);
 		}
 		else

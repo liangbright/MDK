@@ -13,15 +13,17 @@ namespace mdk
 template<typename MeshAttributeType>
 struct Input_of_MinimumStretchBasedTriangleMesh3DTo2DMapper
 {
+	typedef typename MeshAttributeType::ScalarType ScalarType;
+
 	TriangleMesh<MeshAttributeType> SourceMesh;
 
 	DenseVector<int_max> BoundaryPointIndexList;
-	// boundary point index in InputMesh
-	// Boundary Point include all the boundary point of input mesh
-	// Boundary Point may also include inner point of input mesh, such as landmark
+	// boundary point index in SourceMesh
+	// Boundary Point include all the boundary point of SourceMesh
+	// Boundary Point may also include inner point of SourceMesh, such as landmark
 
 	DenseMatrix<ScalarType> UVTableOfBoundary;
-	// UVTableOfBoundary[k] = [u, v] of boundary point k of InputMesh
+	// UVTableOfBoundary[k] = [u, v] of boundary point k of SourceMesh
 
 	ScalarType MaxInteration;// maximum
 	ScalarType DiffusionCoefficient;
@@ -31,12 +33,12 @@ struct Input_of_MinimumStretchBasedTriangleMesh3DTo2DMapper
 struct Internal_of_MinimumStretchBasedTriangleMesh3DTo2DMapper
 {
 	DenseVector<int_max> InnerPointIndexList;
-	// inner point index in InputMesh
+	// inner point index in SourceMesh
 
 	//ObjectArray<DenseVector<ScalarType>> WeightMatrix;
 	// WeightMatrix[i][j] is the weight from point_i to point_j
 	// i is from 0 to PointCount_inner, index in InnerPointIndexList
-	// j is from 0 to PointCount, index in InputMesh
+	// j is from 0 to PointCount, index in SourceMesh
 
 	//DenseVector<PointIndexType> PointIndexList;
 	//PointIndexList={InnerPointIndexList, BoundaryPointIndexList};

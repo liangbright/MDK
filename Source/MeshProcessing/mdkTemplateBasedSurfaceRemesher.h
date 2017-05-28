@@ -9,6 +9,8 @@ namespace mdk
 template<typename InputMeshAttribute, typename TemplateMeshAttribute>
 struct Input_of_TemplateBasedSurfaceRemesher
 {
+	typedef typename InputMeshAttribute::ScalarType ScalarType;
+
 	// input mesh must be triangle mesh
 	TriangleMesh<InputMeshAttribute> SourceMesh;
 
