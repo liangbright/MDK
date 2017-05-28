@@ -123,6 +123,9 @@ public:
 
     inline PointAttributeType& Attribute();
     inline const PointAttributeType& Attribute() const;
+
+	//MaxGraphDistance= edge count
+	inline DenseVector<int_max> GetNeighborPointIndexList(int_max MaxGraphDistance) const;
 };
 
 //====================================== Edge_Of_PolygonMesh (Face Wall) ==============================================================//

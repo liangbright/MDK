@@ -19,27 +19,27 @@ void DisplacementBasedPolygonMeshDeformer<MeshAttribute>::Clear()
 	auto& Self = *this;
 	
 	// dot NOT use Clear
-	Self.InputMesh.Recreate();
-	Self.InputDisplacementField.Recreate();
-	Self.ConfidenceOfInputDisplacementField.Recreate();
-	Self.ConfidenceOfSmoothness.Recreate();
+	Self.Input.SourceMesh.Recreate();
+	Self.Input.DisplacementField.Recreate();
+	Self.Input.ConfidenceOfDisplacementField.Recreate();
+	Self.Input.ConfidenceOfSmoothness.Recreate();
 	Self.WeigthType = WeightTypeEnum::Distance;
 
-	Self.WeightMatrix.Clear();
-	Self.OutputDisplacementField.Clear();
-	Self.OutputMesh.Clear();
+	Self.Internal.WeightMatrix.Clear();
+	Self.Output.DisplacementField.Clear();
+	Self.Output.DeformedMesh.Clear();
 }
 
 template<typename MeshAttribute>
 bool DisplacementBasedPolygonMeshDeformer<MeshAttribute>::CheckInput()
 {
 	auto& Self = *this;
-	if (Self.InputMesh.IsEmpty() == true)
+	if (Self.Input.SourceMesh.IsEmpty() == true)
 	{
 		return false;
 	}
 
-	if (Self.InputMesh.Check_If_DataStructure_is_Clean() == false)
+	if (Self.Input.SourceMesh.Check_If_DataStructure_is_Clean() == false)
 	{
 		MDK_Error("InputMesh DataStructureClean is NOT clean @ DisplacementBasedPolygonMeshDeformer::CheckInput()")
 		return false;
@@ -61,18 +61,18 @@ void DisplacementBasedPolygonMeshDeformer<MeshAttribute>::Update()
 	this->ComputeDisplacementField();
 	
 	auto& Self = *this;
-	Self.OutputMesh.Clear();
-	if (Self.OutputDisplacementField.IsEmpty() == false)
+	Self.Output.DeformedMesh.Clear();
+	if (Self.Output.DisplacementField.IsEmpty() == false)
 	{
-		Self.OutputMesh = Self.InputMesh;
-		auto PointCount = Self.OutputMesh.GetPointCount();
+		Self.Output.DeformedMesh = Self.Input.SourceMesh;
+		auto PointCount = Self.Output.DeformedMesh.GetPointCount();
 		for (int_max k = 0; k < PointCount; ++k)
 		{
 			DenseVector<ScalarType, 3> Displacement;
-			Self.OutputDisplacementField.GetCol(k, Displacement);
-			auto Pos = Self.OutputMesh.GetPointPosition(k);
+			Self.Output.DisplacementField.GetCol(k, Displacement);
+			auto Pos = Self.Output.DeformedMesh.GetPointPosition(k);
 			Pos += Displacement;
-			Self.OutputMesh.SetPointPosition(k, Pos);
+			Self.Output.DeformedMesh.SetPointPosition(k, Pos);
 		}
 	}
 }
@@ -82,7 +82,7 @@ template<typename MeshAttribute>
 void DisplacementBasedPolygonMeshDeformer<MeshAttribute>::ComputeWeightMatrix()
 {
 	auto& Self = *this;
-	switch (Self.WeigthType)
+	switch (Self.Input.WeigthType)
 	{
 	case WeightTypeEnum::One:
 		this->ComputeWeightMatrix_Type_One();
@@ -101,21 +101,21 @@ template<typename MeshAttribute>
 void DisplacementBasedPolygonMeshDeformer<MeshAttribute>::ComputeWeightMatrix_Type_One()
 {
 	auto& Self = *this;
-	auto PointCount = Self.InputMesh.GetPointCount();
-	Self.WeightMatrix.Clear();
-	Self.WeightMatrix.Resize(PointCount);
+	auto PointCount = Self.Input.SourceMesh.GetPointCount();
+	Self.Internal.WeightMatrix.Clear();
+	Self.Internal.WeightMatrix.Resize(PointCount);
 	// sum_j {Lambda[i][j]} = 1 for a fixed i
 
 	for (int_max k = 0; k < PointCount; ++k)
 	{
-		auto Pos_k = Self.InputMesh.GetPointPosition(k);
-		auto AdjPointIndexList = Self.InputMesh.Point(k).GetAdjacentPointIndexList();
+		auto Pos_k = Self.Input.SourceMesh.GetPointPosition(k);
+		auto AdjPointIndexList = Self.Input.SourceMesh.Point(k).GetAdjacentPointIndexList();
 		DenseVector<ScalarType> WeightList;
 		WeightList.Resize(AdjPointIndexList.GetLength());		
 		WeightList.Fill(ScalarType(1) / AdjPointIndexList.GetLength());
-		Self.WeightMatrix[k].Resize(PointCount);
-		Self.WeightMatrix[k].IndexList() = AdjPointIndexList;
-		Self.WeightMatrix[k].ElementList() = WeightList;
+		Self.Internal.WeightMatrix[k].Resize(PointCount);
+		Self.Internal.WeightMatrix[k].IndexList() = AdjPointIndexList;
+		Self.Internal.WeightMatrix[k].ElementList() = WeightList;
 	}
 }
 
@@ -124,29 +124,29 @@ template<typename MeshAttribute>
 void DisplacementBasedPolygonMeshDeformer<MeshAttribute>::ComputeWeightMatrix_Type_Distance()
 {
 	auto& Self = *this;
-	auto PointCount = Self.InputMesh.GetPointCount();
-	Self.WeightMatrix.Clear();
-	Self.WeightMatrix.Resize(PointCount);
+	auto PointCount = Self.Input.SourceMesh.GetPointCount();
+	Self.Internal.WeightMatrix.Clear();
+	Self.Internal.WeightMatrix.Resize(PointCount);
 	// sum_j {Lambda[i][j]} = 1 for a fixed i
 
 	for (int_max k = 0; k < PointCount; ++k)
 	{		
-		auto Pos_k = Self.InputMesh.GetPointPosition(k);
-		auto AdjPointIndexList = Self.InputMesh.Point(k).GetAdjacentPointIndexList();
+		auto Pos_k = Self.Input.SourceMesh.GetPointPosition(k);
+		auto AdjPointIndexList = Self.Input.SourceMesh.Point(k).GetAdjacentPointIndexList();
 		DenseVector<ScalarType> WeightList;
 		WeightList.Resize(AdjPointIndexList.GetLength());
 		for (int_max n = 0; n < AdjPointIndexList.GetLength(); ++n)
 		{
-			auto Pos_n = Self.InputMesh.GetPointPosition(AdjPointIndexList[n]);
+			auto Pos_n = Self.Input.SourceMesh.GetPointPosition(AdjPointIndexList[n]);
 			auto Distance = (Pos_k - Pos_n).L2Norm();
 			WeightList[n] = ScalarType(1)/(Distance + 0.000001);
 			//WeightList[n] = 1;
 		}
 		WeightList /= WeightList.Sum();
 
-		Self.WeightMatrix[k].Resize(PointCount);
-		Self.WeightMatrix[k].IndexList() = AdjPointIndexList;
-		Self.WeightMatrix[k].ElementList() = WeightList;
+		Self.Internal.WeightMatrix[k].Resize(PointCount);
+		Self.Internal.WeightMatrix[k].IndexList() = AdjPointIndexList;
+		Self.Internal.WeightMatrix[k].ElementList() = WeightList;
 	}
 }
 
@@ -156,15 +156,15 @@ void DisplacementBasedPolygonMeshDeformer<MeshAttribute>::ComputeDisplacementFie
 {
 	auto& Self = *this;
 
-	auto PointCount = Self.InputMesh.GetPointCount();
+	auto PointCount = Self.Input.SourceMesh.GetPointCount();
 
 	//-------------------------------------------------------------------------------------------//
 	std::vector<Eigen::Triplet<ScalarType, int_max>> CoefList;
 	Eigen::Matrix<ScalarType, Eigen::Dynamic, 1> Bx(PointCount), By(PointCount), Bz(PointCount);;
 
-	const auto& Alpha = Self.ConfidenceOfInputDisplacementField;
-	const auto& Beta = Self.ConfidenceOfSmoothness;
-	const auto& Lambda = Self.WeightMatrix;
+	const auto& Alpha = Self.Input.ConfidenceOfDisplacementField;
+	const auto& Beta = Self.Input.ConfidenceOfSmoothness;
+	const auto& Lambda = Self.Internal.WeightMatrix;
 
 	DenseVector<ScalarType> RowCoef;
 	RowCoef.Resize(PointCount);	
@@ -178,7 +178,7 @@ void DisplacementBasedPolygonMeshDeformer<MeshAttribute>::ComputeDisplacementFie
 		RowCoef[i]=Alpha[i] + Beta[i];
 		PointFlagList[i] = 1;
 
-		auto AdjPointIndexList_i = Self.InputMesh.Point(i).GetAdjacentPointIndexList();
+		auto AdjPointIndexList_i = Self.Input.SourceMesh.Point(i).GetAdjacentPointIndexList();
 		for (int_max idx_j = 0; idx_j < AdjPointIndexList_i.GetLength(); ++idx_j)
 		{
 			auto j = AdjPointIndexList_i[idx_j];
@@ -186,7 +186,7 @@ void DisplacementBasedPolygonMeshDeformer<MeshAttribute>::ComputeDisplacementFie
 			RowCoef[j] += -Beta[i]*Lambda[i][j] -Beta[j]* Lambda[j][i];
 			PointFlagList[j] = 1;
 			
-			auto AdjPointIndexList_j = Self.InputMesh.Point(j).GetAdjacentPointIndexList();
+			auto AdjPointIndexList_j = Self.Input.SourceMesh.Point(j).GetAdjacentPointIndexList();
 			for (int_max idx_k = 0; idx_k < AdjPointIndexList_j.GetLength(); ++idx_k)
 			{
 				auto k = AdjPointIndexList_j[idx_k];
@@ -223,13 +223,13 @@ void DisplacementBasedPolygonMeshDeformer<MeshAttribute>::ComputeDisplacementFie
 	EigenVector Uy = solver.solve(By);//
 	EigenVector Uz = solver.solve(Bz);//
 	//-------------------------------------------------------------------//
-	Self.OutputDisplacementField.Clear();
-	Self.OutputDisplacementField.Resize(3, PointCount);
+	Self.Output.DisplacementField.Clear();
+	Self.Output.DisplacementField.Resize(3, PointCount);
 	for (int_max k = 0; k < PointCount; ++k)
 	{
-		Self.OutputDisplacementField(0, k) = Ux(k);
-		Self.OutputDisplacementField(1, k) = Uy(k);
-		Self.OutputDisplacementField(2, k) = Uz(k);
+		Self.Output.DisplacementField(0, k) = Ux(k);
+		Self.Output.DisplacementField(1, k) = Uy(k);
+		Self.Output.DisplacementField(2, k) = Uz(k);
 	}
 }
 

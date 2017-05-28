@@ -429,6 +429,13 @@ const typename MeshAttributeType::PointAttributeType& Point_Of_PolygonMesh<MeshA
     return m_Data->Attribute;
 }
 
+template<typename MeshAttributeType>
+inline
+DenseVector<int_max> Point_Of_PolygonMesh<MeshAttributeType>::GetNeighborPointIndexList(int_max MaxGraphDistance) const
+{
+	return m_Data->MeshData->GetNeighborPointOfPoint(m_Data->Index, MaxGraphDistance);
+}
+
 //=========================================================== Edge_Of_PolygonMesh ===========================================================//
 
 template<typename MeshAttributeType>

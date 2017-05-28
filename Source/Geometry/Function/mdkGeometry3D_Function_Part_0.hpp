@@ -258,6 +258,14 @@ DenseMatrix<ScalarType> ResampleOpen3DCurveByCardinalSpline(const DenseMatrix<Sc
 		return EmptyCurve;
 	}
 
+	if (PointCount == 2)
+	{
+		DenseMatrix<ScalarType> OutputCurve;
+		OutputCurve.AppendCol(Curve.GetCol(0));
+		OutputCurve.AppendCol(Curve.GetCol(Curve.GetColCount()-1));
+		return OutputCurve;
+	}
+
 	auto points = vtkSmartPointer<vtkPoints>::New();
 	points->SetNumberOfPoints(PointCount_input);
 	for (int_max k = 0; k < PointCount_input; ++k)

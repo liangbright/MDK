@@ -2850,6 +2850,107 @@ bool PolygonMesh<MeshAttributeType>::CheckIfQuadMesh() const
 	return true;
 }
 
+template<typename MeshAttributeType>
+bool PolygonMesh<MeshAttributeType>::CheckIfMixedTriangleQuadMesh() const
+{
+	if (this->IsEmpty() == true)
+	{
+		return false;
+	}
+
+	int_max FaceIndex_max = this->GetMaxValueOfFaceIndex();
+	for (int_max k = 0; k <= FaceIndex_max; ++k)
+	{
+		if (this->IsValidFaceIndex(k) == true)
+		{
+			auto PointCount = this->Face(k).GetPointCount();
+			if (PointCount != 3 && PointCount != 4)
+			{
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
+
+template<typename MeshAttributeType>
+std::pair<DenseVector<int_max>, DenseVector<int_max>> PolygonMesh<MeshAttributeType>::GetNeighborPointOfPoint(int_max PointIndex_ref, int_max MaxGraphDistance) const
+{
+	std::pair<DenseVector<int_max>, DenseVector<int_max>> Output;
+	//Output.first[k] is PointIndex
+	//Output.second[k] is GraphDistance between Point(PointIndex) and Point(PointIndex_ref)
+
+	int_max PointCount = this->GetPointCount();
+
+	//--------------- check input ------------------------//
+	if (PointIndex_ref < 0 || PointIndex_ref >= PointCount)
+	{
+		return Output;
+	}
+
+	if (this->IsEmpty() == true)
+	{
+		return Output;
+	}
+
+	if (MaxGraphDistance <= 0)
+	{
+		return Output;
+	}
+	else if (MaxGraphDistance == 1)
+	{
+		auto AdjPointIndexList = this->Point(PointIndex_ref).GetAdjacentPointIndexList();
+		Output.first.Resize(AdjPointIndexList.GetLength());
+		Output.second.Resize(AdjPointIndexList.GetLength());
+		for (int_max k = 0; k < AdjPointIndexList.GetLength(); ++k)
+		{
+			Output.first[k] = AdjPointIndexList[k];
+			Output.second[k] = 1;
+			return Output;
+		}
+	}
+	//----------------------------------------------------//
+
+	DenseVector<int8> PointFlagList;
+	PointFlagList.Resize(PointCount);
+	PointFlagList.Fill(0); // 0 ~ not selected, 1 ~ selected as ouput
+
+	DenseVector<int_max> PointIndexList_boarder;
+	PointIndexList_boarder = this->Point(PointIndex_ref).GetAdjacentPointIndexList();
+
+	for (int_max k = 0; k < PointIndexList_boarder.GetLength(); ++k)
+	{
+		Output.first.Append(PointIndexList_boarder[k]);
+		Output.second.Append(1);
+		PointFlagList[PointIndexList_boarder[k]] = 1;
+	}
+
+	for (int_max GraphDistance = 2; GraphDistance <= MaxGraphDistance; ++GraphDistance)
+	{
+		DenseVector<int_max> PointIndexList_boarder_next;
+		PointIndexList_boarder_next.SetCapacity(PointIndexList_boarder.GetLength() + 100);
+		for (int_max k = 0; k < PointIndexList_boarder.GetLength(); ++k)
+		{
+			auto AdjPointIndexList = this->Point(PointIndexList_boarder[k]).GetAdjacentPointIndexList();
+			for (int_max n = 0; n < AdjPointIndexList.GetLength(); ++n)
+			{
+				if (PointFlagList[AdjPointIndexList[n]] == 0)
+				{
+					Output.first.Append(AdjPointIndexList[k]);
+					Output.second.Append(GraphDistance);					
+					PointIndexList_boarder_next.Append(AdjPointIndexList[n]);
+					PointFlagList[AdjPointIndexList[n]] = 1;
+				}
+			}
+		}
+		PointIndexList_boarder = std::move(PointIndexList_boarder_next);
+	}
+
+	return Output;
+}
+
 //-------------------- get a sub mesh by FaceIndexList  -----------------------------------------//
 
 template<typename MeshAttributeType>

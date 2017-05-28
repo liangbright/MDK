@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include <tuple>
 #include <unordered_map>
 
 #include "mdkPolygonMeshItem.h"
@@ -408,7 +409,13 @@ public:
 	//--- check --------------------------//
 	bool CheckIfTriangleMesh() const;
 	bool CheckIfQuadMesh() const;
+	bool CheckIfMixedTriangleQuadMesh() const;
     //---------------------------------------------------------------------------------------------------
+	
+	//MaxGraphDistance is the edge count
+	//Output.first[k] is PointIndex
+	//Output.second[k] is GraphDistance between Point(PointIndex) and Point(PointIndex_input)
+	std::pair<DenseVector<int_max>, DenseVector<int_max>> GetNeighborPointOfPoint(int_max PointIndex_ref, int_max MaxGraphDistance) const;
 
     // get a sub mesh by FaceIndexList
     PolygonMesh<MeshAttributeType> GetSubMeshByFace(const DenseVector<int_max>& FaceIndexList) const;
