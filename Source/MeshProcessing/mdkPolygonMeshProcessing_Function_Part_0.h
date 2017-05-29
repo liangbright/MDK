@@ -42,7 +42,7 @@ template<typename MeshAttributeType>
 DenseVector<int_max> FindShortestPathByVTKDijkstraGraphGeodesicPath(const PolygonMesh<MeshAttributeType>& InputMesh, int_max PointIndex_start, int_max PointIndex_end);
 
 template<typename MeshAttributeType>
-PolygonMesh<MeshAttributeType> MergeMeshBoundary(const PolygonMesh<MeshAttributeType>& InputMeshA, const PolygonMesh<MeshAttributeType>& InputMeshB, typename MeshAttributeType::ScalarType Threshold = 1e-6);
+PolygonMesh<MeshAttributeType> MergeMeshBoundary(const PolygonMesh<MeshAttributeType>& InputMeshA, const PolygonMesh<MeshAttributeType>& InputMeshB, typename MeshAttributeType::ScalarType Threshold);
 
 }//namespace mdk
 

@@ -812,9 +812,7 @@ int_max PolygonMesh<MeshAttributeType>::GetPointIndexByPosition(ScalarType x, Sc
         {
             ScalarType Pos[3];
             m_MeshData->PointPositionTable.GetCol(k, Pos);
-
             auto Distance_sq = (Pos[0] - x)*(Pos[0] - x) + (Pos[1] - y)*(Pos[1] - y) + (Pos[2] - z)*(Pos[2] - z);
-
             if (Distance_sq <= LowerLimit_sq)
             {
                 return k;
