@@ -22,6 +22,12 @@ bool SaveTriangleMeshAsVTKFile(const TriangleMesh<MeshAttributeType>& InputMesh,
 template<typename MeshAttributeType>
 bool LoadTriangleMeshFromVTKFile(TriangleMesh<MeshAttributeType>& OutputMesh, const String& FilePathAndName);
 
+template<typename MeshAttributeType>
+bool SaveTriangleMeshAsPLYFile(const PolygonMesh<MeshAttributeType>& InputMesh, const String& FilePathAndName);
+
+template<typename MeshAttributeType>
+bool LoadTrianglMeshMeshFromPLYFile(PolygonMesh<MeshAttributeType>& OutputMesh, const String& FilePathAndName);
+
 }//namespace mdk
 
 #include "mdkTriangleMesh_FileIO.hpp"

@@ -27,6 +27,11 @@ bool SavePolygonMeshAsVTKFile(const PolygonMesh<MeshAttributeType>& InputMesh, c
 template<typename MeshAttributeType>
 bool LoadPolygonMeshMeshFromVTKFile(PolygonMesh<MeshAttributeType>& OutputMesh, const String& FilePathAndName);
 
+template<typename MeshAttributeType>
+bool SavePolygonMeshAsPLYFile(const PolygonMesh<MeshAttributeType>& InputMesh, const String& FilePathAndName);
+
+template<typename MeshAttributeType>
+bool LoadPolygonMeshMeshFromPLYFile(PolygonMesh<MeshAttributeType>& OutputMesh, const String& FilePathAndName);
 
 }//namespace mdk
 

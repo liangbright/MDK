@@ -8,7 +8,6 @@
 #include "mdkTypeInference.h"
 #include "mdkDebugConfig.h"
 #include "mdkMatrix_Common.h"
-#include "mdkJsonFile.h"
 
 namespace mdk
 {

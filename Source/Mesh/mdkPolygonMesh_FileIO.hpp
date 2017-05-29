@@ -363,5 +363,20 @@ bool LoadPolygonMeshFromVTKFile(PolygonMesh<MeshAttributeType>& OutputMesh, cons
 	return ConvertVTKPolyDataToMDKPolygonMesh(VTKMesh, OutputMesh);
 }
 
+
+template<typename MeshAttributeType>
+bool SavePolygonMeshAsPLYFile(const PolygonMesh<MeshAttributeType>& InputMesh, const String& FilePathAndName)
+{
+	auto VTKMesh = ConvertMDKPolygonMeshToVTKPolyData(InputMesh);
+	return SaveVTKPolyDataAsPLYFile(VTKMesh, FilePathAndName);
+}
+
+template<typename MeshAttributeType>
+bool LoadPolygonMeshMeshFromPLYFile(PolygonMesh<MeshAttributeType>& OutputMesh, const String& FilePathAndName)
+{
+	auto VTKMesh = LoadVTKPolyDataFromPLYFile(FilePathAndName);
+	return ConvertVTKPolyDataToMDKPolygonMesh(VTKMesh, OutputMesh);
+}
+
 }//namespace mdk
 
