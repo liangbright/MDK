@@ -510,7 +510,13 @@ PolygonMesh<MeshAttributeType> MergeMeshBoundary(const PolygonMesh<MeshAttribute
 			auto dist = (PosA - PosB).L2Norm();
 			if (dist <= Threshold)
 			{
-				Map_PointIndexB_to_OutputIndex[k] = BoundaryPointIndexListA[Idx_near];
+				auto PointIndexA = BoundaryPointIndexListA[Idx_near];
+				Map_PointIndexB_to_OutputIndex[k] = PointIndexA;
+				if (dist > 0)
+				{
+					auto PosM = (PosA + PosB) / ScalarType(2);
+					OutputMesh.SetPointPosition(PointIndexA, PosM);
+				}
 			}
 			else
 			{
