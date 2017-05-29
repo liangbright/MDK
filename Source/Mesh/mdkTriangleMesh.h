@@ -39,10 +39,15 @@ public:
     TriangleMesh();
     TriangleMesh(const TriangleMesh& InputMesh);
     TriangleMesh(TriangleMesh&& InputMesh);
+	TriangleMesh(const PolygonMesh& InputMesh);
+	TriangleMesh(PolygonMesh&& InputMesh);
+
     ~TriangleMesh();
 
     inline void operator=(const TriangleMesh& InputMesh);
     inline void operator=(TriangleMesh&& InputMesh);
+	inline void operator=(const PolygonMesh& InputMesh);
+	inline void operator=(PolygonMesh&& InputMesh);
 
     //------------------------ Add Face ---------------------------------------//
     using PolygonMesh::AddFaceByEdge;

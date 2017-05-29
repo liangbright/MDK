@@ -56,6 +56,7 @@ void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<MeshAttributeType>& T
 template<typename MeshAttributeType>
 void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<MeshAttributeType>& TargetMesh, int_max MaxIter, double Alpha, const DenseVector<int_max>& PointIndexList_NOSmoothing, bool Flag_TerminateIfTotalCurvatureIncrease);
 
+
 }//namespace mdk
 
 #include "mdkTriangleMeshProcessing_Function_Part_0.hpp"

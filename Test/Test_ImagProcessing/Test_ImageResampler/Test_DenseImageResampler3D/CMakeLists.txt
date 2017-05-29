@@ -6,7 +6,7 @@ endif()
  
 PROJECT(Test_DenseImageResampler3D)
 
-set(MDK_DIR "C:/Research/MDK/MDK_Code")
+set(MDK_DIR "C:/Research/MDK/MDK_Code" CACHE PATH "path")
 find_package(MDK REQUIRED)
 
 FILE(GLOB Test_FILES "*.h" "*.hpp" "*.cpp")

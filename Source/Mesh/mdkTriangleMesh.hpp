@@ -25,6 +25,20 @@ TriangleMesh<MeshAttributeType>::TriangleMesh(TriangleMesh<MeshAttributeType>&& 
 
 
 template<typename MeshAttributeType>
+TriangleMesh<MeshAttributeType>::TriangleMesh(const PolygonMesh<MeshAttributeType>& InputMesh)
+: PolygonMesh(InputMesh)
+{
+}
+
+
+template<typename MeshAttributeType>
+TriangleMesh<MeshAttributeType>::TriangleMesh(PolygonMesh<MeshAttributeType>&& InputMesh)
+: PolygonMesh(std::move(InputMesh))
+{
+}
+
+
+template<typename MeshAttributeType>
 TriangleMesh<MeshAttributeType>::~TriangleMesh()
 {
 }
@@ -44,6 +58,22 @@ void TriangleMesh<MeshAttributeType>::operator=(TriangleMesh<MeshAttributeType>&
 {
     this->PolygonMesh::operator=(std::move(InputMesh));
 }
+
+template<typename MeshAttributeType>
+inline
+void TriangleMesh<MeshAttributeType>::operator=(const PolygonMesh<MeshAttributeType>& InputMesh)
+{
+	this->PolygonMesh::operator=(InputMesh);
+}
+
+
+template<typename MeshAttributeType>
+inline
+void TriangleMesh<MeshAttributeType>::operator=(PolygonMesh<MeshAttributeType>&& InputMesh)
+{
+	this->PolygonMesh::operator=(std::move(InputMesh));
+}
+
 
 template<typename MeshAttributeType>
 inline 

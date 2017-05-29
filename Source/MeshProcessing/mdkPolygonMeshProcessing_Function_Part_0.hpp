@@ -288,6 +288,12 @@ PolygonMesh<MeshAttributeType> SmoothMeshByVTKWindowedSincPolyDataFilter(const P
 template<typename MeshAttributeType>
 DenseVector<int_max> FindFaceEnclosedByEdgeCurve(const PolygonMesh<MeshAttributeType>& Surface, const DenseVector<int_max>& ClosedEdgeCurve_EdgeIndexList, const int_max FaceIndex_seed)
 {
+	if (Surface.IsEmpty() == true || ClosedEdgeCurve_EdgeIndexList.IsEmpty() == true)
+	{
+		DenseVector<int_max> EmptyList;
+		return EmptyList;
+	}
+
 	DenseVector<int> FaceFlagList;//1: the same group as FaceIndex_seed
 	FaceFlagList.Resize(Surface.GetFaceCount());
 	FaceFlagList.Fill(0);
@@ -335,6 +341,94 @@ DenseVector<int_max> FindFaceEnclosedByEdgeCurve(const PolygonMesh<MeshAttribute
 
 	auto FaceIndexList_seg = FaceFlagList.Find([](int Flag) { return (Flag == 1); });
 	return FaceIndexList_seg;
+}
+
+
+template<typename MeshAttributeType>
+DenseVector<DenseVector<int_max>> DivideMeshByEdgeCurve(const PolygonMesh<MeshAttributeType>& Surface, const DenseVector<int_max>& ClosedEdgeCurve_EdgeIndexList)
+{
+	DenseVector<DenseVector<int_max>> FastIndexList_output;
+
+	if (Surface.IsEmpty() == true || ClosedEdgeCurve_EdgeIndexList.IsEmpty() == true)
+	{
+		return FastIndexList_output;
+	}
+	
+	DenseVector<int_max> FaceFlagList;
+	FaceFlagList.Resize(Surface.GetFaceCount());
+	FaceFlagList.Fill(0);
+	int_max FaceIndex_seed = 0;	
+	while (true)
+	{
+		FaceFlagList[FaceIndex_seed] = 1;
+		auto FastIndexList_temp = FindFaceEnclosedByEdgeCurve(Surface, ClosedEdgeCurve_EdgeIndexList, FaceIndex_seed);
+		FastIndexList_output.Append(FastIndexList_temp);
+		for (int_max k = 0; k < FastIndexList_temp.GetLength(); ++k)
+		{
+			FaceFlagList[FastIndexList_temp[k]] = 1;
+		}
+		FaceIndex_seed = -1;
+		for (int_max k = 0; k < FaceFlagList.GetLength(); ++k)
+		{
+			if (FaceFlagList[k] == 0)
+			{
+				FaceIndex_seed = k;
+				break;//for
+			}
+		}
+		if (FaceIndex_seed < 0)
+		{
+			break;//while
+		}
+	}
+	return FastIndexList_output;
+}
+
+
+template<typename MeshAttributeType>
+PolygonMesh<MeshAttributeType> ClipMeshByVTKClipPolyData(const PolygonMesh<MeshAttributeType>& InputMesh, const DenseVector<typename MeshAttributeType::ScalarType, 3>& Origin, const DenseVector<typename MeshAttributeType::ScalarType, 3>& Normal)
+{
+	auto InputMesh_vtk = ConvertMDKPolygonMeshToVTKPolyData(InputMesh);
+	auto plane = vtkSmartPointer<vtkPlane>::New();
+	plane->SetOrigin(Origin[0], Origin[1], Origin[2]);
+	plane->SetNormal(Normal[0], Normal[1], Normal[2]);
+
+	auto clipper = vtkSmartPointer<vtkClipPolyData>::New();
+	clipper->SetInputData(InputMesh_vtk);
+	clipper->SetClipFunction(plane);
+	clipper->SetValue(0);
+	clipper->Update();
+	auto cleaner = vtkSmartPointer<vtkCleanPolyData>::New();
+	cleaner->SetInputData(clipper->GetOutput());
+	cleaner->Update();
+	auto OutputMesh_vtk = cleaner->GetOutput();
+
+	PolygonMesh<MeshAttributeType> OutputMesh;
+	ConvertVTKPolyDataToMDKPolygonMesh(OutputMesh_vtk, OutputMesh);
+	return OutputMesh;
+}
+
+
+template<typename MeshAttributeType>
+DenseVector<int_max> FindShortestPathByVTKDijkstraGraphGeodesicPath(const PolygonMesh<MeshAttributeType>& InputMesh, int_max PointIndex_start, int_max PointIndex_end)
+{
+	auto InputMesh_vtk = ConvertMDKPolygonMeshToVTKPolyData(InputMesh);
+
+	auto PathFinder = vtkSmartPointer<vtkDijkstraGraphGeodesicPath>::New();	
+	PathFinder->SetInputData(InputMesh_vtk);
+	PathFinder->SetStartVertex(PointIndex_start);
+	PathFinder->SetEndVertex(PointIndex_end);
+	PathFinder->Update();
+	auto IdList = PathFinder->GetIdList();
+
+	DenseVector<int_max> ShortestPath;
+	ShortestPath.SetCapacity(IdList->GetNumberOfIds());
+	for (int_max k = IdList->GetNumberOfIds() - 1; k >= 0; --k)// id is in reverse order
+	{
+		int_max idx = IdList->GetId(k);
+		ShortestPath.Append(idx);
+	}
+	return ShortestPath;
 }
 
 }//namespace mdk

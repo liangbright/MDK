@@ -25,10 +25,12 @@ void test_a()
 	//std::cin >> name;
 
 	//String FilePath_InputImage = "C:/Research/AorticValve/Data/CT/Normal/2014_7_25/P2115937/phase0/";
-	String FilePath_InputImage =  "G:/AorticValveData/2014_7_25/P2115937/phase0";
+	//String FilePath_InputImage =  "G:/AorticValveData/2014_7_25/P2115937/phase0";
 	//String FilePath_InputImage = "G:/AorticValveData/2014_7_25/P2115937/Detection/TestImage.json";
+	String FilePath_InputImage = "D:/CT_data/CT/Normal/2014_7_25/P2115937/phase0/";
 
-	String Test_Path = "C:/Research/MDK/MDK_Build/Test/Test_ImageProcessing/Test_ImageResampler/Test_DenseImageResampler3D/TestData/";
+	//String Test_Path = "C:/Research/MDK/MDK_Build/Test/Test_ImageProcessing/Test_ImageResampler/Test_DenseImageResampler3D/TestData/";
+	String Test_Path = "C:/Users/liang.liang/Research/MDK/MDK_Build/Test/Test_ImageProcessing/Test_ImageResampler/Test_DenseImageResampler3D/TestData/";
 
 	String FileNameAndPath_OutputImage = Test_Path + "ResampledImage.json";
 
@@ -118,10 +120,12 @@ void test_a()
 
 void test_b()
 {
-	String FilePath_InputImage = "G:/AorticValveData/2014_7_25/P2115937/phase0";
+	//String FilePath_InputImage = "G:/AorticValveData/2014_7_25/P2115937/phase0";
 	//String FilePath_InputImage = "H:/AorticValveData/2014_7_25/P2115937/Detection/TestImage.json";
+	String FilePath_InputImage = "D:/CT_data/CT/Normal/2014_7_25/P2115937/phase0/";
 
-	String Test_Path = "C:/Research/MDK/MDK_Build/Test/Test_ImageProcessing/Test_ImageResampler/Test_DenseImageResampler3D/TestData/";
+	//String Test_Path = "C:/Research/MDK/MDK_Build/Test/Test_ImageProcessing/Test_ImageResampler/Test_DenseImageResampler3D/TestData/";
+	String Test_Path = "C:/Users/liang.liang/Research/MDK/MDK_Build/Test/Test_ImageProcessing/Test_ImageResampler/Test_DenseImageResampler3D/TestData/";
 
 	String FileNameAndPath_OutputImage = Test_Path + "test_b_ResampledImage.json";
 
@@ -184,8 +188,9 @@ void test_b()
 
 void test_c()
 {
-	String FilePath_InputImage = "H:/AorticValveData/2014_7_25/P2115937/phase0";
+	//String FilePath_InputImage = "H:/AorticValveData/2014_7_25/P2115937/phase0";
 	//String FilePath_InputImage = "H:/AorticValveData/2014_7_25/P2115937/Detection/TestImage.json";
+	String FilePath_InputImage = "D:/CT_data/CT/Normal/2014_7_25/P2115937/phase0/";
 
 	String FileNameAndPath_OutputImage = "H:/AorticValveData/2014_7_25/P2115937/Detection/test_c_ResampledImage.json";
 

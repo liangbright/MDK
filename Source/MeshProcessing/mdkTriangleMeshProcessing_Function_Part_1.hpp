@@ -18,9 +18,9 @@ TriangleMesh<MeshAttributeType> ResampleMeshOpenBoundary(const TriangleMesh<Mesh
 		TriangleMesh<MeshAttributeType> EmptyMesh;
 		return EmptyMesh;
 	}
-	if (BounaryPointIndexList.GetLength() < 2)
+	if (BounaryPointIndexList.GetLength() < 3)
 	{
-		MDK_Error("BounaryPointIndexList.GetLength() < 2, abort @ ResampleMeshOpenBoundary(...)")
+		MDK_Error("BounaryPointIndexList.GetLength() < 3, abort @ ResampleMeshOpenBoundary(...)")
 		TriangleMesh<MeshAttributeType> EmptyMesh;
 		return EmptyMesh;
 	}
@@ -69,30 +69,46 @@ TriangleMesh<MeshAttributeType> ResampleMeshOpenBoundary(const TriangleMesh<Mesh
 			tempList0 = SetDiff(tempList0, BounaryPointIndexList);
 			auto tempList1 = InputMesh.Point(BounaryPointIndexList[1]).GetAdjacentPointIndexList();			
 			tempList1 = SetDiff(tempList1, BounaryPointIndexList);
-			auto tempList2 = Intersect(tempList0, tempList1);
-			if (tempList2.GetLength() == 1)
+			auto tempList2 = InputMesh.Point(BounaryPointIndexList[2]).GetAdjacentPointIndexList();
+			tempList2 = SetDiff(tempList2, BounaryPointIndexList);
+			auto tempList01 = Intersect(tempList0, tempList1);
+			auto tempList02 = Intersect(tempList0, tempList2);
+			if (tempList01.GetLength() == 1)
 			{
-				PointIndex_start = tempList2[0];
+				PointIndex_start = tempList01[0];
+			}
+			else if (tempList02.GetLength() == 1)
+			{
+				PointIndex_start = tempList02[0];
 			}
 			else
 			{
 				MDK_Error("special case: PointIndex_start not exist, please modify BounaryPointIndexList, abort @ ResampleMeshOpenBoundary(...)")
+				DisplayVector("BounaryPointIndexList", BounaryPointIndexList);
 				TriangleMesh<MeshAttributeType> EmptyMesh;
 				return EmptyMesh;
 			}
 		}
 		int_max PointIndex_end = -1;
 		{
-			auto Index0 = BounaryPointIndexList.GetLength() - 2;
-			auto Index1 = BounaryPointIndexList.GetLength() - 1;
+			auto Index0 = BounaryPointIndexList.GetLength() - 1;
+			auto Index1 = BounaryPointIndexList.GetLength() - 2;
+			auto Index2 = BounaryPointIndexList.GetLength() - 3;
 			auto tempList0 = InputMesh.Point(BounaryPointIndexList[Index0]).GetAdjacentPointIndexList();
 			tempList0 = SetDiff(tempList0, BounaryPointIndexList);
 			auto tempList1 = InputMesh.Point(BounaryPointIndexList[Index1]).GetAdjacentPointIndexList();
 			tempList1 = SetDiff(tempList1, BounaryPointIndexList);
-			auto tempList2 = Intersect(tempList0, tempList1);			
-			if (tempList2.GetLength() == 1)
+			auto tempList2 = InputMesh.Point(BounaryPointIndexList[Index2]).GetAdjacentPointIndexList();
+			tempList2 = SetDiff(tempList2, BounaryPointIndexList);
+			auto tempList01 = Intersect(tempList0, tempList1);	
+			auto tempList02 = Intersect(tempList0, tempList2);
+			if (tempList01.GetLength() == 1)
 			{
-				PointIndex_end = tempList2[0];
+				PointIndex_end = tempList01[0];
+			}
+			else if (tempList02.GetLength() == 1)
+			{
+				PointIndex_end = tempList02[0];
 			}
 			else
 			{
@@ -111,6 +127,8 @@ TriangleMesh<MeshAttributeType> ResampleMeshOpenBoundary(const TriangleMesh<Mesh
 			if (while_counter > PointCount_InputMesh)
 			{
 				MDK_Error("infinit while loop, please modify BounaryPointIndexList, abort @ ResampleMeshOpenBoundary(...)")
+				std::cout << "PointIndex_start " << PointIndex_start << ", PointIndex_end " << PointIndex_end << '\n';
+				DisplayVector("Curve_near_boundary", Curve_near_boundary);
 				TriangleMesh<MeshAttributeType> EmptyMesh;
 				return EmptyMesh;
 			}
@@ -118,18 +136,29 @@ TriangleMesh<MeshAttributeType> ResampleMeshOpenBoundary(const TriangleMesh<Mesh
 			auto CandidateList = InputMesh.Point(PointIndex_current).GetAdjacentPointIndexList();
 			CandidateList = SetDiff(CandidateList, BounaryPointIndexList);
 			CandidateList = SetDiff(CandidateList, Curve_near_boundary);
+			DenseVector<int_max> IntersectCounterList;
+			IntersectCounterList.Resize(CandidateList.GetLength());
+			IntersectCounterList.Fill(0);
 			for (int_max k = 0; k < CandidateList.GetLength(); ++k)
 			{
 				auto tempList = InputMesh.Point(CandidateList[k]).GetAdjacentPointIndexList();
 				auto tempInter = Intersect(tempList, BounaryPointIndexList);
-				if (tempInter.IsEmpty() == false)
-				{
-					auto PointIndex_next = CandidateList[k];
-					Curve_near_boundary.Append(PointIndex_next);
-					PointIndex_current = PointIndex_next;
-					break;//for
-				}
+				IntersectCounterList[k] = tempInter.GetLength();
 			}
+			auto Index_max_count = IntersectCounterList.IndexOfMax();
+			if (IntersectCounterList[Index_max_count] > 0)
+			{
+				auto PointIndex_next = CandidateList[Index_max_count];
+				Curve_near_boundary.Append(PointIndex_next);
+				PointIndex_current = PointIndex_next;
+			}
+			else
+			{
+				MDK_Error("special case: IntersectCounterList[Index_max_count] = 0  please modify BounaryPointIndexList, abort @ ResampleMeshOpenBoundary(...)")
+				TriangleMesh<MeshAttributeType> EmptyMesh;
+				return EmptyMesh;
+			}
+
 			//must be here
 			if (PointIndex_current == PointIndex_end)
 			{

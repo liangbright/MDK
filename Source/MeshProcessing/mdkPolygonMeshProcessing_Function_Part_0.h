@@ -2,6 +2,10 @@
 
 #include "vtkSmoothPolyDataFilter.h"
 #include "vtkWindowedSincPolyDataFilter.h"
+#include "vtkPlane.h"
+#include "vtkClipPolyData.h"
+#include "vtkCleanPolyData.h"
+#include "vtkDijkstraGraphGeodesicPath.h"
 
 namespace mdk
 {
@@ -23,8 +27,19 @@ PolygonMesh<MeshAttributeType> SmoothMeshByVTKWindowedSincPolyDataFilter(const P
 
 //output FaceIndexList with seed FaceIndex_seed
 //ClosedEdgeCurve_EdgeIndexList can be in random order
+//Attention: EdgeIndex, NOT PointIndex
 template<typename MeshAttributeType>
 DenseVector<int_max> FindFaceEnclosedByEdgeCurve(const PolygonMesh<MeshAttributeType>& Surface, const DenseVector<int_max>& ClosedEdgeCurve_EdgeIndexList, const int_max FaceIndex_seed);
+
+template<typename MeshAttributeType>
+DenseVector<DenseVector<int_max>> DivideMeshByEdgeCurve(const PolygonMesh<MeshAttributeType>& Surface, const DenseVector<int_max>& ClosedEdgeCurve_EdgeIndexList);
+
+//clip mesh using a plane defined by origin and normal
+template<typename MeshAttributeType>
+PolygonMesh<MeshAttributeType> ClipMeshByVTKClipPolyData(const PolygonMesh<MeshAttributeType>& InputMesh, const DenseVector<typename MeshAttributeType::ScalarType, 3>& Origin, const DenseVector<typename MeshAttributeType::ScalarType, 3>& Normal);
+
+template<typename MeshAttributeType>
+DenseVector<int_max> FindShortestPathByVTKDijkstraGraphGeodesicPath(const PolygonMesh<MeshAttributeType>& InputMesh, int_max PointIndex_start, int_max PointIndex_end);
 
 }//namespace mdk
 
