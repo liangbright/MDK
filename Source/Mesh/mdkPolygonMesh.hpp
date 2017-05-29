@@ -2751,17 +2751,18 @@ PolygonMesh<MeshAttributeType>::GetPointPositionMatrixAndFaceTable() const
 template<typename MeshAttributeType>
 inline
 void PolygonMesh<MeshAttributeType>::
-GetPointPositionMatrixAndFaceTable(DenseMatrix<typename MeshAttributeType::ScalarType>& PointPositionTable, ObjectArray<DenseVector<int_max>>& FaceTable) const
+GetPointPositionMatrixAndFaceTable(DenseMatrix<typename MeshAttributeType::ScalarType>& PointPositionMatrix, ObjectArray<DenseVector<int_max>>& FaceTable) const
 {
 	auto PointCount = this->GetPointCount();
 	auto FaceCount = this->GetFaceCount();
 	int_max PointIndex_max = this->GetMaxValueOfPointIndex();
 	int_max FaceIndex_max = this->GetMaxValueOfFaceIndex();
 
-	PointPositionTable.FastResize(3, PointCount);
+	PointPositionMatrix.FastResize(3, PointCount);
 	FaceTable.FastResize(FaceCount);
 
-	// Map PointIndex (PointIndex.GetIndex()) to OutputIndex (col index) in PointPositionTable
+	// DataStructure may not be clean
+	// Map PointIndex (PointIndex.GetIndex()) to OutputIndex (col index) in PointPositionMatrix
 	std::unordered_map<int_max, int_max> Map_PointIndex_to_OutputIndex;
 
 	int_max PointCounter = 0;
@@ -2770,7 +2771,7 @@ GetPointPositionMatrixAndFaceTable(DenseMatrix<typename MeshAttributeType::Scala
 		if (this->IsValidPointIndex(k) == true)
 		{
 			auto Pos = this->GetPointPosition(k);
-			PointPositionTable.SetCol(PointCounter, Pos);
+			PointPositionMatrix.SetCol(PointCounter, Pos);
 			Map_PointIndex_to_OutputIndex[k] = PointCounter;
 			PointCounter += 1;
 		}
@@ -2793,7 +2794,7 @@ GetPointPositionMatrixAndFaceTable(DenseMatrix<typename MeshAttributeType::Scala
 				}
 				else
 				{
-					MDK_Error("tempPointIndex is invalid @ PolygonMesh::GetPointPositionTableAndFaceTable(...)")
+					MDK_Error("tempPointIndex is invalid @ PolygonMesh::GetPointPositionMatrixAndFaceTable(...)")
 					return;
 				}
 			}

@@ -393,7 +393,7 @@ public:
     // use this function when DeletedPointCount/ValidPointCount( GetPointCount() ) > 0.5
     void CleanDataStructure();	
 	void CleanDataStructure(DenseVector<int_max>& PointIndexMap_Old_To_New, DenseVector<int_max>& EdgeIndexMap_Old_To_New, DenseVector<int_max>& FaceIndexMap_Old_To_New);
-	bool Check_If_DataStructure_is_Clean() const;//true: clean, false: invalid index exit
+	bool Check_If_DataStructure_is_Clean() const;//true: clean, false: contain deleted point/edge/face i.e. invalid index exist
     int_max GetDeletedPointCount() const; // the number of Deleted points
 	int_max GetDeletedEdgeCount() const; // the number of Deleted edges
 	int_max GetDeletedFaceCount() const; // the number of Deleted faces
@@ -404,7 +404,7 @@ public:
 	
     //--------------------- output -------------------------------------------------//
 	std::pair<DenseMatrix<ScalarType>, ObjectArray<DenseVector<int_max>>> GetPointPositionMatrixAndFaceTable() const;
-	void GetPointPositionMatrixAndFaceTable(DenseMatrix<ScalarType>& PointPositionTable, ObjectArray<DenseVector<int_max>>& FaceTable) const;
+	void GetPointPositionMatrixAndFaceTable(DenseMatrix<ScalarType>& PointPositionMatrix, ObjectArray<DenseVector<int_max>>& FaceTable) const;
 
 	//--- check --------------------------//
 	bool CheckIfTriangleMesh() const;

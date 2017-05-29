@@ -5,7 +5,7 @@ namespace mdk
 
 template<typename MeshAttributeType>
 DenseVector<int_max> TraceMeshBoundaryCurve(const PolygonMesh<MeshAttributeType>& InputMesh, int_max PointIndex_start)
-{
+{// work for none-clean DataStructure
     DenseVector<int_max> PointIndexListOfBoundaryCurve;
 
 	if (InputMesh.IsValidPointIndex(PointIndex_start) == false)
@@ -123,7 +123,7 @@ DenseVector<int_max> TraceMeshBoundaryCurve(const PolygonMesh<MeshAttributeType>
 
 template<typename MeshAttributeType>
 ObjectArray<DenseVector<int_max>> TraceMeshBoundaryCurve(const PolygonMesh<MeshAttributeType>& InputMesh)
-{
+{// work for none-clean DataStructure
     // find boundary point
     DenseVector<int_max> BoundaryPointIndexList;
     for (auto it = InputMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
@@ -179,7 +179,7 @@ ObjectArray<DenseVector<int_max>> TraceMeshBoundaryCurve(const PolygonMesh<MeshA
 
 template<typename MeshAttributeType>
 int_max FindNearestPointOnMesh(const PolygonMesh<MeshAttributeType>& InputMesh, const DenseVector<typename MeshAttributeType::ScalarType, 3>& PointPosition)
-{
+{// work for none-clean DataStructure
     typedef typename MeshAttributeType::ScalarType ScalarType;
 
 	int_max OutputPointIndex = -1;
@@ -217,6 +217,11 @@ int_max FindNearestPointOnMesh(const PolygonMesh<MeshAttributeType>& InputMesh, 
 template<typename MeshAttributeType>
 PolygonMesh<MeshAttributeType> SmoothMeshByVTKSmoothPolyDataFilter(const PolygonMesh<MeshAttributeType>& InputMesh, int_max Iter, bool Flag_FeatureEdgeSmoothing, bool Flag_BoundarySmoothing)
 {
+	if (InputMesh.Check_If_DataStructure_is_Clean() == false)
+	{
+		MDK_Warning("InputMesh DataStructure is NOT clean @ mdkPolygonMeshProcessing SmoothMeshByVTKSmoothPolyDataFilter(...)")
+	}
+
 	auto VTKMesh = ConvertMDKPolygonMeshToVTKPolyData(InputMesh);
 
 	auto SmoothFilter =	vtkSmartPointer<vtkSmoothPolyDataFilter>::New();
@@ -253,6 +258,11 @@ PolygonMesh<MeshAttributeType> SmoothMeshByVTKSmoothPolyDataFilter(const Polygon
 template<typename MeshAttributeType>
 PolygonMesh<MeshAttributeType> SmoothMeshByVTKWindowedSincPolyDataFilter(const PolygonMesh<MeshAttributeType>& InputMesh, double PassBand, int_max Iter, bool Flag_FeatureEdgeSmoothing, bool Flag_BoundarySmoothing)
 {
+	if (InputMesh.Check_If_DataStructure_is_Clean() == false)
+	{
+		MDK_Warning("InputMesh DataStructure is NOT clean @ mdkPolygonMeshProcessing SmoothMeshByVTKWindowedSincPolyDataFilter(...)")
+	}
+
 	auto VTKMesh = ConvertMDKPolygonMeshToVTKPolyData(InputMesh);
 
 	auto SmoothFilter = vtkSmartPointer<vtkWindowedSincPolyDataFilter>::New();
@@ -286,16 +296,21 @@ PolygonMesh<MeshAttributeType> SmoothMeshByVTKWindowedSincPolyDataFilter(const P
 
 
 template<typename MeshAttributeType>
-DenseVector<int_max> FindFaceEnclosedByEdgeCurve(const PolygonMesh<MeshAttributeType>& Surface, const DenseVector<int_max>& ClosedEdgeCurve_EdgeIndexList, const int_max FaceIndex_seed)
+DenseVector<int_max> SegmentMeshByEdgeCurve(const PolygonMesh<MeshAttributeType>& InputMesh, const DenseVector<int_max>& ClosedEdgeCurve_EdgeIndexList, const int_max FaceIndex_seed)
 {
-	if (Surface.IsEmpty() == true || ClosedEdgeCurve_EdgeIndexList.IsEmpty() == true)
+	if (InputMesh.IsEmpty() == true || ClosedEdgeCurve_EdgeIndexList.IsEmpty() == true)
 	{
 		DenseVector<int_max> EmptyList;
 		return EmptyList;
 	}
 
+	if (InputMesh.Check_If_DataStructure_is_Clean() == false)
+	{
+		MDK_Warning("InputMesh DataStructure is NOT clean @ mdkPolygonMeshProcessing SegmentMeshByEdgeCurve(...)")
+	}
+
 	DenseVector<int> FaceFlagList;//1: the same group as FaceIndex_seed
-	FaceFlagList.Resize(Surface.GetFaceCount());
+	FaceFlagList.Resize(InputMesh.GetFaceCount());
 	FaceFlagList.Fill(0);
 	FaceFlagList[FaceIndex_seed] = 1;
 
@@ -311,13 +326,13 @@ DenseVector<int_max> FindFaceEnclosedByEdgeCurve(const PolygonMesh<MeshAttribute
 		DenseVector<int_max> FaceIndexList_new;
 		for (int_max k = 0; k < FaceIndexList_front.GetLength(); ++k)
 		{
-			auto EdgeIndexList_k = Surface.Face(FaceIndexList_front[k]).GetEdgeIndexList();
+			auto EdgeIndexList_k = InputMesh.Face(FaceIndexList_front[k]).GetEdgeIndexList();
 			for (int_max n = 0; n < EdgeIndexList_k.GetLength(); ++n)
 			{
 				auto tempIndex = ClosedEdgeCurve_EdgeIndexList.ExactMatch("first", EdgeIndexList_k[n]);
 				if (tempIndex < 0)
 				{
-					auto FaceIndexList_n = Surface.Edge(EdgeIndexList_k[n]).GetAdjacentFaceIndexList();
+					auto FaceIndexList_n = InputMesh.Edge(EdgeIndexList_k[n]).GetAdjacentFaceIndexList();
 					for (int_max m = 0; m < FaceIndexList_n.GetLength(); ++m)
 					{
 						if (FaceFlagList[FaceIndexList_n[m]] == 0)
@@ -345,23 +360,28 @@ DenseVector<int_max> FindFaceEnclosedByEdgeCurve(const PolygonMesh<MeshAttribute
 
 
 template<typename MeshAttributeType>
-DenseVector<DenseVector<int_max>> DivideMeshByEdgeCurve(const PolygonMesh<MeshAttributeType>& Surface, const DenseVector<int_max>& ClosedEdgeCurve_EdgeIndexList)
+DenseVector<DenseVector<int_max>> SegmentMeshByEdgeCurve(const PolygonMesh<MeshAttributeType>& InputMesh, const DenseVector<int_max>& ClosedEdgeCurve_EdgeIndexList)
 {
 	DenseVector<DenseVector<int_max>> FastIndexList_output;
 
-	if (Surface.IsEmpty() == true || ClosedEdgeCurve_EdgeIndexList.IsEmpty() == true)
+	if (InputMesh.IsEmpty() == true || ClosedEdgeCurve_EdgeIndexList.IsEmpty() == true)
 	{
 		return FastIndexList_output;
 	}
 	
+	if (InputMesh.Check_If_DataStructure_is_Clean() == false)
+	{
+		MDK_Warning("InputMesh DataStructure is NOT clean @ mdkPolygonMeshProcessing SegmentMeshByEdgeCurve(...)")
+	}
+
 	DenseVector<int_max> FaceFlagList;
-	FaceFlagList.Resize(Surface.GetFaceCount());
+	FaceFlagList.Resize(InputMesh.GetFaceCount());
 	FaceFlagList.Fill(0);
 	int_max FaceIndex_seed = 0;	
 	while (true)
 	{
 		FaceFlagList[FaceIndex_seed] = 1;
-		auto FastIndexList_temp = FindFaceEnclosedByEdgeCurve(Surface, ClosedEdgeCurve_EdgeIndexList, FaceIndex_seed);
+		auto FastIndexList_temp = SegmentMeshByEdgeCurve(InputMesh, ClosedEdgeCurve_EdgeIndexList, FaceIndex_seed);
 		FastIndexList_output.Append(FastIndexList_temp);
 		for (int_max k = 0; k < FastIndexList_temp.GetLength(); ++k)
 		{
@@ -412,6 +432,11 @@ PolygonMesh<MeshAttributeType> ClipMeshByVTKClipPolyData(const PolygonMesh<MeshA
 template<typename MeshAttributeType>
 DenseVector<int_max> FindShortestPathByVTKDijkstraGraphGeodesicPath(const PolygonMesh<MeshAttributeType>& InputMesh, int_max PointIndex_start, int_max PointIndex_end)
 {
+	if (InputMesh.Check_If_DataStructure_is_Clean() == false)
+	{
+		MDK_Warning("InputMesh DataStructure is NOT clean @ mdkPolygonMeshProcessing FindShortestPathByVTKDijkstraGraphGeodesicPath(...)")
+	}
+
 	auto InputMesh_vtk = ConvertMDKPolygonMeshToVTKPolyData(InputMesh);
 
 	auto PathFinder = vtkSmartPointer<vtkDijkstraGraphGeodesicPath>::New();	
@@ -429,6 +454,90 @@ DenseVector<int_max> FindShortestPathByVTKDijkstraGraphGeodesicPath(const Polygo
 		ShortestPath.Append(idx);
 	}
 	return ShortestPath;
+}
+
+
+template<typename MeshAttributeType>
+PolygonMesh<MeshAttributeType> MergeMeshBoundary(const PolygonMesh<MeshAttributeType>& InputMeshA, const PolygonMesh<MeshAttributeType>& InputMeshB, typename MeshAttributeType::ScalarType Threshold)
+{// work for none-clean DataStructure, attribute info not retained
+	typedef typename MeshAttributeType::ScalarType ScalarType;	
+
+	auto PointCountA = InputMeshA.GetPointCount(); 	auto EdgeCountA = InputMeshA.GetEdgeCount(); auto FaceCountA = InputMeshA.GetFaceCount();
+	auto PointCountB = InputMeshB.GetPointCount();	auto EdgeCountB = InputMeshB.GetEdgeCount(); auto FaceCountB = InputMeshB.GetFaceCount();
+
+	PolygonMesh<MeshAttributeType> OutputMesh;
+	OutputMesh.SetCapacity(PointCountA + PointCountB, EdgeCountA + EdgeCountB, FaceCountA + FaceCountB);
+	//copy InputMeshA, only point and face
+	{
+		DenseMatrix<ScalarType> PointPositionMatrix;
+		ObjectArray<DenseVector<int_max>> FaceTable;
+		InputMeshA.GetPointPositionMatrixAndFaceTable(PointPositionMatrix, FaceTable);
+		OutputMesh.Construct(std::move(PointPositionMatrix), FaceTable);
+	}
+
+	DenseVector<int_max> BoundaryPointIndexListA;
+	for (int_max k = 0; k < PointCountA; ++k)
+	{
+		if (OutputMesh.Point(k).IsOnBoundaryEdge() == true)
+		{
+			BoundaryPointIndexListA.Append(k);
+		}
+	}
+	auto BoundaryA = OutputMesh.GetPointPosition(BoundaryPointIndexListA);
+
+	PolygonMesh<MeshAttributeType> InputMeshB_clean;
+	if (InputMeshB.Check_If_DataStructure_is_Clean() == true)
+	{
+		InputMeshB_clean.ForceShare(InputMeshB);
+	}
+	else
+	{
+		DenseMatrix<ScalarType> PointPositionMatrix;
+		ObjectArray<DenseVector<int_max>> FaceTable;
+		InputMeshB.GetPointPositionMatrixAndFaceTable(PointPositionMatrix, FaceTable);
+		InputMeshB_clean.Construct(std::move(PointPositionMatrix), FaceTable);
+	}	
+	
+	//map PointIndex of InputMeshB_clean  to PointIndex of OutputMesh
+	std::unordered_map<int_max, int_max> Map_PointIndexB_to_OutputIndex;	
+	for (int_max k = 0; k < PointCountB; ++k)
+	{
+		auto PosB = InputMeshB_clean.GetPointPosition(k);
+		if (InputMeshB_clean.Point(k).IsOnBoundaryEdge() == true)
+		{			
+			auto Idx_near = FindNearestPointOnCurve(BoundaryA, PosB);
+			auto PosA = OutputMesh.GetPointPosition(BoundaryPointIndexListA[Idx_near]);
+			auto dist = (PosA - PosB).L2Norm();
+			if (dist <= Threshold)
+			{
+				Map_PointIndexB_to_OutputIndex[k] = BoundaryPointIndexListA[Idx_near];
+			}
+			else
+			{
+				auto PointIndex_out = OutputMesh.AddPoint(PosB);
+				Map_PointIndexB_to_OutputIndex[k] = PointIndex_out;
+			}
+		}
+		else
+		{
+			auto PointIndex_out = OutputMesh.AddPoint(PosB);
+			Map_PointIndexB_to_OutputIndex[k] = PointIndex_out;
+		}
+	}
+
+	for (int_max k = 0; k < FaceCountB; ++k)
+	{
+		auto PointIndexList = InputMeshB_clean.Face(k).GetPointIndexList();
+		DenseVector<int_max> PointIndexList_out;
+		PointIndexList_out.Resize(PointIndexList.GetLength());
+		for (int_max n = 0; n < PointIndexList.GetLength(); ++n)
+		{
+			PointIndexList_out[n] = Map_PointIndexB_to_OutputIndex[PointIndexList[n]];
+		}
+		OutputMesh.AddFaceByPoint(PointIndexList_out);
+	}
+
+	return OutputMesh;
 }
 
 }//namespace mdk
