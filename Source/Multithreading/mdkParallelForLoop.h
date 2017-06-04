@@ -25,6 +25,15 @@ namespace mdk
 //
 // for performance reason, no input check
 //
+// Attention : LoopIndex_start <= LoopIndex_end
+template<typename FunctionType>
+inline
+void ParallelForLoop(FunctionType SingleFunction, int_max LoopIndex_start, int_max LoopIndex_end, int_max MaxThreadCount, int_max MinDataCountPerThread = 1);
+
+template<typename FunctionType>
+inline
+void ParallelForLoop_Block_in_a_thread(FunctionType SingleFunction, int_max SubLoopIndex_start, int_max SubLoopIndex_end, int_max ThreadIndex);
+
 template<typename FunctionType>
 inline
 void ParallelForLoop(FunctionType SingleFunction, const std::vector<int_max>& LoopIndexList, int_max MaxThreadCount, int_max MinDataCountPerThread = 1);
@@ -32,16 +41,6 @@ void ParallelForLoop(FunctionType SingleFunction, const std::vector<int_max>& Lo
 template<typename FunctionType>
 inline
 void ParallelForLoop_Block_in_a_thread(FunctionType SingleFunction, const std::vector<int_max>& SubLoopIndexList, int_max ThreadIndex);
-
-// Attention : LoopIndex_start <= LoopIndex_end
-template<typename FunctionType>
-inline
-void ParallelForLoop(FunctionType SingleFunction, int_max LoopIndex_start, int_max LoopIndex_end, 
-                     int_max MaxThreadCount, int_max MinDataCountPerThread = 1);
-
-template<typename FunctionType>
-inline
-void ParallelForLoop_Block_in_a_thread(FunctionType SingleFunction, int_max SubLoopIndex_start, int_max SubLoopIndex_end, int_max ThreadIndex);
 
 //------------------------------------------------- ParallelForLoop_WithThreadIndex ------------------------------------------------------------//
 //  for(int_max k=0; k<L; ++k)
@@ -60,6 +59,15 @@ void ParallelForLoop_Block_in_a_thread(FunctionType SingleFunction, int_max SubL
 //
 // for performance reason, no input check
 //
+// Attention : LoopIndex_start <= LoopIndex_end
+template<typename FunctionType>
+inline
+void ParallelForLoop_WithThreadIndex(FunctionType SingleFunction, int_max LoopIndex_start, int_max LoopIndex_end, int_max MaxThreadCount, int_max MinDataCountPerThread = 1);
+
+template<typename FunctionType>
+inline
+void ParallelForLoop_WithThreadIndex_Block_in_a_thread(FunctionType SingleFunction, int_max SubLoopIndex_start, int_max SubLoopIndex_end, int_max ThreadIndex);
+
 template<typename FunctionType>
 inline
 void ParallelForLoop_WithThreadIndex(FunctionType SingleFunction, const std::vector<int_max>& LoopIndexList, int_max MaxThreadCount, int_max MinDataCountPerThread = 1);
@@ -68,26 +76,17 @@ template<typename FunctionType>
 inline
 void ParallelForLoop_WithThreadIndex_Block_in_a_thread(FunctionType SingleFunction, const std::vector<int_max>& SubLoopIndexList, int_max ThreadIndex);
 
-// Attention : LoopIndex_start <= LoopIndex_end
-template<typename FunctionType>
-inline
-void ParallelForLoop_WithThreadIndex(FunctionType SingleFunction, int_max LoopIndex_start, int_max LoopIndex_end,
-                                     int_max MaxThreadCount, int_max MinDataCountPerThread = 1);
-
-template<typename FunctionType>
-inline
-void ParallelForLoop_WithThreadIndex_Block_in_a_thread(FunctionType SingleFunction, int_max SubLoopIndex_start, int_max SubLoopIndex_end, int_max ThreadIndex);
-
 //-------------------------------------------------- ParallelBlock ----------------------------------------------------------------------//
 // for performance reason, no input check
-template<typename FunctionType>
-inline
-void ParallelBlock(FunctionType BlockFunction, const std::vector<int_max>& DataIndexList, int_max MaxThreadCount, int_max MinDataCountPerThread = 1);
 
 // Attention : DataIndex_start <= DataIndex_end
 template<typename FunctionType>
 inline
 void ParallelBlock(FunctionType BlockFunction, int_max DataIndex_start, int_max DataIndex_end, int_max MaxThreadCount, int_max MinDataCountPerThread = 1);
+
+template<typename FunctionType>
+inline
+void ParallelBlock(FunctionType BlockFunction, const std::vector<int_max>& DataIndexList, int_max MaxThreadCount, int_max MinDataCountPerThread = 1);
 
 inline int_max Compute_Optimal_ThreadCount_For_ParallelBlock(int_max TotalDataCount, int_max MaxThreadCount, int_max MinDataCountPerThread = 1);
 
