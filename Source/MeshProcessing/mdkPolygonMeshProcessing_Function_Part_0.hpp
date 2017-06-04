@@ -406,9 +406,15 @@ DenseVector<DenseVector<int_max>> SegmentMeshByEdgeCurve(const PolygonMesh<MeshA
 
 
 template<typename MeshAttributeType>
-PolygonMesh<MeshAttributeType> ClipMeshByVTKClipPolyData(const PolygonMesh<MeshAttributeType>& InputMesh, const DenseVector<typename MeshAttributeType::ScalarType, 3>& Origin, const DenseVector<typename MeshAttributeType::ScalarType, 3>& Normal)
+PolygonMesh<MeshAttributeType> ClipMeshByVTKClipPolyData(vtkPolyData* InputMesh_vtk, const DenseVector<typename MeshAttributeType::ScalarType, 3>& Origin, const DenseVector<typename MeshAttributeType::ScalarType, 3>& Normal)
 {
-	auto InputMesh_vtk = ConvertMDKPolygonMeshToVTKPolyData(InputMesh);
+	if (InputMesh_vtk == nullptr)
+	{
+		MDK_Error("InputMesh_vtk is nullptr @ mdkPolygonMeshProcessing ClipMeshByVTKClipPolyData(...)")
+		PolygonMesh<MeshAttributeType> EmptyMesh;
+		return EmptyMesh;
+	}
+
 	auto plane = vtkSmartPointer<vtkPlane>::New();
 	plane->SetOrigin(Origin[0], Origin[1], Origin[2]);
 	plane->SetNormal(Normal[0], Normal[1], Normal[2]);
@@ -428,16 +434,23 @@ PolygonMesh<MeshAttributeType> ClipMeshByVTKClipPolyData(const PolygonMesh<MeshA
 	return OutputMesh;
 }
 
+template<typename MeshAttributeType>
+PolygonMesh<MeshAttributeType> ClipMeshByVTKClipPolyData(const PolygonMesh<MeshAttributeType>& InputMesh, const DenseVector<typename MeshAttributeType::ScalarType, 3>& Origin, const DenseVector<typename MeshAttributeType::ScalarType, 3>& Normal)
+{
+	auto InputMesh_vtk = ConvertMDKPolygonMeshToVTKPolyData(InputMesh);
+	return ClipMeshByVTKClipPolyData(InputMesh_vtk, Origin, Normal);
+}
+
 
 template<typename MeshAttributeType>
-DenseVector<int_max> FindShortestPathByVTKDijkstraGraphGeodesicPath(const PolygonMesh<MeshAttributeType>& InputMesh, int_max PointIndex_start, int_max PointIndex_end)
+DenseVector<int_max> FindShortestPathByVTKDijkstraGraphGeodesicPath(vtkPolyData* InputMesh_vtk, int_max PointIndex_start, int_max PointIndex_end)
 {
-	if (InputMesh.Check_If_DataStructure_is_Clean() == false)
+	if (InputMesh_vtk == nullptr)
 	{
-		MDK_Warning("InputMesh DataStructure is NOT clean @ mdkPolygonMeshProcessing FindShortestPathByVTKDijkstraGraphGeodesicPath(...)")
+		MDK_Error("InputMesh_vtk is nullptr @ mdkPolygonMeshProcessing FindShortestPathByVTKDijkstraGraphGeodesicPath(...)")
+		DenseVector<int_max> EmptyList;
+		return EmptyList;
 	}
-
-	auto InputMesh_vtk = ConvertMDKPolygonMeshToVTKPolyData(InputMesh);
 
 	auto PathFinder = vtkSmartPointer<vtkDijkstraGraphGeodesicPath>::New();	
 	PathFinder->SetInputData(InputMesh_vtk);
@@ -454,6 +467,18 @@ DenseVector<int_max> FindShortestPathByVTKDijkstraGraphGeodesicPath(const Polygo
 		ShortestPath.Append(idx);
 	}
 	return ShortestPath;
+}
+
+template<typename MeshAttributeType>
+DenseVector<int_max> FindShortestPathByVTKDijkstraGraphGeodesicPath(const PolygonMesh<MeshAttributeType>& InputMesh, int_max PointIndex_start, int_max PointIndex_end)
+{
+	if (InputMesh.Check_If_DataStructure_is_Clean() == false)
+	{
+		MDK_Warning("InputMesh DataStructure is NOT clean @ mdkPolygonMeshProcessing FindShortestPathByVTKDijkstraGraphGeodesicPath(...)")
+	}
+
+	auto InputMesh_vtk = ConvertMDKPolygonMeshToVTKPolyData(InputMesh);
+	return FindShortestPathByVTKDijkstraGraphGeodesicPath(InputMesh_vtk, PointIndex_start, PointIndex_end);
 }
 
 

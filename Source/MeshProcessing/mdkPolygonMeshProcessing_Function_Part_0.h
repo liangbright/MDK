@@ -36,7 +36,14 @@ DenseVector<DenseVector<int_max>> SegmentMeshByEdgeCurve(const PolygonMesh<MeshA
 
 //clip mesh using a plane defined by origin and normal
 template<typename MeshAttributeType>
+PolygonMesh<MeshAttributeType> ClipMeshByVTKClipPolyData(vtkPolyData* InputMesh_vtk, const DenseVector<typename MeshAttributeType::ScalarType, 3>& Origin, const DenseVector<typename MeshAttributeType::ScalarType, 3>& Normal);
+
+//clip mesh using a plane defined by origin and normal
+template<typename MeshAttributeType>
 PolygonMesh<MeshAttributeType> ClipMeshByVTKClipPolyData(const PolygonMesh<MeshAttributeType>& InputMesh, const DenseVector<typename MeshAttributeType::ScalarType, 3>& Origin, const DenseVector<typename MeshAttributeType::ScalarType, 3>& Normal);
+
+template<typename MeshAttributeType>
+DenseVector<int_max> FindShortestPathByVTKDijkstraGraphGeodesicPath(vtkPolyData* InputMesh_vtk, int_max PointIndex_start, int_max PointIndex_end);
 
 template<typename MeshAttributeType>
 DenseVector<int_max> FindShortestPathByVTKDijkstraGraphGeodesicPath(const PolygonMesh<MeshAttributeType>& InputMesh, int_max PointIndex_start, int_max PointIndex_end);
