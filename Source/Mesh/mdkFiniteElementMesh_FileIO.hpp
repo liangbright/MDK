@@ -136,7 +136,7 @@ bool ConvertFiniteElementMeshToVTKUnstructuredGrid(const FiniteElementMesh<Scala
 			CellTypeList[i] = VTKCellType::VTK_HEXAHEDRON;
 			break;
 		default:
-			CellTypeList[i] = VTKCellType::VTK_CONVEX_POINT_SET;
+			CellTypeList[i] = VTKCellType::VTK_POLYHEDRON;
 		}
 	}	
 	//---------------------------------------------------
