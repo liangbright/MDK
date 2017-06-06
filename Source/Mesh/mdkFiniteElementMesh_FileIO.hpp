@@ -93,9 +93,9 @@ bool ConvertFiniteElementMeshToVTKUnstructuredGrid(const FiniteElementMesh<Scala
 	{
 		auto Element = InputMesh.GetElement(i);
 		auto PointCountInCell = Element.GetLength();
+		auto ElementType = InputMesh.GetElementType(i);
 
-		CellData->InsertNextCell(PointCountInCell);
-		
+		CellData->InsertNextCell(PointCountInCell);		
 		for (int n = 0; n < PointCountInCell; ++n)
 		{
 			auto PointIndex = Element[n];
@@ -103,12 +103,39 @@ bool ConvertFiniteElementMeshToVTKUnstructuredGrid(const FiniteElementMesh<Scala
 			CellData->InsertCellPoint(PointIndex);
 		}
 
-		if (InputMesh.IsShellElement(i) == true)
+		switch (ElementType)
 		{
-			CellTypeList[i] = VTKCellType::VTK_POLYGON;
-		}
-		else //if (InputMesh.IsBrickElement(i) == true)
-		{
+		case FiniteElementType::S3:
+			CellTypeList[i] = VTKCellType::VTK_TRIANGLE;
+			break;
+		case FiniteElementType::S3R:
+			CellTypeList[i] = VTKCellType::VTK_TRIANGLE;
+			break;
+		case FiniteElementType::S4:
+			CellTypeList[i] = VTKCellType::VTK_QUAD;
+			break;
+		case FiniteElementType::S4R:
+			CellTypeList[i] = VTKCellType::VTK_QUAD;
+			break;
+		case FiniteElementType::C3D4:
+			CellTypeList[i] = VTKCellType::VTK_TETRA;
+			break;
+		case FiniteElementType::C3D4R:
+			CellTypeList[i] = VTKCellType::VTK_TETRA;
+			break;
+		case FiniteElementType::C3D6:
+			CellTypeList[i] = VTKCellType::VTK_WEDGE;
+			break;
+		case FiniteElementType::C3D6R:
+			CellTypeList[i] = VTKCellType::VTK_WEDGE;
+			break;
+		case FiniteElementType::C3D8:
+			CellTypeList[i] = VTKCellType::VTK_HEXAHEDRON;
+			break;
+		case FiniteElementType::C3D8R:
+			CellTypeList[i] = VTKCellType::VTK_HEXAHEDRON;
+			break;
+		default:
 			CellTypeList[i] = VTKCellType::VTK_CONVEX_POINT_SET;
 		}
 	}	
