@@ -736,18 +736,6 @@ bool FiniteElementMesh<ScalarType>::IsShellElement(int_max ElementIndex) const
 		return true;
 	case FiniteElementType::S4R:
 		return true;
-	case FiniteElementType::C3D4:
-		return false;
-	case FiniteElementType::C3D4R:
-		return false;
-	case FiniteElementType::C3D6:
-		return false;
-	case FiniteElementType::C3D6R:
-		return false;
-	case FiniteElementType::C3D8:
-		return false;
-	case FiniteElementType::C3D8R:
-		return false;
 	default:
 		return false;
 	}
@@ -759,14 +747,6 @@ bool FiniteElementMesh<ScalarType>::IsSolidElement(int_max ElementIndex) const
 	auto Type = this->GetElementType(ElementIndex);
 	switch (Type)
 	{
-	case FiniteElementType::S3:
-		return false;
-	case FiniteElementType::S3R:
-		return false;
-	case FiniteElementType::S4:
-		return false;
-	case FiniteElementType::S4R:
-		return false;
 	case FiniteElementType::C3D4:
 		return true;
 	case FiniteElementType::C3D4R:
@@ -782,6 +762,27 @@ bool FiniteElementMesh<ScalarType>::IsSolidElement(int_max ElementIndex) const
 	default:
 		return false;
 	}
+}
+
+
+template<typename ScalarType>
+bool FiniteElementMesh<ScalarType>::IsShellMesh() const
+{
+	auto ElementCount = this->GetElementCount();
+	for (int_max k = 0; k < ElementCount; ++k)
+	{
+		if (this->IsShellElement(k) == false)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+template<typename ScalarType>
+bool FiniteElementMesh<ScalarType>::IsSolidMesh() const
+{
+	return !(this->IsShellMesh());
 }
 
 template<typename ScalarType>

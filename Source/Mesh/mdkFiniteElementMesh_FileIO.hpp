@@ -102,7 +102,7 @@ bool ConvertFiniteElementMeshToVTKUnstructuredGrid(const FiniteElementMesh<Scala
 
 			CellData->InsertCellPoint(PointIndex);
 		}
-
+		
 		switch (ElementType)
 		{
 		case FiniteElementType::S3:
@@ -136,8 +136,10 @@ bool ConvertFiniteElementMeshToVTKUnstructuredGrid(const FiniteElementMesh<Scala
 			CellTypeList[i] = VTKCellType::VTK_HEXAHEDRON;
 			break;
 		default:
-			CellTypeList[i] = VTKCellType::VTK_POLYHEDRON;
-		}
+			CellTypeList[i] = VTKCellType::VTK_CONVEX_POINT_SET;
+			// do NOT use this, weird result
+			//CellTypeList[i] = VTKCellType::VTK_POLYHEDRON;			
+		}		
 	}	
 	//---------------------------------------------------
 	VTKMesh->SetPoints(PointData);
@@ -281,8 +283,16 @@ bool ConvertVTKUnstructuredGridToFiniteElementMesh(vtkUnstructuredGrid* VTKMesh,
 template<typename ScalarType>
 bool SaveFiniteElementMeshAsVTKFile(const FiniteElementMesh<ScalarType>& InputMesh, const String& FilePathAndName)
 {
-	auto VTKMesh = ConvertFiniteElementMeshToVTKUnstructuredGrid(InputMesh);
-	return SaveVTKUnstructuredGridAsVTKFile(VTKMesh, FilePathAndName);
+	if (InputMesh.IsSolidMesh() == true)
+	{
+		auto VTKMesh = ConvertFiniteElementMeshToVTKUnstructuredGrid(InputMesh);
+		return SaveVTKUnstructuredGridAsVTKFile(VTKMesh, FilePathAndName);
+	}
+	else
+	{
+		auto VTKMesh = ConvertFiniteElementMeshToVTKPolyData(InputMesh);
+		return SaveVTKPolyDataAsVTKFile(VTKMesh, FilePathAndName);
+	}
 }
 
 
@@ -640,6 +650,7 @@ bool SaveFiniteElementMeshAsAbaqusINPFile(const FiniteElementMesh<ScalarType>& I
 	OutputINPFile << "*Part, name = PART-1" << '\n';
 
 	//------------ write node and element----------------------------
+	// NodeIndex start from 1, ElementIndex start from 1
 	OutputINPFile << "*NODE" << '\n';
 	for (int_max k = 0; k < InputMesh.GetNodeCount(); ++k)
 	{
@@ -649,7 +660,7 @@ bool SaveFiniteElementMeshAsAbaqusINPFile(const FiniteElementMesh<ScalarType>& I
 	}
 
 	String ElementType_prev, ElementType_cur;
-	for (int_max k=0; k<InputMesh.GetElementCount(); ++k)
+	for (int_max k = 0; k < InputMesh.GetElementCount(); ++k)
 	{
 		auto Element = InputMesh.GetElement(k);
 		ElementType_cur = InputMesh.GetElementTypeAsString(k);
@@ -658,10 +669,10 @@ bool SaveFiniteElementMeshAsAbaqusINPFile(const FiniteElementMesh<ScalarType>& I
 			OutputINPFile << "*ELEMENT, TYPE = " << ElementType_cur << '\n';
 			ElementType_prev = ElementType_cur;
 		}
-		String line;
+		String line = as_string(k + 1) + ", ";
 		for (int_max n = 0; n < Element.GetLength(); ++n)
-		{
-			line += as_string(n+1);
+		{			
+			line += as_string(Element[n] + 1);
 			if (n < Element.GetLength() - 1)
 			{
 				line += ", ";

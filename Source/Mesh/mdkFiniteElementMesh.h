@@ -80,7 +80,7 @@ public:
 	void SetCapacity(int_max NodeCount, int_max ElementCount);	
 	void SetCapacity(int_max NodeCount, int_max ElementCount, int_max NodeSetCount, int_max ElementSetCount);
 
-	void Construct(DenseMatrix<ScalarType> NodeList, ObjectArray<DenseVector<int_max>> ElementList);
+	void Construct(DenseMatrix<ScalarType> NodeList, ObjectArray<DenseVector<int_max>> ElementList);//unknown ElementType
 
 	int_max AddNode(const DenseVector<ScalarType, 3>& Position);//return NodeIndex
 	int_max AddNode(const ScalarType Position[3]);
@@ -152,6 +152,9 @@ public:
 
 	bool IsShellElement(int_max ElementIndex) const;
 	bool IsSolidElement(int_max ElementIndex) const;
+
+	bool IsShellMesh() const;
+	bool IsSolidMesh() const;
 
 	FiniteElementType GetElementType(int_max ElementIndex) const;
 	String GetElementTypeAsString(int_max ElementIndex) const;
