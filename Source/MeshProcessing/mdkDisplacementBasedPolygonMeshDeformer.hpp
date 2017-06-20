@@ -2,19 +2,19 @@
 
 namespace mdk
 {
-template<typename MeshAttribute>
-DisplacementBasedPolygonMeshDeformer<MeshAttribute>::DisplacementBasedPolygonMeshDeformer()
+template<typename ScalarType>
+DisplacementBasedPolygonMeshDeformer<ScalarType>::DisplacementBasedPolygonMeshDeformer()
 {
 	this->Clear();
 }
 
-template<typename MeshAttribute>
-DisplacementBasedPolygonMeshDeformer<MeshAttribute>::~DisplacementBasedPolygonMeshDeformer()
+template<typename ScalarType>
+DisplacementBasedPolygonMeshDeformer<ScalarType>::~DisplacementBasedPolygonMeshDeformer()
 {
 }
 
-template<typename MeshAttribute>
-void DisplacementBasedPolygonMeshDeformer<MeshAttribute>::Clear()
+template<typename ScalarType>
+void DisplacementBasedPolygonMeshDeformer<ScalarType>::Clear()
 {	
 	// dot NOT use Clear for input
 	Input.SourceMesh.Recreate();
@@ -29,8 +29,8 @@ void DisplacementBasedPolygonMeshDeformer<MeshAttribute>::Clear()
 	Output.DeformedMesh.Clear();
 }
 
-template<typename MeshAttribute>
-bool DisplacementBasedPolygonMeshDeformer<MeshAttribute>::CheckInput()
+template<typename ScalarType>
+bool DisplacementBasedPolygonMeshDeformer<ScalarType>::CheckInput()
 {
 	if (Input.SourceMesh.IsEmpty() == true)
 	{
@@ -47,8 +47,8 @@ bool DisplacementBasedPolygonMeshDeformer<MeshAttribute>::CheckInput()
 }
 
 
-template<typename MeshAttribute>
-void DisplacementBasedPolygonMeshDeformer<MeshAttribute>::Update()
+template<typename ScalarType>
+void DisplacementBasedPolygonMeshDeformer<ScalarType>::Update()
 {
 	if (this->CheckInput() == false)
 	{
@@ -75,8 +75,8 @@ void DisplacementBasedPolygonMeshDeformer<MeshAttribute>::Update()
 }
 
 
-template<typename MeshAttribute>
-void DisplacementBasedPolygonMeshDeformer<MeshAttribute>::ComputeWeightMatrix()
+template<typename ScalarType>
+void DisplacementBasedPolygonMeshDeformer<ScalarType>::ComputeWeightMatrix()
 {
 	switch (Input.WeigthType)
 	{
@@ -93,8 +93,8 @@ void DisplacementBasedPolygonMeshDeformer<MeshAttribute>::ComputeWeightMatrix()
 }
 
 
-template<typename MeshAttribute>
-void DisplacementBasedPolygonMeshDeformer<MeshAttribute>::ComputeWeightMatrix_Type_One()
+template<typename ScalarType>
+void DisplacementBasedPolygonMeshDeformer<ScalarType>::ComputeWeightMatrix_Type_One()
 {
 	auto PointCount = Input.SourceMesh.GetPointCount();
 	Internal.WeightMatrix.Clear();
@@ -115,8 +115,8 @@ void DisplacementBasedPolygonMeshDeformer<MeshAttribute>::ComputeWeightMatrix_Ty
 }
 
 
-template<typename MeshAttribute>
-void DisplacementBasedPolygonMeshDeformer<MeshAttribute>::ComputeWeightMatrix_Type_Distance()
+template<typename ScalarType>
+void DisplacementBasedPolygonMeshDeformer<ScalarType>::ComputeWeightMatrix_Type_Distance()
 {
 	auto PointCount = Input.SourceMesh.GetPointCount();
 	Internal.WeightMatrix.Clear();
@@ -145,8 +145,8 @@ void DisplacementBasedPolygonMeshDeformer<MeshAttribute>::ComputeWeightMatrix_Ty
 }
 
 
-template<typename MeshAttribute>
-void DisplacementBasedPolygonMeshDeformer<MeshAttribute>::ComputeDisplacementField()
+template<typename ScalarType>
+void DisplacementBasedPolygonMeshDeformer<ScalarType>::ComputeDisplacementField()
 {
 	auto PointCount = Input.SourceMesh.GetPointCount();
 

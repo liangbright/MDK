@@ -178,7 +178,7 @@ ObjectArray<DenseVector<int_max>> TraceMeshBoundaryCurve(const PolygonMesh<Scala
 
 
 template<typename ScalarType>
-int_max FindNearestPointOnMesh(const PolygonMesh<ScalarType>& InputMesh, const DenseVector<typename ScalarType::ScalarType, 3>& PointPosition)
+int_max FindNearestPointOnMesh(const PolygonMesh<ScalarType>& InputMesh, const DenseVector<ScalarType, 3>& PointPosition)
 {// work for none-clean DataStructure
 	int_max OutputPointIndex = -1;
 
@@ -404,7 +404,7 @@ DenseVector<DenseVector<int_max>> SegmentMeshByEdgeCurve(const PolygonMesh<Scala
 
 
 template<typename ScalarType>
-PolygonMesh<ScalarType> ClipMeshByVTKClipPolyData(vtkPolyData* InputMesh_vtk, const DenseVector<typename ScalarType::ScalarType, 3>& Origin, const DenseVector<typename ScalarType::ScalarType, 3>& Normal)
+PolygonMesh<ScalarType> ClipMeshByVTKClipPolyData(vtkPolyData* InputMesh_vtk, const DenseVector<ScalarType, 3>& Origin, const DenseVector<ScalarType, 3>& Normal)
 {
 	if (InputMesh_vtk == nullptr)
 	{
@@ -433,7 +433,7 @@ PolygonMesh<ScalarType> ClipMeshByVTKClipPolyData(vtkPolyData* InputMesh_vtk, co
 }
 
 template<typename ScalarType>
-PolygonMesh<ScalarType> ClipMeshByVTKClipPolyData(const PolygonMesh<ScalarType>& InputMesh, const DenseVector<typename ScalarType::ScalarType, 3>& Origin, const DenseVector<typename ScalarType::ScalarType, 3>& Normal)
+PolygonMesh<ScalarType> ClipMeshByVTKClipPolyData(const PolygonMesh<ScalarType>& InputMesh, const DenseVector<ScalarType, 3>& Origin, const DenseVector<ScalarType, 3>& Normal)
 {
 	auto InputMesh_vtk = ConvertMDKPolygonMeshToVTKPolyData(InputMesh);
 	return ClipMeshByVTKClipPolyData(InputMesh_vtk, Origin, Normal);
@@ -481,7 +481,7 @@ DenseVector<int_max> FindShortestPathByVTKDijkstraGraphGeodesicPath(const Polygo
 
 
 template<typename ScalarType>
-PolygonMesh<ScalarType> MergeMeshBoundary(const PolygonMesh<ScalarType>& InputMeshA, const PolygonMesh<ScalarType>& InputMeshB, typename ScalarType::ScalarType Threshold)
+PolygonMesh<ScalarType> MergeMeshBoundary(const PolygonMesh<ScalarType>& InputMeshA, const PolygonMesh<ScalarType>& InputMeshB, ScalarType Threshold)
 {// work for none-clean DataStructure, attribute info not retained
 	auto PointCountA = InputMeshA.GetPointCount(); 	auto EdgeCountA = InputMeshA.GetEdgeCount(); auto FaceCountA = InputMeshA.GetFaceCount();
 	auto PointCountB = InputMeshB.GetPointCount();	auto EdgeCountB = InputMeshB.GetEdgeCount(); auto FaceCountB = InputMeshB.GetFaceCount();

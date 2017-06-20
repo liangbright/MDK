@@ -10,13 +10,12 @@ namespace mdk
 {
 enum struct WeightTypeEnum_of_DisplacementBasedPolygonMeshDeformer { One, Distance, Unknown };
 
-template<typename MeshAttribute>
+template<typename ScalarType>
 struct Input_of_DisplacementBasedPolygonMeshDeformer
 {
-	typedef typename MeshAttribute::ScalarType ScalarType;
 	typedef WeightTypeEnum_of_DisplacementBasedPolygonMeshDeformer WeightTypeEnum;
 
-	PolygonMesh<MeshAttribute> SourceMesh;
+	PolygonMesh<ScalarType> SourceMesh;
 	DenseMatrix<ScalarType> DisplacementField;
 	DenseMatrix<ScalarType> ConfidenceOfDisplacementField;
 	DenseMatrix<ScalarType> ConfidenceOfSmoothness;
@@ -29,26 +28,25 @@ struct Internal_of_DisplacementBasedPolygonMeshDeformer
 	ObjectArray<SparseVector<ScalarType>> WeightMatrix;
 };
 
-template<typename MeshAttribute>
+template<typename ScalarType>
 struct Output_of_DisplacementBasedPolygonMeshDeformer
 {
-	typedef typename MeshAttribute::ScalarType  ScalarType;
 	DenseMatrix<ScalarType> DisplacementField;
-	PolygonMesh<MeshAttribute> DeformedMesh;
+	PolygonMesh<ScalarType> DeformedMesh;
 };
 
-template<typename MeshAttribute>
+template<typename Scalar_Type>
 class DisplacementBasedPolygonMeshDeformer : public Object
 {
 public:
-	typedef typename MeshAttribute::ScalarType  ScalarType;
+	typedef Scalar_Type  ScalarType;
 	typedef WeightTypeEnum_of_DisplacementBasedPolygonMeshDeformer WeightTypeEnum;
 public:	
-	Input_of_DisplacementBasedPolygonMeshDeformer<MeshAttribute> Input;	
+	Input_of_DisplacementBasedPolygonMeshDeformer<ScalarType> Input;
 private:	
 	Internal_of_DisplacementBasedPolygonMeshDeformer<ScalarType> Internal;
 public:    
-	Output_of_DisplacementBasedPolygonMeshDeformer<MeshAttribute> Output;	
+	Output_of_DisplacementBasedPolygonMeshDeformer<ScalarType> Output;
 
 public:
 	DisplacementBasedPolygonMeshDeformer();
