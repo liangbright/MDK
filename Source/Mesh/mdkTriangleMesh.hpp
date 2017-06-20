@@ -3,115 +3,115 @@
 namespace mdk
 {
 
-template<typename MeshAttributeType>
-TriangleMesh<MeshAttributeType>::TriangleMesh()
+template<typename ScalarType>
+TriangleMesh<ScalarType>::TriangleMesh()
 : PolygonMesh()
 {
 }
 
 
-template<typename MeshAttributeType>
-TriangleMesh<MeshAttributeType>::TriangleMesh(const TriangleMesh<MeshAttributeType>& InputMesh)
+template<typename ScalarType>
+TriangleMesh<ScalarType>::TriangleMesh(const TriangleMesh<ScalarType>& InputMesh)
 : PolygonMesh(InputMesh)
 {
 }
 
 
-template<typename MeshAttributeType>
-TriangleMesh<MeshAttributeType>::TriangleMesh(TriangleMesh<MeshAttributeType>&& InputMesh)
+template<typename ScalarType>
+TriangleMesh<ScalarType>::TriangleMesh(TriangleMesh<ScalarType>&& InputMesh)
 : PolygonMesh(std::move(InputMesh))
 {
 }
 
 
-template<typename MeshAttributeType>
-TriangleMesh<MeshAttributeType>::TriangleMesh(const PolygonMesh<MeshAttributeType>& InputMesh)
+template<typename ScalarType>
+TriangleMesh<ScalarType>::TriangleMesh(const PolygonMesh<ScalarType>& InputMesh)
 : PolygonMesh(InputMesh)
 {
 }
 
 
-template<typename MeshAttributeType>
-TriangleMesh<MeshAttributeType>::TriangleMesh(PolygonMesh<MeshAttributeType>&& InputMesh)
+template<typename ScalarType>
+TriangleMesh<ScalarType>::TriangleMesh(PolygonMesh<ScalarType>&& InputMesh)
 : PolygonMesh(std::move(InputMesh))
 {
 }
 
 
-template<typename MeshAttributeType>
-TriangleMesh<MeshAttributeType>::~TriangleMesh()
+template<typename ScalarType>
+TriangleMesh<ScalarType>::~TriangleMesh()
 {
 }
 
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void TriangleMesh<MeshAttributeType>::operator=(const TriangleMesh<MeshAttributeType>& InputMesh)
+void TriangleMesh<ScalarType>::operator=(const TriangleMesh<ScalarType>& InputMesh)
 {
     this->PolygonMesh::operator=(InputMesh);
 }
 
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void TriangleMesh<MeshAttributeType>::operator=(TriangleMesh<MeshAttributeType>&& InputMesh)
+void TriangleMesh<ScalarType>::operator=(TriangleMesh<ScalarType>&& InputMesh)
 {
     this->PolygonMesh::operator=(std::move(InputMesh));
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void TriangleMesh<MeshAttributeType>::operator=(const PolygonMesh<MeshAttributeType>& InputMesh)
+void TriangleMesh<ScalarType>::operator=(const PolygonMesh<ScalarType>& InputMesh)
 {
 	this->PolygonMesh::operator=(InputMesh);
 }
 
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void TriangleMesh<MeshAttributeType>::operator=(PolygonMesh<MeshAttributeType>&& InputMesh)
+void TriangleMesh<ScalarType>::operator=(PolygonMesh<ScalarType>&& InputMesh)
 {
 	this->PolygonMesh::operator=(std::move(InputMesh));
 }
 
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline 
-int_max TriangleMesh<MeshAttributeType>::AddFaceByEdge(int_max EdgeIndex0, int_max EdgeIndex1, int_max EdgeIndex2)
+int_max TriangleMesh<ScalarType>::AddFaceByEdge(int_max EdgeIndex0, int_max EdgeIndex1, int_max EdgeIndex2)
 {
     DenseVector<EdgeIndexType> EdgeIndexList = { EdgeIndex0, EdgeIndex1, EdgeIndex2 };
     return this->PolygonMesh::AddFaceByEdge(EdgeIndexList);
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-int_max TriangleMesh<MeshAttributeType>::AddFaceByPoint(int_max PointIndex0, int_max PointIndex1, int_max PointIndex2)
+int_max TriangleMesh<ScalarType>::AddFaceByPoint(int_max PointIndex0, int_max PointIndex1, int_max PointIndex2)
 {
     DenseVector<int_max> PointIndexList = { PointIndex0, PointIndex1, PointIndex2 };
     return this->PolygonMesh::AddFaceByPoint(PointIndexList);
 }
 
-template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::Construct(PolygonMesh<MeshAttributeType> InputPolygonMesh)
+template<typename ScalarType>
+void TriangleMesh<ScalarType>::Construct(PolygonMesh<ScalarType> InputPolygonMesh)
 {
-    auto InputMeshPtr = static_cast<TriangleMesh<MeshAttributeType>*>(&InputPolygonMesh);
+    auto InputMeshPtr = static_cast<TriangleMesh<ScalarType>*>(&InputPolygonMesh);
     m_MeshData = std::move(InputMeshPtr->m_MeshData);
 }
 
 // get a sub mesh by FaceIndexList or FaceIDList----------------------------//
 
-template<typename MeshAttributeType>
-TriangleMesh<MeshAttributeType> TriangleMesh<MeshAttributeType>::GetSubMeshByFace(const DenseVector<int_max>& FaceIndexList) const
+template<typename ScalarType>
+TriangleMesh<ScalarType> TriangleMesh<ScalarType>::GetSubMeshByFace(const DenseVector<int_max>& FaceIndexList) const
 {
-    TriangleMesh<MeshAttributeType> OutputMesh;
-    OutputMesh.Construct(this->PolygonMesh<MeshAttributeType>::GetSubMeshByFace(FaceIndexList));
+    TriangleMesh<ScalarType> OutputMesh;
+    OutputMesh.Construct(this->PolygonMesh<ScalarType>::GetSubMeshByFace(FaceIndexList));
     return OutputMesh;
 }
 
 //------------- Function optimized for TriangleMesh --------------------------------------------------//
 
-template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateNormalAtFace(const MDK_Symbol_ALL&)
+template<typename ScalarType>
+void TriangleMesh<ScalarType>::UpdateNormalAtFace(const MDK_Symbol_ALL&)
 { 
 	int_max FaceIndex_max = this->GetMaxValueOfFaceIndex();
     for (int_max k=0; k<= FaceIndex_max; ++k)
@@ -124,8 +124,8 @@ void TriangleMesh<MeshAttributeType>::UpdateNormalAtFace(const MDK_Symbol_ALL&)
 }
 
 
-template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateNormalAtFace(int_max FaceIndex)
+template<typename ScalarType>
+void TriangleMesh<ScalarType>::UpdateNormalAtFace(int_max FaceIndex)
 {
     if (this->IsValidFaceIndex(FaceIndex) == false)
     {
@@ -142,8 +142,8 @@ void TriangleMesh<MeshAttributeType>::UpdateNormalAtFace(int_max FaceIndex)
 }
 
 
-template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateAreaOfFace(const MDK_Symbol_ALL&)
+template<typename ScalarType>
+void TriangleMesh<ScalarType>::UpdateAreaOfFace(const MDK_Symbol_ALL&)
 {
 	int_max FaceIndex_max = this->GetMaxValueOfFaceIndex();
 	for (int_max k = 0; k <= FaceIndex_max; ++k)
@@ -156,8 +156,8 @@ void TriangleMesh<MeshAttributeType>::UpdateAreaOfFace(const MDK_Symbol_ALL&)
 }
 
 
-template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateAreaOfFace(int_max FaceIndex)
+template<typename ScalarType>
+void TriangleMesh<ScalarType>::UpdateAreaOfFace(int_max FaceIndex)
 {
     if (this->IsValidFaceIndex(FaceIndex) == false)
     {
@@ -174,8 +174,8 @@ void TriangleMesh<MeshAttributeType>::UpdateAreaOfFace(int_max FaceIndex)
 }
 
 
-template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateCornerAngleOfFace(const MDK_Symbol_ALL&)
+template<typename ScalarType>
+void TriangleMesh<ScalarType>::UpdateCornerAngleOfFace(const MDK_Symbol_ALL&)
 {
 	int_max FaceIndex_max = this->GetMaxValueOfFaceIndex();
 	for (int_max k = 0; k <= FaceIndex_max; ++k)
@@ -188,8 +188,8 @@ void TriangleMesh<MeshAttributeType>::UpdateCornerAngleOfFace(const MDK_Symbol_A
 }
 
 
-template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateCornerAngleOfFace(int_max FaceIndex)
+template<typename ScalarType>
+void TriangleMesh<ScalarType>::UpdateCornerAngleOfFace(int_max FaceIndex)
 {
     if (this->IsValidFaceIndex(FaceIndex) == false)
     {
@@ -221,8 +221,8 @@ void TriangleMesh<MeshAttributeType>::UpdateCornerAngleOfFace(int_max FaceIndex)
 }
 
 
-template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateAngleWeightedNormalAtPoint(const MDK_Symbol_ALL&, bool Flag_Update_RelativeInfo)
+template<typename ScalarType>
+void TriangleMesh<ScalarType>::UpdateAngleWeightedNormalAtPoint(const MDK_Symbol_ALL&, bool Flag_Update_RelativeInfo)
 {//if Flag_Update_RelativeInfo is false, then FaceNormal must be available: call UpdateNormalAtFace() and UpdateCornerAngleOfFace()
 	if (Flag_Update_RelativeInfo == true)
 	{
@@ -240,8 +240,8 @@ void TriangleMesh<MeshAttributeType>::UpdateAngleWeightedNormalAtPoint(const MDK
 }
 
 
-template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateAngleWeightedNormalAtPoint(int_max PointIndex)
+template<typename ScalarType>
+void TriangleMesh<ScalarType>::UpdateAngleWeightedNormalAtPoint(int_max PointIndex)
 { // FaceNormal and FaceCornerAngle must be available: call UpdateNormalAtFace() and UpdateCornerAngleOfFace()
 
     if (this->IsValidPointIndex(PointIndex) == false)
@@ -309,8 +309,8 @@ void TriangleMesh<MeshAttributeType>::UpdateAngleWeightedNormalAtPoint(int_max P
 }
 
 
-template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint(const MDK_Symbol_ALL&, bool Flag_Update_RelativeInfo)
+template<typename ScalarType>
+void TriangleMesh<ScalarType>::UpdateGaussianCurvatureAtPoint(const MDK_Symbol_ALL&, bool Flag_Update_RelativeInfo)
 {//if Flag_Update_RelativeInfo is false, run UpdateCornerAngleOfFace and UpdateAreaOfFace first
 	if (Flag_Update_RelativeInfo == true)
 	{
@@ -328,8 +328,8 @@ void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint(const MDK_S
 }
 
 
-template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint(int_max PointIndex)
+template<typename ScalarType>
+void TriangleMesh<ScalarType>::UpdateGaussianCurvatureAtPoint(int_max PointIndex)
 {// run UpdateCornerAngleOfFace and UpdateAreaOfFace first
     if (this->IsValidPointIndex(PointIndex) == false)
     {
@@ -423,8 +423,8 @@ void TriangleMesh<MeshAttributeType>::UpdateGaussianCurvatureAtPoint(int_max Poi
 }
 
 
-template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateMeanCurvatureAtPoint(const MDK_Symbol_ALL&, bool Flag_Update_RelativeInfo)
+template<typename ScalarType>
+void TriangleMesh<ScalarType>::UpdateMeanCurvatureAtPoint(const MDK_Symbol_ALL&, bool Flag_Update_RelativeInfo)
 { //if Flag_Update_RelativeInfo is false, run UpdateAreaOfFace() first
 	if (Flag_Update_RelativeInfo == true)
 	{
@@ -441,8 +441,8 @@ void TriangleMesh<MeshAttributeType>::UpdateMeanCurvatureAtPoint(const MDK_Symbo
 }
 
 
-template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateMeanCurvatureAtPoint(int_max PointIndex)
+template<typename ScalarType>
+void TriangleMesh<ScalarType>::UpdateMeanCurvatureAtPoint(int_max PointIndex)
 { // run UpdateAreaOfFace() first
 
     if (this->IsValidPointIndex(PointIndex) == false)
@@ -570,8 +570,8 @@ void TriangleMesh<MeshAttributeType>::UpdateMeanCurvatureAtPoint(int_max PointIn
     }
 }
 
-template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateNormalBasedCurvatureAtPoint(const MDK_Symbol_ALL&, bool Flag_Update_RelativeInfo)
+template<typename ScalarType>
+void TriangleMesh<ScalarType>::UpdateNormalBasedCurvatureAtPoint(const MDK_Symbol_ALL&, bool Flag_Update_RelativeInfo)
 { //if Flag_Update_RelativeInfo is false, run UpdateNormalAtFace first
 	if (Flag_Update_RelativeInfo == true)
 	{
@@ -588,8 +588,8 @@ void TriangleMesh<MeshAttributeType>::UpdateNormalBasedCurvatureAtPoint(const MD
 }
 
 
-template<typename MeshAttributeType>
-void TriangleMesh<MeshAttributeType>::UpdateNormalBasedCurvatureAtPoint(int_max PointIndex)
+template<typename ScalarType>
+void TriangleMesh<ScalarType>::UpdateNormalBasedCurvatureAtPoint(int_max PointIndex)
 { // run UpdateNormalAtFace first
 
 	if (this->IsValidPointIndex(PointIndex) == false)

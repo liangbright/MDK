@@ -10,15 +10,15 @@ namespace mdk
 
 template<typename ScalarType>
 struct GlobalStandardAttribute_Of_PolygonMesh
-{
+{	
 //--------------------------------------------------------------
 	GlobalStandardAttribute_Of_PolygonMesh() { this->Clear(); }
 	GlobalStandardAttribute_Of_PolygonMesh(const GlobalStandardAttribute_Of_PolygonMesh& InputAttribute) { (*this) = InputAttribute; }
 	GlobalStandardAttribute_Of_PolygonMesh(GlobalStandardAttribute_Of_PolygonMesh&& InputAttribute) { (*this) = std::move(InputAttribute); }
 	~GlobalStandardAttribute_Of_PolygonMesh() {}
-	void operator=(const GlobalStandardAttribute_Of_PolygonMesh& InputAttribute) {}
-	void operator=(GlobalStandardAttribute_Of_PolygonMesh&& InputAttribute)	{}
-    void Clear() { }
+	void operator=(const GlobalStandardAttribute_Of_PolygonMesh& InputAttribute){}
+	void operator=(GlobalStandardAttribute_Of_PolygonMesh&& InputAttribute){}
+	void Clear(){}
 };
 
 //============================================== StandardAttribute_Of_Point_Of_PolygonMesh ===========================================//
@@ -79,7 +79,6 @@ template<typename ScalarType>
 struct StandardAttribute_Of_Edge_Of_PolygonMesh
 {
     ScalarType Length;
-
 //----------------------------------------------------------------------
 	StandardAttribute_Of_Edge_Of_PolygonMesh() { this->Clear(); }
 	StandardAttribute_Of_Edge_Of_PolygonMesh(const StandardAttribute_Of_Edge_Of_PolygonMesh& InputAttribute) { (*this) = InputAttribute; }

@@ -3,6 +3,7 @@
 #include "mdkObjectArray.h"
 #include "mdkStdObjectVector.h"
 #include "mdkDenseMatrix.h"
+#include "mdkPolygonMeshStandardAttribute.h"
 
 namespace mdk
 {
@@ -26,13 +27,18 @@ class Face_Of_PolygonMesh;
 
 //====================================== Point_Of_PolygonMesh ==============================================================//
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 struct Data_Of_Point_Of_PolygonMesh
 {
-    typedef typename MeshAttributeType::ScalarType           ScalarType;
-    typedef typename MeshAttributeType::PointAttributeType   PointAttributeType;
+	typedef StandardAttribute_Of_Point_Of_PolygonMesh<ScalarType>    PointAttributeType;
 
-	PolygonMeshData<MeshAttributeType>* MeshData;
+	std::weak_ptr<PolygonMeshData<ScalarType>> MeshData_w;
+	//PolygonMesh<ScalarType> ParentMesh;
+	//ParentMesh.m_MeshData=m_Data->MeshData_w.lock();
+
+	PolygonMeshData<ScalarType>* MeshData;
+	// do NOT use PolygonMesh<>  => cyclic link and memory leak
+	// do NOT use PolygonMesh<>* => may become invalid
 
     int_max Index;  // PointIndex : index in Mesh.m_MeshData->PointList; it may change after Mesh.CleanDataStructure()
 
@@ -47,15 +53,15 @@ struct Data_Of_Point_Of_PolygonMesh
     PointAttributeType Attribute;
 };
 
-template<typename MeshAttributeType>
+template<typename Scalar_Type>
 class Point_Of_PolygonMesh : public Object
 {
 public:
-    typedef typename MeshAttributeType::ScalarType           ScalarType;
-    typedef typename MeshAttributeType::PointAttributeType   PointAttributeType;
+    typedef Scalar_Type ScalarType;
+	typedef StandardAttribute_Of_Point_Of_PolygonMesh<ScalarType> PointAttributeType;
 
 private:
-    std::unique_ptr<Data_Of_Point_Of_PolygonMesh<MeshAttributeType>> m_Data;
+    std::unique_ptr<Data_Of_Point_Of_PolygonMesh<ScalarType>> m_Data;
 
     template<typename T>
     friend class PolygonMesh;
@@ -68,18 +74,18 @@ private:
 
 public:
 	inline Point_Of_PolygonMesh();
-    inline Point_Of_PolygonMesh(const Point_Of_PolygonMesh<MeshAttributeType>& InputPoint);
-    inline Point_Of_PolygonMesh(Point_Of_PolygonMesh<MeshAttributeType>&& InputPoint);
+    inline Point_Of_PolygonMesh(const Point_Of_PolygonMesh<ScalarType>& InputPoint);
+    inline Point_Of_PolygonMesh(Point_Of_PolygonMesh<ScalarType>&& InputPoint);
     inline ~Point_Of_PolygonMesh();
 
-    inline void operator=(const Point_Of_PolygonMesh<MeshAttributeType>& InputPoint);
-    inline void operator=(Point_Of_PolygonMesh<MeshAttributeType>&& InputPoint);
+    inline void operator=(const Point_Of_PolygonMesh<ScalarType>& InputPoint);
+    inline void operator=(Point_Of_PolygonMesh<ScalarType>&& InputPoint);
 
 private:
     inline void ReCreate();
 	inline void Clear(const MDK_Symbol_PureEmpty&);
 
-    inline void SetParentMesh(PolygonMesh<MeshAttributeType>& ParentMesh);
+    inline void SetParentMesh(PolygonMesh<ScalarType>& ParentMesh);
     
     inline void SetIndex(int_max PointIndex);
     
@@ -92,8 +98,6 @@ public:
     bool IsOnEdge() const;
     bool IsOnBoundaryEdge() const;
 
-    inline PolygonMesh<MeshAttributeType>& GetParentMesh();
-    inline const PolygonMesh<MeshAttributeType>& GetParentMesh() const;
     inline int_max GetIndex() const;
 
     inline void SetID(int_max PointID);
@@ -103,6 +107,9 @@ public:
 	inline void SetName(String PointName);
 	inline void EraseName();
 	inline String GetName() const;
+
+	inline void SetData(int_max Index, const DenseVector<ScalarType>& Data);
+	inline DenseVector<ScalarType> GetData(int_max Index) const;
 
     inline void SetPosition(const DenseVector<ScalarType, 3>& Pos);
     inline void SetPosition(const ScalarType Pos[3]);
@@ -128,16 +135,21 @@ public:
 	inline DenseVector<int_max> GetNeighborPointIndexList(int_max MaxGraphDistance) const;
 };
 
-//====================================== Edge_Of_PolygonMesh (Face Wall) ==============================================================//
+//====================================== Edge_Of_PolygonMesh ==============================================================//
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 struct Data_Of_Edge_Of_PolygonMesh
 {
-    typedef typename MeshAttributeType::ScalarType         ScalarType;
-    typedef typename MeshAttributeType::EdgeAttributeType  EdgeAttributeType;
+	typedef StandardAttribute_Of_Edge_Of_PolygonMesh<ScalarType> EdgeAttributeType;
 
-	PolygonMeshData<MeshAttributeType>* MeshData;
-    
+	std::weak_ptr<PolygonMeshData<ScalarType>> MeshData_w;
+	//PolygonMesh<ScalarType> ParentMesh;
+	//ParentMesh.m_MeshData=m_Data->MeshData_w.lock();
+
+	PolygonMeshData<ScalarType>* MeshData;
+	// do NOT use PolygonMesh<>  => cyclic link and memory leak
+	// do NOT use PolygonMesh<>* => may become invalid
+
     int_max Index; // EdgeIndex: index of this Edge in Mesh.MeshData->EdgeList, it may change after Mesh.CleanDataStructure()
 
     int_max ID; // unique identifier(valid if >=0, invalid if < 0), it will not change after Mesh.CleanDataStructure()
@@ -154,12 +166,12 @@ struct Data_Of_Edge_Of_PolygonMesh
     EdgeAttributeType Attribute;
 };
 
-template<typename MeshAttributeType>
+template<typename Scalar_Type>
 class Edge_Of_PolygonMesh : public Object
 {
 public:
-    typedef typename MeshAttributeType::ScalarType         ScalarType;
-    typedef typename MeshAttributeType::EdgeAttributeType  EdgeAttributeType;
+    typedef Scalar_Type ScalarType;
+	typedef StandardAttribute_Of_Edge_Of_PolygonMesh<ScalarType> EdgeAttributeType;
 
     template<typename T>
     friend class PolygonMesh;
@@ -171,22 +183,22 @@ public:
     friend class Face_Of_PolygonMesh;
 
 private:
-    std::unique_ptr<Data_Of_Edge_Of_PolygonMesh<MeshAttributeType>> m_Data;
+    std::unique_ptr<Data_Of_Edge_Of_PolygonMesh<ScalarType>> m_Data;
 
 public:
 	inline Edge_Of_PolygonMesh();
-    inline Edge_Of_PolygonMesh(const Edge_Of_PolygonMesh<MeshAttributeType>& InputEdge);
-    inline Edge_Of_PolygonMesh(Edge_Of_PolygonMesh<MeshAttributeType>&& InputEdge);
+    inline Edge_Of_PolygonMesh(const Edge_Of_PolygonMesh<ScalarType>& InputEdge);
+    inline Edge_Of_PolygonMesh(Edge_Of_PolygonMesh<ScalarType>&& InputEdge);
     inline ~Edge_Of_PolygonMesh();
 
-    inline void operator=(const Edge_Of_PolygonMesh<MeshAttributeType>& InputEdge);
-    inline void operator=(Edge_Of_PolygonMesh<MeshAttributeType>&& InputEdge);
+    inline void operator=(const Edge_Of_PolygonMesh<ScalarType>& InputEdge);
+    inline void operator=(Edge_Of_PolygonMesh<ScalarType>&& InputEdge);
     
 private:
     inline void ReCreate();
 	inline void Clear(const MDK_Symbol_PureEmpty&);
 
-    inline void SetParentMesh(PolygonMesh<MeshAttributeType>& ParentMesh);
+    inline void SetParentMesh(PolygonMesh<ScalarType>& ParentMesh);
     inline void SetIndex(int_max EdgeIndex);
 
     inline void SetPointIndexList(const int_max PointIndexList[2]);
@@ -202,8 +214,6 @@ public:
 
     bool IsBoundary() const;
 
-    inline PolygonMesh<MeshAttributeType>& GetParentMesh();
-    inline const PolygonMesh<MeshAttributeType>& GetParentMesh() const;
     inline int_max GetIndex() const;
 
     inline void SetID(int_max EdgeID);
@@ -213,6 +223,9 @@ public:
 	inline void SetName(String EdgeName);
 	inline void EraseName();
 	inline String GetName() const;
+
+	inline void SetData(int_max Index, const DenseVector<ScalarType>& Data);
+	inline DenseVector<ScalarType> GetData(int_max Index) const;
 
 	inline void GetPointIndexList(int_max PointIndexList[2]) const;
 	inline void GetPointIndexList(int_max& PointIndex0, int_max& PointIndex1) const;
@@ -235,13 +248,18 @@ public:
 
 //====================================== Face_Of_PolygonMesh ==============================================================//
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 struct Data_Of_Face_Of_PolygonMesh
 {
-    typedef typename MeshAttributeType::ScalarType           ScalarType;
-    typedef typename MeshAttributeType::FaceAttributeType    FaceAttributeType;
+	typedef StandardAttribute_Of_Face_Of_PolygonMesh<ScalarType> FaceAttributeType;
 
-	PolygonMeshData<MeshAttributeType>* MeshData;
+	std::weak_ptr<PolygonMeshData<ScalarType>> MeshData_w;
+	//PolygonMesh<ScalarType> ParentMesh;
+	//ParentMesh.m_MeshData=m_Data->MeshData_w.lock();
+
+	PolygonMeshData<ScalarType>* MeshData;
+	// do NOT use PolygonMesh<>  => cyclic link and memory leak
+	// do NOT use PolygonMesh<>* => may become invalid
 
     int_max Index; // FaceIndex: index of the Face in Mesh.m_MeshData->FaceList, it may change after Mesh.CleanDataStructure()
 
@@ -261,15 +279,15 @@ struct Data_Of_Face_Of_PolygonMesh
     FaceAttributeType Attribute;
 };
 
-template<typename MeshAttributeType>
+template<typename Scalar_Type>
 class Face_Of_PolygonMesh : public Object
 {
 public:
-    typedef typename MeshAttributeType::ScalarType           ScalarType;
-    typedef typename MeshAttributeType::FaceAttributeType    FaceAttributeType;
+    typedef Scalar_Type ScalarType;
+	typedef StandardAttribute_Of_Face_Of_PolygonMesh<ScalarType>           FaceAttributeType;
 
 private:
-    std::unique_ptr<Data_Of_Face_Of_PolygonMesh<MeshAttributeType>> m_Data;
+    std::unique_ptr<Data_Of_Face_Of_PolygonMesh<ScalarType>> m_Data;
 
     template<typename T>
     friend class PolygonMesh;
@@ -279,18 +297,18 @@ private:
 
 public:
 	Face_Of_PolygonMesh();
-    Face_Of_PolygonMesh(const Face_Of_PolygonMesh<MeshAttributeType>& InputFace);
-    Face_Of_PolygonMesh(Face_Of_PolygonMesh<MeshAttributeType>&& InputFace);
+    Face_Of_PolygonMesh(const Face_Of_PolygonMesh<ScalarType>& InputFace);
+    Face_Of_PolygonMesh(Face_Of_PolygonMesh<ScalarType>&& InputFace);
     ~Face_Of_PolygonMesh();
 
-    void operator=(const Face_Of_PolygonMesh<MeshAttributeType>& InputFace);
-    void operator=(Face_Of_PolygonMesh<MeshAttributeType>&& InputFace);
+    void operator=(const Face_Of_PolygonMesh<ScalarType>& InputFace);
+    void operator=(Face_Of_PolygonMesh<ScalarType>&& InputFace);
 
 private:
     inline void ReCreate();
 	inline void Clear(const MDK_Symbol_PureEmpty&);
 
-    inline void SetParentMesh(PolygonMesh<MeshAttributeType>& ParentMesh);
+    inline void SetParentMesh(PolygonMesh<ScalarType>& ParentMesh);
     inline void SetIndex(int_max FaceIndex);   
 
 	inline DenseVector<int_max>& PointIndexList();
@@ -303,8 +321,6 @@ private:
 public:
     inline bool IsValid() const;
 
-    inline PolygonMesh<MeshAttributeType>& GetParentMesh();
-    inline const PolygonMesh<MeshAttributeType>& GetParentMesh() const;
 	inline int_max GetIndex() const;
 
     inline void SetID(int_max FaceID);
@@ -314,6 +330,9 @@ public:
 	inline void SetName(String FaceName);
 	inline void EraseName();
 	inline String GetName() const;
+
+	inline void SetData(int_max Index, const DenseVector<ScalarType>& Data);
+	inline DenseVector<ScalarType> GetData(int_max Index) const;
 
 	inline int_max GetPointCount() const;
 	inline DenseVector<int_max> GetPointIndexList() const;

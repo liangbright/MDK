@@ -3,13 +3,10 @@
 namespace mdk
 {
 
-template<typename MeshAttributeType>
-PolygonMesh<MeshAttributeType> SubdivideQuadMesh_Linear(const PolygonMesh<MeshAttributeType>& InputMesh)
+template<typename ScalarType>
+PolygonMesh<ScalarType> SubdivideQuadMesh_Linear(const PolygonMesh<ScalarType>& InputMesh)
 {
-	typedef typename MeshAttributeType::ScalarType ScalarType;
-	
-	//----------------------------------------------------------------------------//
-	PolygonMesh<MeshAttributeType> OutputMesh;
+	PolygonMesh<ScalarType> OutputMesh;
 	
 	auto PointCount_input = InputMesh.GetPointCount();
 	auto EdgeCount_input = InputMesh.GetEdgeCount();
@@ -108,10 +105,10 @@ PolygonMesh<MeshAttributeType> SubdivideQuadMesh_Linear(const PolygonMesh<MeshAt
 }
 
 
-template<typename MeshAttributeType>
-PolygonMesh<MeshAttributeType> SubdivideQuadMesh_Linear(const PolygonMesh<MeshAttributeType>& InputMesh, int_max SubdivisionCount)
+template<typename ScalarType>
+PolygonMesh<ScalarType> SubdivideQuadMesh_Linear(const PolygonMesh<ScalarType>& InputMesh, int_max SubdivisionCount)
 {
-	PolygonMesh<MeshAttributeType> OutputMesh;
+	PolygonMesh<ScalarType> OutputMesh;
 	if (SubdivisionCount <= 0)
 	{
 		MDK_Error(" SubdivisionCount <=0 @ SubdivideQuadMesh_Linear(...,...)")
@@ -127,30 +124,31 @@ PolygonMesh<MeshAttributeType> SubdivideQuadMesh_Linear(const PolygonMesh<MeshAt
 	return OutputMesh;
 }
 
-
-template<typename MeshAttributeTypeA, typename MeshAttributeTypeB>
-void ConvertQuadMeshToTriangleMesh(const PolygonMesh<MeshAttributeTypeA>& InputMesh, TriangleMesh<MeshAttributeTypeB>& OutputMesh, const std::string& Method)
+template<typename ScalarType>
+TriangleMesh<ScalarType> ConvertQuadMeshToTriangleMesh(const PolygonMesh<ScalarType>& InputMesh, const std::string& Method)
 {
 	if (Method == "1to2")
 	{
-		ConvertQuadMeshToTriangleMesh_1to2(InputMesh, OutputMesh);
+		return ConvertQuadMeshToTriangleMesh_1to2(InputMesh);
 	}
 	else if (Method == "1to8")
 	{
-		ConvertQuadMeshToTriangleMesh_1to8(InputMesh, OutputMesh);
+		return ConvertQuadMeshToTriangleMesh_1to8(InputMesh);
 	}
 	else
 	{
-		MDK_Error("Method is unknown @ ConvertQuadMeshToTriangleMesh(...,...)")
+		MDK_Error("Method is unknown @ ConvertQuadMeshToTriangleMesh(...)")
+		TriangleMesh<ScalarType> EmptyMesh;
+		return EmptyMesh;
 	}
 }
 
 
-template<typename MeshAttributeTypeA, typename MeshAttributeTypeB>
-void ConvertQuadMeshToTriangleMesh_1to2(const PolygonMesh<MeshAttributeTypeA>& InputMesh, TriangleMesh<MeshAttributeTypeB>& OutputMesh)
+template<typename ScalarType>
+TriangleMesh<ScalarType> ConvertQuadMeshToTriangleMesh_1to2(const PolygonMesh<ScalarType>& InputMesh)
 {//Input: Quad or Mixed-Quad-Triangle
 
-	OutputMesh.Clear();
+	TriangleMesh<ScalarType> OutputMesh;
 
 	auto PointCount_input = InputMesh.GetPointCount();
 	auto EdgeCount_input = InputMesh.GetEdgeCount();
@@ -183,7 +181,7 @@ void ConvertQuadMeshToTriangleMesh_1to2(const PolygonMesh<MeshAttributeTypeA>& I
 		if (PointIndexList_input.GetLength() > 4)
 		{
 			MDK_Error("Input is NOT QuadMesh or Mixed Quad-Triangle @ ConvertQuadMeshToTriangleMesh_1to2(...)")			
-			return;
+			return OutputMesh;
 		}
 		else if (PointIndexList_input.GetLength() == 4)
 		{
@@ -225,7 +223,7 @@ void ConvertQuadMeshToTriangleMesh_1to2(const PolygonMesh<MeshAttributeTypeA>& I
 		else
 		{
 			MDK_Error("Input is NOT QuadMesh or Mixed Quad-Triangle @ ConvertQuadMeshToTriangleMesh_1to2(...)")
-			return;
+			return OutputMesh;
 		}
 	}
 
@@ -251,16 +249,16 @@ void ConvertQuadMeshToTriangleMesh_1to2(const PolygonMesh<MeshAttributeTypeA>& I
 			OutputMesh.SetPointSet(PointSetNameList[PointSetIndex], PointSet);
 		}
 	}
+
+	return OutputMesh;
 }
 
 
-template<typename MeshAttributeTypeA, typename MeshAttributeTypeB>
-void ConvertQuadMeshToTriangleMesh_1to8(const PolygonMesh<MeshAttributeTypeA>& InputMesh, TriangleMesh<MeshAttributeTypeB>& OutputMesh)
+template<typename ScalarType>
+TriangleMesh<ScalarType> ConvertQuadMeshToTriangleMesh_1to8(const PolygonMesh<ScalarType>& InputMesh)
 {//Input: Quad or Mixed-Quad-Triangle
 
-	typedef typename MeshAttributeTypeB::ScalarType ScalarType;
-
-	OutputMesh.Clear();
+	TriangleMesh<ScalarType> OutputMesh;
 
 	auto PointCount_input = InputMesh.GetPointCount();
 	auto EdgeCount_input = InputMesh.GetEdgeCount();
@@ -313,7 +311,7 @@ void ConvertQuadMeshToTriangleMesh_1to8(const PolygonMesh<MeshAttributeTypeA>& I
 		if (PointIndexList_input.GetLength() > 4)
 		{
 			MDK_Error("Input is NOT QuadMesh or Mixed Quad-Triangle @ ConvertQuadMeshToTriangleMesh_1to8(...)")
-			return;
+			return OutputMesh;
 		}
 		else if (PointIndexList_input.GetLength() == 4)
 		{
@@ -382,7 +380,7 @@ void ConvertQuadMeshToTriangleMesh_1to8(const PolygonMesh<MeshAttributeTypeA>& I
 		else
 		{
 			MDK_Error("Input is NOT QuadMesh or Mixed Quad-Triangle @ ConvertQuadMeshToTriangleMesh(...)")
-			return;
+			return OutputMesh;
 		}
 	}
 
@@ -408,15 +406,15 @@ void ConvertQuadMeshToTriangleMesh_1to8(const PolygonMesh<MeshAttributeTypeA>& I
 			OutputMesh.SetPointSet(PointSetNameList[PointSetIndex], PointSet);
 		}
 	}
+
+	return OutputMesh;
 }
 
 
-template<typename MeshAttributeType>
-PolygonMesh<MeshAttributeType> SubdivideMixedTriangleQuadMeshToQuadMesh_Linear(const PolygonMesh<MeshAttributeType>& InputMesh)
+template<typename ScalarType>
+PolygonMesh<ScalarType> SubdivideMixedTriangleQuadMeshToQuadMesh_Linear(const PolygonMesh<ScalarType>& InputMesh)
 {
-	typedef typename MeshAttributeType::ScalarType ScalarType;	
-	//----------------------------------------------------------------------------//
-	PolygonMesh<MeshAttributeType> OutputMesh;
+	PolygonMesh<ScalarType> OutputMesh;
 
 	auto PointCount_input = InputMesh.GetPointCount();
 	auto EdgeCount_input = InputMesh.GetEdgeCount();
@@ -544,10 +542,10 @@ PolygonMesh<MeshAttributeType> SubdivideMixedTriangleQuadMeshToQuadMesh_Linear(c
 }
 
 
-template<typename MeshAttributeType>
-PolygonMesh<MeshAttributeType> SubdivideMixedTriangleQuadMeshToQuadMesh_Linear(const PolygonMesh<MeshAttributeType>& InputMesh, int_max SubdivisionCount)
+template<typename ScalarType>
+PolygonMesh<ScalarType> SubdivideMixedTriangleQuadMeshToQuadMesh_Linear(const PolygonMesh<ScalarType>& InputMesh, int_max SubdivisionCount)
 {
-	PolygonMesh<MeshAttributeType> OutputMesh;
+	PolygonMesh<ScalarType> OutputMesh;
 	if (SubdivisionCount <= 0)
 	{
 		MDK_Error(" SubdivisionCount <=0 @ SubdivideMixedTriangleQuadMeshToQuadMesh_Linear(...,...)")
@@ -564,12 +562,10 @@ PolygonMesh<MeshAttributeType> SubdivideMixedTriangleQuadMeshToQuadMesh_Linear(c
 }
 
 
-template<typename MeshAttributeType>
-PolygonMesh<MeshAttributeType> CreateQuadMeshOfRectangularFlatSurface(int_max PointCount_x, int_max PointCount_y, double Spacing_x, double Spacing_y)
+template<typename ScalarType>
+PolygonMesh<ScalarType> CreateQuadMeshOfRectangularFlatSurface(int_max PointCount_x, int_max PointCount_y, double Spacing_x, double Spacing_y)
 {
-	typedef PolygonMesh<MeshAttributeType>::ScalarType ScalarType;
-
-	PolygonMesh<MeshAttributeType> OutputMesh;
+	PolygonMesh<ScalarType> OutputMesh;
 
 	if (PointCount_x <= 0 || PointCount_y <= 0)
 	{
@@ -611,12 +607,10 @@ PolygonMesh<MeshAttributeType> CreateQuadMeshOfRectangularFlatSurface(int_max Po
 }
 
 
-template<typename MeshAttributeType>
-PolygonMesh<MeshAttributeType> CreateQuadMeshOfCylinderSurface(int_max PointCountPerRing, int_max RingCount, double Radius, double Height)
+template<typename ScalarType>
+PolygonMesh<ScalarType> CreateQuadMeshOfCylinderSurface(int_max PointCountPerRing, int_max RingCount, double Radius, double Height)
 {
-	typedef PolygonMesh<MeshAttributeType>::ScalarType ScalarType;
-
-	PolygonMesh<MeshAttributeType> OutputMesh;
+	PolygonMesh<ScalarType> OutputMesh;
 
 	if (PointCountPerRing <= 2 || RingCount <= 0)
 	{

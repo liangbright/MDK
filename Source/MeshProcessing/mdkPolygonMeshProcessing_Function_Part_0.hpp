@@ -3,8 +3,8 @@
 namespace mdk
 {
 
-template<typename MeshAttributeType>
-DenseVector<int_max> TraceMeshBoundaryCurve(const PolygonMesh<MeshAttributeType>& InputMesh, int_max PointIndex_start)
+template<typename ScalarType>
+DenseVector<int_max> TraceMeshBoundaryCurve(const PolygonMesh<ScalarType>& InputMesh, int_max PointIndex_start)
 {// work for none-clean DataStructure
     DenseVector<int_max> PointIndexListOfBoundaryCurve;
 
@@ -121,8 +121,8 @@ DenseVector<int_max> TraceMeshBoundaryCurve(const PolygonMesh<MeshAttributeType>
 }
 
 
-template<typename MeshAttributeType>
-ObjectArray<DenseVector<int_max>> TraceMeshBoundaryCurve(const PolygonMesh<MeshAttributeType>& InputMesh)
+template<typename ScalarType>
+ObjectArray<DenseVector<int_max>> TraceMeshBoundaryCurve(const PolygonMesh<ScalarType>& InputMesh)
 {// work for none-clean DataStructure
     // find boundary point
     DenseVector<int_max> BoundaryPointIndexList;
@@ -177,11 +177,9 @@ ObjectArray<DenseVector<int_max>> TraceMeshBoundaryCurve(const PolygonMesh<MeshA
 }
 
 
-template<typename MeshAttributeType>
-int_max FindNearestPointOnMesh(const PolygonMesh<MeshAttributeType>& InputMesh, const DenseVector<typename MeshAttributeType::ScalarType, 3>& PointPosition)
+template<typename ScalarType>
+int_max FindNearestPointOnMesh(const PolygonMesh<ScalarType>& InputMesh, const DenseVector<typename ScalarType::ScalarType, 3>& PointPosition)
 {// work for none-clean DataStructure
-    typedef typename MeshAttributeType::ScalarType ScalarType;
-
 	int_max OutputPointIndex = -1;
 
     ScalarType Distance_sq_min = 0;
@@ -214,8 +212,8 @@ int_max FindNearestPointOnMesh(const PolygonMesh<MeshAttributeType>& InputMesh, 
 }
 
 
-template<typename MeshAttributeType>
-PolygonMesh<MeshAttributeType> SmoothMeshByVTKSmoothPolyDataFilter(const PolygonMesh<MeshAttributeType>& InputMesh, int_max Iter, bool Flag_FeatureEdgeSmoothing, bool Flag_BoundarySmoothing)
+template<typename ScalarType>
+PolygonMesh<ScalarType> SmoothMeshByVTKSmoothPolyDataFilter(const PolygonMesh<ScalarType>& InputMesh, int_max Iter, bool Flag_FeatureEdgeSmoothing, bool Flag_BoundarySmoothing)
 {
 	if (InputMesh.Check_If_DataStructure_is_Clean() == false)
 	{
@@ -249,14 +247,14 @@ PolygonMesh<MeshAttributeType> SmoothMeshByVTKSmoothPolyDataFilter(const Polygon
 
 	//double a = SmoothFilter->GetFeatureAngle();
 
-	PolygonMesh<MeshAttributeType> OutputMesh;
+	PolygonMesh<ScalarType> OutputMesh;
 	ConvertVTKPolyDataToMDKPolygonMesh(SmoothFilter->GetOutput(), OutputMesh);
 	return OutputMesh;
 }
 
 
-template<typename MeshAttributeType>
-PolygonMesh<MeshAttributeType> SmoothMeshByVTKWindowedSincPolyDataFilter(const PolygonMesh<MeshAttributeType>& InputMesh, double PassBand, int_max Iter, bool Flag_FeatureEdgeSmoothing, bool Flag_BoundarySmoothing)
+template<typename ScalarType>
+PolygonMesh<ScalarType> SmoothMeshByVTKWindowedSincPolyDataFilter(const PolygonMesh<ScalarType>& InputMesh, double PassBand, int_max Iter, bool Flag_FeatureEdgeSmoothing, bool Flag_BoundarySmoothing)
 {
 	if (InputMesh.Check_If_DataStructure_is_Clean() == false)
 	{
@@ -289,14 +287,14 @@ PolygonMesh<MeshAttributeType> SmoothMeshByVTKWindowedSincPolyDataFilter(const P
 	SmoothFilter->NormalizeCoordinatesOn();	
 	SmoothFilter->Update();
 
-	PolygonMesh<MeshAttributeType> OutputMesh;
+	PolygonMesh<ScalarType> OutputMesh;
 	ConvertVTKPolyDataToMDKPolygonMesh(SmoothFilter->GetOutput(), OutputMesh);
 	return OutputMesh;
 }
 
 
-template<typename MeshAttributeType>
-DenseVector<int_max> SegmentMeshByEdgeCurve(const PolygonMesh<MeshAttributeType>& InputMesh, const DenseVector<int_max>& ClosedEdgeCurve_EdgeIndexList, const int_max FaceIndex_seed)
+template<typename ScalarType>
+DenseVector<int_max> SegmentMeshByEdgeCurve(const PolygonMesh<ScalarType>& InputMesh, const DenseVector<int_max>& ClosedEdgeCurve_EdgeIndexList, const int_max FaceIndex_seed)
 {
 	if (InputMesh.IsEmpty() == true || ClosedEdgeCurve_EdgeIndexList.IsEmpty() == true)
 	{
@@ -359,8 +357,8 @@ DenseVector<int_max> SegmentMeshByEdgeCurve(const PolygonMesh<MeshAttributeType>
 }
 
 
-template<typename MeshAttributeType>
-DenseVector<DenseVector<int_max>> SegmentMeshByEdgeCurve(const PolygonMesh<MeshAttributeType>& InputMesh, const DenseVector<int_max>& ClosedEdgeCurve_EdgeIndexList)
+template<typename ScalarType>
+DenseVector<DenseVector<int_max>> SegmentMeshByEdgeCurve(const PolygonMesh<ScalarType>& InputMesh, const DenseVector<int_max>& ClosedEdgeCurve_EdgeIndexList)
 {
 	DenseVector<DenseVector<int_max>> FastIndexList_output;
 
@@ -405,13 +403,13 @@ DenseVector<DenseVector<int_max>> SegmentMeshByEdgeCurve(const PolygonMesh<MeshA
 }
 
 
-template<typename MeshAttributeType>
-PolygonMesh<MeshAttributeType> ClipMeshByVTKClipPolyData(vtkPolyData* InputMesh_vtk, const DenseVector<typename MeshAttributeType::ScalarType, 3>& Origin, const DenseVector<typename MeshAttributeType::ScalarType, 3>& Normal)
+template<typename ScalarType>
+PolygonMesh<ScalarType> ClipMeshByVTKClipPolyData(vtkPolyData* InputMesh_vtk, const DenseVector<typename ScalarType::ScalarType, 3>& Origin, const DenseVector<typename ScalarType::ScalarType, 3>& Normal)
 {
 	if (InputMesh_vtk == nullptr)
 	{
 		MDK_Error("InputMesh_vtk is nullptr @ mdkPolygonMeshProcessing ClipMeshByVTKClipPolyData(...)")
-		PolygonMesh<MeshAttributeType> EmptyMesh;
+		PolygonMesh<ScalarType> EmptyMesh;
 		return EmptyMesh;
 	}
 
@@ -429,20 +427,20 @@ PolygonMesh<MeshAttributeType> ClipMeshByVTKClipPolyData(vtkPolyData* InputMesh_
 	cleaner->Update();
 	auto OutputMesh_vtk = cleaner->GetOutput();
 
-	PolygonMesh<MeshAttributeType> OutputMesh;
+	PolygonMesh<ScalarType> OutputMesh;
 	ConvertVTKPolyDataToMDKPolygonMesh(OutputMesh_vtk, OutputMesh);
 	return OutputMesh;
 }
 
-template<typename MeshAttributeType>
-PolygonMesh<MeshAttributeType> ClipMeshByVTKClipPolyData(const PolygonMesh<MeshAttributeType>& InputMesh, const DenseVector<typename MeshAttributeType::ScalarType, 3>& Origin, const DenseVector<typename MeshAttributeType::ScalarType, 3>& Normal)
+template<typename ScalarType>
+PolygonMesh<ScalarType> ClipMeshByVTKClipPolyData(const PolygonMesh<ScalarType>& InputMesh, const DenseVector<typename ScalarType::ScalarType, 3>& Origin, const DenseVector<typename ScalarType::ScalarType, 3>& Normal)
 {
 	auto InputMesh_vtk = ConvertMDKPolygonMeshToVTKPolyData(InputMesh);
 	return ClipMeshByVTKClipPolyData(InputMesh_vtk, Origin, Normal);
 }
 
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 DenseVector<int_max> FindShortestPathByVTKDijkstraGraphGeodesicPath(vtkPolyData* InputMesh_vtk, int_max PointIndex_start, int_max PointIndex_end)
 {
 	if (InputMesh_vtk == nullptr)
@@ -469,8 +467,8 @@ DenseVector<int_max> FindShortestPathByVTKDijkstraGraphGeodesicPath(vtkPolyData*
 	return ShortestPath;
 }
 
-template<typename MeshAttributeType>
-DenseVector<int_max> FindShortestPathByVTKDijkstraGraphGeodesicPath(const PolygonMesh<MeshAttributeType>& InputMesh, int_max PointIndex_start, int_max PointIndex_end)
+template<typename ScalarType>
+DenseVector<int_max> FindShortestPathByVTKDijkstraGraphGeodesicPath(const PolygonMesh<ScalarType>& InputMesh, int_max PointIndex_start, int_max PointIndex_end)
 {
 	if (InputMesh.Check_If_DataStructure_is_Clean() == false)
 	{
@@ -482,15 +480,13 @@ DenseVector<int_max> FindShortestPathByVTKDijkstraGraphGeodesicPath(const Polygo
 }
 
 
-template<typename MeshAttributeType>
-PolygonMesh<MeshAttributeType> MergeMeshBoundary(const PolygonMesh<MeshAttributeType>& InputMeshA, const PolygonMesh<MeshAttributeType>& InputMeshB, typename MeshAttributeType::ScalarType Threshold)
+template<typename ScalarType>
+PolygonMesh<ScalarType> MergeMeshBoundary(const PolygonMesh<ScalarType>& InputMeshA, const PolygonMesh<ScalarType>& InputMeshB, typename ScalarType::ScalarType Threshold)
 {// work for none-clean DataStructure, attribute info not retained
-	typedef typename MeshAttributeType::ScalarType ScalarType;	
-
 	auto PointCountA = InputMeshA.GetPointCount(); 	auto EdgeCountA = InputMeshA.GetEdgeCount(); auto FaceCountA = InputMeshA.GetFaceCount();
 	auto PointCountB = InputMeshB.GetPointCount();	auto EdgeCountB = InputMeshB.GetEdgeCount(); auto FaceCountB = InputMeshB.GetFaceCount();
 
-	PolygonMesh<MeshAttributeType> OutputMesh;
+	PolygonMesh<ScalarType> OutputMesh;
 	OutputMesh.SetCapacity(PointCountA + PointCountB, EdgeCountA + EdgeCountB, FaceCountA + FaceCountB);
 	//copy InputMeshA, only point and face
 	{
@@ -510,7 +506,7 @@ PolygonMesh<MeshAttributeType> MergeMeshBoundary(const PolygonMesh<MeshAttribute
 	}
 	auto BoundaryA = OutputMesh.GetPointPosition(BoundaryPointIndexListA);
 
-	PolygonMesh<MeshAttributeType> InputMeshB_clean;
+	PolygonMesh<ScalarType> InputMeshB_clean;
 	if (InputMeshB.Check_If_DataStructure_is_Clean() == true)
 	{
 		InputMeshB_clean.ForceShare(InputMeshB);

@@ -2,9 +2,9 @@
 
 namespace mdk
 {
-template<typename MeshAttributeType>
-TriangleMesh<MeshAttributeType> ResampleMeshOpenBoundary(const TriangleMesh<MeshAttributeType>& InputMesh, const DenseVector<int_max>& BounaryPointIndexList,
-	                                                     const DenseMatrix<typename MeshAttributeType::ScalarType>& Boundary_output)
+template<typename ScalarType>
+TriangleMesh<ScalarType> ResampleMeshOpenBoundary(const TriangleMesh<ScalarType>& InputMesh, const DenseVector<int_max>& BounaryPointIndexList,
+	                                              const DenseMatrix<ScalarType>& Boundary_output)
 {
 	//BounaryPointIndexList: an open bounary curve, BounaryPointIndexList[0] is the start point, BounaryPointIndexList[end] is the end point
 	//position of the start/end point will not be changed
@@ -15,13 +15,13 @@ TriangleMesh<MeshAttributeType> ResampleMeshOpenBoundary(const TriangleMesh<Mesh
 	if (InputMesh.Check_If_DataStructure_is_Clean() == false)
 	{
 		MDK_Error("InputMesh DataStructure is NOT Clean, abort @ ResampleMeshOpenBoundary(...)")
-		TriangleMesh<MeshAttributeType> EmptyMesh;
+		TriangleMesh<ScalarType> EmptyMesh;
 		return EmptyMesh;
 	}
 	if (BounaryPointIndexList.GetLength() < 3)
 	{
 		MDK_Error("BounaryPointIndexList.GetLength() < 3, abort @ ResampleMeshOpenBoundary(...)")
-		TriangleMesh<MeshAttributeType> EmptyMesh;
+		TriangleMesh<ScalarType> EmptyMesh;
 		return EmptyMesh;
 	}
 	for (int_max k = 0; k < BounaryPointIndexList.GetLength(); ++k)
@@ -29,26 +29,26 @@ TriangleMesh<MeshAttributeType> ResampleMeshOpenBoundary(const TriangleMesh<Mesh
 		if (InputMesh.IsValidPointIndex(BounaryPointIndexList[k]) == false)
 		{
 			MDK_Error("BounaryPointIndexList is invalid, abort @ ResampleMeshOpenBoundary(...)")
-			TriangleMesh<MeshAttributeType> EmptyMesh;
+			TriangleMesh<ScalarType> EmptyMesh;
 			return EmptyMesh;
 		}
 		if (InputMesh.Point(BounaryPointIndexList[k]).IsOnBoundaryEdge() == false)
 		{
 			MDK_Error("BounaryPointIndexList is invalid, abort @ ResampleMeshOpenBoundary(...)")
-			TriangleMesh<MeshAttributeType> EmptyMesh;
+			TriangleMesh<ScalarType> EmptyMesh;
 			return EmptyMesh;
 		}
 	}
 	if (BounaryPointIndexList[0] == BounaryPointIndexList[BounaryPointIndexList.GetLength() - 1])
 	{
 		MDK_Error("BounaryPointIndexList is a closed curve, abort @ ResampleMeshOpenBoundary(...)")
-		TriangleMesh<MeshAttributeType> EmptyMesh;
+		TriangleMesh<ScalarType> EmptyMesh;
 		return EmptyMesh;
 	}
 	if (Boundary_output.GetColCount() < 3)
 	{
 		MDK_Error("Boundary_output.GetColCount() < 3, abort @ ResampleMeshOpenBoundary(...)")
-		TriangleMesh<MeshAttributeType> EmptyMesh;
+		TriangleMesh<ScalarType> EmptyMesh;
 		return EmptyMesh;
 	}
 
@@ -85,7 +85,7 @@ TriangleMesh<MeshAttributeType> ResampleMeshOpenBoundary(const TriangleMesh<Mesh
 			{
 				MDK_Error("special case: PointIndex_start not exist, please modify BounaryPointIndexList, abort @ ResampleMeshOpenBoundary(...)")
 				DisplayVector("BounaryPointIndexList", BounaryPointIndexList);
-				TriangleMesh<MeshAttributeType> EmptyMesh;
+				TriangleMesh<ScalarType> EmptyMesh;
 				return EmptyMesh;
 			}
 		}
@@ -113,7 +113,7 @@ TriangleMesh<MeshAttributeType> ResampleMeshOpenBoundary(const TriangleMesh<Mesh
 			else
 			{
 				MDK_Error("special case: PointIndex_end not exist, please modify BounaryPointIndexList, abort @ ResampleMeshOpenBoundary(...)")
-				TriangleMesh<MeshAttributeType> EmptyMesh;
+				TriangleMesh<ScalarType> EmptyMesh;
 				return EmptyMesh;
 			}
 		}
@@ -129,7 +129,7 @@ TriangleMesh<MeshAttributeType> ResampleMeshOpenBoundary(const TriangleMesh<Mesh
 				MDK_Error("infinit while loop, please modify BounaryPointIndexList, abort @ ResampleMeshOpenBoundary(...)")
 				std::cout << "PointIndex_start " << PointIndex_start << ", PointIndex_end " << PointIndex_end << '\n';
 				DisplayVector("Curve_near_boundary", Curve_near_boundary);
-				TriangleMesh<MeshAttributeType> EmptyMesh;
+				TriangleMesh<ScalarType> EmptyMesh;
 				return EmptyMesh;
 			}
 
@@ -155,7 +155,7 @@ TriangleMesh<MeshAttributeType> ResampleMeshOpenBoundary(const TriangleMesh<Mesh
 			else
 			{
 				MDK_Error("special case: IntersectCounterList[Index_max_count] = 0  please modify BounaryPointIndexList, abort @ ResampleMeshOpenBoundary(...)")
-				TriangleMesh<MeshAttributeType> EmptyMesh;
+				TriangleMesh<ScalarType> EmptyMesh;
 				return EmptyMesh;
 			}
 
@@ -183,7 +183,7 @@ TriangleMesh<MeshAttributeType> ResampleMeshOpenBoundary(const TriangleMesh<Mesh
 	}
 	Point_delete = BounaryPointIndexList.GetSubSet(span(1, BounaryPointIndexList.GetLength() - 2));
 
-	TriangleMesh<MeshAttributeType> OutputMesh;
+	TriangleMesh<ScalarType> OutputMesh;
 	OutputMesh = InputMesh;//copy
 	OutputMesh.DeleteFace(Face_delete);
 	OutputMesh.DeleteEdge(Edge_delete);
@@ -290,9 +290,9 @@ TriangleMesh<MeshAttributeType> ResampleMeshOpenBoundary(const TriangleMesh<Mesh
 	return OutputMesh;
 }
 
-template<typename MeshAttributeType>
-TriangleMesh<MeshAttributeType> ResampleMeshOpenBoundary(const TriangleMesh<MeshAttributeType>& InputMesh, const DenseVector<int_max>& BounaryPointIndexList, 
-	                                                     const int_max PointCountOfBounary_output)
+template<typename ScalarType>
+TriangleMesh<ScalarType> ResampleMeshOpenBoundary(const TriangleMesh<ScalarType>& InputMesh, const DenseVector<int_max>& BounaryPointIndexList, 
+	                                              const int_max PointCountOfBounary_output)
 {
 	//BounaryPointIndexList: an open bounary curve, BounaryPointIndexList[0] is the start point, BounaryPointIndexList[end] is the end point
 	//position of the start/end point will not be changed
@@ -301,7 +301,7 @@ TriangleMesh<MeshAttributeType> ResampleMeshOpenBoundary(const TriangleMesh<Mesh
 	if (PointCountOfBounary_output < 3)
 	{
 		MDK_Error("PointCountOfBounary_output < 3, abort @ ResampleMeshOpenBoundary(...)")
-		TriangleMesh<MeshAttributeType> EmptyMesh;
+		TriangleMesh<ScalarType> EmptyMesh;
 		return EmptyMesh;
 	}
 

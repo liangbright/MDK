@@ -4,36 +4,36 @@ namespace mdk
 {
 //=========================================================== Point_Of_PolygonMesh ===========================================================//
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-Point_Of_PolygonMesh<MeshAttributeType>::Point_Of_PolygonMesh()
+Point_Of_PolygonMesh<ScalarType>::Point_Of_PolygonMesh()
 {
 	this->ReCreate();
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-Point_Of_PolygonMesh<MeshAttributeType>::Point_Of_PolygonMesh(const Point_Of_PolygonMesh<MeshAttributeType>& InputPoint)
+Point_Of_PolygonMesh<ScalarType>::Point_Of_PolygonMesh(const Point_Of_PolygonMesh<ScalarType>& InputPoint)
 {
     (*this) = InputPoint;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-Point_Of_PolygonMesh<MeshAttributeType>::Point_Of_PolygonMesh(Point_Of_PolygonMesh<MeshAttributeType>&& InputPoint)
+Point_Of_PolygonMesh<ScalarType>::Point_Of_PolygonMesh(Point_Of_PolygonMesh<ScalarType>&& InputPoint)
 {
     m_Data = std::move(InputPoint.m_Data);
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-Point_Of_PolygonMesh<MeshAttributeType>::~Point_Of_PolygonMesh()
+Point_Of_PolygonMesh<ScalarType>::~Point_Of_PolygonMesh()
 {
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Point_Of_PolygonMesh<MeshAttributeType>::operator=(const Point_Of_PolygonMesh<MeshAttributeType>& InputPoint)
+void Point_Of_PolygonMesh<ScalarType>::operator=(const Point_Of_PolygonMesh<ScalarType>& InputPoint)
 {
     if (!InputPoint.m_Data)
     {
@@ -43,9 +43,9 @@ void Point_Of_PolygonMesh<MeshAttributeType>::operator=(const Point_Of_PolygonMe
 	
 	if (!m_Data)
 	{
-		m_Data = std::make_unique<Data_Of_Point_Of_PolygonMesh<MeshAttributeType>>();
+		m_Data = std::make_unique<Data_Of_Point_Of_PolygonMesh<ScalarType>>();
 	}
-
+	m_Data->MeshData_w = InputPoint.m_Data->MeshData_w;
     m_Data->MeshData = InputPoint.m_Data->MeshData;
     m_Data->Index = InputPoint.m_Data->Index; 
     m_Data->ID = InputPoint.m_Data->ID;
@@ -54,21 +54,22 @@ void Point_Of_PolygonMesh<MeshAttributeType>::operator=(const Point_Of_PolygonMe
     m_Data->Attribute = InputPoint.m_Data->Attribute;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Point_Of_PolygonMesh<MeshAttributeType>::operator=(Point_Of_PolygonMesh<MeshAttributeType>&& InputPoint)
+void Point_Of_PolygonMesh<ScalarType>::operator=(Point_Of_PolygonMesh<ScalarType>&& InputPoint)
 {
     m_Data = std::move(InputPoint.m_Data);
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Point_Of_PolygonMesh<MeshAttributeType>::ReCreate()
+void Point_Of_PolygonMesh<ScalarType>::ReCreate()
 {
     if (!m_Data)
     {
-        m_Data = std::make_unique<Data_Of_Point_Of_PolygonMesh<MeshAttributeType>>();
+        m_Data = std::make_unique<Data_Of_Point_Of_PolygonMesh<ScalarType>>();
     }
+	m_Data->MeshData_w.reset();
 	m_Data->MeshData = nullptr;
     m_Data->Index = -1;
     m_Data->ID = -1;
@@ -77,44 +78,45 @@ void Point_Of_PolygonMesh<MeshAttributeType>::ReCreate()
     m_Data->Attribute.Clear();
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Point_Of_PolygonMesh<MeshAttributeType>::Clear(const MDK_Symbol_PureEmpty&)
+void Point_Of_PolygonMesh<ScalarType>::Clear(const MDK_Symbol_PureEmpty&)
 {
     m_Data.reset();
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Point_Of_PolygonMesh<MeshAttributeType>::SetParentMesh(PolygonMesh<MeshAttributeType>& ParentMesh)
+void Point_Of_PolygonMesh<ScalarType>::SetParentMesh(PolygonMesh<ScalarType>& ParentMesh)
 {
+	m_Data->MeshData_w = ParentMesh.m_MeshData;
     m_Data->MeshData = ParentMesh.m_MeshData.get();
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Point_Of_PolygonMesh<MeshAttributeType>::SetIndex(int_max PointIndex)
+void Point_Of_PolygonMesh<ScalarType>::SetIndex(int_max PointIndex)
 {
     m_Data->Index = PointIndex;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline 
-DenseVector<int_max>& Point_Of_PolygonMesh<MeshAttributeType>::AdjacentEdgeIndexList()
+DenseVector<int_max>& Point_Of_PolygonMesh<ScalarType>::AdjacentEdgeIndexList()
 {
     return m_Data->AdjacentEdgeIndexList;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-const DenseVector<int_max>& Point_Of_PolygonMesh<MeshAttributeType>::AdjacentEdgeIndexList() const
+const DenseVector<int_max>& Point_Of_PolygonMesh<ScalarType>::AdjacentEdgeIndexList() const
 {
 	return m_Data->AdjacentEdgeIndexList;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-bool Point_Of_PolygonMesh<MeshAttributeType>::IsValid() const
+bool Point_Of_PolygonMesh<ScalarType>::IsValid() const
 {
     if (!m_Data)
     {
@@ -131,16 +133,16 @@ bool Point_Of_PolygonMesh<MeshAttributeType>::IsValid() const
     return true;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-bool Point_Of_PolygonMesh<MeshAttributeType>::IsOnEdge() const
+bool Point_Of_PolygonMesh<ScalarType>::IsOnEdge() const
 {
     return (m_Data->AdjacentEdgeIndexList.IsEmpty() == false);
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-bool Point_Of_PolygonMesh<MeshAttributeType>::IsOnBoundaryEdge() const
+bool Point_Of_PolygonMesh<ScalarType>::IsOnBoundaryEdge() const
 {
     for (int_max k = 0; k < m_Data->AdjacentEdgeIndexList.GetLength(); ++k)
     {
@@ -153,30 +155,16 @@ bool Point_Of_PolygonMesh<MeshAttributeType>::IsOnBoundaryEdge() const
     return false;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-PolygonMesh<MeshAttributeType>& Point_Of_PolygonMesh<MeshAttributeType>::GetParentMesh()
-{
-    return m_Data->Mesh;
-}
-
-template<typename MeshAttributeType>
-inline
-const PolygonMesh<MeshAttributeType>& Point_Of_PolygonMesh<MeshAttributeType>::GetParentMesh() const
-{
-    return m_Data->Mesh;
-}
-
-template<typename MeshAttributeType>
-inline
-int_max Point_Of_PolygonMesh<MeshAttributeType>::GetIndex() const
+int_max Point_Of_PolygonMesh<ScalarType>::GetIndex() const
 {
     return m_Data->Index;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Point_Of_PolygonMesh<MeshAttributeType>::SetID(int_max PointID)
+void Point_Of_PolygonMesh<ScalarType>::SetID(int_max PointID)
 {
 	if (!m_Data)
 	{
@@ -212,9 +200,9 @@ void Point_Of_PolygonMesh<MeshAttributeType>::SetID(int_max PointID)
     }
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Point_Of_PolygonMesh<MeshAttributeType>::EraseID()
+void Point_Of_PolygonMesh<ScalarType>::EraseID()
 {   
     if (m_Data->ID >= 0)
     {
@@ -228,16 +216,16 @@ void Point_Of_PolygonMesh<MeshAttributeType>::EraseID()
     }
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-int_max Point_Of_PolygonMesh<MeshAttributeType>::GetID() const
+int_max Point_Of_PolygonMesh<ScalarType>::GetID() const
 {
     return m_Data->ID;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Point_Of_PolygonMesh<MeshAttributeType>::SetName(String PointName)
+void Point_Of_PolygonMesh<ScalarType>::SetName(String PointName)
 {
 	if (!m_Data)
 	{
@@ -255,80 +243,94 @@ void Point_Of_PolygonMesh<MeshAttributeType>::SetName(String PointName)
 	auto PointName_old = m_Data->Name;
 	if (PointName_old != PointName)
 	{
-		auto it = m_Data->MeshData->Map_PointName_to_PointIndex.find(PointName);
-		if (it != m_Data->MeshData->Map_PointName_to_PointIndex.end())
+		auto it = m_Data->MeshData->Map_Point_Name_to_Index.find(PointName);
+		if (it != m_Data->MeshData->Map_Point_Name_to_Index.end())
 		{
 			MDK_Error("Input PointName has already been used for another point @ Point_Of_PolygonMesh::SetID(...)")
 			return;
 		}
 
-		it = m_Data->MeshData->Map_PointName_to_PointIndex.find(PointName_old);
-		if (it != m_Data->MeshData->Map_PointName_to_PointIndex.end())
+		it = m_Data->MeshData->Map_Point_Name_to_Index.find(PointName_old);
+		if (it != m_Data->MeshData->Map_Point_Name_to_Index.end())
 		{
-			m_Data->MeshData->Map_PointName_to_PointIndex.erase(it);
+			m_Data->MeshData->Map_Point_Name_to_Index.erase(it);
 		}
 
-		m_Data->MeshData->Map_PointName_to_PointIndex[PointName] = m_Data->Index;
+		m_Data->MeshData->Map_Point_Name_to_Index[PointName] = m_Data->Index;
 		m_Data->Name =std::move(PointName);
 	}
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Point_Of_PolygonMesh<MeshAttributeType>::EraseName()
+void Point_Of_PolygonMesh<ScalarType>::EraseName()
 {
 	if (m_Data->Name.IsEmpty() == false)
 	{
-		auto it = m_Data->MeshData->Map_PointName_to_PointIndex.find(m_Data->Name);
-		if (it != m_Data->MeshData->Map_PointName_to_PointIndex.end())
+		auto it = m_Data->MeshData->Map_Point_Name_to_Index.find(m_Data->Name);
+		if (it != m_Data->MeshData->Map_Point_Name_to_Index.end())
 		{
-			m_Data->MeshData->Map_PointName_to_PointIndex.erase(it);
+			m_Data->MeshData->Map_Point_Name_to_Index.erase(it);
 		}
 
 		m_Data->Name.Clear();
 	}
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-String Point_Of_PolygonMesh<MeshAttributeType>::GetName() const
+String Point_Of_PolygonMesh<ScalarType>::GetName() const
 {
 	return m_Data->Name;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
+inline void Point_Of_PolygonMesh<ScalarType>::SetData(int_max Index, const DenseVector<ScalarType>& Data)
+{
+	m_Data->MeshData->PointDataSet[Index].SetCol(m_Data->Index, Data);
+}
+
+template<typename ScalarType>
+inline DenseVector<ScalarType> Point_Of_PolygonMesh<ScalarType>::GetData(int_max Index) const
+{
+	DenseVector<ScalarType> Data;
+	m_Data->MeshData->PointDataSet[Index].GetCol(m_Data->Index, Data);
+	return Data;
+}
+
+template<typename ScalarType>
 inline
-void Point_Of_PolygonMesh<MeshAttributeType>::SetPosition(const DenseVector<ScalarType, 3>& Pos)
+void Point_Of_PolygonMesh<ScalarType>::SetPosition(const DenseVector<ScalarType, 3>& Pos)
 {
     m_Data->MeshData->PointPositionTable.SetCol(m_Data->Index, Pos.GetPointer());
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Point_Of_PolygonMesh<MeshAttributeType>::SetPosition(const ScalarType Pos[3])
+void Point_Of_PolygonMesh<ScalarType>::SetPosition(const ScalarType Pos[3])
 {
     m_Data->MeshData->PointPositionTable.SetCol(m_Data->Index, Pos);
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Point_Of_PolygonMesh<MeshAttributeType>::SetPosition(ScalarType x, ScalarType y, ScalarType z)
+void Point_Of_PolygonMesh<ScalarType>::SetPosition(ScalarType x, ScalarType y, ScalarType z)
 {
     m_Data->MeshData->PointPositionTable.SetCol(m_Data->Index, { x, y, z });
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-DenseVector<typename MeshAttributeType::ScalarType, 3> Point_Of_PolygonMesh<MeshAttributeType>::GetPosition() const
+DenseVector<ScalarType, 3> Point_Of_PolygonMesh<ScalarType>::GetPosition() const
 {
     DenseVector<ScalarType, 3> Pos;
     this->GetPosition(Pos.GetPointer());
     return Pos;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Point_Of_PolygonMesh<MeshAttributeType>::GetPosition(ScalarType& x, ScalarType& y, ScalarType& z) const
+void Point_Of_PolygonMesh<ScalarType>::GetPosition(ScalarType& x, ScalarType& y, ScalarType& z) const
 {
     ScalarType Pos[3] = { 0, 0, 0 };
     this->GetPosition(Pos);
@@ -337,23 +339,23 @@ void Point_Of_PolygonMesh<MeshAttributeType>::GetPosition(ScalarType& x, ScalarT
     z = Pos[2];
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Point_Of_PolygonMesh<MeshAttributeType>::GetPosition(ScalarType Pos[3]) const
+void Point_Of_PolygonMesh<ScalarType>::GetPosition(ScalarType Pos[3]) const
 {
     m_Data->MeshData->PointPositionTable.GetCol(m_Data->Index, Pos);
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-int_max Point_Of_PolygonMesh<MeshAttributeType>::GetAdjacentPointCount() const
+int_max Point_Of_PolygonMesh<ScalarType>::GetAdjacentPointCount() const
 {
 	return m_Data->AdjacentEdgeIndexList.GetLength();
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-DenseVector<int_max> Point_Of_PolygonMesh<MeshAttributeType>::GetAdjacentPointIndexList() const
+DenseVector<int_max> Point_Of_PolygonMesh<ScalarType>::GetAdjacentPointIndexList() const
 {
 	DenseVector<int_max> AdjacentPointIndexList;
 	AdjacentPointIndexList.Resize(m_Data->AdjacentEdgeIndexList.GetLength());
@@ -378,31 +380,31 @@ DenseVector<int_max> Point_Of_PolygonMesh<MeshAttributeType>::GetAdjacentPointIn
 	return AdjacentPointIndexList;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-int_max Point_Of_PolygonMesh<MeshAttributeType>::GetAdjacentEdgeCount() const
+int_max Point_Of_PolygonMesh<ScalarType>::GetAdjacentEdgeCount() const
 {
 	return m_Data->AdjacentEdgeIndexList.GetLength();
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-DenseVector<int_max> Point_Of_PolygonMesh<MeshAttributeType>::GetAdjacentEdgeIndexList() const
+DenseVector<int_max> Point_Of_PolygonMesh<ScalarType>::GetAdjacentEdgeIndexList() const
 {
 	return m_Data->AdjacentEdgeIndexList;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-int_max Point_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceCount() const
+int_max Point_Of_PolygonMesh<ScalarType>::GetAdjacentFaceCount() const
 {
 	auto AdjacentFaceIndexList = this->GetAdjacentFaceIndexList();
 	return AdjacentFaceIndexList.GetLength();
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-DenseVector<int_max> Point_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceIndexList() const
+DenseVector<int_max> Point_Of_PolygonMesh<ScalarType>::GetAdjacentFaceIndexList() const
 {
 	DenseVector<int_max> AdjacentFaceIndexList;	
 	AdjacentFaceIndexList.SetCapacity(2*m_Data->AdjacentEdgeIndexList.GetLength());
@@ -415,59 +417,59 @@ DenseVector<int_max> Point_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceInd
 	return AdjacentFaceIndexList;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline 
-typename MeshAttributeType::PointAttributeType& Point_Of_PolygonMesh<MeshAttributeType>::Attribute()
+typename StandardAttribute_Of_Point_Of_PolygonMesh<ScalarType>& Point_Of_PolygonMesh<ScalarType>::Attribute()
 {
     return m_Data->Attribute;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-const typename MeshAttributeType::PointAttributeType& Point_Of_PolygonMesh<MeshAttributeType>::Attribute() const
+const StandardAttribute_Of_Point_Of_PolygonMesh<ScalarType>& Point_Of_PolygonMesh<ScalarType>::Attribute() const
 {
     return m_Data->Attribute;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-DenseVector<int_max> Point_Of_PolygonMesh<MeshAttributeType>::GetNeighborPointIndexList(int_max MaxGraphDistance) const
+DenseVector<int_max> Point_Of_PolygonMesh<ScalarType>::GetNeighborPointIndexList(int_max MaxGraphDistance) const
 {
 	return m_Data->MeshData->GetNeighborPointOfPoint(m_Data->Index, MaxGraphDistance);
 }
 
 //=========================================================== Edge_Of_PolygonMesh ===========================================================//
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-Edge_Of_PolygonMesh<MeshAttributeType>::Edge_Of_PolygonMesh()
+Edge_Of_PolygonMesh<ScalarType>::Edge_Of_PolygonMesh()
 {
 	this->ReCreate();
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-Edge_Of_PolygonMesh<MeshAttributeType>::Edge_Of_PolygonMesh(const Edge_Of_PolygonMesh<MeshAttributeType>& InputEdge)
+Edge_Of_PolygonMesh<ScalarType>::Edge_Of_PolygonMesh(const Edge_Of_PolygonMesh<ScalarType>& InputEdge)
 {
     (*this) = InputEdge;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-Edge_Of_PolygonMesh<MeshAttributeType>::Edge_Of_PolygonMesh(Edge_Of_PolygonMesh<MeshAttributeType>&& InputEdge)
+Edge_Of_PolygonMesh<ScalarType>::Edge_Of_PolygonMesh(Edge_Of_PolygonMesh<ScalarType>&& InputEdge)
 {
     m_Data = std::move(InputEdge.m_Data);
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-Edge_Of_PolygonMesh<MeshAttributeType>::~Edge_Of_PolygonMesh()
+Edge_Of_PolygonMesh<ScalarType>::~Edge_Of_PolygonMesh()
 {
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Edge_Of_PolygonMesh<MeshAttributeType>::operator=(const Edge_Of_PolygonMesh<MeshAttributeType>& InputEdge)
+void Edge_Of_PolygonMesh<ScalarType>::operator=(const Edge_Of_PolygonMesh<ScalarType>& InputEdge)
 {
     if (!InputEdge.m_Data)
     {
@@ -477,9 +479,10 @@ void Edge_Of_PolygonMesh<MeshAttributeType>::operator=(const Edge_Of_PolygonMesh
 
 	if (!m_Data)
 	{
-		m_Data = std::make_unique<Data_Of_Edge_Of_PolygonMesh<MeshAttributeType>>();
+		m_Data = std::make_unique<Data_Of_Edge_Of_PolygonMesh<ScalarType>>();
 	}
 
+	m_Data->MeshData_w = InputEdge.m_Data->MeshData_w;
     m_Data->MeshData = InputEdge.m_Data->MeshData;
     m_Data->Index = InputEdge.m_Data->Index;
     m_Data->ID = InputEdge.m_Data->ID;
@@ -490,21 +493,22 @@ void Edge_Of_PolygonMesh<MeshAttributeType>::operator=(const Edge_Of_PolygonMesh
     m_Data->Attribute = InputEdge.m_Data->Attribute;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Edge_Of_PolygonMesh<MeshAttributeType>::operator=(Edge_Of_PolygonMesh<MeshAttributeType>&& InputEdge)
+void Edge_Of_PolygonMesh<ScalarType>::operator=(Edge_Of_PolygonMesh<ScalarType>&& InputEdge)
 {
     m_Data = std::move(InputEdge.m_Data);
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Edge_Of_PolygonMesh<MeshAttributeType>::ReCreate()
+void Edge_Of_PolygonMesh<ScalarType>::ReCreate()
 {
     if (!m_Data)
     {
-        m_Data = std::make_unique<Data_Of_Edge_Of_PolygonMesh<MeshAttributeType>>();
+        m_Data = std::make_unique<Data_Of_Edge_Of_PolygonMesh<ScalarType>>();
     }    
+	m_Data->MeshData_w.reset();
 	m_Data->MeshData = nullptr;
     m_Data->Index = -1;
     m_Data->ID = -1;
@@ -515,68 +519,68 @@ void Edge_Of_PolygonMesh<MeshAttributeType>::ReCreate()
     m_Data->Attribute.Clear();
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Edge_Of_PolygonMesh<MeshAttributeType>::Clear(const MDK_Symbol_PureEmpty&)
+void Edge_Of_PolygonMesh<ScalarType>::Clear(const MDK_Symbol_PureEmpty&)
 {   
 	m_Data.reset();
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Edge_Of_PolygonMesh<MeshAttributeType>::SetParentMesh(PolygonMesh<MeshAttributeType>& ParentMesh)
+void Edge_Of_PolygonMesh<ScalarType>::SetParentMesh(PolygonMesh<ScalarType>& ParentMesh)
 {
 	m_Data->MeshData = ParentMesh.m_MeshData.get();
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Edge_Of_PolygonMesh<MeshAttributeType>::SetIndex(int_max EdgeIndex)
+void Edge_Of_PolygonMesh<ScalarType>::SetIndex(int_max EdgeIndex)
 {
     m_Data->Index = EdgeIndex;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Edge_Of_PolygonMesh<MeshAttributeType>::SetPointIndexList(const int_max PointIndexList[2])
+void Edge_Of_PolygonMesh<ScalarType>::SetPointIndexList(const int_max PointIndexList[2])
 {
     this->SetPointIndexList(PointIndexList[0], PointIndexList[1]);
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-DenseVector<int_max>& Edge_Of_PolygonMesh<MeshAttributeType>::AdjacentFaceIndexList()
+DenseVector<int_max>& Edge_Of_PolygonMesh<ScalarType>::AdjacentFaceIndexList()
 {
 	return m_Data->AdjacentFaceIndexList;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-const DenseVector<int_max>& Edge_Of_PolygonMesh<MeshAttributeType>::AdjacentFaceIndexList() const
+const DenseVector<int_max>& Edge_Of_PolygonMesh<ScalarType>::AdjacentFaceIndexList() const
 {
 	return m_Data->AdjacentFaceIndexList;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Edge_Of_PolygonMesh<MeshAttributeType>::SetPointIndexList(int_max PointIndex0, int_max PointIndex1)
+void Edge_Of_PolygonMesh<ScalarType>::SetPointIndexList(int_max PointIndex0, int_max PointIndex1)
 {
     m_Data->PointIndex0 = PointIndex0;
     m_Data->PointIndex1 = PointIndex1;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline 
-void Edge_Of_PolygonMesh<MeshAttributeType>::SetPointIndexList(const DenseVector<int_max, 2>& PointIndexList)
+void Edge_Of_PolygonMesh<ScalarType>::SetPointIndexList(const DenseVector<int_max, 2>& PointIndexList)
 {
 	m_Data->PointIndex0 = PointIndexList[0];
 	m_Data->PointIndex1 = PointIndexList[1];
 }
 
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-bool Edge_Of_PolygonMesh<MeshAttributeType>::IsValid() const
+bool Edge_Of_PolygonMesh<ScalarType>::IsValid() const
 {
     if (!m_Data)
     {
@@ -593,37 +597,23 @@ bool Edge_Of_PolygonMesh<MeshAttributeType>::IsValid() const
     return true;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-bool Edge_Of_PolygonMesh<MeshAttributeType>::IsBoundary() const
+bool Edge_Of_PolygonMesh<ScalarType>::IsBoundary() const
 {
 	return (m_Data->AdjacentFaceIndexList.GetLength() <= 1);
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-PolygonMesh<MeshAttributeType>& Edge_Of_PolygonMesh<MeshAttributeType>::GetParentMesh()
-{
-    return m_Data->Mesh;
-}
-
-template<typename MeshAttributeType>
-inline
-const PolygonMesh<MeshAttributeType>& Edge_Of_PolygonMesh<MeshAttributeType>::GetParentMesh() const
-{
-    return m_Data->Mesh;
-}
-
-template<typename MeshAttributeType>
-inline
-int_max Edge_Of_PolygonMesh<MeshAttributeType>::GetIndex() const
+int_max Edge_Of_PolygonMesh<ScalarType>::GetIndex() const
 {
 	return m_Data->Index;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Edge_Of_PolygonMesh<MeshAttributeType>::SetID(int_max EdgeID)
+void Edge_Of_PolygonMesh<ScalarType>::SetID(int_max EdgeID)
 {
 	if (!m_Data)
 	{
@@ -659,9 +649,9 @@ void Edge_Of_PolygonMesh<MeshAttributeType>::SetID(int_max EdgeID)
     }
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Edge_Of_PolygonMesh<MeshAttributeType>::EraseID()
+void Edge_Of_PolygonMesh<ScalarType>::EraseID()
 {
     if (m_Data->ID >= 0)
     {
@@ -675,16 +665,16 @@ void Edge_Of_PolygonMesh<MeshAttributeType>::EraseID()
     }
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-int_max Edge_Of_PolygonMesh<MeshAttributeType>::GetID() const
+int_max Edge_Of_PolygonMesh<ScalarType>::GetID() const
 {
     return m_Data->ID;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Edge_Of_PolygonMesh<MeshAttributeType>::SetName(String EdgeName)
+void Edge_Of_PolygonMesh<ScalarType>::SetName(String EdgeName)
 {
 	if (!m_Data)
 	{
@@ -702,65 +692,79 @@ void Edge_Of_PolygonMesh<MeshAttributeType>::SetName(String EdgeName)
 	auto EdgeName_old = m_Data->Name;
 	if (EdgeName_old != EdgeName)
 	{
-		auto it = m_Data->MeshData->Map_EdgeName_to_EdgeIndex.find(EdgeName);
-		if (it != m_Data->MeshData->Map_EdgeName_to_EdgeIndex.end())
+		auto it = m_Data->MeshData->Map_Edge_Name_to_Index.find(EdgeName);
+		if (it != m_Data->MeshData->Map_Edge_Name_to_Index.end())
 		{
 			MDK_Error("Input EdgeName has already been used for another edge @ Edge_Of_PolygonMesh::SetID(...)")
 			return;
 		}
 
-		it = m_Data->MeshData->Map_EdgeName_to_EdgeIndex.find(EdgeName_old);
-		if (it != m_Data->MeshData->Map_EdgeName_to_EdgeIndex.end())
+		it = m_Data->MeshData->Map_Edge_Name_to_Index.find(EdgeName_old);
+		if (it != m_Data->MeshData->Map_Edge_Name_to_Index.end())
 		{
-			m_Data->MeshData->Map_EdgeName_to_EdgeIndex.erase(it);
+			m_Data->MeshData->Map_Edge_Name_to_Index.erase(it);
 		}
 
-		m_Data->MeshData->Map_EdgeName_to_EdgeIndex[EdgeName] = m_Data->Index;
+		m_Data->MeshData->Map_Edge_Name_to_Index[EdgeName] = m_Data->Index;
 		m_Data->Name = std::move(EdgeName);
 	}
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Edge_Of_PolygonMesh<MeshAttributeType>::EraseName()
+void Edge_Of_PolygonMesh<ScalarType>::EraseName()
 {
 	if (m_Data->Name.IsEmpty() == false)
 	{
-		auto it = m_Data->MeshData->Map_EdgeName_to_EdgeIndex.find(m_Data->Name);
-		if (it != m_Data->MeshData->Map_EdgeName_to_EdgeIndex.end())
+		auto it = m_Data->MeshData->Map_Edge_Name_to_Index.find(m_Data->Name);
+		if (it != m_Data->MeshData->Map_Edge_Name_to_Index.end())
 		{
-			m_Data->MeshData->Map_EdgeName_to_EdgeIndex.erase(it);
+			m_Data->MeshData->Map_Edge_Name_to_Index.erase(it);
 		}
 
 		m_Data->Name.Clear();
 	}
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-String Edge_Of_PolygonMesh<MeshAttributeType>::GetName() const
+String Edge_Of_PolygonMesh<ScalarType>::GetName() const
 {
 	return m_Data->Name;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
+inline void Edge_Of_PolygonMesh<ScalarType>::SetData(int_max Index, const DenseVector<ScalarType>& Data)
+{
+	m_Data->MeshData->EdgeDataSet[Index].SetCol(m_Data->Index, Data);
+}
+
+template<typename ScalarType>
+inline DenseVector<ScalarType> Edge_Of_PolygonMesh<ScalarType>::GetData(int_max Index) const
+{
+	DenseVector<ScalarType> Data;
+	m_Data->MeshData->EdgeDataSet[Index].GetCol(m_Data->Index, Data);
+	return Data;
+}
+
+template<typename ScalarType>
 inline
-void Edge_Of_PolygonMesh<MeshAttributeType>::GetPointIndexList(int_max& PointIndex0, int_max& PointIndex1) const
+void Edge_Of_PolygonMesh<ScalarType>::GetPointIndexList(int_max& PointIndex0, int_max& PointIndex1) const
 {
 	PointIndex0 = m_Data->PointIndex0;
 	PointIndex1 = m_Data->PointIndex1;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Edge_Of_PolygonMesh<MeshAttributeType>::GetPointIndexList(int_max PointIndexList[2]) const
+void Edge_Of_PolygonMesh<ScalarType>::GetPointIndexList(int_max PointIndexList[2]) const
 {
 	this->GetPointIndexList(PointIndexList[0], PointIndexList[1]);
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-DenseVector<int_max, 2> Edge_Of_PolygonMesh<MeshAttributeType>::GetPointIndexList() const
+DenseVector<int_max, 2> Edge_Of_PolygonMesh<ScalarType>::GetPointIndexList() const
 {
 	DenseVector<int_max, 2> PointIndexList;
 	PointIndexList[0] = m_Data->PointIndex0;
@@ -768,18 +772,18 @@ DenseVector<int_max, 2> Edge_Of_PolygonMesh<MeshAttributeType>::GetPointIndexLis
 	return PointIndexList;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-int_max Edge_Of_PolygonMesh<MeshAttributeType>::GetAdjacentEdgeCount() const
+int_max Edge_Of_PolygonMesh<ScalarType>::GetAdjacentEdgeCount() const
 {
 	const auto& AdjacentEdgeIndexList0 = m_Data->MeshData->PointList[m_Data->PointIndex0].AdjacentEdgeIndexList();
 	const auto& AdjacentEdgeIndexList1 = m_Data->MeshData->PointList[m_Data->PointIndex1].AdjacentEdgeIndexList();
 	return AdjacentEdgeIndexList0.GetLength() + AdjacentEdgeIndexList1.GetLength() - 2;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-DenseVector<int_max> Edge_Of_PolygonMesh<MeshAttributeType>::GetAdjacentEdgeIndexList() const
+DenseVector<int_max> Edge_Of_PolygonMesh<ScalarType>::GetAdjacentEdgeIndexList() const
 {
 	const auto& AdjacentEdgeIndexList0 = m_Data->MeshData->PointList[m_Data->PointIndex0].GetAdjacentEdgeIndexList();
 	const auto& AdjacentEdgeIndexList1 = m_Data->MeshData->PointList[m_Data->PointIndex1].GetAdjacentEdgeIndexList();
@@ -808,24 +812,24 @@ DenseVector<int_max> Edge_Of_PolygonMesh<MeshAttributeType>::GetAdjacentEdgeInde
 	return OutputIndexList;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-int_max Edge_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceCount() const
+int_max Edge_Of_PolygonMesh<ScalarType>::GetAdjacentFaceCount() const
 {
 	return m_Data->AdjacentFaceIndexList.GetLength();
 }
 
 // Face share this edge
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-DenseVector<int_max> Edge_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceIndexList() const
+DenseVector<int_max> Edge_Of_PolygonMesh<ScalarType>::GetAdjacentFaceIndexList() const
 {
 	return m_Data->AdjacentFaceIndexList;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-int_max Edge_Of_PolygonMesh<MeshAttributeType>::GetNeighborFaceCount() const
+int_max Edge_Of_PolygonMesh<ScalarType>::GetNeighborFaceCount() const
 {
 	// wrong, may share more than 2 face
 	//auto Counter0 = m_Data->MeshData->PointList[m_Data->PointIndex0].GetAdjacentFaceCount();
@@ -837,9 +841,9 @@ int_max Edge_Of_PolygonMesh<MeshAttributeType>::GetNeighborFaceCount() const
 }
 
 // Face share any  point of this edge
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-DenseVector<int_max> Edge_Of_PolygonMesh<MeshAttributeType>::GetNeighborFaceIndexList() const
+DenseVector<int_max> Edge_Of_PolygonMesh<ScalarType>::GetNeighborFaceIndexList() const
 {
 	DenseVector<int_max> OutputIndexList;
 
@@ -869,52 +873,52 @@ DenseVector<int_max> Edge_Of_PolygonMesh<MeshAttributeType>::GetNeighborFaceInde
 	return OutputIndexList;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline 
-typename MeshAttributeType::EdgeAttributeType& Edge_Of_PolygonMesh<MeshAttributeType>::Attribute()
+typename StandardAttribute_Of_Edge_Of_PolygonMesh<ScalarType>& Edge_Of_PolygonMesh<ScalarType>::Attribute()
 {
     return m_Data->Attribute;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-const typename MeshAttributeType::EdgeAttributeType& Edge_Of_PolygonMesh<MeshAttributeType>::Attribute() const
+const StandardAttribute_Of_Edge_Of_PolygonMesh<ScalarType>& Edge_Of_PolygonMesh<ScalarType>::Attribute() const
 {
     return m_Data->Attribute;
 }
 
 //=========================================================== Face_Of_PolygonMesh ===========================================================//
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-Face_Of_PolygonMesh<MeshAttributeType>::Face_Of_PolygonMesh()
+Face_Of_PolygonMesh<ScalarType>::Face_Of_PolygonMesh()
 {
 	this->ReCreate();
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-Face_Of_PolygonMesh<MeshAttributeType>::Face_Of_PolygonMesh(const Face_Of_PolygonMesh<MeshAttributeType>& InputFace)
+Face_Of_PolygonMesh<ScalarType>::Face_Of_PolygonMesh(const Face_Of_PolygonMesh<ScalarType>& InputFace)
 {
     (*this) = InputFace;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-Face_Of_PolygonMesh<MeshAttributeType>::Face_Of_PolygonMesh(Face_Of_PolygonMesh<MeshAttributeType>&& InputFace)
+Face_Of_PolygonMesh<ScalarType>::Face_Of_PolygonMesh(Face_Of_PolygonMesh<ScalarType>&& InputFace)
 {
     m_Data = std::move(InputFace.m_Data);
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-Face_Of_PolygonMesh<MeshAttributeType>::~Face_Of_PolygonMesh()
+Face_Of_PolygonMesh<ScalarType>::~Face_Of_PolygonMesh()
 {
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Face_Of_PolygonMesh<MeshAttributeType>::operator=(const Face_Of_PolygonMesh<MeshAttributeType>& InputFace)
+void Face_Of_PolygonMesh<ScalarType>::operator=(const Face_Of_PolygonMesh<ScalarType>& InputFace)
 {
     if (!InputFace.m_Data)
     {
@@ -924,9 +928,10 @@ void Face_Of_PolygonMesh<MeshAttributeType>::operator=(const Face_Of_PolygonMesh
 
 	if (!m_Data)
 	{
-		m_Data = std::make_unique<Data_Of_Face_Of_PolygonMesh<MeshAttributeType>>();
+		m_Data = std::make_unique<Data_Of_Face_Of_PolygonMesh<ScalarType>>();
 	}
 
+	m_Data->MeshData_w = InputFace.m_Data->MeshData_w;
     m_Data->MeshData = InputFace.m_Data->MeshData;
     m_Data->Index = InputFace.m_Data->Index;
     m_Data->ID = InputFace.m_Data->ID;
@@ -936,21 +941,22 @@ void Face_Of_PolygonMesh<MeshAttributeType>::operator=(const Face_Of_PolygonMesh
     m_Data->Attribute = InputFace.m_Data->Attribute;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Face_Of_PolygonMesh<MeshAttributeType>::operator=(Face_Of_PolygonMesh<MeshAttributeType>&& InputFace)
+void Face_Of_PolygonMesh<ScalarType>::operator=(Face_Of_PolygonMesh<ScalarType>&& InputFace)
 {
     m_Data = std::move(InputFace.m_Data);
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Face_Of_PolygonMesh<MeshAttributeType>::ReCreate()
+void Face_Of_PolygonMesh<ScalarType>::ReCreate()
 {
     if (!m_Data)
     {
-        m_Data = std::make_unique<Data_Of_Face_Of_PolygonMesh<MeshAttributeType>>();
+        m_Data = std::make_unique<Data_Of_Face_Of_PolygonMesh<ScalarType>>();
     }    
+	m_Data->MeshData_w.reset();
 	m_Data->MeshData = nullptr;
     m_Data->Index = -1;
     m_Data->ID = -1;
@@ -960,58 +966,58 @@ void Face_Of_PolygonMesh<MeshAttributeType>::ReCreate()
     m_Data->Attribute.Clear();
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Face_Of_PolygonMesh<MeshAttributeType>::Clear(const MDK_Symbol_PureEmpty&)
+void Face_Of_PolygonMesh<ScalarType>::Clear(const MDK_Symbol_PureEmpty&)
 {
     m_Data.reset();
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Face_Of_PolygonMesh<MeshAttributeType>::SetParentMesh(PolygonMesh<MeshAttributeType>& ParentMesh)
+void Face_Of_PolygonMesh<ScalarType>::SetParentMesh(PolygonMesh<ScalarType>& ParentMesh)
 {
 	m_Data->MeshData = ParentMesh.m_MeshData.get();
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Face_Of_PolygonMesh<MeshAttributeType>::SetIndex(int_max FaceIndex)
+void Face_Of_PolygonMesh<ScalarType>::SetIndex(int_max FaceIndex)
 {
     m_Data->Index = FaceIndex;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-DenseVector<int_max>& Face_Of_PolygonMesh<MeshAttributeType>::PointIndexList()
+DenseVector<int_max>& Face_Of_PolygonMesh<ScalarType>::PointIndexList()
 {
 	return m_Data->PointIndexList;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-const DenseVector<int_max>& Face_Of_PolygonMesh<MeshAttributeType>::PointIndexList() const
+const DenseVector<int_max>& Face_Of_PolygonMesh<ScalarType>::PointIndexList() const
 {
 	return m_Data->PointIndexList;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-DenseVector<int_max>& Face_Of_PolygonMesh<MeshAttributeType>::EdgeIndexList()
+DenseVector<int_max>& Face_Of_PolygonMesh<ScalarType>::EdgeIndexList()
 {
 	return m_Data->EdgeIndexList;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-const DenseVector<int_max>& Face_Of_PolygonMesh<MeshAttributeType>::EdgeIndexList() const
+const DenseVector<int_max>& Face_Of_PolygonMesh<ScalarType>::EdgeIndexList() const
 {
 	return m_Data->EdgeIndexList;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-bool Face_Of_PolygonMesh<MeshAttributeType>::IsValid() const
+bool Face_Of_PolygonMesh<ScalarType>::IsValid() const
 {
     if (!m_Data)
     {
@@ -1028,30 +1034,16 @@ bool Face_Of_PolygonMesh<MeshAttributeType>::IsValid() const
     return true;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-PolygonMesh<MeshAttributeType>& Face_Of_PolygonMesh<MeshAttributeType>::GetParentMesh()
-{
-    return m_Data->Mesh;
-}
-
-template<typename MeshAttributeType>
-inline
-const PolygonMesh<MeshAttributeType>& Face_Of_PolygonMesh<MeshAttributeType>::GetParentMesh() const
-{
-    return m_Data->Mesh;
-}
-
-template<typename MeshAttributeType>
-inline
-int_max Face_Of_PolygonMesh<MeshAttributeType>::GetIndex() const
+int_max Face_Of_PolygonMesh<ScalarType>::GetIndex() const
 {
 	return m_Data->Index;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Face_Of_PolygonMesh<MeshAttributeType>::SetID(int_max FaceID)
+void Face_Of_PolygonMesh<ScalarType>::SetID(int_max FaceID)
 {
     if (FaceID < 0)
     {
@@ -1081,9 +1073,9 @@ void Face_Of_PolygonMesh<MeshAttributeType>::SetID(int_max FaceID)
     }
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Face_Of_PolygonMesh<MeshAttributeType>::EraseID()
+void Face_Of_PolygonMesh<ScalarType>::EraseID()
 {
     if (m_Data->ID >= 0)
     {
@@ -1097,16 +1089,16 @@ void Face_Of_PolygonMesh<MeshAttributeType>::EraseID()
     }
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline 
-int_max Face_Of_PolygonMesh<MeshAttributeType>::GetID() const
+int_max Face_Of_PolygonMesh<ScalarType>::GetID() const
 {
     return m_Data->ID;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Face_Of_PolygonMesh<MeshAttributeType>::SetName(String FaceName)
+void Face_Of_PolygonMesh<ScalarType>::SetName(String FaceName)
 {
 	if (!m_Data)
 	{
@@ -1124,77 +1116,91 @@ void Face_Of_PolygonMesh<MeshAttributeType>::SetName(String FaceName)
 	auto FaceName_old = m_Data->Name;
 	if (FaceName_old != FaceName)
 	{
-		auto it = m_Data->MeshData->Map_FaceName_to_FaceIndex.find(FaceName);
-		if (it != m_Data->MeshData->Map_FaceName_to_FaceIndex.end())
+		auto it = m_Data->MeshData->Map_Face_Name_to_Index.find(FaceName);
+		if (it != m_Data->MeshData->Map_Face_Name_to_Index.end())
 		{
 			MDK_Error("Input FaceName has already been used for another cell @ Face_Of_PolygonMesh::SetName(...)")
 			return;
 		}
 
-		it = m_Data->MeshData->Map_FaceName_to_FaceIndex.find(FaceName_old);
-		if (it != m_Data->MeshData->Map_FaceName_to_FaceIndex.end())
+		it = m_Data->MeshData->Map_Face_Name_to_Index.find(FaceName_old);
+		if (it != m_Data->MeshData->Map_Face_Name_to_Index.end())
 		{
-			m_Data->MeshData->Map_FaceName_to_FaceIndex.erase(it);
+			m_Data->MeshData->Map_Face_Name_to_Index.erase(it);
 		}
 
-		m_Data->MeshData->Map_FaceName_to_FaceIndex[FaceName] = m_Data->Index;
+		m_Data->MeshData->Map_Face_Name_to_Index[FaceName] = m_Data->Index;
 		m_Data->Name = std::move(FaceName);
 	}
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Face_Of_PolygonMesh<MeshAttributeType>::EraseName()
+void Face_Of_PolygonMesh<ScalarType>::EraseName()
 {
 	if (m_Data->Name.IsEmpty() == false)
 	{
-		auto it = m_Data->MeshData->Map_FaceName_to_FaceIndex.find(m_Data->Name);
-		if (it != m_Data->MeshData->Map_FaceName_to_FaceIndex.end())
+		auto it = m_Data->MeshData->Map_Face_Name_to_Index.find(m_Data->Name);
+		if (it != m_Data->MeshData->Map_Face_Name_to_Index.end())
 		{
-			m_Data->MeshData->Map_FaceName_to_FaceIndex.erase(it);
+			m_Data->MeshData->Map_Face_Name_to_Index.erase(it);
 		}
 
 		m_Data->Name.Clear();
 	}
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-String Face_Of_PolygonMesh<MeshAttributeType>::GetName() const
+String Face_Of_PolygonMesh<ScalarType>::GetName() const
 {
 	return m_Data->Name;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
+inline void Face_Of_PolygonMesh<ScalarType>::SetData(int_max Index, const DenseVector<ScalarType>& Data)
+{
+	m_Data->MeshData->FaceDataSet[Index].SetCol(m_Data->Index, Data);
+}
+
+template<typename ScalarType>
+inline DenseVector<ScalarType> Face_Of_PolygonMesh<ScalarType>::GetData(int_max Index) const
+{
+	DenseVector<ScalarType> Data;
+	m_Data->MeshData->FaceDataSet[Index].GetCol(m_Data->Index, Data);
+	return Data;
+}
+
+template<typename ScalarType>
 inline
-int_max Face_Of_PolygonMesh<MeshAttributeType>::GetPointCount() const
+int_max Face_Of_PolygonMesh<ScalarType>::GetPointCount() const
 {
 	return m_Data->PointIndexList.GetLength();
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-DenseVector<int_max> Face_Of_PolygonMesh<MeshAttributeType>::GetPointIndexList() const
+DenseVector<int_max> Face_Of_PolygonMesh<ScalarType>::GetPointIndexList() const
 {
 	return m_Data->PointIndexList;
 }
 
-template<typename MeshAttributeType>
-inline int_max Face_Of_PolygonMesh<MeshAttributeType>::GetEdgeCount() const
+template<typename ScalarType>
+inline int_max Face_Of_PolygonMesh<ScalarType>::GetEdgeCount() const
 {
 	return m_Data->EdgeIndexList.GetLength();
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-DenseVector<int_max> Face_Of_PolygonMesh<MeshAttributeType>::GetEdgeIndexList() const
+DenseVector<int_max> Face_Of_PolygonMesh<ScalarType>::GetEdgeIndexList() const
 {
 	return m_Data->EdgeIndexList;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-int_max Face_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceCount() const
+int_max Face_Of_PolygonMesh<ScalarType>::GetAdjacentFaceCount() const
 {
 	int_max Counter = 0;
 	for (int_max k = 0; k < m_Data->EdgeIndexList.GetLength(); ++k)
@@ -1205,9 +1211,9 @@ int_max Face_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceCount() const
 	return Counter;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-DenseVector<int_max> Face_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceIndexList() const
+DenseVector<int_max> Face_Of_PolygonMesh<ScalarType>::GetAdjacentFaceIndexList() const
 {
 	DenseVector<int_max> OutputIndexList;
 	OutputIndexList.SetCapacity(m_Data->EdgeIndexList.GetLength());
@@ -1226,17 +1232,17 @@ DenseVector<int_max> Face_Of_PolygonMesh<MeshAttributeType>::GetAdjacentFaceInde
 	return OutputIndexList;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-int_max Face_Of_PolygonMesh<MeshAttributeType>::GetNeighborFaceCount() const
+int_max Face_Of_PolygonMesh<ScalarType>::GetNeighborFaceCount() const
 {// share a vertex point
 	auto IndexList = this->GetNeighborFaceIndexList();
 	return IndexList.GetLength();
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-DenseVector<int_max> Face_Of_PolygonMesh<MeshAttributeType>::GetNeighborFaceIndexList() const
+DenseVector<int_max> Face_Of_PolygonMesh<ScalarType>::GetNeighborFaceIndexList() const
 {
 	DenseVector<int_max> OutputIndexList;
 	OutputIndexList.SetCapacity(6);
@@ -1256,23 +1262,23 @@ DenseVector<int_max> Face_Of_PolygonMesh<MeshAttributeType>::GetNeighborFaceInde
 	return OutputIndexList;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline 
-typename MeshAttributeType::FaceAttributeType& Face_Of_PolygonMesh<MeshAttributeType>::Attribute()
+typename StandardAttribute_Of_Face_Of_PolygonMesh<ScalarType>& Face_Of_PolygonMesh<ScalarType>::Attribute()
 {
     return m_Data->Attribute;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-const typename MeshAttributeType::FaceAttributeType& Face_Of_PolygonMesh<MeshAttributeType>::Attribute() const
+const StandardAttribute_Of_Face_Of_PolygonMesh<ScalarType>& Face_Of_PolygonMesh<ScalarType>::Attribute() const
 {
     return m_Data->Attribute;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-int_max Face_Of_PolygonMesh<MeshAttributeType>::GetRelativeIndexOfPoint(int_max PointIndex) const
+int_max Face_Of_PolygonMesh<ScalarType>::GetRelativeIndexOfPoint(int_max PointIndex) const
 {
 	for (int_max k = 0; k < m_Data->PointIndexList.GetLength(); ++k)
 	{
@@ -1284,9 +1290,9 @@ int_max Face_Of_PolygonMesh<MeshAttributeType>::GetRelativeIndexOfPoint(int_max 
 	return -1;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-int_max Face_Of_PolygonMesh<MeshAttributeType>::GetEdgeIndexByPoint(int_max PointIndexA, int_max PointIndexB) const
+int_max Face_Of_PolygonMesh<ScalarType>::GetEdgeIndexByPoint(int_max PointIndexA, int_max PointIndexB) const
 {
 	int_max tempIndexA = -1;
 	int_max tempIndexB = -1;
@@ -1324,8 +1330,8 @@ int_max Face_Of_PolygonMesh<MeshAttributeType>::GetEdgeIndexByPoint(int_max Poin
 	return EdgeIndex;
 }
 
-template<typename MeshAttributeType>
-bool Face_Of_PolygonMesh<MeshAttributeType>::CheckPointOrder(int_max PointIndexA, int_max PointIndexB) const
+template<typename ScalarType>
+bool Face_Of_PolygonMesh<ScalarType>::CheckPointOrder(int_max PointIndexA, int_max PointIndexB) const
 {// true: A -> B ; false: B->A
 	int_max tempIndexA = -1;
 	int_max tempIndexB = -1;
@@ -1356,9 +1362,9 @@ bool Face_Of_PolygonMesh<MeshAttributeType>::CheckPointOrder(int_max PointIndexA
 	}
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-DenseVector<int_max> Face_Of_PolygonMesh<MeshAttributeType>::GetPointIndexList_LeadBy(int_max PointIndexA) const
+DenseVector<int_max> Face_Of_PolygonMesh<ScalarType>::GetPointIndexList_LeadBy(int_max PointIndexA) const
 {// output list {PointIndexA, ...}	
 	int_max tempIndexA = -1;
 	for (int_max k = 0; k < m_Data->PointIndexList.GetLength(); ++k)
@@ -1398,9 +1404,9 @@ DenseVector<int_max> Face_Of_PolygonMesh<MeshAttributeType>::GetPointIndexList_L
 	return PointIndexList_output;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-DenseVector<int_max> Face_Of_PolygonMesh<MeshAttributeType>::GetPointIndexList_LeadBy(int_max PointIndexA, int_max PointIndexB) const
+DenseVector<int_max> Face_Of_PolygonMesh<ScalarType>::GetPointIndexList_LeadBy(int_max PointIndexA, int_max PointIndexB) const
 {// output Index list {PointIndexA, PointIndexB, ...}
 
 	auto PointIndexListA = this->GetPointIndexList_LeadBy(PointIndexA);
@@ -1430,9 +1436,9 @@ DenseVector<int_max> Face_Of_PolygonMesh<MeshAttributeType>::GetPointIndexList_L
 	return PointIndexList_output;
 }
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 inline
-void Face_Of_PolygonMesh<MeshAttributeType>::ReversePointOrder()
+void Face_Of_PolygonMesh<ScalarType>::ReversePointOrder()
 {
 	auto PointIndexList_old = m_Data->PointIndexList;
 	auto L = PointIndexList_old.GetLength();

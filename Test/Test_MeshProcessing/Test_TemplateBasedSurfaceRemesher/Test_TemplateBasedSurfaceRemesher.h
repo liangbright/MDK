@@ -10,7 +10,7 @@ void Test_0()
 	String TestDataPath = "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_TemplateBasedSurfaceRemesher/TestData/";
 
 	TemplateBasedSurfaceRemesher<double> Remesher;
-	LoadTriangleMeshFromVTKFile(Remesher.Input.SourceMesh, TestDataPath + "Leaflet0.vtk");
+	LoadPolygonMeshFromVTKFile(Remesher.Input.SourceMesh, TestDataPath + "Leaflet0.vtk");
 	LoadPolygonMeshFromVTKFile(Remesher.Input.TemplateMesh, TestDataPath + "Template.vtk");
 
 	DenseVector<int_max> UpperBoundary_input, LowerBoundary_input, UpperBoundary_template, LowerBounary_template;
@@ -38,7 +38,7 @@ void Test_1()
 	String TestDataPath = "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_TemplateBasedSurfaceRemesher/TestData/";
 
 	TemplateBasedSurfaceRemesher<double> Remesher;
-	LoadTriangleMeshFromVTKFile(Remesher.Input.SourceMesh, TestDataPath + "Leaflet.vtk");
+	LoadPolygonMeshFromVTKFile(Remesher.Input.SourceMesh, TestDataPath + "Leaflet.vtk");
 	LoadPolygonMeshFromVTKFile(Remesher.Input.TemplateMesh, TestDataPath + "Template.vtk");
 
 	DenseVector<int_max> UpperBoundary_input, LowerBoundary_input, UpperBoundary_template, LowerBounary_template;
@@ -65,7 +65,7 @@ void Test_2()
 	String TestDataPath = "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_TemplateBasedSurfaceRemesher/TestData/";
 
 	TemplateBasedSurfaceRemesher<double> Remesher;
-	LoadTriangleMeshFromVTKFile(Remesher.Input.SourceMesh, TestDataPath + "Sinus.vtk");
+	LoadPolygonMeshFromVTKFile(Remesher.Input.SourceMesh, TestDataPath + "Sinus.vtk");
 	LoadPolygonMeshFromVTKFile(Remesher.Input.TemplateMesh, TestDataPath + "Template.vtk");
 
 	DenseVector<int_max> UpperBoundary_input, LowerBoundary_input, UpperBoundary_template, LowerBounary_template;
@@ -92,7 +92,7 @@ void Test_a()
 	String TestDataPath = "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_TemplateBasedSurfaceRemesher/TestData/";
 
 	TemplateBasedSurfaceRemesher<double> Remesher;
-	LoadTriangleMeshFromVTKFile(Remesher.Input.SourceMesh, TestDataPath + "Leaflet_a.vtk");
+	LoadPolygonMeshFromVTKFile(Remesher.Input.SourceMesh, TestDataPath + "Leaflet_a.vtk");
 	LoadPolygonMeshFromVTKFile(Remesher.Input.TemplateMesh, TestDataPath + "Template.vtk");
 
 	DenseVector<int_max> UpperBoundary_input, LowerBoundary_input, UpperBoundary_template, LowerBounary_template;
@@ -140,7 +140,7 @@ void test_hole()
 	String TestDataPath = "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_TemplateBasedSurfaceRemesher/TestData/";
 
 	TemplateBasedSurfaceRemesher<double> Remesher;
-	LoadTriangleMeshFromVTKFile(Remesher.Input.SourceMesh, TestDataPath + "sphere_hole.vtk");
+	LoadPolygonMeshFromVTKFile(Remesher.Input.SourceMesh, TestDataPath + "sphere_hole.vtk");
 	LoadPolygonMeshFromVTKFile(Remesher.Input.TemplateMesh, TestDataPath + "disk_hole.vtk");
 
 	DenseVector<int_max> OuterBoundary_input, InnerBoundary_input, LandMark_input, OuterBoundary_template, InnerBounary_template, LandMark_template;
@@ -174,7 +174,8 @@ void test_tube()
 	String TestDataPath = "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_TemplateBasedSurfaceRemesher/TestData/";
 
 	TemplateBasedSurfaceRemesher<double> Remesher;
-	LoadTriangleMeshFromVTKFile(Remesher.Input.SourceMesh, TestDataPath + "62_AortaModel_Pimg.vtk");
+	LoadPolygonMeshFromVTKFile(Remesher.Input.SourceMesh, TestDataPath + "62_AortaModel_Pimg.vtk");
+	Remesher.Input.SourceMesh=ConvertQuadMeshToTriangleMesh(Remesher.Input.SourceMesh);
 	LoadPolygonMeshFromVTKFile(Remesher.Input.TemplateMesh, TestDataPath + "disk_hole.vtk");
 
 	DenseVector<int_max> OuterBoundary_input, InnerBoundary_input, LandMark_input, OuterBoundary_template, InnerBounary_template, LandMark_template;
@@ -204,7 +205,7 @@ void test_tube()
 void Test_template()
 {
 	String TestDataPath = "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_TemplateBasedSurfaceRemesher/TestData/";
-	PolygonMesh<PolygonMeshStandardAttributeType<double>> Template;
+	PolygonMesh<double> Template;
 	LoadPolygonMeshFromVTKFile(Template, TestDataPath + "Template.vtk");
 
 	DenseVector<int_max> FreeEdge = { span(25, 0), span(705, 729) };

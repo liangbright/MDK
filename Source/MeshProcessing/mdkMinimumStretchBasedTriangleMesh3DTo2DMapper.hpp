@@ -107,7 +107,7 @@ void MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType>::Update()
 
 
 template<typename ScalarType>
-ObjectArray<SparseVector<ScalarType>> MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType>::ComputeWeightMatrix_MeanValue(const TriangleMesh<MeshAttributeType>& TargetMesh)
+ObjectArray<SparseVector<ScalarType>> MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType>::ComputeWeightMatrix_MeanValue(const TriangleMesh<ScalarType>& TargetMesh)
 {
 	auto PointCount_boundary = Input.BoundaryPointIndexList.GetLength();
 	auto PointCount_inner = Internal.InnerPointIndexList.GetLength();
@@ -130,7 +130,7 @@ ObjectArray<SparseVector<ScalarType>> MinimumStretchBasedTriangleMesh3DTo2DMappe
 }
 
 template<typename ScalarType>
-ScalarType MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType>::ComputeWeight_MeanValue(const TriangleMesh<MeshAttributeType>& TargetMesh, int_max PointH0, int_max PointH1)
+ScalarType MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType>::ComputeWeight_MeanValue(const TriangleMesh<ScalarType>& TargetMesh, int_max PointH0, int_max PointH1)
 {
 	// Weight_0_1 != Weight_1_0
 	//

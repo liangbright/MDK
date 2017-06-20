@@ -10,12 +10,10 @@ namespace mdk
 {
 //paper:Shin Yoshizawa Alexander Belyaev Hans-Peter Seidel, "A fast and simple stretch-minimizing mesh parameterization"
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 struct Input_of_MinimumStretchBasedTriangleMesh3DTo2DMapper
 {
-	typedef typename MeshAttributeType::ScalarType ScalarType;
-
-	TriangleMesh<MeshAttributeType> SourceMesh;
+	TriangleMesh<ScalarType> SourceMesh;
 
 	DenseVector<int_max> BoundaryPointIndexList;
 	// boundary point index in SourceMesh
@@ -50,10 +48,10 @@ struct Internal_of_MinimumStretchBasedTriangleMesh3DTo2DMapper
 	//Map_PointIndex_to_Boundary[PointIndex] is Index in BoundaryPointIndexList
 };
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 struct Output_of_MinimumStretchBasedTriangleMesh3DTo2DMapper
 {
-	TriangleMesh<MeshAttributeType> ParameterizedSourceMesh;// [x,y,z]->[u,v,0]
+	TriangleMesh<ScalarType> ParameterizedSourceMesh;// [x,y,z]->[u,v,0]
 };
 
 
@@ -62,14 +60,13 @@ class MinimumStretchBasedTriangleMesh3DTo2DMapper : public Object
 {
 public:
 	typedef Scalar_Type ScalarType;
-	typedef typename TriangleMeshStandardAttributeType<ScalarType> MeshAttributeType;	
 
 public:
-	Input_of_MinimumStretchBasedTriangleMesh3DTo2DMapper<MeshAttributeType> Input;	
+	Input_of_MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType> Input;
 private:
 	Internal_of_MinimumStretchBasedTriangleMesh3DTo2DMapper Internal;
 public:
-	Output_of_MinimumStretchBasedTriangleMesh3DTo2DMapper<MeshAttributeType> Output;	
+	Output_of_MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType> Output;
 
 public:
 	MinimumStretchBasedTriangleMesh3DTo2DMapper();
@@ -81,8 +78,8 @@ private:
 	bool CheckInput();
 	void Preprocess();
 	
-	ObjectArray<SparseVector<ScalarType>> ComputeWeightMatrix_MeanValue(const TriangleMesh<MeshAttributeType>& TargetMesh);
-	ScalarType ComputeWeight_MeanValue(const TriangleMesh<MeshAttributeType>& TargetMesh, int_max PointH0, int_max PointH1);
+	ObjectArray<SparseVector<ScalarType>> ComputeWeightMatrix_MeanValue(const TriangleMesh<ScalarType>& TargetMesh);
+	ScalarType ComputeWeight_MeanValue(const TriangleMesh<ScalarType>& TargetMesh, int_max PointH0, int_max PointH1);
 
 	void ApplyStretchMinimizationBasedParameterization();
 

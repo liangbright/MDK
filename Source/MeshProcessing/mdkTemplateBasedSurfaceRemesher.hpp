@@ -512,7 +512,7 @@ DenseVector<ScalarType> TemplateBasedSurfaceRemesher<ScalarType>::ComputeCumulat
 
 
 template<typename ScalarType>
-DenseVector<int_max, 3> TemplateBasedSurfaceRemesher<ScalarType>::Find3PointOfNearestFace(const DenseVector<ScalarType, 3>& Point, const TriangleMesh<InputMeshAttribute>& TargetMesh)
+DenseVector<int_max, 3> TemplateBasedSurfaceRemesher<ScalarType>::Find3PointOfNearestFace(const DenseVector<ScalarType, 3>& Point, const TriangleMesh<ScalarType>& TargetMesh)
 {
 	DenseVector<int_max, 3> PointIndexList_nearest;
     //-----------------------------------------------//

@@ -3,8 +3,8 @@
 namespace mdk
 {
 
-template<typename MeshAttributeTypeA, typename MeshAttributeTypeB>
-void ConvertPolygonMeshToTriangleMesh(const PolygonMesh<MeshAttributeTypeA>& InputMesh, TriangleMesh<MeshAttributeTypeB>& OutputMesh)
+template<typename ScalarType>
+void ConvertPolygonMeshToTriangleMesh(const PolygonMesh<ScalarType>& InputMesh, TriangleMesh<ScalarType>& OutputMesh)
 {
 	if (InputMesh.IsEmpty() == true)
 	{
@@ -14,7 +14,7 @@ void ConvertPolygonMeshToTriangleMesh(const PolygonMesh<MeshAttributeTypeA>& Inp
 
 	if (InputMesh.CheckIfTriangleMesh() == true)
 	{
-		typedef MeshAttributeTypeA::ScalarType ScalarType;
+		typedef ScalarTypeA::ScalarType ScalarType;
 		DenseMatrix<ScalarType> PointPositionMatrix;
 		ObjectArray<DenseVector<int_max>> FaceTable;
 		InputMesh.GetPointPositionMatrixAndFaceTable(PointPositionMatrix, FaceTable);
@@ -49,34 +49,32 @@ void ConvertPolygonMeshToTriangleMesh(const PolygonMesh<MeshAttributeTypeA>& Inp
 	}
 }
 
-template<typename MeshAttributeType>
-DenseVector<int_max> TraceMeshBoundaryCurve(const TriangleMesh<MeshAttributeType>& TargetMesh, int_max PointIndex_start)
+template<typename ScalarType>
+DenseVector<int_max> TraceMeshBoundaryCurve(const TriangleMesh<ScalarType>& TargetMesh, int_max PointIndex_start)
 {
-    const PolygonMesh<MeshAttributeType>& TargetMesh_ref = TargetMesh;
+    const PolygonMesh<ScalarType>& TargetMesh_ref = TargetMesh;
     return TraceMeshBoundaryCurve(TargetMesh_ref, PointIndex_start);
 }
 
-template<typename MeshAttributeType>
-ObjectArray<DenseVector<int_max>> TraceMeshBoundaryCurve(const TriangleMesh<MeshAttributeType>& TargetMesh)
+template<typename ScalarType>
+ObjectArray<DenseVector<int_max>> TraceMeshBoundaryCurve(const TriangleMesh<ScalarType>& TargetMesh)
 {
-    const PolygonMesh<MeshAttributeType>& TargetMesh_ref = TargetMesh;
+    const PolygonMesh<ScalarType>& TargetMesh_ref = TargetMesh;
     return TraceMeshBoundaryCurve(TargetMesh_ref);
 }
 
-template<typename MeshAttributeType>
-int_max FindNearestPointOnMesh(const TriangleMesh<MeshAttributeType>& TargetMesh, const DenseVector<typename MeshAttributeType::ScalarType, 3>& PointPosition)
+template<typename ScalarType>
+int_max FindNearestPointOnMesh(const TriangleMesh<ScalarType>& TargetMesh, const DenseVector<typename ScalarType::ScalarType, 3>& PointPosition)
 {
-    const PolygonMesh<MeshAttributeType>& TargetMesh_ref = TargetMesh;
+    const PolygonMesh<ScalarType>& TargetMesh_ref = TargetMesh;
     return FindNearestPointOnMesh(TargetMesh_ref, PointPosition);
 }
 
 
-template<typename MeshAttributeType>
-TriangleMesh<MeshAttributeType> SubdivideTriangleMesh_Linear(const TriangleMesh<MeshAttributeType>& InputMesh)
+template<typename ScalarType>
+TriangleMesh<ScalarType> SubdivideTriangleMesh_Linear(const TriangleMesh<ScalarType>& InputMesh)
 {
-	typedef typename MeshAttributeType::ScalarType ScalarType;
-	//----------------------------------------------------------------------------//
-	TriangleMesh<MeshAttributeType> OutputMesh;
+	TriangleMesh<ScalarType> OutputMesh;
 	
 	auto PointCount_input = InputMesh.GetPointCount();
 	auto EdgeCount_input = InputMesh.GetEdgeCount();
@@ -147,10 +145,10 @@ TriangleMesh<MeshAttributeType> SubdivideTriangleMesh_Linear(const TriangleMesh<
 }
 
 
-template<typename MeshAttributeType>
-TriangleMesh<MeshAttributeType> SubdivideTriangleMesh_Linear(const TriangleMesh<MeshAttributeType>& InputMesh, int_max SubdivisionNumber)
+template<typename ScalarType>
+TriangleMesh<ScalarType> SubdivideTriangleMesh_Linear(const TriangleMesh<ScalarType>& InputMesh, int_max SubdivisionNumber)
 {
-	TriangleMesh<MeshAttributeType> OutputMesh;
+	TriangleMesh<ScalarType> OutputMesh;
 	if (SubdivisionNumber <= 0)
 	{
 		MDK_Error(" SubdivisionNumber <=0 @ SubdivideTriangleMesh_Linear(...,...)")
@@ -167,8 +165,8 @@ TriangleMesh<MeshAttributeType> SubdivideTriangleMesh_Linear(const TriangleMesh<
 }
 
 
-template<typename MeshAttributeType>
-TriangleMesh<MeshAttributeType> SubdivideTriangleMeshByVTKLinearSubdivisionFilter(const TriangleMesh<MeshAttributeType>& TargetMesh, int_max SubdivisionCount)
+template<typename ScalarType>
+TriangleMesh<ScalarType> SubdivideTriangleMeshByVTKLinearSubdivisionFilter(const TriangleMesh<ScalarType>& TargetMesh, int_max SubdivisionCount)
 {
 	auto VTKMesh = ConvertMDKTriangleMeshToVTKPolyData(TargetMesh);
 
@@ -178,45 +176,43 @@ TriangleMesh<MeshAttributeType> SubdivideTriangleMeshByVTKLinearSubdivisionFilte
 	subdivisionFilter->Update();
 	auto VTKMesh_new = subdivisionFilter->GetOutput();
 
-	TriangleMesh<MeshAttributeType> OutputMesh;
+	TriangleMesh<ScalarType> OutputMesh;
 	ConvertVTKPolyDataToMDKTriangleMesh(VTKMesh_new, OutputMesh);
 	return OutputMesh;
 }
 
 
-template<typename MeshAttributeType>
-TriangleMesh<MeshAttributeType> SimplifyTriangleMeshByVTKDecimatePro(const TriangleMesh<MeshAttributeType>& TargetMesh, double TargetReduction)
+template<typename ScalarType>
+TriangleMesh<ScalarType> SimplifyTriangleMeshByVTKDecimatePro(const TriangleMesh<ScalarType>& TargetMesh, double TargetReduction)
 {
 	auto VTKMesh = ConvertMDKTriangleMeshToVTKPolyData(TargetMesh);
 	auto decimate = vtkSmartPointer<vtkDecimatePro>::New();
 	decimate->SetInputData(VTKMesh);
 	decimate->SetTargetReduction(TargetReduction);
 	decimate->Update();
-	TriangleMesh<MeshAttributeType> OutputMesh;
+	TriangleMesh<ScalarType> OutputMesh;
 	ConvertVTKPolyDataToMDKTriangleMesh(decimate->GetOutput(), OutputMesh);
 	return OutputMesh;
 }
 
 
-template<typename MeshAttributeType>
-TriangleMesh<MeshAttributeType> SimplifyTriangleMeshByVTKQuadricDecimation(const TriangleMesh<MeshAttributeType>& TargetMesh, double TargetReduction)
+template<typename ScalarType>
+TriangleMesh<ScalarType> SimplifyTriangleMeshByVTKQuadricDecimation(const TriangleMesh<ScalarType>& TargetMesh, double TargetReduction)
 {
 	auto VTKMesh = ConvertMDKTriangleMeshToVTKPolyData(TargetMesh);
 	auto decimate = vtkSmartPointer<vtkQuadricDecimation>::New();
 	decimate->SetInputData(VTKMesh);
 	decimate->SetTargetReduction(TargetReduction);
 	decimate->Update();
-	TriangleMesh<MeshAttributeType> OutputMesh;
+	TriangleMesh<ScalarType> OutputMesh;
 	ConvertVTKPolyDataToMDKTriangleMesh(decimate->GetOutput(), OutputMesh);
 	return OutputMesh;
 }
 
 
-template<typename MeshAttributeType>
-void SmoothTriangleMeshByMeanCurvature(TriangleMesh<MeshAttributeType>& TargetMesh, double MaxDisplacementRatio, bool Flag_UpdateAttribute)
+template<typename ScalarType>
+void SmoothTriangleMeshByMeanCurvature(TriangleMesh<ScalarType>& TargetMesh, double MaxDisplacementRatio, bool Flag_UpdateAttribute)
 {
-	typedef typename MeshAttributeType::ScalarType ScalarType;
-
 	if (Flag_UpdateAttribute == true)
 	{
 		TargetMesh.UpdateCornerAngleOfFace();
@@ -234,11 +230,9 @@ void SmoothTriangleMeshByMeanCurvature(TriangleMesh<MeshAttributeType>& TargetMe
 	}
 }
 
-template<typename MeshAttributeType>
-void SmoothTriangleMeshByGaussianCurvature(TriangleMesh<MeshAttributeType>& TargetMesh, double MaxDisplacement, bool Flag_UpdateAttribute)
+template<typename ScalarType>
+void SmoothTriangleMeshByGaussianCurvature(TriangleMesh<ScalarType>& TargetMesh, double MaxDisplacement, bool Flag_UpdateAttribute)
 {
-	typedef typename MeshAttributeType::ScalarType ScalarType;
-
 	if (Flag_UpdateAttribute == true)
 	{
 		TargetMesh.UpdateCornerAngleOfFace();
@@ -261,29 +255,29 @@ void SmoothTriangleMeshByGaussianCurvature(TriangleMesh<MeshAttributeType>& Targ
 	}
 }
 
-template<typename MeshAttributeType>
-TriangleMesh<MeshAttributeType> SmoothMeshByVTKSmoothPolyDataFilter(const TriangleMesh<MeshAttributeType>& InputMesh, int_max MaxIter, bool Flag_FeatureEdgeSmoothing, bool Flag_BoundarySmoothing)
+template<typename ScalarType>
+TriangleMesh<ScalarType> SmoothMeshByVTKSmoothPolyDataFilter(const TriangleMesh<ScalarType>& InputMesh, int_max MaxIter, bool Flag_FeatureEdgeSmoothing, bool Flag_BoundarySmoothing)
 {
-	const PolygonMesh<MeshAttributeType>& InputMesh_ref = InputMesh;
+	const PolygonMesh<ScalarType>& InputMesh_ref = InputMesh;
 	auto OutputMesh = SmoothMeshByVTKSmoothPolyDataFilter(InputMesh_ref, MaxIter, Flag_FeatureEdgeSmoothing, Flag_BoundarySmoothing);
-	TriangleMesh<MeshAttributeType> OutputMesh_tri;
+	TriangleMesh<ScalarType> OutputMesh_tri;
 	OutputMesh_tri.Construct(std::move(OutputMesh));
 	return OutputMesh_tri;
 }
 
 
-template<typename MeshAttributeType>
-TriangleMesh<MeshAttributeType> SmoothMeshByVTKWindowedSincPolyDataFilter(const TriangleMesh<MeshAttributeType>& InputMesh, double PassBand, int_max MaxIter, bool Flag_FeatureEdgeSmoothing, bool Flag_BoundarySmoothing)
+template<typename ScalarType>
+TriangleMesh<ScalarType> SmoothMeshByVTKWindowedSincPolyDataFilter(const TriangleMesh<ScalarType>& InputMesh, double PassBand, int_max MaxIter, bool Flag_FeatureEdgeSmoothing, bool Flag_BoundarySmoothing)
 {
-	const PolygonMesh<MeshAttributeType>& InputMesh_ref = InputMesh;
+	const PolygonMesh<ScalarType>& InputMesh_ref = InputMesh;
 	auto OutputMesh = SmoothMeshByVTKWindowedSincPolyDataFilter(InputMesh_ref, PassBand, MaxIter, Flag_FeatureEdgeSmoothing, Flag_BoundarySmoothing);
-	TriangleMesh<MeshAttributeType> OutputMesh_tri;
+	TriangleMesh<ScalarType> OutputMesh_tri;
 	OutputMesh_tri.Construct(std::move(OutputMesh));
 	return OutputMesh_tri;
 }
 
-template<typename MeshAttributeType>
-void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<MeshAttributeType>& TargetMesh, int_max MaxIter, double Alpha, bool Flag_BoundarySmoothing, bool Flag_TerminateIfTotalCurvatureIncrease)
+template<typename ScalarType>
+void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<ScalarType>& TargetMesh, int_max MaxIter, double Alpha, bool Flag_BoundarySmoothing, bool Flag_TerminateIfTotalCurvatureIncrease)
 {
 	DenseVector<int_max> PointIndexList_NOSmoothing;
 	auto PointCount = TargetMesh.GetPointCount();
@@ -302,8 +296,8 @@ void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<MeshAttributeType>& T
 }
 
 
-template<typename MeshAttributeType>
-void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<MeshAttributeType>& TargetMesh, int_max MaxIter, double Alpha, const DenseVector<int_max>& PointIndexList_NOSmoothing, bool Flag_TerminateIfTotalCurvatureIncrease)
+template<typename ScalarType>
+void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<ScalarType>& TargetMesh, int_max MaxIter, double Alpha, const DenseVector<int_max>& PointIndexList_NOSmoothing, bool Flag_TerminateIfTotalCurvatureIncrease)
 {	
 	//-------------------- check input ----------------------------
 	if (TargetMesh.IsEmpty() == true)
@@ -331,9 +325,6 @@ void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<MeshAttributeType>& T
 		return;
 	}
 
-	//-------------------------------------------------------------
-
-	typedef MeshAttributeType::ScalarType ScalarType;
 	//-------------------------------------------------------------
 
 	DenseVector<int_max> PointIndexList_Smoothing;

@@ -10,34 +10,11 @@
 namespace mdk
 {
 
-//------------------------------- standard/empty MeshAttributeType -----------------------//
 template<typename ScalarType>
-struct PolygonMeshStandardAttributeType
-{
-    typedef ScalarType  ScalarType;
-	typedef GlobalStandardAttribute_Of_PolygonMesh<ScalarType>             GlobalAttribute;
-	typedef StandardAttribute_Of_Point_Of_PolygonMesh<ScalarType>          PointAttributeType;
-	typedef StandardAttribute_Of_Edge_Of_PolygonMesh<ScalarType>           EdgeAttributeType;	
-	typedef StandardAttribute_Of_Face_Of_PolygonMesh<ScalarType>           FaceAttributeType;
-};
-
-template<typename ScalarType>
-struct PolygonMeshEmptyAttributeType
-{
-	typedef ScalarType  ScalarType;
-	typedef GlobalStandardAttribute_Of_PolygonMesh<ScalarType>             GlobalAttribute;
-	typedef StandardAttribute_Of_Point_Of_PolygonMesh<ScalarType>          PointAttributeType;
-	typedef StandardAttribute_Of_Edge_Of_PolygonMesh<ScalarType>           EdgeAttributeType;	
-	typedef StandardAttribute_Of_Face_Of_PolygonMesh<ScalarType>           FaceAttributeType;
-};
-//------------------------------------------------------------------------------------------------//
-
-template<typename MeshAttributeType>
 struct PolygonMeshData
 {
     //-------------------------------------------------------------------------------------------//
-    typedef typename MeshAttributeType::ScalarType      ScalarType;
-    typedef typename MeshAttributeType::GlobalAttribute GlobalAttribute;
+    typedef typename GlobalStandardAttribute_Of_PolygonMesh<ScalarType> GlobalAttribute;
     //-------------------------------------------------------------------------------------------//
 
 	int_max ID; // ID of the mesh
@@ -49,74 +26,83 @@ struct PolygonMeshData
     // row_2: z
     // a point may or may not connect to other point by edge
 
-	StdObjectVector<Point_Of_PolygonMesh<MeshAttributeType>> PointList;
+	StdObjectVector<Point_Of_PolygonMesh<ScalarType>> PointList;
 
     DenseVector<int_max> PointValidityFlagList; // do not use bool (std::vector<bool> is compressed)
     // 1: point is an element of the mesh 
     // 0: point is deleted
 	// problem if using int8, PointValidityFlagList.Sum() will give weird result due to overflow
 
-	StdObjectVector<Edge_Of_PolygonMesh<MeshAttributeType>> EdgeList;
+	StdObjectVector<Edge_Of_PolygonMesh<ScalarType>> EdgeList;
 
     DenseVector<int_max> EdgeValidityFlagList;
     // 1: Edge is an element of the mesh 
     // 0: Edge is deleted
 
-	StdObjectVector<Face_Of_PolygonMesh<MeshAttributeType>> FaceList; // also known as face, facet, element
+	StdObjectVector<Face_Of_PolygonMesh<ScalarType>> FaceList; // also known as face, facet, element
 
     DenseVector<int_max>  FaceValidityFlagList;
     // 1: Face is an element of the mesh 
     // 0: Face is deleted
 
     // Attention: ID must >= 0
-    std::unordered_map<int_max, int_max> Map_PointID_to_PointIndex;
-    std::unordered_map<int_max, int_max> Map_EdgeID_to_EdgeIndex;
-    std::unordered_map<int_max, int_max> Map_FaceID_to_FaceIndex;
+    std::unordered_map<int_max, int_max> Map_Point_ID_to_Index;
+    std::unordered_map<int_max, int_max> Map_Edge_ID_to_Index;
+    std::unordered_map<int_max, int_max> Map_Face_ID_to_Index;
 	
-	std::unordered_map<String, int_max, StringHash<String>> Map_PointName_to_PointIndex;
-	std::unordered_map<String, int_max, StringHash<String>> Map_EdgeName_to_EdgeIndex;
-	std::unordered_map<String, int_max, StringHash<String>> Map_FaceName_to_FaceIndex;
+	std::unordered_map<String, int_max, StringHash<String>> Map_Point_Name_to_Index;
+	std::unordered_map<String, int_max, StringHash<String>> Map_Edge_Name_to_Index;
+	std::unordered_map<String, int_max, StringHash<String>> Map_Face_Name_to_Index;
 
 	StdObjectVector<DenseVector<int_max>>  PointSetList;// PointSetList[k] is PointIndexList Of a PointSet indexed by k
-	std::unordered_map<String, int_max, StringHash<String>> Map_PointSetName_to_PointSetIndex;
+	std::unordered_map<String, int_max, StringHash<String>> Map_PointSet_Name_to_Index;
 
 	StdObjectVector<DenseVector<int_max>>  EdgeSetList;// EdgeSetList[k] is EdgeIndexList Of a EdgeSet indexed by k
-	std::unordered_map<String, int_max, StringHash<String>> Map_EdgeSetName_to_EdgeSetIndex;
+	std::unordered_map<String, int_max, StringHash<String>> Map_EdgeSet_Name_to_Index;
 
 	StdObjectVector<DenseVector<int_max>>  FaceSetList; // FaceSetList[k] is FaceIndexList Of a FaceSet indexed by k
-	std::unordered_map<String, int_max, StringHash<String>> Map_FaceSetName_to_FaceSetIndex;
+	std::unordered_map<String, int_max, StringHash<String>> Map_FaceSet_Name_to_Index;
 
-    //Mesh Attribute
-    GlobalAttribute Attribute;
+	//PointDataSet[k].Col(PointIndex)
+	StdObjectVector<DenseMatrix<ScalarType>> PointDataSet;
+	std::unordered_map<String, int_max, StringHash<String>> Map_PointDataSet_Name_to_Index;
+	//EdgeDataSet[k].Col(EdgeIndex)
+	StdObjectVector<DenseMatrix<ScalarType>> EdgeDataSet;
+	std::unordered_map<String, int_max, StringHash<String>> Map_EdgeDataSet_Name_to_Index;
+	//FaceDataSet[k].Col(FaceIndex)
+	StdObjectVector<DenseMatrix<ScalarType>> FaceDataSet;	
+	std::unordered_map<String, int_max, StringHash<String>> Map_FaceDataSet_Name_to_Index;
+
+	//GlobalAttribute
+	GlobalAttribute Attribute;
 };
 
 
-template<typename MeshAttribute_Type>
+template<typename Scalar_Type>
 class PolygonMesh : public Object
 {
 public:
-	typedef MeshAttribute_Type MeshAttributeType;
+	typedef Scalar_Type ScalarType;
     //-------------------------------------------------------------------------------------------//
-    typedef typename MeshAttributeType::ScalarType                ScalarType;
-    typedef typename MeshAttributeType::GlobalAttribute           GlobalAttribute;
-    typedef typename MeshAttributeType::PointAttributeType        PointAttributeType;
-    typedef typename MeshAttributeType::EdgeAttributeType         EdgeAttributeType;
-    typedef typename MeshAttributeType::FaceAttributeType         FaceAttributeType;
+	typedef GlobalStandardAttribute_Of_PolygonMesh<ScalarType>     GlobalAttribute;
+	typedef StandardAttribute_Of_Point_Of_PolygonMesh<ScalarType>  PointAttributeType;
+	typedef StandardAttribute_Of_Edge_Of_PolygonMesh<ScalarType>   EdgeAttributeType;
+	typedef StandardAttribute_Of_Face_Of_PolygonMesh<ScalarType>   FaceAttributeType;
     //--------------------------------------------------------------------------------------------//
-    typedef Point_Of_PolygonMesh<MeshAttributeType>           PointType;
-    typedef Edge_Of_PolygonMesh<MeshAttributeType>            EdgeType;
-    typedef Face_Of_PolygonMesh<MeshAttributeType>            FaceType;
-    //--------------------------------------------------------------------------------------------------//
-	typedef StdObjectVector<Point_Of_PolygonMesh<MeshAttributeType>>          PointListType;
-	typedef StdObjectVector<Edge_Of_PolygonMesh<MeshAttributeType>>           EdgeListType;
-	typedef StdObjectVector<Face_Of_PolygonMesh<MeshAttributeType>>           FaceListType;
-	//--------------------------------------------------------------------------------------------------//
-	typedef Iterator_Of_Point_Of_PolygonMesh<MeshAttributeType>           PointIteratorType;
-	typedef Iterator_Of_Edge_Of_PolygonMesh<MeshAttributeType>            EdgeIteratorType;
-	typedef Iterator_Of_Face_Of_PolygonMesh<MeshAttributeType>            FaceIteratorType;
+    typedef Point_Of_PolygonMesh<ScalarType>                       PointType;
+    typedef Edge_Of_PolygonMesh<ScalarType>                        EdgeType;
+    typedef Face_Of_PolygonMesh<ScalarType>                        FaceType;
+    //--------------------------------------------------------------------------------------------//
+	typedef StdObjectVector<Point_Of_PolygonMesh<ScalarType>>      PointListType;
+	typedef StdObjectVector<Edge_Of_PolygonMesh<ScalarType>>       EdgeListType;
+	typedef StdObjectVector<Face_Of_PolygonMesh<ScalarType>>       FaceListType;
+	//--------------------------------------------------------------------------------------------//
+	typedef Iterator_Of_Point_Of_PolygonMesh<ScalarType>           PointIteratorType;
+	typedef Iterator_Of_Edge_Of_PolygonMesh<ScalarType>            EdgeIteratorType;
+	typedef Iterator_Of_Face_Of_PolygonMesh<ScalarType>            FaceIteratorType;
 
 protected:
-    std::shared_ptr<PolygonMeshData<MeshAttributeType>> m_MeshData;
+    std::shared_ptr<PolygonMeshData<ScalarType>> m_MeshData;
 
 protected:
     template<typename T>
@@ -287,7 +273,7 @@ public:
 	inline ObjectArray<String> GetFaceName(const DenseVector<int_max>& FaceIndexList) const;
 
 	//------------ PointSet, EdgeSet, FaceSet ------------------------------------------//
-	int_max GetPointSetCount() const;	
+	int_max GetPointSetCount() const;
 	int_max SetPointSet(const String& PointSetName, DenseVector<int_max> PointSet);
 	int_max GetPointSetIndex(const String& PointSetName) const;
 	String GetPointSetName(int_max PointSetIndex) const;
@@ -313,6 +299,34 @@ public:
 	DenseVector<int_max> GetFaceSet(const String& FaceSetName) const;
 	ObjectArray<String> GetFaceSetName(MDK_Symbol_ALL&) const;
 	ObjectArray<DenseVector<int_max>> GetFaceSet(MDK_Symbol_ALL&) const;
+
+	//----------- PointDataSet, EdgeDataSet, FaceDataset ----------------------------------//		
+	int_max GetPointDataSetCount() const;
+	int_max SetPointDataSet(const String& Name, int_max ScalarCountPerPoint);//return Index or -1
+	int_max GetPointDataSetIndex(const String& Name) const;
+	String GetPointDataSetName(int_max Index) const;
+	DenseMatrix<ScalarType> GetPointDataSet(int_max Index) const;
+	DenseMatrix<ScalarType> GetPointDataSet(const String& Name) const;
+	//Point(k).GetData(int_max Index);             
+	//Point(k).SetData(int_max Index, const DenseVector<ScalarType>& Data);
+
+	int_max GetEdgeDataSetCount() const;
+	int_max SetEdgeDataSet(const String& Name, int_max ScalarCountPerPoint);//return Index or -1
+	int_max GetEdgeDataSetIndex(const String& Name) const;
+	String GetEdgeDataSetName(int_max Index) const;
+	DenseMatrix<ScalarType> GetEdgeDataSet(int_max Index) const;
+	DenseMatrix<ScalarType> GetEdgeDataSet(const String& Name) const;
+	//Edge(k).GetData(int_max Index);	
+	//Edge(k).SetData(int_max Index, const DenseVector<ScalarType>& Data);
+
+	int_max GetFaceDataSetCount() const;
+	int_max SetFaceDataSet(const String& Name, int_max ScalarCountPerPoint);//return Index or -1
+	int_max GetFaceDataSetIndex(const String& Name) const;
+	String GetFaceDataSetName(int_max Index) const;
+	DenseMatrix<ScalarType> GetFaceDataSet(int_max Index) const;
+	DenseMatrix<ScalarType> GetFaceDataSet(const String& Name) const;
+	//Face(k).GetData(int_max Index);	
+	//Face(k).SetData(int_max Index, const DenseVector<ScalarType>& Data);
 
 	//------------- Iterator --------------------------------------------------------------//
 	inline PointIteratorType  GetIteratorOfPoint();
@@ -418,10 +432,10 @@ public:
 	std::pair<DenseVector<int_max>, DenseVector<int_max>> GetNeighborPointOfPoint(int_max PointIndex_ref, int_max MaxGraphDistance) const;
 
     // get a sub mesh by FaceIndexList
-    PolygonMesh<MeshAttributeType> GetSubMeshByFace(const DenseVector<int_max>& FaceIndexList) const;
+    PolygonMesh<ScalarType> GetSubMeshByFace(const DenseVector<int_max>& FaceIndexList) const;
 
 	// append a mesh, duplication of face/edge/point will not be checked
-	void Append(const PolygonMesh<MeshAttributeType>& InputMesh);
+	void Append(const PolygonMesh<ScalarType>& InputMesh);
 
     // other basic operation ----------------------------------------------------------------------------------------
 	

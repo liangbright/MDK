@@ -23,7 +23,7 @@ class GeodesicSphereBuilder : public Object
 {
 public:
 	typedef Scalar_Type ScalarType; // double or float
-	typedef TriangleMesh<TriangleMeshEmptyAttributeType<ScalarType>> MeshType;   	
+	typedef TriangleMesh<ScalarType> MeshType;   	
 	Input_of_GeodesicSphereBuilder Input;
 	Output_of_GeodesicSphereBuilder<MeshType> Output;	
 public:

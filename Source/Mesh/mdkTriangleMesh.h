@@ -4,36 +4,25 @@
 
 namespace mdk
 {
-//---------------------------------- MeshAttributeType ------------------------------------------------------//
-template<typename ScalarType>
-using TriangleMeshEmptyAttributeType = PolygonMeshEmptyAttributeType<ScalarType>;
 
-template<typename ScalarType>
-using TriangleMeshStandardAttributeType = PolygonMeshStandardAttributeType<ScalarType>;
-//---------------------------------------------------------------------------------------------------------//
-
-template<typename MeshAttribute_Type>
-class TriangleMesh : public PolygonMesh<MeshAttribute_Type>
+template<typename Scalar_Type>
+class TriangleMesh : public PolygonMesh<Scalar_Type>
 {
 public:
-	typedef MeshAttribute_Type MeshAttributeType;
+	typedef Scalar_Type ScalarType;
+	//-------------------------------------------------------------------------------------------//
+	typedef GlobalStandardAttribute_Of_PolygonMesh<ScalarType>      GlobalAttribute;
+	typedef StandardAttribute_Of_Point_Of_PolygonMesh<ScalarType>   PointAttributeType;
+	typedef StandardAttribute_Of_Edge_Of_PolygonMesh<ScalarType>    EdgeAttributeType;
+	typedef StandardAttribute_Of_Face_Of_PolygonMesh<ScalarType>    FaceAttributeType;
 
-    typedef TriangleMesh<MeshAttributeType> MeshType;
+    typedef Point_Of_PolygonMesh<ScalarType>                 PointType;
+    typedef Edge_Of_PolygonMesh<ScalarType>                  EdgeType;
+    typedef Face_Of_PolygonMesh<ScalarType>                  FaceType;
 
-    typedef typename MeshAttributeType::ScalarType                  ScalarType;
-    typedef typename MeshAttributeType::GlobalAttribute             GlobalAttribute;
-    typedef typename MeshAttributeType::GlobalAttribute             GlobalAttribute;
-    typedef typename MeshAttributeType::PointAttributeType          PointAttributeType;
-    typedef typename MeshAttributeType::EdgeAttributeType           EdgeAttributeType;    
-    typedef typename MeshAttributeType::FaceAttributeType           FaceAttributeType;
-
-    typedef Point_Of_PolygonMesh<MeshAttributeType>                 PointType;
-    typedef Edge_Of_PolygonMesh<MeshAttributeType>                  EdgeType;
-    typedef Face_Of_PolygonMesh<MeshAttributeType>                  FaceType;
-
-	typedef Iterator_Of_Point_Of_PolygonMesh<MeshAttributeType>     PointIteratorType;
-	typedef Iterator_Of_Edge_Of_PolygonMesh<MeshAttributeType>      EdgeIteratorType;
-	typedef Iterator_Of_Face_Of_PolygonMesh<MeshAttributeType>      FaceIteratorType;
+	typedef Iterator_Of_Point_Of_PolygonMesh<ScalarType>     PointIteratorType;
+	typedef Iterator_Of_Edge_Of_PolygonMesh<ScalarType>      EdgeIteratorType;
+	typedef Iterator_Of_Face_Of_PolygonMesh<ScalarType>      FaceIteratorType;
 
 public:
     TriangleMesh();
@@ -63,10 +52,10 @@ public:
 
     using PolygonMesh::Construct;
 
-    void Construct(PolygonMesh<MeshAttributeType> InputPolygonMesh);
+    void Construct(PolygonMesh<ScalarType> InputPolygonMesh);
 
     // get a sub mesh by FaceIndexList ----------------------------//
-    TriangleMesh<MeshAttributeType> GetSubMeshByFace(const DenseVector<int_max>& FaceIndexList) const;
+    TriangleMesh<ScalarType> GetSubMeshByFace(const DenseVector<int_max>& FaceIndexList) const;
 
     //------------- Function optimized For TriangleMesh --------------------------------------------------//
 

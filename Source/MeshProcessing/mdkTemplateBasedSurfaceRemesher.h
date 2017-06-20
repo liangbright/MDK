@@ -6,13 +6,11 @@
 namespace mdk
 {
 
-template<typename InputMeshAttribute, typename TemplateMeshAttribute>
+template<typename ScalarType>
 struct Input_of_TemplateBasedSurfaceRemesher
 {
-	typedef typename InputMeshAttribute::ScalarType ScalarType;
-
 	// input mesh must be triangle mesh
-	TriangleMesh<InputMeshAttribute> SourceMesh;
+	TriangleMesh<ScalarType> SourceMesh;
 
 	ObjectArray<DenseVector<int_max>> BoundarySegmentListOfSourceMesh;
 	//BoundaryListOfInputMesh[k] is BoundarySegment: a set of boundary point index
@@ -21,7 +19,7 @@ struct Input_of_TemplateBasedSurfaceRemesher
 	//BoundaryListOfInputMesh[k] ~ BoundarySegmentListOfOutputMesh[k] 
 
 	//template mesh point position is [u, v, 0]
-	PolygonMesh<TemplateMeshAttribute> TemplateMesh;
+	PolygonMesh<ScalarType> TemplateMesh;
 
 	ObjectArray<DenseVector<int_max>> BoundarySegmentListOfTemplateMesh;
 	//BoundarySegmentListOfOutputMesh[k] is BoundarySegment: a set of boundary point index
@@ -49,12 +47,12 @@ struct Internal_of_TemplateBasedSurfaceRemesher
 };
 
 
-template<typename InputMeshAttribute, typename OutputMeshAttribute>
+template<typename ScalarType>
 struct Output_of_TemplateBasedSurfaceRemesher
 {
-	TriangleMesh<InputMeshAttribute> ParameterizedSourceMesh;//2D mesh
+	TriangleMesh<ScalarType> ParameterizedSourceMesh;//2D mesh
 	// OutputMesh is Transformed TemplateMesh from 2D to 3D
-	PolygonMesh<OutputMeshAttribute> DeformedTemplateMesh;
+	PolygonMesh<ScalarType> DeformedTemplateMesh;
 };
 
 
@@ -62,21 +60,17 @@ template<typename Scalar_Type>
 class TemplateBasedSurfaceRemesher : public Object
 {
 public:
-	typedef Scalar_Type ScalarType;
-	typedef typename TriangleMeshStandardAttributeType<ScalarType>      InputMeshAttribute;
-	typedef typename PolygonMeshStandardAttributeType<ScalarType>       OutputMeshAttribute;
-	typedef OutputMeshAttribute                                         TemplateMeshAttribute;
-	
-	typedef typename TriangleMesh<InputMeshAttribute>    InputMeshType;
-	typedef typename PolygonMesh<OutputMeshAttribute>    TemplateMeshType;
-	typedef typename PolygonMesh<OutputMeshAttribute>    OutputMeshType;
+	typedef Scalar_Type ScalarType;	
+	typedef typename TriangleMesh<ScalarType>   InputMeshType;
+	typedef typename PolygonMesh<ScalarType>    TemplateMeshType;
+	typedef typename PolygonMesh<ScalarType>    OutputMeshType;
 
 public:
-	Input_of_TemplateBasedSurfaceRemesher<InputMeshAttribute, TemplateMeshAttribute> Input;
+	Input_of_TemplateBasedSurfaceRemesher<ScalarType> Input;
 private:
 	Internal_of_TemplateBasedSurfaceRemesher<ScalarType> Internal;
 public:
-	Output_of_TemplateBasedSurfaceRemesher<InputMeshAttribute, OutputMeshAttribute> Output;
+	Output_of_TemplateBasedSurfaceRemesher<ScalarType> Output;
 
 public:
 	TemplateBasedSurfaceRemesher();
@@ -100,7 +94,7 @@ private:
 	// relative length is from 0 to 1
 	DenseVector<ScalarType> ComputeCumulativeCurveLength_Relative(const DenseMatrix<ScalarType>& CurvePosition);
 
-	DenseVector<int_max, 3> Find3PointOfNearestFace(const DenseVector<ScalarType, 3>& Point, const TriangleMesh<InputMeshAttribute>& TargetMesh);
+	DenseVector<int_max, 3> Find3PointOfNearestFace(const DenseVector<ScalarType, 3>& Point, const TriangleMesh<ScalarType>& TargetMesh);
 	
 private:
 	TemplateBasedSurfaceRemesher(const TemplateBasedSurfaceRemesher&) = delete;

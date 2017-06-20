@@ -3,11 +3,9 @@
 namespace mdk
 {
 
-template<typename MeshAttributeType>
-bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<MeshAttributeType>& InputMesh, const String& FilePathAndName)
+template<typename ScalarType>
+bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<ScalarType>& InputMesh, const String& FilePathAndName)
 {
-	
-	typedef MeshAttributeType::ScalarType  ScalarType;
 	//---------------------------------------------
 	if (GetByteCountOfScalar(ScalarType(0)) <= 0)
 	{
@@ -113,11 +111,9 @@ bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<MeshAttributeType>& InputMe
 }
 
 
-template<typename MeshAttributeType>
-bool LoadPolygonMeshFromJsonDataFile(PolygonMesh<MeshAttributeType>& OutputMesh, const String& FilePathAndName)
+template<typename ScalarType>
+bool LoadPolygonMeshFromJsonDataFile(PolygonMesh<ScalarType>& OutputMesh, const String& FilePathAndName)
 {
-	typedef MeshAttributeType::ScalarType  ScalarType;
-	//---------------------------------------------
 	if (GetByteCountOfScalar(ScalarType(0)) <= 0)
 	{
 		MDK_Error("Unknown ScalarType @ SavePolygonMeshAsJsonDataFile(...)")
@@ -348,31 +344,31 @@ bool LoadPolygonMeshFromJsonDataFile(PolygonMesh<MeshAttributeType>& OutputMesh,
 }
 
 
-template<typename MeshAttributeType>
-bool SavePolygonMeshAsVTKFile(const PolygonMesh<MeshAttributeType>& InputMesh, const String& FilePathAndName)
+template<typename ScalarType>
+bool SavePolygonMeshAsVTKFile(const PolygonMesh<ScalarType>& InputMesh, const String& FilePathAndName)
 {
 	auto VTKMesh = ConvertMDKPolygonMeshToVTKPolyData(InputMesh);
 	return SaveVTKPolyDataAsVTKFile(VTKMesh, FilePathAndName);
 }
 
 
-template<typename MeshAttributeType>
-bool LoadPolygonMeshFromVTKFile(PolygonMesh<MeshAttributeType>& OutputMesh, const String& FilePathAndName)
+template<typename ScalarType>
+bool LoadPolygonMeshFromVTKFile(PolygonMesh<ScalarType>& OutputMesh, const String& FilePathAndName)
 {
 	auto VTKMesh = LoadVTKPolyDataFromVTKFile(FilePathAndName);
 	return ConvertVTKPolyDataToMDKPolygonMesh(VTKMesh, OutputMesh);
 }
 
 
-template<typename MeshAttributeType>
-bool SavePolygonMeshAsPLYFile(const PolygonMesh<MeshAttributeType>& InputMesh, const String& FilePathAndName)
+template<typename ScalarType>
+bool SavePolygonMeshAsPLYFile(const PolygonMesh<ScalarType>& InputMesh, const String& FilePathAndName)
 {
 	auto VTKMesh = ConvertMDKPolygonMeshToVTKPolyData(InputMesh);
 	return SaveVTKPolyDataAsPLYFile(VTKMesh, FilePathAndName);
 }
 
-template<typename MeshAttributeType>
-bool LoadPolygonMeshMeshFromPLYFile(PolygonMesh<MeshAttributeType>& OutputMesh, const String& FilePathAndName)
+template<typename ScalarType>
+bool LoadPolygonMeshMeshFromPLYFile(PolygonMesh<ScalarType>& OutputMesh, const String& FilePathAndName)
 {
 	auto VTKMesh = LoadVTKPolyDataFromPLYFile(FilePathAndName);
 	return ConvertVTKPolyDataToMDKPolygonMesh(VTKMesh, OutputMesh);
