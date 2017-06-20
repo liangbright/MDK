@@ -1753,21 +1753,20 @@ int_max PolygonMesh<ScalarType>::GetPointDataSetCount() const
 }
 
 template<typename ScalarType>
-int_max PolygonMesh<ScalarType>::SetPointDataSet(const String& Name, int_max ScalarCountPerPoint)
+int_max PolygonMesh<ScalarType>::InitializePointDataSet(const String& Name)
 {
 	auto it = m_MeshData->Map_PointDataSet_Name_to_Index.find(Name);
 	if (it != m_MeshData->Map_PointDataSet_Name_to_Index.end())
 	{
 		auto Index = it->second;
-		m_MeshData->PointDataSet[Index].Resize(ScalarCountPerPoint, this->GetMaxValueOfPointIndex());
-		m_MeshData->PointDataSet[Index].Fill(ScalarType(0));
+		m_MeshData->PointDataSet[Index].Clear();
+		m_MeshData->PointDataSet[Index].Resize(this->GetMaxValueOfPointIndex());
 		return Index;
 	}
 	else
 	{//new
-		DenseMatrix<ScalarType> DataSet;
-		DataSet.Resize(ScalarCountPerPoint, this->GetMaxValueOfPointIndex());
-		DataSet.Fill(ScalarType(0));
+		DenseVector<DenseVector<ScalarType>> DataSet;
+		DataSet.Resize(this->GetMaxValueOfPointIndex());
 		m_MeshData->PointDataSet.Append(std::move(DataSet));
 		auto Index = m_MeshData->PointDataSet.GetLength() - 1;
 		m_MeshData->Map_PointDataSet_Name_to_Index[Name] = Index;
@@ -1804,17 +1803,17 @@ String PolygonMesh<ScalarType>::GetPointDataSetName(int_max Index) const
 }
 
 template<typename ScalarType>
-DenseMatrix<ScalarType> PolygonMesh<ScalarType>::GetPointDataSet(int_max Index) const
+DenseVector<DenseVector<ScalarType>> PolygonMesh<ScalarType>::GetPointDataSet(int_max Index) const
 {
 	if (Index < 0 || Index >= m_MeshData->PointDataSet.GetLength())
 	{
 		MDK_Error("Invalid Index @ PolygonMesh::GetPointDataSet(...)")
-		DenseMatrix<ScalarType> EmptySet;
+		DenseVector<DenseVector<ScalarType>> EmptySet;
 		return EmptySet;
 	}
 	
 	auto ValidPointIndexList = m_MeshData->PointValidityFlagList.Find([](int_max Flag) { return Flag > 0; });
-	return m_MeshData->PointDataSet[Index].GetSubMatrix(ALL, ValidPointIndexList);
+	return m_MeshData->PointDataSet[Index].GetSubSet(ValidPointIndexList);
 }
 
 template<typename ScalarType>
@@ -1832,21 +1831,20 @@ int_max PolygonMesh<ScalarType>::GetEdgeDataSetCount() const
 }
 
 template<typename ScalarType>
-int_max PolygonMesh<ScalarType>::SetEdgeDataSet(const String& Name, int_max ScalarCountPerEdge)
+int_max PolygonMesh<ScalarType>::InitializeEdgeDataSet(const String& Name)
 {
 	auto it = m_MeshData->Map_EdgeDataSet_Name_to_Index.find(Name);
 	if (it != m_MeshData->Map_EdgeDataSet_Name_to_Index.end())	
 	{
 		auto Index= it->second;
-		m_MeshData->EdgeDataSet[Index].Resize(ScalarCountPerEdge, this->GetMaxValueOfEdgeIndex());
-		m_MeshData->EdgeDataSet[Index].Fill(ScalarType(0));
+		m_MeshData->EdgeDataSet[Index].Clear();
+		m_MeshData->EdgeDataSet[Index].Resize(this->GetMaxValueOfEdgeIndex());
 		return Index;
 	}
 	else
 	{//new
-		DenseMatrix<ScalarType> DataSet;
-		DataSet.Resize(ScalarCountPerEdge, this->GetMaxValueOfEdgeIndex());
-		DataSet.Fill(ScalarType(0));
+		DenseVector<DenseVector<ScalarType>> DataSet;
+		DataSet.Resize(this->GetMaxValueOfEdgeIndex());
 		m_MeshData->EdgeDataSet.Append(std::move(DataSet));
 		auto Index = m_MeshData->EdgeDataSet.GetLength() - 1;
 		m_MeshData->Map_EdgeDataSet_Name_to_Index[Name] = Index;
@@ -1883,21 +1881,21 @@ String PolygonMesh<ScalarType>::GetEdgeDataSetName(int_max Index) const
 }
 
 template<typename ScalarType>
-DenseMatrix<ScalarType> PolygonMesh<ScalarType>::GetEdgeDataSet(int_max Index) const
+DenseVector<DenseVector<ScalarType>> PolygonMesh<ScalarType>::GetEdgeDataSet(int_max Index) const
 {
 	if (Index < 0 || Index >= m_MeshData->EdgeDataSet.GetLength())
 	{
 		MDK_Error("Invalid Index @ PolygonMesh::GetEdgeDataSet(...)")
-		DenseMatrix<ScalarType> EmptySet;
+		DenseVector<DenseVector<ScalarType>> EmptySet;
 		return EmptySet;
 	}
 
 	auto ValidEdgeIndexList = m_MeshData->EdgeValidityFlagList.Find([](int_max Flag) { return Flag > 0; });
-	return m_MeshData->EdgeDataSet[Index].GetSubMatrix(ALL, ValidEdgeIndexList);
+	return m_MeshData->EdgeDataSet[Index].GetSubSet(ValidEdgeIndexList);
 }
 
 template<typename ScalarType>
-DenseMatrix<ScalarType> PolygonMesh<ScalarType>::GetEdgeDataSet(const String& Name) const
+DenseVector<DenseVector<ScalarType>> PolygonMesh<ScalarType>::GetEdgeDataSet(const String& Name) const
 {
 	auto Index = this->GetEdgeDataSetIndex(Name);
 	return this->GetEdgeDataSet(Index);
@@ -1911,21 +1909,20 @@ int_max PolygonMesh<ScalarType>::GetFaceDataSetCount() const
 }
 
 template<typename ScalarType>
-int_max PolygonMesh<ScalarType>::SetFaceDataSet(const String& Name, int_max ScalarCountPerFace)
+int_max PolygonMesh<ScalarType>::InitializeFaceDataSet(const String& Name)
 {
 	auto it = m_MeshData->Map_FaceDataSet_Name_to_Index.find(Name);
 	if (it != m_MeshData->Map_FaceDataSet_Name_to_Index.end())
 	{
-		auto Index = it->second;		
-		m_MeshData->FaceDataSet[Index].Resize(ScalarCountPerFace, this->GetMaxValueOfFaceIndex());
-		m_MeshData->FaceDataSet[Index].Fill(ScalarType(0));
+		auto Index = it->second;	
+		m_MeshData->FaceDataSet[Index].Clear();
+		m_MeshData->FaceDataSet[Index].Resize(this->GetMaxValueOfFaceIndex());		
 		return Index;
 	}
 	else
 	{//new
-		DenseMatrix<ScalarType> DataSet;
-		DataSet.Resize(ScalarCountPerFace, this->GetMaxValueOfFaceIndex());
-		DataSet.Fill(ScalarType(0));
+		DenseVector<DenseVector<ScalarType>> DataSet;
+		DataSet.Resize(this->GetMaxValueOfFaceIndex());		
 		m_MeshData->FaceDataSet.Append(std::move(DataSet));
 		auto Index = m_MeshData->FaceDataSet.GetLength() - 1;
 		m_MeshData->Map_FaceDataSet_Name_to_Index[Name] = Index;
@@ -1963,21 +1960,21 @@ String PolygonMesh<ScalarType>::GetFaceDataSetName(int_max Index) const
 }
 
 template<typename ScalarType>
-DenseMatrix<ScalarType> PolygonMesh<ScalarType>::GetFaceDataSet(int_max Index) const
+DenseVector<DenseVector<ScalarType>> PolygonMesh<ScalarType>::GetFaceDataSet(int_max Index) const
 {
 	if (Index < 0 || Index >= m_MeshData->FaceDataSet.GetLength())
 	{
 		MDK_Error("Invalid Index @ PolygonMesh::GetFaceDataSet(...)")
-		DenseMatrix<ScalarType> EmptySet;
+		DenseVector<DenseVector<ScalarType>> EmptySet;
 		return EmptySet;
 	}
 
 	auto ValidFaceIndexList = m_MeshData->FaceValidityFlagList.Find([](int_max Flag) { return Flag > 0; });
-	return m_MeshData->FaceDataSet[Index].GetSubMatrix(ALL, ValidFaceIndexList);
+	return m_MeshData->FaceDataSet[Index].GetSubSet(ValidFaceIndexList);
 }
 
 template<typename ScalarType>
-DenseMatrix<ScalarType> PolygonMesh<ScalarType>::GetFaceDataSet(const String& Name) const
+DenseVector<DenseVector<ScalarType>> PolygonMesh<ScalarType>::GetFaceDataSet(const String& Name) const
 {
 	auto Index = this->GetFaceDataSetIndex(Name);
 	return this->GetFaceDataSet(Index);
@@ -3376,10 +3373,8 @@ PolygonMesh<ScalarType>::GetSubMeshByFace(const DenseVector<int_max>& FaceIndexL
 	//add PointDataSet, EdgeDataSet, FaceDataset	
 	for (int_max Index = 0; Index < this->GetPointDataSetCount(); ++Index)
 	{
-		auto Name = this->GetPointDataSetName(Index);
-		auto tempData = this->Point(0).GetData(Index);
-		auto ScalarCountPerPoint = tempData.GetLength();
-		OutputMesh.SetPointDataSet(Name, ScalarCountPerPoint);
+		auto Name = this->GetPointDataSetName(Index);				
+		OutputMesh.InitializePointDataSet(Name);
 		for (int_max k = 0; k < Map_PointIndex_OuputIndex.GetLength(); ++k)
 		{
 			if (Map_PointIndex_OuputIndex[k] >= 0)

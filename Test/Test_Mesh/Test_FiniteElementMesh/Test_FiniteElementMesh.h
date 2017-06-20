@@ -7,7 +7,7 @@ void Test_CreateMesh()
 {
 	String FilePath = "C:/Research/MDK/MDK_Build/Test/Test_Mesh/Test_FiniteElementMesh/TestData/";
 
-	PolygonMesh<PolygonMeshEmptyAttributeType<double>> InputMesh;
+	PolygonMesh<double> InputMesh;
 	LoadPolygonMeshFromVTKFile(InputMesh, FilePath + "Leaflet.vtk");
 	
 	DenseMatrix<double> NodeList;

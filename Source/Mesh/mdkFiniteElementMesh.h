@@ -37,14 +37,18 @@ struct Data_Of_FiniteElementMesh
 	DenseMatrix<ScalarType>            NodeList;        //col = [x, y, z]
 	ObjectArray<DenseVector<int_max>>  ElementList;     //{ Element1=[PointIndex1, PointIndex2, ...], ... }
 	ObjectArray<FiniteElementType>     ElementTypeList; // ElementTypeList[0] is the type of the first element ElementList[0]
+	ObjectArray<String>                NodeNameList;    // every node has a name (may be empty)
+	ObjectArray<String>                ElementNameList; // every element has a name (may be empty)
 
-	ObjectArray<DenseVector<int_max>>  NodeSetList;   // NodeSetList[k] is NodeIndexList Of NodeSet-k
-	ObjectArray<DenseVector<int_max>>  ElementSetList;// ElementSetList[k] is ElementIndexList Of ElementSet-k
+	ObjectArray<DenseVector<int_max>>  NodeSetList;        // NodeSetList[k] is NodeIndexList Of NodeSet-k
+	ObjectArray<DenseVector<int_max>>  ElementSetList;     // ElementSetList[k] is ElementIndexList Of ElementSet-k
+	ObjectArray<String>                NodeSetNameList;    // every node-set has a name (may be empty)
+	ObjectArray<String>                ElementSetNameList; // every element-set has a name (may be empty)
 
-	ObjectArray<String> NodeNameList;       // every node has a name (may be empty)
-	ObjectArray<String> ElementNameList;    // every element has a name (may be empty)
-	ObjectArray<String> NodeSetNameList;    // every node-set has a name (may be empty)
-	ObjectArray<String> ElementSetNameList; // every element-set has a name (may be empty)
+	ObjectArray<DenseVector<DenseVector<ScalarType>>>  NodeDataSetList;        // NodeDataSetList[k][NodeIndex] ~ Data of a Node
+	ObjectArray<DenseVector<DenseVector<ScalarType>>>  ElementDataSetList;     // ElementDataSetList[k][ElementIndex] ~ Data of an Element
+	ObjectArray<String>                                NodeDataSetNameList;    //NodeDataSetNameList[k] is the name of NodeDataSetList[k]
+	ObjectArray<String>                                ElementDataSetNameList; //ElementDataSetNameList[k] is the name of ElementDataSetList[k]
 };
 
 

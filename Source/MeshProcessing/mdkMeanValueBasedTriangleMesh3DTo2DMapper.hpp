@@ -110,7 +110,7 @@ void MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::ApplyMeanValueBasedPara
 
 
 template<typename ScalarType>
-ObjectArray<SparseVector<ScalarType>> MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::ComputeWeightMatrix_MeanValue(const TriangleMesh<MeshAttributeType>& TargetMesh)
+ObjectArray<SparseVector<ScalarType>> MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::ComputeWeightMatrix_MeanValue(const TriangleMesh<ScalarType>& TargetMesh)
 {
 	auto PointCount_boundary = Input.BoundaryPointIndexList.GetLength();
 	auto PointCount_inner = Internal.InnerPointIndexList.GetLength();
@@ -133,7 +133,7 @@ ObjectArray<SparseVector<ScalarType>> MeanValueBasedTriangleMesh3DTo2DMapper<Sca
 }
 
 template<typename ScalarType>
-ScalarType MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::ComputeWeight_MeanValue(const TriangleMesh<MeshAttributeType>& TargetMesh, int_max PointH0, int_max PointH1)
+ScalarType MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::ComputeWeight_MeanValue(const TriangleMesh<ScalarType>& TargetMesh, int_max PointH0, int_max PointH1)
 {
 	// Weight_0_1 != Weight_1_0
 	//

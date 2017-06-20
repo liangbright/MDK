@@ -9,10 +9,10 @@
 namespace mdk
 {
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 struct Input_of_MeanValueBasedTriangleMesh3DTo2DMapper
 {
-	TriangleMesh<MeshAttributeType> SourceMesh;
+	TriangleMesh<ScalarType> SourceMesh;
 
 	DenseVector<int_max> BoundaryPointIndexList;
 	// Boundary Point include all the boundary point of input mesh
@@ -41,10 +41,10 @@ struct Internal_of_MeanValueBasedTriangleMesh3DTo2DMapper
 	//Map_PointIndex_to_BoundaryIndex[PointIndex] is Index in BoundaryPointHandleList
 };
 
-template<typename MeshAttributeType>
+template<typename ScalarType>
 struct Output_of_MeanValueBasedTriangleMesh3DTo2DMapper
 {
-	TriangleMesh<MeshAttributeType> ParameterizedSourceMesh;// [x,y,z]->[u,v,0]
+	TriangleMesh<ScalarType> ParameterizedSourceMesh;// [x,y,z]->[u,v,0]
 };
 
 
@@ -53,13 +53,12 @@ class MeanValueBasedTriangleMesh3DTo2DMapper : public Object
 {
 public:
 	typedef Scalar_Type ScalarType;
-	typedef typename TriangleMeshStandardAttributeType<ScalarType>     MeshAttributeType;
 public:
-	Input_of_MeanValueBasedTriangleMesh3DTo2DMapper<MeshAttributeType> Input;
+	Input_of_MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType> Input;
 private:
 	Internal_of_MeanValueBasedTriangleMesh3DTo2DMapper Internal;
 public:
-	Output_of_MeanValueBasedTriangleMesh3DTo2DMapper<MeshAttributeType> Output;	
+	Output_of_MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType> Output;	
 
 public:
 	MeanValueBasedTriangleMesh3DTo2DMapper();
@@ -72,8 +71,8 @@ private:
 	void Preprocess();
 	
 	void ApplyMeanValueBasedParameterization();
-	ObjectArray<SparseVector<ScalarType>> ComputeWeightMatrix_MeanValue(const TriangleMesh<MeshAttributeType>& TargetMesh);
-	ScalarType ComputeWeight_MeanValue(const TriangleMesh<MeshAttributeType>& TargetMesh, PointHandleType PointH0, PointHandleType PointH1);
+	ObjectArray<SparseVector<ScalarType>> ComputeWeightMatrix_MeanValue(const TriangleMesh<ScalarType>& TargetMesh);
+	ScalarType ComputeWeight_MeanValue(const TriangleMesh<ScalarType>& TargetMesh, PointHandleType PointH0, PointHandleType PointH1);
 
 	//return UVTable {uv of inner point, .., uv of boundary point}
 	DenseMatrix<ScalarType> ComputeUV_Given_WeightMatrix(const ObjectArray<SparseVector<ScalarType>>& WeightMatrix);
