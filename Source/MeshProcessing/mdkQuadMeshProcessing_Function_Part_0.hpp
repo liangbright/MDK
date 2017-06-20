@@ -235,7 +235,7 @@ TriangleMesh<ScalarType> ConvertQuadMeshToTriangleMesh_1to2(const PolygonMesh<Sc
 		for (int_max k = 0; k < PointNameList.GetLength(); ++k)
 		{
 			auto PointIndex = InputMesh.GetPointIndexByName(PointNameList[k]);
-			OutputMesh.Point(PointIndex).SetName(PointNameList[k]);
+			OutputMesh.Point(PointIndexMap[PointIndex]).SetName(PointNameList[k]);
 		}
 	}
 	//----------------------------------------------------------
@@ -246,7 +246,30 @@ TriangleMesh<ScalarType> ConvertQuadMeshToTriangleMesh_1to2(const PolygonMesh<Sc
 		for (int_max PointSetIndex = 0; PointSetIndex < PointSetCount; ++PointSetIndex)
 		{
 			auto PointSet = InputMesh.GetPointSet(PointSetIndex);
+			for (int_max k = 0; k < PointSet.GetLength(); ++k)
+			{
+				PointSet[k] = PointIndexMap[PointSet[k]];
+			}
 			OutputMesh.SetPointSet(PointSetNameList[PointSetIndex], PointSet);
+		}
+	}
+	//----------------------------------------------------------	
+	auto PointDataSetCount = InputMesh.GetPointDataSetCount();
+	if (PointDataSetCount > 0)
+	{
+		for (int_max PointDataSetIndex = 0; PointDataSetIndex < PointDataSetCount; ++PointDataSetIndex)
+		{
+			auto tempData = InputMesh.Point(0).GetData(PointDataSetIndex);
+			auto Name = InputMesh.GetPointDataSetName(PointDataSetIndex);
+			OutputMesh.SetPointDataSet(Name, tempData.GetLength());
+			for (int_max k = 0; k < PointIndexMap.GetLength(); ++k)
+			{
+				if (PointIndexMap[k] >= 0)
+				{
+					auto Data = InputMesh.Point(k).GetData(PointDataSetIndex);
+					OutputMesh.Point(PointIndexMap[k]).SetData(PointDataSetIndex, Data);
+				}
+			}
 		}
 	}
 

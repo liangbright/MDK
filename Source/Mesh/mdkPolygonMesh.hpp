@@ -1933,6 +1933,7 @@ int_max PolygonMesh<ScalarType>::SetFaceDataSet(const String& Name, int_max Scal
 	}
 }
 
+
 template<typename ScalarType>
 int_max PolygonMesh<ScalarType>::GetFaceDataSetIndex(const String& Name) const
 {
@@ -2803,7 +2804,8 @@ void PolygonMesh<ScalarType>::CleanDataStructure(DenseVector<int_max>& PointInde
 		}		
 	}
 
-	// update additional info
+	//------------------------------------ update additional info -----------------------------------------------------//
+
 	for (auto it = m_MeshData->Map_Point_Name_to_Index.begin(); it != m_MeshData->Map_Point_Name_to_Index.end(); )
 	{
 		auto Index_old = it->second;

@@ -273,6 +273,8 @@ public:
 	inline ObjectArray<String> GetFaceName(const DenseVector<int_max>& FaceIndexList) const;
 
 	//------------ PointSet, EdgeSet, FaceSet ------------------------------------------//
+	// PointSet/EdgeSet/FaceSet will NOT be updated if new Point/Edge/Face is added, or old is deleted
+	// They will be updated in CleanDataStructure
 	int_max GetPointSetCount() const;
 	int_max SetPointSet(const String& PointSetName, DenseVector<int_max> PointSet);
 	int_max GetPointSetIndex(const String& PointSetName) const;
@@ -301,6 +303,8 @@ public:
 	ObjectArray<DenseVector<int_max>> GetFaceSet(MDK_Symbol_ALL&) const;
 
 	//----------- PointDataSet, EdgeDataSet, FaceDataset ----------------------------------//		
+	// PointDataSet/EdgeDataSet/FaceDataset will NOT be updated if new Point/Edge/Face is added, or old is deleted
+	// They will be updated in CleanDataStructure
 	int_max GetPointDataSetCount() const;
 	int_max SetPointDataSet(const String& Name, int_max ScalarCountPerPoint);//return Index or -1
 	int_max GetPointDataSetIndex(const String& Name) const;
