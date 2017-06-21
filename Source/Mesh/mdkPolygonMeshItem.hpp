@@ -182,20 +182,20 @@ void Point_Of_PolygonMesh<ScalarType>::SetID(int_max PointID)
     auto PointID_old = m_Data->ID;
     if (PointID_old != PointID)
     {
-        auto it = m_Data->MeshData->Map_PointID_to_PointIndex.find(PointID);
-        if (it != m_Data->MeshData->Map_PointID_to_PointIndex.end())
+        auto it = m_Data->MeshData->Map_Point_ID_to_Index.find(PointID);
+        if (it != m_Data->MeshData->Map_Point_ID_to_Index.end())
         {
             MDK_Error("Input PointID has already been used for another point @ Point_Of_PolygonMesh::SetID(...)")
             return;
         }
 
-        it = m_Data->MeshData->Map_PointID_to_PointIndex.find(PointID_old);
-        if (it != m_Data->MeshData->Map_PointID_to_PointIndex.end())
+        it = m_Data->MeshData->Map_Point_ID_to_Index.find(PointID_old);
+        if (it != m_Data->MeshData->Map_Point_ID_to_Index.end())
         {
-            m_Data->MeshData->Map_PointID_to_PointIndex.erase(it);
+            m_Data->MeshData->Map_Point_ID_to_Index.erase(it);
         }
 
-        m_Data->MeshData->Map_PointID_to_PointIndex[PointID] = m_Data->Index;
+        m_Data->MeshData->Map_Point_ID_to_Index[PointID] = m_Data->Index;
         m_Data->ID = PointID;
     }
 }
@@ -206,10 +206,10 @@ void Point_Of_PolygonMesh<ScalarType>::EraseID()
 {   
     if (m_Data->ID >= 0)
     {
-        auto it = m_Data->MeshData->Map_PointID_to_PointIndex.find(m_Data->ID);
-        if (it != m_Data->MeshData->Map_PointID_to_PointIndex.end())
+        auto it = m_Data->MeshData->Map_Point_ID_to_Index.find(m_Data->ID);
+        if (it != m_Data->MeshData->Map_Point_ID_to_Index.end())
         {
-            m_Data->MeshData->Map_PointID_to_PointIndex.erase(it);
+            m_Data->MeshData->Map_Point_ID_to_Index.erase(it);
         }
 
         m_Data->ID = -1;
@@ -293,9 +293,7 @@ inline void Point_Of_PolygonMesh<ScalarType>::SetData(int_max Index, DenseVector
 template<typename ScalarType>
 inline DenseVector<ScalarType> Point_Of_PolygonMesh<ScalarType>::GetData(int_max Index) const
 {
-	DenseVector<ScalarType> Data;
-	m_Data->MeshData->PointDataSet[Index].GetCol(m_Data->Index, Data);
-	return Data;
+	return m_Data->MeshData->PointDataSet[Index][m_Data->Index];
 }
 
 template<typename ScalarType>
@@ -631,20 +629,20 @@ void Edge_Of_PolygonMesh<ScalarType>::SetID(int_max EdgeID)
     auto EdgeID_old = m_Data->ID;
     if (EdgeID_old != EdgeID)
     {
-        auto it = m_Data->MeshData->Map_EdgeID_to_EdgeIndex.find(EdgeID);
-        if (it != m_Data->MeshData->Map_EdgeID_to_EdgeIndex.end())
+        auto it = m_Data->MeshData->Map_Edge_ID_to_Index.find(EdgeID);
+        if (it != m_Data->MeshData->Map_Edge_ID_to_Index.end())
         {
             MDK_Error("Input EdgeID has already been used for another edge @ Edge_Of_PolygonMesh::SetID(...)")
             return;
         }
 
-        it = m_Data->MeshData->Map_EdgeID_to_EdgeIndex.find(EdgeID_old);
-        if (it != m_Data->MeshData->Map_EdgeID_to_EdgeIndex.end())
+        it = m_Data->MeshData->Map_Edge_ID_to_Index.find(EdgeID_old);
+        if (it != m_Data->MeshData->Map_Edge_ID_to_Index.end())
         {
-            m_Data->MeshData->Map_EdgeID_to_EdgeIndex.erase(it);
+            m_Data->MeshData->Map_Edge_ID_to_Index.erase(it);
         }
 
-        m_Data->MeshData->Map_EdgeID_to_EdgeIndex[EdgeID] = m_Data->Index;
+        m_Data->MeshData->Map_Edge_ID_to_Index[EdgeID] = m_Data->Index;
         m_Data->ID = EdgeID;
     }
 }
@@ -655,10 +653,10 @@ void Edge_Of_PolygonMesh<ScalarType>::EraseID()
 {
     if (m_Data->ID >= 0)
     {
-        auto it = m_Data->MeshData->Map_EdgeID_to_EdgeIndex.find(m_Data->ID);
-        if (it != m_Data->MeshData->Map_EdgeID_to_EdgeIndex.end())
+        auto it = m_Data->MeshData->Map_Edge_ID_to_Index.find(m_Data->ID);
+        if (it != m_Data->MeshData->Map_Edge_ID_to_Index.end())
         {
-            m_Data->MeshData->Map_EdgeID_to_EdgeIndex.erase(it);
+            m_Data->MeshData->Map_Edge_ID_to_Index.erase(it);
         }
 
         m_Data->ID = -1;
@@ -741,10 +739,8 @@ inline void Edge_Of_PolygonMesh<ScalarType>::SetData(int_max Index, DenseVector<
 
 template<typename ScalarType>
 inline DenseVector<ScalarType> Edge_Of_PolygonMesh<ScalarType>::GetData(int_max Index) const
-{
-	DenseVector<ScalarType> Data;
-	m_Data->MeshData->EdgeDataSet[Index].GetCol(m_Data->Index, Data);
-	return Data;
+{	
+	return m_Data->MeshData->EdgeDataSet[Index][m_Data->Index];
 }
 
 template<typename ScalarType>
@@ -1055,20 +1051,20 @@ void Face_Of_PolygonMesh<ScalarType>::SetID(int_max FaceID)
     auto FaceID_old = m_Data->ID;
     if (FaceID_old != FaceID)
     {
-        auto it = m_Data->MeshData->Map_FaceID_to_FaceIndex.find(FaceID);
-        if (it != m_Data->MeshData->Map_FaceID_to_FaceIndex.end())
+        auto it = m_Data->MeshData->Map_Face_ID_to_Index.find(FaceID);
+        if (it != m_Data->MeshData->Map_Face_ID_to_Index.end())
         {
             MDK_Error("Input FaceID has already been used for another cell @ Face_Of_PolygonMesh::SetID(...)")
             return;
         }
 
-        it = m_Data->MeshData->Map_FaceID_to_FaceIndex.find(FaceID_old);
-        if (it != m_Data->MeshData->Map_FaceID_to_FaceIndex.end())
+        it = m_Data->MeshData->Map_Face_ID_to_Index.find(FaceID_old);
+        if (it != m_Data->MeshData->Map_Face_ID_to_Index.end())
         {
-            m_Data->MeshData->Map_FaceID_to_FaceIndex.erase(it);
+            m_Data->MeshData->Map_Face_ID_to_Index.erase(it);
         }
 
-        m_Data->MeshData->Map_FaceID_to_FaceIndex[FaceID] = m_Data->Index;
+        m_Data->MeshData->Map_Face_ID_to_Index[FaceID] = m_Data->Index;
         m_Data->ID = FaceID;
     }
 }
@@ -1079,10 +1075,10 @@ void Face_Of_PolygonMesh<ScalarType>::EraseID()
 {
     if (m_Data->ID >= 0)
     {
-        auto it = m_Data->MeshData->Map_FaceID_to_FaceIndex.find(m_Data->ID);
-        if (it != m_Data->MeshData->Map_FaceID_to_FaceIndex.end())
+        auto it = m_Data->MeshData->Map_Face_ID_to_Index.find(m_Data->ID);
+        if (it != m_Data->MeshData->Map_Face_ID_to_Index.end())
         {
-            m_Data->MeshData->Map_FaceID_to_FaceIndex.erase(it);
+            m_Data->MeshData->Map_Face_ID_to_Index.erase(it);
         }
 
         m_Data->ID = -1;
@@ -1166,9 +1162,7 @@ inline void Face_Of_PolygonMesh<ScalarType>::SetData(int_max Index, DenseVector<
 template<typename ScalarType>
 inline DenseVector<ScalarType> Face_Of_PolygonMesh<ScalarType>::GetData(int_max Index) const
 {
-	DenseVector<ScalarType> Data;
-	m_Data->MeshData->FaceDataSet[Index].GetCol(m_Data->Index, Data);
-	return Data;
+	return m_Data->MeshData->FaceDataSet[Index][m_Data->Index];
 }
 
 template<typename ScalarType>

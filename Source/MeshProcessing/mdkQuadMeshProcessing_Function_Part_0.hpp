@@ -255,20 +255,16 @@ TriangleMesh<ScalarType> ConvertQuadMeshToTriangleMesh_1to2(const PolygonMesh<Sc
 	}
 	//----------------------------------------------------------	
 	auto PointDataSetCount = InputMesh.GetPointDataSetCount();
-	if (PointDataSetCount > 0)
+	for (int_max PointDataSetIndex = 0; PointDataSetIndex < PointDataSetCount; ++PointDataSetIndex)
 	{
-		for (int_max PointDataSetIndex = 0; PointDataSetIndex < PointDataSetCount; ++PointDataSetIndex)
+		auto Name = InputMesh.GetPointDataSetName(PointDataSetIndex);
+		OutputMesh.InitializePointDataSet(Name);
+		for (int_max k = 0; k < PointIndexMap.GetLength(); ++k)
 		{
-			auto tempData = InputMesh.Point(0).GetData(PointDataSetIndex);
-			auto Name = InputMesh.GetPointDataSetName(PointDataSetIndex);
-			OutputMesh.SetPointDataSet(Name, tempData.GetLength());
-			for (int_max k = 0; k < PointIndexMap.GetLength(); ++k)
+			if (PointIndexMap[k] >= 0)
 			{
-				if (PointIndexMap[k] >= 0)
-				{
-					auto Data = InputMesh.Point(k).GetData(PointDataSetIndex);
-					OutputMesh.Point(PointIndexMap[k]).SetData(PointDataSetIndex, Data);
-				}
+				auto Data = InputMesh.Point(k).GetData(PointDataSetIndex);
+				OutputMesh.Point(PointIndexMap[k]).SetData(PointDataSetIndex, Data);
 			}
 		}
 	}

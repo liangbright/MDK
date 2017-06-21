@@ -3378,7 +3378,7 @@ PolygonMesh<ScalarType>::GetSubMeshByFace(const DenseVector<int_max>& FaceIndexL
 			{
 				auto OuputIndex = Map_PointIndex_OuputIndex[k];
 				auto Data = this->Point(k).GetData(Index);
-				OutputMesh.Point(OuputIndex).SetData(Name, Data);
+				OutputMesh.Point(OuputIndex).SetData(Index, Data);
 			}
 		}
 	}
@@ -3393,7 +3393,7 @@ PolygonMesh<ScalarType>::GetSubMeshByFace(const DenseVector<int_max>& FaceIndexL
 			{
 				auto OuputIndex = Map_EdgeIndex_OuputIndex[k];
 				auto Data = this->Edge(k).GetData(Index);
-				OutputMesh.Edge(OuputIndex).SetData(Name, Data);
+				OutputMesh.Edge(OuputIndex).SetData(Index, Data);
 			}
 		}
 	}
@@ -3402,14 +3402,10 @@ PolygonMesh<ScalarType>::GetSubMeshByFace(const DenseVector<int_max>& FaceIndexL
 	{
 		auto Name = this->GetFaceDataSetName(Index);
 		OutputMesh.InitializeFaceDataSet(Name);
-		for (int_max k = 0; k < Map_FaceIndex_OuputIndex.GetLength(); ++k)
+		for (int_max k = 0; k < FaceIndexList.GetLength(); ++k)
 		{
-			if (Map_FaceIndex_OuputIndex[k] >= 0)
-			{
-				auto OuputIndex = Map_FaceIndex_OuputIndex[k];
-				auto Data = this->Face(k).GetData(Index);
-				OutputMesh.Face(OuputIndex).SetData(Name, Data);
-			}
+			auto Data = this->Face(FaceIndexList[k]).GetData(Index);
+			OutputMesh.Face(k).SetData(Index, Data);
 		}
 	}
 
