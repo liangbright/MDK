@@ -5,10 +5,10 @@ using namespace mdk;
 
 void Test_CreateMesh()
 {
-	String FilePath = "C:/Research/MDK/MDK_Build/Test/Test_Mesh/Test_FiniteElementMesh/TestData/";
+	String DataPath = "C:/Research/MDK/MDK_Build/Test/Test_Mesh/Test_FiniteElementMesh/TestData/";
 
 	PolygonMesh<double> InputMesh;
-	LoadPolygonMeshFromVTKFile(InputMesh, FilePath + "Leaflet.vtk");
+	LoadPolygonMeshFromVTKFile(InputMesh, DataPath + "Leaflet.vtk");
 	
 	DenseMatrix<double> NodeList;
 	ObjectArray<DenseVector<int_max>> ElementList;
@@ -20,7 +20,7 @@ void Test_CreateMesh()
 	MeshA.Construct(NodeList, ElementList);
 	for (int_max k = 0; k < MeshA.GetElementCount(); ++k)
 	{
-		MeshA.SetElementType(k, "S3");
+		MeshA.SetElementType(k, "Abaqus_S3");
 	}
 
 	MeshA.SetID(1);
@@ -30,7 +30,7 @@ void Test_CreateMesh()
 	MeshA.SetNodeName(1, "Node_1_Name");
 	MeshA.SetElementName(0, "Element_0_Name");
 	MeshA.SetElementName(1, "Element_1_Name");
-	
+
 	MeshA.AddNodeSet("0_NodeSet", { 1, 2, 3 });
 	MeshA.AddNodeSet("1_NodeSet", { 4, 5, 6 });
 
@@ -43,11 +43,11 @@ void Test_CreateMesh()
 	MeshA.SetElementSet("0_ElementSet", { 1, 2, 3 });
 	MeshA.SetElementSet("1_ElementSet", { 4, 5, 6 });
 
-	SaveFiniteElementMeshAsJsonDataFile(MeshA, FilePath + "_MeshA.json");
+	SaveFiniteElementMeshAsJsonDataFile(MeshA, DataPath + "MeshA.json");
 
-	SaveFiniteElementMeshAsAbaqusINPFile(MeshA, FilePath + "_MeshA.inp");
+	SaveFiniteElementMeshAsAbaqusINPFile(MeshA, DataPath + "MeshA.inp");
 
-	LoadFiniteElementMeshFromJsonDataFile(MeshB, FilePath + "_MeshA.json");
+	LoadFiniteElementMeshFromJsonDataFile(MeshB, DataPath + "MeshA.json");
 
 	auto Set1 = MeshB.GetNodeSet("0_NodeSet");
 	auto Set2 = MeshB.GetNodeSet("1_PointSet");

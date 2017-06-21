@@ -305,7 +305,7 @@ public:
 	// PointDataSet/EdgeDataSet/FaceDataset will NOT be updated if new Point/Edge/Face is added, or old is deleted
 	// They will be updated in CleanDataStructure
 	int_max GetPointDataSetCount() const;
-	int_max InitializePointDataSet(const String& Name);//return Index or -1
+	int_max InitializePointDataSet(const String& Name);//return DataSetIndex or -1
 	int_max GetPointDataSetIndex(const String& Name) const;
 	String GetPointDataSetName(int_max Index) const;
 	DenseVector<DenseVector<ScalarType>> GetPointDataSet(int_max Index) const;
@@ -314,7 +314,7 @@ public:
 	//Point(k).SetData(int_max Index, DenseVector<ScalarType> Data);
 
 	int_max GetEdgeDataSetCount() const;
-	int_max InitializeEdgeDataSet(const String& Name);//return Index or -1
+	int_max InitializeEdgeDataSet(const String& Name);//return DataSetIndex or -1
 	int_max GetEdgeDataSetIndex(const String& Name) const;
 	String GetEdgeDataSetName(int_max Index) const;
 	DenseVector<DenseVector<ScalarType>> GetEdgeDataSet(int_max Index) const;
@@ -323,7 +323,7 @@ public:
 	//Edge(k).SetData(int_max Index, DenseVector<ScalarType> Data);
 
 	int_max GetFaceDataSetCount() const;
-	int_max InitializeFaceDataSet(const String& Name);//return Index or -1
+	int_max InitializeFaceDataSet(const String& Name);//return DataSetIndex or -1
 	int_max GetFaceDataSetIndex(const String& Name) const;
 	String GetFaceDataSetName(int_max Index) const;
 	DenseVector<DenseVector<ScalarType>> GetFaceDataSet(int_max Index) const;

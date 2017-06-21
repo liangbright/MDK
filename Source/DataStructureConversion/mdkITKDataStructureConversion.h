@@ -37,9 +37,6 @@ itk::SmartPointer<itk::ImportImageFilter<PixelType, 3>> ConvertMDK3DScalarImageB
 template<typename PixelType>
 itk::SmartPointer<itk::Image<PixelType, 3>> ConvertMDK3DScalarImageToITK3DScalarImage(const DenseImage3D<PixelType>& MDKImage);
 
-template<typename PixelType>
-bool ConvertMDK3DScalarImageToITK3DScalarImage(const DenseImage3D<PixelType>& MDKImage, itk::Image<PixelType, 3>* ITKImage);
-
 //----------2D to 3D ----------------
 //copy or share data
 template<typename PixelType>
@@ -48,9 +45,6 @@ itk::SmartPointer<itk::ImportImageFilter<PixelType, 3>> ConvertMDK2DScalarImageB
 //copy data
 template<typename PixelType>
 itk::SmartPointer<itk::Image<PixelType, 3>> ConvertMDK2DScalarImageToITK2DScalarImage(const DenseImage2D<PixelType>& MDKImage);
-
-template<typename PixelType>
-bool ConvertMDK2DScalarImageToITK3DScalarImage(const DenseImage2D<PixelType>& MDKImage, itk::Image<PixelType, 3>* ITKImage);
 
 //-------------------------------------- convert itk image to mdk image (copy data) ------------------------------------------------------------//
 //----------3D----------------
@@ -68,13 +62,13 @@ bool ConvertITK3DScalarImageSliceToMDK2DScalarImage(itk::Image<PixelType, 3>* IT
 template<typename PixelType>
 bool ConvertITK3DScalarImageSliceToMDK2DScalarImage(const itk::Image<PixelType, 3>* ITKImage, DenseImage2D<PixelType>& MDKImage);
 
-//--------------------------------------- convert mdk TriangleMesh to itk Mesh -----------------------------------------------//
+//--------------------------------------- convert mdk PolygonMesh to itk Mesh -----------------------------------------------//
 //template<typename ScalarType>
-//itk::SmartPointer<itk::Mesh> ConvertMDKTriangleMeshToITKMesh(const TriangleMesh<ScalarType>& InputMesh);
+//itk::SmartPointer<itk::Mesh> ConvertMDKPolygonMeshToITKMesh(const TriangleMesh<ScalarType>& InputMesh);
 
-//--------------------------------------- convert itk Mesh to mdk TriangleMesh ------------------------------------------------//
+//--------------------------------------- convert itk Mesh to mdk PolygonMesh ------------------------------------------------//
 //template<typename ScalarType>
-//TriangleMesh<ScalarType> ConvertITKMeshToMDKTriangleMesh(const itk::Mesh* ITKMesh);
+//bool ConvertITKMeshToMDKPolygonMesh(const itk::Mesh* ITKMesh, PolygonMesh<ScalarType>& OutputMesh);
 
 
 }// namespace mdk

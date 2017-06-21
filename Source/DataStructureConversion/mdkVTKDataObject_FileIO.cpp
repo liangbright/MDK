@@ -32,19 +32,6 @@ bool SaveVTKPolyDataAsVTKFile(vtkPolyData* OutputVTKMesh, const String& FilePath
 vtkSmartPointer<vtkPolyData> LoadVTKPolyDataFromVTKFile(const String& FilePathAndName)
 {
 	auto VTKMesh = vtkSmartPointer<vtkPolyData>::New();
-	LoadVTKPolyDataFromVTKFile(VTKMesh, FilePathAndName);
-	return VTKMesh;
-}
-
-
-bool LoadVTKPolyDataFromVTKFile(vtkPolyData* OutputVTKMesh, const String& FilePathAndName)
-{
-	if (OutputVTKMesh == nullptr)
-	{
-		MDK_Error("input is nullptr @ LoadVTKPolyDataFromVTKFile(...)")
-		return false;
-	}
-
 	auto Reader = vtkSmartPointer<vtkPolyDataReader>::New();
 	Reader->SetFileName(FilePathAndName.StdString().c_str());
 	try
@@ -54,10 +41,10 @@ bool LoadVTKPolyDataFromVTKFile(vtkPolyData* OutputVTKMesh, const String& FilePa
 	catch (...)
 	{
 		MDK_Error(" Can not read data @ LoadVTKPolyDataFromVTKFile(...) ")
-		return false;
+		return VTKMesh;
 	}
-	OutputVTKMesh->ShallowCopy(Reader->GetOutput());
-	return true;
+	VTKMesh->ShallowCopy(Reader->GetOutput());
+	return VTKMesh;
 }
 
 
@@ -89,19 +76,6 @@ bool SaveVTKUnstructuredGridAsVTKFile(vtkUnstructuredGrid* OutputVTKMesh, const 
 vtkSmartPointer<vtkUnstructuredGrid> LoadVTKUnstructuredGridFromVTKFile(const String& FilePathAndName)
 {
 	auto VTKMesh = vtkSmartPointer<vtkUnstructuredGrid>::New();
-	LoadVTKUnstructuredGridFromVTKFile(VTKMesh, FilePathAndName);
-	return VTKMesh;
-}
-
-
-bool LoadVTKUnstructuredGridFromVTKFile(vtkUnstructuredGrid* OutputVTKMesh, const String& FilePathAndName)
-{
-	if (OutputVTKMesh == nullptr)
-	{
-		MDK_Error("input is nullptr @ LoadVTKUnstructuredGridFromVTKFile(...)")
-		return false;
-	}
-
 	auto Reader = vtkSmartPointer<vtkUnstructuredGridReader>::New();
 	Reader->SetFileName(FilePathAndName.StdString().c_str());
 	try
@@ -111,10 +85,10 @@ bool LoadVTKUnstructuredGridFromVTKFile(vtkUnstructuredGrid* OutputVTKMesh, cons
 	catch (...)
 	{
 		MDK_Error(" Can not read data @ LoadVTKUnstructuredGridFromVTKFile(...) ")
-		return false;
+		return VTKMesh;
 	}
-	OutputVTKMesh->ShallowCopy(Reader->GetOutput());
-	return true;
+	VTKMesh->ShallowCopy(Reader->GetOutput());
+	return VTKMesh;
 }
 
 
@@ -146,19 +120,6 @@ bool SaveVTKPolyDataAsPLYFile(vtkPolyData* OutputVTKMesh, const String& FilePath
 vtkSmartPointer<vtkPolyData> LoadVTKPolyDataFromPLYFile(const String& FilePathAndName)
 {
 	auto VTKMesh = vtkSmartPointer<vtkPolyData>::New();
-	LoadVTKPolyDataFromPLYFile(VTKMesh, FilePathAndName);
-	return VTKMesh;
-}
-
-
-bool LoadVTKPolyDataFromPLYFile(vtkPolyData* OutputVTKMesh, const String& FilePathAndName)
-{
-	if (OutputVTKMesh == nullptr)
-	{
-		MDK_Error("input is nullptr @ LoadVTKPolyDataFromPLYFile(...)")
-		return false;
-	}
-
 	auto Reader = vtkSmartPointer<vtkPLYReader>::New();
 	Reader->SetFileName(FilePathAndName.StdString().c_str());
 	try
@@ -168,10 +129,10 @@ bool LoadVTKPolyDataFromPLYFile(vtkPolyData* OutputVTKMesh, const String& FilePa
 	catch (...)
 	{
 		MDK_Error(" Can not read data @ LoadVTKPolyDataFromPLYFile(...) ")
-		return false;
+		return VTKMesh;
 	}
-	OutputVTKMesh->ShallowCopy(Reader->GetOutput());
-	return true;
+	VTKMesh->ShallowCopy(Reader->GetOutput());
+	return VTKMesh;
 }
 
 

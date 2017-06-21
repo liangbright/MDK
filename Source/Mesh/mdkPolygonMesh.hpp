@@ -1817,7 +1817,7 @@ DenseVector<DenseVector<ScalarType>> PolygonMesh<ScalarType>::GetPointDataSet(in
 }
 
 template<typename ScalarType>
-DenseMatrix<ScalarType> PolygonMesh<ScalarType>::GetPointDataSet(const String& Name) const
+DenseVector<DenseVector<ScalarType>> PolygonMesh<ScalarType>::GetPointDataSet(const String& Name) const
 {
 	auto Index = this->GetPointDataSetIndex(Name);
 	return this->GetPointDataSet(Index);
@@ -2899,16 +2899,15 @@ void PolygonMesh<ScalarType>::CleanDataStructure(DenseVector<int_max>& PointInde
 	for (int_max Index = 0; Index < m_MeshData->PointDataSet.GetLength(); ++Index)
 	{
 		auto DataSet_old = m_MeshData->PointDataSet[Index];
-		auto ScalarCountPerPoint = DataSet_old.GetRowCount();
 		auto& DataSet_new = m_MeshData->PointDataSet[Index];
 		DataSet_new.Clear();
-		DataSet_new.Resize(ScalarCountPerPoint, m_MeshData->PointList.GetLength());
+		DataSet_new.Resize(m_MeshData->PointList.GetLength());
 		for (int_max PointIndex_old = 0; PointIndex_old < PointIndexMap_Old_To_New.GetLength(); ++PointIndex_old)
 		{
 			auto PointIndex_new = PointIndexMap_Old_To_New[PointIndex_old];
 			if (PointIndex_new >= 0)
 			{
-				DataSet_new.SetCol(PointIndex_new, DataSet_old.GetPointerOfCol(PointIndex_old));
+				DataSet_new[PointIndex_new] = DataSet_old[PointIndex_old];
 			}
 		}
 	}
@@ -2916,16 +2915,15 @@ void PolygonMesh<ScalarType>::CleanDataStructure(DenseVector<int_max>& PointInde
 	for (int_max Index = 0; Index < m_MeshData->EdgeDataSet.GetLength(); ++Index)
 	{
 		auto DataSet_old = m_MeshData->EdgeDataSet[Index];
-		auto ScalarCountPerEdge = DataSet_old.GetRowCount();
 		auto& DataSet_new = m_MeshData->EdgeDataSet[Index];
 		DataSet_new.Clear();
-		DataSet_new.Resize(ScalarCountPerEdge, m_MeshData->EdgeList.GetLength());
+		DataSet_new.Resize(m_MeshData->EdgeList.GetLength());
 		for (int_max EdgeIndex_old = 0; EdgeIndex_old < EdgeIndexMap_Old_To_New.GetLength(); ++EdgeIndex_old)
 		{
 			auto EdgeIndex_new = EdgeIndexMap_Old_To_New[EdgeIndex_old];
 			if (EdgeIndex_new >= 0)
 			{
-				DataSet_new.SetCol(EdgeIndex_new, DataSet_old.GetPointerOfCol(EdgeIndex_old));
+				DataSet_new[EdgeIndex_new] = DataSet_old[EdgeIndex_old];
 			}
 		}
 	}
@@ -2933,16 +2931,15 @@ void PolygonMesh<ScalarType>::CleanDataStructure(DenseVector<int_max>& PointInde
 	for (int_max Index = 0; Index < m_MeshData->FaceDataSet.GetLength(); ++Index)
 	{
 		auto DataSet_old = m_MeshData->FaceDataSet[Index];
-		auto ScalarCountPerFace = DataSet_old.GetRowCount();
 		auto& DataSet_new = m_MeshData->FaceDataSet[Index];
 		DataSet_new.Clear();
-		DataSet_new.Resize(ScalarCountPerFace, m_MeshData->FaceList.GetLength());
+		DataSet_new.Resize(m_MeshData->FaceList.GetLength());
 		for (int_max FaceIndex_old = 0; FaceIndex_old < FaceIndexMap_Old_To_New.GetLength(); ++FaceIndex_old)
 		{
 			auto FaceIndex_new = FaceIndexMap_Old_To_New[FaceIndex_old];
 			if (FaceIndex_new >= 0)
 			{
-				DataSet_new.SetCol(FaceIndex_new, DataSet_old.GetPointerOfCol(FaceIndex_old));
+				DataSet_new[FaceIndex_new] = DataSet_old[FaceIndex_old];
 			}
 		}
 	}
@@ -3389,9 +3386,7 @@ PolygonMesh<ScalarType>::GetSubMeshByFace(const DenseVector<int_max>& FaceIndexL
 	for (int_max Index = 0; Index < this->GetEdgeDataSetCount(); ++Index)
 	{
 		auto Name = this->GetEdgeDataSetName(Index);
-		auto tempData = this->Edge(0).GetData(Index);
-		auto ScalarCountPerEdge = tempData.GetLength();
-		OutputMesh.SetEdgeDataSet(Name, ScalarCountPerEdge);
+		OutputMesh.InitializeEdgeDataSet(Name);
 		for (int_max k = 0; k < Map_EdgeIndex_OuputIndex.GetLength(); ++k)
 		{
 			if (Map_EdgeIndex_OuputIndex[k] >= 0)
@@ -3406,13 +3401,15 @@ PolygonMesh<ScalarType>::GetSubMeshByFace(const DenseVector<int_max>& FaceIndexL
 	for (int_max Index = 0; Index < this->GetFaceDataSetCount(); ++Index)
 	{
 		auto Name = this->GetFaceDataSetName(Index);
-		auto tempData = this->Face(0).GetData(Index);
-		auto ScalarCountPerFace = tempData.GetLength();
-		OutputMesh.SetFaceDataSet(Name, ScalarCountPerFace);
-		for (int_max k = 0; k < FaceIndexList.GetLength(); ++k)
+		OutputMesh.InitializeFaceDataSet(Name);
+		for (int_max k = 0; k < Map_FaceIndex_OuputIndex.GetLength(); ++k)
 		{
-			auto Data = this->Face(FaceIndexList[k]).GetData(Index);
-			OutputMesh.Face(k).SetData(Name, Data);
+			if (Map_FaceIndex_OuputIndex[k] >= 0)
+			{
+				auto OuputIndex = Map_FaceIndex_OuputIndex[k];
+				auto Data = this->Face(k).GetData(Index);
+				OutputMesh.Face(OuputIndex).SetData(Name, Data);
+			}
 		}
 	}
 

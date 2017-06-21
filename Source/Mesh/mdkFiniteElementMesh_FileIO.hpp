@@ -4,26 +4,13 @@ namespace mdk
 {
 
 template<typename ScalarType>
-vtkSmartPointer<vtkUnstructuredGrid> ConvertFiniteElementMeshToVTKUnstructuredGrid(const FiniteElementMesh<ScalarType>& InputMesh)
+vtkSmartPointer<vtkUnstructuredGrid> ConvertMDKFiniteElementMeshToVTKUnstructuredGrid(const FiniteElementMesh<ScalarType>& InputMesh)
 {
 	auto VTKMesh = vtkSmartPointer<vtkUnstructuredGrid>::New();
-	ConvertFiniteElementMeshToVTKUnstructuredGrid(InputMesh, VTKMesh);
-	return VTKMesh;
-}
-
-
-template<typename ScalarType>
-bool ConvertFiniteElementMeshToVTKUnstructuredGrid(const FiniteElementMesh<ScalarType>& InputMesh, vtkUnstructuredGrid* VTKMesh)
-{
-	if (VTKMesh == nullptr)
-	{
-		MDK_Error("VTKMesh is nullptr @ ConvertFiniteElementMeshToVTKUnstructuredGrid(...)")
-		return false;
-	}
 
 	if (InputMesh.IsEmpty() == true)
 	{
-		return true;
+		return VTKMesh;
 	}
 
 	auto ReferenceScalar = ScalarType(0);
@@ -66,7 +53,7 @@ bool ConvertFiniteElementMeshToVTKUnstructuredGrid(const FiniteElementMesh<Scala
 	}
 	else
 	{
-		MDK_Warning("ScalarTypeName is not double or float @ ConvertFiniteElementMeshToVTKUnstructuredGrid(...)")
+		MDK_Warning("ScalarTypeName is not double or float @ ConvertMDKFiniteElementMeshToVTKUnstructuredGrid(...)")
 
 		PointData->SetDataType(VTK_DOUBLE);
 		PointData->SetNumberOfPoints(PointCount);
@@ -105,34 +92,34 @@ bool ConvertFiniteElementMeshToVTKUnstructuredGrid(const FiniteElementMesh<Scala
 		
 		switch (ElementType)
 		{
-		case FiniteElementType::S3:
+		case FiniteElementType::VTK_TRIANGLE:
 			CellTypeList[i] = VTKCellType::VTK_TRIANGLE;
 			break;
-		case FiniteElementType::S3R:
-			CellTypeList[i] = VTKCellType::VTK_TRIANGLE;
-			break;
-		case FiniteElementType::S4:
+		case FiniteElementType::VTK_QUAD:
 			CellTypeList[i] = VTKCellType::VTK_QUAD;
 			break;
-		case FiniteElementType::S4R:
-			CellTypeList[i] = VTKCellType::VTK_QUAD;
-			break;
-		case FiniteElementType::C3D4:
+		case FiniteElementType::VTK_TETRA:
 			CellTypeList[i] = VTKCellType::VTK_TETRA;
 			break;
-		case FiniteElementType::C3D4R:
-			CellTypeList[i] = VTKCellType::VTK_TETRA;
-			break;
-		case FiniteElementType::C3D6:
+		case FiniteElementType::VTK_WEDGE:
 			CellTypeList[i] = VTKCellType::VTK_WEDGE;
 			break;
-		case FiniteElementType::C3D6R:
-			CellTypeList[i] = VTKCellType::VTK_WEDGE;
-			break;
-		case FiniteElementType::C3D8:
+		case FiniteElementType::VTK_HEXAHEDRON:
 			CellTypeList[i] = VTKCellType::VTK_HEXAHEDRON;
 			break;
-		case FiniteElementType::C3D8R:
+		case FiniteElementType::Abaqus_S3:
+			CellTypeList[i] = VTKCellType::VTK_TRIANGLE;
+			break;
+		case FiniteElementType::Abaqus_S4:
+			CellTypeList[i] = VTKCellType::VTK_QUAD;
+			break;
+		case FiniteElementType::Abaqus_C3D4:
+			CellTypeList[i] = VTKCellType::VTK_TETRA;
+			break;
+		case FiniteElementType::Abaqus_C3D6:
+			CellTypeList[i] = VTKCellType::VTK_WEDGE;
+			break;
+		case FiniteElementType::Abaqus_C3D8:
 			CellTypeList[i] = VTKCellType::VTK_HEXAHEDRON;
 			break;
 		default:
@@ -145,11 +132,11 @@ bool ConvertFiniteElementMeshToVTKUnstructuredGrid(const FiniteElementMesh<Scala
 	VTKMesh->SetPoints(PointData);
 	VTKMesh->SetCells(CellTypeList.GetPointer(), CellData);
 	
-	return true;
+	return VTKMesh;
 }
 
 template<typename ScalarType>
-vtkSmartPointer<vtkPolyData> ConvertFiniteElementMeshToVTKPolyData(const FiniteElementMesh<ScalarType>& InputMesh)
+vtkSmartPointer<vtkPolyData> ConvertMDKFiniteElementMeshToVTKPolyData(const FiniteElementMesh<ScalarType>& InputMesh)
 {
 	auto VTKMesh = vtkSmartPointer<vtkPolyData>::New();
 
@@ -166,7 +153,6 @@ vtkSmartPointer<vtkPolyData> ConvertFiniteElementMeshToVTKPolyData(const FiniteE
 	{
 		PointData->SetDataType(VTK_DOUBLE);
 		PointData->SetNumberOfPoints(PointCount);
-
 		for (int i = 0; i < PointCount; ++i)
 		{
 			auto Position = InputMesh.GetNode(i);
@@ -181,7 +167,6 @@ vtkSmartPointer<vtkPolyData> ConvertFiniteElementMeshToVTKPolyData(const FiniteE
 	{
 		PointData->SetDataType(VTK_FLOAT);
 		PointData->SetNumberOfPoints(PointCount);
-
 		for (int i = 0; i < PointCount; ++i)
 		{
 			auto Position = InputMesh.GetNode(i);
@@ -194,11 +179,10 @@ vtkSmartPointer<vtkPolyData> ConvertFiniteElementMeshToVTKPolyData(const FiniteE
 	}
 	else
 	{
-		MDK_Warning("ScalarTypeName is not double or float @ ConvertFiniteElementMeshToVTKPolyData(...)")
+		MDK_Warning("ScalarTypeName is not double or float @ ConvertMDKFiniteElementMeshToVTKPolyData(...)")
 
 		PointData->SetDataType(VTK_DOUBLE);
 		PointData->SetNumberOfPoints(PointCount);
-
 		for (int i = 0; i < PointCount; ++i)
 		{
 			auto Position = InputMesh.GetNode(i);
@@ -218,13 +202,10 @@ vtkSmartPointer<vtkPolyData> ConvertFiniteElementMeshToVTKPolyData(const FiniteE
 	{
 		auto Element = InputMesh.GetElement(i);
 		auto PointCountInCell = Element.GetLength();
-
 		CellData->InsertNextCell(PointCountInCell);
-
 		for (int n = 0; n < PointCountInCell; ++n)
 		{
 			auto PointIndex = Element[n];
-
 			CellData->InsertCellPoint(PointIndex);
 		}
 	}
@@ -236,11 +217,11 @@ vtkSmartPointer<vtkPolyData> ConvertFiniteElementMeshToVTKPolyData(const FiniteE
 
 
 template<typename ScalarType>
-bool ConvertVTKUnstructuredGridToFiniteElementMesh(vtkUnstructuredGrid* VTKMesh, FiniteElementMesh<ScalarType>& OutputMesh)
-{
+bool ConvertVTKUnstructuredGridToMDKFiniteElementMesh(vtkUnstructuredGrid* VTKMesh, FiniteElementMesh<ScalarType>& OutputMesh)
+{	
 	if (VTKMesh == nullptr)
 	{
-		MDK_Error("VTKMesh is nullptr @ ConvertVTKUnstructuredGridToFiniteElementMesh(...)")
+		MDK_Error("VTKMesh is nullptr @ ConvertVTKUnstructuredGridToMDKFiniteElementMesh(...)")
 		return false;
 	}
 
@@ -273,7 +254,89 @@ bool ConvertVTKUnstructuredGridToFiniteElementMesh(vtkUnstructuredGrid* VTKMesh,
 			IndexList[n] = int_max(Cell->GetPointId(n));
 		}
 
-		OutputMesh.AddElement(IndexList);
+		FiniteElementType ElementType;
+		auto CellType = Cell->GetCellType();
+		switch (CellType)
+		{
+		case VTKCellType::VTK_TRIANGLE:
+			ElementType = FiniteElementType::VTK_TRIANGLE;
+			break;
+		case VTKCellType::VTK_QUAD:
+			ElementType = FiniteElementType::VTK_QUAD;
+			break;
+		case VTKCellType::VTK_TETRA:
+			ElementType = FiniteElementType::VTK_TETRA;
+			break;
+		case VTKCellType::VTK_WEDGE:			
+			ElementType = FiniteElementType::VTK_WEDGE;
+			break;
+		case VTKCellType::VTK_HEXAHEDRON:
+			ElementType = FiniteElementType::VTK_HEXAHEDRON;
+			break;
+		default:
+			ElementType = FiniteElementType::VTK_CONVEX_POINT_SET;
+		}
+
+		OutputMesh.AddElement(IndexList, ElementType);
+	}
+
+	return true;
+}
+
+
+template<typename ScalarType>
+bool ConvertVTKPolyDataToMDKFiniteElementMesh(vtkPolyData* VTKMesh, FiniteElementMesh<ScalarType>& OutputMesh)
+{
+	if (VTKMesh == nullptr)
+	{
+		MDK_Error("VTKMesh is nullptr @ ConvertVTKPolyDataToMDKFiniteElementMesh(...)")
+		return false;
+	}
+
+	auto PointCount = int_max(VTKMesh->GetNumberOfPoints());
+	auto CellCount = int_max(VTKMesh->GetNumberOfCells());
+	OutputMesh.SetCapacity(PointCount, CellCount);
+
+	if (PointCount == 0)
+	{
+		OutputMesh.Clear();
+		return true;
+	}
+
+	for (int_max k = 0; k < PointCount; ++k)
+	{
+		double pos[3];
+		VTKMesh->GetPoint(k, pos);
+		OutputMesh.AddNode(pos);
+	}
+
+	for (int_max k = 0; k < CellCount; ++k)
+	{
+		auto Cell = VTKMesh->GetCell(k);
+		auto PointNumberInCell = int_max(Cell->GetNumberOfPoints());
+
+		DenseVector<int_max> IndexList;
+		IndexList.Resize(PointNumberInCell);
+		for (int_max n = 0; n < PointNumberInCell; ++n)
+		{
+			IndexList[n] = int_max(Cell->GetPointId(n));
+		}
+
+		FiniteElementType ElementType;
+		auto CellType = Cell->GetCellType();
+		switch (CellType)
+		{
+		case VTKCellType::VTK_TRIANGLE:
+			ElementType = FiniteElementType::VTK_TRIANGLE;
+			break;
+		case VTKCellType::VTK_QUAD:
+			ElementType = FiniteElementType::VTK_QUAD;
+			break;
+		default:
+			ElementType = FiniteElementType::VTK_POLYGON;
+		}
+
+		OutputMesh.AddElement(IndexList, ElementType);
 	}
 
 	return true;
@@ -285,12 +348,12 @@ bool SaveFiniteElementMeshAsVTKFile(const FiniteElementMesh<ScalarType>& InputMe
 {
 	if (InputMesh.IsSolidMesh() == true)
 	{
-		auto VTKMesh = ConvertFiniteElementMeshToVTKUnstructuredGrid(InputMesh);
+		auto VTKMesh = ConvertMDKFiniteElementMeshToVTKUnstructuredGrid(InputMesh);
 		return SaveVTKUnstructuredGridAsVTKFile(VTKMesh, FilePathAndName);
 	}
 	else
 	{
-		auto VTKMesh = ConvertFiniteElementMeshToVTKPolyData(InputMesh);
+		auto VTKMesh = ConvertMDKFiniteElementMeshToVTKPolyData(InputMesh);
 		return SaveVTKPolyDataAsVTKFile(VTKMesh, FilePathAndName);
 	}
 }
@@ -299,8 +362,17 @@ bool SaveFiniteElementMeshAsVTKFile(const FiniteElementMesh<ScalarType>& InputMe
 template<typename ScalarType>
 bool LoadFiniteElementMeshFromVTKFile(FiniteElementMesh<ScalarType>& OutputMesh, const String& FilePathAndName)
 {
-	auto VTKMesh = LoadVTKUnstructuredGridFromVTKFile(FilePathAndName);
-	return ConvertVTKUnstructuredGridToFiniteElementMesh(VTKMesh, OutputMesh);
+	if (OutputMesh.IsSolidMesh() == true)
+	{
+		auto VTKMesh = LoadVTKUnstructuredGridFromVTKFile(FilePathAndName);		
+		return ConvertVTKUnstructuredGridToMDKFiniteElementMesh(VTKMesh, OutputMesh);
+	}
+	else
+	{
+		auto VTKMesh = LoadVTKPolyDataFromVTKFile(FilePathAndName);
+		return ConvertVTKPolyDataToMDKFiniteElementMesh(VTKMesh, OutputMesh);
+	}
+	return true;
 }
 
 
@@ -663,7 +735,7 @@ bool SaveFiniteElementMeshAsAbaqusINPFile(const FiniteElementMesh<ScalarType>& I
 	for (int_max k = 0; k < InputMesh.GetElementCount(); ++k)
 	{
 		auto Element = InputMesh.GetElement(k);
-		ElementType_cur = InputMesh.GetElementTypeAsString(k);
+		ElementType_cur = InputMesh.GetElementTypeAsString_Abaqus(k);
 		if (ElementType_cur != ElementType_prev)
 		{
 			OutputINPFile << "*ELEMENT, TYPE = " << ElementType_cur << '\n';

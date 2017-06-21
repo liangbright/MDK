@@ -285,9 +285,9 @@ String Point_Of_PolygonMesh<ScalarType>::GetName() const
 }
 
 template<typename ScalarType>
-inline void Point_Of_PolygonMesh<ScalarType>::SetData(int_max Index, const DenseVector<ScalarType>& Data)
+inline void Point_Of_PolygonMesh<ScalarType>::SetData(int_max Index, DenseVector<ScalarType> Data)
 {
-	m_Data->MeshData->PointDataSet[Index].SetCol(m_Data->Index, Data);
+	m_Data->MeshData->PointDataSet[Index][m_Data->Index] = std::move(Data);
 }
 
 template<typename ScalarType>
@@ -734,9 +734,9 @@ String Edge_Of_PolygonMesh<ScalarType>::GetName() const
 }
 
 template<typename ScalarType>
-inline void Edge_Of_PolygonMesh<ScalarType>::SetData(int_max Index, const DenseVector<ScalarType>& Data)
+inline void Edge_Of_PolygonMesh<ScalarType>::SetData(int_max Index, DenseVector<ScalarType> Data)
 {
-	m_Data->MeshData->EdgeDataSet[Index].SetCol(m_Data->Index, Data);
+	m_Data->MeshData->EdgeDataSet[Index][m_Data->Index] = std::move(Data);
 }
 
 template<typename ScalarType>
@@ -1158,9 +1158,9 @@ String Face_Of_PolygonMesh<ScalarType>::GetName() const
 }
 
 template<typename ScalarType>
-inline void Face_Of_PolygonMesh<ScalarType>::SetData(int_max Index, const DenseVector<ScalarType>& Data)
+inline void Face_Of_PolygonMesh<ScalarType>::SetData(int_max Index, DenseVector<ScalarType> Data)
 {
-	m_Data->MeshData->FaceDataSet[Index].SetCol(m_Data->Index, Data);
+	m_Data->MeshData->FaceDataSet[Index][m_Data->Index] = std::move(Data);
 }
 
 template<typename ScalarType>

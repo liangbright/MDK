@@ -108,7 +108,7 @@ public:
 	inline void EraseName();
 	inline String GetName() const;
 
-	inline void SetData(int_max Index, const DenseVector<ScalarType>& Data);
+	inline void SetData(int_max Index, DenseVector<ScalarType> Data);
 	inline DenseVector<ScalarType> GetData(int_max Index) const;
 
     inline void SetPosition(const DenseVector<ScalarType, 3>& Pos);
@@ -224,7 +224,7 @@ public:
 	inline void EraseName();
 	inline String GetName() const;
 
-	inline void SetData(int_max Index, const DenseVector<ScalarType>& Data);
+	inline void SetData(int_max Index, DenseVector<ScalarType> Data);
 	inline DenseVector<ScalarType> GetData(int_max Index) const;
 
 	inline void GetPointIndexList(int_max PointIndexList[2]) const;
@@ -331,7 +331,7 @@ public:
 	inline void EraseName();
 	inline String GetName() const;
 
-	inline void SetData(int_max Index, const DenseVector<ScalarType>& Data);
+	inline void SetData(int_max Index, DenseVector<ScalarType> Data);
 	inline DenseVector<ScalarType> GetData(int_max Index) const;
 
 	inline int_max GetPointCount() const;

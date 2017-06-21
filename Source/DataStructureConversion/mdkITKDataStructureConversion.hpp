@@ -82,24 +82,11 @@ itk::SmartPointer<itk::Image<PixelType, 3>> ConvertMDK3DScalarImageToITK3DScalar
 {
 	typedef itk::Image<PixelType, 3> ITKImageType;
 	itk::SmartPointer<ITKImageType> ITKImage = ITKImageType::New();
-	ITKImageType * Ptr = ITKImage.GetPointer();
-	ConvertMDK3DScalarImageToITK3DScalarImage(MDKImage, Ptr);
-	return ITKImage;
-}
-
-
-template<typename PixelType>
-bool ConvertMDK3DScalarImageToITK3DScalarImage(const DenseImage3D<PixelType>& MDKImage, itk::Image<PixelType, 3>* ITKImage)
-{
-	if (ITKImage == nullptr)
-	{
-		MDK_Error("ITKImage is nullptr @ ConvertITK3DScalarImageToMDK3DScalarImage(...)")
-		return false;
-	}
-
+	
 	if (MDKImage.IsEmpty() == true)
 	{
-		MDK_Warning("MDKImage is empty @ ConvertMDK3DScalarImageToITK3DScalarImage(...)")		
+		MDK_Warning("MDKImage is empty @ ConvertMDK3DScalarImageToITK3DScalarImage(...)")
+		return ITKImage;
 	}
 
 	auto InputSize = MDKImage.GetSize();
@@ -140,17 +127,14 @@ bool ConvertMDK3DScalarImageToITK3DScalarImage(const DenseImage3D<PixelType>& MD
 	ITKImage->SetDirection(Direction);
 
 	ITKImage->Allocate();
-
 	auto Ptr_MDKImage = MDKImage.GetPixelPointer();
-
 	auto Ptr_ITKImage = ITKImage->GetBufferPointer();
-
 	for (int_max i = 0; i < MDKImage.GetPixelCount(); ++i)
 	{
 		Ptr_ITKImage[i] = Ptr_MDKImage[i];
 	}
 
-	return true;
+	return ITKImage;
 }
 
 //------------------------------------------------- MDK-2D to ITK-3D -------------------------------------------------//
@@ -233,24 +217,11 @@ itk::SmartPointer<itk::Image<PixelType, 3>> ConvertMDK2DScalarImageToITK3DScalar
 {
 	typedef itk::Image<PixelType, 3> ITKImageType;
 	itk::SmartPointer<ITKImageType> ITKImage = ITKImageType::New();
-	ITKImageType * Ptr = ITKImage.GetPointer();
-	ConvertMDK2DScalarImageToITK3DScalarImage(MDKImage, Ptr);
-	return ITKImage;
-}
-
-
-template<typename PixelType>
-bool ConvertMDK2DScalarImageToITK3DScalarImage(const DenseImage2D<PixelType>& MDKImage, itk::Image<PixelType, 3>* ITKImage)
-{
-	if (ITKImage == nullptr)
-	{
-		MDK_Error("ITKImage is nullptr @ ConvertMDK2DScalarImageToITK2DScalarImage(...)")
-		return false;
-	}
 
 	if (MDKImage.IsEmpty() == true)
 	{
 		MDK_Warning("MDKImage is empty @ ConvertMDK2DScalarImageToITK2DScalarImage(...)")
+		return ITKImage;
 	}
 
 	auto InputSize = MDKImage.GetSize();
@@ -291,17 +262,14 @@ bool ConvertMDK2DScalarImageToITK3DScalarImage(const DenseImage2D<PixelType>& MD
 	ITKImage->SetDirection(Direction);
 
 	ITKImage->Allocate();
-
 	auto Ptr_MDKImage = MDKImage.GetPixelPointer();
-
 	auto Ptr_ITKImage = ITKImage->GetBufferPointer();
-
 	for (int_max i = 0; i < MDKImage.GetPixelCount(); ++i)
 	{
 		Ptr_ITKImage[i] = Ptr_MDKImage[i];
 	}
 
-	return true;
+	return ITKImage;
 }
 
 //--------------------------------------------- ITK-3D to MDK-3D -----------------------------------------------------------------------//

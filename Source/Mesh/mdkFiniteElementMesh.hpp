@@ -728,13 +728,15 @@ bool FiniteElementMesh<ScalarType>::IsShellElement(int_max ElementIndex) const
 	auto Type = this->GetElementType(ElementIndex);
 	switch (Type)
 	{
-	case FiniteElementType::S3:
+	case FiniteElementType::VTK_TRIANGLE:
 		return true;
-	case FiniteElementType::S3R:
+	case FiniteElementType::VTK_QUAD:
 		return true;
-	case FiniteElementType::S4:
+	case FiniteElementType::VTK_POLYGON:
 		return true;
-	case FiniteElementType::S4R:
+	case FiniteElementType::Abaqus_S3:
+		return true;
+	case FiniteElementType::Abaqus_S4:
 		return true;
 	default:
 		return false;
@@ -744,26 +746,160 @@ bool FiniteElementMesh<ScalarType>::IsShellElement(int_max ElementIndex) const
 template<typename ScalarType>
 bool FiniteElementMesh<ScalarType>::IsSolidElement(int_max ElementIndex) const
 {
-	auto Type = this->GetElementType(ElementIndex);
-	switch (Type)
-	{
-	case FiniteElementType::C3D4:
-		return true;
-	case FiniteElementType::C3D4R:
-		return true;
-	case FiniteElementType::C3D6:
-		return true;
-	case FiniteElementType::C3D6R:
-		return true;
-	case FiniteElementType::C3D8:
-		return true;
-	case FiniteElementType::C3D8R:
-		return true;
-	default:
-		return false;
-	}
+	return !(this->IsShellElement(ElementIndex));
 }
 
+template<typename ScalarType>
+int_max FiniteElementMesh<ScalarType>::InitializeNodeDataSet(const String& Name)
+{
+	auto Index = this->GetNodeDataSetIndex(Name);
+	if (Index < 0)
+	{
+		m_MeshData->NodeDataSetNameList.Append(Name);
+		DenseVector<DenseVector<ScalarType>> DataSet;
+		DataSet.Resize(this->GetNodeCount());
+		m_MeshData->NodeDataSetList.Append(DataSet);
+		Index = m_MeshData->NodeDataSetList.GetLength() - 1;
+	}
+	else
+	{
+		m_MeshData->NodeDataSetList[Index].Clear();
+		m_MeshData->NodeDataSetList[Index].Resize(this->GetNodeCount());
+	}
+	return Index;
+}
+
+template<typename ScalarType>
+int_max FiniteElementMesh<ScalarType>::GetNodeDataSetCount() const
+{
+	return m_MeshData->NodeDataSetList.GetLength();
+}
+
+template<typename ScalarType>
+int_max FiniteElementMesh<ScalarType>::GetNodeDataSetIndex(const String& Name) const
+{
+	for (int_max k = 0; k < m_MeshData->NodeDataSetNameList.GetLength(); ++k)
+	{
+		if (Name == m_MeshData->NodeDataSetNameList[k])
+		{
+			return k;
+		}
+	}
+	return -1;
+}
+
+template<typename ScalarType>
+String FiniteElementMesh<ScalarType>::GetNodeDataSetName(int_max DataSetIndex) const
+{
+	return m_MeshData->NodeDataSetNameList[DataSetIndex];
+}
+
+template<typename ScalarType>
+void FiniteElementMesh<ScalarType>::SetNodeDataSet(const String& Name, DenseVector<DenseVector<ScalarType>> DataSet)
+{
+	auto Index = this->GetNodeDataSetIndex(Name);
+	this->SetNodeDataSet(Index, std::move(DataSet));
+}
+
+template<typename ScalarType>
+void FiniteElementMesh<ScalarType>::SetNodeDataSet(int_max DataSetIndex, DenseVector<DenseVector<ScalarType>> DataSet)
+{
+	if (DataSet.GetLength() != this->GetNodeCount())
+	{
+		MDK_Error("invalid DataSet @ FiniteElementMesh::SetNodeDataSet(...,...)")
+		return;
+	}	
+	m_MeshData->NodeDataSetList[DataSetIndex] = std::move(DataSet);
+}
+
+template<typename ScalarType>
+DenseVector<DenseVector<ScalarType>> FiniteElementMesh<ScalarType>::GetNodeDataSet(const String& Name) const
+{
+	auto Index = this->GetNodeDataSetIndex(Name);
+	return this->GetNodeDataSet(Index);
+}
+
+template<typename ScalarType>
+DenseVector<DenseVector<ScalarType>> FiniteElementMesh<ScalarType>::GetNodeDataSet(int_max DataSetIndex) const
+{
+	return m_MeshData->NodeDataSetList[DataSetIndex];
+}
+
+template<typename ScalarType>
+int_max FiniteElementMesh<ScalarType>::InitializeElementDataSet(const String& Name)
+{
+	auto Index = this->GetElementDataSetIndex(Name);
+	if (Index < 0)
+	{
+		m_MeshData->ElementDataSetNameList.Append(Name);
+		DenseVector<DenseVector<ScalarType>> DataSet;
+		DataSet.Resize(this->GetNodeCount());
+		m_MeshData->ElementDataSetList.Append(DataSet);
+		Index = m_MeshData->ElementDataSetList.GetLength() - 1;
+	}
+	else
+	{
+		m_MeshData->ElementDataSetList[Index].Clear();
+		m_MeshData->ElementDataSetList[Index].Resize(this->GetNodeCount());
+	}
+	return Index;
+}
+
+template<typename ScalarType>
+int_max FiniteElementMesh<ScalarType>::GetElementDataSetCount() const
+{
+	return m_MeshData->ElementDataSetList.GetLength();
+}
+
+template<typename ScalarType>
+int_max FiniteElementMesh<ScalarType>::GetElementDataSetIndex(const String& Name) const
+{
+	for (int_max k = 0; k < m_MeshData->ElementDataSetNameList.GetLength(); ++k)
+	{
+		if (Name == m_MeshData->ElementDataSetNameList[k])
+		{
+			return k;
+		}
+	}
+	return -1;
+}
+
+template<typename ScalarType>
+String FiniteElementMesh<ScalarType>::GetElementDataSetName(int_max DataSetIndex) const
+{
+	return m_MeshData->ElementDataSetNameList[DataSetIndex];
+}
+
+template<typename ScalarType>
+void FiniteElementMesh<ScalarType>::SetElementDataSet(const String& Name, DenseVector<DenseVector<ScalarType>> DataSet)
+{
+	auto Index = this->GetElementDataSetIndex(Name);
+	this->SetElementDataSet(Index, std::move(DataSet));
+}
+
+template<typename ScalarType>
+void FiniteElementMesh<ScalarType>::SetElementDataSet(int_max DataSetIndex, DenseVector<DenseVector<ScalarType>> DataSet)
+{
+	if (DataSet.GetLength() != this->GetElementCount())
+	{
+		MDK_Error("invalid DataSet @ FiniteElementMesh::SetElementDataSet(...,...)")
+		return;
+	}
+	m_MeshData->ElementDataSetList[DataSetIndex] = std::move(DataSet);
+}
+
+template<typename ScalarType>
+DenseVector<DenseVector<ScalarType>> FiniteElementMesh<ScalarType>::GetElementDataSet(const String& Name) const
+{
+	auto Index = this->GetElementDataSetIndex(Name);
+	return this->GetElementDataSet(Index);
+}
+
+template<typename ScalarType>
+DenseVector<DenseVector<ScalarType>> FiniteElementMesh<ScalarType>::GetElementDataSet(int_max DataSetIndex) const
+{
+	return m_MeshData->ElementDataSetList[DataSetIndex];
+}
 
 template<typename ScalarType>
 bool FiniteElementMesh<ScalarType>::IsShellMesh() const
@@ -803,35 +939,37 @@ String FiniteElementMesh<ScalarType>::ConvertElementTypeToString(FiniteElementTy
 	String ElementTypeName;
 	switch (Type)
 	{
-	case FiniteElementType::S3:
-		ElementTypeName = "S3";
+	case FiniteElementType::VTK_TRIANGLE:
+		ElementTypeName = "VTK_TRIANGLE";
 		break;
-	case FiniteElementType::S3R:
-		ElementTypeName = "S3R";
+	case FiniteElementType::VTK_QUAD:
+		ElementTypeName = "VTK_QUAD";
 		break;
-	case FiniteElementType::S4:
-		ElementTypeName = "S4";
+	case FiniteElementType::VTK_POLYGON:
+		ElementTypeName = "VTK_POLYGON";
+	case FiniteElementType::VTK_TETRA:		
+		ElementTypeName = "VTK_TETRA";
 		break;
-	case FiniteElementType::S4R:
-		ElementTypeName = "S4R";
+	case FiniteElementType::VTK_WEDGE:		
+		ElementTypeName = "VTK_WEDGE";
 		break;
-	case FiniteElementType::C3D4:
-		ElementTypeName = "C3D4";
+	case FiniteElementType::VTK_HEXAHEDRON:
+		ElementTypeName = "VTK_HEXAHEDRON";
 		break;
-	case FiniteElementType::C3D4R:
-		ElementTypeName = "C3D4R";
+	case FiniteElementType::Abaqus_S3:
+		ElementTypeName = "Abaqus_S3";
 		break;
-	case FiniteElementType::C3D6:
-		ElementTypeName = "C3D6";
+	case FiniteElementType::Abaqus_S4:
+		ElementTypeName = "Abaqus_S4";
 		break;
-	case FiniteElementType::C3D6R:
-		ElementTypeName = "C3D6R";
+	case FiniteElementType::Abaqus_C3D4:
+		ElementTypeName = "Abaqus_C3D4";
 		break;
-	case FiniteElementType::C3D8:
-		ElementTypeName = "C3D8";
+	case FiniteElementType::Abaqus_C3D6:
+		ElementTypeName = "Abaqus_C3D6";
 		break;
-	case FiniteElementType::C3D8R:
-		ElementTypeName = "C3D8R";
+	case FiniteElementType::Abaqus_C3D8:
+		ElementTypeName = "Abaqus_C3D8";
 		break;
 	default:
 		ElementTypeName = "UNKNOWN";
@@ -839,50 +977,105 @@ String FiniteElementMesh<ScalarType>::ConvertElementTypeToString(FiniteElementTy
 	return ElementTypeName;
 }
 
+template<typename ScalarType>
+String FiniteElementMesh<ScalarType>::GetElementTypeAsString_Abaqus(int_max ElementIndex) const
+{
+	return this->ConvertElementTypeToString_Abaqus(this->GetElementType(ElementIndex));
+}
+
+template<typename ScalarType>
+String FiniteElementMesh<ScalarType>::ConvertElementTypeToString_Abaqus(FiniteElementType Type) const
+{
+	String ElementTypeName;
+	switch (Type)
+	{
+	case FiniteElementType::VTK_TRIANGLE:
+		ElementTypeName = "S3";
+		break;
+	case FiniteElementType::VTK_QUAD:
+		ElementTypeName = "S4";
+		break;
+	case FiniteElementType::VTK_TETRA:
+		ElementTypeName = "C3D4";
+		break;
+	case FiniteElementType::VTK_WEDGE:
+		ElementTypeName = "C3D6";
+		break;
+	case FiniteElementType::VTK_HEXAHEDRON:
+		ElementTypeName = "C3D8";
+		break;
+	case FiniteElementType::Abaqus_S3:
+		ElementTypeName = "S3";
+		break;
+	case FiniteElementType::Abaqus_S4:
+		ElementTypeName = "S4";
+		break;
+	case FiniteElementType::Abaqus_C3D4:
+		ElementTypeName = "C3D4";
+		break;
+	case FiniteElementType::Abaqus_C3D6:
+		ElementTypeName = "C3D6";
+		break;
+	case FiniteElementType::Abaqus_C3D8:
+		ElementTypeName = "C3D8";
+		break;
+	default:
+		ElementTypeName = "UNKNOWN";
+	}
+	return ElementTypeName;
+}
 
 template<typename ScalarType>
 FiniteElementType FiniteElementMesh<ScalarType>::ConvertStringToElementType(const String& Type) const
 {
 	FiniteElementType ElementType;
-    if (Type == "S3")
+    if (Type == "VTK_TRIANGLE")
 	{
-		ElementType = FiniteElementType::S3;
+		ElementType = FiniteElementType::VTK_TRIANGLE;
 	}
-	else if (Type == "S3R")
+	else if (Type == "VTK_QUAD")
 	{
-		ElementType = FiniteElementType::S3R;
+		ElementType = FiniteElementType::VTK_QUAD;
 	}
-	else if (Type == "S4")
+	else if (Type == "VTK_POLYGON")
 	{
-		ElementType = FiniteElementType::S4;
+		ElementType = FiniteElementType::VTK_POLYGON;
 	}
-	else if (Type == "S4R")
+	else if (Type == "VTK_TETRA")
 	{
-		ElementType = FiniteElementType::S4R;
+		ElementType = FiniteElementType::VTK_TETRA;
 	}
-	else if (Type == "C3D4")
+	else if (Type == "VTK_WEDGE")
 	{
-		ElementType = FiniteElementType::C3D4;
+		ElementType = FiniteElementType::VTK_WEDGE;
 	}
-	else if (Type == "C3D4R")
+	else if (Type == "VTK_HEXAHEDRON")
 	{
-		ElementType = FiniteElementType::C3D4R;
+		ElementType = FiniteElementType::VTK_HEXAHEDRON;
 	}
-	else if (Type == "C3D6")
+	else if (Type =="VTK_CONVEX_POINT_SET")
 	{
-		ElementType = FiniteElementType::C3D6;
+		ElementType = FiniteElementType::VTK_CONVEX_POINT_SET;
 	}
-	else if (Type == "C3D6R")
+	else if (Type == "Abaqus_S3")
 	{
-		ElementType = FiniteElementType::C3D6R;
+		ElementType = FiniteElementType::Abaqus_S3;
 	}
-	else if (Type == "C3D8")
+	else if (Type == "Abaqus_S4")
 	{
-		ElementType = FiniteElementType::C3D8;
+		ElementType = FiniteElementType::Abaqus_S4;
 	}
-	else if (Type == "C3D8R")
+	else if (Type == "Abaqus_C3D4")
 	{
-		ElementType = FiniteElementType::C3D8R;
+		ElementType = FiniteElementType::Abaqus_C3D4;
+	}
+	else if (Type == "Abaqus_C3D6")
+	{
+		ElementType = FiniteElementType::Abaqus_C3D6;
+	}
+	else if (Type == "Abaqus_C3D8")
+	{
+		ElementType = FiniteElementType::Abaqus_C3D8;
 	}
 	else
 	{

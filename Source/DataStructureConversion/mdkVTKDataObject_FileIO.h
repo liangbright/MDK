@@ -24,15 +24,12 @@ namespace mdk
 {
 bool SaveVTKPolyDataAsVTKFile(vtkPolyData* OutputVTKMesh, const String& FilePathAndName);//ASCII VTK file
 vtkSmartPointer<vtkPolyData> LoadVTKPolyDataFromVTKFile(const String& FilePathAndName);
-bool LoadVTKPolyDataFromVTKFile(vtkPolyData* OutputVTKMesh, const String& FilePathAndName);
 
 bool SaveVTKUnstructuredGridAsVTKFile(vtkUnstructuredGrid* OutputVTKMesh, const String& FilePathAndName);//ASCII VTK file
 vtkSmartPointer<vtkUnstructuredGrid> LoadVTKUnstructuredGridFromVTKFile(const String& FilePathAndName);
-bool LoadVTKUnstructuredGridFromVTKFile(vtkUnstructuredGrid* OutputVTKMesh, const String& FilePathAndName);
 
 bool SaveVTKPolyDataAsPLYFile(vtkPolyData* OutputVTKMesh, const String& FilePathAndName);//ASCII PLY file
 vtkSmartPointer<vtkPolyData> LoadVTKPolyDataFromPLYFile(const String& FilePathAndName);
-bool LoadVTKPolyDataFromPLYFile(vtkPolyData* OutputVTKMesh, const String& FilePathAndName);
 
 //directly load from file, not converted from mdk::PolygonMesh
 //bool LoadVTKPolygonMeshFromJsonDataFile(vtkPolyData* OutputVTKMesh, const String& FilePathAndName);

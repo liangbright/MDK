@@ -8,17 +8,17 @@ namespace mdk
 
 //------------------------------------ solid element mesh to VTKUnstructuredGrid ------------------------------------------
 template<typename ScalarType>
-vtkSmartPointer<vtkUnstructuredGrid> ConvertFiniteElementMeshToVTKUnstructuredGrid(const FiniteElementMesh<ScalarType>& InputMesh);
+vtkSmartPointer<vtkUnstructuredGrid> ConvertMDKFiniteElementMeshToVTKUnstructuredGrid(const FiniteElementMesh<ScalarType>& InputMesh);
 
 template<typename ScalarType>
-bool ConvertFiniteElementMeshToVTKUnstructuredGrid(const FiniteElementMesh<ScalarType>& InputMesh, vtkUnstructuredGrid* VTKMesh);
+bool ConvertVTKUnstructuredGridToMDKFiniteElementMesh(vtkUnstructuredGrid* VTKMesh, FiniteElementMesh<ScalarType>& OutputMesh);
+
+//----------------------------------- shell/membrane element mesh to VTKPolyData --------------------------------------------
+template<typename ScalarType>
+vtkSmartPointer<vtkPolyData> ConvertMDKFiniteElementMeshToVTKPolyData(const FiniteElementMesh<ScalarType>& InputMesh);
 
 template<typename ScalarType>
-bool ConvertVTKUnstructuredGridToFiniteElementMesh(vtkUnstructuredGrid* VTKMesh, FiniteElementMesh<ScalarType>& OutputMesh);
-
-//--------------------------------------------- shell element to VTKPolyData ----------------------------------------------
-template<typename ScalarType>
-vtkSmartPointer<vtkPolyData> ConvertFiniteElementMeshToVTKPolyData(const FiniteElementMesh<ScalarType>& InputMesh);
+bool ConvertVTKPolyDataToMDKFiniteElementMesh(vtkPolyData* VTKMesh, FiniteElementMesh<ScalarType>& OutputMesh);
 
 //---------------------------------------------------------------------------------------------------------------------------
 
