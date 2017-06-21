@@ -12,7 +12,7 @@ void test_a()
 
 	ObjectArray<DenseMatrix<double>> ShapeList;
 	ShapeList.SetCapacity(125);
-	PolygonMesh<PolygonMeshEmptyAttributeType<double>> AortaMesh;
+	PolygonMesh<double> AortaMesh;
 	for (int_max k = 0; k < 125; ++k)
 	{
 		LoadPolygonMeshFromVTKFile(AortaMesh, TestDataPath + std::to_string(k) + "_AortaModel_Pimg.vtk");
@@ -80,7 +80,7 @@ void test_b()
 {
 	String TestDataPath = "C:/Research/MDK/MDK_Build/Test/Test_ShapeModeling/Test_ShapeDictionaryBuilder/TestData/";
 
-	PolygonMesh<PolygonMeshEmptyAttributeType<double>> AortaMesh;
+	PolygonMesh<double> AortaMesh;
 
 	ObjectArray<DenseMatrix<double>> TrainingShapeList;
 	TrainingShapeList.SetCapacity(125);
@@ -140,7 +140,7 @@ void test_c()
 {
 	String TestDataPath = "C:/Research/MDK/MDK_Build/Test/Test_ShapeModeling/Test_ShapeDictionaryBuilder/TestData/";
 
-	PolygonMesh<PolygonMeshEmptyAttributeType<double>> AortaMesh;
+	PolygonMesh<double> AortaMesh;
 
 	ObjectArray<DenseMatrix<double>> TrainingShapeList;
 	TrainingShapeList.SetCapacity(125);	

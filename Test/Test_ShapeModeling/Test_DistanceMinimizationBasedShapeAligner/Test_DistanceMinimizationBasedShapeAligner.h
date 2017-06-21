@@ -14,7 +14,7 @@ void test_a()
 	ObjectArray<DenseMatrix<double>> ShapeList;
 	ShapeList.Resize(ShapeCount);
 
-	PolygonMesh<PolygonMeshEmptyAttributeType<double>> AortaMesh;
+	PolygonMesh<double> AortaMesh;
 	//LoadPolygonMeshFromVTKFile(AortaMesh, TestDataPath + std::to_string(0) + "_AortaModel_Pimg_rand.vtk");
 	for (int_max k = 0; k < ShapeCount; ++k)
 	{	
