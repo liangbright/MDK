@@ -10,7 +10,7 @@ template<typename ScalarType>
 struct Input_of_TemplateBasedSurfaceRemesher
 {
 	// input mesh must be triangle mesh
-	TriangleMesh<ScalarType> SourceMesh;
+	const TriangleMesh<ScalarType>* SourceMesh;
 
 	ObjectArray<DenseVector<int_max>> BoundarySegmentListOfSourceMesh;
 	//BoundaryListOfInputMesh[k] is BoundarySegment: a set of boundary point index
@@ -19,7 +19,7 @@ struct Input_of_TemplateBasedSurfaceRemesher
 	//BoundaryListOfInputMesh[k] ~ BoundarySegmentListOfOutputMesh[k] 
 
 	//template mesh point position is [u, v, 0]
-	PolygonMesh<ScalarType> TemplateMesh;
+	const PolygonMesh<ScalarType>* TemplateMesh;
 
 	ObjectArray<DenseVector<int_max>> BoundarySegmentListOfTemplateMesh;
 	//BoundarySegmentListOfOutputMesh[k] is BoundarySegment: a set of boundary point index

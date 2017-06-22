@@ -15,7 +15,7 @@ struct Input_of_DisplacementBasedPolygonMeshDeformer
 {
 	typedef WeightTypeEnum_of_DisplacementBasedPolygonMeshDeformer WeightTypeEnum;
 
-	PolygonMesh<ScalarType> SourceMesh;
+	const PolygonMesh<ScalarType>* SourceMesh;
 	DenseMatrix<ScalarType> DisplacementField;
 	DenseMatrix<ScalarType> ConfidenceOfDisplacementField;
 	DenseMatrix<ScalarType> ConfidenceOfSmoothness;

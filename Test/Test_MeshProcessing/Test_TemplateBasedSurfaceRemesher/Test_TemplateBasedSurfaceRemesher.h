@@ -8,11 +8,13 @@ using namespace mdk;
 void Test_0()
 {
 	String TestDataPath = "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_TemplateBasedSurfaceRemesher/TestData/";
+	TriangleMesh<double> SourceMesh, TemplateMesh;
+	LoadPolygonMeshFromVTKFile(SourceMesh, TestDataPath + "Leaflet0.vtk");
+	LoadPolygonMeshFromVTKFile(TemplateMesh, TestDataPath + "Template.vtk");
 
 	TemplateBasedSurfaceRemesher<double> Remesher;
-	LoadPolygonMeshFromVTKFile(Remesher.Input.SourceMesh, TestDataPath + "Leaflet0.vtk");
-	LoadPolygonMeshFromVTKFile(Remesher.Input.TemplateMesh, TestDataPath + "Template.vtk");
-
+	Remesher.Input.SourceMesh = &SourceMesh;
+	Remesher.Input.TemplateMesh = &TemplateMesh;
 	DenseVector<int_max> UpperBoundary_input, LowerBoundary_input, UpperBoundary_template, LowerBounary_template;
 	UpperBoundary_input = { span(48, 48), span(50, 50), span(348, 360), span(74, 88), span(46, 46) };
 	LowerBoundary_input = { span(48, 49), span(6, 0), span(7, 45), span(47, 47), span(46, 46) };
@@ -36,10 +38,13 @@ void Test_0()
 void Test_1()
 {
 	String TestDataPath = "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_TemplateBasedSurfaceRemesher/TestData/";
+	TriangleMesh<double> SourceMesh, TemplateMesh;
+	LoadPolygonMeshFromVTKFile(SourceMesh, TestDataPath + "Leaflet.vtk");
+	LoadPolygonMeshFromVTKFile(TemplateMesh, TestDataPath + "Template.vtk");
 
 	TemplateBasedSurfaceRemesher<double> Remesher;
-	LoadPolygonMeshFromVTKFile(Remesher.Input.SourceMesh, TestDataPath + "Leaflet.vtk");
-	LoadPolygonMeshFromVTKFile(Remesher.Input.TemplateMesh, TestDataPath + "Template.vtk");
+	Remesher.Input.SourceMesh = &SourceMesh;
+	Remesher.Input.TemplateMesh = &TemplateMesh;
 
 	DenseVector<int_max> UpperBoundary_input, LowerBoundary_input, UpperBoundary_template, LowerBounary_template;
 	UpperBoundary_input = {span(0,0), span(34, 48), span(3,3), span(63, 49), span(1,1)};
@@ -63,10 +68,13 @@ void Test_1()
 void Test_2()
 {
 	String TestDataPath = "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_TemplateBasedSurfaceRemesher/TestData/";
+	TriangleMesh<double> SourceMesh, TemplateMesh;
+	LoadPolygonMeshFromVTKFile(SourceMesh, TestDataPath + "Sinus.vtk");
+	LoadPolygonMeshFromVTKFile(TemplateMesh, TestDataPath + "Template.vtk");
 
 	TemplateBasedSurfaceRemesher<double> Remesher;
-	LoadPolygonMeshFromVTKFile(Remesher.Input.SourceMesh, TestDataPath + "Sinus.vtk");
-	LoadPolygonMeshFromVTKFile(Remesher.Input.TemplateMesh, TestDataPath + "Template.vtk");
+	Remesher.Input.SourceMesh = &SourceMesh;
+	Remesher.Input.TemplateMesh = &TemplateMesh;
 
 	DenseVector<int_max> UpperBoundary_input, LowerBoundary_input, UpperBoundary_template, LowerBounary_template;
 	UpperBoundary_input = { span(0, 1), span(230, -2, 202), span(96, -2, 66), span(34, 35)};
@@ -90,10 +98,13 @@ void Test_2()
 void Test_a()
 {
 	String TestDataPath = "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_TemplateBasedSurfaceRemesher/TestData/";
+	TriangleMesh<double> SourceMesh, TemplateMesh;
+	LoadPolygonMeshFromVTKFile(SourceMesh, TestDataPath + "Leaflet_a.vtk");
+	LoadPolygonMeshFromVTKFile(TemplateMesh, TestDataPath + "Template.vtk");
 
 	TemplateBasedSurfaceRemesher<double> Remesher;
-	LoadPolygonMeshFromVTKFile(Remesher.Input.SourceMesh, TestDataPath + "Leaflet_a.vtk");
-	LoadPolygonMeshFromVTKFile(Remesher.Input.TemplateMesh, TestDataPath + "Template.vtk");
+	Remesher.Input.SourceMesh = &SourceMesh;
+	Remesher.Input.TemplateMesh = &TemplateMesh;
 
 	DenseVector<int_max> UpperBoundary_input, LowerBoundary_input, UpperBoundary_template, LowerBounary_template;
 
@@ -101,7 +112,7 @@ void Test_a()
 	LowerBounary_template = { span(25, 65), span(768, 729) };
 
 	int_max PointIndex_a = 3;
-	auto Boundary_input = TraceMeshBoundaryCurve(Remesher.Input.SourceMesh, PointIndex_a);
+	auto Boundary_input = TraceMeshBoundaryCurve(SourceMesh, PointIndex_a);
 	Boundary_input = Boundary_input.GetSubSet(span(Boundary_input.GetLength() - 1, 0));
 	Boundary_input.Insert(0, PointIndex_a);
 	Boundary_input.Delete(Boundary_input.GetLength() - 1);
@@ -138,10 +149,13 @@ void Test_a()
 void test_hole()
 {
 	String TestDataPath = "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_TemplateBasedSurfaceRemesher/TestData/";
+	TriangleMesh<double> SourceMesh, TemplateMesh;
+	LoadPolygonMeshFromVTKFile(SourceMesh, TestDataPath + "sphere_hole.vtk");
+	LoadPolygonMeshFromVTKFile(TemplateMesh, TestDataPath + "disk_hole.vtk");
 
 	TemplateBasedSurfaceRemesher<double> Remesher;
-	LoadPolygonMeshFromVTKFile(Remesher.Input.SourceMesh, TestDataPath + "sphere_hole.vtk");
-	LoadPolygonMeshFromVTKFile(Remesher.Input.TemplateMesh, TestDataPath + "disk_hole.vtk");
+	Remesher.Input.SourceMesh = &SourceMesh;
+	Remesher.Input.TemplateMesh = &TemplateMesh;
 
 	DenseVector<int_max> OuterBoundary_input, InnerBoundary_input, LandMark_input, OuterBoundary_template, InnerBounary_template, LandMark_template;
 	OuterBoundary_input = {0, 3, 13, 19, 25, 31, 37, 43, 49, 55, 61, 67, 73, 79, 85, 91, 0};
@@ -172,11 +186,14 @@ void test_hole()
 void test_tube()
 {
 	String TestDataPath = "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_TemplateBasedSurfaceRemesher/TestData/";
+	TriangleMesh<double> SourceMesh, TemplateMesh;
+	LoadPolygonMeshFromVTKFile(SourceMesh, TestDataPath + "62_AortaModel_Pimg.vtk");
+	SourceMesh = ConvertQuadMeshToTriangleMesh(SourceMesh);
+	LoadPolygonMeshFromVTKFile(TemplateMesh, TestDataPath + "disk_hole.vtk");
 
 	TemplateBasedSurfaceRemesher<double> Remesher;
-	LoadPolygonMeshFromVTKFile(Remesher.Input.SourceMesh, TestDataPath + "62_AortaModel_Pimg.vtk");
-	Remesher.Input.SourceMesh=ConvertQuadMeshToTriangleMesh(Remesher.Input.SourceMesh);
-	LoadPolygonMeshFromVTKFile(Remesher.Input.TemplateMesh, TestDataPath + "disk_hole.vtk");
+	Remesher.Input.SourceMesh = &SourceMesh;
+	Remesher.Input.TemplateMesh = &TemplateMesh;
 
 	DenseVector<int_max> OuterBoundary_input, InnerBoundary_input, LandMark_input, OuterBoundary_template, InnerBounary_template, LandMark_template;
 	OuterBoundary_input = { span(0, 49), span(0,0) };

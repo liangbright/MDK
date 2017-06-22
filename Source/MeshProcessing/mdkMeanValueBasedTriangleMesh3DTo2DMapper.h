@@ -12,7 +12,7 @@ namespace mdk
 template<typename ScalarType>
 struct Input_of_MeanValueBasedTriangleMesh3DTo2DMapper
 {
-	TriangleMesh<ScalarType> SourceMesh;
+	const TriangleMesh<ScalarType>* SourceMesh;
 
 	DenseVector<int_max> BoundaryPointIndexList;
 	// Boundary Point include all the boundary point of input mesh

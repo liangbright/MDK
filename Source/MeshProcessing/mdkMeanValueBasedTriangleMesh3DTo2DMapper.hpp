@@ -16,7 +16,7 @@ MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::~MeanValueBasedTriangleMesh3
 template<typename ScalarType>
 void MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::Clear()
 {
-	Input.SourceMesh.Recreate();
+	Input.SourceMesh = nullptr;
 	Input.BoundaryPointIndexList.Clear();
 	Input.UVTableOfBoundary.Clear();
 	Internal.InnerPointIndexList.Clear();
@@ -27,7 +27,19 @@ void MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::Clear()
 template<typename ScalarType>
 bool MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::CheckInput()
 {
-	if (Input.SourceMesh.Check_If_DataStructure_is_Clean() == false)
+	if (Input.SourceMesh == nullptr)
+	{
+		MDK_Error("InputMesh is nullptr @ MeanValueBasedTriangleMesh3DTo2DMapper::CheckInput()")
+		return false;
+	}
+
+	if (Input.SourceMesh->IsEmpty() == true)
+	{
+		MDK_Error("InputMesh is empty @ MeanValueBasedTriangleMesh3DTo2DMapper::CheckInput()")
+		return false;
+	}
+
+	if (Input.SourceMesh->Check_If_DataStructure_is_Clean() == false)
 	{
 		MDK_Error("InputMesh DataStructure is NOT Clean @ MeanValueBasedTriangleMesh3DTo2DMapper::CheckInput()")
 		return false;
@@ -38,13 +50,13 @@ bool MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::CheckInput()
 template<typename ScalarType>
 void MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::Preprocess()
 {
-	auto PointCount = Input.SourceMesh.GetPointCount();
+	auto PointCount = Input.SourceMesh->GetPointCount();
 	auto PointCount_boundary = Input.BoundaryPointIndexList.GetLength();
 	auto PointCount_inner = PointCount - PointCount_boundary;
 
 	Internal.InnerPointIndexList.Clear();
 	Internal.InnerPointIndexList.SetCapacity(PointCount_inner);
-	for (auto it = Input.SourceMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	for (auto it = Input.SourceMesh->GetIteratorOfPoint(); it.IsNotEnd(); ++it)
 	{
 		auto tempIndex = Input.BoundaryPointIndexList.ExactMatch("first", it.GetPointIndex());
 		if (tempIndex < 0)
@@ -68,8 +80,6 @@ void MeanValueBasedTriangleMesh3DTo2DMapper<ScalarType>::Preprocess()
 	{
 		Internal.Map_PointIndex_to_BoundaryIndex[Input.BoundaryPointIndexList[k]] = k;
 	}
-
-	Input.SourceMesh.UpdateAreaOfFace(ALL);
 }
 
 template<typename ScalarType>

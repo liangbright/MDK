@@ -17,16 +17,16 @@ template<typename ScalarType>
 void MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType>::Clear()
 {
 	// do NOT use Clear for input
-	Input.SourceMesh.Recreate();
+	Input.SourceMesh = nullptr;
 	Input.BoundaryPointIndexList.Clear();
 	Input.UVTableOfBoundary.Clear();
+	Input.MaxInteration = 100;
+	Input.DiffusionCoefficient = 0.5;
 
 	Internal.InnerPointIndexList.Clear();
 	Internal.Map_PointIndex_to_Inner.Clear();
 	Internal.Map_PointIndex_to_Boundary.Clear();
-
-	Input.MaxInteration = 100;
-	Input.DiffusionCoefficient = 0.5;
+	Internal.ArealListOfSourceMesh.Clear();
 
 	Output.ParameterizedSourceMesh.Clear();
 }
@@ -35,7 +35,19 @@ void MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType>::Clear()
 template<typename ScalarType>
 bool MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType>::CheckInput()
 {
-	if (Input.SourceMesh.Check_If_DataStructure_is_Clean() == false)
+	if (Input.SourceMesh == nullptr)
+	{
+		MDK_Error("Input.SourceMesh is nullptr @ MinimumStretchBasedTriangleMesh3DTo2DMapper::CheckInput()")
+		return false;
+	}
+
+	if (Input.SourceMesh->IsEmpty() == true)
+	{
+		MDK_Error("Input.SourceMesh is empty @ MinimumStretchBasedTriangleMesh3DTo2DMapper::CheckInput()")
+		return false;
+	}
+
+	if (Input.SourceMesh->Check_If_DataStructure_is_Clean() == false)
 	{
 		MDK_Error("Input.SourceMesh DataStructure is NOT Clean @ MinimumStretchBasedTriangleMesh3DTo2DMapper::CheckInput()")
 		return false;
@@ -59,13 +71,13 @@ bool MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType>::CheckInput()
 template<typename ScalarType>
 void MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType>::Preprocess()
 {
-	auto PointCount = Input.SourceMesh.GetPointCount();
+	auto PointCount = Input.SourceMesh->GetPointCount();
 	auto PointCount_boundary = Input.BoundaryPointIndexList.GetLength();
 	auto PointCount_inner = PointCount - PointCount_boundary;
 
 	Internal.InnerPointIndexList.Clear();
 	Internal.InnerPointIndexList.SetCapacity(PointCount_inner);
-	for (auto it = Input.SourceMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	for (auto it = Input.SourceMesh->GetIteratorOfPoint(); it.IsNotEnd(); ++it)
 	{
 		auto tempIndex = Input.BoundaryPointIndexList.ExactMatch("first", it.GetPointIndex());
 		if (tempIndex < 0)
@@ -90,7 +102,13 @@ void MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType>::Preprocess()
 		Internal.Map_PointIndex_to_Boundary[Input.BoundaryPointIndexList[k]] = k;
 	}
 
-	Input.SourceMesh.UpdateAreaOfFace(ALL);
+	auto FaceCount = Input.SourceMesh->GetFaceCount();
+	Internal.ArealListOfSourceMesh.Clear();
+	Internal.ArealListOfSourceMesh.Resize(FaceCount);
+	for (int_max k = 0; k < FaceCount; ++k)
+	{//k is FaceIndex
+		Internal.ArealListOfSourceMesh[k] = this->ComputeFaceAreaOfSourceMesh(k);
+	}
 }
 
 template<typename ScalarType>
@@ -172,10 +190,10 @@ void MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType>::ApplyStretchMinimi
 	auto PointCount_boundary = Input.BoundaryPointIndexList.GetLength();
 	auto PointCount_inner = Internal.InnerPointIndexList.GetLength();
 	//-------------------------- initialization by using Mean Value Method ---------------------------------//
-	auto WeightMatrix = this->ComputeWeightMatrix_MeanValue(Input.SourceMesh);
+	auto WeightMatrix = this->ComputeWeightMatrix_MeanValue(*Input.SourceMesh);
 	auto UVTable_init = this->ComputeUV_Given_WeightMatrix(WeightMatrix);
 	Output.ParameterizedSourceMesh.Clear();
-	Output.ParameterizedSourceMesh = Input.SourceMesh;
+	Output.ParameterizedSourceMesh = *Input.SourceMesh;
 	for (int_max k = 0; k < PointCount_inner; ++k)
 	{
 		auto u = UVTable_init(0, k);
@@ -247,8 +265,8 @@ void MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType>::ApplyStretchMinimi
 template<typename ScalarType>
 DenseVector<ScalarType> MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType>::ComputeLocalStretch_Point()
 {// compute stretch at every point	
-	auto FaceCount = Input.SourceMesh.GetFaceCount();
-	auto PointCount = Input.SourceMesh.GetPointCount();
+	auto FaceCount = Input.SourceMesh->GetFaceCount();
+	auto PointCount = Input.SourceMesh->GetPointCount();
 
 	DenseVector<ScalarType> StretchList_face;
 	StretchList_face.Resize(FaceCount);
@@ -256,8 +274,8 @@ DenseVector<ScalarType> MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType>:
 	for (int_max k = 0; k < FaceCount; ++k)
 	{
 		int_max FaceIndex = k;
-		auto PointIndexList_input = Input.SourceMesh.Face(FaceIndex).GetPointIndexList();
-		auto PointPosition_input = Input.SourceMesh.GetPointPosition(PointIndexList_input);
+		auto PointIndexList_input = Input.SourceMesh->Face(FaceIndex).GetPointIndexList();
+		auto PointPosition_input = Input.SourceMesh->GetPointPosition(PointIndexList_input);
 		auto PointIndexList_output = Output.ParameterizedSourceMesh.Face(FaceIndex).GetPointIndexList();
 		auto PointPosition_output = Output.ParameterizedSourceMesh.GetPointPosition(PointIndexList_output);
 
@@ -281,9 +299,9 @@ DenseVector<ScalarType> MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType>:
 		auto t2 = PointPosition_output(1, 1);
 		auto s3 = PointPosition_output(0, 2);
 		auto t3 = PointPosition_output(1, 2);	
-		auto q1 = Input.SourceMesh.GetPointPosition(PointIndexList_input[0]);
-		auto q2 = Input.SourceMesh.GetPointPosition(PointIndexList_input[1]);
-		auto q3 = Input.SourceMesh.GetPointPosition(PointIndexList_input[2]);
+		auto q1 = Input.SourceMesh->GetPointPosition(PointIndexList_input[0]);
+		auto q2 = Input.SourceMesh->GetPointPosition(PointIndexList_input[1]);
+		auto q3 = Input.SourceMesh->GetPointPosition(PointIndexList_input[2]);
 		auto A = ((s2 - s1)*(t3 - t1) - (s3 - s1)*(t2 - t1)) / 2;
 		auto Ss = (q1*(t2 - t3) + q2*(t3 - t1) + q3*(t1 - t2)) / (2 * A);
 		auto St = (q1*(s3 - s2) + q2*(s1 - s3) + q3*(s2 - s1)) / (2 * A);
@@ -301,12 +319,12 @@ DenseVector<ScalarType> MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType>:
 	for (int_max k = 0; k < PointCount; ++k)
 	{
 		int_max PointIndex = k;
-		auto AdjFaceIndexList = Input.SourceMesh.Point(PointIndex).GetAdjacentFaceIndexList();
+		auto AdjFaceIndexList = Input.SourceMesh->Point(PointIndex).GetAdjacentFaceIndexList();
 		ScalarType Value_a = 0;
 		ScalarType Value_b = 0;
 		for (int_max n = 0; n < AdjFaceIndexList.GetLength(); ++n)
 		{
-			auto Area = Input.SourceMesh.Face(AdjFaceIndexList[n]).Attribute().Area;
+			auto Area = Internal.ArealListOfSourceMesh[AdjFaceIndexList[n]];
 			auto Stretch = StretchList_face[AdjFaceIndexList[n]];
 			Value_a += Area*Stretch*Stretch;
 			Value_b += Area;
@@ -321,7 +339,7 @@ DenseVector<ScalarType> MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType>:
 template<typename ScalarType>
 DenseVector<ScalarType> MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType>::ComputeLocalStretch_Face()
 {// compute stretch at every face	
-	auto FaceCount = Input.SourceMesh.GetFaceCount();
+	auto FaceCount = Input.SourceMesh->GetFaceCount();
 
 	DenseVector<ScalarType> StretchList_face;
 	StretchList_face.Resize(FaceCount);
@@ -329,8 +347,8 @@ DenseVector<ScalarType> MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType>:
 	for (int_max k = 0; k < FaceCount; ++k)
 	{
 		int_max FaceIndex = k;
-		auto PointIndexList_input = Input.SourceMesh.Face(FaceIndex).GetPointIndexList();
-		auto PointPosition_input = Input.SourceMesh.GetPointPosition(PointIndexList_input);
+		auto PointIndexList_input = Input.SourceMesh->Face(FaceIndex).GetPointIndexList();
+		auto PointPosition_input = Input.SourceMesh->GetPointPosition(PointIndexList_input);
 		auto PointIndexList_output = Output.ParameterizedSourceMesh.Face(FaceIndex).GetPointIndexList();
 		auto PointPosition_output = Output.ParameterizedSourceMesh.GetPointPosition(PointIndexList_output);
 
@@ -354,9 +372,9 @@ DenseVector<ScalarType> MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType>:
 		auto t2 = PointPosition_output(1, 1);
 		auto s3 = PointPosition_output(0, 2);
 		auto t3 = PointPosition_output(1, 2);
-		auto q1 = Input.SourceMesh.GetPointPosition(PointIndexList_input[0]);
-		auto q2 = Input.SourceMesh.GetPointPosition(PointIndexList_input[1]);
-		auto q3 = Input.SourceMesh.GetPointPosition(PointIndexList_input[2]);
+		auto q1 = Input.SourceMesh->GetPointPosition(PointIndexList_input[0]);
+		auto q2 = Input.SourceMesh->GetPointPosition(PointIndexList_input[1]);
+		auto q3 = Input.SourceMesh->GetPointPosition(PointIndexList_input[2]);
 		auto A = ((s2 - s1)*(t3 - t1) - (s3 - s1)*(t2 - t1)) / 2;
 		auto Ss = (q1*(t2 - t3) + q2*(t3 - t1) + q3*(t1 - t2)) / (2 * A);
 		auto St = (q1*(s3 - s2) + q2*(s1 - s3) + q3*(s2 - s1)) / (2 * A);
@@ -376,19 +394,19 @@ DenseVector<ScalarType> MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType>:
 template<typename ScalarType>
 DenseVector<ScalarType> MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType>::ComputeLocalStretch_Point(const DenseVector<ScalarType>& StretchList_face)
 {	
-	auto PointCount = Input.SourceMesh.GetPointCount();
+	auto PointCount = Input.SourceMesh->GetPointCount();
 
 	DenseVector<ScalarType> StretchList_point;
 	StretchList_point.Resize(PointCount);
 	for (int_max k = 0; k < PointCount; ++k)
 	{
 		int_max PointIndex = k;
-		auto AdjFaceIndexList = Input.SourceMesh.Point(PointIndex).GetAdjacentFaceIndexList();
+		auto AdjFaceIndexList = Input.SourceMesh->Point(PointIndex).GetAdjacentFaceIndexList();
 		ScalarType Value_a = 0;
 		ScalarType Value_b = 0;
 		for (int_max n = 0; n < AdjFaceIndexList.GetLength(); ++n)
 		{
-			auto Area = Input.SourceMesh.Face(AdjFaceIndexList[n]).Attribute().Area;
+			auto Area = Internal.ArealListOfSourceMesh[AdjFaceIndexList[n]];
 			auto Stretch = StretchList_face[AdjFaceIndexList[n]];
 			Value_a += Area*Stretch*Stretch;
 			Value_b += Area;
@@ -407,9 +425,8 @@ ScalarType MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType>::ComputeAvera
 	ScalarType AreaSum = 0;
 	auto FaceCount = StretchList_face.GetLength();
 	for (int_max k = 0; k < FaceCount; ++k)
-	{
-		int_max FaceIndex = k;
-		auto Area = Input.SourceMesh.Face(FaceIndex).Attribute().Area;
+	{// k is FaceIndex
+		auto Area = Internal.ArealListOfSourceMesh[k];
 		StretchSum += Area*StretchList_face[k] * StretchList_face[k];
 		AreaSum += Area;
 	}
@@ -505,6 +522,17 @@ DenseMatrix<ScalarType> MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType>:
 		UVTable(1, k) = V(k);		
 	}
 	return UVTable;
+}
+
+template<typename ScalarType>
+ScalarType MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType>::ComputeFaceAreaOfSourceMesh(int_max FaceIndex)
+{
+	auto PointIndexList = Input.SourceMesh->GetPointIndexList();
+	auto PointPositionA = Input.SourceMesh->GetPointPosition(PointIndexList[0]);
+	auto PointPositionB = Input.SourceMesh->GetPointPosition(PointIndexList[1]);
+	auto PointPositionC = Input.SourceMesh->GetPointPosition(PointIndexList[2]);
+	auto Area = ComputeTriangleAreaIn3D(PointPositionA, PointPositionB, PointPositionC);
+	return Area;
 }
 
 }//namespace

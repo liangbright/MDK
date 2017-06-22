@@ -45,7 +45,7 @@ void Test_a()
 	}
 
 	DisplacementBasedPolygonMeshDeformer<double> Deformer;
-	Deformer.Input.SourceMesh.Share(InputMesh);
+	Deformer.Input.SourceMesh = &InputMesh;
 	Deformer.Input.DisplacementField.Share(InputDisplacementField);
 	Deformer.Input.ConfidenceOfDisplacementField.Share(ConfidenceOfInputDisplacementField);
 	Deformer.Input.ConfidenceOfSmoothness.Share(ConfidenceOfSmoothness);
@@ -115,7 +115,7 @@ void Test_b()
 	}
 
 	DisplacementBasedPolygonMeshDeformer<double> Deformer;
-	Deformer.Input.SourceMesh.Share(TemplateMesh);
+	Deformer.Input.SourceMesh = &TemplateMesh;
 	Deformer.Input.DisplacementField.Share(InputDisplacementField);
 	Deformer.Input.ConfidenceOfDisplacementField.Share(ConfidenceOfInputDisplacementField);
 	Deformer.Input.ConfidenceOfSmoothness.Share(ConfidenceOfSmoothness);
@@ -199,7 +199,7 @@ void Test_c()
 
 	DisplacementBasedPolygonMeshDeformer<double> Deformer;
 	typedef DisplacementBasedPolygonMeshDeformer<double>::WeightTypeEnum WeightTypeEnum;
-	Deformer.Input.SourceMesh.Share(P4Mesh_A);
+	Deformer.Input.SourceMesh = &P4Mesh_A;
 	Deformer.Input.DisplacementField.Share(InputDisplacementField);
 	Deformer.Input.ConfidenceOfDisplacementField.Share(ConfidenceOfInputDisplacementField);
 	Deformer.Input.ConfidenceOfSmoothness.Share(ConfidenceOfSmoothness);

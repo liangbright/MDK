@@ -13,7 +13,7 @@ namespace mdk
 template<typename ScalarType>
 struct Input_of_MinimumStretchBasedTriangleMesh3DTo2DMapper
 {
-	TriangleMesh<ScalarType> SourceMesh;
+	const TriangleMesh<ScalarType>* SourceMesh;
 
 	DenseVector<int_max> BoundaryPointIndexList;
 	// boundary point index in SourceMesh
@@ -27,7 +27,7 @@ struct Input_of_MinimumStretchBasedTriangleMesh3DTo2DMapper
 	ScalarType DiffusionCoefficient;
 };
 
-
+template<typename ScalarType>
 struct Internal_of_MinimumStretchBasedTriangleMesh3DTo2DMapper
 {
 	DenseVector<int_max> InnerPointIndexList;
@@ -46,6 +46,8 @@ struct Internal_of_MinimumStretchBasedTriangleMesh3DTo2DMapper
 
 	DenseVector<int_max> Map_PointIndex_to_Boundary;
 	//Map_PointIndex_to_Boundary[PointIndex] is Index in BoundaryPointIndexList
+
+	DenseVector<ScalarType> ArealListOfSourceMesh;
 };
 
 template<typename ScalarType>
@@ -64,7 +66,7 @@ public:
 public:
 	Input_of_MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType> Input;
 private:
-	Internal_of_MinimumStretchBasedTriangleMesh3DTo2DMapper Internal;
+	Internal_of_MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType> Internal;
 public:
 	Output_of_MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType> Output;
 
@@ -90,6 +92,8 @@ private:
 
 	//return UVTable {uv of inner point, .., uv of boundary point}
 	DenseMatrix<ScalarType> ComputeUV_Given_WeightMatrix(const ObjectArray<SparseVector<ScalarType>>& WeightMatrix);
+
+	ScalarType ComputeFaceAreaOfSourceMesh(int_max FaceIndex);
 
 private:
 	MinimumStretchBasedTriangleMesh3DTo2DMapper(const MinimumStretchBasedTriangleMesh3DTo2DMapper&) = delete;
