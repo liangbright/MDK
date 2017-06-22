@@ -2,7 +2,7 @@
 
 void main()
 {
-	//Test_a();
+	Test_a();
 	//Test_b();
-	Test_c();
+	//Test_c();
 }
