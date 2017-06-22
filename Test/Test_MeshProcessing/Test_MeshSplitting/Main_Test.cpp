@@ -1,5 +1,5 @@
 ﻿#include <iostream>
-#include "Test_MeshSmoothing.h"
+#include "Test_MeshSplitting.h"
 
 void main()
 {

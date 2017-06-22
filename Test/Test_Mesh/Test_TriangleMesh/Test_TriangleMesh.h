@@ -21,9 +21,8 @@ void Test_PointDataSet()
 	TriangleMesh<double> LeafletMesh;
 	LoadPolygonMeshFromVTKFile(LeafletMesh, FilePathAndName);
 
-	LeafletMesh.SetPointDataSet("Stress", 6);	
-	LeafletMesh.SetFaceDataSet("Stress", 6);
-
+	LeafletMesh.InitializePointDataSet("Stress");	
+	LeafletMesh.InitializeFaceDataSet("Stress");
 	//SavePolygonMeshAsJsonDataFile(LeafletMesh, "C:/Research/Test_VTK/Subdivision/Build/Leaflet_A_Triangle.json");
 	SavePolygonMeshAsVTKFile(LeafletMesh, "C:/Research/MDK/MDK_Build/Test/Test_Mesh/Test_TriangleMesh/TestData/Leaflet_Test_PointDataSet.vtk");
 }

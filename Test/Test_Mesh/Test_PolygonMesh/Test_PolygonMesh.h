@@ -7,7 +7,7 @@ void Test_MeshConstruction()
 {
     std::string FilePathAndName = "C:/Research/MDK/MDK_Build/Test/Test_Mesh/Test_PolygonMesh/TestData/Square.vtk";
     
-	PolygonMesh<PolygonMeshStandardAttributeType<double>> InputMesh;
+	PolygonMesh<double> InputMesh;
 	LoadPolygonMeshFromVTKFile(InputMesh, FilePathAndName);
 
     auto PointIndex = InputMesh.AddPoint(0, 0, 0);
@@ -24,7 +24,7 @@ void Test_ShrinkEdge()
 {
 	std::string FilePathAndName = "C:/Research/MDK/MDK_Build/Test/Test_Mesh/Test_PolygonMesh/TestData/Square";
 
-	PolygonMesh<PolygonMeshStandardAttributeType<double>> InputMesh;
+	PolygonMesh<double> InputMesh;
 	LoadPolygonMeshFromVTKFile(InputMesh, FilePathAndName + ".vtk");
 
 	auto EdgeIndexList = InputMesh.GetEdgeIndexList();
@@ -38,7 +38,7 @@ void Test_SplitEdge()
 {
 	std::string FilePathAndName = "C:/Research/MDK/MDK_Build/Test/Test_Mesh/Test_PolygonMesh/TestData/Square";
 
-	PolygonMesh<PolygonMeshStandardAttributeType<double>> InputMesh;
+	PolygonMesh<double> InputMesh;
 	LoadPolygonMeshFromVTKFile(InputMesh, FilePathAndName + ".vtk");
 
 	auto PointIndexList = InputMesh.GetPointIndexList();
@@ -55,7 +55,7 @@ void Test_ShrinkFace()
 {
 	std::string FilePathAndName = "C:/Research/MDK/MDK_Build/Test/Test_Mesh/Test_PolygonMesh/TestData/Square";
 
-	PolygonMesh<PolygonMeshStandardAttributeType<double>> InputMesh;
+	PolygonMesh<double> InputMesh;
 	LoadPolygonMeshFromVTKFile(InputMesh, FilePathAndName + ".vtk");
 
 	auto FaceIndexList = InputMesh.GetFaceIndexList();
@@ -68,7 +68,7 @@ void Test_ReversePointOrder()
 {
 	std::string FilePathAndName = "C:/Research/MDK/MDK_Build/Test/Test_Mesh/Test_PolygonMesh/TestData/Square";
 
-	PolygonMesh<PolygonMeshStandardAttributeType<double>> InputMesh;
+	PolygonMesh<double> InputMesh;
 	LoadPolygonMeshFromVTKFile(InputMesh, FilePathAndName + ".vtk");
 
 	auto FaceIndexList = InputMesh.GetFaceIndexList();
@@ -80,7 +80,7 @@ void Test_AddtionalInfo()
 {
 	std::string FilePathAndName = "C:/Research/MDK/MDK_Build/Test/Test_Mesh/Test_PolygonMesh/TestData/Square";
 
-	PolygonMesh<PolygonMeshStandardAttributeType<double>> InputMesh, SquareMesh;	
+	PolygonMesh<double> InputMesh, SquareMesh;	
 	LoadPolygonMeshFromVTKFile(InputMesh, FilePathAndName + ".vtk");
 
 	InputMesh.SetID(1);
@@ -123,7 +123,7 @@ void Test_SplitFace()
 {
 	std::string FilePathAndName = "C:/Research/MDK/MDK_Build/Test/Test_Mesh/Test_PolygonMesh/TestData/Square";
 
-	PolygonMesh<PolygonMeshStandardAttributeType<double>> InputMesh;
+	PolygonMesh<double> InputMesh;
 	LoadPolygonMeshFromVTKFile(InputMesh, FilePathAndName + ".vtk");
 
 	auto FaceIndexList = InputMesh.GetFaceIndexList();

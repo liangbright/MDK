@@ -8,7 +8,7 @@ void Test_a()
 {
 	String TestDataPath = "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_DisplacementBasedPolygonMeshDeformer/TestData/";
 
-	TriangleMesh<TriangleMeshStandardAttributeType<double>> InputMesh;	
+	TriangleMesh<double> InputMesh;	
 	LoadPolygonMeshFromVTKFile(InputMesh, TestDataPath + "Leaflet.vtk");
 
 	auto PointCount = InputMesh.GetPointCount();
@@ -44,7 +44,7 @@ void Test_a()
 		}
 	}
 
-	DisplacementBasedPolygonMeshDeformer<TriangleMeshStandardAttributeType<double>> Deformer;
+	DisplacementBasedPolygonMeshDeformer<double> Deformer;
 	Deformer.Input.SourceMesh.Share(InputMesh);
 	Deformer.Input.DisplacementField.Share(InputDisplacementField);
 	Deformer.Input.ConfidenceOfDisplacementField.Share(ConfidenceOfInputDisplacementField);
@@ -59,7 +59,7 @@ void Test_b()
 {
 	String TestDataPath = "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_DisplacementBasedPolygonMeshDeformer/TestData/";
 
-	PolygonMesh<TriangleMeshStandardAttributeType<double>> InputMesh, TemplateMesh, TemplateMesh_TPS;
+	PolygonMesh<double> InputMesh, TemplateMesh, TemplateMesh_TPS;
 	LoadPolygonMeshFromVTKFile(InputMesh, TestDataPath + "Leaflet_quad.vtk");
 	LoadPolygonMeshFromVTKFile(TemplateMesh, TestDataPath + "Template.vtk");
 
@@ -114,7 +114,7 @@ void Test_b()
 		}
 	}
 
-	DisplacementBasedPolygonMeshDeformer<TriangleMeshStandardAttributeType<double>> Deformer;
+	DisplacementBasedPolygonMeshDeformer<double> Deformer;
 	Deformer.Input.SourceMesh.Share(TemplateMesh);
 	Deformer.Input.DisplacementField.Share(InputDisplacementField);
 	Deformer.Input.ConfidenceOfDisplacementField.Share(ConfidenceOfInputDisplacementField);
@@ -132,7 +132,7 @@ void Test_c()
 {
 	String TestDataPath = "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_DisplacementBasedPolygonMeshDeformer/TestData/";
 
-	PolygonMesh<TriangleMeshStandardAttributeType<double>> P4Mesh, P15Mesh, P4Mesh_A, P4Mesh_TPS, P4Mesh_D;
+	PolygonMesh<double> P4Mesh, P15Mesh, P4Mesh_A, P4Mesh_TPS, P4Mesh_D;
 	LoadPolygonMeshFromVTKFile(P4Mesh, TestDataPath + "P4_remesh_134p.json.vtk");
 	LoadPolygonMeshFromVTKFile(P15Mesh, TestDataPath + "P15_remesh_134p.json.vtk");
 
@@ -197,8 +197,8 @@ void Test_c()
 		}
 	}
 
-	DisplacementBasedPolygonMeshDeformer<TriangleMeshStandardAttributeType<double>> Deformer;
-	typedef DisplacementBasedPolygonMeshDeformer<TriangleMeshStandardAttributeType<double>>::WeightTypeEnum WeightTypeEnum;
+	DisplacementBasedPolygonMeshDeformer<double> Deformer;
+	typedef DisplacementBasedPolygonMeshDeformer<double>::WeightTypeEnum WeightTypeEnum;
 	Deformer.Input.SourceMesh.Share(P4Mesh_A);
 	Deformer.Input.DisplacementField.Share(InputDisplacementField);
 	Deformer.Input.ConfidenceOfDisplacementField.Share(ConfidenceOfInputDisplacementField);

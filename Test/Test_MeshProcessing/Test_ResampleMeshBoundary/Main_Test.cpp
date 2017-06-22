@@ -4,7 +4,7 @@ using namespace mdk;
 
 void Test1()
 {	
-	TriangleMesh<TriangleMeshStandardAttributeType<double>> InputMesh;
+	TriangleMesh<double> InputMesh;
 	LoadPolygonMeshFromVTKFile(InputMesh, "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_ResampleMeshBoundary/TestData/Leaflet.vtk");
 	auto BounaryPointIndexList_all = TraceMeshBoundaryCurve(InputMesh, 0);
 	DenseVector<int_max> BounaryPointIndexList;
