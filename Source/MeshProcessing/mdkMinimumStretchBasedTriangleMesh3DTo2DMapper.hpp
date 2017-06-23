@@ -303,15 +303,15 @@ DenseVector<ScalarType> MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType>:
 		auto q3 = Input.SourceMesh->GetPointPosition(PointIndexList_input[2]);
 		auto A = ((s2 - s1)*(t3 - t1) - (s3 - s1)*(t2 - t1)) / 2;
 
-		if (std::abs(A) < 1e-10)
+		if (std::abs(A) < 1e-6)
 		{
 			if (A >= 0) 
 			{
-				A = 1e-10; 
+				A = 1e-6; 
 			}
 			else
 			{
-				A = -1e-10;
+				A = -1e-6;
 			}
 		}
 
