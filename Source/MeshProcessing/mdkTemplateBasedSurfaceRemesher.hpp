@@ -119,9 +119,20 @@ bool TemplateBasedSurfaceRemesher<ScalarType>::CheckInput()
 		return false;
 	}
 
-	//check if all the boundary point of inputmesh included in Input.BoundarySegmentListOfSourceMesh
-	/*
-	auto BoundarySet_input = TraceMeshBoundaryCurve(Input.SourceMesh);
+	//Input.SourceMesh: every point should belong to a face
+	auto PointCount = Input.SourceMesh->GetPointCount();
+	for (int_max k = 0; k < PointCount; ++k)
+	{
+		auto AdjPointCount = Input.SourceMesh->Point(k).GetAdjacentPointCount();
+		if (AdjPointCount < 2)
+		{
+			MDK_Error("AdjPointCount < 2 @ TemplateBasedSurfaceRemesher::CheckInput()")
+			return false;
+		}
+	}
+
+	//check if all the boundary point of inputmesh included in Input.BoundarySegmentListOfSourceMesh	
+	auto BoundarySet_input = TraceMeshBoundaryCurve(*Input.SourceMesh);
 	bool Flag_all_in = true;
 	for (int_max k = 0; k < BoundarySet_input.GetLength(); ++k)
 	{
@@ -149,8 +160,7 @@ bool TemplateBasedSurfaceRemesher<ScalarType>::CheckInput()
 	{
 		MDK_Error("Some Boundary Point NOT included in BoundarySegmentListOfInputMesh @ TemplateBasedSurfaceRemesher::CheckInput()")
 		return false;
-	}
-	*/
+	}	
 
 	return true;
 }
@@ -527,8 +537,12 @@ template<typename ScalarType>
 DenseVector<int_max, 3> TemplateBasedSurfaceRemesher<ScalarType>::Find3PointOfNearestFace(const DenseVector<ScalarType, 3>& Point, const TriangleMesh<ScalarType>& TargetMesh)
 {
 	DenseVector<int_max, 3> PointIndexList_nearest;
-    //-----------------------------------------------//
+	//-------------------------------------------------------------------
+	auto EPS = std::numeric_limits<ScalarType>::epsilon();
+	EPS = EPS * 10;
+	//-------------------------------------------------------------------
 	DenseVector<int_max> CandidateFaceIndexList;
+	int_max FaceIndex_nearest = -1;
 	int_max PointIndex_nearest = -1;
 	DenseVector<ScalarType, 3> PointPosition_nearest;
 	{
@@ -544,6 +558,9 @@ DenseVector<int_max, 3> TemplateBasedSurfaceRemesher<ScalarType>::Find3PointOfNe
 		PointIndex_nearest = DistanceList.IndexOfMin();
 		PointPosition_nearest = TargetMesh.GetPointPosition(PointIndex_nearest);
 
+		auto tempFaceInexList = TargetMesh.Point(PointIndex_nearest).GetAdjacentFaceIndexList();
+		FaceIndex_nearest = tempFaceInexList[0];
+
 		for (int_max n = 0; n < 3; ++n)
 		{
 			int_max PointIndex_n = PointIndexList_sort[n];
@@ -557,9 +574,7 @@ DenseVector<int_max, 3> TemplateBasedSurfaceRemesher<ScalarType>::Find3PointOfNe
 		}
 		CandidateFaceIndexList = CandidateFaceIndexList.GetSubSet(CandidateFaceIndexList.FindUnique());
 	}
-	
 	//-------------------------------------------------------------------
-	auto EPS = std::numeric_limits<ScalarType>::epsilon();
 	auto PointDistance_nearest = (PointPosition_nearest - Point).L2Norm();
 	if (PointDistance_nearest <= EPS)
 	{
@@ -568,13 +583,11 @@ DenseVector<int_max, 3> TemplateBasedSurfaceRemesher<ScalarType>::Find3PointOfNe
 		return PointIndexList_nearest;
 	}
 	//-------------------------------------------------------------------
-
 	auto TempFunction_det = [](const DenseVector<ScalarType, 3>& U, const DenseVector<ScalarType, 3>& V)
 	{
 		return U[0] * V[1] - U[1] * V[0];
 	};
-
-	auto FaceIndex_nearest = CandidateFaceIndexList[0];
+	//-------------------------------------------------------------------
 	bool Flag = false;	
 	for (int_max k = 0; k < CandidateFaceIndexList.GetLength(); ++k)
 	{

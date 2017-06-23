@@ -85,7 +85,6 @@ private:
 
 	void ApplyStretchMinimizationBasedParameterization();
 
-	DenseVector<ScalarType> ComputeLocalStretch_Point();
 	DenseVector<ScalarType> ComputeLocalStretch_Face();
 	DenseVector<ScalarType> ComputeLocalStretch_Point(const DenseVector<ScalarType>& StretchList_face);
 	ScalarType ComputeAverageLocalStretch(const DenseVector<ScalarType>& StretchList_face);
