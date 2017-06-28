@@ -528,6 +528,7 @@ template<typename ScalarType>
 inline
 void Edge_Of_PolygonMesh<ScalarType>::SetParentMesh(PolygonMesh<ScalarType>& ParentMesh)
 {
+	m_Data->MeshData_w = ParentMesh.m_MeshData;
 	m_Data->MeshData = ParentMesh.m_MeshData.get();
 }
 
@@ -973,6 +974,7 @@ template<typename ScalarType>
 inline
 void Face_Of_PolygonMesh<ScalarType>::SetParentMesh(PolygonMesh<ScalarType>& ParentMesh)
 {
+	m_Data->MeshData_w = ParentMesh.m_MeshData;
 	m_Data->MeshData = ParentMesh.m_MeshData.get();
 }
 
