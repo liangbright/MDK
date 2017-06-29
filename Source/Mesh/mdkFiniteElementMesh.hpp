@@ -1079,6 +1079,7 @@ FiniteElementType FiniteElementMesh<ScalarType>::ConvertStringToElementType(cons
 	}
 	else
 	{
+		MDK_Warning("FiniteElementType is unknown @ FiniteElementMesh::ConvertStringToElementType(...)")
 		ElementType = FiniteElementType::UNKNOWN;
 	}
 	return ElementType;
