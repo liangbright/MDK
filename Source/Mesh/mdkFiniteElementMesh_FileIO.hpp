@@ -364,7 +364,6 @@ bool LoadFiniteElementMeshFromVTKFile(FiniteElementMesh<ScalarType>& OutputMesh,
 {
 	auto VTKMesh = LoadVTKUnstructuredGridFromVTKFile(FilePathAndName);
 	return ConvertVTKUnstructuredGridToMDKFiniteElementMesh(VTKMesh, OutputMesh);
-	return true;
 }
 
 
