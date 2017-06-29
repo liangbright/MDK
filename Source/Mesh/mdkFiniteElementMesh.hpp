@@ -51,7 +51,7 @@ void FiniteElementMesh<ScalarType>::Copy(const FiniteElementMesh<ScalarType>& In
 		this->Clear();
 		return;
 	}
-
+	m_MeshData->ID = Input.m_MeshData->ID;
 	m_MeshData->Name = Input.m_MeshData->Name;
 	m_MeshData->NodeList = Input.m_MeshData->NodeList;
 	m_MeshData->NodeNameList = Input.m_MeshData->NodeNameList;
@@ -62,6 +62,10 @@ void FiniteElementMesh<ScalarType>::Copy(const FiniteElementMesh<ScalarType>& In
 	m_MeshData->NodeSetNameList = Input.m_MeshData->NodeSetNameList;
 	m_MeshData->ElementSetList = Input.m_MeshData->ElementSetList;
 	m_MeshData->ElementSetNameList = Input.m_MeshData->ElementSetNameList;
+	m_MeshData->NodeDataSetList = Input.m_MeshData->NodeDataSetList;
+	m_MeshData->NodeDataSetNameList = Input.m_MeshData->NodeDataSetNameList;
+	m_MeshData->ElementDataSetList = Input.m_MeshData->ElementDataSetList;
+	m_MeshData->ElementDataSetNameList = Input.m_MeshData->ElementDataSetNameList;
 }
 
 template<typename ScalarType>
@@ -77,7 +81,7 @@ void FiniteElementMesh<ScalarType>::Copy(FiniteElementMesh<ScalarType>&& Input)
 		this->Clear();
 		return;
 	}
-
+	m_MeshData->ID = Input.m_MeshData->ID;
 	m_MeshData->Name = std::move(Input.m_MeshData->Name);
 	m_MeshData->NodeList = std:move(Input.m_MeshData->NodeList);
 	m_MeshData->NodeNameList = std::move(Input.m_MeshData->NodeNameList);
@@ -88,7 +92,10 @@ void FiniteElementMesh<ScalarType>::Copy(FiniteElementMesh<ScalarType>&& Input)
 	m_MeshData->NodeSetNameList = std::move(Input.m_MeshData->NodeSetNameList);
 	m_MeshData->ElementSetList = std::move(Input.m_MeshData->ElementSetList);
 	m_MeshData->ElementSetNameList = std::move(Input.m_MeshData->ElementSetNameList);
-
+	m_MeshData->NodeDataSetList = std::move(Input.m_MeshData->NodeDataSetList);
+	m_MeshData->NodeDataSetNameList = std::move(Input.m_MeshData->NodeDataSetNameList);
+	m_MeshData->ElementDataSetList = std::move(Input.m_MeshData->ElementDataSetList);
+	m_MeshData->ElementDataSetNameList = std::move(Input.m_MeshData->ElementDataSetNameList);
 	Input.Clear();
 }
 
@@ -115,6 +122,7 @@ void FiniteElementMesh<ScalarType>::Clear()
 {
 	if (m_MeshData)
 	{
+		m_MeshData->ID = -1;
 		m_MeshData->Name.Clear();
 		m_MeshData->NodeList.Clear();
 		m_MeshData->NodeNameList.Clear();
@@ -125,6 +133,10 @@ void FiniteElementMesh<ScalarType>::Clear()
 		m_MeshData->NodeSetNameList.Clear();
 		m_MeshData->ElementSetList.Clear();
 		m_MeshData->ElementSetNameList.Clear();
+		m_MeshData->NodeDataSetList.Clear();
+		m_MeshData->NodeDataSetNameList.Clear();
+		m_MeshData->ElementDataSetList.Clear();
+		m_MeshData->ElementDataSetNameList.Clear();
 	}
 }
 
@@ -154,6 +166,10 @@ void FiniteElementMesh<ScalarType>::SetCapacity(int_max NodeCount, int_max Eleme
 	m_MeshData->ElementList.SetCapacity(ElementCount);
 	m_MeshData->ElementNameList.SetCapacity(ElementCount);
 	m_MeshData->ElementTypeList.SetCapacity(ElementCount);
+	m_MeshData->NodeDataSetList.SetCapacity(NodeCount);
+	m_MeshData->NodeDataSetNameList.SetCapacity(NodeCount);
+	m_MeshData->ElementDataSetList.SetCapacity(ElementCount);
+	m_MeshData->ElementDataSetNameList.SetCapacity(ElementCount);
 }
 
 
@@ -169,10 +185,16 @@ void FiniteElementMesh<ScalarType>::SetCapacity(int_max NodeCount, int_max Eleme
 	m_MeshData->ElementList.SetCapacity(ElementCount);
 	m_MeshData->ElementNameList.SetCapacity(ElementCount);
 	m_MeshData->ElementTypeList.SetCapacity(ElementCount);
+
 	m_MeshData->NodeSetList.SetCapacity(NodeSetCount);
 	m_MeshData->NodeSetNameList.SetCapacity(NodeSetCount);
 	m_MeshData->ElementSetList.SetCapacity(ElementSetCount);
 	m_MeshData->ElementSetNameList.SetCapacity(ElementSetCount);
+
+	m_MeshData->NodeDataSetList.SetCapacity(NodeCount);
+	m_MeshData->NodeDataSetNameList.SetCapacity(NodeCount);
+	m_MeshData->ElementDataSetList.SetCapacity(ElementCount);
+	m_MeshData->ElementDataSetNameList.SetCapacity(ElementCount);
 }
 
 
@@ -614,12 +636,6 @@ DenseVector<int_max> FiniteElementMesh<ScalarType>::GetNodeSet(const String& Nod
 }
 
 template<typename ScalarType>
-ObjectArray<DenseVector<int_max>> FiniteElementMesh<ScalarType>::GetElement(const MDK_Symbol_ALL&) const
-{
-	return m_MeshData->ElementList;
-}
-
-template<typename ScalarType>
 DenseVector<int_max> FiniteElementMesh<ScalarType>::GetElement(int_max ElementIndex) const
 {
 	return m_MeshData->ElementList[ElementIndex];
@@ -630,6 +646,24 @@ DenseVector<int_max> FiniteElementMesh<ScalarType>::GetElement(const String& Ele
 {
 	auto ElementIndex = this->GetElementIndex(ElementName);
 	return this->GetElement(ElementIndex);
+}
+
+template<typename ScalarType>
+ObjectArray<DenseVector<int_max>> FiniteElementMesh<ScalarType>::GetElement(const MDK_Symbol_ALL&) const
+{
+	return m_MeshData->ElementList;
+}
+
+template<typename ScalarType>
+ObjectArray<DenseVector<int_max>> FiniteElementMesh<ScalarType>::GetElement(const DenseVector<int_max>& ElementIndexList) const
+{
+	ObjectArray<DenseVector<int_max>> ElementList;
+	ElementList.Resize(ElementIndexList.GetLength());
+	for (int_max k = 0; k < ElementIndexList.GetLength(); ++k)
+	{
+		ElementList[k] = this->GetElement(ElementIndexList[k]);
+	}
+	return ElementList;
 }
 
 template<typename ScalarType>

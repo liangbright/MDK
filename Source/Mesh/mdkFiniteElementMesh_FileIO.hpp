@@ -362,16 +362,8 @@ bool SaveFiniteElementMeshAsVTKFile(const FiniteElementMesh<ScalarType>& InputMe
 template<typename ScalarType>
 bool LoadFiniteElementMeshFromVTKFile(FiniteElementMesh<ScalarType>& OutputMesh, const String& FilePathAndName)
 {
-	if (OutputMesh.IsSolidMesh() == true)
-	{
-		auto VTKMesh = LoadVTKUnstructuredGridFromVTKFile(FilePathAndName);		
-		return ConvertVTKUnstructuredGridToMDKFiniteElementMesh(VTKMesh, OutputMesh);
-	}
-	else
-	{
-		auto VTKMesh = LoadVTKPolyDataFromVTKFile(FilePathAndName);
-		return ConvertVTKPolyDataToMDKFiniteElementMesh(VTKMesh, OutputMesh);
-	}
+	auto VTKMesh = LoadVTKUnstructuredGridFromVTKFile(FilePathAndName);
+	return ConvertVTKUnstructuredGridToMDKFiniteElementMesh(VTKMesh, OutputMesh);
 	return true;
 }
 
