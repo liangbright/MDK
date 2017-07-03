@@ -232,7 +232,7 @@ public:
 
     inline bool IsValid() const;
 
-    bool IsBoundary() const;
+    bool IsBoundary() const;//PolygonMesh
 
     inline int_max GetIndex() const;
 

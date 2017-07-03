@@ -632,6 +632,7 @@ vtkSmartPointer<vtkUnstructuredGrid> ConvertMDKMeshToVTKUnstructuredGrid(const M
 	auto ScalarTypeName = GetScalarTypeName(ReferenceScalar);
 
 	auto PointCount = MDKMesh.GetPointCount();
+	auto EdgeCount = MDKMesh.GetEdgeCount();
 	auto FaceCount = MDKMesh.GetFaceCount();
 	auto CellCount_mdk = MDKMesh.GetCellCount();
 
@@ -751,6 +752,22 @@ vtkSmartPointer<vtkUnstructuredGrid> ConvertMDKMeshToVTKUnstructuredGrid(const M
 		}
 	}
 
+	for (int_max k = 0; k < EdgeCount; ++k)
+	{
+		if (MDKMesh.Edge(k).GetAdjacentCellCount() == 0)
+		{
+			auto Element = MDKMesh.Edge(k).GetPointIndexList();
+			auto PointCountInCell = Element.GetLength();
+			CellData->InsertNextCell(PointCountInCell);
+			for (int n = 0; n < PointCountInCell; ++n)
+			{
+				auto PointIndex = Element[n];
+				CellData->InsertCellPoint(PointIndex);
+			}
+			CellTypeList.Append(VTKCellType::VTK_LINE);
+		}
+	}
+
 	//---------------------------------------------------
 	VTKMesh->SetPoints(PointData);
 	VTKMesh->SetCells(CellTypeList.GetPointer(), CellData);
@@ -802,6 +819,19 @@ bool ConvertVTKUnstructuredGridToMDKMesh(vtkUnstructuredGrid* VTKMesh, Mesh<Scal
 		auto CellType = Cell->GetCellType();
 		switch (CellType)
 		{
+		case VTKCellType::VTK_LINE:
+		{
+			MDKMesh.AddEdge(PointIndexList[0], PointIndexList[1]);
+			break;
+		}
+		case VTKCellType::VTK_POLY_LINE:
+		{		
+			for (int_max n = 0; n < PointIndexList.GetLength()-1; ++n)
+			{
+				MDKMesh.AddEdge(PointIndexList[n], PointIndexList[n + 1]);
+			}
+			break;
+		}
 		case VTKCellType::VTK_TRIANGLE:
 		{
 			auto ElementType = MeshFaceTypeEnum::Triangle;
