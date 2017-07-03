@@ -98,6 +98,9 @@ vtkSmartPointer<vtkUnstructuredGrid> ConvertMDKFiniteElementMeshToVTKUnstructure
 		case FiniteElementType::VTK_QUAD:
 			CellTypeList[i] = VTKCellType::VTK_QUAD;
 			break;
+		case FiniteElementType::VTK_POLYGON:
+			CellTypeList[i] = VTKCellType::VTK_POLYGON;
+			break;
 		case FiniteElementType::VTK_TETRA:
 			CellTypeList[i] = VTKCellType::VTK_TETRA;
 			break;
@@ -263,6 +266,9 @@ bool ConvertVTKUnstructuredGridToMDKFiniteElementMesh(vtkUnstructuredGrid* VTKMe
 			break;
 		case VTKCellType::VTK_QUAD:
 			ElementType = FiniteElementType::VTK_QUAD;
+			break;
+		case VTKCellType::VTK_POLYGON:
+			ElementType = FiniteElementType::VTK_POLYGON;
 			break;
 		case VTKCellType::VTK_TETRA:
 			ElementType = FiniteElementType::VTK_TETRA;

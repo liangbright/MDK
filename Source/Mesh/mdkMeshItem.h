@@ -359,6 +359,8 @@ public:
 	inline void EraseName();
 	inline String GetName() const;
 
+	inline MeshFaceTypeEnum GetType() const;
+
 	inline void SetData(int_max Index, DenseVector<ScalarType> Data);
 	inline DenseVector<ScalarType> GetData(int_max Index) const;
 

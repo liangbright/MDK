@@ -601,6 +601,20 @@ bool ConvertVTKPolyDataToMDKPolygonMesh(vtkPolyData* VTKMesh, PolygonMesh<Scalar
 template<typename ScalarType>
 vtkSmartPointer<vtkUnstructuredGrid> ConvertMDKPolyhedronMeshToVTKUnstructuredGrid(const PolyhedronMesh<ScalarType>& MDKMesh)
 {
+	return ConvertMDKMeshToVTKUnstructuredGrid(MDKMesh);
+}
+
+//--------------------------------------- convert vtkUnstructuredGrid to mdk PolyhedronMesh ------------------------------------------------//
+template<typename ScalarType>
+bool ConvertVTKUnstructuredGridToMDKPolyhedronMesh(vtkUnstructuredGrid* VTKMesh, PolyhedronMesh<ScalarType>& MDKMesh)
+{
+	return ConvertVTKUnstructuredGridToMDKMesh(VTKMesh, MDKMesh);
+}
+
+//--------------------------------------- convert mdk Mesh to vtkUnstructuredGrid ------------------------------------------------//
+template<typename ScalarType>
+vtkSmartPointer<vtkUnstructuredGrid> ConvertMDKMeshToVTKUnstructuredGrid(const Mesh<ScalarType>& MDKMesh)
+{	
 	auto VTKMesh = vtkSmartPointer<vtkUnstructuredGrid>::New();
 
 	if (MDKMesh.IsEmpty() == true)
@@ -608,11 +622,18 @@ vtkSmartPointer<vtkUnstructuredGrid> ConvertMDKPolyhedronMeshToVTKUnstructuredGr
 		return VTKMesh;
 	}
 
+	if (MDKMesh.Check_If_DataStructure_is_Clean() == false)
+	{
+		MDK_Error("MDKMesh DataStructure is NOT Clean @ ConvertMDKMeshToVTKUnstructuredGrid(...)" )
+		return VTKMesh;
+	}
+
 	auto ReferenceScalar = ScalarType(0);
 	auto ScalarTypeName = GetScalarTypeName(ReferenceScalar);
 
 	auto PointCount = MDKMesh.GetPointCount();
-	auto CellCount = MDKMesh.GetCellCount();
+	auto FaceCount = MDKMesh.GetFaceCount();
+	auto CellCount_mdk = MDKMesh.GetCellCount();
 
 	auto PointData = vtkSmartPointer<vtkPoints>::New();
 
@@ -669,9 +690,8 @@ vtkSmartPointer<vtkUnstructuredGrid> ConvertMDKPolyhedronMeshToVTKUnstructuredGr
 	auto CellData = vtkSmartPointer<vtkCellArray>::New();
 
 	DenseVector<int> CellTypeList;
-	CellTypeList.Resize(CellCount);
 
-	for (int i = 0; i < CellCount; ++i)
+	for (int i = 0; i < CellCount_mdk; ++i)
 	{
 		auto Element = MDKMesh.Cell(i).GetPointIndexList();
 		auto PointCountInCell = Element.GetLength();
@@ -680,7 +700,6 @@ vtkSmartPointer<vtkUnstructuredGrid> ConvertMDKPolyhedronMeshToVTKUnstructuredGr
 		for (int n = 0; n < PointCountInCell; ++n)
 		{
 			auto PointIndex = Element[n];
-
 			CellData->InsertCellPoint(PointIndex);
 		}
 
@@ -688,20 +707,50 @@ vtkSmartPointer<vtkUnstructuredGrid> ConvertMDKPolyhedronMeshToVTKUnstructuredGr
 		switch (MeshCellType)
 		{
 		case MeshCellTypeEnum::Tetrahedron:
-			CellTypeList[i] = VTKCellType::VTK_TETRA;
+			CellTypeList.Append(VTKCellType::VTK_TETRA);
 			break;
 		case MeshCellTypeEnum::Wedge:
-			CellTypeList[i] = VTKCellType::VTK_WEDGE;
+			CellTypeList.Append(VTKCellType::VTK_WEDGE);
 			break;
 		case MeshCellTypeEnum::Hexahedron:
-			CellTypeList[i] = VTKCellType::VTK_HEXAHEDRON;
+			CellTypeList.Append(VTKCellType::VTK_HEXAHEDRON);
 			break;
 		default:
-			CellTypeList[i] = VTKCellType::VTK_CONVEX_POINT_SET;
+			CellTypeList.Append(VTKCellType::VTK_CONVEX_POINT_SET);
 			// do NOT use this, weird result
 			//CellTypeList[i] = VTKCellType::VTK_POLYHEDRON;			
 		}
 	}
+
+	for (int_max k = 0; k < FaceCount; ++k)
+	{
+		if (MDKMesh.Face(k).GetAdjacentCellCount() == 0)
+		{
+			auto Element = MDKMesh.Face(k).GetPointIndexList();
+			auto PointCountInCell = Element.GetLength();
+
+			CellData->InsertNextCell(PointCountInCell);
+			for (int n = 0; n < PointCountInCell; ++n)
+			{
+				auto PointIndex = Element[n];
+				CellData->InsertCellPoint(PointIndex);
+			}
+
+			if (PointCountInCell == 3)
+			{
+				CellTypeList.Append(VTKCellType::VTK_TRIANGLE);
+			}
+			else if (PointCountInCell == 4)
+			{
+				CellTypeList.Append(VTKCellType::VTK_QUAD);
+			}
+			else
+			{
+				CellTypeList.Append(VTKCellType::VTK_POLYGON);
+			}
+		}
+	}
+
 	//---------------------------------------------------
 	VTKMesh->SetPoints(PointData);
 	VTKMesh->SetCells(CellTypeList.GetPointer(), CellData);
@@ -709,9 +758,9 @@ vtkSmartPointer<vtkUnstructuredGrid> ConvertMDKPolyhedronMeshToVTKUnstructuredGr
 	return VTKMesh;
 }
 
-//--------------------------------------- convert vtkUnstructuredGrid to mdk PolyhedronMesh ------------------------------------------------//
+//--------------------------------------- convert vtkUnstructuredGrid to mdk Mesh ------------------------------------------------//
 template<typename ScalarType>
-bool ConvertVTKUnstructuredGridToMDKPolyhedronMesh(vtkUnstructuredGrid* VTKMesh, PolyhedronMesh<ScalarType>& MDKMesh)
+bool ConvertVTKUnstructuredGridToMDKMesh(vtkUnstructuredGrid* VTKMesh, Mesh<ScalarType>& MDKMesh)
 {
 	if (VTKMesh == nullptr)
 	{
@@ -750,13 +799,30 @@ bool ConvertVTKUnstructuredGridToMDKPolyhedronMesh(vtkUnstructuredGrid* VTKMesh,
 
 		DenseVector<int_max> FaceIndexList;
 
-		MeshCellTypeEnum ElementType;
 		auto CellType = Cell->GetCellType();
 		switch (CellType)
 		{
+		case VTKCellType::VTK_TRIANGLE:
+		{
+			auto ElementType = MeshFaceTypeEnum::Triangle;
+			MDKMesh.AddFaceByPoint(PointIndexList);
+			break;
+		}
+		case VTKCellType::VTK_QUAD:
+		{
+			auto ElementType = MeshFaceTypeEnum::Quad;
+			MDKMesh.AddFaceByPoint(PointIndexList);
+			break;
+		}
+		case VTKCellType::VTK_POLYGON:
+		{
+			auto ElementType = MeshFaceTypeEnum::Polygon;
+			MDKMesh.AddFaceByPoint(PointIndexList);
+			break;
+		}
 		case VTKCellType::VTK_TETRA:
 		{
-			ElementType = MeshCellTypeEnum::Tetrahedron;
+			auto ElementType = MeshCellTypeEnum::Tetrahedron;
 			auto H0 = PointIndexList[0];
 			auto H1 = PointIndexList[1];
 			auto H2 = PointIndexList[2];
@@ -765,19 +831,19 @@ bool ConvertVTKUnstructuredGridToMDKPolyhedronMesh(vtkUnstructuredGrid* VTKMesh,
 			auto FaceIndex1 = MDKMesh.AddFaceByPoint({ H0, H1, H3 });
 			auto FaceIndex2 = MDKMesh.AddFaceByPoint({ H0, H3, H2 });
 			auto FaceIndex3 = MDKMesh.AddFaceByPoint({ H1, H2, H3 });
-			FaceIndexList = { FaceIndex0, FaceIndex1, FaceIndex2, FaceIndex3 };			
+			FaceIndexList = { FaceIndex0, FaceIndex1, FaceIndex2, FaceIndex3 };
 			MDKMesh.AddCellByPointAndFace(ElementType, PointIndexList, FaceIndexList);
 			break;
 		}
 		case VTKCellType::VTK_WEDGE:
 		{
-			ElementType = MeshCellTypeEnum::Wedge;			
+			auto ElementType = MeshCellTypeEnum::Wedge;
 			auto H0 = PointIndexList[0];
 			auto H1 = PointIndexList[1];
 			auto H2 = PointIndexList[2];
 			auto H3 = PointIndexList[3];
 			auto H4 = PointIndexList[4];
-			auto H5 = PointIndexList[5];			
+			auto H5 = PointIndexList[5];
 			auto FaceIndex0 = MDKMesh.AddFaceByPoint({ H0, H1, H2 });
 			auto FaceIndex1 = MDKMesh.AddFaceByPoint({ H3, H4, H5 });
 			auto FaceIndex2 = MDKMesh.AddFaceByPoint({ H0, H2, H5, H3 });
@@ -785,13 +851,13 @@ bool ConvertVTKUnstructuredGridToMDKPolyhedronMesh(vtkUnstructuredGrid* VTKMesh,
 			auto FaceIndex4 = MDKMesh.AddFaceByPoint({ H1, H4, H5, H2 });
 			FaceIndexList = { FaceIndex0, FaceIndex1, FaceIndex2, FaceIndex3, FaceIndex4 };
 			// swap [0, 1, 2] <-> [3, 4, 5]
-			PointIndexList = { H3, H4, H5, H0, H1, H2};
+			PointIndexList = { H3, H4, H5, H0, H1, H2 };
 			MDKMesh.AddCellByPointAndFace(ElementType, PointIndexList, FaceIndexList);
 			break;
 		}
 		case VTKCellType::VTK_HEXAHEDRON:
 		{
-			ElementType = MeshCellTypeEnum::Hexahedron;
+			auto ElementType = MeshCellTypeEnum::Hexahedron;
 			auto H0 = PointIndexList[0];
 			auto H1 = PointIndexList[1];
 			auto H2 = PointIndexList[2];
@@ -812,27 +878,13 @@ bool ConvertVTKUnstructuredGridToMDKPolyhedronMesh(vtkUnstructuredGrid* VTKMesh,
 		}
 		default:
 		{
-			ElementType = MeshCellTypeEnum::Polyhedron;
+			auto ElementType = MeshCellTypeEnum::Polyhedron;
 			MDK_Error("ElementType is Polyhedron, can not deduce Face from point @ ConvertVTKUnstructuredGridToMDKPolyhedronMesh(...)")
 		}
-		}		
+		}
 	}
 
 	return true;
-}
-
-//--------------------------------------- convert mdk Mesh to vtkUnstructuredGrid ------------------------------------------------//
-template<typename ScalarType>
-vtkSmartPointer<vtkUnstructuredGrid> ConvertMDKMeshToVTKUnstructuredGrid(const Mesh<ScalarType>& MDKMesh)
-{	
-	
-}
-
-//--------------------------------------- convert vtkUnstructuredGrid to mdk Mesh ------------------------------------------------//
-template<typename ScalarType>
-bool ConvertVTKUnstructuredGridToMDKMesh(vtkUnstructuredGrid* VTKMesh, Mesh<ScalarType>& MDKMesh)
-{
-
 }
 
 }// namespace mdk

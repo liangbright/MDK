@@ -1071,6 +1071,24 @@ String Face_Of_Mesh<ScalarType>::GetName() const
 }
 
 template<typename ScalarType>
+inline MeshFaceTypeEnum Face_Of_Mesh<ScalarType>::GetType() const
+{
+	auto PointCountInCell = m_Data->PointIndexList.GetLength();
+	if (PointCountInCell == 3)
+	{
+		return MeshFaceTypeEnum::Triangle;
+	}
+	else if (PointCountInCell == 4)
+	{
+		return MeshFaceTypeEnum::Quad;
+	}
+	else
+	{
+		return MeshFaceTypeEnum::Polygon;
+	}
+}
+
+template<typename ScalarType>
 inline void Face_Of_Mesh<ScalarType>::SetData(int_max Index, DenseVector<ScalarType> Data)
 {
 	m_Data->MeshData->FaceDataSet[Index][m_Data->Index] = std::move(Data);
