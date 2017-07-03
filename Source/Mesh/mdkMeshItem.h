@@ -37,7 +37,7 @@ enum struct MeshFaceTypeEnum
 enum struct MeshCellTypeEnum
 {	
 	Tetrahedron,
-	Wedge,
+	Wedge, // point order is NOT the same as VTK, VTK Wedge has inconsistant point-order, swap [0, 1, 2] <-> [3, 4, 5]
 	Hexahedron,
 	Polyhedron
 };

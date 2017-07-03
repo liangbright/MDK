@@ -695,7 +695,14 @@ vtkSmartPointer<vtkUnstructuredGrid> ConvertMDKMeshToVTKUnstructuredGrid(const M
 	for (int i = 0; i < CellCount_mdk; ++i)
 	{
 		auto Element = MDKMesh.Cell(i).GetPointIndexList();
+		auto MeshCellType = MDKMesh.Cell(i).GetType();
 		auto PointCountInCell = Element.GetLength();
+
+		if (MeshCellType == MeshCellTypeEnum::Wedge)
+		{
+			// swap [0, 1, 2] <-> [3, 4, 5]			
+			Element = { Element[3], Element[4], Element[5], Element[0], Element[1], Element[2] };
+		}
 
 		CellData->InsertNextCell(PointCountInCell);
 		for (int n = 0; n < PointCountInCell; ++n)
@@ -703,8 +710,7 @@ vtkSmartPointer<vtkUnstructuredGrid> ConvertMDKMeshToVTKUnstructuredGrid(const M
 			auto PointIndex = Element[n];
 			CellData->InsertCellPoint(PointIndex);
 		}
-
-		auto MeshCellType = MDKMesh.Cell(i).GetType();
+		
 		switch (MeshCellType)
 		{
 		case MeshCellTypeEnum::Tetrahedron:
