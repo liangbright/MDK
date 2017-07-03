@@ -106,10 +106,10 @@ public:
 	int_max GetNodeCount() const;
 	int_max GetNodeIndex(const String& NodeName) const;
 	String GetNodeName(int_max NodeIndex) const;
-	DenseMatrix<ScalarType> GetNode(const MDK_Symbol_ALL&) const;
 	DenseVector<ScalarType, 3> GetNode(int_max NodeIndex) const;
 	DenseVector<ScalarType, 3> GetNode(const String& NodeName) const;
 	DenseMatrix<ScalarType> GetNode(const DenseVector<int_max>& NodeIndexList) const;
+	DenseMatrix<ScalarType> GetNode(const MDK_Symbol_ALL&) const;
 
 	int_max AddElement(const DenseVector<int_max>& NodeIndexListOfElement);//return ElementIndex, Type is UNKNOWN
 	int_max AddElement(const DenseVector<int_max>& NodeIndexListOfElement, FiniteElementType Type);//return ElementIndex
@@ -122,9 +122,10 @@ public:
 	int_max GetElementCount() const;
 	int_max GetElementIndex(const String& ElementName) const;
 	String GetElementName(int_max ElementIndex) const;
-	ObjectArray<DenseVector<int_max>> GetElement(const MDK_Symbol_ALL&) const;
 	DenseVector<int_max> GetElement(int_max ElementIndex) const;
-	DenseVector<int_max> GetElement(const String& ElementName) const;
+	DenseVector<int_max> GetElement(const String& ElementName) const;	
+	ObjectArray<DenseVector<int_max>> GetElement(const DenseVector<int_max>& ElementIndexList) const;
+	ObjectArray<DenseVector<int_max>> GetElement(const MDK_Symbol_ALL&) const;
 	FiniteElementType GetElementType(int_max ElementIndex) const;
 	String GetElementTypeAsString(int_max ElementIndex) const;
 	String ConvertElementTypeToString(FiniteElementType Type) const;
