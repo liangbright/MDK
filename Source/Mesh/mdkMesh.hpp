@@ -1338,7 +1338,7 @@ int_max Mesh<ScalarType>::GetCellIndexByFace(const DenseVector<int_max>& FaceInd
 	auto CellIndexList_shared = m_MeshData->FaceList[FaceIndexList[0]].GetAdjacentCellIndexList();
 	for (int_max k = 1; k < FaceIndexList.GetLength(); ++k)
 	{
-		CellIndexList_shared = Intersect(CellIndexList_shared, m_MeshData->FaceList[FaceIndexList[k]].GetAdjacentFaceIndexList());
+		CellIndexList_shared = Intersect(CellIndexList_shared, m_MeshData->FaceList[FaceIndexList[k]].GetAdjacentCellIndexList());
 	}
 	//----------------------
 	if (CellIndexList_shared.GetLength() != 1)
@@ -1442,6 +1442,19 @@ ObjectArray<String> Mesh<ScalarType>::GetValidFaceNameList() const
 	ObjectArray<String> NameList;
 	NameList.SetCapacity(m_MeshData->Map_Face_Name_to_Index.size());
 	for (auto it = m_MeshData->Map_Face_Name_to_Index.begin(); it != m_MeshData->Map_Face_Name_to_Index.end(); ++it)
+	{
+		NameList.Append(it->first);
+	}
+	return NameList;
+}
+
+
+template<typename ScalarType>
+ObjectArray<String> Mesh<ScalarType>::GetValidCellNameList() const
+{
+	ObjectArray<String> NameList;
+	NameList.SetCapacity(m_MeshData->Map_Cell_Name_to_Index.size());
+	for (auto it = m_MeshData->Map_Cell_Name_to_Index.begin(); it != m_MeshData->Map_Cell_Name_to_Index.end(); ++it)
 	{
 		NameList.Append(it->first);
 	}
@@ -2720,14 +2733,14 @@ int_max Mesh<ScalarType>::AddFaceByPoint(const DenseVector<int_max>& PointIndexL
 
 
 template<typename ScalarType>
-int_max Mesh<ScalarType>::AddCellByFace(const DenseVector<int_max>& FaceIndexList)
+int_max Mesh<ScalarType>::AddCellByFace(MeshCellTypeEnum Type, const DenseVector<int_max>& FaceIndexList)
 {
 	auto CellIndex = m_MeshData->CellList.GetLength();
-	return this->AddCellByFace(FaceIndexList, CellIndex);
+	return this->AddCellByFace(Type, FaceIndexList, CellIndex);
 }
 
 template<typename ScalarType>
-int_max Mesh<ScalarType>::AddCellByFace(const DenseVector<int_max>& FaceIndexList, int_max CellIndex_input)
+int_max Mesh<ScalarType>::AddCellByFace(MeshCellTypeEnum Type, const DenseVector<int_max>& FaceIndexList, int_max CellIndex_input)
 {
 	if (CellIndex_input < 0 && CellIndex_input > m_MeshData->CellValidityFlagList.GetLength())
 	{
@@ -2769,9 +2782,9 @@ int_max Mesh<ScalarType>::AddCellByFace(const DenseVector<int_max>& FaceIndexLis
 	auto CellIndex_temp = this->GetCellIndexByFace(FaceIndexList);
 	if (this->IsValidCellIndex(CellIndex_temp) == true)
 	{
-		//MDK_Warning("The cell has been added already @ Mesh::AddCellByFace(...)")
+		MDK_Warning("The cell has been added already @ Mesh::AddCellByFace(...)")
 
-		if (CellInex_input == m_MeshData->CellValidityFlagList.GetLength() || CellInex_input == CellIndex_temp)
+		if (CellIndex_input == m_MeshData->CellValidityFlagList.GetLength() || CellIndex_input == CellIndex_temp)
 		{//attempt to add new face, not necessary			
 			return CellIndex_temp;
 		}
@@ -2788,13 +2801,13 @@ int_max Mesh<ScalarType>::AddCellByFace(const DenseVector<int_max>& FaceIndexLis
 	DenseVector<int_max> PointIndexList;
 	for (int_max k = 0; k < FaceIndexList.GetLength(); ++k)
 	{
-		PointIndexList.Append(m_MeshData.FaceList[k].PointIndexList());
+		PointIndexList.Append(m_MeshData->FaceList[FaceIndexList[k]].PointIndexList());
 	}
 	PointIndexList = PointIndexList.GetSubSet(PointIndexList.FindUnique());
 
 	// create cell ----------------------------------------------------------------------------------
 
-	if (CellInex_input == m_MeshData->CellList.GetLength())
+	if (CellIndex_input == m_MeshData->CellList.GetLength())
 	{
 		CellType EmptyCell;
 		m_MeshData->CellList.Append(std::move(EmptyCell));
@@ -2802,35 +2815,48 @@ int_max Mesh<ScalarType>::AddCellByFace(const DenseVector<int_max>& FaceIndexLis
 	}
 	else
 	{
-		m_MeshData->CellList[CellInex_input].ReCreate();
-		m_MeshData->CellValidityFlagList[CellInex_input] = 1;
+		m_MeshData->CellList[CellIndex_input].ReCreate();
+		m_MeshData->CellValidityFlagList[CellIndex_input] = 1;
 	}
 	// take reference
-	auto& Cell = m_MeshData->CellList[CellInex_input];
+	auto& Cell = m_MeshData->CellList[CellIndex_input];
 	Cell.SetParentMesh(*this);
-	Cell.SetIndex(FaceInex_input);
+	Cell.SetIndex(CellIndex_input);
+	Cell.SetType(Type);
 	Cell.PointIndexList() = PointIndexList;
 	Cell.FaceIndexList() = FaceIndexList;
 
 	// update information in m_MeshData->FaceList ---------------------------------------------
 	for (int_max k = 0; k < FaceIndexList.GetLength(); ++k)
 	{
-		m_MeshData->FaceList[FaceIndexList[k]].AdjacentCellIndexList().Append(CellInex_input);
+		m_MeshData->FaceList[FaceIndexList[k]].AdjacentCellIndexList().Append(CellIndex_input);
 	}
 
 	//-----------------------------
-	return CellInex_input;
+	return CellIndex_input;
 }
 
 template<typename ScalarType>
-int_max Mesh<ScalarType>::AddCellByPointAndFace(const DenseVector<int_max>& PointIndexList, const DenseVector<int_max>& FaceIndexList)
+int_max Mesh<ScalarType>::AddCellByFace(const DenseVector<int_max>& FaceIndexList)
+{
+	return this->AddCellByFace(MeshCellTypeEnum::Polyhedron, FaceIndexList);
+}
+
+template<typename ScalarType>
+int_max Mesh<ScalarType>::AddCellByFace(const DenseVector<int_max>& FaceIndexList, int_max CellIndex_input)
+{
+	return this->AddCellByFace(MeshCellTypeEnum::Polyhedron, FaceIndexList, CellIndex_input);
+}
+
+template<typename ScalarType>
+int_max Mesh<ScalarType>::AddCellByPointAndFace(MeshCellTypeEnum Type, const DenseVector<int_max>& PointIndexList, const DenseVector<int_max>& FaceIndexList)
 {
 	auto CellIndex = m_MeshData->CellList.GetLength();
-	return this->AddCellByPointAndFace(PointIndexList, FaceIndexList, CellIndex);
+	return this->AddCellByPointAndFace(Type, PointIndexList, FaceIndexList, CellIndex);
 }
 
 template<typename ScalarType>
-int_max Mesh<ScalarType>::AddCellByPointAndFace(const DenseVector<int_max>& PointIndexList, const DenseVector<int_max>& FaceIndexList, int_max CellIndex_input)
+int_max Mesh<ScalarType>::AddCellByPointAndFace(MeshCellTypeEnum Type, const DenseVector<int_max>& PointIndexList, const DenseVector<int_max>& FaceIndexList, int_max CellIndex_input)
 {
 	if (PointIndexList.GetLength() < 4)
 	{
@@ -2858,7 +2884,7 @@ int_max Mesh<ScalarType>::AddCellByPointAndFace(const DenseVector<int_max>& Poin
 	DenseVector<int_max> PointIndexList_from_face;
 	for (int_max k = 0; k < FaceIndexList.GetLength(); ++k)
 	{
-		PointIndexList_from_face.Append(m_MeshData.FaceList[k].PointIndexList());
+		PointIndexList_from_face.Append(m_MeshData->FaceList[FaceIndexList[k]].PointIndexList());
 	}
 	PointIndexList_from_face = PointIndexList_from_face.GetSubSet(PointIndexList_from_face.FindUnique());
 	if (PointIndexList_from_face.GetLength() != PointIndexList.GetLength())
@@ -2873,11 +2899,23 @@ int_max Mesh<ScalarType>::AddCellByPointAndFace(const DenseVector<int_max>& Poin
 		return -1;
 	}
 
-	auto FaceIndex_new = this->AddCellByFace(FaceIndexList);
-	m_MeshData->CellList[FaceIndex_new].PointIndexList() = PointIndexList;
+	auto CellIndex_new = this->AddCellByFace(Type, FaceIndexList, CellIndex_input);
+	m_MeshData->CellList[CellIndex_new].PointIndexList() = PointIndexList;
 	//-----------------------------
-	return FaceIndex_new;
+	return CellIndex_new;
 
+}
+
+template<typename ScalarType>
+int_max Mesh<ScalarType>::AddCellByPointAndFace(const DenseVector<int_max>& PointIndexList, const DenseVector<int_max>& FaceIndexList)
+{
+	return this->AddCellByPointAndFace(MeshCellTypeEnum::Polyhedron, PointIndexList, FaceIndexList);
+}
+
+template<typename ScalarType>
+int_max Mesh<ScalarType>::AddCellByPointAndFace(const DenseVector<int_max>& PointIndexList, const DenseVector<int_max>& FaceIndexList, int_max CellIndex_input)
+{
+	return this->AddCellByPointAndFace(MeshCellTypeEnum::Polyhedron, PointIndexList, FaceIndexList, CellIndex_input);
 }
 
 //------------------- Delete Mesh Item ----------------------------------------------------------------------------//
@@ -4864,7 +4902,7 @@ void Mesh<ScalarType>::UpdateRecord_DeleteFace(int_max FaceIndex)
 	const auto& EdgeIndexList = m_MeshData->FaceList[FaceIndex].EdgeIndexList();
 	const auto& PointIndexList = m_MeshData->FaceList[FaceIndex].PointIndexList();
 
-	// update information in m_MeshData.EdgeList
+	// update information in m_MeshData->EdgeList
 	for (int_max k = 0; k < EdgeIndexList.GetLength(); ++k)
 	{
 		auto tempIndex = m_MeshData->EdgeList[EdgeIndexList[k]].AdjacentFaceIndexList().ExactMatch(FaceIndex);
@@ -4897,7 +4935,7 @@ void Mesh<ScalarType>::UpdateRecord_DeleteCell(int_max CellIndex)
 	const auto& PointIndexList = m_MeshData->CellList[CellIndex].PointIndexList();
 	const auto& FaceIndexList = m_MeshData->CellList[CellIndex].FaceIndexList();
 
-	// update information in m_MeshData.FaceList
+	// update information in m_MeshData->FaceList
 	for (int_max k = 0; k < FaceIndexList.GetLength(); ++k)
 	{
 		auto tempIndex = m_MeshData->FaceList[FaceIndexList[k]].AdjacentCellIndexList().ExactMatch(CellIndex);

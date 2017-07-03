@@ -8,21 +8,6 @@
 
 namespace mdk
 {
-enum struct MeshFaceTypeEnum
-{
-	Polygon,
-	Quad,
-	Triangle,
-	MixedTriangleQuad,
-};
-
-enum struct MeshCellTypeEnum
-{
-	Polyhedron,
-	Hexahedron,
-	Tetrahedron,
-	MixedTetHex
-};
 
 template<typename ScalarType>
 struct MeshData
@@ -409,14 +394,16 @@ public:
 	int_max AddFaceByPoint(const DenseVector<int_max>& PointIndexList, int_max FaceIndex_input);
 
 	// point/edge will be extracted, the order is random
-	int_max AddCellByFace(const DenseVector<int_max>& FaceIndexList);
-	//reuse old CellIndex
-	int_max AddCellByFace(const DenseVector<int_max>& FaceIndexList, int_max CellIndex_input);	
+	int_max AddCellByFace(MeshCellTypeEnum Type, const DenseVector<int_max>& FaceIndexList);		
+	int_max AddCellByFace(MeshCellTypeEnum Type, const DenseVector<int_max>& FaceIndexList, int_max CellIndex_input);//reuse old CellIndex
+	int_max AddCellByFace(const DenseVector<int_max>& FaceIndexList);//Type is Polyhedron
+	int_max AddCellByFace(const DenseVector<int_max>& FaceIndexList, int_max CellIndex_input);//Type is Polyhedron
 
 	//specify face-order and point-order in each cell
 	//edge-order in the cell is determined by the point-order
+	int_max AddCellByPointAndFace(MeshCellTypeEnum Type, const DenseVector<int_max>& PointIndexList, const DenseVector<int_max>& FaceIndexList);	
+	int_max AddCellByPointAndFace(MeshCellTypeEnum Type, const DenseVector<int_max>& PointIndexList, const DenseVector<int_max>& FaceIndexList, int_max CellIndex_input);//reuse old CellIndex
 	int_max AddCellByPointAndFace(const DenseVector<int_max>& PointIndexList, const DenseVector<int_max>& FaceIndexList);
-	// CellIndex_input may be the Index of a deleted cell, so to reused old CellIndex if necessary
 	int_max AddCellByPointAndFace(const DenseVector<int_max>& PointIndexList, const DenseVector<int_max>& FaceIndexList, int_max CellIndex_input);
 
     // Delete Mesh Item ----------------------------------------------------------------------------//

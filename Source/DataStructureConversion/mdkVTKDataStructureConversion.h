@@ -2,6 +2,7 @@
 
 #include <vtkSmartPointer.h>
 #include <vtkPolyData.h>
+#include <vtkUnstructuredGrid.h>
 #include <vtkTriangleFilter.h>
 #include <vtkPoints.h>
 #include <vtkPointData.h>
@@ -31,7 +32,10 @@ template<typename PixelType>
 class DenseImage3D;
 
 template<typename ScalarType>
-class TriangleMesh;
+class Mesh;
+
+template<typename ScalarType>
+class PolyhedronMesh;
 
 template<typename ScalarType>
 class PolygonMesh;
@@ -98,13 +102,21 @@ vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMes
 template<typename ScalarType>
 bool ConvertVTKPolyDataToMDKPolygonMesh(vtkPolyData* VTKMesh, PolygonMesh<ScalarType>& MDKMesh);
 
-//--------------------------------------- convert mdk TriangleMesh to vtkPolyData -----------------------------------------------//
+//--------------------------------------- convert mdk PolyhedronMesh to vtkUnstructuredGrid ------------------------------------------------//
 template<typename ScalarType>
-vtkSmartPointer<vtkPolyData> ConvertMDKTriangleMeshToVTKPolyData(const TriangleMesh<ScalarType>& MDKMesh);
+vtkSmartPointer<vtkUnstructuredGrid> ConvertMDKPolyhedronMeshToVTKUnstructuredGrid(const PolyhedronMesh<ScalarType>& MDKMesh);
 
-//--------------------------------------- convert vtkPolyData to mdk TriangleMesh ------------------------------------------------//
+//--------------------------------------- convert vtkUnstructuredGrid to mdk PolyhedronMesh ------------------------------------------------//
 template<typename ScalarType>
-bool ConvertVTKPolyDataToMDKTriangleMesh(vtkPolyData* VTKMesh, TriangleMesh<ScalarType>& MDKMesh);
+bool ConvertVTKUnstructuredGridToMDPolyhedronMesh(vtkUnstructuredGrid* VTKMesh, PolyhedronMesh<ScalarType>& MDKMesh);
+
+//--------------------------------------- convert mdk Mesh to vtkUnstructuredGrid ------------------------------------------------//
+template<typename ScalarType>
+vtkSmartPointer<vtkUnstructuredGrid> ConvertMDKMeshToVTKUnstructuredGrid(const Mesh<ScalarType>& MDKMesh);
+
+//--------------------------------------- convert vtkUnstructuredGrid to mdk Mesh ------------------------------------------------//
+template<typename ScalarType>
+bool ConvertVTKUnstructuredGridToMDKMesh(vtkUnstructuredGrid* VTKMesh, Mesh<ScalarType>& MDKMesh);
 
 }// namespace mdk
 

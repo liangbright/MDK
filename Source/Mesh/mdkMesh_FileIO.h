@@ -1,11 +1,8 @@
 ﻿#pragma once
 
-#include <vtkSmartPointer.h>
-#include <vtkPolyDataReader.h>
-#include <vtkPolyDataWriter.h>
-
 #include "mdkFileIO.h"
 #include "mdkVTKDataObject_FileIO.h"
+#include "mdkVTKDataStructureConversion.h"
 
 namespace mdk
 {
@@ -26,12 +23,6 @@ bool SaveMeshAsVTKFile(const Mesh<ScalarType>& InputMesh, const String& FilePath
 
 template<typename ScalarType>
 bool LoadMeshMeshFromVTKFile(Mesh<ScalarType>& OutputMesh, const String& FilePathAndName);
-
-template<typename ScalarType>
-bool SaveMeshAsPLYFile(const Mesh<ScalarType>& InputMesh, const String& FilePathAndName);
-
-template<typename ScalarType>
-bool LoadMeshMeshFromPLYFile(Mesh<ScalarType>& OutputMesh, const String& FilePathAndName);
 
 }//namespace mdk
 

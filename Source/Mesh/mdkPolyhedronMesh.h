@@ -37,8 +37,8 @@ public:
 	PolyhedronMesh(Mesh&& InputMesh);
     ~PolyhedronMesh();
     
-	inline void operator=(const PolygonMesh& InputMesh);
-	inline void operator=(PolygonMesh&& InputMesh);
+	inline void operator=(const PolyhedronMesh& InputMesh);
+	inline void operator=(PolyhedronMesh&& InputMesh);
 	inline void operator=(const Mesh& InputMesh);
 	inline void operator=(Mesh&& InputMesh);
 };
@@ -46,4 +46,5 @@ public:
 }// namespace mdk
 
 #include "mdkPolyhedronMesh.hpp"
+#include "mdkPolyhedronMesh_FileIO.h"
 

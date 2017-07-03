@@ -6,6 +6,7 @@
 
 #include "mdkFileIO.h"
 #include "mdkVTKDataObject_FileIO.h"
+#include "mdkVTKDataStructureConversion.h"
 
 namespace mdk
 {

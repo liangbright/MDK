@@ -4,25 +4,25 @@ namespace mdk
 {
 
 template<typename ScalarType>
-bool SaveMeshAsJsonDataFile(const Mesh<ScalarType>& InputMesh, const String& FilePathAndName)
+bool SavePolyhedronMeshAsJsonDataFile(const PolyhedronMesh<ScalarType>& InputMesh, const String& FilePathAndName)
 {
 	//---------------------------------------------
 	if (GetByteCountOfScalar(ScalarType(0)) <= 0)
 	{
-		MDK_Error("Unknown ScalarType @ SaveMeshAsJsonDataFile(...)")
+		MDK_Error("Unknown ScalarType @ SavePolyhedronMeshAsJsonDataFile(...)")
 		return false;
 	}
 	//-------------------------------------------------------------------//
 	JsonObject JObject;
 
-	JObject["ObjectType"] = "Mesh";
+	JObject["ObjectType"] = "PolyhedronMesh";
 	JObject["Name"] = InputMesh.GetName();
 	JObject["ScalarType"] = GetScalarTypeName(ScalarType(0));
 	JObject["IndexType"] = GetScalarTypeName(int_max(0));
 	//----------------------------------------
 	auto PointCount = InputMesh.GetPointCount();
-	auto FaceCount = InputMesh.GetFaceCount();
 	auto CellCount = InputMesh.GetCellCount();
+	auto FaceCount = InputMesh.GetFaceCount();
 	int_max NamedPointCount = InputMesh.GetNamedPointCount();
 	int_max NamedFaceCount = InputMesh.GetNamedFaceCount();
 	int_max NamedCellCount = InputMesh.GetNamedCellCount();
@@ -108,7 +108,7 @@ bool SaveMeshAsJsonDataFile(const Mesh<ScalarType>& InputMesh, const String& Fil
 		}
 		JsonValue tempJValue = std::move(tempJArray);
 		JObject["FaceSetList"] = tempJValue;
-	}	
+	}
 	//----------------------------------------
 	if (CellSetCount > 0)
 	{// MUST use JsonArray to maintain the order in CellSetList
@@ -131,14 +131,14 @@ bool SaveMeshAsJsonDataFile(const Mesh<ScalarType>& InputMesh, const String& Fil
 	JObject["Point_Face_Cell"] = FileName_VTKMesh;
 	//----------------------------------------------------------------------------------//
 	bool IsOK = true;
-	if (SaveMeshAsVTKFile(InputMesh, FilePath + FileName_VTKMesh) == false)
+	if (SavePolyhedronMeshAsVTKFile(InputMesh, FilePath + FileName_VTKMesh) == false)
 	{
-		MDK_Error("Error1 @ SaveMeshAsJsonDataFile(...)")
+		MDK_Error("Error1 @ SavePolyhedronMeshAsJsonDataFile(...)")
 		IsOK = false;
 	}
 	if (JsonFile::Save(JObject, FilePathAndName) == false)
 	{
-		MDK_Error("Error2 @ SaveMeshAsJsonDataFile(...)")
+		MDK_Error("Error2 @ SavePolyhedronMeshAsJsonDataFile(...)")
 		IsOK = false;
 	}
 	return IsOK;
@@ -146,24 +146,24 @@ bool SaveMeshAsJsonDataFile(const Mesh<ScalarType>& InputMesh, const String& Fil
 
 
 template<typename ScalarType>
-bool LoadMeshFromJsonDataFile(Mesh<ScalarType>& OutputMesh, const String& FilePathAndName)
+bool LoadPolyhedronMeshFromJsonDataFile(PolyhedronMesh<ScalarType>& OutputMesh, const String& FilePathAndName)
 {
 	if (GetByteCountOfScalar(ScalarType(0)) <= 0)
 	{
-		MDK_Error("Unknown ScalarType @ SaveMeshAsJsonDataFile(...)")
+		MDK_Error("Unknown ScalarType @ SavePolyhedronMeshAsJsonDataFile(...)")
 		return false;
 	}
 	//---------------------------------------------
 	JsonObject JObject;
 	if (JsonFile::Load(JObject, FilePathAndName) == false)
 	{
-		MDK_Error("Json file is invalid @ LoadMeshFromJsonDataFile(...)")
+		MDK_Error("Json file is invalid @ LoadPolyhedronMeshFromJsonDataFile(...)")
 		return false;
 	}
 
 	if (JObject.IsEmpty() == true)
 	{
-		MDK_Warning("Json file is empty @ LoadMeshFromJsonDataFile(...)")
+		MDK_Warning("Json file is empty @ LoadPolyhedronMeshFromJsonDataFile(...)")
 		return true;
 	}
 	//----------------------------------------------------------//
@@ -172,15 +172,15 @@ bool LoadMeshFromJsonDataFile(Mesh<ScalarType>& OutputMesh, const String& FilePa
 		if (it != JObject.end())
 		{
 			auto ObjectType = it->second.GetString();
-			if (ObjectType != "Mesh" && ObjectType != "TriangleMesh")
+			if (ObjectType != "PolyhedronMesh" && ObjectType != "TetrahedronMesh")
 			{
-				MDK_Error("ObjectType is not Mesh or TriangleMesh @ LoadMeshFromJsonDataFile(...)")
+				MDK_Error("ObjectType is not PolyhedronMesh or TetrahedronMesh @ LoadPolyhedronMeshFromJsonDataFile(...)")
 				return false;
 			}
 		}
 		else
 		{
-			MDK_Error("Couldn't get ObjectType @ LoadMeshFromJsonDataFile(...)")
+			MDK_Error("Couldn't get ObjectType @ LoadPolyhedronMeshFromJsonDataFile(...)")
 			return false;
 		}
 	}
@@ -191,7 +191,7 @@ bool LoadMeshFromJsonDataFile(Mesh<ScalarType>& OutputMesh, const String& FilePa
 		{
 			String FilePath = ExtractFilePath(FilePathAndName);
 			String FileName_VTKMesh = it->second.GetString();
-			if (LoadMeshFromVTKFile(OutputMesh, FilePath + FileName_VTKMesh) == false)
+			if (LoadPolyhedronMeshFromVTKFile(OutputMesh, FilePath + FileName_VTKMesh) == false)
 			{
 				return false;
 			}
@@ -206,7 +206,7 @@ bool LoadMeshFromJsonDataFile(Mesh<ScalarType>& OutputMesh, const String& FilePa
 		}
 		else
 		{
-			MDK_Error("Couldn't get Name @ LoadMeshFromJsonDataFile(...)")
+			MDK_Error("Couldn't get Name @ LoadPolyhedronMeshFromJsonDataFile(...)")
 			return false;
 		}
 	}
@@ -220,7 +220,7 @@ bool LoadMeshFromJsonDataFile(Mesh<ScalarType>& OutputMesh, const String& FilePa
 		}
 		else
 		{
-			MDK_Error("Couldn't get ScalarType @ LoadMeshFromJsonDataFile(...)")
+			MDK_Error("Couldn't get ScalarType @ LoadPolyhedronMeshFromJsonDataFile(...)")
 			return false;
 		}
 	}
@@ -234,7 +234,7 @@ bool LoadMeshFromJsonDataFile(Mesh<ScalarType>& OutputMesh, const String& FilePa
 		}
 		else
 		{
-			MDK_Error("Couldn't get IndexType @ LoadMeshFromJsonDataFile(...)")
+			MDK_Error("Couldn't get IndexType @ LoadPolyhedronMeshFromJsonDataFile(...)")
 			return false;
 		}
 	}
@@ -248,7 +248,7 @@ bool LoadMeshFromJsonDataFile(Mesh<ScalarType>& OutputMesh, const String& FilePa
 		}
 		else
 		{
-			MDK_Error("Couldn't get PointCount @ LoadMeshFromJsonDataFile(...)")
+			MDK_Error("Couldn't get PointCount @ LoadPolyhedronMeshFromJsonDataFile(...)")
 			return false;
 		}
 	}
@@ -262,7 +262,7 @@ bool LoadMeshFromJsonDataFile(Mesh<ScalarType>& OutputMesh, const String& FilePa
 		}
 		else
 		{
-			MDK_Error("Couldn't get FaceCount @ LoadMeshFromJsonDataFile(...)")
+			MDK_Error("Couldn't get FaceCount @ LoadPolyhedronMeshFromJsonDataFile(...)")
 			return false;
 		}
 	}
@@ -276,7 +276,7 @@ bool LoadMeshFromJsonDataFile(Mesh<ScalarType>& OutputMesh, const String& FilePa
 		}
 		else
 		{
-			MDK_Error("Couldn't get CellCount @ LoadMeshFromJsonDataFile(...)")
+			MDK_Error("Couldn't get CellCount @ LoadPolyhedronMeshFromJsonDataFile(...)")
 			return false;
 		}
 	}
@@ -290,7 +290,7 @@ bool LoadMeshFromJsonDataFile(Mesh<ScalarType>& OutputMesh, const String& FilePa
 		}
 		else
 		{
-			MDK_Error("Couldn't get PointSetCount @ LoadMeshFromJsonDataFile(...)")
+			MDK_Error("Couldn't get PointSetCount @ LoadPolyhedronMeshFromJsonDataFile(...)")
 			return false;
 		}
 	}
@@ -304,12 +304,12 @@ bool LoadMeshFromJsonDataFile(Mesh<ScalarType>& OutputMesh, const String& FilePa
 		}
 		else
 		{
-			MDK_Error("Couldn't get FaceSetCount @ LoadMeshFromJsonDataFile(...)")
+			MDK_Error("Couldn't get FaceSetCount @ LoadPolyhedronMeshFromJsonDataFile(...)")
 			return false;
 		}
 	}
 	//----------------------------------------------
-	int_max CellSetCount;
+	int_max FaceSetCount;
 	{
 		auto it = JObject.find("CellSetCount");
 		if (it != JObject.end())
@@ -318,7 +318,7 @@ bool LoadMeshFromJsonDataFile(Mesh<ScalarType>& OutputMesh, const String& FilePa
 		}
 		else
 		{
-			MDK_Error("Couldn't get CellSetCount @ LoadMeshFromJsonDataFile(...)")
+			MDK_Error("Couldn't get CellSetCount @ LoadPolyhedronMeshFromJsonDataFile(...)")
 			return false;
 		}
 	}
@@ -360,7 +360,7 @@ bool LoadMeshFromJsonDataFile(Mesh<ScalarType>& OutputMesh, const String& FilePa
 			{
 				const auto& CellName = it->first;
 				auto CellIndex = it->second.ToScalar<int_max>();
-				OutputMesh.Face(CellIndex).SetName(CellName);
+				OutputMesh.Cell(CellIndex).SetName(FaceName);
 			}
 		}
 	}
@@ -416,7 +416,7 @@ bool LoadMeshFromJsonDataFile(Mesh<ScalarType>& OutputMesh, const String& FilePa
 				{
 					const auto& CellSetName = it->first;
 					auto CellIndexList = it->second.ToScalarArray<int_max>();
-					OutputMesh.SetFaceSet(CellSetName, CellIndexList);
+					OutputMesh.SetCellSet(CellSetName, CellIndexList);
 				}
 			}
 		}
@@ -427,26 +427,18 @@ bool LoadMeshFromJsonDataFile(Mesh<ScalarType>& OutputMesh, const String& FilePa
 
 
 template<typename ScalarType>
-bool SaveMeshAsVTKFile(const Mesh<ScalarType>& InputMesh, const String& FilePathAndName)
+bool SavePolyhedronMeshAsVTKFile(const PolyhedronMesh<ScalarType>& InputMesh, const String& FilePathAndName)
 {
-	if (InputMesh.IsPolygonMesh() == true)
-	{
-		auto VTKMesh = ConvertMDKMeshToVTKPolyData(InputMesh);
-		return SaveVTKPolyDataAsVTKFile(VTKMesh, FilePathAndName);
-	}
-	else if (InputMesh.IsPolyhedronMesh() == true)
-	{
-		auto VTKMesh = ConvertMDKMeshToVTKUnstructuredGrid(InputMesh);
-		return SaveVTKUnstructuredGridAsVTKFile(VTKMesh, FilePathAndName);
-	}
+	auto VTKMesh = ConvertMDKPolyhedronMeshToVTKUnstructuredGrid(InputMesh);
+	return SaveVTKUnstructuredGridAsVTKFile(VTKMesh, FilePathAndName);
 }
 
 
 template<typename ScalarType>
-bool LoadMeshFromVTKFile(Mesh<ScalarType>& OutputMesh, const String& FilePathAndName)
+bool LoadPolyhedronMeshFromVTKFile(PolyhedronMesh<ScalarType>& OutputMesh, const String& FilePathAndName)
 {
 	auto VTKMesh = LoadVTKUnstructuredGridFromVTKFile(FilePathAndName);
-	return ConvertVTKUnstructuredGridToMDKMesh(VTKMesh, OutputMesh);
+	return ConvertVTKUnstructuredGridToMDKPolyhedronMesh(VTKMesh, OutputMesh);
 }
 
 }//namespace mdk

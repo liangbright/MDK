@@ -18,8 +18,6 @@
 #include "mdkFileIO.h"
 //#include "mdkTypeInference.h"
 
-#include "mdkVTKDataStructureConversion.h"
-
 namespace mdk
 {
 bool SaveVTKPolyDataAsVTKFile(vtkPolyData* OutputVTKMesh, const String& FilePathAndName);//ASCII VTK file

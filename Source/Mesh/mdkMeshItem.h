@@ -27,6 +27,20 @@ template<typename T>
 class Cell_Of_Mesh;
 //----------------------------------------------------------------------------------------------------------------------------//
 
+enum struct MeshFaceTypeEnum
+{
+	Triangle,
+	Quad,
+	Polygon
+};
+
+enum struct MeshCellTypeEnum
+{	
+	Tetrahedron,
+	Wedge,
+	Hexahedron,
+	Polyhedron
+};
 
 //====================================== Point_Of_Mesh ==============================================================//
 
@@ -404,6 +418,8 @@ struct Data_Of_Cell_Of_Mesh
 	int_max Index; // CellIndex: index of the Cell in Mesh.m_MeshData->FaceList, it may change after Mesh.CleanDataStructure()
 	String Name;// may be empty, if not empty it must be unique
 
+	MeshCellTypeEnum Type;
+
 	DenseVector<int_max> PointIndexList;// this is an ordered set	
 	DenseVector<int_max> FaceIndexList;// this is an ordered set
 
@@ -454,6 +470,8 @@ private:
 	inline DenseVector<int_max>& FaceIndexList();
 	inline const DenseVector<int_max>& FaceIndexList() const;
 
+	inline void SetType(MeshCellTypeEnum CellType);
+
 	//--------------------------------------------------------------------------------//
 public:
 	inline bool IsValid() const;
@@ -463,6 +481,8 @@ public:
 	inline void SetName(String CellName);
 	inline void EraseName();
 	inline String GetName() const;
+
+	inline MeshCellTypeEnum GetType() const;
 
 	inline void SetData(int_max Index, DenseVector<ScalarType> Data);
 	inline DenseVector<ScalarType> GetData(int_max Index) const;

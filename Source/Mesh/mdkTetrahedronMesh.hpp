@@ -10,7 +10,7 @@ TetrahedronMesh<ScalarType>::TetrahedronMesh()
 }
 
 template<typename ScalarType>
-Mesh<ScalarType>::TetrahedronMesh(const MDK_Symbol_PureEmpty&)
+TetrahedronMesh<ScalarType>::TetrahedronMesh(const MDK_Symbol_PureEmpty&)
 : PolyhedronMesh(MDK_PureEmpty)
 {
 }

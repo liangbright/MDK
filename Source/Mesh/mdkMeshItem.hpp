@@ -71,7 +71,7 @@ void Point_Of_Mesh<ScalarType>::ReCreate()
 	m_Data->MeshData_wp.reset();
 	m_Data->MeshData = nullptr;
     m_Data->Index = -1;    
-	m_Data->Name.Clear();
+	m_Data->Name.Clear();	
     m_Data->AdjacentEdgeIndexList.Clear();
     m_Data->Attribute.Clear();
 }
@@ -1443,6 +1443,7 @@ void Cell_Of_Mesh<ScalarType>::operator=(const Cell_Of_Mesh<ScalarType>& InputCe
 	m_Data->MeshData = InputCell.m_Data->MeshData;
 	m_Data->Index = InputCell.m_Data->Index;
 	m_Data->Name = InputCell.m_Data->Name;
+	m_Data->Type = InputCell.m_Data->Type;
 	m_Data->PointIndexList = InputCell.m_Data->PointIndexList;
 	m_Data->FaceIndexList = InputCell.m_Data->FaceIndexList;
 	m_Data->Attribute = InputCell.m_Data->Attribute;
@@ -1467,6 +1468,7 @@ void Cell_Of_Mesh<ScalarType>::ReCreate()
 	m_Data->MeshData = nullptr;
 	m_Data->Index = -1;
 	m_Data->Name.Clear();
+	m_Data->Type = MeshCellTypeEnum::Polyhedron;
 	m_Data->PointIndexList.Clear();
 	m_Data->FaceIndexList.Clear();
 	m_Data->Attribute.Clear();
@@ -1520,6 +1522,13 @@ inline
 const DenseVector<int_max>& Cell_Of_Mesh<ScalarType>::FaceIndexList() const
 {
 	return m_Data->FaceIndexList;
+}
+
+template<typename ScalarType>
+inline 
+void Cell_Of_Mesh<ScalarType>::SetType(MeshCellTypeEnum CellType)
+{
+	m_Data->Type = CellType;
 }
 
 template<typename ScalarType>
@@ -1607,6 +1616,13 @@ inline
 String Cell_Of_Mesh<ScalarType>::GetName() const
 {
 	return m_Data->Name;
+}
+
+template<typename ScalarType>
+inline
+MeshCellTypeEnum Cell_Of_Mesh<ScalarType>::GetType() const
+{
+	return m_Data->Type;
 }
 
 template<typename ScalarType>
