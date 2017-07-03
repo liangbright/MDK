@@ -5,13 +5,12 @@ using namespace mdk;
 
 void Test_MeshConstruction()
 {
-	std::string FilePathAndName = "C:/Research/Test_VTK/Subdivision/Build/Leaflet_A_Triangle.vtk";
+	std::string FilePathAndName = "C:/Research/MDK/MDK_Build/Test/Test_Mesh/Test_TriangleMesh/TestData/Leaflet.vtk";
 
 	TriangleMesh<double> LeafletMesh;
 	LoadPolygonMeshFromVTKFile(LeafletMesh, FilePathAndName);
 
-    //SavePolygonMeshAsJsonDataFile(LeafletMesh, "C:/Research/Test_VTK/Subdivision/Build/Leaflet_A_Triangle.json");
-    SavePolygonMeshAsVTKFile(LeafletMesh, "C:/Research/Test_VTK/Subdivision/Build/Leaflet_A_Triangle_test.vtk");
+	SavePolygonMeshAsVTKFile(LeafletMesh, "C:/Research/MDK/MDK_Build/Test/Test_Mesh/Test_TriangleMesh/TestData/Leaflet_Test_Load_Save.vtk");
 }
 
 void Test_PointDataSet()
@@ -23,7 +22,6 @@ void Test_PointDataSet()
 
 	LeafletMesh.InitializePointDataSet("Stress");	
 	LeafletMesh.InitializeFaceDataSet("Stress");
-	//SavePolygonMeshAsJsonDataFile(LeafletMesh, "C:/Research/Test_VTK/Subdivision/Build/Leaflet_A_Triangle.json");
 	SavePolygonMeshAsVTKFile(LeafletMesh, "C:/Research/MDK/MDK_Build/Test/Test_Mesh/Test_TriangleMesh/TestData/Leaflet_Test_PointDataSet.vtk");
 }
 
@@ -71,7 +69,6 @@ void Test_GlobalAttribute()
 	TriangleMesh<double> InputMesh, SquareMesh;
 	LoadPolygonMeshFromVTKFile(InputMesh, FilePathAndName + ".vtk");
 
-	InputMesh.SetID(1);
 	InputMesh.SetName("Square");
 	InputMesh.Point(0).SetName("0_name");
 	InputMesh.Face(0).SetName("0_name");

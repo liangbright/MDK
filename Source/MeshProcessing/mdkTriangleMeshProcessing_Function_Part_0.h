@@ -41,12 +41,6 @@ TriangleMesh<ScalarType> SimplifyTriangleMeshByVTKQuadricDecimation(const Triang
 template<typename ScalarType>
 void SmoothTriangleMeshByGaussianCurvature(TriangleMesh<ScalarType>& TargetMesh, double MaxDisplacement, bool Flag_UpdateAttribute = true);
 
-template<typename ScalarType>
-TriangleMesh<ScalarType> SmoothMeshByVTKSmoothPolyDataFilter(const TriangleMesh<ScalarType>& InputMesh, int_max MaxIter, bool Flag_FeatureEdgeSmoothing = true, bool Flag_BoundarySmoothing = true);
-
-template<typename ScalarType>
-TriangleMesh<ScalarType> SmoothMeshByVTKWindowedSincPolyDataFilter(const TriangleMesh<ScalarType>& InputMesh, double PassBand, int_max MaxIter, bool Flag_FeatureEdgeSmoothing = true, bool Flag_BoundarySmoothing = true);
-
 // assume NormalBasedCurvature, FaceNormal, PointNormal has been computed 
 // Alpha: NewPos = Pos + Alpha*Displacement at each iteration, Alpha must >= 0
 // Set Alpha = 1 usually

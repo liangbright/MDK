@@ -1,15 +1,12 @@
 ﻿#pragma once
 
-#include <tuple>
-#include <unordered_map>
-
 #include "mdkMesh.h"
 
 namespace mdk
 {
 
 template<typename Scalar_Type>
-class PolygonMesh : public Mesh<Scalar_Type>
+class PolyhedronMesh : public Mesh<Scalar_Type>
 {
 public:
 	typedef Scalar_Type ScalarType;
@@ -31,28 +28,15 @@ public:
 	typedef StdObjectVector<CellType>  CellListType;
 	//------------------------------------------------------------------------//
 
-protected:
-	template<typename T>
-	friend class Point_Of_Mesh;
-
-	template<typename T>
-	friend class Edge_Of_Mesh;
-
-	template<typename T>
-	friend class Face_Of_Mesh;
-
-	template<typename T>
-	friend class Cell_Of_Mesh;
-
 public:
-    PolygonMesh();
-    PolygonMesh(const MDK_Symbol_PureEmpty&);
-    PolygonMesh(const PolygonMesh& InputMesh);
-    PolygonMesh(PolygonMesh&& InputMesh);
-	PolygonMesh(const Mesh& InputMesh);
-	PolygonMesh(Mesh&& InputMesh);
-    ~PolygonMesh();
-
+	PolyhedronMesh();
+	PolyhedronMesh(const MDK_Symbol_PureEmpty&);
+	PolyhedronMesh(const PolyhedronMesh& InputMesh);
+	PolyhedronMesh(PolyhedronMesh&& InputMesh);
+	PolyhedronMesh(const Mesh& InputMesh);
+	PolyhedronMesh(Mesh&& InputMesh);
+    ~PolyhedronMesh();
+    
 	inline void operator=(const PolygonMesh& InputMesh);
 	inline void operator=(PolygonMesh&& InputMesh);
 	inline void operator=(const Mesh& InputMesh);
@@ -61,5 +45,5 @@ public:
 
 }// namespace mdk
 
-#include "mdkPolygonMesh.hpp"
-#include "mdkPolygonMesh_FileIO.h"
+#include "mdkPolyhedronMesh.hpp"
+

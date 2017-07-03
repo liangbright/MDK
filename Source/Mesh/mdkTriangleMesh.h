@@ -10,52 +10,49 @@ class TriangleMesh : public PolygonMesh<Scalar_Type>
 {
 public:
 	typedef Scalar_Type ScalarType;
-	//-------------------------------------------------------------------------------------------//
-	typedef GlobalStandardAttribute_Of_PolygonMesh<ScalarType>      GlobalAttribute;
-	typedef StandardAttribute_Of_Point_Of_PolygonMesh<ScalarType>   PointAttributeType;
-	typedef StandardAttribute_Of_Edge_Of_PolygonMesh<ScalarType>    EdgeAttributeType;
-	typedef StandardAttribute_Of_Face_Of_PolygonMesh<ScalarType>    FaceAttributeType;
-
-    typedef Point_Of_PolygonMesh<ScalarType>                 PointType;
-    typedef Edge_Of_PolygonMesh<ScalarType>                  EdgeType;
-    typedef Face_Of_PolygonMesh<ScalarType>                  FaceType;
-
-	typedef Iterator_Of_Point_Of_PolygonMesh<ScalarType>     PointIteratorType;
-	typedef Iterator_Of_Edge_Of_PolygonMesh<ScalarType>      EdgeIteratorType;
-	typedef Iterator_Of_Face_Of_PolygonMesh<ScalarType>      FaceIteratorType;
+	//------------------------------------------------------------------------//
+	typedef StandardAttribute_Of_Mesh<ScalarType>          MeshAttribute;
+	typedef StandardAttribute_Of_Point_Of_Mesh<ScalarType> PointAttributeType;
+	typedef StandardAttribute_Of_Edge_Of_Mesh<ScalarType>  EdgeAttributeType;
+	typedef StandardAttribute_Of_Face_Of_Mesh<ScalarType>  FaceAttributeType;
+	typedef StandardAttribute_Of_Cell_Of_Mesh<ScalarType>  CellAttributeType;
+	//------------------------------------------------------------------------//
+	typedef Point_Of_Mesh<ScalarType>  PointType;
+	typedef Edge_Of_Mesh<ScalarType>   EdgeType;
+	typedef Face_Of_Mesh<ScalarType>   FaceType;
+	typedef Cell_Of_Mesh<ScalarType>   CellType;
+	//------------------------------------------------------------------------//
+	typedef StdObjectVector<PointType> PointListType;
+	typedef StdObjectVector<EdgeType>  EdgeListType;
+	typedef StdObjectVector<FaceType>  FaceListType;
+	typedef StdObjectVector<CellType>  CellListType;
+	//------------------------------------------------------------------------//
 
 public:
     TriangleMesh();
+	TriangleMesh(const MDK_Symbol_PureEmpty&);
     TriangleMesh(const TriangleMesh& InputMesh);
     TriangleMesh(TriangleMesh&& InputMesh);
 	TriangleMesh(const PolygonMesh& InputMesh);
 	TriangleMesh(PolygonMesh&& InputMesh);
-
+	TriangleMesh(const Mesh& InputMesh);
+	TriangleMesh(Mesh&& InputMesh);
     ~TriangleMesh();
 
-    inline void operator=(const TriangleMesh& InputMesh);
-    inline void operator=(TriangleMesh&& InputMesh);
+	inline void operator=(const TriangleMesh& InputMesh);
+	inline void operator=(TriangleMesh&& InputMesh);
 	inline void operator=(const PolygonMesh& InputMesh);
 	inline void operator=(PolygonMesh&& InputMesh);
+	inline void operator=(const Mesh& InputMesh);
+	inline void operator=(Mesh&& InputMesh);
 
     //------------------------ Add Face ---------------------------------------//
     using PolygonMesh::AddFaceByEdge;
     using PolygonMesh::AddFaceByPoint;
 
-    // direction of DirectedEdge: 0->1->2
     inline int_max AddFaceByEdge(int_max EdgeIndex0, int_max EdgeIndex1, int_max EdgeIndex2);
     
-    // direction of DirectedEdge: 0->1->2
-    inline int_max AddFaceByPoint(int_max PointIndex0, int_max PointIndex1, int_max PointIndex2);
-    
-    //------------ Construct from input data ------------------------------------//
-
-    using PolygonMesh::Construct;
-
-    void Construct(PolygonMesh<ScalarType> InputPolygonMesh);
-
-    // get a sub mesh by FaceIndexList ----------------------------//
-    TriangleMesh<ScalarType> GetSubMeshByFace(const DenseVector<int_max>& FaceIndexList) const;
+    inline int_max AddFaceByPoint(int_max PointIndex0, int_max PointIndex1, int_max PointIndex2);    
 
     //------------- Function optimized For TriangleMesh --------------------------------------------------//
 

@@ -91,12 +91,15 @@ TriangleMesh<ScalarType> SubdivideTriangleMesh_Linear(const TriangleMesh<ScalarT
 	DenseVector<int_max> PointIndexList_init;
 	PointIndexList_init.SetCapacity(PointCount_input);
 	int_max PointIndex_output_init = -1;
-	for (auto it = InputMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	for (int_max k = 0; k < PointCount_input; ++k)
 	{
-		auto Pos = it.Point().GetPosition();
-		PointIndexList_init.Append(OutputMesh.AddPoint(Pos));
-		PointIndex_output_init += 1;
-		PointIndexMap_init[it.GetPointIndex()] = PointIndex_output_init;
+		if (InputMesh.IsValidPointIndex(k) == true)
+		{
+			auto Pos = InputMesh.GetPointPosition(k);
+			PointIndexList_init.Append(OutputMesh.AddPoint(Pos));
+			PointIndex_output_init += 1;
+			PointIndexMap_init[k] = PointIndex_output_init;
+		}
 	}
 
 	//------- add new point by splitting each edge of InputMesh -----------------//   
@@ -106,39 +109,44 @@ TriangleMesh<ScalarType> SubdivideTriangleMesh_Linear(const TriangleMesh<ScalarT
 	DenseVector<int_max> PointIndexList_new;
 	PointIndexList_new.SetCapacity(EdgeCount_input);
 	int_max PointIndex_output_new = -1;
-	for (auto it = InputMesh.GetIteratorOfEdge(); it.IsNotEnd(); ++it)
+	for (int_max k = 0; k < EdgeCount_input; ++k)
 	{
-		auto TempList = it.Edge().GetPointIndexList();
-		auto P0 = InputMesh.GetPointPosition(TempList[0]);
-		auto P1 = InputMesh.GetPointPosition(TempList[1]);
-		auto P3 = P0 + P1;
-		P3 /= ScalarType(2);
-		auto H3 = OutputMesh.AddPoint(P3);
-		PointIndexList_new.Append(H3);
-		PointIndex_output_new += 1;
-		PointIndexMap_new[it.GetEdgeIndex()] = PointIndex_output_new;
+		if (InputMesh.IsValidEdgeIndex(k) == true)
+		{
+			auto TempList = InputMesh.Edge(k).GetPointIndexList();
+			auto P0 = InputMesh.GetPointPosition(TempList[0]);
+			auto P1 = InputMesh.GetPointPosition(TempList[1]);
+			auto P3 = P0 + P1;
+			P3 /= ScalarType(2);
+			auto H3 = OutputMesh.AddPoint(P3);
+			PointIndexList_new.Append(H3);
+			PointIndex_output_new += 1;
+			PointIndexMap_new[k] = PointIndex_output_new;
+		}
 	}
-
 	//------- add new cell by splitting each cell of InputMesh ----------------//   
-	for (auto it = InputMesh.GetIteratorOfFace(); it.IsNotEnd(); ++it)
+	for (int_max k = 0; k < FaceCount_input; ++k)
 	{
-		auto PointIndexList_input = it.Face().GetPointIndexList(); // P0, P1, P2
-		auto EdgeIndexList_input = it.Face().GetEdgeIndexList();   // P0-P1, P1-P2, P2-P1
-		//-----------------
-		//      0
-		//    3    5
-		// 1    4     2
-		//-----------------		
-		auto H0 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[0]]];
-		auto H1 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[1]]];
-		auto H2 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[2]]];
-		auto H3 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[0]]];
-		auto H4 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[1]]];
-		auto H5 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[2]]];
-		OutputMesh.AddFaceByPoint(H0, H3, H5);
-		OutputMesh.AddFaceByPoint(H3, H1, H4);
-		OutputMesh.AddFaceByPoint(H3, H4, H5);
-		OutputMesh.AddFaceByPoint(H5, H4, H2);
+		if (InputMesh.IsValidFaceIndex(k) == true)
+		{
+			auto PointIndexList_input = InputMesh.Face(k).GetPointIndexList(); // P0, P1, P2
+			auto EdgeIndexList_input = InputMesh.Face(k).GetEdgeIndexList();   // P0-P1, P1-P2, P2-P1
+			//-----------------
+			//      0
+			//    3    5
+			// 1    4     2
+			//-----------------		
+			auto H0 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[0]]];
+			auto H1 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[1]]];
+			auto H2 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[2]]];
+			auto H3 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[0]]];
+			auto H4 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[1]]];
+			auto H5 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[2]]];
+			OutputMesh.AddFaceByPoint(H0, H3, H5);
+			OutputMesh.AddFaceByPoint(H3, H1, H4);
+			OutputMesh.AddFaceByPoint(H3, H4, H5);
+			OutputMesh.AddFaceByPoint(H5, H4, H2);
+		}
 	}
 	//--------------------------------------------------------------------------//
 	return OutputMesh;
@@ -219,14 +227,17 @@ void SmoothTriangleMeshByMeanCurvature(TriangleMesh<ScalarType>& TargetMesh, dou
 		TargetMesh.UpdateAreaOfFace();
 		TargetMesh.UpdateMeanCurvatureAtPoint();
 	}
-
-	for (auto it = TargetMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	auto PointCount = TargetMesh.GetPointCount();
+	for (int_max k = 0; k < PointCount; ++k)
 	{
-		auto MC = it.Point().Attribute().MeanCurvatureNormal;
-		auto Displacement = MC*ScalarType(MaxDisplacementRatio);
-		auto Pos = it.Point().GetPosition();
-		Pos += Displacement;
-		it.Point().SetPosition(Pos);
+		if (TargetMesh.IsValidPointIndex(k) == true)
+		{
+			auto MC = TargetMesh.Point(k).Attribute().MeanCurvatureNormal;
+			auto Displacement = MC*ScalarType(MaxDisplacementRatio);
+			auto Pos = TargetMesh.GetPointPosition(k);
+			Pos += Displacement;
+			TargetMesh.SetPointPosition(k, Pos);
+		}
 	}
 }
 
@@ -243,52 +254,39 @@ void SmoothTriangleMeshByGaussianCurvature(TriangleMesh<ScalarType>& TargetMesh,
 
 	const auto two_pi = 2.0*std::acos(-1.0);
 
-	for (auto it = TargetMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	auto PointCount = TargetMesh.GetPointCount();
+	for (int_max k = 0; k < PointCount; ++k)
 	{
-		auto GC = it.Point().Attribute().GaussianCurvature;
-		auto MC = it.Point().Attribute().MeanCurvatureNormal;
-		auto Displacement = MC*ScalarType(std::abs(GC) / two_pi);
-		Displacement = std::min(Displacement, MaxDisplacement);
-		auto Pos = it.Point().GetPosition();
-		Pos += Displacement;
-		it.Point().SetPosition(Pos);
+		if (TargetMesh.IsValidPointIndex(k) == true)
+		{
+			auto GC = TargetMesh.Point(k).Attribute().GaussianCurvature;
+			auto MC = TargetMesh.Point(k).Attribute().MeanCurvatureNormal;
+			auto Displacement = MC*ScalarType(std::abs(GC) / two_pi);
+			Displacement = std::min(Displacement, MaxDisplacement);
+			auto Pos = TargetMesh.GetPointPosition(k);
+			Pos += Displacement;
+			TargetMesh.SetPointPosition(k, Pos);
+		}
 	}
 }
 
-template<typename ScalarType>
-TriangleMesh<ScalarType> SmoothMeshByVTKSmoothPolyDataFilter(const TriangleMesh<ScalarType>& InputMesh, int_max MaxIter, bool Flag_FeatureEdgeSmoothing, bool Flag_BoundarySmoothing)
-{
-	const PolygonMesh<ScalarType>& InputMesh_ref = InputMesh;
-	auto OutputMesh = SmoothMeshByVTKSmoothPolyDataFilter(InputMesh_ref, MaxIter, Flag_FeatureEdgeSmoothing, Flag_BoundarySmoothing);
-	TriangleMesh<ScalarType> OutputMesh_tri;
-	OutputMesh_tri.Construct(std::move(OutputMesh));
-	return OutputMesh_tri;
-}
-
-
-template<typename ScalarType>
-TriangleMesh<ScalarType> SmoothMeshByVTKWindowedSincPolyDataFilter(const TriangleMesh<ScalarType>& InputMesh, double PassBand, int_max MaxIter, bool Flag_FeatureEdgeSmoothing, bool Flag_BoundarySmoothing)
-{
-	const PolygonMesh<ScalarType>& InputMesh_ref = InputMesh;
-	auto OutputMesh = SmoothMeshByVTKWindowedSincPolyDataFilter(InputMesh_ref, PassBand, MaxIter, Flag_FeatureEdgeSmoothing, Flag_BoundarySmoothing);
-	TriangleMesh<ScalarType> OutputMesh_tri;
-	OutputMesh_tri.Construct(std::move(OutputMesh));
-	return OutputMesh_tri;
-}
 
 template<typename ScalarType>
 void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<ScalarType>& TargetMesh, int_max MaxIter, double Alpha, bool Flag_BoundarySmoothing, bool Flag_TerminateIfTotalCurvatureIncrease)
 {
 	DenseVector<int_max> PointIndexList_NOSmoothing;
 	auto PointCount = TargetMesh.GetPointCount();
-	PointIndexList_NOSmoothing.SetCapacity(PointCount/100);
-	for (auto it = TargetMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	PointIndexList_NOSmoothing.SetCapacity(PointCount/100);	
+	for (int_max k = 0; k < PointCount; ++k)
 	{
-		if (it.Point().IsOnBoundaryEdge() == true)
+		if (TargetMesh.IsValidPointIndex(k) == true)
 		{
-			if (Flag_BoundarySmoothing == false)
+			if (TargetMesh.Point(k).IsOnBoundaryEdge() == true)
 			{
-				PointIndexList_NOSmoothing.Append(it.GetPointIndex());
+				if (Flag_BoundarySmoothing == false)
+				{
+					PointIndexList_NOSmoothing.Append(k);
+				}
 			}
 		}
 	}
@@ -330,12 +328,15 @@ void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<ScalarType>& TargetMe
 	DenseVector<int_max> PointIndexList_Smoothing;
 	auto PointCount = TargetMesh.GetPointCount();
 	PointIndexList_Smoothing.SetCapacity(PointCount);
-	for (auto it = TargetMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	for (int_max k = 0; k < PointCount; ++k)
 	{
-		auto temp = PointIndexList_NOSmoothing.ExactMatch("first", it.GetPointIndex());
-		if (temp < 0)
+		if (TargetMesh.IsValidPointIndex(k) == true)
 		{
-			PointIndexList_Smoothing.Append(it.GetPointIndex());
+			auto temp = PointIndexList_NOSmoothing.ExactMatch("first", k);
+			if (temp < 0)
+			{
+				PointIndexList_Smoothing.Append(k);
+			}
 		}
 	}
 	//------------------------------------------------------------	

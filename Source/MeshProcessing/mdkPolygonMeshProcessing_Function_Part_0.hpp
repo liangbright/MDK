@@ -21,11 +21,15 @@ DenseVector<int_max> TraceMeshBoundaryCurve(const PolygonMesh<ScalarType>& Input
 	}
 
     int_max BoundaryEdgeCountOfInputMesh = 0;
-	for (auto it = InputMesh.GetIteratorOfEdge(); it.IsNotEnd(); ++it)
+	int_max EdgeCount = InputMesh.GetEdgeCount();
+	for (int_max k = 0; k < EdgeCount; ++k)
 	{
-		if (it.Edge().IsBoundary() == true)
+		if (InputMesh.IsValidEdgeIndex(k) == true)
 		{
-			BoundaryEdgeCountOfInputMesh += 1;
+			if (InputMesh.Edge(k).IsBoundary() == true)
+			{
+				BoundaryEdgeCountOfInputMesh += 1;
+			}
 		}
 	}
 
@@ -126,13 +130,17 @@ ObjectArray<DenseVector<int_max>> TraceMeshBoundaryCurve(const PolygonMesh<Scala
 {// work for none-clean DataStructure
     // find boundary point
     DenseVector<int_max> BoundaryPointIndexList;
-    for (auto it = InputMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
-    {
-        if (it.Point().IsOnBoundaryEdge() == true)
-        {
-            BoundaryPointIndexList.Append(it.GetPointIndex());
-        }
-    }
+	auto PointCount = InputMesh.GetPointCount();
+	for (int_max k = 0; k < PointCount; ++k)
+	{
+		if (InputMesh.IsValidPointIndex(k) == true)
+		{
+			if (InputMesh.Point(k).IsOnBoundaryEdge() == true)
+			{
+				BoundaryPointIndexList.Append(k);
+			}
+		}
+	}
     auto BoundaryPointCount = BoundaryPointIndexList.GetLength();
 
     DenseVector<int_max> FlagList;
@@ -184,29 +192,30 @@ int_max FindNearestPointOnMesh(const PolygonMesh<ScalarType>& InputMesh, const D
 
     ScalarType Distance_sq_min = 0;
     bool IsFirstPoint = true;
-    for (auto it = InputMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
-    {
-        ScalarType x, y, z;
-        it.Point().GetPosition(x, y, z);
-        auto Distance_sq =  (x - PointPosition[0])*(x - PointPosition[0]) 
-                          + (y - PointPosition[1])*(y - PointPosition[1]) 
-                          + (z - PointPosition[2])*(z - PointPosition[2]);
-
-        if (IsFirstPoint == true)
-        {
-            Distance_sq_min = Distance_sq;
-			OutputPointIndex = it.GetPointIndex();
-            IsFirstPoint = false;
-        }
-        else
-        {
-            if (Distance_sq < Distance_sq_min)
-            {
-                Distance_sq_min = Distance_sq;
-                OutputPointIndex = it.GetPointIndex();
-            }
-        }
-    }
+	auto PointCount = InputMesh.GetPointCount();
+	for (int_max k = 0; k < PointCount; ++k)
+	{
+		if (InputMesh.IsValidPointIndex(k))
+		{
+			ScalarType x, y, z;
+			InputMesh.GetPointPosition(k, x, y, z);
+			auto Distance_sq = (x - PointPosition[0])*(x - PointPosition[0]) + (y - PointPosition[1])*(y - PointPosition[1]) + (z - PointPosition[2])*(z - PointPosition[2]);
+			if (IsFirstPoint == true)
+			{
+				Distance_sq_min = Distance_sq;
+				OutputPointIndex = k;
+				IsFirstPoint = false;
+			}
+			else
+			{
+				if (Distance_sq < Distance_sq_min)
+				{
+					Distance_sq_min = Distance_sq;
+					OutputPointIndex = k;
+				}
+			}
+		}
+	}
 
     return OutputPointIndex;
 }

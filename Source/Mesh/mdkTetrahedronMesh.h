@@ -1,15 +1,12 @@
 ﻿#pragma once
 
-#include <tuple>
-#include <unordered_map>
-
-#include "mdkMesh.h"
+#include "mdkPolyhedronMesh.h"
 
 namespace mdk
 {
 
 template<typename Scalar_Type>
-class PolygonMesh : public Mesh<Scalar_Type>
+class TetrahedronMesh : public PolyhedronMesh<Scalar_Type>
 {
 public:
 	typedef Scalar_Type ScalarType;
@@ -31,35 +28,26 @@ public:
 	typedef StdObjectVector<CellType>  CellListType;
 	//------------------------------------------------------------------------//
 
-protected:
-	template<typename T>
-	friend class Point_Of_Mesh;
-
-	template<typename T>
-	friend class Edge_Of_Mesh;
-
-	template<typename T>
-	friend class Face_Of_Mesh;
-
-	template<typename T>
-	friend class Cell_Of_Mesh;
-
 public:
-    PolygonMesh();
-    PolygonMesh(const MDK_Symbol_PureEmpty&);
-    PolygonMesh(const PolygonMesh& InputMesh);
-    PolygonMesh(PolygonMesh&& InputMesh);
-	PolygonMesh(const Mesh& InputMesh);
-	PolygonMesh(Mesh&& InputMesh);
-    ~PolygonMesh();
-
-	inline void operator=(const PolygonMesh& InputMesh);
-	inline void operator=(PolygonMesh&& InputMesh);
+	TetrahedronMesh();
+	TetrahedronMesh(const MDK_Symbol_PureEmpty&);
+	TetrahedronMesh(const TetrahedronMesh& InputMesh);
+	TetrahedronMesh(TetrahedronMesh&& InputMesh);
+	TetrahedronMesh(const PolyhedronMesh& InputMesh);
+	TetrahedronMesh(PolyhedronMesh&& InputMesh);
+	TetrahedronMesh(const Mesh& InputMesh);
+	TetrahedronMesh(Mesh&& InputMesh);
+    ~TetrahedronMesh();
+    
+	inline void operator=(const TetrahedronMesh& InputMesh);
+	inline void operator=(TetrahedronMesh&& InputMesh);
+	inline void operator=(const PolyhedronMesh& InputMesh);
+	inline void operator=(PolyhedronMesh&& InputMesh);
 	inline void operator=(const Mesh& InputMesh);
 	inline void operator=(Mesh&& InputMesh);
 };
 
 }// namespace mdk
 
-#include "mdkPolygonMesh.hpp"
-#include "mdkPolygonMesh_FileIO.h"
+#include "mdkTetrahedronMesh.hpp"
+

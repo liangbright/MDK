@@ -23,14 +23,16 @@ PolygonMesh<ScalarType> SubdivideQuadMesh_Linear(const PolygonMesh<ScalarType>& 
 	DenseVector<int_max> PointIndexList_init;
 	PointIndexList_init.SetCapacity(PointCount_input);
 	int_max PointIndex_output_init = -1;
-	for (auto it = InputMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	for (int_max k = 0; k < PointCount_input; ++k)
 	{
-		auto Pos = it.Point().GetPosition();
-		PointIndexList_init.Append(OutputMesh.AddPoint(Pos));
-		PointIndex_output_init += 1;
-		PointIndexMap_init[it.GetPointIndex()] = PointIndex_output_init;
+		if (InputMesh.IsValidPointIndex(k) == true)
+		{
+			auto Pos = InputMesh.GetPointPosition(k);
+			PointIndexList_init.Append(OutputMesh.AddPoint(Pos));
+			PointIndex_output_init += 1;
+			PointIndexMap_init[k] = PointIndex_output_init;
+		}
 	}
-
 	//------- add new point by splitting each edge of InputMesh -----------------//   
 	DenseVector<int_max> PointIndexMap_new;
 	PointIndexMap_new.Resize(EdgeCount_input + InputMesh.GetDeletedEdgeCount());
@@ -38,67 +40,73 @@ PolygonMesh<ScalarType> SubdivideQuadMesh_Linear(const PolygonMesh<ScalarType>& 
 	DenseVector<int_max> PointIndexList_new;
 	PointIndexList_new.SetCapacity(EdgeCount_input);
 	int_max PointIndex_output_new = -1;
-	for (auto it = InputMesh.GetIteratorOfEdge(); it.IsNotEnd(); ++it)
+	for (int_max k = 0; k < EdgeCount_input; ++k)
 	{
-		auto TempList = it.Edge().GetPointIndexList();
-		auto P0 = InputMesh.GetPointPosition(TempList[0]);
-		auto P1 = InputMesh.GetPointPosition(TempList[1]);
-		auto P3 = P0 + P1;
-		P3 /= ScalarType(2);
-		auto H3 = OutputMesh.AddPoint(P3);
-		PointIndexList_new.Append(H3);
-		PointIndex_output_new += 1;
-		PointIndexMap_new[it.GetEdgeIndex()] = PointIndex_output_new;
+		if (InputMesh.IsValidEdgeIndex(k) == true)
+		{
+			auto TempList = InputMesh.Edge(k).GetPointIndexList();
+			auto P0 = InputMesh.GetPointPosition(TempList[0]);
+			auto P1 = InputMesh.GetPointPosition(TempList[1]);
+			auto P3 = P0 + P1;
+			P3 /= ScalarType(2);
+			auto H3 = OutputMesh.AddPoint(P3);
+			PointIndexList_new.Append(H3);
+			PointIndex_output_new += 1;
+			PointIndexMap_new[k] = PointIndex_output_new;
+		}
 	}
 
 	//------- add new cell by splitting each cell of InputMesh and add center point ----------------//   
-	for (auto it = InputMesh.GetIteratorOfFace(); it.IsNotEnd(); ++it)
+	for (int_max k = 0; k < FaceCount_input; ++k)
 	{
-		auto PointIndexList_input = it.Face().GetPointIndexList(); // P0, P1, P2, P3
-		auto EdgeIndexList_input = it.Face().GetEdgeIndexList();   // P0-P1, P1-P2, P2-P3, P3-P0
-		if (PointIndexList_input.GetLength() != 4)
+		if (InputMesh.IsValidFaceIndex(k) == true)
 		{
-			MDK_Error("Input is NOT QuadMesh @ SubdivideQuadMesh_Linear(...)")
-			OutputMesh.Clear();
-			return OutputMesh;
-		}
-		//-----------------
-		// 3    6     2 
-		// 7    8     5   
-		// 0    4     1
-		//-----------------		
-		auto H0 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[0]]];
-		auto H1 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[1]]];
-		auto H2 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[2]]];
-		auto H3 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[3]]];
-		auto H4 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[0]]];
-		auto H5 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[1]]];
-		auto H6 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[2]]];
-		auto H7 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[3]]];
-		
-		DenseVector<ScalarType, 3> Point8;
-		{
-			auto Point0 = OutputMesh.GetPointPosition(H0);
-			auto Point1 = OutputMesh.GetPointPosition(H1);
-			auto Point2 = OutputMesh.GetPointPosition(H2);
-			auto Point3 = OutputMesh.GetPointPosition(H3);
-			auto L02 = (Point2 - Point0).L2Norm();
-			auto L13 = (Point3 - Point1).L2Norm();
-			if (L02 < L13)
+			auto PointIndexList_input = InputMesh.Face(k).GetPointIndexList(); // P0, P1, P2, P3
+			auto EdgeIndexList_input = InputMesh.Face(k).GetEdgeIndexList();   // P0-P1, P1-P2, P2-P3, P3-P0
+			if (PointIndexList_input.GetLength() != 4)
 			{
-				Point8 = (Point2 + Point0) / ScalarType(2);
+				MDK_Error("Input is NOT QuadMesh @ SubdivideQuadMesh_Linear(...)")
+				OutputMesh.Clear();
+				return OutputMesh;
 			}
-			else
+			//-----------------
+			// 3    6     2 
+			// 7    8     5   
+			// 0    4     1
+			//-----------------		
+			auto H0 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[0]]];
+			auto H1 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[1]]];
+			auto H2 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[2]]];
+			auto H3 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[3]]];
+			auto H4 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[0]]];
+			auto H5 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[1]]];
+			auto H6 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[2]]];
+			auto H7 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[3]]];
+
+			DenseVector<ScalarType, 3> Point8;
 			{
-				Point8 = (Point3 + Point1) / ScalarType(2);
+				auto Point0 = OutputMesh.GetPointPosition(H0);
+				auto Point1 = OutputMesh.GetPointPosition(H1);
+				auto Point2 = OutputMesh.GetPointPosition(H2);
+				auto Point3 = OutputMesh.GetPointPosition(H3);
+				auto L02 = (Point2 - Point0).L2Norm();
+				auto L13 = (Point3 - Point1).L2Norm();
+				if (L02 < L13)
+				{
+					Point8 = (Point2 + Point0) / ScalarType(2);
+				}
+				else
+				{
+					Point8 = (Point3 + Point1) / ScalarType(2);
+				}
 			}
+			auto H8 = OutputMesh.AddPoint(Point8);
+
+			OutputMesh.AddFaceByPoint({ H8, H6, H3, H7 });
+			OutputMesh.AddFaceByPoint({ H8, H7, H0, H4 });
+			OutputMesh.AddFaceByPoint({ H8, H4, H1, H5 });
+			OutputMesh.AddFaceByPoint({ H8, H5, H2, H6 });
 		}
-		auto H8 = OutputMesh.AddPoint(Point8);
-		
-		OutputMesh.AddFaceByPoint({H8, H6, H3, H7});
-		OutputMesh.AddFaceByPoint({H8, H7, H0, H4});
-		OutputMesh.AddFaceByPoint({H8, H4, H1, H5});
-		OutputMesh.AddFaceByPoint({H8, H5, H2, H6});
 	}
 	//--------------------------------------------------------------------------//
 	return OutputMesh;
@@ -165,65 +173,71 @@ TriangleMesh<ScalarType> ConvertQuadMeshToTriangleMesh_1to2(const PolygonMesh<Sc
 	DenseVector<int_max> PointIndexList;
 	PointIndexList.SetCapacity(PointCount_input);
 	int_max PointIndex_output = -1;
-	for (auto it = InputMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	for (int_max k = 0; k < PointCount_input; ++k)
 	{
-		auto Pos = it.Point().GetPosition();
-		PointIndexList.Append(OutputMesh.AddPoint(Pos));
-		PointIndex_output += 1;
-		PointIndexMap[it.GetPointIndex()] = PointIndex_output;
+		if (InputMesh.IsValidPointIndex(k) == true)
+		{
+			auto Pos = InputMesh.GetPointPosition(k);
+			PointIndexList.Append(OutputMesh.AddPoint(Pos));
+			PointIndex_output += 1;
+			PointIndexMap[k] = PointIndex_output;
+		}
 	}
 
 	//------- add new face by splitting each face of InputMesh ----------------//   
-	for (auto it = InputMesh.GetIteratorOfFace(); it.IsNotEnd(); ++it)
+	for (int_max k = 0; k < FaceCount_input; ++k)
 	{
-		auto PointIndexList_input = it.Face().GetPointIndexList(); // P0, P1, P2, P3
-		auto EdgeIndexList_input = it.Face().GetEdgeIndexList();   // P0-P1, P1-P2, P2-P3, P3-P0
-		if (PointIndexList_input.GetLength() > 4)
+		if (InputMesh.IsValidFaceIndex(k) == true)
 		{
-			MDK_Error("Input is NOT QuadMesh or Mixed Quad-Triangle @ ConvertQuadMeshToTriangleMesh_1to2(...)")			
-			return OutputMesh;
-		}
-		else if (PointIndexList_input.GetLength() == 4)
-		{
-			//-----------------
-			// 3    2 
-			//  
-			// 0    1
-			//-----------------		
-			auto H0 = PointIndexList[PointIndexMap[PointIndexList_input[0]]];
-			auto H1 = PointIndexList[PointIndexMap[PointIndexList_input[1]]];
-			auto H2 = PointIndexList[PointIndexMap[PointIndexList_input[2]]];
-			auto H3 = PointIndexList[PointIndexMap[PointIndexList_input[3]]];
-			auto Point0 = OutputMesh.GetPointPosition(H0);
-			auto Point1 = OutputMesh.GetPointPosition(H1);
-			auto Point2 = OutputMesh.GetPointPosition(H2);
-			auto Point3 = OutputMesh.GetPointPosition(H3);
-
-			auto L02 = (Point2 - Point0).L2Norm();
-			auto L13 = (Point3 - Point1).L2Norm();
-			if (L02 < L13)// this is good
+			auto PointIndexList_input = InputMesh.Face(k).GetPointIndexList(); // P0, P1, P2, P3
+			auto EdgeIndexList_input = InputMesh.Face(k).GetEdgeIndexList();   // P0-P1, P1-P2, P2-P3, P3-P0
+			if (PointIndexList_input.GetLength() > 4)
 			{
+				MDK_Error("Input is NOT QuadMesh or Mixed Quad-Triangle @ ConvertQuadMeshToTriangleMesh_1to2(...)")
+				return OutputMesh;
+			}
+			else if (PointIndexList_input.GetLength() == 4)
+			{
+				//-----------------
+				// 3    2 
+				//  
+				// 0    1
+				//-----------------		
+				auto H0 = PointIndexList[PointIndexMap[PointIndexList_input[0]]];
+				auto H1 = PointIndexList[PointIndexMap[PointIndexList_input[1]]];
+				auto H2 = PointIndexList[PointIndexMap[PointIndexList_input[2]]];
+				auto H3 = PointIndexList[PointIndexMap[PointIndexList_input[3]]];
+				auto Point0 = OutputMesh.GetPointPosition(H0);
+				auto Point1 = OutputMesh.GetPointPosition(H1);
+				auto Point2 = OutputMesh.GetPointPosition(H2);
+				auto Point3 = OutputMesh.GetPointPosition(H3);
+
+				auto L02 = (Point2 - Point0).L2Norm();
+				auto L13 = (Point3 - Point1).L2Norm();
+				if (L02 < L13)// this is good
+				{
+					OutputMesh.AddFaceByPoint(H0, H1, H2);
+					OutputMesh.AddFaceByPoint(H0, H2, H3);
+				}
+				else
+				{
+					OutputMesh.AddFaceByPoint(H0, H1, H3);
+					OutputMesh.AddFaceByPoint(H1, H2, H3);
+				}
+
+			}
+			else if (PointIndexList_input.GetLength() == 3)
+			{
+				auto H0 = PointIndexList[PointIndexMap[PointIndexList_input[0]]];
+				auto H1 = PointIndexList[PointIndexMap[PointIndexList_input[1]]];
+				auto H2 = PointIndexList[PointIndexMap[PointIndexList_input[2]]];
 				OutputMesh.AddFaceByPoint(H0, H1, H2);
-				OutputMesh.AddFaceByPoint(H0, H2, H3);
 			}
 			else
 			{
-				OutputMesh.AddFaceByPoint(H0, H1, H3);
-				OutputMesh.AddFaceByPoint(H1, H2, H3);
+				MDK_Error("Input is NOT QuadMesh or Mixed Quad-Triangle @ ConvertQuadMeshToTriangleMesh_1to2(...)")
+				return OutputMesh;
 			}
-			
-		}
-		else if (PointIndexList_input.GetLength() == 3)
-		{
-			auto H0 = PointIndexList[PointIndexMap[PointIndexList_input[0]]];
-			auto H1 = PointIndexList[PointIndexMap[PointIndexList_input[1]]];
-			auto H2 = PointIndexList[PointIndexMap[PointIndexList_input[2]]];
-			OutputMesh.AddFaceByPoint(H0, H1, H2);
-		}
-		else
-		{
-			MDK_Error("Input is NOT QuadMesh or Mixed Quad-Triangle @ ConvertQuadMeshToTriangleMesh_1to2(...)")
-			return OutputMesh;
 		}
 	}
 
@@ -294,12 +308,15 @@ TriangleMesh<ScalarType> ConvertQuadMeshToTriangleMesh_1to8(const PolygonMesh<Sc
 	DenseVector<int_max> PointIndexList_init;
 	PointIndexList_init.SetCapacity(PointCount_input);
 	int_max PointIndex_output_init = -1;
-	for (auto it = InputMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	for (int_max k = 0; k < PointCount_input; ++k)
 	{
-		auto Pos = it.Point().GetPosition();
-		PointIndexList_init.Append(OutputMesh.AddPoint(Pos));
-		PointIndex_output_init += 1;
-		PointIndexMap_init[it.GetPointIndex()] = PointIndex_output_init;
+		if (InputMesh.IsValidPointIndex(k) == true)
+		{
+			auto Pos = InputMesh.GetPointPosition(k);
+			PointIndexList_init.Append(OutputMesh.AddPoint(Pos));
+			PointIndex_output_init += 1;
+			PointIndexMap_init[k] = PointIndex_output_init;
+		}
 	}
 
 	//------- add new point by splitting each edge of InputMesh -----------------//   
@@ -309,100 +326,104 @@ TriangleMesh<ScalarType> ConvertQuadMeshToTriangleMesh_1to8(const PolygonMesh<Sc
 	DenseVector<int_max> PointIndexList_new;
 	PointIndexList_new.SetCapacity(EdgeCount_input);
 	int_max PointIndex_output_new = -1;
-	for (auto it = InputMesh.GetIteratorOfEdge(); it.IsNotEnd(); ++it)
+	for (int_max k = 0; k < EdgeCount_input; ++k)
 	{
-		auto TempList = it.Edge().GetPointIndexList();
-		auto P0 = InputMesh.GetPointPosition(TempList[0]);
-		auto P1 = InputMesh.GetPointPosition(TempList[1]);
-		auto P3 = P0 + P1;
-		P3 /= ScalarType(2);
-		auto H3 = OutputMesh.AddPoint(P3);
-		PointIndexList_new.Append(H3);
-		PointIndex_output_new += 1;
-		PointIndexMap_new[it.GetEdgeIndex()] = PointIndex_output_new;
+		if (InputMesh.IsValidEdgeIndex(k) == true)
+		{
+			auto TempList = InputMesh.Edge(k).GetPointIndexList();
+			auto P0 = InputMesh.GetPointPosition(TempList[0]);
+			auto P1 = InputMesh.GetPointPosition(TempList[1]);
+			auto P3 = P0 + P1;
+			P3 /= ScalarType(2);
+			auto H3 = OutputMesh.AddPoint(P3);
+			PointIndexList_new.Append(H3);
+			PointIndex_output_new += 1;
+			PointIndexMap_new[k] = PointIndex_output_new;
+		}
 	}
-
 	//------- add new face by splitting each face of InputMesh ----------------//   
-	for (auto it = InputMesh.GetIteratorOfFace(); it.IsNotEnd(); ++it)
+	for (int_max k = 0; k < FaceCount_input; ++k)
 	{
-		auto PointIndexList_input = it.Face().GetPointIndexList(); // P0, P1, P2, P3
-		auto EdgeIndexList_input = it.Face().GetEdgeIndexList();   // P0-P1, P1-P2, P2-P3, P3-P0
-		if (PointIndexList_input.GetLength() > 4)
+		if (InputMesh.IsValidFaceIndex(k) == true)
 		{
-			MDK_Error("Input is NOT QuadMesh or Mixed Quad-Triangle @ ConvertQuadMeshToTriangleMesh_1to8(...)")
-			return OutputMesh;
-		}
-		else if (PointIndexList_input.GetLength() == 4)
-		{
-			//-----------------
-			// 3    6     2 
-			// 7    8     5   
-			// 0    4     1
-			//-----------------		
-			auto H0 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[0]]];
-			auto H1 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[1]]];
-			auto H2 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[2]]];
-			auto H3 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[3]]];
-			auto H4 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[0]]];
-			auto H5 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[1]]];
-			auto H6 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[2]]];
-			auto H7 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[3]]];
-
-			DenseVector<ScalarType, 3> Point8;
+			auto PointIndexList_input = InputMesh.Face(k).GetPointIndexList(); // P0, P1, P2, P3
+			auto EdgeIndexList_input = InputMesh.Face(k).GetEdgeIndexList();   // P0-P1, P1-P2, P2-P3, P3-P0
+			if (PointIndexList_input.GetLength() > 4)
 			{
-				auto Point0 = OutputMesh.GetPointPosition(H0);
-				auto Point1 = OutputMesh.GetPointPosition(H1);
-				auto Point2 = OutputMesh.GetPointPosition(H2);
-				auto Point3 = OutputMesh.GetPointPosition(H3);
-				auto L02 = (Point2 - Point0).L2Norm();
-				auto L13 = (Point3 - Point1).L2Norm();
-				if (L02 < L13)
-				{
-					Point8 = (Point2 + Point0) / ScalarType(2);
-				}
-				else
-				{
-					Point8 = (Point3 + Point1) / ScalarType(2);
-				}
+				MDK_Error("Input is NOT QuadMesh or Mixed Quad-Triangle @ ConvertQuadMeshToTriangleMesh_1to8(...)")
+				return OutputMesh;
 			}
-			auto H8 = OutputMesh.AddPoint(Point8);
+			else if (PointIndexList_input.GetLength() == 4)
+			{
+				//-----------------
+				// 3    6     2 
+				// 7    8     5   
+				// 0    4     1
+				//-----------------		
+				auto H0 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[0]]];
+				auto H1 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[1]]];
+				auto H2 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[2]]];
+				auto H3 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[3]]];
+				auto H4 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[0]]];
+				auto H5 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[1]]];
+				auto H6 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[2]]];
+				auto H7 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[3]]];
 
-			OutputMesh.AddFaceByPoint(H8, H6, H3);
-			OutputMesh.AddFaceByPoint(H8, H3, H7);
-			OutputMesh.AddFaceByPoint(H8, H7, H0);
-			OutputMesh.AddFaceByPoint(H8, H0, H4);
-			OutputMesh.AddFaceByPoint(H8, H4, H1);
-			OutputMesh.AddFaceByPoint(H8, H1, H5);
-			OutputMesh.AddFaceByPoint(H8, H5, H2);
-			OutputMesh.AddFaceByPoint(H8, H2, H6);
-		}
-		else if (PointIndexList_input.GetLength() == 3)
-		{
-			//-----------------
-			//            2 
-			//      5     4
-			// 0    3     1
-			//-----------------		
+				DenseVector<ScalarType, 3> Point8;
+				{
+					auto Point0 = OutputMesh.GetPointPosition(H0);
+					auto Point1 = OutputMesh.GetPointPosition(H1);
+					auto Point2 = OutputMesh.GetPointPosition(H2);
+					auto Point3 = OutputMesh.GetPointPosition(H3);
+					auto L02 = (Point2 - Point0).L2Norm();
+					auto L13 = (Point3 - Point1).L2Norm();
+					if (L02 < L13)
+					{
+						Point8 = (Point2 + Point0) / ScalarType(2);
+					}
+					else
+					{
+						Point8 = (Point3 + Point1) / ScalarType(2);
+					}
+				}
+				auto H8 = OutputMesh.AddPoint(Point8);
 
-			auto H0 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[0]]];
-			auto H1 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[1]]];
-			auto H2 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[2]]];
-			auto H3 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[0]]];
-			auto H4 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[1]]];
-			auto H5 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[2]]];
+				OutputMesh.AddFaceByPoint(H8, H6, H3);
+				OutputMesh.AddFaceByPoint(H8, H3, H7);
+				OutputMesh.AddFaceByPoint(H8, H7, H0);
+				OutputMesh.AddFaceByPoint(H8, H0, H4);
+				OutputMesh.AddFaceByPoint(H8, H4, H1);
+				OutputMesh.AddFaceByPoint(H8, H1, H5);
+				OutputMesh.AddFaceByPoint(H8, H5, H2);
+				OutputMesh.AddFaceByPoint(H8, H2, H6);
+			}
+			else if (PointIndexList_input.GetLength() == 3)
+			{
+				//-----------------
+				//            2 
+				//      5     4
+				// 0    3     1
+				//-----------------		
 
-			OutputMesh.AddFaceByPoint(H5, H0, H3);
-			OutputMesh.AddFaceByPoint(H5, H3, H1);
-			OutputMesh.AddFaceByPoint(H5, H1, H4);
-			OutputMesh.AddFaceByPoint(H5, H4, H2);
-		}
-		else
-		{
-			MDK_Error("Input is NOT QuadMesh or Mixed Quad-Triangle @ ConvertQuadMeshToTriangleMesh(...)")
-			return OutputMesh;
+				auto H0 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[0]]];
+				auto H1 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[1]]];
+				auto H2 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[2]]];
+				auto H3 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[0]]];
+				auto H4 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[1]]];
+				auto H5 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[2]]];
+
+				OutputMesh.AddFaceByPoint(H5, H0, H3);
+				OutputMesh.AddFaceByPoint(H5, H3, H1);
+				OutputMesh.AddFaceByPoint(H5, H1, H4);
+				OutputMesh.AddFaceByPoint(H5, H4, H2);
+			}
+			else
+			{
+				MDK_Error("Input is NOT QuadMesh or Mixed Quad-Triangle @ ConvertQuadMeshToTriangleMesh(...)")
+				return OutputMesh;
+			}
 		}
 	}
-
 	//-----------------------------------------------------------
 	int_max NamedPointCount = InputMesh.GetNamedPointCount();
 	if (NamedPointCount > 0)
@@ -450,14 +471,16 @@ PolygonMesh<ScalarType> SubdivideMixedTriangleQuadMeshToQuadMesh_Linear(const Po
 	DenseVector<int_max> PointIndexList_init;
 	PointIndexList_init.SetCapacity(PointCount_input);
 	int_max PointIndex_output_init = -1;
-	for (auto it = InputMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	for (int_max k = 0; k < PointCount_input; ++k)
 	{
-		auto Pos = it.Point().GetPosition();
-		PointIndexList_init.Append(OutputMesh.AddPoint(Pos));
-		PointIndex_output_init += 1;
-		PointIndexMap_init[it.GetPointIndex()] = PointIndex_output_init;
+		if (InputMesh.IsValidPointIndex(k) == true)
+		{
+			auto Pos = InputMesh.GetPointPosition(k);
+			PointIndexList_init.Append(OutputMesh.AddPoint(Pos));
+			PointIndex_output_init += 1;
+			PointIndexMap_init[k] = PointIndex_output_init;
+		}
 	}
-
 	//------- add new point by splitting each edge of InputMesh -----------------//   
 	DenseVector<int_max> PointIndexMap_new;
 	PointIndexMap_new.Resize(EdgeCount_input + InputMesh.GetDeletedEdgeCount());
@@ -465,95 +488,100 @@ PolygonMesh<ScalarType> SubdivideMixedTriangleQuadMeshToQuadMesh_Linear(const Po
 	DenseVector<int_max> PointIndexList_new;
 	PointIndexList_new.SetCapacity(EdgeCount_input);
 	int_max PointIndex_output_new = -1;
-	for (auto it = InputMesh.GetIteratorOfEdge(); it.IsNotEnd(); ++it)
+	for (int_max k = 0; k < EdgeCount_input; ++k)
 	{
-		auto TempList = it.Edge().GetPointIndexList();
-		auto P0 = InputMesh.GetPointPosition(TempList[0]);
-		auto P1 = InputMesh.GetPointPosition(TempList[1]);
-		auto P3 = P0 + P1;
-		P3 /= ScalarType(2);
-		auto H3 = OutputMesh.AddPoint(P3);
-		PointIndexList_new.Append(H3);
-		PointIndex_output_new += 1;
-		PointIndexMap_new[it.GetEdgeIndex()] = PointIndex_output_new;
-	}
-
-	//------- add new cell by splitting each cell of InputMesh and add center point ----------------//   
-	for (auto it = InputMesh.GetIteratorOfFace(); it.IsNotEnd(); ++it)
-	{
-		auto PointIndexList_input = it.Face().GetPointIndexList(); // P0, P1, P2, P3
-		auto EdgeIndexList_input = it.Face().GetEdgeIndexList();   // P0-P1, P1-P2, P2-P3, P3-P0
-
-		if (PointIndexList_input.GetLength() == 4)
+		if (InputMesh.IsValidEdgeIndex(k) == true)
 		{
-			//-----------------
-			// 3    6     2 
-			// 7    8     5   
-			// 0    4     1
-			//-----------------		
-			auto H0 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[0]]];
-			auto H1 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[1]]];
-			auto H2 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[2]]];
-			auto H3 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[3]]];
-			auto H4 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[0]]];
-			auto H5 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[1]]];
-			auto H6 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[2]]];
-			auto H7 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[3]]];
+			auto TempList = InputMesh.Edge(k).GetPointIndexList();
+			auto P0 = InputMesh.GetPointPosition(TempList[0]);
+			auto P1 = InputMesh.GetPointPosition(TempList[1]);
+			auto P3 = P0 + P1;
+			P3 /= ScalarType(2);
+			auto H3 = OutputMesh.AddPoint(P3);
+			PointIndexList_new.Append(H3);
+			PointIndex_output_new += 1;
+			PointIndexMap_new[k] = PointIndex_output_new;
+		}
+	}
+	//------- add new cell by splitting each cell of InputMesh and add center point ----------------//   
+	for (int_max k = 0; k < FaceCount_input; ++k)
+	{
+		if (InputMesh.IsValidFaceIndex(k) == true)
+		{
+			auto PointIndexList_input = InputMesh.Face(k).GetPointIndexList(); // P0, P1, P2, P3
+			auto EdgeIndexList_input = InputMesh.Face(k).GetEdgeIndexList();   // P0-P1, P1-P2, P2-P3, P3-P0
 
-			DenseVector<ScalarType, 3> Point8;
+			if (PointIndexList_input.GetLength() == 4)
 			{
+				//-----------------
+				// 3    6     2 
+				// 7    8     5   
+				// 0    4     1
+				//-----------------		
+				auto H0 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[0]]];
+				auto H1 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[1]]];
+				auto H2 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[2]]];
+				auto H3 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[3]]];
+				auto H4 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[0]]];
+				auto H5 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[1]]];
+				auto H6 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[2]]];
+				auto H7 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[3]]];
+
+				DenseVector<ScalarType, 3> Point8;
+				{
+					auto Point0 = OutputMesh.GetPointPosition(H0);
+					auto Point1 = OutputMesh.GetPointPosition(H1);
+					auto Point2 = OutputMesh.GetPointPosition(H2);
+					auto Point3 = OutputMesh.GetPointPosition(H3);
+					auto L02 = (Point2 - Point0).L2Norm();
+					auto L13 = (Point3 - Point1).L2Norm();
+					if (L02 < L13)// this is good
+					{
+						Point8 = (Point2 + Point0) / ScalarType(2);
+					}
+					else
+					{
+						Point8 = (Point3 + Point1) / ScalarType(2);
+					}
+				}
+				auto H8 = OutputMesh.AddPoint(Point8);
+
+				OutputMesh.AddFaceByPoint({ H8, H6, H3, H7 });
+				OutputMesh.AddFaceByPoint({ H8, H7, H0, H4 });
+				OutputMesh.AddFaceByPoint({ H8, H4, H1, H5 });
+				OutputMesh.AddFaceByPoint({ H8, H5, H2, H6 });
+			}
+			else if (PointIndexList_input.GetLength() == 3)
+			{
+				//-----------------
+				//      0
+				//   3     5			
+				//      6
+				// 1    4     2
+				//-----------------		
+				auto H0 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[0]]];
+				auto H1 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[1]]];
+				auto H2 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[2]]];
+				auto H3 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[0]]];
+				auto H4 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[1]]];
+				auto H5 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[2]]];
+
 				auto Point0 = OutputMesh.GetPointPosition(H0);
 				auto Point1 = OutputMesh.GetPointPosition(H1);
 				auto Point2 = OutputMesh.GetPointPosition(H2);
-				auto Point3 = OutputMesh.GetPointPosition(H3);
-				auto L02 = (Point2 - Point0).L2Norm();
-				auto L13 = (Point3 - Point1).L2Norm();
-				if (L02 < L13)// this is good
-				{
-					Point8 = (Point2 + Point0) / ScalarType(2);
-				}
-				else
-				{
-					Point8 = (Point3 + Point1) / ScalarType(2);
-				}
+				auto Point6 = (Point0 + Point1 + Point2) / ScalarType(3);
+				auto H6 = OutputMesh.AddPoint(Point6);
+
+				OutputMesh.AddFaceByPoint({ H6, H5, H0, H3 });
+				OutputMesh.AddFaceByPoint({ H6, H3, H1, H4 });
+				OutputMesh.AddFaceByPoint({ H6, H4, H2, H5 });
 			}
-			auto H8 = OutputMesh.AddPoint(Point8);
-
-			OutputMesh.AddFaceByPoint({H8, H6, H3, H7});
-			OutputMesh.AddFaceByPoint({H8, H7, H0, H4});
-			OutputMesh.AddFaceByPoint({H8, H4, H1, H5});
-			OutputMesh.AddFaceByPoint({H8, H5, H2, H6});
-		}
-		else if (PointIndexList_input.GetLength() == 3)
-		{
-			//-----------------
-			//      0
-			//   3     5			
-			//      6
-			// 1    4     2
-			//-----------------		
-			auto H0 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[0]]];
-			auto H1 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[1]]];
-			auto H2 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[2]]];
-			auto H3 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[0]]];
-			auto H4 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[1]]];
-			auto H5 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[2]]];
-
-			auto Point0 = OutputMesh.GetPointPosition(H0);
-			auto Point1 = OutputMesh.GetPointPosition(H1);
-			auto Point2 = OutputMesh.GetPointPosition(H2);
-			auto Point6 = (Point0 + Point1 + Point2) / ScalarType(3);
-			auto H6 = OutputMesh.AddPoint(Point6);
-
-			OutputMesh.AddFaceByPoint({ H6, H5, H0, H3 });
-			OutputMesh.AddFaceByPoint({ H6, H3, H1, H4 });
-			OutputMesh.AddFaceByPoint({ H6, H4, H2, H5 });
-		}
-		else
-		{
-			MDK_Error("Input is NOT MixedTriangleQuadMesh @ SubdivideMixedTriangleQuadMeshToQuadMesh(...)")
-			OutputMesh.Clear();
-			return OutputMesh;
+			else
+			{
+				MDK_Error("Input is NOT MixedTriangleQuadMesh @ SubdivideMixedTriangleQuadMeshToQuadMesh(...)")
+				OutputMesh.Clear();
+				return OutputMesh;
+			}
 		}
 	}
 	//--------------------------------------------------------------------------//

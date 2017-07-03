@@ -4,7 +4,6 @@
 
 using namespace mdk;
 
-
 void Test_0()
 {
 	String TestDataPath = "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_TemplateBasedSurfaceRemesher/TestData/";
@@ -228,12 +227,12 @@ void Test_template()
 	DenseVector<int_max> FreeEdge = { span(25, 0), span(705, 729) };
 	DenseVector<int_max> Attachment = { span(25, 65), span(768, 729) };
 
-	auto FreeEdgeCurve= Template.GetPointPosition(FreeEdge);
+	auto FreeEdgeCurve = Template.GetPointPosition(FreeEdge);
 	auto AttachmentCurve_source = Template.GetPointPosition(Attachment);
 	DenseMatrix<double> AttachmentCurve_target = AttachmentCurve_source;
 
-	double delta = 3.141592654 / double(Attachment.GetLength()-1);
-	for (int_max k = 1; k < Attachment.GetLength()-1; ++k)
+	double delta = 3.141592654 / double(Attachment.GetLength() - 1);
+	for (int_max k = 1; k < Attachment.GetLength() - 1; ++k)
 	{
 		double R = 0.453092;
 		double theta = double(k)*delta;
@@ -253,11 +252,13 @@ void Test_template()
 	TPSTransform.SetSourceLandmarkPointSet(&Source);
 	TPSTransform.SetTargetLandmarkPointSet(&Target);
 	TPSTransform.EstimateParameter();
-	for (auto it = Template.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+
+	auto PointCount_temp = Template.GetPointCount();
+	for (int_max k = 0; k < PointCount_temp; ++k)
 	{
-		auto Pos = it.Point().GetPosition();
+		auto Pos = Template.GetPointPosition(k);
 		auto NewPos = TPSTransform.TransformPoint(Pos);
-		it.Point().SetPosition(NewPos);
+		Template.SetPointPosition(k, NewPos);
 	}
 	SavePolygonMeshAsVTKFile(Template, TestDataPath + "Template_half_disk.vtk");
 }

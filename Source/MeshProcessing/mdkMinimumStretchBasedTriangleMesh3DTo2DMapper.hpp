@@ -77,12 +77,13 @@ void MinimumStretchBasedTriangleMesh3DTo2DMapper<ScalarType>::Preprocess()
 
 	Internal.InnerPointIndexList.Clear();
 	Internal.InnerPointIndexList.SetCapacity(PointCount_inner);
-	for (auto it = Input.SourceMesh->GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	auto PointCount_source = Input.SourceMesh->GetPointCount();
+	for (int_max k = 0; k < PointCount_source; ++k)
 	{
-		auto tempIndex = Input.BoundaryPointIndexList.ExactMatch("first", it.GetPointIndex());
+		auto tempIndex = Input.BoundaryPointIndexList.ExactMatch("first", k);
 		if (tempIndex < 0)
 		{
-			Internal.InnerPointIndexList.Append(it.GetPointIndex());
+			Internal.InnerPointIndexList.Append(k);
 		}
 	}
 

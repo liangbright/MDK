@@ -343,11 +343,12 @@ template<typename ScalarType>
 bool TemplateBasedSurfaceRemesher<ScalarType>::CheckBoundaryConstraint()
 {
 	//check if all the boundary point of input mesh is included in Internal.BoundaryPointIndexListOfSourceMesh
-	for (auto it = Input.SourceMesh->GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	auto PointCount_source = Input.SourceMesh->GetPointCount();
+	for (int_max k = 0; k < PointCount_source; ++k)
 	{
-		if (it.Point().IsOnBoundaryEdge() == true)
+		if (Input.SourceMesh->Point(k).IsOnBoundaryEdge() == true)
 		{
-			auto tempIndex = Internal.BoundaryPointIndexListOfSourceMesh.ExactMatch("first", it.GetPointIndex());
+			auto tempIndex = Internal.BoundaryPointIndexListOfSourceMesh.ExactMatch("first", k);
 			if (tempIndex < 0)
 			{
 				MDK_Error(" Some boundary point of input mesh is NOT included in BoundarySegmentListOfInputMesh @ TemplateBasedSurfaceRemesher::CheckBoundaryConstraint()")
@@ -416,11 +417,12 @@ void TemplateBasedSurfaceRemesher<ScalarType>::TransfromTemplateMeshFrom2Dto3D_M
 
 	Output.DeformedTemplateMesh.Clear();
 	Output.DeformedTemplateMesh = *Input.TemplateMesh;
-	for (auto it = Output.DeformedTemplateMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	auto PointCount_temp = Output.DeformedTemplateMesh.GetPointCount();
+	for (int_max k = 0; k < PointCount_temp; ++k)
 	{
-		auto Pos2D = it.Point().GetPosition();
+		auto Pos2D = Output.DeformedTemplateMesh.GetPointPosition(k);
 		auto Pos3D = TPSWarper.TransformPoint(Pos2D);
-		it.Point().SetPosition(Pos3D);
+		Output.DeformedTemplateMesh.SetPointPosition(k, Pos3D);
 	}
 }
 
@@ -430,18 +432,19 @@ void TemplateBasedSurfaceRemesher<ScalarType>::TransfromTemplateMeshFrom2Dto3D_M
 {
 	Output.DeformedTemplateMesh.Clear();
 	Output.DeformedTemplateMesh = *Input.TemplateMesh;
-	for (auto it = Output.DeformedTemplateMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+	auto PointCount_temp = Output.DeformedTemplateMesh.GetPointCount();
+	for (int_max k = 0; k < PointCount_temp; ++k)
 	{
-		auto tempIndex = Internal.BoundaryPointIndexListOfTemplateMesh.ExactMatch("first", it.GetPointIndex());
+		auto tempIndex = Internal.BoundaryPointIndexListOfTemplateMesh.ExactMatch("first", k);
 		if (tempIndex >= 0)
 		{
 			DenseVector<ScalarType, 3> Pos3D;
 			Internal.BoundaryPositionOfDeformedTemplateMesh.GetCol(tempIndex, Pos3D);
-			it.Point().SetPosition(Pos3D);
+			Output.DeformedTemplateMesh.SetPointPosition(k, Pos3D);
 		}
 		else
 		{
-			auto Pos2D = it.Point().GetPosition();
+			auto Pos2D = Output.DeformedTemplateMesh.GetPointPosition(k);
 			auto PointIndexList_nearest = this->Find3PointOfNearestFace(Pos2D, Output.ParameterizedSourceMesh);
 
 			DenseVector<ScalarType, 3> Weight;
@@ -483,10 +486,9 @@ void TemplateBasedSurfaceRemesher<ScalarType>::TransfromTemplateMeshFrom2Dto3D_M
 			auto Point1 = Input.SourceMesh->GetPointPosition(PointIndexList_nearest[1]);
 			auto Point2 = Input.SourceMesh->GetPointPosition(PointIndexList_nearest[2]);
 			auto Pos3D = Weight[0] * Point0 + Weight[1] * Point1 + Weight[2] * Point2;
-			it.Point().SetPosition(Pos3D);
+			Output.DeformedTemplateMesh.SetPointPosition(k, Pos3D);
 		}
 	}
-
 }
 
 
@@ -548,9 +550,10 @@ DenseVector<int_max, 3> TemplateBasedSurfaceRemesher<ScalarType>::Find3PointOfNe
 	{
 		DenseVector<ScalarType> DistanceList;
 		DistanceList.SetCapacity(TargetMesh.GetFaceCount());
-		for (auto it = TargetMesh.GetIteratorOfPoint(); it.IsNotEnd(); ++it)
+		auto PointCount_target = TargetMesh.GetPointCount();
+		for (int_max k = 0; k < PointCount_target; ++k)
 		{
-			auto Pos = it.Point().GetPosition();
+			auto Pos = TargetMesh.GetPointPosition(k);
 			auto Distance = (Point - Pos).L2Norm();
 			DistanceList.Append(Distance);
 		}

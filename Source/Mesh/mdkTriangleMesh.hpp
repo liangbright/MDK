@@ -9,6 +9,11 @@ TriangleMesh<ScalarType>::TriangleMesh()
 {
 }
 
+template<typename ScalarType>
+TriangleMesh<ScalarType>::TriangleMesh(const MDK_Symbol_PureEmpty&)
+: Mesh(MDK_PureEmpty)
+{
+}
 
 template<typename ScalarType>
 TriangleMesh<ScalarType>::TriangleMesh(const TriangleMesh<ScalarType>& InputMesh)
@@ -16,13 +21,11 @@ TriangleMesh<ScalarType>::TriangleMesh(const TriangleMesh<ScalarType>& InputMesh
 {
 }
 
-
 template<typename ScalarType>
 TriangleMesh<ScalarType>::TriangleMesh(TriangleMesh<ScalarType>&& InputMesh)
 : PolygonMesh(std::move(InputMesh))
 {
 }
-
 
 template<typename ScalarType>
 TriangleMesh<ScalarType>::TriangleMesh(const PolygonMesh<ScalarType>& InputMesh)
@@ -30,33 +33,41 @@ TriangleMesh<ScalarType>::TriangleMesh(const PolygonMesh<ScalarType>& InputMesh)
 {
 }
 
-
 template<typename ScalarType>
 TriangleMesh<ScalarType>::TriangleMesh(PolygonMesh<ScalarType>&& InputMesh)
 : PolygonMesh(std::move(InputMesh))
 {
 }
 
+template<typename ScalarType>
+TriangleMesh<ScalarType>::TriangleMesh(const Mesh<ScalarType>& InputMesh)
+: PolygonMesh(InputMesh)
+{
+}
+
+template<typename ScalarType>
+TriangleMesh<ScalarType>::TriangleMesh(Mesh<ScalarType>&& InputMesh)
+: PolygonMesh(std::move(InputMesh))
+{
+}
 
 template<typename ScalarType>
 TriangleMesh<ScalarType>::~TriangleMesh()
 {
 }
 
-
 template<typename ScalarType>
 inline
 void TriangleMesh<ScalarType>::operator=(const TriangleMesh<ScalarType>& InputMesh)
 {
-    this->PolygonMesh::operator=(InputMesh);
+	this->PolygonMesh::operator=(InputMesh);
 }
-
 
 template<typename ScalarType>
 inline
 void TriangleMesh<ScalarType>::operator=(TriangleMesh<ScalarType>&& InputMesh)
 {
-    this->PolygonMesh::operator=(std::move(InputMesh));
+	this->PolygonMesh::operator=(std::move(InputMesh));
 }
 
 template<typename ScalarType>
@@ -66,7 +77,6 @@ void TriangleMesh<ScalarType>::operator=(const PolygonMesh<ScalarType>& InputMes
 	this->PolygonMesh::operator=(InputMesh);
 }
 
-
 template<typename ScalarType>
 inline
 void TriangleMesh<ScalarType>::operator=(PolygonMesh<ScalarType>&& InputMesh)
@@ -74,6 +84,19 @@ void TriangleMesh<ScalarType>::operator=(PolygonMesh<ScalarType>&& InputMesh)
 	this->PolygonMesh::operator=(std::move(InputMesh));
 }
 
+template<typename ScalarType>
+inline
+void TriangleMesh<ScalarType>::operator=(const Mesh<ScalarType>& InputMesh)
+{
+	this->PolygonMesh::operator=(InputMesh);
+}
+
+template<typename ScalarType>
+inline
+void TriangleMesh<ScalarType>::operator=(Mesh<ScalarType>&& InputMesh)
+{
+	this->PolygonMesh::operator=(std::move(InputMesh));
+}
 
 template<typename ScalarType>
 inline 
@@ -89,23 +112,6 @@ int_max TriangleMesh<ScalarType>::AddFaceByPoint(int_max PointIndex0, int_max Po
 {
     DenseVector<int_max> PointIndexList = { PointIndex0, PointIndex1, PointIndex2 };
     return this->PolygonMesh::AddFaceByPoint(PointIndexList);
-}
-
-template<typename ScalarType>
-void TriangleMesh<ScalarType>::Construct(PolygonMesh<ScalarType> InputPolygonMesh)
-{
-    auto InputMeshPtr = static_cast<TriangleMesh<ScalarType>*>(&InputPolygonMesh);
-    m_MeshData = std::move(InputMeshPtr->m_MeshData);
-}
-
-// get a sub mesh by FaceIndexList or FaceIDList----------------------------//
-
-template<typename ScalarType>
-TriangleMesh<ScalarType> TriangleMesh<ScalarType>::GetSubMeshByFace(const DenseVector<int_max>& FaceIndexList) const
-{
-    TriangleMesh<ScalarType> OutputMesh;
-    OutputMesh.Construct(this->PolygonMesh<ScalarType>::GetSubMeshByFace(FaceIndexList));
-    return OutputMesh;
 }
 
 //------------- Function optimized for TriangleMesh --------------------------------------------------//

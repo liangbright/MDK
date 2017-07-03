@@ -83,7 +83,6 @@ void Test_AddtionalInfo()
 	PolygonMesh<double> InputMesh, SquareMesh;	
 	LoadPolygonMeshFromVTKFile(InputMesh, FilePathAndName + ".vtk");
 
-	InputMesh.SetID(1);
 	InputMesh.SetName("Square");
 
 	InputMesh.Point(0).SetName("0_Name");	
