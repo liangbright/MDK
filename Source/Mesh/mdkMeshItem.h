@@ -119,8 +119,8 @@ private:
 public:
     inline bool IsValid() const;
     bool IsOnEdge() const;
-    bool IsOnBoundaryEdge() const;//polygon mesh
-	bool IsOnBoundaryFace() const;//polyhedron mesh
+    bool IsOnPolygonMeshBoundary() const;
+	bool IsOnPolyhedronMeshBoundary() const;
 
     inline int_max GetIndex() const;
 
@@ -128,11 +128,8 @@ public:
 	inline void EraseName();
 	inline String GetName() const;
 
-	inline void SetData(int_max Index, DenseVector<ScalarType> Data);
+	inline void SetData(int_max Index, const DenseVector<ScalarType>& Data);
 	inline DenseVector<ScalarType> GetData(int_max Index) const;
-
-	inline void SetData(const String& Name, DenseVector<ScalarType> Data);
-	inline DenseVector<ScalarType> GetData(const String& Name) const;
 
     inline void SetPosition(const DenseVector<ScalarType, 3>& Pos);
     inline void SetPosition(const ScalarType Pos[3]);
@@ -232,23 +229,17 @@ public:
 
     inline bool IsValid() const;
 
-    bool IsBoundary() const;//PolygonMesh
+    bool IsOnPolygonMeshBoundary() const;
+	bool IsOnPolyhedronMeshBoundary() const;
 
     inline int_max GetIndex() const;
-
-    inline void SetID(int_max EdgeID);
-    inline void EraseID();
-    inline int_max GetID() const;
    
 	inline void SetName(String EdgeName);
 	inline void EraseName();
 	inline String GetName() const;
 
-	inline void SetData(int_max Index, DenseVector<ScalarType> Data);
+	inline void SetData(int_max Index, const DenseVector<ScalarType>& Data);
 	inline DenseVector<ScalarType> GetData(int_max Index) const;
-
-	inline void SetData(const String& Name, DenseVector<ScalarType> Data);
-	inline DenseVector<ScalarType> GetData(const String& Name) const;
 
 	inline void GetPointIndexList(int_max PointIndexList[2]) const;
 	inline void GetPointIndexList(int_max& PointIndex0, int_max& PointIndex1) const;
@@ -353,6 +344,8 @@ private:
 public:
     inline bool IsValid() const;
 
+	bool IsOnPolyhedronMeshBoundary() const;
+
 	inline int_max GetIndex() const;
 
 	inline void SetName(String FaceName);
@@ -361,11 +354,8 @@ public:
 
 	inline MeshFaceTypeEnum GetType() const;
 
-	inline void SetData(int_max Index, DenseVector<ScalarType> Data);
+	inline void SetData(int_max Index, const DenseVector<ScalarType>& Data);
 	inline DenseVector<ScalarType> GetData(int_max Index) const;
-
-	inline void SetData(const String& Name, DenseVector<ScalarType> Data);
-	inline DenseVector<ScalarType> GetData(const String& Name) const;
 
 	inline int_max GetPointCount() const;
 	inline DenseVector<int_max> GetPointIndexList() const;
@@ -486,11 +476,8 @@ public:
 
 	inline MeshCellTypeEnum GetType() const;
 
-	inline void SetData(int_max Index, DenseVector<ScalarType> Data);
+	inline void SetData(int_max Index, const DenseVector<ScalarType>& Data);
 	inline DenseVector<ScalarType> GetData(int_max Index) const;
-
-	inline void SetData(const String& Name, DenseVector<ScalarType> Data);
-	inline DenseVector<ScalarType> GetData(const String& Name) const;
 
 	inline int_max GetPointCount() const;
 	inline DenseVector<int_max> GetPointIndexList() const;

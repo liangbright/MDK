@@ -19,13 +19,12 @@ vtkSmartPointer<vtkUnstructuredGrid> ConvertMDKFiniteElementMeshToVTKUnstructure
 	auto PointCount = InputMesh.GetNodeCount();
 	auto CellCount = InputMesh.GetElementCount();
 
-	auto PointData = vtkSmartPointer<vtkPoints>::New();
+	auto PointArray_vtk = vtkSmartPointer<vtkPoints>::New();
 
 	if (ScalarTypeName == "double")
 	{
-		PointData->SetDataType(VTK_DOUBLE);
-		PointData->SetNumberOfPoints(PointCount);
-
+		PointArray_vtk->SetDataType(VTK_DOUBLE);
+		PointArray_vtk->SetNumberOfPoints(PointCount);
 		for (int i = 0; i < PointCount; ++i)
 		{
 			auto Position = InputMesh.GetNode(i);
@@ -33,14 +32,13 @@ vtkSmartPointer<vtkUnstructuredGrid> ConvertMDKFiniteElementMeshToVTKUnstructure
 			pos[0] = double(Position(0));
 			pos[1] = double(Position(1));
 			pos[2] = double(Position(2));
-			PointData->SetPoint(i, pos);
+			PointArray_vtk->SetPoint(i, pos);
 		}
 	}
 	else if (ScalarTypeName == "float")
 	{
-		PointData->SetDataType(VTK_FLOAT);
-		PointData->SetNumberOfPoints(PointCount);
-
+		PointArray_vtk->SetDataType(VTK_FLOAT);
+		PointArray_vtk->SetNumberOfPoints(PointCount);
 		for (int i = 0; i < PointCount; ++i)
 		{
 			auto Position = InputMesh.GetNode(i);
@@ -48,16 +46,15 @@ vtkSmartPointer<vtkUnstructuredGrid> ConvertMDKFiniteElementMeshToVTKUnstructure
 			pos[0] = float(Position(0));
 			pos[1] = float(Position(1));
 			pos[2] = float(Position(2));
-			PointData->SetPoint(i, pos);
+			PointArray_vtk->SetPoint(i, pos);
 		}
 	}
 	else
 	{
 		MDK_Warning("ScalarTypeName is not double or float @ ConvertMDKFiniteElementMeshToVTKUnstructuredGrid(...)")
 
-		PointData->SetDataType(VTK_DOUBLE);
-		PointData->SetNumberOfPoints(PointCount);
-
+		PointArray_vtk->SetDataType(VTK_DOUBLE);
+		PointArray_vtk->SetNumberOfPoints(PointCount);
 		for (int i = 0; i < PointCount; ++i)
 		{
 			auto Position = InputMesh.GetNode(i);
@@ -65,13 +62,13 @@ vtkSmartPointer<vtkUnstructuredGrid> ConvertMDKFiniteElementMeshToVTKUnstructure
 			pos[0] = double(Position(0));
 			pos[1] = double(Position(1));
 			pos[2] = double(Position(2));
-			PointData->SetPoint(i, pos);
+			PointArray_vtk->SetPoint(i, pos);
 		}
 	}
 
 	//------------------------------------------
 
-	auto CellData = vtkSmartPointer<vtkCellArray>::New();
+	auto CellArray_vtk = vtkSmartPointer<vtkCellArray>::New();
 
 	DenseVector<int> CellTypeList;
 	CellTypeList.Resize(CellCount);
@@ -82,12 +79,11 @@ vtkSmartPointer<vtkUnstructuredGrid> ConvertMDKFiniteElementMeshToVTKUnstructure
 		auto PointCountInCell = Element.GetLength();
 		auto ElementType = InputMesh.GetElementType(i);
 
-		CellData->InsertNextCell(PointCountInCell);		
+		CellArray_vtk->InsertNextCell(PointCountInCell);
 		for (int n = 0; n < PointCountInCell; ++n)
 		{
 			auto PointIndex = Element[n];
-
-			CellData->InsertCellPoint(PointIndex);
+			CellArray_vtk->InsertCellPoint(PointIndex);
 		}
 		
 		switch (ElementType)
@@ -132,9 +128,45 @@ vtkSmartPointer<vtkUnstructuredGrid> ConvertMDKFiniteElementMeshToVTKUnstructure
 		}		
 	}	
 	//---------------------------------------------------
-	VTKMesh->SetPoints(PointData);
-	VTKMesh->SetCells(CellTypeList.GetPointer(), CellData);
-	
+	VTKMesh->SetPoints(PointArray_vtk);
+	VTKMesh->SetCells(CellTypeList.GetPointer(), CellArray_vtk);
+	//---------------------------------------------------
+	for (int_max k = 0; k < InputMesh.GetNodeDataSetCount(); ++k)
+	{
+		auto DataSet = InputMesh.GetNodeDataSet(k);
+		auto Name = InputMesh.GetNodeDataSetName(k);
+		auto DataArray_vtk = vtkSmartPointer<vtkDoubleArray>::New();
+		DataArray_vtk->SetNumberOfComponents(DataSet.GetRowCount());//SetNumberOfComponents before SetNumberOfTuples
+		DataArray_vtk->SetNumberOfTuples(DataSet.GetColCount());
+		DataArray_vtk->SetName(Name.StdString().c_str());
+		for (int j = 0; j < DataSet.GetColCount(); ++j)
+		{
+			for (int i = 0; i < DataSet.GetRowCount(); ++i)
+			{
+				DataArray_vtk->SetComponent(j, i, double(DataSet(i, j)));
+			}
+		}
+		VTKMesh->GetPointData()->AddArray(DataArray_vtk);
+	}
+	//-----------------------------------------------------
+	for (int_max k = 0; k < InputMesh.GetElementDataSetCount(); ++k)
+	{
+		auto DataSet = InputMesh.GetElementDataSet(k);
+		auto Name = InputMesh.GetElementDataSetName(k);
+		auto DataArray_vtk = vtkSmartPointer<vtkDoubleArray>::New();
+		DataArray_vtk->SetNumberOfComponents(DataSet.GetRowCount());//SetNumberOfComponents before SetNumberOfTuples
+		DataArray_vtk->SetNumberOfTuples(DataSet.GetColCount());
+		DataArray_vtk->SetName(Name.StdString().c_str());
+		for (int j = 0; j < DataSet.GetColCount(); ++j)
+		{
+			for (int i = 0; i < DataSet.GetRowCount(); ++i)
+			{
+				DataArray_vtk->SetComponent(j, i, double(DataSet(i, j)));
+			}
+		}
+		VTKMesh->GetCellData()->AddArray(DataArray_vtk);
+	}
+	//---------------------------------------------------
 	return VTKMesh;
 }
 
@@ -286,6 +318,41 @@ bool ConvertVTKUnstructuredGridToMDKFiniteElementMesh(vtkUnstructuredGrid* VTKMe
 		OutputMesh.AddElement(IndexList, ElementType);
 	}
 
+	//---------------------------------------------------------
+	auto PointDataSetCount = VTKMesh->GetPointData()->GetNumberOfArrays();
+	for (int k = 0; k < PointDataSetCount; ++k)
+	{
+		auto DataArray_vtk = VTKMesh->GetPointData()->GetArray(k);
+		String Name = DataArray_vtk->GetName();
+		DenseMatrix<ScalarType> DataSet;
+		DataSet.Resize(DataArray_vtk->GetNumberOfComponents(), DataArray_vtk->GetNumberOfTuples());
+		for (int j = 0; j < DataSet.GetColCount(); ++j)
+		{
+			for (int i = 0; i < DataSet.GetRowCount(); ++i)
+			{
+				DataSet(i, j) = DataArray_vtk->GetComponent(j, i);
+			}
+		}
+		OutputMesh.SetNodeDataSet(Name, DataSet);
+	}
+	//---------------------------------------------------------
+	auto CellDataSetCount = VTKMesh->GetCellData()->GetNumberOfArrays();
+	for (int k = 0; k < CellDataSetCount; ++k)
+	{
+		auto DataArray_vtk = VTKMesh->GetCellData()->GetArray(k);
+		String Name = DataArray_vtk->GetName();
+		DenseMatrix<ScalarType> DataSet;
+		DataSet.Resize(DataArray_vtk->GetNumberOfComponents(), DataArray_vtk->GetNumberOfTuples());
+		for (int j = 0; j < DataSet.GetColCount(); ++j)
+		{
+			for (int i = 0; i < DataSet.GetRowCount(); ++i)
+			{
+				DataSet(i, j) = DataArray_vtk->GetComponent(j, i);
+			}
+		}
+		OutputMesh.SetElementDataSet(Name, DataSet);
+	}
+	//---------------------------------------------------------
 	return true;
 }
 
@@ -352,16 +419,20 @@ bool ConvertVTKPolyDataToMDKFiniteElementMesh(vtkPolyData* VTKMesh, FiniteElemen
 template<typename ScalarType>
 bool SaveFiniteElementMeshAsVTKFile(const FiniteElementMesh<ScalarType>& InputMesh, const String& FilePathAndName)
 {
-	if (InputMesh.IsSolidMesh() == true)
-	{
-		auto VTKMesh = ConvertMDKFiniteElementMeshToVTKUnstructuredGrid(InputMesh);
-		return SaveVTKUnstructuredGridAsVTKFile(VTKMesh, FilePathAndName);
-	}
-	else
-	{
-		auto VTKMesh = ConvertMDKFiniteElementMeshToVTKPolyData(InputMesh);
-		return SaveVTKPolyDataAsVTKFile(VTKMesh, FilePathAndName);
-	}
+	auto VTKMesh = ConvertMDKFiniteElementMeshToVTKUnstructuredGrid(InputMesh);
+	return SaveVTKUnstructuredGridAsVTKFile(VTKMesh, FilePathAndName);
+
+	// LoadVTKUnstructuredGridFromVTKFile can not read file saved by SaveVTKPolyDataAsVTKFile
+	//if (InputMesh.IsSolidMesh() == true)
+	//{
+	//	auto VTKMesh = ConvertMDKFiniteElementMeshToVTKUnstructuredGrid(InputMesh);
+	//	return SaveVTKUnstructuredGridAsVTKFile(VTKMesh, FilePathAndName);
+	//}
+	//else
+	//{
+	//	auto VTKMesh = ConvertMDKFiniteElementMeshToVTKPolyData(InputMesh);
+	//	return SaveVTKPolyDataAsVTKFile(VTKMesh, FilePathAndName);
+	//}
 }
 
 
@@ -387,7 +458,6 @@ bool SaveFiniteElementMeshAsJsonDataFile(const FiniteElementMesh<ScalarType>& In
 	JsonObject JObject;
 
 	JObject["ObjectType"] = "FiniteElementMesh";
-	JObject["ID"] = InputMesh.GetID();
 	JObject["Name"] = InputMesh.GetName();
 	JObject["ScalarType"] = GetScalarTypeName(ScalarType(0));
 	JObject["IndexType"] = GetScalarTypeName(int_max(0));
@@ -512,18 +582,6 @@ bool LoadFiniteElementMeshFromJsonDataFile(FiniteElementMesh<ScalarType>& Output
 		return false;
 	}
 	//----------------------------------------------------------//
-	it = JObject.find("ID");
-	if (it != JObject.end())
-	{
-		auto ID = it->second.ToScalar<int_max>();
-		OutputMesh.SetID(ID);
-	}
-	else
-	{
-		MDK_Error("Couldn't get ID @ LoadFiniteElementMeshFromJsonDataFile(...)")
-		return false;
-	}
-	//----------------------------------------------------------//
 	it = JObject.find("Name");
 	if (it != JObject.end())
 	{
@@ -607,7 +665,7 @@ bool LoadFiniteElementMeshFromJsonDataFile(FiniteElementMesh<ScalarType>& Output
 		MDK_Error("Couldn't get ElementSetCount @ LoadFiniteElementMeshFromJsonDataFile(...)")
 		return false;
 	}
-	OutputMesh.SetCapacity(NodeCount, ElementCount, NodeSetCount, ElementSetCount);
+	OutputMesh.SetCapacity(NodeCount, ElementCount);
 	//----------------------------------------------------------//
 	String FilePath = ExtractFilePath(FilePathAndName);
 	String FileName_VTKMesh = ExtractFileName(FilePathAndName) + ".vtk";

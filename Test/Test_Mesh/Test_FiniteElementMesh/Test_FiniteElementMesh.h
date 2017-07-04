@@ -15,7 +15,7 @@ void Test_CreateMesh()
 
 	InputMesh.GetPointPositionMatrixAndFaceTable(NodeList, ElementList);
 
-	FiniteElementMesh<double> MeshA, MeshB;
+	FiniteElementMesh<double> MeshA, MeshB, MeshC;
 
 	MeshA.Construct(NodeList, ElementList);
 	for (int_max k = 0; k < MeshA.GetElementCount(); ++k)
@@ -23,7 +23,6 @@ void Test_CreateMesh()
 		MeshA.SetElementType(k, "Abaqus_S3");
 	}
 
-	MeshA.SetID(1);
 	MeshA.SetName("Leaflet");
 	
 	MeshA.SetNodeName(0, "Node_0_Name");
@@ -54,4 +53,17 @@ void Test_CreateMesh()
 
 	auto Set3 = MeshB.GetElementSet("0_ElementSet");
 	auto Set4 = MeshB.GetElementSet("1_FaceSet");
+
+	MeshC = MeshB.GetSubMesh({0, 1, 2});
+	SaveFiniteElementMeshAsJsonDataFile(MeshC, DataPath + "MeshC.json");
+}
+
+void Test_LoadSave()
+{
+	String DataPath = "C:/Research/MDK/MDK_Build/Test/Test_Mesh/Test_FiniteElementMesh/TestData/";
+
+	FiniteElementMesh<double> InputMesh;
+	LoadFiniteElementMeshFromVTKFile(InputMesh, DataPath + "Tetra1_save.json.vtk");
+
+	SaveFiniteElementMeshAsJsonDataFile(InputMesh, DataPath + "Tetra1_save_LoadSave.json");
 }

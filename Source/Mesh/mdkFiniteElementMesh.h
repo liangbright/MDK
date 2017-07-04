@@ -32,27 +32,26 @@ enum struct FiniteElementType
 template<typename ScalarType>
 struct Data_Of_FiniteElementMesh
 {
-	int_max ID; // ID of the object
 	String Name;// name of the object
 
-	DenseMatrix<ScalarType>            NodeList;        //col = [x, y, z]
-	ObjectArray<String>                NodeNameList;    // every node has a name (may be empty)
+	DenseMatrix<ScalarType> NodeList;        //col = [x, y, z]
+	ObjectArray<String>     NodeNameList;    // every node has a name (may be empty)
 
-	ObjectArray<DenseVector<int_max>>  ElementList;     //{ Element1=[PointIndex1, PointIndex2, ...], ... }
-	ObjectArray<String>                ElementNameList; // every element has a name (may be empty)
-	ObjectArray<FiniteElementType>     ElementTypeList; // ElementTypeList[0] is the type of the first element ElementList[0]	
+	ObjectArray<DenseVector<int_max>> ElementList;     //{ Element1=[PointIndex1, PointIndex2, ...], ... }
+	ObjectArray<String>               ElementNameList; // every element has a name (may be empty)
+	ObjectArray<FiniteElementType>    ElementTypeList; // ElementTypeList[0] is the type of the first element ElementList[0]	
 
-	ObjectArray<DenseVector<int_max>>  NodeSetList;        // NodeSetList[k] is NodeIndexList Of NodeSet-k
-	ObjectArray<String>                NodeSetNameList;    // every node-set has a name (may be empty)
+	ObjectArray<DenseMatrix<ScalarType>> NodeDataSetList;        // NodeDataSetList[k][NodeIndex] ~ Data of a Node
+	ObjectArray<String>                  NodeDataSetNameList;    // NodeDataSetNameList[k] is the name of NodeDataSetList[k]
 
-	ObjectArray<DenseVector<int_max>>  ElementSetList;     // ElementSetList[k] is ElementIndexList Of ElementSet-k
-	ObjectArray<String>                ElementSetNameList; // every element-set has a name (may be empty)
+	ObjectArray<DenseMatrix<ScalarType>> ElementDataSetList;     // ElementDataSetList[k][ElementIndex] ~ Data of an Element
+	ObjectArray<String>                  ElementDataSetNameList; // ElementDataSetNameList[k] is the name of ElementDataSetList[k]
 
-	ObjectArray<DenseVector<DenseVector<ScalarType>>>  NodeDataSetList;        // NodeDataSetList[k][NodeIndex] ~ Data of a Node
-	ObjectArray<String>                                NodeDataSetNameList;    //NodeDataSetNameList[k] is the name of NodeDataSetList[k]
+	ObjectArray<DenseVector<int_max>> NodeSetList;        // NodeSetList[k] is NodeIndexList Of NodeSet-k
+	ObjectArray<String>               NodeSetNameList;    // every node-set has a name (may be empty)
 
-	ObjectArray<DenseVector<DenseVector<ScalarType>>>  ElementDataSetList;     // ElementDataSetList[k][ElementIndex] ~ Data of an Element
-	ObjectArray<String>                                ElementDataSetNameList; //ElementDataSetNameList[k] is the name of ElementDataSetList[k]
+	ObjectArray<DenseVector<int_max>> ElementSetList;     // ElementSetList[k] is ElementIndexList Of ElementSet-k
+	ObjectArray<String>               ElementSetNameList; // every element-set has a name (may be empty)	
 };
 
 
@@ -80,16 +79,14 @@ public:
 	void Clear();
 	bool IsEmpty() const;
 
-	void SetID(int_max ID) { m_MeshData->ID = ID; }
-	int_max GetID() const { return m_MeshData->ID; }
 	void SetName(const String& Name) { m_MeshData->Name = Name; }
 	String GetName() const { return m_MeshData->Name; }
 
-	void SetCapacity(int_max NodeCount, int_max ElementCount);	
-	void SetCapacity(int_max NodeCount, int_max ElementCount, int_max NodeSetCount, int_max ElementSetCount);
+	void SetCapacity(int_max NodeCount, int_max ElementCount);
 
 	void SetSize(int_max NodeCount, int_max ElementCount);
-
+	//SetSize() then use SetNode() and SetElement()
+	 
 	void Construct(DenseMatrix<ScalarType> NodeList, ObjectArray<DenseVector<int_max>> ElementList);//unknown ElementType
 
 	int_max AddNode(const DenseVector<ScalarType, 3>& Position);//return NodeIndex
@@ -133,12 +130,29 @@ public:
 	String ConvertElementTypeToString_Abaqus(FiniteElementType Type) const;
 	FiniteElementType ConvertStringToElementType(const String& Type) const;
 
+	int_max InitializeNodeDataSet(const String& Name, int_max ScalarCountPerNode);//return DataSetIndex or -1
+	int_max GetNodeDataSetCount() const;
+	int_max GetNodeDataSetIndex(const String& Name) const;
+	String GetNodeDataSetName(int_max DataSetIndex) const;
+	void SetNodeDataSet(const String& Name, DenseMatrix<ScalarType> DataSet);
+	void SetNodeDataSet(int_max DataSetIndex, DenseMatrix<ScalarType> DataSet);
+	const DenseMatrix<ScalarType>& GetNodeDataSet(const String& Name) const;
+	const DenseMatrix<ScalarType>& GetNodeDataSet(int_max DataSetIndex) const;
+
+	int_max InitializeElementDataSet(const String& Name, int_max ScalarCountPerElement);//return DataSetIndex or -1
+	int_max GetElementDataSetCount() const;
+	int_max GetElementDataSetIndex(const String& Name) const;
+	String GetElementDataSetName(int_max DataSetIndex) const;
+	void SetElementDataSet(const String& Name, DenseMatrix<ScalarType> DataSet);
+	void SetElementDataSet(int_max DataSetIndex, DenseMatrix<ScalarType> DataSet);
+	const DenseMatrix<ScalarType>& GetElementDataSet(const String& Name) const;
+	const DenseMatrix<ScalarType>& GetElementDataSet(int_max DataSetIndex) const;
+
 	// can not use the same name for different node-set
 	int_max AddNodeSet(const String& NodeSetName);//empty node-set
 	int_max AddNodeSet(const String& NodeSetName, const DenseVector<int_max>& NodeIndexListOfNodeSet);
 	void SetNodeSet(const String& NodeSetName, const DenseVector<int_max>& NodeIndexListOfNodeSet);
-	void SetNodeSet(int_max NodeSetIndex, const DenseVector<int_max>& NodeIndexListOfNodeSet);
-	void ChangeNodeSetName(const String& NodeSetName_old, const String& NodeSetName_new);
+	void SetNodeSet(int_max NodeSetIndex, const DenseVector<int_max>& NodeIndexListOfNodeSet);	
 	void SetNodeSetName(int_max NodeSetIndex, const String& NodeSetName);
 	int_max GetNodeSetCount() const;
 	String GetNodeSetName(int_max NodeSetIndex) const;
@@ -150,32 +164,13 @@ public:
 	int_max AddElementSet(const String& ElementSetName);//empty element-set
 	int_max AddElementSet(const String& ElementSetName, const DenseVector<int_max>& ElementIndexListOfElementSet);
 	void SetElementSet(const String& ElementSetName, const DenseVector<int_max>& ElementIndexListOfElementSet);
-	void SetElementSet(int_max ElementSetIndex, const DenseVector<int_max>& ElementIndexListOfElementSet);
-	void ChangeElementSetName(const String& ElementSetName_old, const String& ElementSetName_new);
+	void SetElementSet(int_max ElementSetIndex, const DenseVector<int_max>& ElementIndexListOfElementSet);	
 	void SetElementSetName(int_max ElementSetIndex, const String& ElementSetName);
-	int_max GetElementSetCount() const;	
+	int_max GetElementSetCount() const;
 	String GetElementSetName(int_max ElementSetIndex) const;
-	int_max GetElementSetIndex(const String& ElementSetName) const;	
+	int_max GetElementSetIndex(const String& ElementSetName) const;
 	DenseVector<int_max> GetElementSet(int_max ElementSetIndex) const;
 	DenseVector<int_max> GetElementSet(const String& ElementSetName) const;
-
-	int_max InitializeNodeDataSet(const String& Name);//return DataSetIndex or -1
-	int_max GetNodeDataSetCount() const;
-	int_max GetNodeDataSetIndex(const String& Name) const;
-	String GetNodeDataSetName(int_max DataSetIndex) const;
-	void SetNodeDataSet(const String& Name, DenseVector<DenseVector<ScalarType>> DataSet);
-	void SetNodeDataSet(int_max DataSetIndex, DenseVector<DenseVector<ScalarType>> DataSet);
-	DenseVector<DenseVector<ScalarType>> GetNodeDataSet(const String& Name) const;
-	DenseVector<DenseVector<ScalarType>> GetNodeDataSet(int_max DataSetIndex) const;
-
-	int_max InitializeElementDataSet(const String& Name);//return DataSetIndex or -1
-	int_max GetElementDataSetCount() const;
-	int_max GetElementDataSetIndex(const String& Name) const;
-	String GetElementDataSetName(int_max DataSetIndex) const;
-	void SetElementDataSet(const String& Name, DenseVector<DenseVector<ScalarType>> DataSet);
-	void SetElementDataSet(int_max DataSetIndex, DenseVector<DenseVector<ScalarType>> DataSet);
-	DenseVector<DenseVector<ScalarType>> GetElementDataSet(const String& Name) const;
-	DenseVector<DenseVector<ScalarType>> GetElementDataSet(int_max DataSetIndex) const;
 
 	bool IsShellElement(int_max ElementIndex) const;
 	bool IsSolidElement(int_max ElementIndex) const;

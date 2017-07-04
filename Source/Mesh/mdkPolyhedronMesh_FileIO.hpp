@@ -309,7 +309,7 @@ bool LoadPolyhedronMeshFromJsonDataFile(PolyhedronMesh<ScalarType>& OutputMesh, 
 		}
 	}
 	//----------------------------------------------
-	int_max FaceSetCount;
+	int_max CellSetCount;
 	{
 		auto it = JObject.find("CellSetCount");
 		if (it != JObject.end())
@@ -360,7 +360,7 @@ bool LoadPolyhedronMeshFromJsonDataFile(PolyhedronMesh<ScalarType>& OutputMesh, 
 			{
 				const auto& CellName = it->first;
 				auto CellIndex = it->second.ToScalar<int_max>();
-				OutputMesh.Cell(CellIndex).SetName(FaceName);
+				OutputMesh.Cell(CellIndex).SetName(CellName);
 			}
 		}
 	}

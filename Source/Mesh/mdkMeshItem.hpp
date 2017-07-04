@@ -140,17 +140,32 @@ bool Point_Of_Mesh<ScalarType>::IsOnEdge() const
 
 template<typename ScalarType>
 inline
-bool Point_Of_Mesh<ScalarType>::IsOnBoundaryEdge() const
+bool Point_Of_Mesh<ScalarType>::IsOnPolygonMeshBoundary() const
 {
     for (int_max k = 0; k < m_Data->AdjacentEdgeIndexList.GetLength(); ++k)
     {
         auto EdgeIndex = m_Data->AdjacentEdgeIndexList[k];
-        if (m_Data->MeshData->EdgeList[EdgeIndex].IsBoundary() == true)
+        if (m_Data->MeshData->EdgeList[EdgeIndex].IsOnPolygonMeshBoundary() == true)
         {
             return true;
         }
     }
     return false;
+}
+
+template<typename ScalarType>
+inline
+bool Point_Of_Mesh<ScalarType>::IsOnPolyhedronMeshBoundary() const
+{
+	for (int_max k = 0; k < m_Data->AdjacentEdgeIndexList.GetLength(); ++k)
+	{
+		auto EdgeIndex = m_Data->AdjacentEdgeIndexList[k];
+		if (m_Data->MeshData->EdgeList[EdgeIndex].IsOnPolyhedronMeshBoundary() == true)
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 template<typename ScalarType>
@@ -223,15 +238,19 @@ String Point_Of_Mesh<ScalarType>::GetName() const
 }
 
 template<typename ScalarType>
-inline void Point_Of_Mesh<ScalarType>::SetData(int_max Index, DenseVector<ScalarType> Data)
+inline 
+void Point_Of_Mesh<ScalarType>::SetData(int_max Index, const DenseVector<ScalarType>& Data)
 {
-	m_Data->MeshData->PointDataSet[Index][m_Data->Index] = std::move(Data);
+	m_Data->MeshData->PointDataSet[Index].SetCol(m_Data->Index, Data);
 }
 
 template<typename ScalarType>
-inline DenseVector<ScalarType> Point_Of_Mesh<ScalarType>::GetData(int_max Index) const
+inline 
+DenseVector<ScalarType> Point_Of_Mesh<ScalarType>::GetData(int_max Index) const
 {
-	return m_Data->MeshData->PointDataSet[Index][m_Data->Index];
+	DenseVector<ScalarType> Data;
+	m_Data->MeshData->PointDataSet[Index].GetCol(m_Data->Index, Data);
+	return Data;
 }
 
 template<typename ScalarType>
@@ -556,9 +575,24 @@ bool Edge_Of_Mesh<ScalarType>::IsValid() const
 
 template<typename ScalarType>
 inline
-bool Edge_Of_Mesh<ScalarType>::IsBoundary() const
+bool Edge_Of_Mesh<ScalarType>::IsOnPolygonMeshBoundary() const
 {
 	return (m_Data->AdjacentFaceIndexList.GetLength() <= 1);
+}
+
+template<typename ScalarType>
+inline
+bool Edge_Of_Mesh<ScalarType>::IsOnPolyhedronMeshBoundary() const
+{
+	for (int_max k = 0; k < m_Data->AdjacentFaceIndexList.GetLength(); ++k)
+	{
+		auto FaceIndex = m_Data->AdjacentFaceIndexList[k];
+		if (m_Data->MeshData->FaceList[FaceIndex].IsOnPolyhedronMeshBoundary() == true)
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 template<typename ScalarType>
@@ -631,15 +665,19 @@ String Edge_Of_Mesh<ScalarType>::GetName() const
 }
 
 template<typename ScalarType>
-inline void Edge_Of_Mesh<ScalarType>::SetData(int_max Index, DenseVector<ScalarType> Data)
+inline
+void Edge_Of_Mesh<ScalarType>::SetData(int_max Index, const DenseVector<ScalarType>& Data)
 {
-	m_Data->MeshData->EdgeDataSet[Index][m_Data->Index] = std::move(Data);
+	m_Data->MeshData->EdgeDataSet[Index].SetCol(m_Data->Index, Data);
 }
 
 template<typename ScalarType>
-inline DenseVector<ScalarType> Edge_Of_Mesh<ScalarType>::GetData(int_max Index) const
-{	
-	return m_Data->MeshData->EdgeDataSet[Index][m_Data->Index];
+inline
+DenseVector<ScalarType> Edge_Of_Mesh<ScalarType>::GetData(int_max Index) const
+{
+	DenseVector<ScalarType> Data;
+	m_Data->MeshData->EdgeDataSet[Index].GetCol(m_Data->Index, Data);
+	return Data;
 }
 
 template<typename ScalarType>
@@ -1003,6 +1041,13 @@ bool Face_Of_Mesh<ScalarType>::IsValid() const
 
 template<typename ScalarType>
 inline
+bool Face_Of_Mesh<ScalarType>::IsOnPolyhedronMeshBoundary() const
+{
+	return (m_Data->AdjacentCellIndexList.GetLength() <= 1);
+}
+
+template<typename ScalarType>
+inline
 int_max Face_Of_Mesh<ScalarType>::GetIndex() const
 {
 	return m_Data->Index;
@@ -1089,15 +1134,17 @@ inline MeshFaceTypeEnum Face_Of_Mesh<ScalarType>::GetType() const
 }
 
 template<typename ScalarType>
-inline void Face_Of_Mesh<ScalarType>::SetData(int_max Index, DenseVector<ScalarType> Data)
+inline void Face_Of_Mesh<ScalarType>::SetData(int_max Index, const DenseVector<ScalarType>& Data)
 {
-	m_Data->MeshData->FaceDataSet[Index][m_Data->Index] = std::move(Data);
+	m_Data->MeshData->FaceDataSet[Index].SeCol(m_Data->Index, Data);
 }
 
 template<typename ScalarType>
 inline DenseVector<ScalarType> Face_Of_Mesh<ScalarType>::GetData(int_max Index) const
 {
-	return m_Data->MeshData->FaceDataSet[Index][m_Data->Index];
+	DenseVector<ScalarType> Data;
+	m_Data->MeshData->FaceDataSet[Index].GetCol(m_Data->Index, Data);
+	return Data;
 }
 
 template<typename ScalarType>
@@ -1644,15 +1691,17 @@ MeshCellTypeEnum Cell_Of_Mesh<ScalarType>::GetType() const
 }
 
 template<typename ScalarType>
-inline void Cell_Of_Mesh<ScalarType>::SetData(int_max Index, DenseVector<ScalarType> Data)
+inline void Cell_Of_Mesh<ScalarType>::SetData(int_max Index, const DenseVector<ScalarType>& Data)
 {
-	m_Data->MeshData->CellDataSet[Index][m_Data->Index] = std::move(Data);
+	m_Data->MeshData->CellDataSet[Index].SetCol(m_Data->Index, Data);
 }
 
 template<typename ScalarType>
 inline DenseVector<ScalarType> Cell_Of_Mesh<ScalarType>::GetData(int_max Index) const
 {
-	return m_Data->MeshData->CellDataSet[Index][m_Data->Index];
+	DenseVector<ScalarType> Data;
+	m_Data->MeshData->CellDataSet[Index].GetCol(m_Data->Index, Data);
+	return Data;
 }
 
 template<typename ScalarType>

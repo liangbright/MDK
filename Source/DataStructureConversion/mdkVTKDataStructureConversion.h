@@ -7,6 +7,9 @@
 #include <vtkPoints.h>
 #include <vtkPointData.h>
 #include <vtkCellArray.h>
+#include <vtkCellData.h>
+#include <vtkFloatArray.h>
+#include <vtkDoubleArray.h>
 #include <vtkImageData.h>
 
 #include "mdkString.h"

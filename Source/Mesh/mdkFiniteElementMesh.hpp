@@ -51,21 +51,27 @@ void FiniteElementMesh<ScalarType>::Copy(const FiniteElementMesh<ScalarType>& In
 		this->Clear();
 		return;
 	}
-	m_MeshData->ID = Input.m_MeshData->ID;
+
 	m_MeshData->Name = Input.m_MeshData->Name;
+
 	m_MeshData->NodeList = Input.m_MeshData->NodeList;
 	m_MeshData->NodeNameList = Input.m_MeshData->NodeNameList;
+
 	m_MeshData->ElementList = Input.m_MeshData->ElementList;
 	m_MeshData->ElementNameList = Input.m_MeshData->ElementNameList;
 	m_MeshData->ElementTypeList = Input.m_MeshData->ElementTypeList;
-	m_MeshData->NodeSetList = Input.m_MeshData->NodeSetList;	
-	m_MeshData->NodeSetNameList = Input.m_MeshData->NodeSetNameList;
-	m_MeshData->ElementSetList = Input.m_MeshData->ElementSetList;
-	m_MeshData->ElementSetNameList = Input.m_MeshData->ElementSetNameList;
+	
 	m_MeshData->NodeDataSetList = Input.m_MeshData->NodeDataSetList;
 	m_MeshData->NodeDataSetNameList = Input.m_MeshData->NodeDataSetNameList;
+
 	m_MeshData->ElementDataSetList = Input.m_MeshData->ElementDataSetList;
 	m_MeshData->ElementDataSetNameList = Input.m_MeshData->ElementDataSetNameList;
+
+	m_MeshData->NodeSetList = Input.m_MeshData->NodeSetList;
+	m_MeshData->NodeSetNameList = Input.m_MeshData->NodeSetNameList;
+
+	m_MeshData->ElementSetList = Input.m_MeshData->ElementSetList;
+	m_MeshData->ElementSetNameList = Input.m_MeshData->ElementSetNameList;
 }
 
 template<typename ScalarType>
@@ -81,21 +87,28 @@ void FiniteElementMesh<ScalarType>::Copy(FiniteElementMesh<ScalarType>&& Input)
 		this->Clear();
 		return;
 	}
-	m_MeshData->ID = Input.m_MeshData->ID;
+
 	m_MeshData->Name = std::move(Input.m_MeshData->Name);
-	m_MeshData->NodeList = std:move(Input.m_MeshData->NodeList);
+
+	m_MeshData->NodeList = std::move(Input.m_MeshData->NodeList);
 	m_MeshData->NodeNameList = std::move(Input.m_MeshData->NodeNameList);
+
 	m_MeshData->ElementList = std::move(Input.m_MeshData->ElementList);
 	m_MeshData->ElementNameList = std::move(Input.m_MeshData->ElementNameList);
-	m_MeshData->ElementTypeList = std::move(Input.m_MeshData->ElementTypeList);
-	m_MeshData->NodeSetList = std::move(Input.m_MeshData->NodeSetList);
-	m_MeshData->NodeSetNameList = std::move(Input.m_MeshData->NodeSetNameList);
-	m_MeshData->ElementSetList = std::move(Input.m_MeshData->ElementSetList);
-	m_MeshData->ElementSetNameList = std::move(Input.m_MeshData->ElementSetNameList);
+	m_MeshData->ElementTypeList = std::move(Input.m_MeshData->ElementTypeList);	
+
 	m_MeshData->NodeDataSetList = std::move(Input.m_MeshData->NodeDataSetList);
 	m_MeshData->NodeDataSetNameList = std::move(Input.m_MeshData->NodeDataSetNameList);
+
 	m_MeshData->ElementDataSetList = std::move(Input.m_MeshData->ElementDataSetList);
 	m_MeshData->ElementDataSetNameList = std::move(Input.m_MeshData->ElementDataSetNameList);
+
+	m_MeshData->NodeSetList = std::move(Input.m_MeshData->NodeSetList);
+	m_MeshData->NodeSetNameList = std::move(Input.m_MeshData->NodeSetNameList);
+
+	m_MeshData->ElementSetList = std::move(Input.m_MeshData->ElementSetList);
+	m_MeshData->ElementSetNameList = std::move(Input.m_MeshData->ElementSetNameList);
+
 	Input.Clear();
 }
 
@@ -122,21 +135,20 @@ void FiniteElementMesh<ScalarType>::Clear()
 {
 	if (m_MeshData)
 	{
-		m_MeshData->ID = -1;
 		m_MeshData->Name.Clear();
 		m_MeshData->NodeList.Clear();
 		m_MeshData->NodeNameList.Clear();
 		m_MeshData->ElementList.Clear();
 		m_MeshData->ElementNameList.Clear();
-		m_MeshData->ElementTypeList.Clear();
-		m_MeshData->NodeSetList.Clear();
-		m_MeshData->NodeSetNameList.Clear();
-		m_MeshData->ElementSetList.Clear();
-		m_MeshData->ElementSetNameList.Clear();
+		m_MeshData->ElementTypeList.Clear();		
 		m_MeshData->NodeDataSetList.Clear();
 		m_MeshData->NodeDataSetNameList.Clear();
 		m_MeshData->ElementDataSetList.Clear();
 		m_MeshData->ElementDataSetNameList.Clear();
+		m_MeshData->NodeSetList.Clear();
+		m_MeshData->NodeSetNameList.Clear();
+		m_MeshData->ElementSetList.Clear();
+		m_MeshData->ElementSetNameList.Clear();
 	}
 }
 
@@ -166,31 +178,6 @@ void FiniteElementMesh<ScalarType>::SetCapacity(int_max NodeCount, int_max Eleme
 	m_MeshData->ElementList.SetCapacity(ElementCount);
 	m_MeshData->ElementNameList.SetCapacity(ElementCount);
 	m_MeshData->ElementTypeList.SetCapacity(ElementCount);
-	m_MeshData->NodeDataSetList.SetCapacity(NodeCount);
-	m_MeshData->NodeDataSetNameList.SetCapacity(NodeCount);
-	m_MeshData->ElementDataSetList.SetCapacity(ElementCount);
-	m_MeshData->ElementDataSetNameList.SetCapacity(ElementCount);
-}
-
-
-template<typename ScalarType>
-void FiniteElementMesh<ScalarType>::SetCapacity(int_max NodeCount, int_max ElementCount, int_max NodeSetCount, int_max ElementSetCount)
-{
-	if (!m_MeshData)
-	{
-		m_MeshData = std::make_shared<Data_Of_FiniteElementMesh<ScalarType>>();
-	}
-	m_MeshData->NodeList.SetCapacity(3, NodeCount);
-	m_MeshData->NodeNameList.SetCapacity(NodeCount);
-	m_MeshData->ElementList.SetCapacity(ElementCount);
-	m_MeshData->ElementNameList.SetCapacity(ElementCount);
-	m_MeshData->ElementTypeList.SetCapacity(ElementCount);
-
-	m_MeshData->NodeSetList.SetCapacity(NodeSetCount);
-	m_MeshData->NodeSetNameList.SetCapacity(NodeSetCount);
-	m_MeshData->ElementSetList.SetCapacity(ElementSetCount);
-	m_MeshData->ElementSetNameList.SetCapacity(ElementSetCount);
-
 	m_MeshData->NodeDataSetList.SetCapacity(NodeCount);
 	m_MeshData->NodeDataSetNameList.SetCapacity(NodeCount);
 	m_MeshData->ElementDataSetList.SetCapacity(ElementCount);
@@ -542,23 +529,9 @@ void FiniteElementMesh<ScalarType>::SetElementSet(int_max ElementSetIndex, const
 
 
 template<typename ScalarType>
-void FiniteElementMesh<ScalarType>::ChangeNodeSetName(const String& NodeSetName_old, const String& NodeSetName_new)
-{
-	this->SetNodeSetName(this->GetNodeSetIndex(NodeSetName_old), NodeSetName_new);
-}
-
-
-template<typename ScalarType>
 void FiniteElementMesh<ScalarType>::SetNodeSetName(int_max NodeSetIndex, const String& NodeSetName)
 {
 	m_MeshData->NodeSetNameList[NodeSetIndex] = NodeSetName;
-}
-
-
-template<typename ScalarType>
-void FiniteElementMesh<ScalarType>::ChangeElementSetName(const String& ElementSetName_old, const String& ElementSetName_new)
-{
-	this->SetElementSetName(this->GetElementSetIndex(ElementSetName_old), ElementSetName_new);
 }
 
 
@@ -784,21 +757,21 @@ bool FiniteElementMesh<ScalarType>::IsSolidElement(int_max ElementIndex) const
 }
 
 template<typename ScalarType>
-int_max FiniteElementMesh<ScalarType>::InitializeNodeDataSet(const String& Name)
+int_max FiniteElementMesh<ScalarType>::InitializeNodeDataSet(const String& Name, int_max ScalarCountPerNode)
 {
 	auto Index = this->GetNodeDataSetIndex(Name);
 	if (Index < 0)
 	{
 		m_MeshData->NodeDataSetNameList.Append(Name);
-		DenseVector<DenseVector<ScalarType>> DataSet;
-		DataSet.Resize(this->GetNodeCount());
+		DenseMatrix<ScalarType> DataSet;
+		DataSet.Resize(ScalarCountPerNode, this->GetNodeCount());
 		m_MeshData->NodeDataSetList.Append(DataSet);
 		Index = m_MeshData->NodeDataSetList.GetLength() - 1;
 	}
 	else
 	{
 		m_MeshData->NodeDataSetList[Index].Clear();
-		m_MeshData->NodeDataSetList[Index].Resize(this->GetNodeCount());
+		m_MeshData->NodeDataSetList[Index].Resize(ScalarCountPerNode, this->GetNodeCount());
 	}
 	return Index;
 }
@@ -829,16 +802,16 @@ String FiniteElementMesh<ScalarType>::GetNodeDataSetName(int_max DataSetIndex) c
 }
 
 template<typename ScalarType>
-void FiniteElementMesh<ScalarType>::SetNodeDataSet(const String& Name, DenseVector<DenseVector<ScalarType>> DataSet)
+void FiniteElementMesh<ScalarType>::SetNodeDataSet(const String& Name, DenseMatrix<ScalarType> DataSet)
 {
-	auto Index = this->GetNodeDataSetIndex(Name);
+	auto Index = this->InitializeNodeDataSet(Name, DataSet.GetRowCount());
 	this->SetNodeDataSet(Index, std::move(DataSet));
 }
 
 template<typename ScalarType>
-void FiniteElementMesh<ScalarType>::SetNodeDataSet(int_max DataSetIndex, DenseVector<DenseVector<ScalarType>> DataSet)
+void FiniteElementMesh<ScalarType>::SetNodeDataSet(int_max DataSetIndex, DenseMatrix<ScalarType> DataSet)
 {
-	if (DataSet.GetLength() != this->GetNodeCount())
+	if (DataSet.GetColCount() != this->GetNodeCount())
 	{
 		MDK_Error("invalid DataSet @ FiniteElementMesh::SetNodeDataSet(...,...)")
 		return;
@@ -847,34 +820,34 @@ void FiniteElementMesh<ScalarType>::SetNodeDataSet(int_max DataSetIndex, DenseVe
 }
 
 template<typename ScalarType>
-DenseVector<DenseVector<ScalarType>> FiniteElementMesh<ScalarType>::GetNodeDataSet(const String& Name) const
+const DenseMatrix<ScalarType>& FiniteElementMesh<ScalarType>::GetNodeDataSet(const String& Name) const
 {
 	auto Index = this->GetNodeDataSetIndex(Name);
 	return this->GetNodeDataSet(Index);
 }
 
 template<typename ScalarType>
-DenseVector<DenseVector<ScalarType>> FiniteElementMesh<ScalarType>::GetNodeDataSet(int_max DataSetIndex) const
+const DenseMatrix<ScalarType>& FiniteElementMesh<ScalarType>::GetNodeDataSet(int_max DataSetIndex) const
 {
 	return m_MeshData->NodeDataSetList[DataSetIndex];
 }
 
 template<typename ScalarType>
-int_max FiniteElementMesh<ScalarType>::InitializeElementDataSet(const String& Name)
+int_max FiniteElementMesh<ScalarType>::InitializeElementDataSet(const String& Name, int_max ScalarCountPerElement)
 {
 	auto Index = this->GetElementDataSetIndex(Name);
 	if (Index < 0)
 	{
 		m_MeshData->ElementDataSetNameList.Append(Name);
-		DenseVector<DenseVector<ScalarType>> DataSet;
-		DataSet.Resize(this->GetNodeCount());
+		DenseMatrix<ScalarType> DataSet;
+		DataSet.Resize(ScalarCountPerElement, this->GetNodeCount());
 		m_MeshData->ElementDataSetList.Append(DataSet);
 		Index = m_MeshData->ElementDataSetList.GetLength() - 1;
 	}
 	else
 	{
 		m_MeshData->ElementDataSetList[Index].Clear();
-		m_MeshData->ElementDataSetList[Index].Resize(this->GetNodeCount());
+		m_MeshData->ElementDataSetList[Index].Resize(ScalarCountPerElement, this->GetNodeCount());
 	}
 	return Index;
 }
@@ -905,16 +878,16 @@ String FiniteElementMesh<ScalarType>::GetElementDataSetName(int_max DataSetIndex
 }
 
 template<typename ScalarType>
-void FiniteElementMesh<ScalarType>::SetElementDataSet(const String& Name, DenseVector<DenseVector<ScalarType>> DataSet)
+void FiniteElementMesh<ScalarType>::SetElementDataSet(const String& Name, DenseMatrix<ScalarType> DataSet)
 {
-	auto Index = this->GetElementDataSetIndex(Name);
+	auto Index = this->InitializeElementDataSet(Name, DataSet.GetRowCount());
 	this->SetElementDataSet(Index, std::move(DataSet));
 }
 
 template<typename ScalarType>
-void FiniteElementMesh<ScalarType>::SetElementDataSet(int_max DataSetIndex, DenseVector<DenseVector<ScalarType>> DataSet)
+void FiniteElementMesh<ScalarType>::SetElementDataSet(int_max DataSetIndex, DenseMatrix<ScalarType> DataSet)
 {
-	if (DataSet.GetLength() != this->GetElementCount())
+	if (DataSet.GetColCount() != this->GetElementCount())
 	{
 		MDK_Error("invalid DataSet @ FiniteElementMesh::SetElementDataSet(...,...)")
 		return;
@@ -923,14 +896,14 @@ void FiniteElementMesh<ScalarType>::SetElementDataSet(int_max DataSetIndex, Dens
 }
 
 template<typename ScalarType>
-DenseVector<DenseVector<ScalarType>> FiniteElementMesh<ScalarType>::GetElementDataSet(const String& Name) const
+const DenseMatrix<ScalarType>& FiniteElementMesh<ScalarType>::GetElementDataSet(const String& Name) const
 {
 	auto Index = this->GetElementDataSetIndex(Name);
 	return this->GetElementDataSet(Index);
 }
 
 template<typename ScalarType>
-DenseVector<DenseVector<ScalarType>> FiniteElementMesh<ScalarType>::GetElementDataSet(int_max DataSetIndex) const
+const DenseMatrix<ScalarType>& FiniteElementMesh<ScalarType>::GetElementDataSet(int_max DataSetIndex) const
 {
 	return m_MeshData->ElementDataSetList[DataSetIndex];
 }
@@ -1133,51 +1106,65 @@ FiniteElementMesh<ScalarType> FiniteElementMesh<ScalarType>::GetSubMesh(const De
 	SubMesh.m_MeshData->ElementTypeList = m_MeshData->ElementTypeList.GetSubSet(ElementIndexList);
 	SubMesh.m_MeshData->ElementNameList = m_MeshData->ElementNameList.GetSubSet(ElementIndexList);
 
-	DenseVector<int_max> PointIndexMap_Old_to_New;// old -> new
-	PointIndexMap_Old_to_New = span(0, m_MeshData->NodeList.GetColCount() - 1);
+	if (m_MeshData->ElementDataSetList.IsEmpty() == false)
+	{
+		SubMesh.m_MeshData->ElementDataSetList = m_MeshData->ElementDataSetList.GetSubSet(ElementIndexList);
+		SubMesh.m_MeshData->ElementDataSetNameList = m_MeshData->ElementDataSetNameList.GetSubSet(ElementIndexList);
+	}
 
-	DenseVector<int_max> PointIndexMap_New_to_Old;
-	PointIndexMap_New_to_Old.SetCapacity(m_MeshData->NodeList.GetColCount());
+	DenseVector<int_max> NodeIndexMap_Old_to_New;
+	NodeIndexMap_Old_to_New = span(0, m_MeshData->NodeList.GetColCount() - 1);
+
+	DenseVector<int_max> NodeIndexMap_New_to_Old;
+	NodeIndexMap_New_to_Old.SetCapacity(m_MeshData->NodeList.GetColCount());
 	
-	DenseVector<int_max> PointFlagList;
-	PointFlagList.Resize(m_MeshData->NodeList.GetColCount());
-	PointFlagList.Fill(0);//0: not used, 1: used in SubMesh
+	DenseVector<int_max> NodeFlagList;
+	NodeFlagList.Resize(m_MeshData->NodeList.GetColCount());
+	NodeFlagList.Fill(0);//0: not used, 1: used in SubMesh
 
-	int_max NewPointIndex = -1;
+	int_max NewNodeIndex = -1;
 	for (int_max k = 0; k < SubMesh.m_MeshData->ElementList.GetLength(); ++k)
 	{
-		auto& PointIndexList = SubMesh.m_MeshData->ElementList[k];
-		for (int_max n = 0; n < PointIndexList.GetLength(); ++n)
+		auto& NodeIndexList = SubMesh.m_MeshData->ElementList[k];
+		for (int_max n = 0; n < NodeIndexList.GetLength(); ++n)
 		{
-			auto PointIndex = PointIndexList[n];
-			if (PointFlagList[PointIndex] == 0)
+			auto NodeIndex = NodeIndexList[n];
+			if (NodeFlagList[NodeIndex] == 0)
 			{
-				PointFlagList[PointIndex] = 1;
-				NewPointIndex += 1;
-				PointIndexMap_Old_to_New[PointIndex] = NewPointIndex;
-				PointIndexMap_New_to_Old.Append(PointIndex);
+				NodeFlagList[NodeIndex] = 1;
+				NewNodeIndex += 1;
+				NodeIndexMap_Old_to_New[NodeIndex] = NewNodeIndex;
+				NodeIndexMap_New_to_Old.Append(NodeIndex);
 			}
 		}
 	}
 
-	SubMesh.m_MeshData->NodeList.Resize(3, PointIndexMap_New_to_Old.GetLength());
-	SubMesh.m_MeshData->NodeNameList.Resize(PointIndexMap_New_to_Old.GetLength());
-	for (int_max k = 0; k < PointIndexMap_New_to_Old.GetLength(); ++k)
+	SubMesh.m_MeshData->NodeList.Resize(3, NodeIndexMap_New_to_Old.GetLength());
+	SubMesh.m_MeshData->NodeNameList.Resize(NodeIndexMap_New_to_Old.GetLength());
+	for (int_max k = 0; k < NodeIndexMap_New_to_Old.GetLength(); ++k)
 	{
-		int_max OldPointIndex = PointIndexMap_New_to_Old[k];
-		SubMesh.m_MeshData->NodeList.SetCol(k, m_MeshData->NodeList.GetPointerOfCol(OldPointIndex));
-		SubMesh.m_MeshData->NodeNameList[k] = m_MeshData->NodeNameList[OldPointIndex];
+		int_max OldNodeIndex = NodeIndexMap_New_to_Old[k];
+		SubMesh.m_MeshData->NodeList.SetCol(k, m_MeshData->NodeList.GetPointerOfCol(OldNodeIndex));
+		SubMesh.m_MeshData->NodeNameList[k] = m_MeshData->NodeNameList[OldNodeIndex];
 	}
 
 	for (int_max k = 0; k < SubMesh.m_MeshData->ElementList.GetLength(); ++k)
 	{
 		//take reference
-		auto& PointIndexList = SubMesh.m_MeshData->ElementList[k];
-		for (int_max n = 0; n < PointIndexList.GetLength(); ++n)
+		auto& NodeIndexList = SubMesh.m_MeshData->ElementList[k];
+		for (int_max n = 0; n < NodeIndexList.GetLength(); ++n)
 		{
-			auto PointIndex = PointIndexList[n];
-			auto NewPointIndex = PointIndexMap_Old_to_New[PointIndex];
-			PointIndexList[n] = NewPointIndex;
+			NodeIndexList[n] = NodeIndexMap_Old_to_New[NodeIndexList[n]];
+		}
+	}
+
+	if (m_MeshData->NodeDataSetList.IsEmpty() == false)
+	{
+		SubMesh.m_MeshData->NodeDataSetNameList = m_MeshData->NodeDataSetNameList;
+		SubMesh.m_MeshData->NodeDataSetList.Resize(m_MeshData->NodeDataSetList.GetLength());
+		for (int_max k = 0; k < SubMesh.m_MeshData->NodeDataSetList.GetLength(); ++k)
+		{
+			SubMesh.m_MeshData->NodeDataSetList[k] = m_MeshData->NodeDataSetList[k].GetSubMatrix(ALL, NodeIndexMap_New_to_Old);
 		}
 	}
 

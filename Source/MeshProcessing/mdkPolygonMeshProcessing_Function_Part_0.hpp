@@ -14,7 +14,7 @@ DenseVector<int_max> TraceMeshBoundaryCurve(const PolygonMesh<ScalarType>& Input
 		return PointIndexListOfBoundaryCurve;
 	}
 
-	if (InputMesh.Point(PointIndex_start).IsOnBoundaryEdge() == false)
+	if (InputMesh.Point(PointIndex_start).IsOnPolygonMeshBoundary() == false)
 	{
 		MDK_Error("PointIndex_start is NOT on boundary edge @ mdkPolygonMeshProcessing TraceMeshBoundaryCurve(...)")
 		return PointIndexListOfBoundaryCurve;
@@ -26,7 +26,7 @@ DenseVector<int_max> TraceMeshBoundaryCurve(const PolygonMesh<ScalarType>& Input
 	{
 		if (InputMesh.IsValidEdgeIndex(k) == true)
 		{
-			if (InputMesh.Edge(k).IsBoundary() == true)
+			if (InputMesh.Edge(k).IsOnPolygonMeshBoundary() == true)
 			{
 				BoundaryEdgeCountOfInputMesh += 1;
 			}
@@ -49,7 +49,7 @@ DenseVector<int_max> TraceMeshBoundaryCurve(const PolygonMesh<ScalarType>& Input
     const auto& AdjacentPointIndexList_start = InputMesh.Point(PointIndex_start).GetAdjacentPointIndexList();
     for (int_max k = 0; k < AdjacentPointIndexList_start.GetLength(); ++k)
     {
-        if (InputMesh.Point(AdjacentPointIndexList_start[k]).IsOnBoundaryEdge() == true)
+        if (InputMesh.Point(AdjacentPointIndexList_start[k]).IsOnPolygonMeshBoundary() == true)
         {
             BoundaryPointIndex_current = AdjacentPointIndexList_start[k];
             break;
@@ -74,7 +74,7 @@ DenseVector<int_max> TraceMeshBoundaryCurve(const PolygonMesh<ScalarType>& Input
 
         for (int_max n = 0; n < tempAdjacentEdgeIndexList_current.GetLength(); ++n)
         {
-            if (InputMesh.Edge(tempAdjacentEdgeIndexList_current[n]).IsBoundary() == true)
+            if (InputMesh.Edge(tempAdjacentEdgeIndexList_current[n]).IsOnPolygonMeshBoundary() == true)
             {
                 auto tempPointIndexList = InputMesh.Edge(tempAdjacentEdgeIndexList_current[n]).GetPointIndexList();
                 if (tempPointIndexList[0] != BoundaryPointIndex_current && tempPointIndexList[0] != BoundaryPointIndex_prev)
@@ -135,7 +135,7 @@ ObjectArray<DenseVector<int_max>> TraceMeshBoundaryCurve(const PolygonMesh<Scala
 	{
 		if (InputMesh.IsValidPointIndex(k) == true)
 		{
-			if (InputMesh.Point(k).IsOnBoundaryEdge() == true)
+			if (InputMesh.Point(k).IsOnPolygonMeshBoundary() == true)
 			{
 				BoundaryPointIndexList.Append(k);
 			}
@@ -508,7 +508,7 @@ PolygonMesh<ScalarType> MergeMeshBoundary(const PolygonMesh<ScalarType>& InputMe
 	DenseVector<int_max> BoundaryPointIndexListA;
 	for (int_max k = 0; k < PointCountA; ++k)
 	{
-		if (OutputMesh.Point(k).IsOnBoundaryEdge() == true)
+		if (OutputMesh.Point(k).IsOnPolygonMeshBoundary() == true)
 		{
 			BoundaryPointIndexListA.Append(k);
 		}
@@ -533,7 +533,7 @@ PolygonMesh<ScalarType> MergeMeshBoundary(const PolygonMesh<ScalarType>& InputMe
 	for (int_max k = 0; k < PointCountB; ++k)
 	{
 		auto PosB = InputMeshB_clean.GetPointPosition(k);
-		if (InputMeshB_clean.Point(k).IsOnBoundaryEdge() == true)
+		if (InputMeshB_clean.Point(k).IsOnPolygonMeshBoundary() == true)
 		{			
 			auto Idx_near = FindNearestPointOnCurve(BoundaryA, PosB);
 			auto PosA = OutputMesh.GetPointPosition(BoundaryPointIndexListA[Idx_near]);

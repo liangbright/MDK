@@ -479,73 +479,102 @@ vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMes
     int_max PointCount = PointPositionTable.GetColCount();
     int_max FaceCount = FaceTable.GetLength();
 
-    auto PointData = vtkSmartPointer<vtkPoints>::New();
+	//----------------------------------------------------------
+    auto PointArray_vtk = vtkSmartPointer<vtkPoints>::New();
 
     if (ScalarTypeName == "double")
     {
-        PointData->SetDataType(VTK_DOUBLE);
-        PointData->SetNumberOfPoints(PointCount);
-       
+		PointArray_vtk->SetDataType(VTK_DOUBLE);
+		PointArray_vtk->SetNumberOfPoints(PointCount);       
         for (int i = 0; i < PointCount; ++i)
         {
 			double pos[3];
 			pos[0] = double(PointPositionTable(0, i));
 			pos[1] = double(PointPositionTable(1, i));
 			pos[2] = double(PointPositionTable(2, i));
-            PointData->SetPoint(i, pos);
+			PointArray_vtk->SetPoint(i, pos);
         }
     }
     else if (ScalarTypeName == "float")
     {
-        PointData->SetDataType(VTK_FLOAT);
-        PointData->SetNumberOfPoints(PointCount);        
-
+		PointArray_vtk->SetDataType(VTK_FLOAT);
+		PointArray_vtk->SetNumberOfPoints(PointCount);
         for (int i = 0; i < PointCount; ++i)
         {
 			float pos[3];
             pos[0] = float(PointPositionTable(0, i));
             pos[1] = float(PointPositionTable(1, i));
             pos[2] = float(PointPositionTable(2, i));
-            PointData->SetPoint(i, pos);
+			PointArray_vtk->SetPoint(i, pos);
         }
     }
     else
     {
         MDK_Warning("ScalarTypeName is not double or float @ ConvertMDKPolygonMeshToVTKPolyData(...)")
 
-        PointData->SetDataType(VTK_DOUBLE);
-        PointData->SetNumberOfPoints(PointCount);
-
+		PointArray_vtk->SetDataType(VTK_DOUBLE);
+		PointArray_vtk->SetNumberOfPoints(PointCount);
         for (int i = 0; i < PointCount; ++i)
         {
 			double pos[3];
 			pos[0] = double(PointPositionTable(0, i));
 			pos[1] = double(PointPositionTable(1, i));
 			pos[2] = double(PointPositionTable(2, i));
-            PointData->SetPoint(i, pos);
+			PointArray_vtk->SetPoint(i, pos);
         }
     }
-
-    //------------------------------------------
-
-    auto CellData = vtkSmartPointer<vtkCellArray>::New();
-
+    //-------------------------------------------------------
+    auto CellArray_vtk = vtkSmartPointer<vtkCellArray>::New();
     for (int i = 0; i < FaceCount; ++i)
     {
         auto PointCount_i = FaceTable[i].GetElementCount();
-
-		CellData->InsertNextCell(PointCount_i);
-
+		CellArray_vtk->InsertNextCell(PointCount_i);
 		for (int n = 0; n < PointCount_i; ++n)
         {
             auto PointIndex = FaceTable[i][n];
-
-            CellData->InsertCellPoint(PointIndex);
+			CellArray_vtk->InsertCellPoint(PointIndex);
         }
-    }
-    //---------------------------------------------------
-    VTKMesh->SetPoints(PointData);
-    VTKMesh->SetPolys(CellData);
+    }    
+	//-----------------------------------------------------
+    VTKMesh->SetPoints(PointArray_vtk);
+    VTKMesh->SetPolys(CellArray_vtk);
+	//-----------------------------------------------------
+	for (int_max k = 0; k < MDKMesh.GetPointDataSetCount(); ++k)
+	{
+		auto DataSet = MDKMesh.GetPointDataSet(k);
+		auto Name = MDKMesh.GetPointDataSetName(k);
+		auto DataArray_vtk = vtkSmartPointer<vtkDoubleArray>::New();
+		DataArray_vtk->SetNumberOfComponents(DataSet.GetRowCount());//SetNumberOfComponents before SetNumberOfTuples
+		DataArray_vtk->SetNumberOfTuples(DataSet.GetColCount());		
+		DataArray_vtk->SetName(Name.StdString().c_str());
+		for (int j = 0; j < DataSet.GetColCount(); ++j)
+		{
+			for (int i = 0; i < DataSet.GetRowCount(); ++i)
+			{
+				DataArray_vtk->SetComponent(j, i, double(DataSet(i, j)));
+			}
+		}
+		VTKMesh->GetPointData()->AddArray(DataArray_vtk);
+	}
+	//-----------------------------------------------------
+	for (int_max k = 0; k < MDKMesh.GetFaceDataSetCount(); ++k)
+	{
+		auto DataSet = MDKMesh.GetFaceDataSet(k);
+		auto Name = MDKMesh.GetFaceDataSetName(k);
+		auto DataArray_vtk = vtkSmartPointer<vtkDoubleArray>::New();
+		DataArray_vtk->SetNumberOfComponents(DataSet.GetRowCount());//SetNumberOfComponents before SetNumberOfTuples
+		DataArray_vtk->SetNumberOfTuples(DataSet.GetColCount());
+		DataArray_vtk->SetName(Name.StdString().c_str());
+		for (int j = 0; j < DataSet.GetColCount(); ++j)
+		{
+			for (int i = 0; i < DataSet.GetRowCount(); ++i)
+			{
+				DataArray_vtk->SetComponent(j, i, double(DataSet(i, j)));
+			}
+		}
+		VTKMesh->GetCellData()->AddArray(DataArray_vtk);
+	}
+	//-----------------------------------------------------
     return VTKMesh;
 }
 
@@ -559,41 +588,72 @@ bool ConvertVTKPolyDataToMDKPolygonMesh(vtkPolyData* VTKMesh, PolygonMesh<Scalar
 		MDK_Error("VTKMesh is nullptr @ ConvertVTKPolyDataToMDKPolygonMesh(...)")
 		return false;
 	}
-	    
+	//---------------------------------------------------------    
 	auto PointCount = int_max(VTKMesh->GetNumberOfPoints());
-
     if (PointCount == 0)
     {
 		MDKMesh.Clear();
         return true;
     }
 
-    DenseMatrix<ScalarType> PointData(3, PointCount);
-
+    DenseMatrix<ScalarType> PointMatrix(3, PointCount);
     for (int_max k = 0; k < PointCount; ++k)
     {
         double pos[3];
 		VTKMesh->GetPoint(k, pos);
-        PointData.SetCol(k, pos);
+		PointMatrix.SetCol(k, pos);
     }
-
+	//---------------------------------------------------------
 	auto CellCount = int_max(VTKMesh->GetNumberOfCells());
 
-	ObjectArray<DenseVector<int_max>> FaceData;
-    FaceData.FastResize(CellCount);
-
+	ObjectArray<DenseVector<int_max>> FaceTable;
+	FaceTable.FastResize(CellCount);
     for (int_max k = 0; k < CellCount; ++k)
     {
 		auto Cell = VTKMesh->GetCell(k);
         auto PointCount_k = int_max(Cell->GetNumberOfPoints());
 		for (int_max n = 0; n < PointCount_k; ++n)
         {
-            FaceData[k].Append(int_max(Cell->GetPointId(n)));
+			FaceTable[k].Append(int_max(Cell->GetPointId(n)));
         }
     }
-
-	MDKMesh.Construct(std::move(PointData), FaceData);
-
+	//---------------------------------------------------------
+	MDKMesh.Construct(std::move(PointMatrix), FaceTable);
+	//---------------------------------------------------------
+	auto PointDataSetCount = VTKMesh->GetPointData()->GetNumberOfArrays();
+	for (int k = 0; k < PointDataSetCount; ++k)
+	{
+		auto DataArray_vtk = VTKMesh->GetPointData()->GetArray(k);
+		String Name = DataArray_vtk->GetName();
+		DenseMatrix<ScalarType> DataSet;
+		DataSet.Resize(DataArray_vtk->GetNumberOfComponents(), DataArray_vtk->GetNumberOfTuples());
+		for (int j = 0; j < DataSet.GetColCount(); ++j)
+		{
+			for (int i = 0; i < DataSet.GetRowCount(); ++i)
+			{
+				DataSet(i, j) = DataArray_vtk->GetComponent(j, i);
+			}
+		}
+		MDKMesh.SetPointDataSet(Name, DataSet);
+	}
+	//---------------------------------------------------------
+	auto FaceDataSetCount = VTKMesh->GetCellData()->GetNumberOfArrays();
+	for (int k = 0; k < FaceDataSetCount; ++k)
+	{
+		auto DataArray_vtk = VTKMesh->GetCellData()->GetArray(k);
+		String Name = DataArray_vtk->GetName();
+		DenseMatrix<ScalarType> DataSet;
+		DataSet.Resize(DataArray_vtk->GetNumberOfComponents(), DataArray_vtk->GetNumberOfTuples());
+		for (int j = 0; j < DataSet.GetColCount(); ++j)
+		{
+			for (int i = 0; i < DataSet.GetRowCount(); ++i)
+			{
+				DataSet(i, j) = DataArray_vtk->GetComponent(j, i);
+			}
+		}
+		MDKMesh.SetFaceDataSet(Name, DataSet);
+	}
+	//---------------------------------------------------------
     return true;
 }
 
@@ -601,14 +661,92 @@ bool ConvertVTKPolyDataToMDKPolygonMesh(vtkPolyData* VTKMesh, PolygonMesh<Scalar
 template<typename ScalarType>
 vtkSmartPointer<vtkUnstructuredGrid> ConvertMDKPolyhedronMeshToVTKUnstructuredGrid(const PolyhedronMesh<ScalarType>& MDKMesh)
 {
-	return ConvertMDKMeshToVTKUnstructuredGrid(MDKMesh);
+	auto VTKMesh = ConvertMDKMeshToVTKUnstructuredGrid(MDKMesh);	
+	//-----------------------------------------------------
+	for (int_max k = 0; k < MDKMesh.GetPointDataSetCount(); ++k)
+	{
+		auto DataSet = MDKMesh.GetPointDataSet(k);
+		auto Name = MDKMesh.GetPointDataSetName(k);
+		auto DataArray_vtk = vtkSmartPointer<vtkDoubleArray>::New();
+		DataArray_vtk->SetNumberOfComponents(DataSet.GetRowCount());//SetNumberOfComponents before SetNumberOfTuples
+		DataArray_vtk->SetNumberOfTuples(DataSet.GetColCount());
+		DataArray_vtk->SetName(Name.StdString().c_str());
+		for (int j = 0; j < DataSet.GetColCount(); ++j)
+		{
+			for (int i = 0; i < DataSet.GetRowCount(); ++i)
+			{
+				DataArray_vtk->SetComponent(j, i, double(DataSet(i, j)));
+			}
+		}
+		VTKMesh->GetPointData()->AddArray(DataArray_vtk);
+	}
+	//-----------------------------------------------------
+	for (int_max k = 0; k < MDKMesh.GetCellDataSetCount(); ++k)
+	{
+		auto DataSet = MDKMesh.GetCellDataSet(k);
+		auto Name = MDKMesh.GetCellDataSetName(k);
+		auto DataArray_vtk = vtkSmartPointer<vtkDoubleArray>::New();
+		DataArray_vtk->SetNumberOfComponents(DataSet.GetRowCount());//SetNumberOfComponents before SetNumberOfTuples
+		DataArray_vtk->SetNumberOfTuples(DataSet.GetColCount());
+		DataArray_vtk->SetName(Name.StdString().c_str());
+		for (int j = 0; j < DataSet.GetColCount(); ++j)
+		{
+			for (int i = 0; i < DataSet.GetRowCount(); ++i)
+			{
+				DataArray_vtk->SetComponent(j, i, double(DataSet(i, j)));
+			}
+		}
+		VTKMesh->GetCellData()->AddArray(DataArray_vtk);
+	}
+	//-----------------------------------------------------
+	return VTKMesh;
 }
 
 //--------------------------------------- convert vtkUnstructuredGrid to mdk PolyhedronMesh ------------------------------------------------//
 template<typename ScalarType>
 bool ConvertVTKUnstructuredGridToMDKPolyhedronMesh(vtkUnstructuredGrid* VTKMesh, PolyhedronMesh<ScalarType>& MDKMesh)
 {
-	return ConvertVTKUnstructuredGridToMDKMesh(VTKMesh, MDKMesh);
+	auto Flag = ConvertVTKUnstructuredGridToMDKMesh(VTKMesh, MDKMesh);
+	if (Flag == false)
+	{
+		return false;
+	}
+	//---------------------------------------------------------
+	auto PointDataSetCount = VTKMesh->GetPointData()->GetNumberOfArrays();
+	for (int k = 0; k < PointDataSetCount; ++k)
+	{
+		auto DataArray_vtk = VTKMesh->GetPointData()->GetArray(k);
+		String Name = DataArray_vtk->GetName();
+		DenseMatrix<ScalarType> DataSet;
+		DataSet.Resize(DataArray_vtk->GetNumberOfComponents(), DataArray_vtk->GetNumberOfTuples());
+		for (int j = 0; j < DataSet.GetColCount(); ++j)
+		{
+			for (int i = 0; i < DataSet.GetRowCount(); ++i)
+			{
+				DataSet(i, j) = DataArray_vtk->GetComponent(j, i);
+			}
+		}
+		MDKMesh.SetPointDataSet(Name, DataSet);
+	}
+	//---------------------------------------------------------
+	auto CellDataSetCount = VTKMesh->GetCellData()->GetNumberOfArrays();
+	for (int k = 0; k < CellDataSetCount; ++k)
+	{
+		auto DataArray_vtk = VTKMesh->GetCellData()->GetArray(k);
+		String Name = DataArray_vtk->GetName();
+		DenseMatrix<ScalarType> DataSet;
+		DataSet.Resize(DataArray_vtk->GetNumberOfComponents(), DataArray_vtk->GetNumberOfTuples());
+		for (int j = 0; j < DataSet.GetColCount(); ++j)
+		{
+			for (int i = 0; i < DataSet.GetRowCount(); ++i)
+			{
+				DataSet(i, j) = DataArray_vtk->GetComponent(j, i);
+			}
+		}
+		MDKMesh.SetCellDataSet(Name, DataSet);
+	}
+	//---------------------------------------------------------
+	return true;
 }
 
 //--------------------------------------- convert mdk Mesh to vtkUnstructuredGrid ------------------------------------------------//
@@ -636,13 +774,12 @@ vtkSmartPointer<vtkUnstructuredGrid> ConvertMDKMeshToVTKUnstructuredGrid(const M
 	auto FaceCount = MDKMesh.GetFaceCount();
 	auto CellCount_mdk = MDKMesh.GetCellCount();
 
-	auto PointData = vtkSmartPointer<vtkPoints>::New();
+	auto PointArray_vtk = vtkSmartPointer<vtkPoints>::New();
 
 	if (ScalarTypeName == "double")
 	{
-		PointData->SetDataType(VTK_DOUBLE);
-		PointData->SetNumberOfPoints(PointCount);
-
+		PointArray_vtk->SetDataType(VTK_DOUBLE);
+		PointArray_vtk->SetNumberOfPoints(PointCount);
 		for (int i = 0; i < PointCount; ++i)
 		{
 			auto Position = MDKMesh.GetPointPosition(i);
@@ -650,14 +787,13 @@ vtkSmartPointer<vtkUnstructuredGrid> ConvertMDKMeshToVTKUnstructuredGrid(const M
 			pos[0] = double(Position(0));
 			pos[1] = double(Position(1));
 			pos[2] = double(Position(2));
-			PointData->SetPoint(i, pos);
+			PointArray_vtk->SetPoint(i, pos);
 		}
 	}
 	else if (ScalarTypeName == "float")
 	{
-		PointData->SetDataType(VTK_FLOAT);
-		PointData->SetNumberOfPoints(PointCount);
-
+		PointArray_vtk->SetDataType(VTK_FLOAT);
+		PointArray_vtk->SetNumberOfPoints(PointCount);
 		for (int i = 0; i < PointCount; ++i)
 		{
 			auto Position = MDKMesh.GetPointPosition(i);
@@ -665,16 +801,15 @@ vtkSmartPointer<vtkUnstructuredGrid> ConvertMDKMeshToVTKUnstructuredGrid(const M
 			pos[0] = float(Position(0));
 			pos[1] = float(Position(1));
 			pos[2] = float(Position(2));
-			PointData->SetPoint(i, pos);
+			PointArray_vtk->SetPoint(i, pos);
 		}
 	}
 	else
 	{
 		MDK_Warning("ScalarTypeName is not double or float @ ConvertMDKPolyhedronMeshToVTKUnstructuredGrid(...)")
 
-		PointData->SetDataType(VTK_DOUBLE);
-		PointData->SetNumberOfPoints(PointCount);
-
+		PointArray_vtk->SetDataType(VTK_DOUBLE);
+		PointArray_vtk->SetNumberOfPoints(PointCount);
 		for (int i = 0; i < PointCount; ++i)
 		{
 			auto Position = MDKMesh.GetPointPosition(i);
@@ -682,13 +817,13 @@ vtkSmartPointer<vtkUnstructuredGrid> ConvertMDKMeshToVTKUnstructuredGrid(const M
 			pos[0] = double(Position(0));
 			pos[1] = double(Position(1));
 			pos[2] = double(Position(2));
-			PointData->SetPoint(i, pos);
+			PointArray_vtk->SetPoint(i, pos);
 		}
 	}
 
 	//------------------------------------------
 
-	auto CellData = vtkSmartPointer<vtkCellArray>::New();
+	auto CellArray_vtk = vtkSmartPointer<vtkCellArray>::New();
 
 	DenseVector<int> CellTypeList;
 
@@ -704,11 +839,11 @@ vtkSmartPointer<vtkUnstructuredGrid> ConvertMDKMeshToVTKUnstructuredGrid(const M
 			Element = { Element[3], Element[4], Element[5], Element[0], Element[1], Element[2] };
 		}
 
-		CellData->InsertNextCell(PointCountInCell);
+		CellArray_vtk->InsertNextCell(PointCountInCell);
 		for (int n = 0; n < PointCountInCell; ++n)
 		{
 			auto PointIndex = Element[n];
-			CellData->InsertCellPoint(PointIndex);
+			CellArray_vtk->InsertCellPoint(PointIndex);
 		}
 		
 		switch (MeshCellType)
@@ -736,11 +871,11 @@ vtkSmartPointer<vtkUnstructuredGrid> ConvertMDKMeshToVTKUnstructuredGrid(const M
 			auto Element = MDKMesh.Face(k).GetPointIndexList();
 			auto PointCountInCell = Element.GetLength();
 
-			CellData->InsertNextCell(PointCountInCell);
+			CellArray_vtk->InsertNextCell(PointCountInCell);
 			for (int n = 0; n < PointCountInCell; ++n)
 			{
 				auto PointIndex = Element[n];
-				CellData->InsertCellPoint(PointIndex);
+				CellArray_vtk->InsertCellPoint(PointIndex);
 			}
 
 			if (PointCountInCell == 3)
@@ -764,20 +899,22 @@ vtkSmartPointer<vtkUnstructuredGrid> ConvertMDKMeshToVTKUnstructuredGrid(const M
 		{
 			auto Element = MDKMesh.Edge(k).GetPointIndexList();
 			auto PointCountInCell = Element.GetLength();
-			CellData->InsertNextCell(PointCountInCell);
+			CellArray_vtk->InsertNextCell(PointCountInCell);
 			for (int n = 0; n < PointCountInCell; ++n)
 			{
 				auto PointIndex = Element[n];
-				CellData->InsertCellPoint(PointIndex);
+				CellArray_vtk->InsertCellPoint(PointIndex);
 			}
 			CellTypeList.Append(VTKCellType::VTK_LINE);
 		}
 	}
 
 	//---------------------------------------------------
-	VTKMesh->SetPoints(PointData);
-	VTKMesh->SetCells(CellTypeList.GetPointer(), CellData);
-
+	VTKMesh->SetPoints(PointArray_vtk);
+	VTKMesh->SetCells(CellTypeList.GetPointer(), CellArray_vtk);
+	//---------------------------------------------------
+	//PointData, CellData NOT added
+	//---------------------------------------------------
 	return VTKMesh;
 }
 

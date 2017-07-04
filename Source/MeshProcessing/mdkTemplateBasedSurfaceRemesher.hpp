@@ -346,7 +346,7 @@ bool TemplateBasedSurfaceRemesher<ScalarType>::CheckBoundaryConstraint()
 	auto PointCount_source = Input.SourceMesh->GetPointCount();
 	for (int_max k = 0; k < PointCount_source; ++k)
 	{
-		if (Input.SourceMesh->Point(k).IsOnBoundaryEdge() == true)
+		if (Input.SourceMesh->Point(k).IsOnPolygonMeshBoundary() == true)
 		{
 			auto tempIndex = Internal.BoundaryPointIndexListOfSourceMesh.ExactMatch("first", k);
 			if (tempIndex < 0)
