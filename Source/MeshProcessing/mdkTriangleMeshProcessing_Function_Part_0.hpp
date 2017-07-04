@@ -44,12 +44,12 @@ void ConvertPolygonMeshToTriangleMesh(const PolygonMesh<ScalarType>& InputMesh, 
 	//----------------------------------------------------------
 	auto PointSetCount = InputMesh.GetPointSetCount();
 	if (PointSetCount > 0)
-	{		
-		auto PointSetNameList = InputMesh.GetPointSetName(ALL);
+	{
 		for (int_max PointSetIndex = 0; PointSetIndex < PointSetCount; ++PointSetIndex)
 		{
 			auto PointSet = InputMesh.GetPointSet(PointSetIndex);
-			OutputMesh.SetPointSet(PointSetNameList[PointSetIndex], PointSet);
+			auto Name = InputMesh.GetPointSetName(PointSetIndex);
+			OutputMesh.SetPointSet(Name, PointSet);
 		}
 	}
 }

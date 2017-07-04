@@ -111,7 +111,7 @@ template<typename ScalarType>
 struct StandardAttribute_Of_Cell_Of_Mesh
 {
 	ScalarType Volume;
-	DenseVector<ScalarType> SignOfFaceNormal; //SignOfFaceNormal[k]=1 then face normal is outward
+	DenseVector<ScalarType> SignOfFaceNormal; //SignOfFaceNormal[k]=1 then normal of face-k is outward
 	//---------------------------------------
 	StandardAttribute_Of_Cell_Of_Mesh() { this->Clear(); }
 	StandardAttribute_Of_Cell_Of_Mesh(const StandardAttribute_Of_Cell_Of_Mesh& InputAttribute) { (*this) = InputAttribute; }
