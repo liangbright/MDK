@@ -48,28 +48,36 @@ struct MeshData
 	std::unordered_map<String, int_max, StringHash<String>> Map_Face_Name_to_Index;
 	std::unordered_map<String, int_max, StringHash<String>> Map_Cell_Name_to_Index;
 
-	StdObjectVector<DenseMatrix<ScalarType>> PointDataSet;	//PointDataSet[DataSetIndex](:, PointIndex) 
+	StdObjectVector<DenseMatrix<ScalarType>> PointDataSet;	//PointDataSet[SetIndex](:, PointIndex) 
+	StdObjectVector<String> PointDataSetName;//PointDataSetName[SetIndex]
 	std::unordered_map<String, int_max, StringHash<String>> Map_PointDataSet_Name_to_Index;
 
-	StdObjectVector<DenseMatrix<ScalarType>> EdgeDataSet; //EdgeDataSet[DataSetIndex](:, EdgeIndex)
+	StdObjectVector<DenseMatrix<ScalarType>> EdgeDataSet; //EdgeDataSet[SetIndex](:, EdgeIndex)
+	StdObjectVector<String> EdgeDataSetName;//EdgeDataSetName[SetIndex]
 	std::unordered_map<String, int_max, StringHash<String>> Map_EdgeDataSet_Name_to_Index;
 	
-	StdObjectVector<DenseMatrix<ScalarType>> FaceDataSet; //FaceDataSet[DataSetIndex](:, FaceIndex)
+	StdObjectVector<DenseMatrix<ScalarType>> FaceDataSet; //FaceDataSet[SetIndex](:, FaceIndex)
+	StdObjectVector<String> FaceDataSetName;//FaceDataSetName[SetIndex]
 	std::unordered_map<String, int_max, StringHash<String>> Map_FaceDataSet_Name_to_Index;
 
-	StdObjectVector<DenseMatrix<ScalarType>> CellDataSet; //CellDataSet[DataSetIndex](:, CellIndex)
+	StdObjectVector<DenseMatrix<ScalarType>> CellDataSet; //CellDataSet[SetIndex](:, CellIndex)
+	StdObjectVector<String> CellDataSetName;//CellDataSetName[SetIndex]
 	std::unordered_map<String, int_max, StringHash<String>> Map_CellDataSet_Name_to_Index;
 
-	StdObjectVector<DenseVector<int_max>>  PointSetList;// PointSetList[k] is a set of PointIndex
+	StdObjectVector<DenseVector<int_max>> PointSet;//PointSet[SetIndex] is a set of PointIndex
+	StdObjectVector<String> PointSetName;//PointSetName[SetIndex]
 	std::unordered_map<String, int_max, StringHash<String>> Map_PointSet_Name_to_Index;
 
-	StdObjectVector<DenseVector<int_max>>  EdgeSetList;// EdgeSetList[k] is a set of EdgeIndex
+	StdObjectVector<DenseVector<int_max>> EdgeSet;//EdgeSet[SetIndex] is a set of EdgeIndex
+	StdObjectVector<String> EdgeSetName;//EdgeSetName[SetIndex]
 	std::unordered_map<String, int_max, StringHash<String>> Map_EdgeSet_Name_to_Index;
 
-	StdObjectVector<DenseVector<int_max>>  FaceSetList; // FaceSetList[k] is a set of FaceIndex
+	StdObjectVector<DenseVector<int_max>> FaceSet;//FaceSet[SetIndex] is a set of FaceIndex
+	StdObjectVector<String> FaceSetName;//FaceSetName[SetIndex]
 	std::unordered_map<String, int_max, StringHash<String>> Map_FaceSet_Name_to_Index;
 
-	StdObjectVector<DenseVector<int_max>>  CellSetList; // CellSetList[k] is a set of CellIndex
+	StdObjectVector<DenseVector<int_max>> CellSet;//CellSet[SetIndex] is a set of CellIndex
+	StdObjectVector<String> CellSetName;//CellSetName[SetIndex]
 	std::unordered_map<String, int_max, StringHash<String>> Map_CellSet_Name_to_Index;
 
 	StandardAttribute_Of_Mesh<ScalarType> Attribute;
@@ -263,18 +271,18 @@ public:
 	inline bool IsValidCellName(const String& CellName) const;
 
 	//--------- get Valid NameList ------------------------------------------------------------//
-	ObjectArray<String> GetValidPointNameList() const;
-	ObjectArray<String> GetValidEdgeNameList() const;	
-	ObjectArray<String> GetValidFaceNameList() const;
-	ObjectArray<String> GetValidCellNameList() const;
+	StdObjectVector<String> GetValidPointNameList() const;
+	StdObjectVector<String> GetValidEdgeNameList() const;
+	StdObjectVector<String> GetValidFaceNameList() const;
+	StdObjectVector<String> GetValidCellNameList() const;
 
 	//----------- get Point/Edge/Face Name by Index -----------------------------------------------------------//
 	inline String GetPointName(int_max PointIndex) const;
-	inline ObjectArray<String> GetPointName(const DenseVector<int_max>& PointIndexList) const;
+	inline StdObjectVector<String> GetPointName(const DenseVector<int_max>& PointIndexList) const;
 	inline String GetEdgeName(int_max EdgeIndex) const;
-	inline ObjectArray<String> GetEdgeName(const DenseVector<int_max>& EdgeIndexList) const;	
+	inline StdObjectVector<String> GetEdgeName(const DenseVector<int_max>& EdgeIndexList) const;
 	inline String GetFaceName(int_max FaceIndex) const;
-	inline ObjectArray<String> GetFaceName(const DenseVector<int_max>& FaceIndexList) const;	
+	inline StdObjectVector<String> GetFaceName(const DenseVector<int_max>& FaceIndexList) const;
 
 	//----------- PointDataSet, EdgeDataSet, FaceDataset, CellDataSet ----------------------------------//		
 	// PointDataSet/EdgeDataSet/FaceDataset/CellDataSet will NOT be updated if new Point/Edge/Face is added, or old is deleted
@@ -323,40 +331,32 @@ public:
 	// PointSet/EdgeSet/FaceSet/CellSet will NOT be updated if new Point/Edge/Face is added, or old is deleted
 	// They will only be updated in CleanDataStructure
 	int_max GetPointSetCount() const;
-	int_max SetPointSet(const String& PointSetName, DenseVector<int_max> PointSet);
-	int_max GetPointSetIndex(const String& PointSetName) const;
-	String GetPointSetName(int_max PointSetIndex) const;
-	DenseVector<int_max> GetPointSet(int_max PointSetIndex) const;
-	DenseVector<int_max> GetPointSet(const String& PointSetName) const;
-	ObjectArray<String> GetPointSetName(MDK_Symbol_ALL&) const;
-	ObjectArray<DenseVector<int_max>> GetPointSet(MDK_Symbol_ALL&) const;
+	int_max SetPointSet(const String& Name, DenseVector<int_max> PointIndexList);
+	int_max GetPointSetIndex(const String& Name) const;
+	String GetPointSetName(int_max Index) const;
+	DenseVector<int_max> GetPointSet(int_max Index) const;
+	DenseVector<int_max> GetPointSet(const String& Name) const;
 
 	int_max GetEdgeSetCount() const;
-	int_max SetEdgeSet(const String& EdgeSetName, DenseVector<int_max> EdgeSet);
-	int_max GetEdgeSetIndex(const String& EdgeSetName) const;
-	String GetEdgeSetName(int_max EdgeSetIndex) const;
-	DenseVector<int_max> GetEdgeSet(int_max EdgeSetIndex) const;
-	DenseVector<int_max> GetEdgeSet(const String& EdgeSetName) const;
-	ObjectArray<String> GetEdgeSetName(MDK_Symbol_ALL&) const;
-	ObjectArray<DenseVector<int_max>> GetEdgeSet(MDK_Symbol_ALL&) const;
+	int_max SetEdgeSet(const String& Name, DenseVector<int_max> EdgeIndexList);
+	int_max GetEdgeSetIndex(const String& Name) const;
+	String GetEdgeSetName(int_max Index) const;
+	DenseVector<int_max> GetEdgeSet(int_max Index) const;
+	DenseVector<int_max> GetEdgeSet(const String& Name) const;
 
 	int_max GetFaceSetCount() const;
-	int_max SetFaceSet(const String& FaceSetName, DenseVector<int_max> FaceSet);
-	int_max GetFaceSetIndex(const String& FaceSetName) const;
-	String GetFaceSetName(int_max FaceSetIndex) const;
-	DenseVector<int_max> GetFaceSet(int_max FaceSetIndex) const;
-	DenseVector<int_max> GetFaceSet(const String& FaceSetName) const;
-	ObjectArray<String> GetFaceSetName(MDK_Symbol_ALL&) const;
-	ObjectArray<DenseVector<int_max>> GetFaceSet(MDK_Symbol_ALL&) const;
+	int_max SetFaceSet(const String& Name, DenseVector<int_max> FaceIndexList);
+	int_max GetFaceSetIndex(const String& Name) const;
+	String GetFaceSetName(int_max Index) const;
+	DenseVector<int_max> GetFaceSet(int_max Index) const;
+	DenseVector<int_max> GetFaceSet(const String& Name) const;
 
 	int_max GetCellSetCount() const;
-	int_max SetCellSet(const String& CellSetName, DenseVector<int_max> CellSet);
-	int_max GetCellSetIndex(const String& CellSetName) const;
-	String GetCellSetName(int_max CellSetIndex) const;
-	DenseVector<int_max> GetCellSet(int_max CellSetIndex) const;
-	DenseVector<int_max> GetCellSet(const String& CellSetName) const;
-	ObjectArray<String> GetCellSetName(MDK_Symbol_ALL&) const;
-	ObjectArray<DenseVector<int_max>> GetCellSet(MDK_Symbol_ALL&) const;
+	int_max SetCellSet(const String& Name, DenseVector<int_max> CellIndexList);
+	int_max GetCellSetIndex(const String& Name) const;
+	String GetCellSetName(int_max Index) const;
+	DenseVector<int_max> GetCellSet(int_max Index) const;
+	DenseVector<int_max> GetCellSet(const String& Name) const;
 
 	//------------ SetCapacity, ReleaseUnusedCapacity -------------------------------------//
 	void SetCapacity(int_max PointCount, int_max EdgeCount, int_max FaceCount);

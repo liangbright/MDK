@@ -173,7 +173,7 @@ TriangleMesh<ScalarType> ConvertMixedTriangleQuadMeshToTriangleMesh_1to2(const P
 	OutputMesh.SetCapacity(PointCount, EdgeCount, FaceCount);
 
 	//------- copy all point of InputMesh ----------------//
-	DenseVector<int_max> PointIndexMap;
+	DenseVector<int_max> PointIndexMap;// in -> out
 	PointIndexMap.Resize(PointCount_input + InputMesh.GetDeletedPointCount());
 	PointIndexMap.Fill(-1);
 	DenseVector<int_max> PointIndexList;
@@ -261,32 +261,38 @@ TriangleMesh<ScalarType> ConvertMixedTriangleQuadMeshToTriangleMesh_1to2(const P
 	//----------------------------------------------------------
 	auto PointSetCount = InputMesh.GetPointSetCount();
 	if (PointSetCount > 0)
-	{
-		auto PointSetNameList = InputMesh.GetPointSetName(ALL);
+	{		
 		for (int_max PointSetIndex = 0; PointSetIndex < PointSetCount; ++PointSetIndex)
 		{
 			auto PointSet = InputMesh.GetPointSet(PointSetIndex);
+			auto Name = InputMesh.GetPointSetName(PointSetIndex);
 			for (int_max k = 0; k < PointSet.GetLength(); ++k)
 			{
 				PointSet[k] = PointIndexMap[PointSet[k]];
 			}
-			OutputMesh.SetPointSet(PointSetNameList[PointSetIndex], PointSet);
+			OutputMesh.SetPointSet(Name, PointSet);
 		}
 	}
 	//----------------------------------------------------------	
 	auto PointDataSetCount = InputMesh.GetPointDataSetCount();
-	for (int_max PointDataSetIndex = 0; PointDataSetIndex < PointDataSetCount; ++PointDataSetIndex)
+	if (PointDataSetCount > 0)
 	{
-		auto Name = InputMesh.GetPointDataSetName(PointDataSetIndex);
-		auto DataSet_input = InputMesh.GetPointDataSet(PointDataSetIndex);//input data structure may not be clean
-		OutputMesh.InitializePointDataSet(Name, DataSet_input.GetRowCount());
+		DenseVector<int_max> PointIndexMap_inverse;//out->in
+		PointIndexMap_inverse.Resize(OutputMesh.GetPointCount());
 		for (int_max k = 0; k < PointIndexMap.GetLength(); ++k)
 		{
 			if (PointIndexMap[k] >= 0)
 			{
-				auto Data = InputMesh.Point(k).GetData(PointDataSetIndex);
-				OutputMesh.Point(PointIndexMap[k]).SetData(PointDataSetIndex, Data);
+				PointIndexMap_inverse[PointIndexMap[k]] = PointIndexMap[k];
 			}
+		}
+
+		for (int_max PointDataSetIndex = 0; PointDataSetIndex < PointDataSetCount; ++PointDataSetIndex)
+		{
+			auto Name = InputMesh.GetPointDataSetName(PointDataSetIndex);
+			auto DataSet = InputMesh.GetPointDataSet(PointDataSetIndex);//input data structure may not be clean
+			DataSet = DataSet.GetSubMatrix(ALL, PointIndexMap_inverse);
+			OutputMesh.SetPointDataSet(Name, DataSet);			
 		}
 	}
 
@@ -426,7 +432,7 @@ TriangleMesh<ScalarType> ConvertMixedTriangleQuadMeshToTriangleMesh_1to8(const P
 			}
 			else
 			{
-				MDK_Error("Input is NOT QuadMesh or Mixed Quad-Triangle @ ConvertMixedTriangleQuadMeshToTriangleMesh(...)")
+				MDK_Error("Input is NOT QuadMesh or Mixed Quad-Triangle @ ConvertMixedTriangleQuadMeshToTriangleMesh_1to8(...)")
 				return OutputMesh;
 			}
 		}
@@ -442,18 +448,7 @@ TriangleMesh<ScalarType> ConvertMixedTriangleQuadMeshToTriangleMesh_1to8(const P
 			OutputMesh.Point(PointIndex).SetName(PointNameList[k]);
 		}
 	}
-	//----------------------------------------------------------
-	auto PointSetCount = InputMesh.GetPointSetCount();
-	if (PointSetCount > 0)
-	{
-		auto PointSetNameList = InputMesh.GetPointSetName(ALL);
-		for (int_max PointSetIndex = 0; PointSetIndex < PointSetCount; ++PointSetIndex)
-		{
-			auto PointSet = InputMesh.GetPointSet(PointSetIndex);
-			OutputMesh.SetPointSet(PointSetNameList[PointSetIndex], PointSet);
-		}
-	}
-
+	//-----------------------------------------------------------
 	return OutputMesh;
 }
 

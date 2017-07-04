@@ -63,12 +63,12 @@ bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<ScalarType>& InputMesh, con
 	{// MUST use JsonArray to maintain the order in PointSetList		
 		JsonArray tempJArray;		
 		tempJArray.Resize(PointSetCount);
-		auto PointSetNameList = InputMesh.GetPointSetName(ALL);	
 		for (int_max PointSetIndex = 0; PointSetIndex < PointSetCount; ++PointSetIndex)
 		{
 			JsonObject tempJObject;
 			auto PointSet = InputMesh.GetPointSet(PointSetIndex);
-			tempJObject[PointSetNameList[PointSetIndex]] = PointSet;
+			auto Name = InputMesh.GetPointSetName(PointSetIndex);
+			tempJObject[Name] = PointSet;
 			tempJArray[PointSetIndex] = tempJObject;			
 		}		
 		JsonValue tempJValue = std::move(tempJArray);
@@ -79,12 +79,12 @@ bool SavePolygonMeshAsJsonDataFile(const PolygonMesh<ScalarType>& InputMesh, con
 	{// MUST use JsonArray to maintain the order in FaceSetList
 		JsonArray tempJArray;		
 		tempJArray.Resize(FaceSetCount);
-		auto FaceSetNameList = InputMesh.GetFaceSetName(ALL);
 		for (int_max FaceSetIndex = 0; FaceSetIndex < FaceSetCount; ++FaceSetIndex)
 		{
 			JsonObject tempJObject;
 			auto FaceSet = InputMesh.GetFaceSet(FaceSetIndex);
-			tempJObject[FaceSetNameList[FaceSetIndex]] = FaceSet;
+			auto Name = InputMesh.GetFaceSetName(FaceSetIndex);
+			tempJObject[Name] = FaceSet;
 			tempJArray[FaceSetIndex] = tempJObject;			
 		}
 		JsonValue tempJValue = std::move(tempJArray);

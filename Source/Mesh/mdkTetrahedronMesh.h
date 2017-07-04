@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "mdkPolyhedronMesh.h"
-#Include "mdkTriangleMesh.h"
+#include "mdkTriangleMesh.h"
 
 namespace mdk
 {
