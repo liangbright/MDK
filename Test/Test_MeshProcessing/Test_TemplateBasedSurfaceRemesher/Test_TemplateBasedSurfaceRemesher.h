@@ -187,7 +187,7 @@ void test_tube()
 	String TestDataPath = "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_TemplateBasedSurfaceRemesher/TestData/";
 	TriangleMesh<double> SourceMesh, TemplateMesh;
 	LoadPolygonMeshFromVTKFile(SourceMesh, TestDataPath + "62_AortaModel_Pimg.vtk");
-	SourceMesh = ConvertQuadMeshToTriangleMesh(SourceMesh);
+	SourceMesh = ConvertMixedTriangleQuadMeshToTriangleMesh(SourceMesh);
 	LoadPolygonMeshFromVTKFile(TemplateMesh, TestDataPath + "disk_hole.vtk");
 
 	TemplateBasedSurfaceRemesher<double> Remesher;

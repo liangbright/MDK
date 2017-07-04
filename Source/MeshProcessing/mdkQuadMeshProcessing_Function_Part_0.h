@@ -2,23 +2,24 @@
 
 namespace mdk
 {
-
+//Input: Quad only; divide only once
 template<typename ScalarType>
-PolygonMesh<ScalarType> SubdivideQuadMesh_Linear(const PolygonMesh<ScalarType>& InputMesh);// divide once only
-
+PolygonMesh<ScalarType> SubdivideQuadMesh_Linear(const PolygonMesh<ScalarType>& InputMesh);
+//Input: Quad only
 template<typename ScalarType>
 PolygonMesh<ScalarType> SubdivideQuadMesh_Linear(const PolygonMesh<ScalarType>& InputMesh, int_max SubdivisionCount);
 
 template<typename ScalarType>
 TriangleMesh<ScalarType> ConvertQuadMeshToTriangleMesh(const PolygonMesh<ScalarType>& InputMesh, const std::string& Method = "1to2");
 
-//Input: Quad or Mixed-Quad-Triangle
 template<typename ScalarType>
-TriangleMesh<ScalarType> ConvertQuadMeshToTriangleMesh_1to2(const PolygonMesh<ScalarType>& InputMesh);
+TriangleMesh<ScalarType> ConvertMixedTriangleQuadMeshToTriangleMesh(const PolygonMesh<ScalarType>& InputMesh, const std::string& Method = "1to2");
 
-//Input: Quad or Mixed-Quad-Triangle
 template<typename ScalarType>
-TriangleMesh<ScalarType> ConvertQuadMeshToTriangleMesh_1to8(const PolygonMesh<ScalarType>& InputMesh);
+TriangleMesh<ScalarType> ConvertMixedTriangleQuadMeshToTriangleMesh_1to2(const PolygonMesh<ScalarType>& InputMesh);
+
+template<typename ScalarType>
+TriangleMesh<ScalarType> ConvertMixedTriangleQuadMeshToTriangleMesh_1to8(const PolygonMesh<ScalarType>& InputMesh);
 
 template<typename ScalarType>
 PolygonMesh<ScalarType> SubdivideMixedTriangleQuadMeshToQuadMesh_Linear(const PolygonMesh<ScalarType>& InputMesh);

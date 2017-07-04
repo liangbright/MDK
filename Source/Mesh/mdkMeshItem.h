@@ -343,7 +343,7 @@ private:
     //--------------------------------------------------------------------------------//
 public:
     inline bool IsValid() const;
-
+	bool IsOnPolygonMeshBoundary() const;
 	bool IsOnPolyhedronMeshBoundary() const;
 
 	inline int_max GetIndex() const;
@@ -467,6 +467,7 @@ private:
 	//--------------------------------------------------------------------------------//
 public:
 	inline bool IsValid() const;
+	bool IsOnPolyhedronMeshBoundary() const;
 
 	inline int_max GetIndex() const;
 

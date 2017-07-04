@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "mdkPolyhedronMesh.h"
+#Include "mdkTriangleMesh.h"
 
 namespace mdk
 {
@@ -45,6 +46,9 @@ public:
 	inline void operator=(PolyhedronMesh&& InputMesh);
 	inline void operator=(const Mesh& InputMesh);
 	inline void operator=(Mesh&& InputMesh);
+
+	TriangleMesh<ScalarType> GetSubMeshByFace(const DenseVector<int_max>& FaceIndexList) const;
+	TetrahedronMesh<ScalarType> GetSubMeshByCell(const DenseVector<int_max>& CellIndexList) const;
 };
 
 }// namespace mdk

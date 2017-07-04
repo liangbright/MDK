@@ -54,6 +54,7 @@ public:
     
     inline int_max AddFaceByPoint(int_max PointIndex0, int_max PointIndex1, int_max PointIndex2);    
 
+	TriangleMesh<ScalarType> GetSubMeshByFace(const DenseVector<int_max>& FaceIndexList) const;
     //------------- Function optimized For TriangleMesh --------------------------------------------------//
 
 	void UpdateNormalAtFace(const MDK_Symbol_ALL&);

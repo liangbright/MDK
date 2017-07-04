@@ -8,7 +8,7 @@ void Test_MeshConstruction()
 	std::string FilePathAndName = "C:/Research/MDK/MDK_Build/Test/Test_Mesh/Test_TriangleMesh/TestData/Leaflet.vtk";
 
 	TriangleMesh<double> LeafletMesh;
-	LoadPolygonMeshFromVTKFile(LeafletMesh, FilePathAndName);
+	LoadPolygonMeshFromVTKFile(LeafletMesh, FilePathAndName);	
 
 	SavePolygonMeshAsVTKFile(LeafletMesh, "C:/Research/MDK/MDK_Build/Test/Test_Mesh/Test_TriangleMesh/TestData/Leaflet_Test_Load_Save.vtk");
 }

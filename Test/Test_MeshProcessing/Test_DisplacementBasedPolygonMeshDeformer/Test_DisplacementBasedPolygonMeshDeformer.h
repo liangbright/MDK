@@ -37,7 +37,7 @@ void Test_a()
 
 	for (int_max k = 0; k < PointCount; ++k)
 	{
-		if (InputMesh.Point(k).IsOnBoundaryEdge() == true)
+		if (InputMesh.Point(k).IsOnPolygonMeshBoundary() == true)
 		{
 			ConfidenceOfSmoothness[k] = 0;
 			ConfidenceOfInputDisplacementField[k] = 1;
@@ -96,7 +96,7 @@ void Test_b()
 	ConfidenceOfInputDisplacementField.Fill(0);
 	for (int_max k = 0; k < PointCount; ++k)
 	{
-		if (InputMesh.Point(k).IsOnBoundaryEdge() == true)
+		if (InputMesh.Point(k).IsOnPolygonMeshBoundary() == true)
 		{
 			auto Pos_in = InputMesh.GetPointPosition(k);
 			auto Pos_temp = TemplateMesh.GetPointPosition(k);
@@ -141,7 +141,7 @@ void Test_c()
 	DenseMatrix<double> Source, Target;
 	for (int_max k = 0; k < PointCount; ++k)
 	{
-		if (P4Mesh.Point(k).IsOnBoundaryEdge() == true)
+		if (P4Mesh.Point(k).IsOnPolygonMeshBoundary() == true)
 		{
 			auto Pos_p4 = P4Mesh.GetPointPosition(k);
 			auto Pos_p15 = P15Mesh.GetPointPosition(k);
@@ -179,7 +179,7 @@ void Test_c()
 	ConfidenceOfInputDisplacementField.Fill(0);
 	for (int_max k = 0; k < PointCount; ++k)
 	{
-		if (P4Mesh.Point(k).IsOnBoundaryEdge() == true)
+		if (P4Mesh.Point(k).IsOnPolygonMeshBoundary() == true)
 		{
 			auto Pos_p4 = P4Mesh_A.GetPointPosition(k);
 			auto Pos_p15 = P15Mesh.GetPointPosition(k);

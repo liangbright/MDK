@@ -577,7 +577,8 @@ template<typename ScalarType>
 inline
 bool Edge_Of_Mesh<ScalarType>::IsOnPolygonMeshBoundary() const
 {
-	return (m_Data->AdjacentFaceIndexList.GetLength() <= 1);
+	return (m_Data->AdjacentFaceIndexList.GetLength() == 1);
+	// if == 0, then it is an isolated edge, not boundary
 }
 
 template<typename ScalarType>
@@ -1041,9 +1042,24 @@ bool Face_Of_Mesh<ScalarType>::IsValid() const
 
 template<typename ScalarType>
 inline
+bool Face_Of_Mesh<ScalarType>::IsOnPolygonMeshBoundary() const
+{
+	for (int_max k = 0; k < m_Data->EdgeIndexList.GetLength(); ++k)
+	{
+		auto EdgeIndex = m_Data->EdgeIndexList[k];
+		if (m_Data->MeshData->EdgeList[EdgeIndex].IsOnPolygonMeshBoundary() == true)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+template<typename ScalarType>
+inline
 bool Face_Of_Mesh<ScalarType>::IsOnPolyhedronMeshBoundary() const
 {
-	return (m_Data->AdjacentCellIndexList.GetLength() <= 1);
+	return (m_Data->AdjacentCellIndexList.GetLength() == 1);
 }
 
 template<typename ScalarType>
@@ -1613,6 +1629,21 @@ bool Cell_Of_Mesh<ScalarType>::IsValid() const
 	}
 
 	return true;
+}
+
+template<typename ScalarType>
+inline
+bool Cell_Of_Mesh<ScalarType>::IsOnPolyhedronMeshBoundary() const
+{
+	for (int_max k = 0; k < m_Data->FaceIndexList.GetLength(); ++k)
+	{
+		auto FaceIndex = m_Data->FaceIndexList[k];
+		if (m_Data->MeshData->FaceList[FaceIndex].IsOnPolyhedronMeshBoundary() == true)
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 template<typename ScalarType>

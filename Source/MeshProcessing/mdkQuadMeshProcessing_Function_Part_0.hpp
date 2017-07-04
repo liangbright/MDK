@@ -23,7 +23,7 @@ PolygonMesh<ScalarType> SubdivideQuadMesh_Linear(const PolygonMesh<ScalarType>& 
 	DenseVector<int_max> PointIndexList_init;
 	PointIndexList_init.SetCapacity(PointCount_input);
 	int_max PointIndex_output_init = -1;
-	for (int_max k = 0; k < PointCount_input; ++k)
+	for (int_max k = 0; k <= InputMesh.GetMaxValueOfPointIndex(); ++k)
 	{
 		if (InputMesh.IsValidPointIndex(k) == true)
 		{
@@ -40,7 +40,7 @@ PolygonMesh<ScalarType> SubdivideQuadMesh_Linear(const PolygonMesh<ScalarType>& 
 	DenseVector<int_max> PointIndexList_new;
 	PointIndexList_new.SetCapacity(EdgeCount_input);
 	int_max PointIndex_output_new = -1;
-	for (int_max k = 0; k < EdgeCount_input; ++k)
+	for (int_max k = 0; k <= InputMesh.GetMaxValueOfEdgeIndex(); ++k)
 	{
 		if (InputMesh.IsValidEdgeIndex(k) == true)
 		{
@@ -57,7 +57,7 @@ PolygonMesh<ScalarType> SubdivideQuadMesh_Linear(const PolygonMesh<ScalarType>& 
 	}
 
 	//------- add new cell by splitting each cell of InputMesh and add center point ----------------//   
-	for (int_max k = 0; k < FaceCount_input; ++k)
+	for (int_max k = 0; k <= InputMesh.GetMaxValueOfFaceIndex(); ++k)
 	{
 		if (InputMesh.IsValidFaceIndex(k) == true)
 		{
@@ -135,17 +135,23 @@ PolygonMesh<ScalarType> SubdivideQuadMesh_Linear(const PolygonMesh<ScalarType>& 
 template<typename ScalarType>
 TriangleMesh<ScalarType> ConvertQuadMeshToTriangleMesh(const PolygonMesh<ScalarType>& InputMesh, const std::string& Method)
 {
+	return ConvertMixedTriangleQuadMeshToTriangleMesh(InputMesh);
+}
+
+template<typename ScalarType>
+TriangleMesh<ScalarType> ConvertMixedTriangleQuadMeshToTriangleMesh(const PolygonMesh<ScalarType>& InputMesh, const std::string& Method)
+{
 	if (Method == "1to2")
 	{
-		return ConvertQuadMeshToTriangleMesh_1to2(InputMesh);
+		return ConvertMixedTriangleQuadMeshToTriangleMesh_1to2(InputMesh);
 	}
 	else if (Method == "1to8")
 	{
-		return ConvertQuadMeshToTriangleMesh_1to8(InputMesh);
+		return ConvertMixedTriangleQuadMeshToTriangleMesh_1to8(InputMesh);
 	}
 	else
 	{
-		MDK_Error("Method is unknown @ ConvertQuadMeshToTriangleMesh(...)")
+		MDK_Error("Method is unknown @ ConvertMixedTriangleQuadMeshToTriangleMesh(...)")
 		TriangleMesh<ScalarType> EmptyMesh;
 		return EmptyMesh;
 	}
@@ -153,7 +159,7 @@ TriangleMesh<ScalarType> ConvertQuadMeshToTriangleMesh(const PolygonMesh<ScalarT
 
 
 template<typename ScalarType>
-TriangleMesh<ScalarType> ConvertQuadMeshToTriangleMesh_1to2(const PolygonMesh<ScalarType>& InputMesh)
+TriangleMesh<ScalarType> ConvertMixedTriangleQuadMeshToTriangleMesh_1to2(const PolygonMesh<ScalarType>& InputMesh)
 {//Input: Quad or Mixed-Quad-Triangle
 
 	TriangleMesh<ScalarType> OutputMesh;
@@ -173,7 +179,7 @@ TriangleMesh<ScalarType> ConvertQuadMeshToTriangleMesh_1to2(const PolygonMesh<Sc
 	DenseVector<int_max> PointIndexList;
 	PointIndexList.SetCapacity(PointCount_input);
 	int_max PointIndex_output = -1;
-	for (int_max k = 0; k < PointCount_input; ++k)
+	for (int_max k = 0; k <= InputMesh.GetMaxValueOfPointIndex(); ++k)
 	{
 		if (InputMesh.IsValidPointIndex(k) == true)
 		{
@@ -185,7 +191,7 @@ TriangleMesh<ScalarType> ConvertQuadMeshToTriangleMesh_1to2(const PolygonMesh<Sc
 	}
 
 	//------- add new face by splitting each face of InputMesh ----------------//   
-	for (int_max k = 0; k < FaceCount_input; ++k)
+	for (int_max k = 0; k <= InputMesh.GetMaxValueOfFaceIndex(); ++k)
 	{
 		if (InputMesh.IsValidFaceIndex(k) == true)
 		{
@@ -193,7 +199,7 @@ TriangleMesh<ScalarType> ConvertQuadMeshToTriangleMesh_1to2(const PolygonMesh<Sc
 			auto EdgeIndexList_input = InputMesh.Face(k).GetEdgeIndexList();   // P0-P1, P1-P2, P2-P3, P3-P0
 			if (PointIndexList_input.GetLength() > 4)
 			{
-				MDK_Error("Input is NOT QuadMesh or Mixed Quad-Triangle @ ConvertQuadMeshToTriangleMesh_1to2(...)")
+				MDK_Error("Input is NOT QuadMesh or Mixed_Triangle_Quad @ ConvertMixedTriangleQuadMeshToTriangleMesh_1to2(...)")
 				return OutputMesh;
 			}
 			else if (PointIndexList_input.GetLength() == 4)
@@ -235,7 +241,7 @@ TriangleMesh<ScalarType> ConvertQuadMeshToTriangleMesh_1to2(const PolygonMesh<Sc
 			}
 			else
 			{
-				MDK_Error("Input is NOT QuadMesh or Mixed Quad-Triangle @ ConvertQuadMeshToTriangleMesh_1to2(...)")
+				MDK_Error("Input is NOT QuadMesh or Mixed_Triangle_Quad @ ConvertMixedTriangleQuadMeshToTriangleMesh_1to2(...)")
 				return OutputMesh;
 			}
 		}
@@ -289,7 +295,7 @@ TriangleMesh<ScalarType> ConvertQuadMeshToTriangleMesh_1to2(const PolygonMesh<Sc
 
 
 template<typename ScalarType>
-TriangleMesh<ScalarType> ConvertQuadMeshToTriangleMesh_1to8(const PolygonMesh<ScalarType>& InputMesh)
+TriangleMesh<ScalarType> ConvertMixedTriangleQuadMeshToTriangleMesh_1to8(const PolygonMesh<ScalarType>& InputMesh)
 {//Input: Quad or Mixed-Quad-Triangle
 
 	TriangleMesh<ScalarType> OutputMesh;
@@ -309,7 +315,7 @@ TriangleMesh<ScalarType> ConvertQuadMeshToTriangleMesh_1to8(const PolygonMesh<Sc
 	DenseVector<int_max> PointIndexList_init;
 	PointIndexList_init.SetCapacity(PointCount_input);
 	int_max PointIndex_output_init = -1;
-	for (int_max k = 0; k < PointCount_input; ++k)
+	for (int_max k = 0; k <= InputMesh.GetMaxValueOfPointIndex(); ++k)
 	{
 		if (InputMesh.IsValidPointIndex(k) == true)
 		{
@@ -327,7 +333,7 @@ TriangleMesh<ScalarType> ConvertQuadMeshToTriangleMesh_1to8(const PolygonMesh<Sc
 	DenseVector<int_max> PointIndexList_new;
 	PointIndexList_new.SetCapacity(EdgeCount_input);
 	int_max PointIndex_output_new = -1;
-	for (int_max k = 0; k < EdgeCount_input; ++k)
+	for (int_max k = 0; k <= InputMesh.GetMaxValueOfEdgeIndex(); ++k)
 	{
 		if (InputMesh.IsValidEdgeIndex(k) == true)
 		{
@@ -343,7 +349,7 @@ TriangleMesh<ScalarType> ConvertQuadMeshToTriangleMesh_1to8(const PolygonMesh<Sc
 		}
 	}
 	//------- add new face by splitting each face of InputMesh ----------------//   
-	for (int_max k = 0; k < FaceCount_input; ++k)
+	for (int_max k = 0; k <= InputMesh.GetMaxValueOfFaceIndex(); ++k)
 	{
 		if (InputMesh.IsValidFaceIndex(k) == true)
 		{
@@ -351,7 +357,7 @@ TriangleMesh<ScalarType> ConvertQuadMeshToTriangleMesh_1to8(const PolygonMesh<Sc
 			auto EdgeIndexList_input = InputMesh.Face(k).GetEdgeIndexList();   // P0-P1, P1-P2, P2-P3, P3-P0
 			if (PointIndexList_input.GetLength() > 4)
 			{
-				MDK_Error("Input is NOT QuadMesh or Mixed Quad-Triangle @ ConvertQuadMeshToTriangleMesh_1to8(...)")
+				MDK_Error("Input is NOT QuadMesh or Mixed Quad-Triangle @ ConvertMixedTriangleQuadMeshToTriangleMesh_1to8(...)")
 				return OutputMesh;
 			}
 			else if (PointIndexList_input.GetLength() == 4)
@@ -420,7 +426,7 @@ TriangleMesh<ScalarType> ConvertQuadMeshToTriangleMesh_1to8(const PolygonMesh<Sc
 			}
 			else
 			{
-				MDK_Error("Input is NOT QuadMesh or Mixed Quad-Triangle @ ConvertQuadMeshToTriangleMesh(...)")
+				MDK_Error("Input is NOT QuadMesh or Mixed Quad-Triangle @ ConvertMixedTriangleQuadMeshToTriangleMesh(...)")
 				return OutputMesh;
 			}
 		}
@@ -472,7 +478,7 @@ PolygonMesh<ScalarType> SubdivideMixedTriangleQuadMeshToQuadMesh_Linear(const Po
 	DenseVector<int_max> PointIndexList_init;
 	PointIndexList_init.SetCapacity(PointCount_input);
 	int_max PointIndex_output_init = -1;
-	for (int_max k = 0; k < PointCount_input; ++k)
+	for (int_max k = 0; k <= InputMesh.GetMaxValueOfPointIndex(); ++k)
 	{
 		if (InputMesh.IsValidPointIndex(k) == true)
 		{
@@ -489,7 +495,7 @@ PolygonMesh<ScalarType> SubdivideMixedTriangleQuadMeshToQuadMesh_Linear(const Po
 	DenseVector<int_max> PointIndexList_new;
 	PointIndexList_new.SetCapacity(EdgeCount_input);
 	int_max PointIndex_output_new = -1;
-	for (int_max k = 0; k < EdgeCount_input; ++k)
+	for (int_max k = 0; k <= InputMesh.GetMaxValueOfEdgeIndex(); ++k)
 	{
 		if (InputMesh.IsValidEdgeIndex(k) == true)
 		{
@@ -505,7 +511,7 @@ PolygonMesh<ScalarType> SubdivideMixedTriangleQuadMeshToQuadMesh_Linear(const Po
 		}
 	}
 	//------- add new cell by splitting each cell of InputMesh and add center point ----------------//   
-	for (int_max k = 0; k < FaceCount_input; ++k)
+	for (int_max k = 0; k <= InputMesh.GetMaxValueOfFaceIndex(); ++k)
 	{
 		if (InputMesh.IsValidFaceIndex(k) == true)
 		{

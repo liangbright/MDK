@@ -21,8 +21,7 @@ DenseVector<int_max> TraceMeshBoundaryCurve(const PolygonMesh<ScalarType>& Input
 	}
 
     int_max BoundaryEdgeCountOfInputMesh = 0;
-	int_max EdgeCount = InputMesh.GetEdgeCount();
-	for (int_max k = 0; k < EdgeCount; ++k)
+	for (int_max k = 0; k <= InputMesh.GetMaxValueOfEdgeIndex(); ++k)
 	{
 		if (InputMesh.IsValidEdgeIndex(k) == true)
 		{
@@ -130,8 +129,7 @@ ObjectArray<DenseVector<int_max>> TraceMeshBoundaryCurve(const PolygonMesh<Scala
 {// work for none-clean DataStructure
     // find boundary point
     DenseVector<int_max> BoundaryPointIndexList;
-	auto PointCount = InputMesh.GetPointCount();
-	for (int_max k = 0; k < PointCount; ++k)
+	for (int_max k = 0; k <= InputMesh.GetMaxValueOfPointIndex(); ++k)
 	{
 		if (InputMesh.IsValidPointIndex(k) == true)
 		{
@@ -192,8 +190,7 @@ int_max FindNearestPointOnMesh(const PolygonMesh<ScalarType>& InputMesh, const D
 
     ScalarType Distance_sq_min = 0;
     bool IsFirstPoint = true;
-	auto PointCount = InputMesh.GetPointCount();
-	for (int_max k = 0; k < PointCount; ++k)
+	for (int_max k = 0; k <= InputMesh.GetMaxValueOfPointIndex(); ++k)
 	{
 		if (InputMesh.IsValidPointIndex(k))
 		{

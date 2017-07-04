@@ -72,4 +72,11 @@ void PolygonMesh<ScalarType>::operator=(Mesh<ScalarType>&& InputMesh)
 	this->Mesh::operator=(std::move(InputMesh));
 }
 
+template<typename ScalarType>
+PolygonMesh<ScalarType> PolygonMesh<ScalarType>::GetSubMeshByFace(const DenseVector<int_max>& FaceIndexList) const
+{
+	PolygonMesh<ScalarType> OutputMesh = this->Mesh::GetSubMeshByFace(FaceIndexList);
+	return OutputMesh;
+}
+
 }// namespace mdk

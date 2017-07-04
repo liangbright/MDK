@@ -57,6 +57,8 @@ public:
 	inline void operator=(PolygonMesh&& InputMesh);
 	inline void operator=(const Mesh& InputMesh);
 	inline void operator=(Mesh&& InputMesh);
+
+	PolygonMesh<ScalarType> GetSubMeshByFace(const DenseVector<int_max>& FaceIndexList) const;
 };
 
 }// namespace mdk

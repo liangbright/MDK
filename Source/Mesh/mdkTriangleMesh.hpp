@@ -114,6 +114,13 @@ int_max TriangleMesh<ScalarType>::AddFaceByPoint(int_max PointIndex0, int_max Po
     return this->PolygonMesh::AddFaceByPoint(PointIndexList);
 }
 
+template<typename ScalarType>
+TriangleMesh<ScalarType> TriangleMesh<ScalarType>::GetSubMeshByFace(const DenseVector<int_max>& FaceIndexList) const
+{
+	TriangleMesh<ScalarType> OutputMesh = this->PolygonMesh::GetSubMeshByFace(FaceIndexList);
+	return TriangleMesh;
+}
+
 //------------- Function optimized for TriangleMesh --------------------------------------------------//
 
 template<typename ScalarType>

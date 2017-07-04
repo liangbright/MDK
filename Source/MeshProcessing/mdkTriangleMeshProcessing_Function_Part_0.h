@@ -3,24 +3,13 @@
 #include <vtkLinearSubdivisionFilter.h>
 #include <vtkQuadricDecimation.h>
 #include <vtkDecimatePro.h>
+#include <vtkTriangleFilter.h>
 
 namespace mdk
 {
 
 template<typename ScalarType>
 void ConvertPolygonMeshToTriangleMesh(const PolygonMesh<ScalarType>& InputMesh, TriangleMesh<ScalarType>& OutputMesh);
-
-// output point index list
-template<typename ScalarType>
-DenseVector<int_max> TraceMeshBoundaryCurve(const TriangleMesh<ScalarType>& TargetMesh, int_max PointIndex_start);
-
-// output point index list
-template<typename ScalarType>
-ObjectArray<DenseVector<int_max>> TraceMeshBoundaryCurve(const TriangleMesh<ScalarType>& TargetMesh);
-
-// output point index
-template<typename ScalarType>
-int_max FindNearestPointOnMesh(const TriangleMesh<ScalarType>& TargetMesh, const DenseVector<typename ScalarType::ScalarType, 3>& PointPosition);
 
 template<typename ScalarType>
 TriangleMesh<ScalarType> SubdivideTriangleMesh_Linear(const TriangleMesh<ScalarType>& InputMesh);// divide once only

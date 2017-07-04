@@ -32,7 +32,7 @@ TriangleMesh<ScalarType> ResampleMeshOpenBoundary(const TriangleMesh<ScalarType>
 			TriangleMesh<ScalarType> EmptyMesh;
 			return EmptyMesh;
 		}
-		if (InputMesh.Point(BounaryPointIndexList[k]).IsOnBoundaryEdge() == false)
+		if (InputMesh.Point(BounaryPointIndexList[k]).IsOnPolygonMeshBoundary() == false)
 		{
 			MDK_Error("BounaryPointIndexList is invalid, abort @ ResampleMeshOpenBoundary(...)")
 			TriangleMesh<ScalarType> EmptyMesh;
@@ -250,7 +250,7 @@ TriangleMesh<ScalarType> ResampleMeshOpenBoundary(const TriangleMesh<ScalarType>
 		for (int_max k = 0; k < Curve_near_boundary.GetLength()-1; ++k)
 		{
 			auto EdgeIndex = OutputMesh.GetEdgeIndexByPoint(Curve_near_boundary[k], Curve_near_boundary[k+1]);
-			if (OutputMesh.Edge(EdgeIndex).IsBoundary() == false)
+			if (OutputMesh.Edge(EdgeIndex).IsOnPolygonMeshBoundary() == false)
 			{
 				EdgeIndex_inner = EdgeIndex;
 			}

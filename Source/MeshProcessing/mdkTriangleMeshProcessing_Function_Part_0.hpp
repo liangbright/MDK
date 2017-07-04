@@ -14,16 +14,21 @@ void ConvertPolygonMeshToTriangleMesh(const PolygonMesh<ScalarType>& InputMesh, 
 
 	if (InputMesh.CheckIfTriangleMesh() == true)
 	{
-		typedef ScalarTypeA::ScalarType ScalarType;
-		DenseMatrix<ScalarType> PointPositionMatrix;
-		ObjectArray<DenseVector<int_max>> FaceTable;
-		InputMesh.GetPointPositionMatrixAndFaceTable(PointPositionMatrix, FaceTable);
-		OutputMesh.Construct(std::move(PointPositionMatrix), FaceTable);
+		OutputMesh = InputMesh;
 		return;
 	}
 
+	if (InputMesh.CheckIfMixedTriangleQuadMesh() == true)
+	{
+		OutputMesh = ConvertMixedTriangleQuadMeshToTriangleMesh_1to2(InputMesh);
+		return;
+	}
+	//-----------------------------------------------------------
 	auto VTKMesh = ConvertMDKPolygonMeshToVTKPolyData(InputMesh);
-	ConvertVTKPolyDataToMDKTriangleMesh(VTKMesh, OutputMesh);
+	auto triangleFilter = vtkSmartPointer<vtkTriangleFilter>::New();
+	triangleFilter->SetInputData(triangleFilter);
+	triangleFilter->Update();
+	ConvertVTKPolyDataToMDKTriangleMesh(triangleFilter->GetOutput(), OutputMesh);
 
 	//-----------------------------------------------------------
 	int_max NamedPointCount = InputMesh.GetNamedPointCount();
@@ -49,27 +54,6 @@ void ConvertPolygonMeshToTriangleMesh(const PolygonMesh<ScalarType>& InputMesh, 
 	}
 }
 
-template<typename ScalarType>
-DenseVector<int_max> TraceMeshBoundaryCurve(const TriangleMesh<ScalarType>& TargetMesh, int_max PointIndex_start)
-{
-    const PolygonMesh<ScalarType>& TargetMesh_ref = TargetMesh;
-    return TraceMeshBoundaryCurve(TargetMesh_ref, PointIndex_start);
-}
-
-template<typename ScalarType>
-ObjectArray<DenseVector<int_max>> TraceMeshBoundaryCurve(const TriangleMesh<ScalarType>& TargetMesh)
-{
-    const PolygonMesh<ScalarType>& TargetMesh_ref = TargetMesh;
-    return TraceMeshBoundaryCurve(TargetMesh_ref);
-}
-
-template<typename ScalarType>
-int_max FindNearestPointOnMesh(const TriangleMesh<ScalarType>& TargetMesh, const DenseVector<typename ScalarType::ScalarType, 3>& PointPosition)
-{
-    const PolygonMesh<ScalarType>& TargetMesh_ref = TargetMesh;
-    return FindNearestPointOnMesh(TargetMesh_ref, PointPosition);
-}
-
 
 template<typename ScalarType>
 TriangleMesh<ScalarType> SubdivideTriangleMesh_Linear(const TriangleMesh<ScalarType>& InputMesh)
@@ -91,7 +75,7 @@ TriangleMesh<ScalarType> SubdivideTriangleMesh_Linear(const TriangleMesh<ScalarT
 	DenseVector<int_max> PointIndexList_init;
 	PointIndexList_init.SetCapacity(PointCount_input);
 	int_max PointIndex_output_init = -1;
-	for (int_max k = 0; k < PointCount_input; ++k)
+	for (int_max k = 0; k <= InputMesh.GetMaxValueOfPointIndex(); ++k)
 	{
 		if (InputMesh.IsValidPointIndex(k) == true)
 		{
@@ -109,7 +93,7 @@ TriangleMesh<ScalarType> SubdivideTriangleMesh_Linear(const TriangleMesh<ScalarT
 	DenseVector<int_max> PointIndexList_new;
 	PointIndexList_new.SetCapacity(EdgeCount_input);
 	int_max PointIndex_output_new = -1;
-	for (int_max k = 0; k < EdgeCount_input; ++k)
+	for (int_max k = 0; k <= InputMesh.GetMaxValueOfEdgeIndex(); ++k)
 	{
 		if (InputMesh.IsValidEdgeIndex(k) == true)
 		{
@@ -125,7 +109,7 @@ TriangleMesh<ScalarType> SubdivideTriangleMesh_Linear(const TriangleMesh<ScalarT
 		}
 	}
 	//------- add new cell by splitting each cell of InputMesh ----------------//   
-	for (int_max k = 0; k < FaceCount_input; ++k)
+	for (int_max k = 0; k <= InputMesh.GetMaxValueOfFaceIndex(); ++k)
 	{
 		if (InputMesh.IsValidFaceIndex(k) == true)
 		{
@@ -176,7 +160,7 @@ TriangleMesh<ScalarType> SubdivideTriangleMesh_Linear(const TriangleMesh<ScalarT
 template<typename ScalarType>
 TriangleMesh<ScalarType> SubdivideTriangleMeshByVTKLinearSubdivisionFilter(const TriangleMesh<ScalarType>& TargetMesh, int_max SubdivisionCount)
 {
-	auto VTKMesh = ConvertMDKTriangleMeshToVTKPolyData(TargetMesh);
+	auto VTKMesh = ConvertMDKPolygonMeshToVTKPolyData(TargetMesh);
 
 	auto subdivisionFilter = vtkSmartPointer<vtkLinearSubdivisionFilter>::New();
 	subdivisionFilter->SetInputData(VTKMesh);
@@ -185,7 +169,7 @@ TriangleMesh<ScalarType> SubdivideTriangleMeshByVTKLinearSubdivisionFilter(const
 	auto VTKMesh_new = subdivisionFilter->GetOutput();
 
 	TriangleMesh<ScalarType> OutputMesh;
-	ConvertVTKPolyDataToMDKTriangleMesh(VTKMesh_new, OutputMesh);
+	ConvertVTKPolyDataToMDKPolygonMesh(VTKMesh_new, OutputMesh);
 	return OutputMesh;
 }
 
@@ -227,8 +211,8 @@ void SmoothTriangleMeshByMeanCurvature(TriangleMesh<ScalarType>& TargetMesh, dou
 		TargetMesh.UpdateAreaOfFace();
 		TargetMesh.UpdateMeanCurvatureAtPoint();
 	}
-	auto PointCount = TargetMesh.GetPointCount();
-	for (int_max k = 0; k < PointCount; ++k)
+	
+	for (int_max k = 0; k <= TargetMesh.GetMaxValueOfPointIndex(); ++k)
 	{
 		if (TargetMesh.IsValidPointIndex(k) == true)
 		{
@@ -253,9 +237,8 @@ void SmoothTriangleMeshByGaussianCurvature(TriangleMesh<ScalarType>& TargetMesh,
 	}
 
 	const auto two_pi = 2.0*std::acos(-1.0);
-
-	auto PointCount = TargetMesh.GetPointCount();
-	for (int_max k = 0; k < PointCount; ++k)
+	
+	for (int_max k = 0; k <= TargetMesh.GetMaxValueOfPointIndex(); ++k)
 	{
 		if (TargetMesh.IsValidPointIndex(k) == true)
 		{
@@ -277,11 +260,11 @@ void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<ScalarType>& TargetMe
 	DenseVector<int_max> PointIndexList_NOSmoothing;
 	auto PointCount = TargetMesh.GetPointCount();
 	PointIndexList_NOSmoothing.SetCapacity(PointCount/100);	
-	for (int_max k = 0; k < PointCount; ++k)
+	for (int_max k = 0; k <= TargetMesh.GetMaxValueOfPointIndex(); ++k)
 	{
 		if (TargetMesh.IsValidPointIndex(k) == true)
 		{
-			if (TargetMesh.Point(k).IsOnBoundaryEdge() == true)
+			if (TargetMesh.Point(k).IsOnPolygonMeshBoundary() == true)
 			{
 				if (Flag_BoundarySmoothing == false)
 				{
@@ -328,7 +311,7 @@ void SmoothTriangleMeshByNormalBasedCurvature(TriangleMesh<ScalarType>& TargetMe
 	DenseVector<int_max> PointIndexList_Smoothing;
 	auto PointCount = TargetMesh.GetPointCount();
 	PointIndexList_Smoothing.SetCapacity(PointCount);
-	for (int_max k = 0; k < PointCount; ++k)
+	for (int_max k = 0; k <= TargetMesh.GetMaxValueOfPointIndex(); ++k)
 	{
 		if (TargetMesh.IsValidPointIndex(k) == true)
 		{

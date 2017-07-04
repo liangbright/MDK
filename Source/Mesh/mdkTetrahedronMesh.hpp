@@ -98,4 +98,18 @@ void TetrahedronMesh<ScalarType>::operator=(Mesh<ScalarType>&& InputMesh)
 	this->PolyhedronMesh::operator=(std::move(InputMesh));
 }
 
+template<typename ScalarType>
+TriangleMesh<ScalarType> GetSubMeshByFace(const DenseVector<int_max>& FaceIndexList) const
+{
+	TriangleMesh<ScalarType> OutputMesh = this->PolyhedronMesh::GetSubMeshByFace(FaceIndexList);
+	return OutputMesh;
+}
+
+template<typename ScalarType>
+TetrahedronMesh<ScalarType> GetSubMeshByCell(const DenseVector<int_max>& CellIndexList) const
+{
+	TetrahedronMesh<ScalarType> OutputMesh = this->PolyhedronMesh::GetSubMeshByCell(CellIndexList);
+	return OutputMesh;
+}
+
 }// namespace mdk

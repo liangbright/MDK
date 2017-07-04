@@ -94,18 +94,17 @@ void GeodesicSphereBuilder<ScalarType>::BuildSphereAtDepth(int_max Depth)
 	//------- add initial point by copying all point of previous Sphere ----------------//
 	DenseVector<int_max> PointIndexList_init;
 	PointIndexList_init.Resize(PointCount_prev);
-	for (auto it = Output.SphereList[Depth - 1].GetIteratorOfPoint(); it.IsNotEnd(); ++it)
-	{
-		auto Index = it.GetPointIndex();
-		auto Pos = it.Point().GetPosition();
-		PointIndexList_init[Index] = Output.SphereList[Depth].AddPoint(Pos);
+	for (int_max k = 0; k <= Output.SphereList[Depth - 1].GetMaxValueOfPointIndex(); ++k)
+	{//PointIndex is always valid
+		auto Pos = Output.SphereList[Depth - 1].GetPointPosition(k);
+		PointIndexList_init[k] = Output.SphereList[Depth].AddPoint(Pos);
 	}
 
 	//------- add new point by splitting each edge of previous Sphere -----------------//   
 	DenseVector<int_max> PointIndexList_new;
-	for (auto it = Output.SphereList[Depth - 1].GetIteratorOfEdge(); it.IsNotEnd(); ++it)
-	{
-		auto TempList = it.Edge().GetPointIndexList();
+	for (int_max k = 0; k <= Output.SphereList[Depth - 1].GetMaxValueOfEdgeIndex(); ++k)
+	{//EdgeIndex is always valid
+		auto TempList = Output.SphereList[Depth - 1].Edge(k).GetPointIndexList();
 		auto P0 = Output.SphereList[Depth - 1].GetPointPosition(TempList[0]);
 		auto P1 = Output.SphereList[Depth - 1].GetPointPosition(TempList[1]);
 		auto P3 = P0 + P1;
@@ -115,10 +114,10 @@ void GeodesicSphereBuilder<ScalarType>::BuildSphereAtDepth(int_max Depth)
 	}
 
 	//------- add cell to current Sphere by splitting each cell of previous Sphere ----//   
-	for (auto it = Output.SphereList[Depth - 1].GetIteratorOfFace(); it.IsNotEnd(); ++it)
-	{
-		auto PointIndexList_prev = it.Face().GetPointIndexList(); // P0, P1, P2
-		auto EdgeIndexList_prev = it.Face().GetEdgeIndexList();   // P0-P1, P1-P2, P2-P1
+	for (int_max k = 0; k <= Output.SphereList[Depth - 1].GetMaxValueOfFaceIndex(); ++k)
+	{//FaceIndex is always valid
+		auto PointIndexList_prev = Output.SphereList[Depth - 1].Face(k).GetPointIndexList(); // P0, P1, P2
+		auto EdgeIndexList_prev = Output.SphereList[Depth - 1].Face(k).GetEdgeIndexList();   // P0-P1, P1-P2, P2-P1
 		//-----------------
 		//      0
 		//    3    5
