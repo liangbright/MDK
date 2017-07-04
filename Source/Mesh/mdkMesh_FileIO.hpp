@@ -429,16 +429,8 @@ bool LoadMeshFromJsonDataFile(Mesh<ScalarType>& OutputMesh, const String& FilePa
 template<typename ScalarType>
 bool SaveMeshAsVTKFile(const Mesh<ScalarType>& InputMesh, const String& FilePathAndName)
 {
-	if (InputMesh.IsPolygonMesh() == true)
-	{
-		auto VTKMesh = ConvertMDKMeshToVTKPolyData(InputMesh);
-		return SaveVTKPolyDataAsVTKFile(VTKMesh, FilePathAndName);
-	}
-	else if (InputMesh.IsPolyhedronMesh() == true)
-	{
-		auto VTKMesh = ConvertMDKMeshToVTKUnstructuredGrid(InputMesh);
-		return SaveVTKUnstructuredGridAsVTKFile(VTKMesh, FilePathAndName);
-	}
+	auto VTKMesh = ConvertMDKMeshToVTKUnstructuredGrid(InputMesh);
+	return SaveVTKUnstructuredGridAsVTKFile(VTKMesh, FilePathAndName);
 }
 
 

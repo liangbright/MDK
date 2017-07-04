@@ -469,12 +469,23 @@ vtkSmartPointer<vtkPolyData> ConvertMDKPolygonMeshToVTKPolyData(const PolygonMes
 {
 	auto VTKMesh = vtkSmartPointer<vtkPolyData>::New();
 
+	if (MDKMesh.IsEmpty() == true)
+	{
+		return VTKMesh;
+	}
+
+	if (MDKMesh.Check_If_DataStructure_is_Clean() == false)
+	{
+		MDK_Error("MDKMesh DataStructure is NOT Clean @ ConvertMDKPolygonMeshToVTKPolyData(...)")
+		return VTKMesh;
+	}
+
     auto ReferenceScalar = ScalarType(0);
 	auto ScalarTypeName = GetScalarTypeName(ReferenceScalar);
 
     DenseMatrix<ScalarType> PointPositionTable;
 	ObjectArray<DenseVector<int_max>> FaceTable;
-    MDKMesh.GetPointPositionMatrixAndFaceTable(PointPositionTable, FaceTable);
+    MDKMesh.GetPointPositionMatrixAndFaceTable(PointPositionTable, FaceTable, false);//Flag_Clean=false;
 
     int_max PointCount = PointPositionTable.GetColCount();
     int_max FaceCount = FaceTable.GetLength();
@@ -662,6 +673,18 @@ template<typename ScalarType>
 vtkSmartPointer<vtkUnstructuredGrid> ConvertMDKPolyhedronMeshToVTKUnstructuredGrid(const PolyhedronMesh<ScalarType>& MDKMesh)
 {
 	auto VTKMesh = ConvertMDKMeshToVTKUnstructuredGrid(MDKMesh);	
+
+	if (MDKMesh.IsEmpty() == true)
+	{
+		return VTKMesh;
+	}
+
+	if (MDKMesh.Check_If_DataStructure_is_Clean() == false)
+	{
+		MDK_Error("MDKMesh DataStructure is NOT Clean @ ConvertMDKPolyhedronMeshToVTKUnstructuredGrid(...)")
+		return VTKMesh;
+	}
+
 	//-----------------------------------------------------
 	for (int_max k = 0; k < MDKMesh.GetPointDataSetCount(); ++k)
 	{

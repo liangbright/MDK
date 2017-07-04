@@ -3593,17 +3593,30 @@ int_max Mesh<ScalarType>::GetDeletedCellCount() const
 }
 
 template<typename ScalarType>
-std::pair<DenseMatrix<ScalarType>, ObjectArray<DenseVector<int_max>>> Mesh<ScalarType>::GetPointPositionMatrixAndFaceTable() const
+std::pair<DenseMatrix<ScalarType>, ObjectArray<DenseVector<int_max>>> Mesh<ScalarType>::GetPointPositionMatrixAndFaceTable(bool Flag_Clean) const
 {
 	std::pair<DenseMatrix<ScalarType>, ObjectArray<DenseVector<int_max>>> Output;
-	this->GetPointPositionMatrixAndFaceTable(Output.first, Output.second);
+	this->GetPointPositionMatrixAndFaceTable(Output.first, Output.second, Flag_Clean);
 	return Output;
 }
 
-
 template<typename ScalarType>
-void Mesh<ScalarType>::GetPointPositionMatrixAndFaceTable(DenseMatrix<ScalarType>& PointPositionMatrix, ObjectArray<DenseVector<int_max>>& FaceTable) const
+void Mesh<ScalarType>::GetPointPositionMatrixAndFaceTable(DenseMatrix<ScalarType>& PointPositionMatrix, ObjectArray<DenseVector<int_max>>& FaceTable, bool Flag_Clean) const
 {
+	if (Flag_Clean == false)
+	{
+		PointPositionMatrix = m_MeshData->PointPositionTable;
+		FaceTable.FastResize(m_MeshData->FaceList.GetLength());
+		for (int_max n = 0; n <= m_MeshData->FaceList.GetLength(); ++n)
+		{
+			if (this->IsValidFaceIndex(n) == true)
+			{
+				FaceTable[n] = this->Face(n).GetPointIndexList();
+			}
+		}
+		return;
+	}
+
 	auto PointCount = this->GetPointCount();
 	auto FaceCount = this->GetFaceCount();
 	int_max PointIndex_max = this->GetMaxValueOfPointIndex();
