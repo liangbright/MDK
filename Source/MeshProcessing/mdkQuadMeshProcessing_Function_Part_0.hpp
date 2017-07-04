@@ -272,8 +272,8 @@ TriangleMesh<ScalarType> ConvertQuadMeshToTriangleMesh_1to2(const PolygonMesh<Sc
 	for (int_max PointDataSetIndex = 0; PointDataSetIndex < PointDataSetCount; ++PointDataSetIndex)
 	{
 		auto Name = InputMesh.GetPointDataSetName(PointDataSetIndex);
-		auto tempDataSet = InputMesh.GetPointDataSet(PointDataSetIndex);//input data structure may not be clean
-		OutputMesh.InitializePointDataSet(Name, tempDataSet.GetRowCount());
+		auto DataSet_input = InputMesh.GetPointDataSet(PointDataSetIndex);//input data structure may not be clean
+		OutputMesh.InitializePointDataSet(Name, DataSet_input.GetRowCount());
 		for (int_max k = 0; k < PointIndexMap.GetLength(); ++k)
 		{
 			if (PointIndexMap[k] >= 0)

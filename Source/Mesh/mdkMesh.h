@@ -181,7 +181,7 @@ public:
 	inline DenseMatrix<ScalarType> GetPointPosition(const MDK_Symbol_ALL&) const;
 	inline void GetPointPosition(const MDK_Symbol_ALL&, DenseMatrix<ScalarType>& PositionMatrix) const;
 
-	inline void SetPointPosition(const MDK_Symbol_ALL&, const DenseMatrix<ScalarType>& PositionMatrix) const;
+	inline void SetPointPosition(const MDK_Symbol_ALL&, DenseMatrix<ScalarType> PositionMatrix) const;
 
     // Get/Set 3D Position by Index --------------------------------------------------------------------------//
 
@@ -226,10 +226,10 @@ public:
 	inline bool IsValidCellIndex(int_max CellIndex) const;
 
     //--------- get valid IndexList ------------------------------------------------------//
-    inline DenseVector<int_max> GetPointIndexList() const;
-    inline DenseVector<int_max> GetEdgeIndexList() const;
-    inline DenseVector<int_max> GetFaceIndexList() const;
-	inline DenseVector<int_max> GetCellIndexList() const;
+    inline DenseVector<int_max> GetValidPointIndexList() const;
+    inline DenseVector<int_max> GetValidEdgeIndexList() const;
+    inline DenseVector<int_max> GetValidFaceIndexList() const;
+	inline DenseVector<int_max> GetValidCellIndexList() const;
 
     //----------- get PointIndex by Position, ID, Name ----------------------------------------------//
     inline int_max GetPointIndexByPosition(const DenseVector<ScalarType, 3>& Position, ScalarType DistanceThreshold) const;
@@ -280,7 +280,7 @@ public:
 	// They will only be updated in CleanDataStructure
 	int_max GetPointDataSetCount() const;
 	int_max InitializePointDataSet(const String& Name, int_max ScalarCountPerPoint);//return DataSetIndex or -1
-	int_max SetPointDataSet(const String& Name, const DenseMatrix<ScalarType>& DataSet);//create new set if not exist
+	int_max SetPointDataSet(const String& Name, DenseMatrix<ScalarType> DataSet);//create new set if not exist
 	int_max GetPointDataSetIndex(const String& Name) const;
 	String GetPointDataSetName(int_max Index) const;
 	DenseMatrix<ScalarType> GetPointDataSet(int_max Index) const;
@@ -290,7 +290,7 @@ public:
 
 	int_max GetEdgeDataSetCount() const;
 	int_max InitializeEdgeDataSet(const String& Name, int_max ScalarCountPerEdge);//return DataSetIndex or -1
-	int_max SetEdgeDataSet(const String& Name, const DenseMatrix<ScalarType>& DataSet);//create new set if not exist
+	int_max SetEdgeDataSet(const String& Name, DenseMatrix<ScalarType> DataSet);//create new set if not exist
 	int_max GetEdgeDataSetIndex(const String& Name) const;
 	String GetEdgeDataSetName(int_max Index) const;
 	DenseMatrix<ScalarType> GetEdgeDataSet(int_max Index) const;
@@ -300,7 +300,7 @@ public:
 
 	int_max GetFaceDataSetCount() const;
 	int_max InitializeFaceDataSet(const String& Name, int_max ScalarCountPerFace);//return DataSetIndex or -1
-	int_max SetFaceDataSet(const String& Name, const DenseMatrix<ScalarType>& DataSet);//create new set if not exist
+	int_max SetFaceDataSet(const String& Name, DenseMatrix<ScalarType> DataSet);//create new set if not exist
 	int_max GetFaceDataSetIndex(const String& Name) const;
 	String GetFaceDataSetName(int_max Index) const;
 	DenseMatrix<ScalarType> GetFaceDataSet(int_max Index) const;
@@ -310,7 +310,7 @@ public:
 
 	int_max GetCellDataSetCount() const;
 	int_max InitializeCellDataSet(const String& Name, int_max ScalarCountPerCell);//return CellSetIndex or -1
-	int_max SetCellDataSet(const String& Name, const DenseMatrix<ScalarType>& DataSet);//create new set if not exist
+	int_max SetCellDataSet(const String& Name, DenseMatrix<ScalarType> DataSet);//create new set if not exist
 	int_max GetCellDataSetIndex(const String& Name) const;
 	String GetCellDataSetName(int_max Index) const;
 	DenseMatrix<ScalarType> GetCellDataSet(int_max Index) const;

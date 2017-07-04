@@ -674,15 +674,13 @@ bool Mesh<ScalarType>::CheckIfMixedTetHexMesh() const
 	return true;
 }
 
-//------------- Get/Set All the position (valid point) --------------------------------//
+//------------- Get/Set All the position (valid and invalid point) --------------------------------//
 
 template<typename ScalarType>
 inline 
 DenseMatrix<ScalarType> Mesh<ScalarType>::GetPointPosition(const MDK_Symbol_ALL&) const
 {
-	DenseMatrix<ScalarType> PointPositionMatrix;
-	this->GetPointPosition(ALL, PointPositionMatrix);
-	return PointPositionMatrix;
+	return m_MeshData->PointPositionTable;
 }
 
 
@@ -696,40 +694,19 @@ void Mesh<ScalarType>::GetPointPosition(const MDK_Symbol_ALL&, DenseMatrix<Scala
 		return;
 	}
 
-	auto MaxCount = m_MeshData->PointPositionTable.GetColCount();
-	PositionMatrix.FastResize(3, this->GetPointCount());
-	int_max Counter = 0;
-	for (int_max k = 0; k < MaxCount; ++k)
-	{
-		if (m_MeshData->PointValidityFlagList[k] == 1)
-		{
-			PositionMatrix.SetCol(Counter, m_MeshData->PointPositionTable.GetPointerOfCol(k));
-			Counter += 1;
-		}
-	}
+	PositionMatrix = m_MeshData->PointPositionTable;
 }
 
 template<typename ScalarType>
-inline void Mesh<ScalarType>::SetPointPosition(const MDK_Symbol_ALL&, const DenseMatrix<ScalarType>& PositionMatrix) const
+inline void Mesh<ScalarType>::SetPointPosition(const MDK_Symbol_ALL&, DenseMatrix<ScalarType> PositionMatrix) const
 {
-	auto PointCount = this->GetPointCount();
-	if (PositionMatrix.GetColCount() != PointCount)
+	if (PositionMatrix.GetColCount() != m_MeshData->PointList.GetLength())
 	{
 		MDK_Error(" input size is wrong @ Mesh<ScalarType>::SetPointPosition(ALL, ...)")
 		return;
 	}
-
-	int_max ColIndex = -1;
-	for (int_max k = 0; k < m_MeshData->PointPositionTable.GetColCount(); ++k)
-	{
-		if (m_MeshData->PointValidityFlagList[k] == 1)
-		{
-			ColIndex += 1;
-			m_MeshData->PointPositionTable.SetCol(k, PositionMatrix.GetPointerOfCol(ColIndex));
-		}
-	}
+	m_MeshData->PointPositionTable = std::move(PositionMatrix);
 }
-
 
 //---- Get/Set 3D Position by PointIndex --------------------------------------------------------------------------//
 
@@ -974,7 +951,7 @@ bool Mesh<ScalarType>::IsValidCellIndex(int_max CellIndex) const
 
 template<typename ScalarType>
 inline
-DenseVector<int_max> Mesh<ScalarType>::GetPointIndexList() const
+DenseVector<int_max> Mesh<ScalarType>::GetValidPointIndexList() const
 {
 	DenseVector<int_max> OutputIndexList;
 	OutputIndexList.SetCapacity(m_MeshData->PointList.GetLength());	
@@ -990,7 +967,7 @@ DenseVector<int_max> Mesh<ScalarType>::GetPointIndexList() const
 
 template<typename ScalarType>
 inline 
-DenseVector<int_max> Mesh<ScalarType>::GetEdgeIndexList() const
+DenseVector<int_max> Mesh<ScalarType>::GetValidEdgeIndexList() const
 {
 	DenseVector<int_max> OutputIndexList;
 	OutputIndexList.SetCapacity(m_MeshData->EdgeList.GetLength());	
@@ -1007,7 +984,7 @@ DenseVector<int_max> Mesh<ScalarType>::GetEdgeIndexList() const
 
 template<typename ScalarType>
 inline
-DenseVector<int_max> Mesh<ScalarType>::GetFaceIndexList() const
+DenseVector<int_max> Mesh<ScalarType>::GetValidFaceIndexList() const
 {
 	DenseVector<int_max> OutputIndexList;
 	OutputIndexList.SetCapacity(m_MeshData->FaceList.GetLength());
@@ -1024,7 +1001,7 @@ DenseVector<int_max> Mesh<ScalarType>::GetFaceIndexList() const
 
 template<typename ScalarType>
 inline
-DenseVector<int_max> Mesh<ScalarType>::GetCellIndexList() const
+DenseVector<int_max> Mesh<ScalarType>::GetValidCellIndexList() const
 {
 	DenseVector<int_max> OutputIndexList;
 	OutputIndexList.SetCapacity(m_MeshData->CellList.GetLength());
@@ -1559,13 +1536,13 @@ int_max Mesh<ScalarType>::InitializePointDataSet(const String& Name, int_max Sca
 	{
 		auto Index = it->second;
 		m_MeshData->PointDataSet[Index].Clear();
-		m_MeshData->PointDataSet[Index].Resize(ScalarCountPerPoint, m_MeshData->PointValidityFlagList.GetLength());
+		m_MeshData->PointDataSet[Index].Resize(ScalarCountPerPoint, m_MeshData->PointList.GetLength());
 		return Index;
 	}
 	else
 	{//new
 		DenseMatrix<ScalarType> DataSet;
-		DataSet.Resize(ScalarCountPerPoint, m_MeshData->PointValidityFlagList.GetLength());
+		DataSet.Resize(ScalarCountPerPoint, m_MeshData->PointList.GetLength());
 		m_MeshData->PointDataSet.Append(std::move(DataSet));
 		auto Index = m_MeshData->PointDataSet.GetLength() - 1;
 		m_MeshData->Map_PointDataSet_Name_to_Index[Name] = Index;
@@ -1574,10 +1551,9 @@ int_max Mesh<ScalarType>::InitializePointDataSet(const String& Name, int_max Sca
 }
 
 template<typename ScalarType>
-int_max Mesh<ScalarType>::SetPointDataSet(const String& Name, const DenseMatrix<ScalarType>& DataSet)
+int_max Mesh<ScalarType>::SetPointDataSet(const String& Name, DenseMatrix<ScalarType> DataSet)
 {
-	auto PointCount = this->GetPointCount();
-	if (DataSet.GetColCount() != PointCount)
+	if (DataSet.GetColCount() != m_MeshData->PointList.GetLength())
 	{
 		MDK_Error("size is wrong @ Mesh<ScalarType>::SetPointDataSet(...)")
 		return -1;
@@ -1590,16 +1566,7 @@ int_max Mesh<ScalarType>::SetPointDataSet(const String& Name, const DenseMatrix<
 		return -1;
 	}
 
-	int_max ColIndex = -1;
-	for (int_max k = 0; k < m_MeshData->PointDataSet[DataSetIndex].GetColCount(); ++k)
-	{
-		if (m_MeshData->PointValidityFlagList[k] == 1)
-		{
-			ColIndex += 1;
-			m_MeshData->PointDataSet[DataSetIndex].SetCol(k, DataSet.GetPointerOfCol(ColIndex));
-		}
-	}
-
+	m_MeshData->PointDataSet[DataSetIndex] = std::move(DataSet);
 	return DataSetIndex;
 }
 
@@ -1667,13 +1634,13 @@ int_max Mesh<ScalarType>::InitializeEdgeDataSet(const String& Name, int_max Scal
 	{
 		auto Index= it->second;
 		m_MeshData->EdgeDataSet[Index].Clear();
-		m_MeshData->EdgeDataSet[Index].Resize(ScalarCountPerEdge, m_MeshData->EdgeValidityFlagList.GetLength());
+		m_MeshData->EdgeDataSet[Index].Resize(ScalarCountPerEdge, m_MeshData->EdgeList.GetLength());
 		return Index;
 	}
 	else
 	{//new
 		DenseMatrix<ScalarType> DataSet;
-		DataSet.Resize(ScalarCountPerEdge, m_MeshData->EdgeValidityFlagList.GetLength());
+		DataSet.Resize(ScalarCountPerEdge, m_MeshData->EdgeList.GetLength());
 		m_MeshData->EdgeDataSet.Append(std::move(DataSet));
 		auto Index = m_MeshData->EdgeDataSet.GetLength() - 1;
 		m_MeshData->Map_EdgeDataSet_Name_to_Index[Name] = Index;
@@ -1682,10 +1649,9 @@ int_max Mesh<ScalarType>::InitializeEdgeDataSet(const String& Name, int_max Scal
 }
 
 template<typename ScalarType>
-int_max Mesh<ScalarType>::SetEdgeDataSet(const String& Name, const DenseMatrix<ScalarType>& DataSet)
+int_max Mesh<ScalarType>::SetEdgeDataSet(const String& Name, DenseMatrix<ScalarType> DataSet)
 {
-	auto EdgeCount = this->GetEdgeCount();
-	if (DataSet.GetColCount() != EdgeCount)
+	if (DataSet.GetColCount() != m_MeshData->EdgeList.GetLength())
 	{
 		MDK_Error("size is wrong @ Mesh<ScalarType>::SetEdgeDataSet(...)")
 		return -1;
@@ -1698,16 +1664,7 @@ int_max Mesh<ScalarType>::SetEdgeDataSet(const String& Name, const DenseMatrix<S
 		return -1;
 	}
 
-	int_max ColIndex = -1;
-	for (int_max k = 0; k < m_MeshData->EdgeDataSet[DataSetIndex].GetColCount(); ++k)
-	{
-		if (m_MeshData->EdgeValidityFlagList[k] == 1)
-		{
-			ColIndex += 1;
-			m_MeshData->EdgeDataSet[DataSetIndex].SetCol(k, DataSet.GetPointerOfCol(ColIndex));
-		}
-	}
-
+	m_MeshData->EdgeDataSet[DataSetIndex] = std::move(DataSet);
 	return DataSetIndex;
 }
 
@@ -1775,13 +1732,13 @@ int_max Mesh<ScalarType>::InitializeFaceDataSet(const String& Name, int_max Scal
 	{
 		auto Index = it->second;	
 		m_MeshData->FaceDataSet[Index].Clear();
-		m_MeshData->FaceDataSet[Index].Resize(ScalarCountPerFace, m_MeshData->FaceValidityFlagList.GetLength());
+		m_MeshData->FaceDataSet[Index].Resize(ScalarCountPerFace, m_MeshData->FaceList.GetLength());
 		return Index;
 	}
 	else
 	{//new
 		DenseMatrix<ScalarType> DataSet;
-		DataSet.Resize(ScalarCountPerFace, m_MeshData->FaceValidityFlagList.GetLength());
+		DataSet.Resize(ScalarCountPerFace, m_MeshData->FaceList.GetLength());
 		m_MeshData->FaceDataSet.Append(std::move(DataSet));
 		auto Index = m_MeshData->FaceDataSet.GetLength() - 1;
 		m_MeshData->Map_FaceDataSet_Name_to_Index[Name] = Index;
@@ -1790,10 +1747,10 @@ int_max Mesh<ScalarType>::InitializeFaceDataSet(const String& Name, int_max Scal
 }
 
 template<typename ScalarType>
-int_max Mesh<ScalarType>::SetFaceDataSet(const String& Name, const DenseMatrix<ScalarType>& DataSet)
+int_max Mesh<ScalarType>::SetFaceDataSet(const String& Name, DenseMatrix<ScalarType> DataSet)
 {
 	auto FaceCount = this->GetFaceCount();
-	if (DataSet.GetColCount() != FaceCount)
+	if (DataSet.GetColCount() != m_MeshData->FaceList.GetLength())
 	{
 		MDK_Error("size is wrong @ Mesh<ScalarType>::SetFaceDataSet(...)")
 		return -1;
@@ -1806,16 +1763,7 @@ int_max Mesh<ScalarType>::SetFaceDataSet(const String& Name, const DenseMatrix<S
 		return -1;
 	}
 
-	int_max ColIndex = -1;
-	for (int_max k = 0; k < m_MeshData->FaceDataSet[DataSetIndex].GetColCount(); ++k)
-	{
-		if (m_MeshData->FaceValidityFlagList[k] == 1)
-		{
-			ColIndex += 1;
-			m_MeshData->FaceDataSet[DataSetIndex].SetCol(k, DataSet.GetPointerOfCol(ColIndex));
-		}
-	}
-
+	m_MeshData->FaceDataSet[DataSetIndex] = std::move(DataSet);
 	return DataSetIndex;
 }
 
@@ -1883,13 +1831,13 @@ int_max Mesh<ScalarType>::InitializeCellDataSet(const String& Name, int_max Scal
 	{
 		auto Index = it->second;
 		m_MeshData->CellDataSet[Index].Clear();
-		m_MeshData->CellDataSet[Index].Resize(ScalarCountPerCell, m_MeshData->CellValidityFlagList.GetLength());
+		m_MeshData->CellDataSet[Index].Resize(ScalarCountPerCell, m_MeshData->CellList.GetLength());
 		return Index;
 	}
 	else
 	{//new
 		DenseMatrix<ScalarType> DataSet;
-		DataSet.Resize(ScalarCountPerCell, m_MeshData->CellValidityFlagList.GetLength());
+		DataSet.Resize(ScalarCountPerCell, m_MeshData->CellList.GetLength());
 		m_MeshData->CellDataSet.Append(std::move(DataSet));
 		auto Index = m_MeshData->CellDataSet.GetLength() - 1;
 		m_MeshData->Map_CellDataSet_Name_to_Index[Name] = Index;
@@ -1898,10 +1846,10 @@ int_max Mesh<ScalarType>::InitializeCellDataSet(const String& Name, int_max Scal
 }
 
 template<typename ScalarType>
-int_max Mesh<ScalarType>::SetCellDataSet(const String& Name, const DenseMatrix<ScalarType>& DataSet)
+int_max Mesh<ScalarType>::SetCellDataSet(const String& Name, DenseMatrix<ScalarType> DataSet)
 {
 	auto CellCount = this->GetCellCount();
-	if (DataSet.GetColCount() != CellCount)
+	if (DataSet.GetColCount() != m_MeshData->CellList.GetLength())
 	{
 		MDK_Error("size is wrong @ Mesh<ScalarType>::SetCellDataSet(...)")
 		return -1;
@@ -1914,16 +1862,7 @@ int_max Mesh<ScalarType>::SetCellDataSet(const String& Name, const DenseMatrix<S
 		return -1;
 	}
 
-	int_max ColIndex = -1;
-	for (int_max k = 0; k < m_MeshData->CellDataSet[DataSetIndex].GetColCount(); ++k)
-	{
-		if (m_MeshData->CellValidityFlagList[k] == 1)
-		{
-			ColIndex += 1;
-			m_MeshData->CellDataSet[DataSetIndex].SetCol(k, DataSet.GetPointerOfCol(ColIndex));
-		}
-	}
-
+	m_MeshData->CellDataSet[DataSetIndex] = std::move(DataSet);
 	return DataSetIndex;
 }
 
