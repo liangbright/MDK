@@ -446,7 +446,6 @@ PolygonMesh<ScalarType> ClipMeshByVTKClipPolyData(const PolygonMesh<ScalarType>&
 }
 
 
-template<typename ScalarType>
 DenseVector<int_max> FindShortestPathByVTKDijkstraGraphGeodesicPath(vtkPolyData* InputMesh_vtk, int_max PointIndex_start, int_max PointIndex_end)
 {
 	if (InputMesh_vtk == nullptr)

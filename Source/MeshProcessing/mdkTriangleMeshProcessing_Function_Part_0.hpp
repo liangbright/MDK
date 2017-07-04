@@ -26,9 +26,9 @@ void ConvertPolygonMeshToTriangleMesh(const PolygonMesh<ScalarType>& InputMesh, 
 	//-----------------------------------------------------------
 	auto VTKMesh = ConvertMDKPolygonMeshToVTKPolyData(InputMesh);
 	auto triangleFilter = vtkSmartPointer<vtkTriangleFilter>::New();
-	triangleFilter->SetInputData(triangleFilter);
+	triangleFilter->SetInputData(VTKMesh);
 	triangleFilter->Update();
-	ConvertVTKPolyDataToMDKTriangleMesh(triangleFilter->GetOutput(), OutputMesh);
+	ConvertVTKPolyDataToMDKPolygonMesh(triangleFilter->GetOutput(), OutputMesh);
 
 	//-----------------------------------------------------------
 	int_max NamedPointCount = InputMesh.GetNamedPointCount();

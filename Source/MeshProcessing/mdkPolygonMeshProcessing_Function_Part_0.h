@@ -17,7 +17,7 @@ template<typename ScalarType>
 ObjectArray<DenseVector<int_max>> TraceMeshBoundaryCurve(const PolygonMesh<ScalarType>& InputMesh);
 
 template<typename ScalarType>
-int_max FindNearestPointOnMesh(const PolygonMesh<ScalarType>& InputMesh,  const DenseVector<typename ScalarType::ScalarType, 3>& PointPosition);
+int_max FindNearestPointOnMesh(const PolygonMesh<ScalarType>& InputMesh,  const DenseVector<ScalarType, 3>& PointPosition);
 
 template<typename ScalarType>
 PolygonMesh<ScalarType> SmoothMeshByVTKSmoothPolyDataFilter(const PolygonMesh<ScalarType>& InputMesh, int_max Iter, bool Flag_FeatureEdgeSmoothing = true, bool Flag_BoundarySmoothing = true);
@@ -36,20 +36,19 @@ DenseVector<DenseVector<int_max>> SegmentMeshByEdgeCurve(const PolygonMesh<Scala
 
 //clip mesh using a plane defined by origin and normal
 template<typename ScalarType>
-PolygonMesh<ScalarType> ClipMeshByVTKClipPolyData(vtkPolyData* InputMesh_vtk, const DenseVector<typename ScalarType::ScalarType, 3>& Origin, const DenseVector<typename ScalarType::ScalarType, 3>& Normal);
+PolygonMesh<ScalarType> ClipMeshByVTKClipPolyData(vtkPolyData* InputMesh_vtk, const DenseVector<ScalarType, 3>& Origin, const DenseVector<ScalarType, 3>& Normal);
 
 //clip mesh using a plane defined by origin and normal
 template<typename ScalarType>
-PolygonMesh<ScalarType> ClipMeshByVTKClipPolyData(const PolygonMesh<ScalarType>& InputMesh, const DenseVector<typename ScalarType::ScalarType, 3>& Origin, const DenseVector<typename ScalarType::ScalarType, 3>& Normal);
+PolygonMesh<ScalarType> ClipMeshByVTKClipPolyData(const PolygonMesh<ScalarType>& InputMesh, const DenseVector<ScalarType, 3>& Origin, const DenseVector<ScalarType, 3>& Normal);
 
-template<typename ScalarType>
 DenseVector<int_max> FindShortestPathByVTKDijkstraGraphGeodesicPath(vtkPolyData* InputMesh_vtk, int_max PointIndex_start, int_max PointIndex_end);
 
 template<typename ScalarType>
 DenseVector<int_max> FindShortestPathByVTKDijkstraGraphGeodesicPath(const PolygonMesh<ScalarType>& InputMesh, int_max PointIndex_start, int_max PointIndex_end);
 
 template<typename ScalarType>
-PolygonMesh<ScalarType> MergeMeshBoundary(const PolygonMesh<ScalarType>& InputMeshA, const PolygonMesh<ScalarType>& InputMeshB, typename ScalarType::ScalarType Threshold);
+PolygonMesh<ScalarType> MergeMeshBoundary(const PolygonMesh<ScalarType>& InputMeshA, const PolygonMesh<ScalarType>& InputMeshB, ScalarType Threshold);
 
 }//namespace mdk
 

@@ -118,7 +118,7 @@ template<typename ScalarType>
 TriangleMesh<ScalarType> TriangleMesh<ScalarType>::GetSubMeshByFace(const DenseVector<int_max>& FaceIndexList) const
 {
 	TriangleMesh<ScalarType> OutputMesh = this->PolygonMesh::GetSubMeshByFace(FaceIndexList);
-	return TriangleMesh;
+	return OutputMesh;
 }
 
 //------------- Function optimized for TriangleMesh --------------------------------------------------//
