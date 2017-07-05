@@ -285,8 +285,7 @@ public:
 	inline StdObjectVector<String> GetFaceName(const DenseVector<int_max>& FaceIndexList) const;
 
 	//----------- PointDataSet, EdgeDataSet, FaceDataset, CellDataSet ----------------------------------//		
-	// PointDataSet/EdgeDataSet/FaceDataset/CellDataSet will NOT be updated if new Point/Edge/Face is added, or old is deleted
-	// They will only be updated in CleanDataStructure
+	// PointDataSet/EdgeDataSet/FaceDataset/CellDataSet will expand if new Point/Edge/Face/Cell is added
 	int_max GetPointDataSetCount() const;
 	int_max InitializePointDataSet(const String& Name, int_max ScalarCountPerPoint);//return DataSetIndex or -1
 	int_max SetPointDataSet(const String& Name, DenseMatrix<ScalarType> DataSet);//create new set if not exist
