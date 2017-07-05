@@ -2950,7 +2950,7 @@ int_max Mesh<ScalarType>::AddCellByFace(MeshCellTypeEnum Type, const DenseVector
 		}
 		else
 		{
-			m_MeshData->CellDataSet[SetIndex].FillCol(CellIndex_input, 0)
+			m_MeshData->CellDataSet[SetIndex].FillCol(CellIndex_input, 0);
 		}
 	}
 	//------------
