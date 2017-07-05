@@ -8,9 +8,7 @@
 #include "mdkDenseMatrix.h"
 #include "mdkDenseMatrix_FileIO.h"
 #include "mdkPolygonMesh.h"
-#include "mdkPolygonMesh_FileIO.h"
 #include "mdkTriangleMesh.h"
-#include "mdkTriangleMesh_FileIO.h"
 
 #include "mdkVTKDataObject_FileIO.h"
 #include "mdkITKDataObject_FileIO.h"
@@ -58,15 +56,13 @@ void Test_PolygonMeshIO()
 	String VTKFileNameAndPath_input = "C:/Research/MDK/MDK_Build/Test/Test_FileIO/TestData/PolygonMesh.vtk";
 	String JsonFileNameAndPath_input = "C:/Research/MDK/MDK_Build/Test/Test_FileIO/TestData/PolygonMesh.json";
 
-	typedef PolygonMesh<PolygonMeshStandardAttributeType<double>> PolygonMeshType;
-
-	PolygonMeshType InputMesh;
+	PolygonMesh<double> InputMesh;
 
 	LoadPolygonMeshFromVTKFile(InputMesh, VTKFileNameAndPath_input);
 
 	SavePolygonMeshAsJsonDataFile(InputMesh, JsonFileNameAndPath_input);
 
-	PolygonMeshType OutputMesh;
+	PolygonMesh<double> OutputMesh;
 	LoadPolygonMeshFromJsonDataFile(OutputMesh, JsonFileNameAndPath_input);
 
 	String VTKFileNameAndPath_output = "C:/Research/MDK/MDK_Build/Test/Test_FileIO/TestData/PolygonMesh_output.vtk";
@@ -79,21 +75,20 @@ void Test_TriangleMeshIO()
 	String VTKFileNameAndPath_input = "C:/Research/MDK/MDK_Build/Test/Test_FileIO/TestData/PolygonMesh.vtk";
 	String JsonFileNameAndPath_input = "C:/Research/MDK/MDK_Build/Test/Test_FileIO/TestData/TriangleMesh.json";
 
-	typedef TriangleMesh<TriangleMeshStandardAttributeType<double>> TriangleMeshType;
+	TriangleMesh<double> InputMesh;
+	LoadPolygonMeshFromVTKFile(InputMesh, VTKFileNameAndPath_input);
 
-	TriangleMeshType InputMesh;
-    LoadTriangleMeshFromVTKFile(InputMesh, VTKFileNameAndPath_input);
+	LoadPolygonMeshFromJsonDataFile(InputMesh, JsonFileNameAndPath_input);
 
-	SaveTriangleMeshAsJsonDataFile(InputMesh, JsonFileNameAndPath_input);
-
-	TriangleMeshType OutputMesh;
-	LoadTriangleMeshFromJsonDataFile(OutputMesh, JsonFileNameAndPath_input);
+	TriangleMesh<double> OutputMesh;
+	LoadPolygonMeshFromJsonDataFile(OutputMesh, JsonFileNameAndPath_input);
 
 	String VTKFileNameAndPath_output = "C:/Research/MDK/MDK_Build/Test/Test_FileIO/TestData/TriangleMesh_output.vtk";
 
-	SaveTriangleMeshAsVTKFile(OutputMesh, VTKFileNameAndPath_output);
+	SavePolygonMeshAsVTKFile(OutputMesh, VTKFileNameAndPath_output);
 }
 
+/*
 void Test_VTK_Json()
 {
 	String FilePathAndName = "C:/Research/MDK/MDK_Build/Test/Test_FileIO/TestData/Image.json";
@@ -102,8 +97,9 @@ void Test_VTK_Json()
 	vtkImageData* VTKImage_ptr = VTKImage.Get();
 	auto IsOK = LoadVTK3DScalarImageFromJsonDataFile(VTKImage_ptr, VTKDataTypeEnum::VALUE_DOUBLE, FilePathAndName);
 }
+*/
 
-
+/*
 void Test_ITK_Json()
 {
 	String FilePathAndName = "C:/Research/MDK/MDK_Build/Test/Test_FileIO/TestData/Image.json";
@@ -112,7 +108,7 @@ void Test_ITK_Json()
 
 	auto IsOK = LoadITK3DScalarImageFromJsonDataFile(ITKImage.GetPointer(), FilePathAndName);
 }
-
+*/
 }//end of namespace
 
 

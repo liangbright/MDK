@@ -4,17 +4,17 @@ int main()
 {
 	using namespace mdk;
 
-	//Test_MatrixIO();
+	Test_MatrixIO();
 
-    //Test_ImageIO();
+   Test_ImageIO();
 
-	//Test_PolygonMeshIO();
+	Test_PolygonMeshIO();
 
-	//Test_TriangleMeshIO();
+	Test_TriangleMeshIO();
 
-	Test_VTK_Json();
+	//Test_VTK_Json();
 
-	Test_ITK_Json();
+	//Test_ITK_Json();
 
     std::system("pause");
 
