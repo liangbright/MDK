@@ -396,7 +396,7 @@ void TriangleMesh<ScalarType>::UpdateGaussianCurvatureAtPoint(int_max PointIndex
         auto AdjacentEdgeIndexList = this->Point(PointIndex).GetAdjacentEdgeIndexList();
         for (int_max k = 0; k < AdjacentEdgeIndexList.GetLength(); ++k)
         {
-            if (this->Edge(AdjacentEdgeIndexList[k]).IsBoundary() == true)
+            if (this->Edge(AdjacentEdgeIndexList[k]).IsOnPolygonMeshBoundary() == true)
             {
                 int_max tempPointIndex_0, tempPointIndex_1;
                 this->Edge(AdjacentEdgeIndexList[k]).GetPointIndexList(tempPointIndex_0, tempPointIndex_1);
