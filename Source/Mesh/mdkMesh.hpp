@@ -2374,23 +2374,19 @@ void Mesh<ScalarType>::SetCapacity(int_max PointCount, int_max EdgeCount, int_ma
 
 	for (int_max k = 0; k < m_MeshData->PointDataSet.GetLength(); ++k)
 	{
-		m_MeshData->PointDataSet[k].SetCapacity(m_MeshData->PointDataSet[k].GetRowCount(), PointCount);
-		m_MeshData->PointDataSetName[k].SetCapacity(PointCount);
+		m_MeshData->PointDataSet[k].SetCapacity(m_MeshData->PointDataSet[k].GetRowCount(), PointCount);		
 	}
 	for (int_max k = 0; k < m_MeshData->EdgeDataSet.GetLength(); ++k)
 	{
-		m_MeshData->EdgeDataSet[k].SetCapacity(m_MeshData->EdgeDataSet[k].GetRowCount(), EdgeCount);
-		m_MeshData->EdgeDataSetName[k].SetCapacity(EdgeCount);
+		m_MeshData->EdgeDataSet[k].SetCapacity(m_MeshData->EdgeDataSet[k].GetRowCount(), EdgeCount);		
 	}
 	for (int_max k = 0; k < m_MeshData->FaceDataSet.GetLength(); ++k)
 	{
-		m_MeshData->FaceDataSet[k].SetCapacity(m_MeshData->FaceDataSet[k].GetRowCount(), FaceCount);
-		m_MeshData->FaceDataSetName[k].SetCapacity(FaceCount);
+		m_MeshData->FaceDataSet[k].SetCapacity(m_MeshData->FaceDataSet[k].GetRowCount(), FaceCount);		
 	}
 	for (int_max k = 0; k < m_MeshData->CellDataSet.GetLength(); ++k)
 	{
-		m_MeshData->CellDataSet[k].SetCapacity(m_MeshData->CellDataSet[k].GetRowCount(), CellCount);
-		m_MeshData->CellDataSetName[k].SetCapacity(CellCount);
+		m_MeshData->CellDataSet[k].SetCapacity(m_MeshData->CellDataSet[k].GetRowCount(), CellCount);		
 	}
 }
 
