@@ -286,9 +286,11 @@ public:
 
 	//----------- PointDataSet, EdgeDataSet, FaceDataset, CellDataSet ----------------------------------//		
 	// PointDataSet/EdgeDataSet/FaceDataset/CellDataSet will expand if new Point/Edge/Face/Cell is added
-	int_max GetPointDataSetCount() const;
-	int_max InitializePointDataSet(const String& Name, int_max ScalarCountPerPoint);//return DataSetIndex or -1
-	int_max SetPointDataSet(const String& Name, DenseMatrix<ScalarType> DataSet);//create new set if not exist
+	int_max AddPointDataSet(const String& Name, int_max ScalarCountPerPoint);//return DataSetIndex or -1
+	int_max AddPointDataSet(const String& Name, DenseMatrix<ScalarType> DataSet);
+	int_max GetPointDataSetCount() const;	
+	void SetPointDataSet(const String& Name, DenseMatrix<ScalarType> DataSet);
+	void SetPointDataSet(int_max Index, DenseMatrix<ScalarType> DataSet);
 	int_max GetPointDataSetIndex(const String& Name) const;
 	String GetPointDataSetName(int_max Index) const;
 	DenseMatrix<ScalarType> GetPointDataSet(int_max Index) const;
@@ -296,9 +298,11 @@ public:
 	//Point(k).GetData(int_max Index);             
 	//Point(k).SetData(int_max Index, const DenseVector<ScalarType>& Data);
 
+	int_max AddEdgeDataSet(const String& Name, int_max ScalarCountPerEdge);//return DataSetIndex or -1
+	int_max AddEdgeDataSet(const String& Name, DenseMatrix<ScalarType> DataSet);
 	int_max GetEdgeDataSetCount() const;
-	int_max InitializeEdgeDataSet(const String& Name, int_max ScalarCountPerEdge);//return DataSetIndex or -1
-	int_max SetEdgeDataSet(const String& Name, DenseMatrix<ScalarType> DataSet);//create new set if not exist
+	void SetEdgeDataSet(const String& Name, DenseMatrix<ScalarType> DataSet);
+	void SetEdgeDataSet(int_max Index, DenseMatrix<ScalarType> DataSet);
 	int_max GetEdgeDataSetIndex(const String& Name) const;
 	String GetEdgeDataSetName(int_max Index) const;
 	DenseMatrix<ScalarType> GetEdgeDataSet(int_max Index) const;
@@ -306,9 +310,11 @@ public:
 	//Edge(k).GetData(int_max Index);
 	//Edge(k).SetData(int_max Index, const DenseVector<ScalarType>& Data);
 
+	int_max AddFaceDataSet(const String& Name, int_max ScalarCountPerFace);//return DataSetIndex or -1
+	int_max AddFaceDataSet(const String& Name, DenseMatrix<ScalarType> DataSet);
 	int_max GetFaceDataSetCount() const;
-	int_max InitializeFaceDataSet(const String& Name, int_max ScalarCountPerFace);//return DataSetIndex or -1
-	int_max SetFaceDataSet(const String& Name, DenseMatrix<ScalarType> DataSet);//create new set if not exist
+	void SetFaceDataSet(const String& Name, DenseMatrix<ScalarType> DataSet);
+	void SetFaceDataSet(int_max Index, DenseMatrix<ScalarType> DataSet);
 	int_max GetFaceDataSetIndex(const String& Name) const;
 	String GetFaceDataSetName(int_max Index) const;
 	DenseMatrix<ScalarType> GetFaceDataSet(int_max Index) const;
@@ -316,9 +322,11 @@ public:
 	//Face(k).GetData(int_max Index);	
 	//Face(k).SetData(int_max Index, const DenseVector<ScalarType>& Data);
 
-	int_max GetCellDataSetCount() const;
-	int_max InitializeCellDataSet(const String& Name, int_max ScalarCountPerCell);//return CellSetIndex or -1
-	int_max SetCellDataSet(const String& Name, DenseMatrix<ScalarType> DataSet);//create new set if not exist
+	int_max AddCellDataSet(const String& Name, int_max ScalarCountPerCell);//return DataSetIndex or -1
+	int_max AddCellDataSet(const String& Name, DenseMatrix<ScalarType> DataSet);
+	int_max GetCellDataSetCount() const;	
+	void SetCellDataSet(const String& Name, DenseMatrix<ScalarType> DataSet);
+	void SetCellDataSet(int_max Index, DenseMatrix<ScalarType> DataSet);
 	int_max GetCellDataSetIndex(const String& Name) const;
 	String GetCellDataSetName(int_max Index) const;
 	DenseMatrix<ScalarType> GetCellDataSet(int_max Index) const;
@@ -329,29 +337,41 @@ public:
 	//------------ PointSet, EdgeSet, FaceSet, CellSet ------------------------------------------//
 	// PointSet/EdgeSet/FaceSet/CellSet will NOT be updated if new Point/Edge/Face is added, or old is deleted
 	// They will only be updated in CleanDataStructure
+	int_max AddPointSet(const String& Name);//empty set
+	int_max AddPointSet(const String& Name, DenseVector<int_max> PointIndexList);
 	int_max GetPointSetCount() const;
-	int_max SetPointSet(const String& Name, DenseVector<int_max> PointIndexList);
+	void SetPointSet(const String& Name, DenseVector<int_max> PointIndexList);
+	void SetPointSet(int_max Index, DenseVector<int_max> PointIndexList);
 	int_max GetPointSetIndex(const String& Name) const;
 	String GetPointSetName(int_max Index) const;
 	DenseVector<int_max> GetPointSet(int_max Index) const;
 	DenseVector<int_max> GetPointSet(const String& Name) const;
 
+	int_max AddEdgeSet(const String& Name);//empty set
+	int_max AddEdgeSet(const String& Name, DenseVector<int_max> EdgeIndexList);
 	int_max GetEdgeSetCount() const;
-	int_max SetEdgeSet(const String& Name, DenseVector<int_max> EdgeIndexList);
+	void SetEdgeSet(const String& Name, DenseVector<int_max> EdgeIndexList);
+	void SetEdgeSet(int_max Index, DenseVector<int_max> EdgeIndexList);
 	int_max GetEdgeSetIndex(const String& Name) const;
 	String GetEdgeSetName(int_max Index) const;
 	DenseVector<int_max> GetEdgeSet(int_max Index) const;
 	DenseVector<int_max> GetEdgeSet(const String& Name) const;
 
+	int_max AddFaceSet(const String& Name);//empty set
+	int_max AddFaceSet(const String& Name, DenseVector<int_max> FaceIndexList);
 	int_max GetFaceSetCount() const;
-	int_max SetFaceSet(const String& Name, DenseVector<int_max> FaceIndexList);
+	void SetFaceSet(const String& Name, DenseVector<int_max> FaceIndexList);
+	void SetFaceSet(int_max Index, DenseVector<int_max> FaceIndexList);
 	int_max GetFaceSetIndex(const String& Name) const;
 	String GetFaceSetName(int_max Index) const;
 	DenseVector<int_max> GetFaceSet(int_max Index) const;
 	DenseVector<int_max> GetFaceSet(const String& Name) const;
 
+	int_max AddCellSet(const String& Name);//empty set
+	int_max AddCellSet(const String& Name, DenseVector<int_max> CellIndexList);
 	int_max GetCellSetCount() const;
-	int_max SetCellSet(const String& Name, DenseVector<int_max> CellIndexList);
+	void SetCellSet(const String& Name, DenseVector<int_max> CellIndexList);
+	void SetCellSet(int_max Index, DenseVector<int_max> CellIndexList);
 	int_max GetCellSetIndex(const String& Name) const;
 	String GetCellSetName(int_max Index) const;
 	DenseVector<int_max> GetCellSet(int_max Index) const;

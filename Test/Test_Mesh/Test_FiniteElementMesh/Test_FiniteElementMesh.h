@@ -54,7 +54,7 @@ void Test_CreateMesh()
 	auto Set3 = MeshB.GetElementSet("0_ElementSet");
 	auto Set4 = MeshB.GetElementSet("1_FaceSet");
 
-	MeshC = MeshB.GetSubMesh({0, 1, 2});
+	MeshC = MeshB.GetSubMeshByElement({0, 1, 2});
 	SaveFiniteElementMeshAsJsonDataFile(MeshC, DataPath + "MeshC.json");
 }
 

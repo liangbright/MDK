@@ -1563,36 +1563,39 @@ inline StdObjectVector<String> Mesh<ScalarType>::GetFaceName(const DenseVector<i
 }
 
 //------------- PointDataSet, EdgeDataSet, FaceDataset, CellDataset ----------------------------------//
+
 template<typename ScalarType>
-int_max Mesh<ScalarType>::GetPointDataSetCount() const
+int_max Mesh<ScalarType>::AddPointDataSet(const String& Name, int_max ScalarCountPerPoint)
 {
-	return m_MeshData->PointDataSet.GetLength();
+	DenseMatrix<ScalarType> DataSet;
+	DataSet.Resize(3, this->GetMaxValueOfPointIndex());
+	DataSet.Fill(0);
+	return this->AddPointDataSet(Name, std::move(DataSet));
 }
 
 template<typename ScalarType>
-int_max Mesh<ScalarType>::InitializePointDataSet(const String& Name, int_max ScalarCountPerPoint)
+int_max Mesh<ScalarType>::AddPointDataSet(const String& Name, DenseMatrix<ScalarType> DataSet)
 {
 	if (Name.IsEmpty() == true)
 	{
-		MDK_Error("PointDataSet Name is Empty @ Mesh::InitializePointDataSet(...)")
+		MDK_Error("PointDataSet Name is Empty @ Mesh::AddPointDataSet(...)")
+		return -1;
+	}
+
+	if (DataSet.GetColCount() != m_MeshData->PointList.GetLength())
+	{
+		MDK_Error("size is wrong @ Mesh<ScalarType>::AddPointDataSet(...)")
 		return -1;
 	}
 
 	auto it = m_MeshData->Map_PointDataSet_Name_to_Index.find(Name);
 	if (it != m_MeshData->Map_PointDataSet_Name_to_Index.end())
 	{
-		auto Index = it->second;
-		if (m_MeshData->PointDataSet[Index].GetColCount() != m_MeshData->PointList.GetLength())
-		{
-			m_MeshData->PointDataSet[Index].Clear();
-			m_MeshData->PointDataSet[Index].Resize(ScalarCountPerPoint, m_MeshData->PointList.GetLength());
-		}
-		return Index;
+		MDK_Error("PointDataSet has already been added @ Mesh::AddPointDataSet(...)")
+		return -1;
 	}
 	else
-	{//new
-		DenseMatrix<ScalarType> DataSet;
-		DataSet.Resize(ScalarCountPerPoint, m_MeshData->PointList.GetLength());
+	{
 		m_MeshData->PointDataSet.Append(std::move(DataSet));
 		m_MeshData->PointDataSetName.Append(Name);
 		auto Index = m_MeshData->PointDataSet.GetLength() - 1;
@@ -1602,30 +1605,37 @@ int_max Mesh<ScalarType>::InitializePointDataSet(const String& Name, int_max Sca
 }
 
 template<typename ScalarType>
-int_max Mesh<ScalarType>::SetPointDataSet(const String& Name, DenseMatrix<ScalarType> DataSet)
+int_max Mesh<ScalarType>::GetPointDataSetCount() const
 {
-	if (Name.IsEmpty() == true)
+	return m_MeshData->PointDataSet.GetLength();
+}
+
+template<typename ScalarType>
+void Mesh<ScalarType>::SetPointDataSet(const String& Name, DenseMatrix<ScalarType> DataSet)
+{	
+	auto Index = this->GetPointDataSetIndex(Name);
+	this->SetPointDataSet(Index, std::move(DataSet));
+}
+
+
+template<typename ScalarType>
+void Mesh<ScalarType>::SetPointDataSet(int_max Index, DenseMatrix<ScalarType> DataSet)
+{
+	if (Index < 0 || Index >= m_MeshData->PointDataSet.GetLength())
 	{
-		MDK_Error("PointDataSet Name is Empty @ Mesh::SetPointDataSet(...)")
-		return -1;
+		MDK_Error("Index " << Index << "NOT exist @ Mesh::SetPointDataSet(...)")
+		return;
 	}
 
 	if (DataSet.GetColCount() != m_MeshData->PointList.GetLength())
 	{
 		MDK_Error("size is wrong @ Mesh<ScalarType>::SetPointDataSet(...)")
-		return -1;
+		return;
 	}
 
-	auto DataSetIndex = this->InitializePointDataSet(Name, DataSet.GetRowCount());
-	if (DataSetIndex < 0)
-	{
-		MDK_Error("Name is wrong @ Mesh<ScalarType>::SetPointDataSet(...)")
-		return -1;
-	}
-
-	m_MeshData->PointDataSet[DataSetIndex] = std::move(DataSet);
-	return DataSetIndex;
+	m_MeshData->PointDataSet[Index] = std::move(DataSet);
 }
+
 
 template<typename ScalarType>
 int_max Mesh<ScalarType>::GetPointDataSetIndex(const String& Name) const
@@ -1635,7 +1645,7 @@ int_max Mesh<ScalarType>::GetPointDataSetIndex(const String& Name) const
 	{
 		return it->second;
 	}
-	MDK_Error("Name " << Name << " NOT exist @ Mesh::GetPointDataSetIndex(...)")
+	//MDK_Warning("Name " << Name << " NOT exist @ Mesh::GetPointDataSetIndex(...)")
 	return -1;
 }
 
@@ -1671,36 +1681,40 @@ DenseMatrix<ScalarType> Mesh<ScalarType>::GetPointDataSet(const String& Name) co
 }
 
 //
-template<typename ScalarType>
-int_max Mesh<ScalarType>::GetEdgeDataSetCount() const
-{
-	return m_MeshData->EdgeDataSet.GetLength();
-}
 
 template<typename ScalarType>
-int_max Mesh<ScalarType>::InitializeEdgeDataSet(const String& Name, int_max ScalarCountPerEdge)
+int_max Mesh<ScalarType>::AddEdgeDataSet(const String& Name, int_max ScalarCountPerEdge)
+{
+	DenseMatrix<ScalarType> DataSet;
+	DataSet.Resize(3, this->GetMaxValueOfEdgeIndex());
+	DataSet.Fill(0);
+	return this->AddEdgeDataSet(Name, std::move(DataSet));
+}
+
+
+template<typename ScalarType>
+int_max Mesh<ScalarType>::AddEdgeDataSet(const String& Name, DenseMatrix<ScalarType> DataSet)
 {
 	if (Name.IsEmpty() == true)
 	{
-		MDK_Error("EdgeDataSet Name is Empty @ Mesh::InitializeEdgeDataSet(...)")
+		MDK_Error("EdgeDataSet Name is Empty @ Mesh::AddEdgeDataSet(...)")
+		return -1;
+	}
+
+	if (DataSet.GetColCount() != m_MeshData->EdgeList.GetLength())
+	{
+		MDK_Error("size is wrong @ Mesh<ScalarType>::AddEdgeDataSet(...)")
 		return -1;
 	}
 
 	auto it = m_MeshData->Map_EdgeDataSet_Name_to_Index.find(Name);
 	if (it != m_MeshData->Map_EdgeDataSet_Name_to_Index.end())	
 	{
-		auto Index = it->second;
-		if (m_MeshData->EdgeDataSet[Index].GetColCount() != m_MeshData->EdgeList.GetLength())
-		{
-			m_MeshData->EdgeDataSet[Index].Clear();
-			m_MeshData->EdgeDataSet[Index].Resize(ScalarCountPerEdge, m_MeshData->EdgeList.GetLength());
-		}
-		return Index;
+		MDK_Error("EdgeDataSet has already been added @ Mesh::AddEdgeDataSet(...)")
+		return -1;
 	}
 	else
-	{//new
-		DenseMatrix<ScalarType> DataSet;
-		DataSet.Resize(ScalarCountPerEdge, m_MeshData->EdgeList.GetLength());
+	{
 		m_MeshData->EdgeDataSet.Append(std::move(DataSet));
 		m_MeshData->EdgeDataSetName.Append(Name);
 		auto Index = m_MeshData->EdgeDataSet.GetLength() - 1;
@@ -1710,30 +1724,38 @@ int_max Mesh<ScalarType>::InitializeEdgeDataSet(const String& Name, int_max Scal
 }
 
 template<typename ScalarType>
-int_max Mesh<ScalarType>::SetEdgeDataSet(const String& Name, DenseMatrix<ScalarType> DataSet)
+int_max Mesh<ScalarType>::GetEdgeDataSetCount() const
 {
-	if (Name.IsEmpty() == true)
+	return m_MeshData->EdgeDataSet.GetLength();
+}
+
+
+template<typename ScalarType>
+void Mesh<ScalarType>::SetEdgeDataSet(const String& Name, DenseMatrix<ScalarType> DataSet)
+{
+	auto Index = this->GetEdgeDataSetIndex(Name);
+	this->SetEdgeDataSet(Index, std::move(DataSet));
+}
+
+
+template<typename ScalarType>
+void Mesh<ScalarType>::SetEdgeDataSet(int_max Index, DenseMatrix<ScalarType> DataSet)
+{
+	if (Index < 0 || Index >= m_MeshData->EdgeDataSet.GetLength())
 	{
-		MDK_Error("EdgeDataSet Name is Empty @ Mesh::SetEdgeDataSet(...)")
-		return -1;
+		MDK_Error("Index " << Index << "NOT exist @ Mesh::SetEdgeDataSet(...)")
+		return;
 	}
 
 	if (DataSet.GetColCount() != m_MeshData->EdgeList.GetLength())
 	{
 		MDK_Error("size is wrong @ Mesh<ScalarType>::SetEdgeDataSet(...)")
-		return -1;
+		return;
 	}
 
-	auto DataSetIndex = this->InitializeEdgeDataSet(Name, DataSet.GetRowCount());
-	if (DataSetIndex < 0)
-	{
-		MDK_Error("Name is wrong @ Mesh<ScalarType>::SetEdgeDataSet(...)")
-		return -1;
-	}
-
-	m_MeshData->EdgeDataSet[DataSetIndex] = std::move(DataSet);
-	return DataSetIndex;
+	m_MeshData->EdgeDataSet[Index] = std::move(DataSet);	
 }
+
 
 template<typename ScalarType>
 int_max Mesh<ScalarType>::GetEdgeDataSetIndex(const String& Name) const
@@ -1743,7 +1765,7 @@ int_max Mesh<ScalarType>::GetEdgeDataSetIndex(const String& Name) const
 	{
 		return it->second;
 	}
-	MDK_Error("Name " << Name << " NOT exist @ Mesh::GetEdgeDataSetIndex(...)")
+	//MDK_Warning("Name " << Name << " NOT exist @ Mesh::GetEdgeDataSetIndex(...)")
 	return -1;
 }
 
@@ -1780,36 +1802,40 @@ DenseMatrix<ScalarType> Mesh<ScalarType>::GetEdgeDataSet(const String& Name) con
 }
 
 //
-template<typename ScalarType>
-int_max Mesh<ScalarType>::GetFaceDataSetCount() const
-{
-	return m_MeshData->FaceDataSet.GetLength();
-}
 
 template<typename ScalarType>
-int_max Mesh<ScalarType>::InitializeFaceDataSet(const String& Name, int_max ScalarCountPerFace)
+int_max Mesh<ScalarType>::AddFaceDataSet(const String& Name, int_max ScalarCountPerFace)
+{
+	DenseMatrix<ScalarType> DataSet;
+	DataSet.Resize(3, this->GetMaxValueOfFaceIndex());
+	DataSet.Fill(0);
+	return this->AddFaceDataSet(Name, std::move(DataSet));
+}
+
+
+template<typename ScalarType>
+int_max Mesh<ScalarType>::AddFaceDataSet(const String& Name, DenseMatrix<ScalarType> DataSet)
 {
 	if (Name.IsEmpty() == true)
 	{
-		MDK_Error("FaceDataSet Name is Empty @ Mesh::InitializeFaceDataSet(...)")
+		MDK_Error("FaceDataSet Name is Empty @ Mesh::AddFaceDataSet(...)")
+		return -1;
+	}
+
+	if (DataSet.GetColCount() != m_MeshData->FaceList.GetLength())
+	{
+		MDK_Error("size is wrong @ Mesh<ScalarType>::AddFaceDataSet(...)")
 		return -1;
 	}
 
 	auto it = m_MeshData->Map_FaceDataSet_Name_to_Index.find(Name);
 	if (it != m_MeshData->Map_FaceDataSet_Name_to_Index.end())
 	{
-		auto Index = it->second;	
-		if (m_MeshData->FaceDataSet[Index].GetColCount() != m_MeshData->FaceList.GetLength())
-		{
-			m_MeshData->FaceDataSet[Index].Clear();
-			m_MeshData->FaceDataSet[Index].Resize(ScalarCountPerFace, m_MeshData->FaceList.GetLength());
-		}
-		return Index;
+		MDK_Error("FaceDataSet has already been added @ Mesh::AddFaceDataSet(...)")
+		return -1;
 	}
 	else
-	{//new
-		DenseMatrix<ScalarType> DataSet;
-		DataSet.Resize(ScalarCountPerFace, m_MeshData->FaceList.GetLength());
+	{
 		m_MeshData->FaceDataSet.Append(std::move(DataSet));
 		m_MeshData->FaceDataSetName.Append(Name);
 		auto Index = m_MeshData->FaceDataSet.GetLength() - 1;
@@ -1819,30 +1845,38 @@ int_max Mesh<ScalarType>::InitializeFaceDataSet(const String& Name, int_max Scal
 }
 
 template<typename ScalarType>
-int_max Mesh<ScalarType>::SetFaceDataSet(const String& Name, DenseMatrix<ScalarType> DataSet)
+int_max Mesh<ScalarType>::GetFaceDataSetCount() const
 {
-	if (Name.IsEmpty() == true)
+	return m_MeshData->FaceDataSet.GetLength();
+}
+
+
+template<typename ScalarType>
+void Mesh<ScalarType>::SetFaceDataSet(const String& Name, DenseMatrix<ScalarType> DataSet)
+{
+	auto Index = this->GetFaceDataSetIndex(Name);
+	this->SetFaceDataSet(Index, std::move(DataSet));
+}
+
+
+template<typename ScalarType>
+void Mesh<ScalarType>::SetFaceDataSet(int_max Index, DenseMatrix<ScalarType> DataSet)
+{
+	if (Index < 0 || Index >= m_MeshData->FaceDataSet.GetLength())
 	{
-		MDK_Error("FaceDataSet Name is Empty @ Mesh::SetFaceDataSet(...)")
-		return -1;
+		MDK_Error("Index " << Index << "NOT exist @ Mesh::SetFaceDataSet(...)")
+		return;
 	}
 
 	if (DataSet.GetColCount() != m_MeshData->FaceList.GetLength())
 	{
 		MDK_Error("size is wrong @ Mesh<ScalarType>::SetFaceDataSet(...)")
-		return -1;
+		return;
 	}
 
-	auto DataSetIndex = this->InitializeFaceDataSet(Name, DataSet.GetRowCount());
-	if (DataSetIndex < 0)
-	{
-		MDK_Error("Name is wrong @ Mesh<ScalarType>::SetFaceDataSet(...)")
-		return -1;
-	}
-
-	m_MeshData->FaceDataSet[DataSetIndex] = std::move(DataSet);
-	return DataSetIndex;
+	m_MeshData->FaceDataSet[Index] = std::move(DataSet);
 }
+
 
 template<typename ScalarType>
 int_max Mesh<ScalarType>::GetFaceDataSetIndex(const String& Name) const
@@ -1852,7 +1886,7 @@ int_max Mesh<ScalarType>::GetFaceDataSetIndex(const String& Name) const
 	{
 		return it->second;
 	}
-	MDK_Error("Name " << Name << " NOT exist @ Mesh::GetFaceDataSetIndex(...)")
+	//MDK_Warning("Name " << Name << " NOT exist @ Mesh::GetFaceDataSetIndex(...)")
 	return -1;
 }
 
@@ -1896,29 +1930,38 @@ int_max Mesh<ScalarType>::GetCellDataSetCount() const
 }
 
 template<typename ScalarType>
-int_max Mesh<ScalarType>::InitializeCellDataSet(const String& Name, int_max ScalarCountPerCell)
+int_max Mesh<ScalarType>::AddCellDataSet(const String& Name, int_max ScalarCountPerCell)
+{
+	DenseMatrix<ScalarType> DataSet;
+	DataSet.Resize(3, this->GetMaxValueOfCellIndex());
+	DataSet.Fill(0);
+	return this->AddCellDataSet(Name, std::move(DataSet));
+}
+
+
+template<typename ScalarType>
+int_max Mesh<ScalarType>::AddCellDataSet(const String& Name, DenseMatrix<ScalarType> DataSet)
 {
 	if (Name.IsEmpty() == true)
 	{
-		MDK_Error("CellDataSet Name is Empty @ Mesh::InitializeCellDataSet(...)")
+		MDK_Error("CellDataSet Name is Empty @ Mesh::AddCellDataSet(...)")
+		return -1;
+	}
+
+	if (DataSet.GetColCount() != m_MeshData->CellList.GetLength())
+	{
+		MDK_Error("size is wrong @ Mesh<ScalarType>::AddCellDataSet(...)")
 		return -1;
 	}
 
 	auto it = m_MeshData->Map_CellDataSet_Name_to_Index.find(Name);
 	if (it != m_MeshData->Map_CellDataSet_Name_to_Index.end())
 	{
-		auto Index = it->second;
-		if (m_MeshData->CellDataSet[Index].GetColCount() != m_MeshData->CellList.GetLength())
-		{
-			m_MeshData->CellDataSet[Index].Clear();
-			m_MeshData->CellDataSet[Index].Resize(ScalarCountPerCell, m_MeshData->CellList.GetLength());
-		}
-		return Index;
+		MDK_Error("CellDataSet has already been added @ Mesh::AddCellDataSet(...)")
+		return -1;
 	}
 	else
-	{//new
-		DenseMatrix<ScalarType> DataSet;
-		DataSet.Resize(ScalarCountPerCell, m_MeshData->CellList.GetLength());
+	{
 		m_MeshData->CellDataSet.Append(std::move(DataSet));
 		m_MeshData->CellDataSetName.Append(Name);
 		auto Index = m_MeshData->CellDataSet.GetLength() - 1;
@@ -1927,31 +1970,33 @@ int_max Mesh<ScalarType>::InitializeCellDataSet(const String& Name, int_max Scal
 	}
 }
 
+
 template<typename ScalarType>
-int_max Mesh<ScalarType>::SetCellDataSet(const String& Name, DenseMatrix<ScalarType> DataSet)
+void Mesh<ScalarType>::SetCellDataSet(const String& Name, DenseMatrix<ScalarType> DataSet)
 {
-	if (Name.IsEmpty() == true)
+	auto Index = this->GetCellDataSetIndex(Name);
+	this->SetCellDataSet(Index, std::move(DataSet));
+}
+
+
+template<typename ScalarType>
+void Mesh<ScalarType>::SetCellDataSet(int_max Index, DenseMatrix<ScalarType> DataSet)
+{
+	if (Index < 0 || Index >= m_MeshData->CellDataSet.GetLength())
 	{
-		MDK_Error("CellDataSet Name is Empty @ Mesh::SetCellDataSet(...)")
-		return -1;
+		MDK_Error("Index " << Index << "NOT exist @ Mesh::SetCellDataSet(...)")
+		return;
 	}
 
 	if (DataSet.GetColCount() != m_MeshData->CellList.GetLength())
 	{
 		MDK_Error("size is wrong @ Mesh<ScalarType>::SetCellDataSet(...)")
-		return -1;
+		return;
 	}
 
-	auto DataSetIndex = this->InitializeCellDataSet(Name, DataSet.GetRowCount());
-	if (DataSetIndex < 0)
-	{
-		MDK_Error("Name is wrong @ Mesh<ScalarType>::SetCellDataSet(...)")
-		return -1;
-	}
-
-	m_MeshData->CellDataSet[DataSetIndex] = std::move(DataSet);
-	return DataSetIndex;
+	m_MeshData->CellDataSet[Index] = std::move(DataSet);
 }
+
 
 template<typename ScalarType>
 int_max Mesh<ScalarType>::GetCellDataSetIndex(const String& Name) const
@@ -1961,7 +2006,7 @@ int_max Mesh<ScalarType>::GetCellDataSetIndex(const String& Name) const
 	{
 		return it->second;
 	}
-	MDK_Error("Name " << Name << " NOT exist @ Mesh::GetCellDataSetIndex(...)")
+	//MDK_Warning("Name " << Name << " NOT exist @ Mesh::GetCellDataSetIndex(...)")
 	return -1;
 }
 
@@ -2000,27 +2045,26 @@ DenseMatrix<ScalarType> Mesh<ScalarType>::GetCellDataSet(const String& Name) con
 //------------ PointSet, EdgeSet, FaceSet, CellSet ------------------------------------------//
 
 template<typename ScalarType>
-int_max Mesh<ScalarType>::GetPointSetCount() const
+int_max Mesh<ScalarType>::AddPointSet(const String& Name)
 {
-	return m_MeshData->PointSet.GetLength();
+	DenseVector<int_max> PointIndexList;
+	return this->AddPointSet(Name, PointIndexList);
 }
 
-
 template<typename ScalarType>
-int_max Mesh<ScalarType>::SetPointSet(const String& Name, DenseVector<int_max> PointIndexList)
+int_max Mesh<ScalarType>::AddPointSet(const String& Name, DenseVector<int_max> PointIndexList)
 {
 	if (Name.IsEmpty() == true)
 	{
-		MDK_Error("PointSet Name is Empty @ Mesh::SetPointSet(...)")
+		MDK_Error("PointSet Name is Empty @ Mesh::AddPointSet(...)")
 		return -1;
 	}
 
 	auto it = m_MeshData->Map_PointSet_Name_to_Index.find(Name);
 	if (it != m_MeshData->Map_PointSet_Name_to_Index.end())
-	{
-		auto Index = it->second;
-		m_MeshData->PointSet[Index] = std::move(PointIndexList);
-		return Index;
+	{		
+		MDK_Error("PointSet has already been added @ Mesh::AddPointSet(...)")
+		return -1;
 	}
 	else
 	{
@@ -2032,6 +2076,32 @@ int_max Mesh<ScalarType>::SetPointSet(const String& Name, DenseVector<int_max> P
 	}
 }
 
+template<typename ScalarType>
+int_max Mesh<ScalarType>::GetPointSetCount() const
+{
+	return m_MeshData->PointSet.GetLength();
+}
+
+
+template<typename ScalarType>
+void Mesh<ScalarType>::SetPointSet(const String& Name, DenseVector<int_max> PointIndexList)
+{
+	auto Index = this->GetPointSetIndex(Name);
+	this->SetPointSet(Index, std::move(PointIndexList));
+}
+
+
+template<typename ScalarType>
+void Mesh<ScalarType>::SetPointSet(int_max Index, DenseVector<int_max> PointIndexList)
+{
+	if (Index < 0 || Index >= m_MeshData->PointSet.GetLength())
+	{
+		MDK_Error("PointSet " << Index << " NOT exist @  Mesh::SetPointSet(...)")
+		return;
+	}
+	m_MeshData->PointSet[Index] = std::move(PointIndexList);
+}
+
 
 template<typename ScalarType>
 int_max Mesh<ScalarType>::GetPointSetIndex(const String& Name) const
@@ -2041,7 +2111,7 @@ int_max Mesh<ScalarType>::GetPointSetIndex(const String& Name) const
 	{
 		return it->second;
 	}
-	MDK_Error("PointSet " << Name << " NOT exist @ Mesh::GetPointSetIndex(...)")
+	//MDK_Warning("PointSet " << Name << " NOT exist @ Mesh::GetPointSetIndex(...)")
 	return -1;
 }
 
@@ -2075,39 +2145,34 @@ DenseVector<int_max> Mesh<ScalarType>::GetPointSet(int_max Index) const
 template<typename ScalarType>
 DenseVector<int_max> Mesh<ScalarType>::GetPointSet(const String& Name) const
 {
-	auto it = m_MeshData->Map_PointSet_Name_to_Index.find(Name);
-	if (it != m_MeshData->Map_PointSet_Name_to_Index.end())
-	{
-		return m_MeshData->PointSet[it->second];
-	}
-	MDK_Error("Unknown PointSetName: " << Name << " @ Mesh::GetPointSet(...)")
-	DenseVector<int_max> EmptySet;
-	return EmptySet;
+	auto Index = this->GetPointSetIndex(Name);
+	return this->GetPointSet(Index);
+	
 }
 
 
 template<typename ScalarType>
-int_max Mesh<ScalarType>::GetEdgeSetCount() const
+int_max Mesh<ScalarType>::AddEdgeSet(const String& Name)
 {
-	return m_MeshData->EdgeSet.GetLength();
+	DenseVector<int_max> EdgeIndexList;
+	return this->AddEdgeSet(Name, EdgeIndexList);
 }
 
 
 template<typename ScalarType>
-int_max Mesh<ScalarType>::SetEdgeSet(const String& Name, DenseVector<int_max> EdgeIndexList)
+int_max Mesh<ScalarType>::AddEdgeSet(const String& Name, DenseVector<int_max> EdgeIndexList)
 {
 	if (Name.IsEmpty() == true)
 	{
-		MDK_Error("EdgeSet Name is Empty @ Mesh::SetEdgeSet(...)")
+		MDK_Error("EdgeSet Name is Empty @ Mesh::AddEdgeSet(...)")
 		return -1;
 	}
 
 	auto it = m_MeshData->Map_EdgeSet_Name_to_Index.find(EdgeSetName);
 	if (it != m_MeshData->Map_EdgeSet_Name_to_Index.end())
 	{
-		auto Index = it->second;
-		m_MeshData->EdgeSet[Index] = std::move(EdgeSet);
-		return Index;
+		MDK_Error("EdgeSet has already been added @ Mesh::AddEdgeSet(...)")
+		return -1;
 	}
 	else
 	{
@@ -2121,6 +2186,32 @@ int_max Mesh<ScalarType>::SetEdgeSet(const String& Name, DenseVector<int_max> Ed
 
 
 template<typename ScalarType>
+int_max Mesh<ScalarType>::GetEdgeSetCount() const
+{
+	return m_MeshData->EdgeSet.GetLength();
+}
+
+
+template<typename ScalarType>
+void Mesh<ScalarType>::SetEdgeSet(const String& Name, DenseVector<int_max> EdgeIndexList)
+{
+	auto Index = this->GetEdgeSetIndex(Name);
+	this->SetEdgeSet(Index, std::move(EdgeIndexList));
+}
+
+
+template<typename ScalarType>
+void Mesh<ScalarType>::SetEdgeSet(int_max Index, DenseVector<int_max> EdgeIndexList)
+{
+	if (Index < 0 || Index >= m_MeshData->EdgeSet.GetLength())
+	{
+		MDK_Error("EdgeSet " << Index << " NOT exist @  Mesh::GetEdgeSetName(...)")
+	}
+	m_MeshData->EdgeSet[Index] = std::move(EdgeIndexList);
+}
+
+
+template<typename ScalarType>
 int_max Mesh<ScalarType>::GetEdgeSetIndex(const String& Name) const
 {
 	auto it = m_MeshData->Map_EdgeSet_Name_to_Index.find(Name);
@@ -2128,7 +2219,7 @@ int_max Mesh<ScalarType>::GetEdgeSetIndex(const String& Name) const
 	{
 		return it->second;
 	}
-	MDK_Error("EdgeSet NOT exist @ Mesh::GetEdgeSetIndex(...)")
+	//MDK_Warning("EdgeSet NOT exist @ Mesh::GetEdgeSetIndex(...)")
 	return -1;
 }
 
@@ -2151,7 +2242,7 @@ DenseVector<int_max> Mesh<ScalarType>::GetEdgeSet(int_max Index) const
 {
 	if (Index < 0 || Index >= m_MeshData->EdgeSet.GetLength())
 	{
-		MDK_Error("EdgeSet " << Index << " NOT exist @  Mesh::GetEdgeSetName(...)")
+		MDK_Error("EdgeSet " << Index << " NOT exist @  Mesh::GetEdgeSet(...)")
 		DenseVector<int_max> EmptySet;
 		return EmptySet;
 	}
@@ -2162,39 +2253,33 @@ DenseVector<int_max> Mesh<ScalarType>::GetEdgeSet(int_max Index) const
 template<typename ScalarType>
 DenseVector<int_max> Mesh<ScalarType>::GetEdgeSet(const String& Name) const
 {
-	auto it = m_MeshData->Map_EdgeSet_Name_to_Index.find(Name);
-	if (it != m_MeshData->Map_EdgeSet_Name_to_Index.end())
-	{
-		return m_MeshData->EdgeSet[it->second];
-	}
-	MDK_Error("Unknown EdgeSetName: " << Name << " @ Mesh::GetEdgeSet()")
-	DenseVector<int_max> EmptySet;
-	return EmptySet;
+	auto Index = this->GetEdgeSetIndex(Name);
+	return this->GetEdgeSet(Index);
 }
 
 
 template<typename ScalarType>
-int_max Mesh<ScalarType>::GetFaceSetCount() const
+int_max Mesh<ScalarType>::AddFaceSet(const String& Name)
 {
-	return m_MeshData->FaceSet.GetLength();
+	DenseVector<int_max> FaceIndexList;
+	return this->AddFaceSet(Name, FaceIndexList);
 }
 
 
 template<typename ScalarType>
-int_max Mesh<ScalarType>::SetFaceSet(const String& Name, DenseVector<int_max> FaceIndexList)
+int_max Mesh<ScalarType>::AddFaceSet(const String& Name, DenseVector<int_max> FaceIndexList)
 {
 	if (Name.IsEmpty() == true)
 	{
-		MDK_Error("FaceSet Name is Empty @ Mesh::SetFaceSet(...)")
+		MDK_Error("FaceSet Name is Empty @ Mesh::AddFaceSet(...)")
 		return -1;
 	}
 
 	auto it = m_MeshData->Map_FaceSet_Name_to_Index.find(Name);
 	if (it != m_MeshData->Map_FaceSet_Name_to_Index.end())
 	{
-		auto Index = it->second;
-		m_MeshData->FaceSet[Index] = std::move(FaceIndexList);
-		return Index;
+		MDK_Error("FaceSet has already been added @ Mesh::AddFaceSet(...)")
+		return -1;
 	}
 	else
 	{
@@ -2208,6 +2293,31 @@ int_max Mesh<ScalarType>::SetFaceSet(const String& Name, DenseVector<int_max> Fa
 
 
 template<typename ScalarType>
+int_max Mesh<ScalarType>::GetFaceSetCount() const
+{
+	return m_MeshData->FaceSet.GetLength();
+}
+
+
+template<typename ScalarType>
+void Mesh<ScalarType>::SetFaceSet(const String& Name, DenseVector<int_max> FaceIndexList)
+{
+	auto Index = this->GetFaceSetIndex(Name);
+	this->SetFaceSet(Index, std::move(FaceIndexList));
+}
+
+
+template<typename ScalarType>
+void Mesh<ScalarType>::SetFaceSet(int_max Index, DenseVector<int_max> FaceIndexList)
+{
+	if (Index < 0 || Index >= m_MeshData->FaceSet.GetLength())
+	{
+		MDK_Error("FaceSet " << Index << " NOT exist @  Mesh::SetFaceSet(...)")
+	}
+	m_MeshData->FaceSet[Index] = std::move(FaceIndexList);
+}
+
+template<typename ScalarType>
 int_max Mesh<ScalarType>::GetFaceSetIndex(const String& Name) const
 {
 	auto it = m_MeshData->Map_FaceSet_Name_to_Index.find(Name);
@@ -2215,7 +2325,7 @@ int_max Mesh<ScalarType>::GetFaceSetIndex(const String& Name) const
 	{
 		return it->second;
 	}
-	MDK_Error("FaceSet " << Name << " NOT exist @ Mesh::GetFaceSetIndex(...)")
+	//MDK_Warning("FaceSet " << Name << " NOT exist @ Mesh::GetFaceSetIndex(...)")
 	return -1;
 }
 
@@ -2249,39 +2359,33 @@ DenseVector<int_max> Mesh<ScalarType>::GetFaceSet(int_max Index) const
 template<typename ScalarType>
 DenseVector<int_max> Mesh<ScalarType>::GetFaceSet(const String& Name) const
 {
-	auto it = m_MeshData->Map_FaceSet_Name_to_Index.find(Name);
-	if (it != m_MeshData->Map_FaceSet_Name_to_Index.end())
-	{
-		return m_MeshData->FaceSet[it->second];
-	}
-	MDK_Error("Unknown FaceSetName: " << Name << " @ Mesh::GetFaceSet()")
-	DenseVector<int_max> EmptySet;
-	return EmptySet;
+	auto Index = this->GetFaceSetIndex(Name);
+	return this->GetFaceSet(Index);
 }
 
-//
+
 template<typename ScalarType>
-int_max Mesh<ScalarType>::GetCellSetCount() const
+int_max Mesh<ScalarType>::AddCellSet(const String& Name)
 {
-	return m_MeshData->CellSet.GetLength();
+	DenseVector<int_max> CellIndexList;
+	return this->AddCellSet(Name, CellIndexList);
 }
 
 
 template<typename ScalarType>
-int_max Mesh<ScalarType>::SetCellSet(const String& Name, DenseVector<int_max> CellIndexList)
+int_max Mesh<ScalarType>::AddCellSet(const String& Name, DenseVector<int_max> CellIndexList)
 {
 	if (Name.IsEmpty() == true)
 	{
-		MDK_Error("CellSet Name is Empty @ Mesh::SetCellSet(...)")
+		MDK_Error("CellSet Name is Empty @ Mesh::AddCellSet(...)")
 		return -1;
 	}
 
 	auto it = m_MeshData->Map_CellSet_Name_to_Index.find(Name);
 	if (it != m_MeshData->Map_CellSet_Name_to_Index.end())
 	{
-		auto Index = it->second;
-		m_MeshData->CellSet[Index] = std::move(CellIndexList);
-		return Index;
+		MDK_Error("CellSet has already been added @ Mesh::AddCellSet(...)")
+		return -1;
 	}
 	else
 	{
@@ -2295,6 +2399,32 @@ int_max Mesh<ScalarType>::SetCellSet(const String& Name, DenseVector<int_max> Ce
 
 
 template<typename ScalarType>
+int_max Mesh<ScalarType>::GetCellSetCount() const
+{
+	return m_MeshData->CellSet.GetLength();
+}
+
+
+template<typename ScalarType>
+void Mesh<ScalarType>::SetCellSet(const String& Name, DenseVector<int_max> CellIndexList)
+{
+	auto Index = this->GetCellSetIndex(Name);
+	this->SetCellSet(Index, std::move(CellIndexList));
+}
+
+
+template<typename ScalarType>
+void Mesh<ScalarType>::SetCellSet(int_max Index, DenseVector<int_max> CellIndexList)
+{
+	if (Index < 0 || Index >= m_MeshData->CellSet.GetLength())
+	{
+		MDK_Error("CellSet " << Index << " NOT exist @  Mesh::SetCellSet(...)")
+	}
+	m_MeshData->CellSet[Index] = std::move(CellIndexList);
+}
+
+
+template<typename ScalarType>
 int_max Mesh<ScalarType>::GetCellSetIndex(const String& Name) const
 {
 	auto it = m_MeshData->Map_CellSet_Name_to_Index.find(Name);
@@ -2302,7 +2432,7 @@ int_max Mesh<ScalarType>::GetCellSetIndex(const String& Name) const
 	{
 		return it->second;
 	}
-	MDK_Error("CellSet " << Name << " NOT exist @ Mesh::GetCellSetIndex(...)")
+	//MDK_Warning("CellSet " << Name << " NOT exist @ Mesh::GetCellSetIndex(...)")
 	return -1;
 }
 
@@ -2336,14 +2466,8 @@ DenseVector<int_max> Mesh<ScalarType>::GetCellSet(int_max Index) const
 template<typename ScalarType>
 DenseVector<int_max> Mesh<ScalarType>::GetCellSet(const String& Name) const
 {
-	auto it = m_MeshData->Map_CellSet_Name_to_Index.find(Name);
-	if (it != m_MeshData->Map_CellSet_Name_to_Index.end())
-	{
-		return m_MeshData->CellSet[it->second];
-	}
-	MDK_Error("Unknown CellSetName: " << Name << " @ Mesh::GetCellSet()")
-	DenseVector<int_max> EmptySet;
-	return EmptySet;
+	auto Index = this->GetCellSetIndex(Name);
+	return this->GetCellSet(Index);
 }
 
 //------------ SetCapacity, ReleaseUnusedCapacity -------------------------------------//
@@ -2879,7 +3003,7 @@ int_max Mesh<ScalarType>::AddCellByPoint(MeshCellTypeEnum Type, const DenseVecto
 		auto FaceIndex2 = this->AddFaceByPoint({ H0, H3, H2 });
 		auto FaceIndex3 = this->AddFaceByPoint({ H1, H2, H3 });
 		DenseVector<int_max> FaceIndexList = { FaceIndex0, FaceIndex1, FaceIndex2, FaceIndex3 };
-		this->AddCellByPointAndFace(Type, PointIndexList, FaceIndexList, CellIndex_input);
+		return this->AddCellByPointAndFace(Type, PointIndexList, FaceIndexList, CellIndex_input);
 	}
 	else if (Type == MeshCellTypeEnum::Wedge)
 	{
@@ -2900,7 +3024,7 @@ int_max Mesh<ScalarType>::AddCellByPoint(MeshCellTypeEnum Type, const DenseVecto
 		auto FaceIndex3 = this->AddFaceByPoint({ H0, H1, H4, H3 });
 		auto FaceIndex4 = this->AddFaceByPoint({ H1, H4, H5, H2 });
 		DenseVector<int_max> FaceIndexList = { FaceIndex0, FaceIndex1, FaceIndex2, FaceIndex3, FaceIndex4 };
-		this->AddCellByPointAndFace(Type, PointIndexList, FaceIndexList, CellIndex_input);
+		return this->AddCellByPointAndFace(Type, PointIndexList, FaceIndexList, CellIndex_input);
 	}
 	else if (Type == MeshCellTypeEnum::Hexahedron)
 	{
@@ -2924,7 +3048,7 @@ int_max Mesh<ScalarType>::AddCellByPoint(MeshCellTypeEnum Type, const DenseVecto
 		auto FaceIndex4 = this->AddFaceByPoint({ H6, H5, H1, H2 });
 		auto FaceIndex5 = this->AddFaceByPoint({ H6, H2, H3, H7 });
 		DenseVector<int_max> FaceIndexList = { FaceIndex0, FaceIndex1, FaceIndex2, FaceIndex3, FaceIndex4, FaceIndex5 };
-		this->AddCellByPointAndFace(Type, PointIndexList, FaceIndexList, CellIndex_input);
+		return this->AddCellByPointAndFace(Type, PointIndexList, FaceIndexList, CellIndex_input);
 	}
 	else
 	{
