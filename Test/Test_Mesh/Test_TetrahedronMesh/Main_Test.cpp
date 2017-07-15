@@ -6,8 +6,8 @@ using namespace mdk;
 
 int main()
 {
-    Test_MeshConstruction();
-
+    //Test_MeshConstruction();
+	Test_Wedge();
     std::system("pause");
 
     return 1;

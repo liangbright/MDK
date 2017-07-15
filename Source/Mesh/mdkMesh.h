@@ -398,6 +398,10 @@ public:
 	//FaceIndex_input may be the Index of a deleted face, so to reused old FaceIndex if necessary
 	int_max AddFaceByPoint(const DenseVector<int_max>& PointIndexList, int_max FaceIndex_input);
 
+	//cell type: Tetrahedron, Wedge, Hexahedron
+	int_max AddCellByPoint(MeshCellTypeEnum Type, const DenseVector<int_max>& PointIndexList);
+	int_max AddCellByPoint(MeshCellTypeEnum Type, const DenseVector<int_max>& PointIndexList, int_max CellIndex_input);//reuse old CellIndex
+
 	// point/edge will be extracted, the order is random
 	int_max AddCellByFace(MeshCellTypeEnum Type, const DenseVector<int_max>& FaceIndexList);		
 	int_max AddCellByFace(MeshCellTypeEnum Type, const DenseVector<int_max>& FaceIndexList, int_max CellIndex_input);//reuse old CellIndex

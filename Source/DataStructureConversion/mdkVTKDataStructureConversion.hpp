@@ -856,11 +856,12 @@ vtkSmartPointer<vtkUnstructuredGrid> ConvertMDKMeshToVTKUnstructuredGrid(const M
 		auto MeshCellType = MDKMesh.Cell(i).GetType();
 		auto PointCountInCell = Element.GetLength();
 
-		if (MeshCellType == MeshCellTypeEnum::Wedge)
-		{
-			// swap [0, 1, 2] <-> [3, 4, 5]			
-			Element = { Element[3], Element[4], Element[5], Element[0], Element[1], Element[2] };
-		}
+		//not necessary, VTK support both order
+		//if (MeshCellType == MeshCellTypeEnum::Wedge)
+		//{
+		//	 swap [0, 1, 2] <-> [3, 4, 5]			
+		//	Element = { Element[3], Element[4], Element[5], Element[0], Element[1], Element[2] };
+		//}
 
 		CellArray_vtk->InsertNextCell(PointCountInCell);
 		for (int n = 0; n < PointCountInCell; ++n)
@@ -1019,57 +1020,20 @@ bool ConvertVTKUnstructuredGridToMDKMesh(vtkUnstructuredGrid* VTKMesh, Mesh<Scal
 		case VTKCellType::VTK_TETRA:
 		{
 			auto ElementType = MeshCellTypeEnum::Tetrahedron;
-			auto H0 = PointIndexList[0];
-			auto H1 = PointIndexList[1];
-			auto H2 = PointIndexList[2];
-			auto H3 = PointIndexList[3];
-			auto FaceIndex0 = MDKMesh.AddFaceByPoint({ H0, H2, H1 });
-			auto FaceIndex1 = MDKMesh.AddFaceByPoint({ H0, H1, H3 });
-			auto FaceIndex2 = MDKMesh.AddFaceByPoint({ H0, H3, H2 });
-			auto FaceIndex3 = MDKMesh.AddFaceByPoint({ H1, H2, H3 });
-			FaceIndexList = { FaceIndex0, FaceIndex1, FaceIndex2, FaceIndex3 };
-			MDKMesh.AddCellByPointAndFace(ElementType, PointIndexList, FaceIndexList);
+			MDKMesh.AddCellByPoint(ElementType, PointIndexList);
 			break;
 		}
 		case VTKCellType::VTK_WEDGE:
 		{
-			auto ElementType = MeshCellTypeEnum::Wedge;
-			auto H0 = PointIndexList[0];
-			auto H1 = PointIndexList[1];
-			auto H2 = PointIndexList[2];
-			auto H3 = PointIndexList[3];
-			auto H4 = PointIndexList[4];
-			auto H5 = PointIndexList[5];
-			auto FaceIndex0 = MDKMesh.AddFaceByPoint({ H0, H1, H2 });
-			auto FaceIndex1 = MDKMesh.AddFaceByPoint({ H3, H4, H5 });
-			auto FaceIndex2 = MDKMesh.AddFaceByPoint({ H0, H2, H5, H3 });
-			auto FaceIndex3 = MDKMesh.AddFaceByPoint({ H0, H1, H4, H3 });
-			auto FaceIndex4 = MDKMesh.AddFaceByPoint({ H1, H4, H5, H2 });
-			FaceIndexList = { FaceIndex0, FaceIndex1, FaceIndex2, FaceIndex3, FaceIndex4 };
-			// swap [0, 1, 2] <-> [3, 4, 5]
-			PointIndexList = { H3, H4, H5, H0, H1, H2 };
-			MDKMesh.AddCellByPointAndFace(ElementType, PointIndexList, FaceIndexList);
+			auto ElementType = MeshCellTypeEnum::Wedge;			
+			// swap [0, 1, 2] <-> [3, 4, 5] is not necessary
+			MDKMesh.AddCellByPoint(ElementType, PointIndexList);
 			break;
 		}
 		case VTKCellType::VTK_HEXAHEDRON:
 		{
 			auto ElementType = MeshCellTypeEnum::Hexahedron;
-			auto H0 = PointIndexList[0];
-			auto H1 = PointIndexList[1];
-			auto H2 = PointIndexList[2];
-			auto H3 = PointIndexList[3];
-			auto H4 = PointIndexList[4];
-			auto H5 = PointIndexList[5];
-			auto H6 = PointIndexList[6];
-			auto H7 = PointIndexList[7];
-			auto FaceIndex0 = MDKMesh.AddFaceByPoint({ H0, H1, H2, H3 });
-			auto FaceIndex1 = MDKMesh.AddFaceByPoint({ H0, H1, H5, H4 });
-			auto FaceIndex2 = MDKMesh.AddFaceByPoint({ H0, H4, H7, H3 });
-			auto FaceIndex3 = MDKMesh.AddFaceByPoint({ H6, H7, H4, H5 });
-			auto FaceIndex4 = MDKMesh.AddFaceByPoint({ H6, H5, H1, H2 });
-			auto FaceIndex5 = MDKMesh.AddFaceByPoint({ H6, H2, H3, H7 });
-			FaceIndexList = { FaceIndex0, FaceIndex1, FaceIndex2, FaceIndex3, FaceIndex4, FaceIndex5 };
-			MDKMesh.AddCellByPointAndFace(ElementType, PointIndexList, FaceIndexList);
+			MDKMesh.AddCellByPoint(ElementType, PointIndexList);
 			break;
 		}
 		default:

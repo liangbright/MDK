@@ -2853,6 +2853,85 @@ int_max Mesh<ScalarType>::AddFaceByPoint(const DenseVector<int_max>& PointIndexL
 	return this->AddFaceByEdge(EdgeIndexList, FaceIndex_input);
 }
 
+template<typename ScalarType>
+int_max Mesh<ScalarType>::AddCellByPoint(MeshCellTypeEnum Type, const DenseVector<int_max>& PointIndexList)
+{
+	auto CellIndex = m_MeshData->CellList.GetLength();
+	return this->AddCellByPoint(Type, PointIndexList, CellIndex);
+}
+
+template<typename ScalarType>
+int_max Mesh<ScalarType>::AddCellByPoint(MeshCellTypeEnum Type, const DenseVector<int_max>& PointIndexList, int_max CellIndex_input)
+{
+	if (Type == MeshCellTypeEnum::Tetrahedron)
+	{
+		if (PointIndexList.GetLength() != 4)
+		{
+			MDK_Error("invalid PointIndexList @ Mesh::AddCellByPoint(...)")
+			return -1;
+		}
+		auto H0 = PointIndexList[0];
+		auto H1 = PointIndexList[1];
+		auto H2 = PointIndexList[2];
+		auto H3 = PointIndexList[3];
+		auto FaceIndex0 = this->AddFaceByPoint({ H0, H2, H1 });
+		auto FaceIndex1 = this->AddFaceByPoint({ H0, H1, H3 });
+		auto FaceIndex2 = this->AddFaceByPoint({ H0, H3, H2 });
+		auto FaceIndex3 = this->AddFaceByPoint({ H1, H2, H3 });
+		DenseVector<int_max> FaceIndexList = { FaceIndex0, FaceIndex1, FaceIndex2, FaceIndex3 };
+		this->AddCellByPointAndFace(Type, PointIndexList, FaceIndexList, CellIndex_input);
+	}
+	else if (Type == MeshCellTypeEnum::Wedge)
+	{
+		if (PointIndexList.GetLength() != 6)
+		{
+			MDK_Error("invalid PointIndexList @ Mesh::AddCellByPoint(...)")
+			return -1;
+		}
+		auto H0 = PointIndexList[0];
+		auto H1 = PointIndexList[1];
+		auto H2 = PointIndexList[2];
+		auto H3 = PointIndexList[3];
+		auto H4 = PointIndexList[4];
+		auto H5 = PointIndexList[5];
+		auto FaceIndex0 = this->AddFaceByPoint({ H0, H1, H2 });
+		auto FaceIndex1 = this->AddFaceByPoint({ H3, H4, H5 });
+		auto FaceIndex2 = this->AddFaceByPoint({ H0, H2, H5, H3 });
+		auto FaceIndex3 = this->AddFaceByPoint({ H0, H1, H4, H3 });
+		auto FaceIndex4 = this->AddFaceByPoint({ H1, H4, H5, H2 });
+		DenseVector<int_max> FaceIndexList = { FaceIndex0, FaceIndex1, FaceIndex2, FaceIndex3, FaceIndex4 };
+		this->AddCellByPointAndFace(Type, PointIndexList, FaceIndexList, CellIndex_input);
+	}
+	else if (Type == MeshCellTypeEnum::Hexahedron)
+	{
+		if (PointIndexList.GetLength() != 8)
+		{
+			MDK_Error("invalid PointIndexList @ Mesh::AddCellByPoint(...)")
+			return -1;
+		}
+		auto H0 = PointIndexList[0];
+		auto H1 = PointIndexList[1];
+		auto H2 = PointIndexList[2];
+		auto H3 = PointIndexList[3];
+		auto H4 = PointIndexList[4];
+		auto H5 = PointIndexList[5];
+		auto H6 = PointIndexList[6];
+		auto H7 = PointIndexList[7];
+		auto FaceIndex0 = this->AddFaceByPoint({ H0, H1, H2, H3 });
+		auto FaceIndex1 = this->AddFaceByPoint({ H0, H1, H5, H4 });
+		auto FaceIndex2 = this->AddFaceByPoint({ H0, H4, H7, H3 });
+		auto FaceIndex3 = this->AddFaceByPoint({ H6, H7, H4, H5 });
+		auto FaceIndex4 = this->AddFaceByPoint({ H6, H5, H1, H2 });
+		auto FaceIndex5 = this->AddFaceByPoint({ H6, H2, H3, H7 });
+		DenseVector<int_max> FaceIndexList = { FaceIndex0, FaceIndex1, FaceIndex2, FaceIndex3, FaceIndex4, FaceIndex5 };
+		this->AddCellByPointAndFace(Type, PointIndexList, FaceIndexList, CellIndex_input);
+	}
+	else
+	{
+		MDK_Error("invalid cell type @ Mesh::AddCellByPoint(...)")
+		return -1;
+	}
+}
 
 template<typename ScalarType>
 int_max Mesh<ScalarType>::AddCellByFace(MeshCellTypeEnum Type, const DenseVector<int_max>& FaceIndexList)
