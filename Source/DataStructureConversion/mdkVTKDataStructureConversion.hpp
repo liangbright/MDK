@@ -645,7 +645,7 @@ bool ConvertVTKPolyDataToMDKPolygonMesh(vtkPolyData* VTKMesh, PolygonMesh<Scalar
 				DataSet(i, j) = DataArray_vtk->GetComponent(j, i);
 			}
 		}
-		MDKMesh.SetPointDataSet(Name, DataSet);
+		MDKMesh.AddPointDataSet(Name, DataSet);
 	}
 	//---------------------------------------------------------
 	auto FaceDataSetCount = VTKMesh->GetCellData()->GetNumberOfArrays();
@@ -662,7 +662,7 @@ bool ConvertVTKPolyDataToMDKPolygonMesh(vtkPolyData* VTKMesh, PolygonMesh<Scalar
 				DataSet(i, j) = DataArray_vtk->GetComponent(j, i);
 			}
 		}
-		MDKMesh.SetFaceDataSet(Name, DataSet);
+		MDKMesh.AddFaceDataSet(Name, DataSet);
 	}
 	//---------------------------------------------------------
     return true;
@@ -735,23 +735,6 @@ bool ConvertVTKUnstructuredGridToMDKPolyhedronMesh(vtkUnstructuredGrid* VTKMesh,
 		return false;
 	}
 	//---------------------------------------------------------
-	auto PointDataSetCount = VTKMesh->GetPointData()->GetNumberOfArrays();
-	for (int k = 0; k < PointDataSetCount; ++k)
-	{
-		auto DataArray_vtk = VTKMesh->GetPointData()->GetArray(k);
-		String Name = DataArray_vtk->GetName();
-		DenseMatrix<ScalarType> DataSet;
-		DataSet.Resize(DataArray_vtk->GetNumberOfComponents(), DataArray_vtk->GetNumberOfTuples());
-		for (int j = 0; j < DataSet.GetColCount(); ++j)
-		{
-			for (int i = 0; i < DataSet.GetRowCount(); ++i)
-			{
-				DataSet(i, j) = DataArray_vtk->GetComponent(j, i);
-			}
-		}
-		MDKMesh.SetPointDataSet(Name, DataSet);
-	}
-	//---------------------------------------------------------
 	auto CellDataSetCount = VTKMesh->GetCellData()->GetNumberOfArrays();
 	for (int k = 0; k < CellDataSetCount; ++k)
 	{
@@ -766,7 +749,7 @@ bool ConvertVTKUnstructuredGridToMDKPolyhedronMesh(vtkUnstructuredGrid* VTKMesh,
 				DataSet(i, j) = DataArray_vtk->GetComponent(j, i);
 			}
 		}
-		MDKMesh.SetCellDataSet(Name, DataSet);
+		MDKMesh.AddCellDataSet(Name, DataSet);
 	}
 	//---------------------------------------------------------
 	return true;
@@ -961,14 +944,14 @@ bool ConvertVTKUnstructuredGridToMDKMesh(vtkUnstructuredGrid* VTKMesh, Mesh<Scal
 		MDKMesh.Clear();
 		return true;
 	}
-
+	//---------------------------------------------------------
 	for (int_max k = 0; k < PointCount; ++k)
 	{
 		double pos[3];
 		VTKMesh->GetPoint(k, pos);
-		MDKMesh.AddPoint(pos);
+		MDKMesh.AddPoint(ScalarType(pos[0]), ScalarType(pos[1]), ScalarType(pos[2]));
 	}
-
+	//---------------------------------------------------------
 	for (int_max k = 0; k < CellCount; ++k)
 	{
 		auto Cell = VTKMesh->GetCell(k);
@@ -1042,6 +1025,23 @@ bool ConvertVTKUnstructuredGridToMDKMesh(vtkUnstructuredGrid* VTKMesh, Mesh<Scal
 			MDK_Error("ElementType is Polyhedron, can not deduce Face from point @ ConvertVTKUnstructuredGridToMDKPolyhedronMesh(...)")
 		}
 		}
+	}
+	//---------------------------------------------------------
+	auto PointDataSetCount = VTKMesh->GetPointData()->GetNumberOfArrays();
+	for (int k = 0; k < PointDataSetCount; ++k)
+	{
+		auto DataArray_vtk = VTKMesh->GetPointData()->GetArray(k);
+		String Name = DataArray_vtk->GetName();
+		DenseMatrix<ScalarType> DataSet;
+		DataSet.Resize(DataArray_vtk->GetNumberOfComponents(), DataArray_vtk->GetNumberOfTuples());
+		for (int j = 0; j < DataSet.GetColCount(); ++j)
+		{
+			for (int i = 0; i < DataSet.GetRowCount(); ++i)
+			{
+				DataSet(i, j) = DataArray_vtk->GetComponent(j, i);
+			}
+		}
+		MDKMesh.AddPointDataSet(Name, DataSet);
 	}
 
 	return true;

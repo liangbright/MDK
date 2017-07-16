@@ -47,6 +47,7 @@ void Test_CreateMesh()
 	SaveFiniteElementMeshAsAbaqusINPFile(MeshA, DataPath + "MeshA.inp");
 
 	LoadFiniteElementMeshFromJsonDataFile(MeshB, DataPath + "MeshA.json");
+	SaveFiniteElementMeshAsJsonDataFile(MeshB, DataPath + "MeshB.json");
 
 	auto Set1 = MeshB.GetNodeSet("0_NodeSet");
 	auto Set2 = MeshB.GetNodeSet("1_PointSet");

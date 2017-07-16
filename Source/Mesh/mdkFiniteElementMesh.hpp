@@ -1178,7 +1178,7 @@ FiniteElementMesh<ScalarType> FiniteElementMesh<ScalarType>::GetSubMeshByElement
 	int_max NewNodeIndex = -1;
 	for (int_max k = 0; k < SubMesh.m_MeshData->ElementList.GetLength(); ++k)
 	{
-		auto& NodeIndexList = SubMesh.m_MeshData->ElementList[k];
+		const auto& NodeIndexList = SubMesh.m_MeshData->ElementList[k];
 		for (int_max n = 0; n < NodeIndexList.GetLength(); ++n)
 		{
 			auto NodeIndex = NodeIndexList[n];

@@ -273,8 +273,8 @@ bool ConvertVTKUnstructuredGridToMDKFiniteElementMesh(vtkUnstructuredGrid* VTKMe
 	for (int_max k = 0; k < PointCount; ++k)
 	{
 		double pos[3];
-		VTKMesh->GetPoint(k, pos);
-		OutputMesh.AddNode(pos);
+		VTKMesh->GetPoint(k, pos);		
+		OutputMesh.AddNode(ScalarType(pos[0]), ScalarType(pos[1]), ScalarType(pos[2]));
 	}
 	
 	for (int_max k = 0; k < CellCount; ++k)
@@ -333,7 +333,7 @@ bool ConvertVTKUnstructuredGridToMDKFiniteElementMesh(vtkUnstructuredGrid* VTKMe
 				DataSet(i, j) = DataArray_vtk->GetComponent(j, i);
 			}
 		}
-		OutputMesh.SetNodeDataSet(Name, DataSet);
+		OutputMesh.AddNodeDataSet(Name, DataSet);
 	}
 	//---------------------------------------------------------
 	auto CellDataSetCount = VTKMesh->GetCellData()->GetNumberOfArrays();
@@ -350,7 +350,7 @@ bool ConvertVTKUnstructuredGridToMDKFiniteElementMesh(vtkUnstructuredGrid* VTKMe
 				DataSet(i, j) = DataArray_vtk->GetComponent(j, i);
 			}
 		}
-		OutputMesh.SetElementDataSet(Name, DataSet);
+		OutputMesh.AddElementDataSet(Name, DataSet);
 	}
 	//---------------------------------------------------------
 	return true;
@@ -380,7 +380,7 @@ bool ConvertVTKPolyDataToMDKFiniteElementMesh(vtkPolyData* VTKMesh, FiniteElemen
 	{
 		double pos[3];
 		VTKMesh->GetPoint(k, pos);
-		OutputMesh.AddNode(pos);
+		OutputMesh.AddNode(ScalarType(pos[0]), ScalarType(pos[1]), ScalarType(pos[2]));
 	}
 
 	for (int_max k = 0; k < CellCount; ++k)
@@ -697,9 +697,9 @@ bool LoadFiniteElementMeshFromJsonDataFile(FiniteElementMesh<ScalarType>& Output
 			auto tempJObject = it->second.GetJsonObject();
 			for (auto it = tempJObject.begin(); it != tempJObject.end(); ++it)
 			{
-				auto NodeName = it->first;
-				auto NodeIndex = it->second.ToScalar<int_max>();
-				OutputMesh.SetNodeName(NodeIndex, NodeName);
+				auto ElementName = it->first;
+				auto ElementIndex = it->second.ToScalar<int_max>();
+				OutputMesh.SetElementName(ElementIndex, ElementName);
 			}
 		}
 	}
@@ -715,8 +715,8 @@ bool LoadFiniteElementMeshFromJsonDataFile(FiniteElementMesh<ScalarType>& Output
 				for (auto it = tempJObject.begin(); it != tempJObject.end(); ++it)
 				{
 					auto NodeSetName = it->first;
-					auto NodeIndexListOfNodeSet = it->second.ToScalarArray<int_max>();
-					OutputMesh.AddNodeSet(NodeSetName, NodeIndexListOfNodeSet);
+					auto NodeIndexList = it->second.ToScalarArray<int_max>();
+					OutputMesh.AddNodeSet(NodeSetName, NodeIndexList);
 				}
 			}
 		}
@@ -733,8 +733,8 @@ bool LoadFiniteElementMeshFromJsonDataFile(FiniteElementMesh<ScalarType>& Output
 				for (auto it = tempJObject.begin(); it != tempJObject.end(); ++it)
 				{
 					auto ElementSetName = it->first;
-					auto ElementIndexListOfElementSet = it->second.ToScalarArray<int_max>();
-					OutputMesh.AddElementSet(ElementSetName, ElementIndexListOfElementSet);
+					auto ElementIndexList = it->second.ToScalarArray<int_max>();
+					OutputMesh.AddElementSet(ElementSetName, ElementIndexList);
 				}
 			}
 		}
