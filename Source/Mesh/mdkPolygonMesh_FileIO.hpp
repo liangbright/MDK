@@ -301,7 +301,7 @@ bool LoadPolygonMeshFromJsonDataFile(PolygonMesh<ScalarType>& OutputMesh, const 
 				{
 					const auto& PointSetName = it->first;
 					auto PointIndexList = it->second.ToScalarArray<int_max>();
-					OutputMesh.SetPointSet(PointSetName, PointIndexList);					
+					OutputMesh.AddPointSet(PointSetName, PointIndexList);					
 				}
 			}
 		}
@@ -320,7 +320,7 @@ bool LoadPolygonMeshFromJsonDataFile(PolygonMesh<ScalarType>& OutputMesh, const 
 				{
 					const auto& FaceSetName = it->first;
 					auto FaceIndexList = it->second.ToScalarArray<int_max>();
-					OutputMesh.SetFaceSet(FaceSetName, FaceIndexList);
+					OutputMesh.AddFaceSet(FaceSetName, FaceIndexList);
 				}
 			}
 		}

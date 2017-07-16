@@ -378,7 +378,7 @@ bool LoadPolyhedronMeshFromJsonDataFile(PolyhedronMesh<ScalarType>& OutputMesh, 
 				{
 					const auto& PointSetName = it->first;
 					auto PointIndexList = it->second.ToScalarArray<int_max>();
-					OutputMesh.SetPointSet(PointSetName, PointIndexList);					
+					OutputMesh.AddPointSet(PointSetName, PointIndexList);					
 				}
 			}
 		}
@@ -397,7 +397,7 @@ bool LoadPolyhedronMeshFromJsonDataFile(PolyhedronMesh<ScalarType>& OutputMesh, 
 				{
 					const auto& FaceSetName = it->first;
 					auto FaceIndexList = it->second.ToScalarArray<int_max>();
-					OutputMesh.SetFaceSet(FaceSetName, FaceIndexList);
+					OutputMesh.AddFaceSet(FaceSetName, FaceIndexList);
 				}
 			}
 		}
@@ -416,7 +416,7 @@ bool LoadPolyhedronMeshFromJsonDataFile(PolyhedronMesh<ScalarType>& OutputMesh, 
 				{
 					const auto& CellSetName = it->first;
 					auto CellIndexList = it->second.ToScalarArray<int_max>();
-					OutputMesh.SetCellSet(CellSetName, CellIndexList);
+					OutputMesh.AddCellSet(CellSetName, CellIndexList);
 				}
 			}
 		}

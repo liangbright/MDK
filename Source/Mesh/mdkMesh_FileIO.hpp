@@ -360,7 +360,7 @@ bool LoadMeshFromJsonDataFile(Mesh<ScalarType>& OutputMesh, const String& FilePa
 			{
 				const auto& CellName = it->first;
 				auto CellIndex = it->second.ToScalar<int_max>();
-				OutputMesh.Face(CellIndex).SetName(CellName);
+				OutputMesh.Cell(CellIndex).SetName(CellName);
 			}
 		}
 	}
@@ -378,7 +378,7 @@ bool LoadMeshFromJsonDataFile(Mesh<ScalarType>& OutputMesh, const String& FilePa
 				{
 					const auto& PointSetName = it->first;
 					auto PointIndexList = it->second.ToScalarArray<int_max>();
-					OutputMesh.SetPointSet(PointSetName, PointIndexList);					
+					OutputMesh.AddPointSet(PointSetName, PointIndexList);					
 				}
 			}
 		}
@@ -397,7 +397,7 @@ bool LoadMeshFromJsonDataFile(Mesh<ScalarType>& OutputMesh, const String& FilePa
 				{
 					const auto& FaceSetName = it->first;
 					auto FaceIndexList = it->second.ToScalarArray<int_max>();
-					OutputMesh.SetFaceSet(FaceSetName, FaceIndexList);
+					OutputMesh.AddFaceSet(FaceSetName, FaceIndexList);
 				}
 			}
 		}
@@ -416,7 +416,7 @@ bool LoadMeshFromJsonDataFile(Mesh<ScalarType>& OutputMesh, const String& FilePa
 				{
 					const auto& CellSetName = it->first;
 					auto CellIndexList = it->second.ToScalarArray<int_max>();
-					OutputMesh.SetFaceSet(CellSetName, CellIndexList);
+					OutputMesh.AddCellSet(CellSetName, CellIndexList);
 				}
 			}
 		}
