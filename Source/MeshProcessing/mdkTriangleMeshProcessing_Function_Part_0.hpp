@@ -69,30 +69,22 @@ TriangleMesh<ScalarType> SubdivideTriangleMesh_Linear(const TriangleMesh<ScalarT
 	OutputMesh.SetCapacity(PointCount, EdgeCount, FaceCount);
 
 	//------- add initial point by copying all point of InputMesh ----------------//
-	DenseVector<int_max> PointIndexMap_init;
+	DenseVector<int_max> PointIndexMap_init;//Map Input Point to Output Point
 	PointIndexMap_init.Resize(PointCount_input + InputMesh.GetDeletedPointCount());
 	PointIndexMap_init.Fill(-1);
-	DenseVector<int_max> PointIndexList_init;
-	PointIndexList_init.SetCapacity(PointCount_input);
-	int_max PointIndex_output_init = -1;
 	for (int_max k = 0; k <= InputMesh.GetMaxValueOfPointIndex(); ++k)
 	{
 		if (InputMesh.IsValidPointIndex(k) == true)
 		{
 			auto Pos = InputMesh.GetPointPosition(k);
-			PointIndexList_init.Append(OutputMesh.AddPoint(Pos));
-			PointIndex_output_init += 1;
-			PointIndexMap_init[k] = PointIndex_output_init;
+			PointIndexMap_init[k] = OutputMesh.AddPoint(Pos);			
 		}
 	}
 
 	//------- add new point by splitting each edge of InputMesh -----------------//   
-	DenseVector<int_max> PointIndexMap_new;
+	DenseVector<int_max> PointIndexMap_new;//Map Input Edge(new point location) to Output Point
 	PointIndexMap_new.Resize(EdgeCount_input + InputMesh.GetDeletedEdgeCount());
 	PointIndexMap_new.Fill(-1);
-	DenseVector<int_max> PointIndexList_new;
-	PointIndexList_new.SetCapacity(EdgeCount_input);
-	int_max PointIndex_output_new = -1;
 	for (int_max k = 0; k <= InputMesh.GetMaxValueOfEdgeIndex(); ++k)
 	{
 		if (InputMesh.IsValidEdgeIndex(k) == true)
@@ -102,10 +94,7 @@ TriangleMesh<ScalarType> SubdivideTriangleMesh_Linear(const TriangleMesh<ScalarT
 			auto P1 = InputMesh.GetPointPosition(TempList[1]);
 			auto P3 = P0 + P1;
 			P3 /= ScalarType(2);
-			auto H3 = OutputMesh.AddPoint(P3);
-			PointIndexList_new.Append(H3);
-			PointIndex_output_new += 1;
-			PointIndexMap_new[k] = PointIndex_output_new;
+			PointIndexMap_new[k] = OutputMesh.AddPoint(P3);
 		}
 	}
 	//------- add new cell by splitting each cell of InputMesh ----------------//   
@@ -120,12 +109,12 @@ TriangleMesh<ScalarType> SubdivideTriangleMesh_Linear(const TriangleMesh<ScalarT
 			//    3    5
 			// 1    4     2
 			//-----------------		
-			auto H0 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[0]]];
-			auto H1 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[1]]];
-			auto H2 = PointIndexList_init[PointIndexMap_init[PointIndexList_input[2]]];
-			auto H3 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[0]]];
-			auto H4 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[1]]];
-			auto H5 = PointIndexList_new[PointIndexMap_new[EdgeIndexList_input[2]]];
+			auto H0 = PointIndexMap_init[PointIndexList_input[0]];
+			auto H1 = PointIndexMap_init[PointIndexList_input[1]];
+			auto H2 = PointIndexMap_init[PointIndexList_input[2]];
+			auto H3 = PointIndexMap_new[EdgeIndexList_input[0]];
+			auto H4 = PointIndexMap_new[EdgeIndexList_input[1]];
+			auto H5 = PointIndexMap_new[EdgeIndexList_input[2]];
 			OutputMesh.AddFaceByPoint(H0, H3, H5);
 			OutputMesh.AddFaceByPoint(H3, H1, H4);
 			OutputMesh.AddFaceByPoint(H3, H4, H5);
