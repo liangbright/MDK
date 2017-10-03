@@ -201,22 +201,46 @@ TriangleMesh<ScalarType> ResampleMeshOpenBoundary(const TriangleMesh<ScalarType>
 		BounaryPointIndexList_output.Append(PointIndex_new);
 	}
 	BounaryPointIndexList_output.Append(BounaryPointIndexList[BounaryPointIndexList.GetLength() - 1]);
-	//divide Curve_near_boundary
-	auto CurvePosition_near_boundary = OutputMesh.GetPointPosition(Curve_near_boundary);
+	//divide Curve_near_boundary	
 	DenseVector<int_max> NearestPoint_on_Curve_near_boundary;
-	//NearestPoint_on_Curve_near_boundary[k] is the nearest point of Boundary_output(:,k), the relative index on curve, 0~length(curve)-1
-	NearestPoint_on_Curve_near_boundary.Append(0);
-	for (int_max k = 1; k < Boundary_output.GetColCount() - 1; ++k)
-	{
-		auto Index_k = FindNearestPointOnCurve(CurvePosition_near_boundary, Boundary_output(0, k), Boundary_output(1, k), Boundary_output(2, k));
-		auto Index_max = NearestPoint_on_Curve_near_boundary.Max();
-		if (Index_k < Index_max)
+	{//NearestPoint_on_Curve_near_boundary[k] is the nearest point to Boundary_output(:,k), the relative index on Curve_near_boundary, 0~length(curve)-1		
+		auto ParamBoundary_output = ComputeCumulative3DCurveLengthList(Boundary_output);
+		ParamBoundary_output /= ParamBoundary_output[ParamBoundary_output.GetLength() - 1];
+
+		auto CurvePosition_near_boundary = OutputMesh.GetPointPosition(Curve_near_boundary);
+		auto ParamCurvePosition_near_boundary = ComputeCumulative3DCurveLengthList(CurvePosition_near_boundary);
+		ParamCurvePosition_near_boundary /= ParamCurvePosition_near_boundary[ParamCurvePosition_near_boundary.GetLength() - 1];
+
+		NearestPoint_on_Curve_near_boundary.Append(0);
+		for (int_max k = 1; k < ParamBoundary_output.GetLength() - 1; ++k)
 		{
-			Index_k = Index_max;
+			DenseVector<ScalarType> tempDistList;
+			tempDistList.SetCapacity(ParamCurvePosition_near_boundary.GetLength());
+			auto Index_prev = NearestPoint_on_Curve_near_boundary[k - 1];
+			for (int_max m = Index_prev; m < ParamCurvePosition_near_boundary.GetLength(); ++m)
+			{
+				tempDistList.Append((std::abs)(ParamBoundary_output[k] - ParamCurvePosition_near_boundary[m]));
+			}
+			auto Index_min = tempDistList.IndexOfMin();
+			auto Index_nearest = Index_prev + Index_min;
+			NearestPoint_on_Curve_near_boundary.Append(Index_nearest);
 		}
-		NearestPoint_on_Curve_near_boundary.Append(Index_k);
+		NearestPoint_on_Curve_near_boundary.Append(Curve_near_boundary.GetLength() - 1);
+
+		//NearestPoint_on_Curve_near_boundary.Append(0);
+		//for (int_max k = 1; k < Boundary_output.GetColCount() - 1; ++k)
+		//{
+		//	auto Index_k = FindNearestPointOnCurve(CurvePosition_near_boundary, Boundary_output(0, k), Boundary_output(1, k), Boundary_output(2, k));
+		//	auto Index_max = NearestPoint_on_Curve_near_boundary.Max();
+		//	if (Index_k < Index_max)
+		//	{
+		//		Index_k = Index_max;
+		//	}
+		//	NearestPoint_on_Curve_near_boundary.Append(Index_k);
+		//}
+		//NearestPoint_on_Curve_near_boundary.Append(Curve_near_boundary.GetLength() - 1);
 	}
-	NearestPoint_on_Curve_near_boundary.Append(Curve_near_boundary.GetLength() - 1);
+
 	//add new face
 	DenseVector<int_max> BounaryFaceIndexList_output;
 	for (int_max k = 0; k < BounaryPointIndexList_output.GetLength() - 1; ++k)
@@ -309,6 +333,270 @@ TriangleMesh<ScalarType> ResampleMeshOpenBoundary(const TriangleMesh<ScalarType>
 	auto Boundary_output= ResampleOpen3DCurveByCardinalSpline(Boundary_input, PointCountOfBounary_output);
 	return ResampleMeshOpenBoundary(InputMesh, BounaryPointIndexList, Boundary_output);
 }
+
+
+template<typename ScalarType>
+void ProjectPointToSurface(const DenseVector<ScalarType, 3>& Point, const TriangleMesh<ScalarType>& Surface, DenseVector<ScalarType, 3>& Point_proj, int_max& FaceIndex_proj)
+{
+	if (Surface.Check_If_DataStructure_is_Clean() == false)
+	{
+		MDK_Error("DataStructure of input mesh is not clean, abort @ ProjectPointToSurface(...)")
+		FaceIndex_proj = -1;
+		return;
+	}
+
+	auto VTKMesh = ConvertMDKPolygonMeshToVTKPolyData(Surface);
+	//https://www.vtk.org/Wiki/VTK/Examples/Cxx/PolyData/CellLocator
+	auto CellLocator = vtkSmartPointer<vtkCellLocator>::New();
+	CellLocator->SetDataSet(VTKMesh);
+	CellLocator->BuildLocator();
+	double testPoint[3] = { double(Point[0]), double(Point[1]), double(Point[2]) };
+	double closestPoint[3];//the coordinates of the closest point will be returned here
+	double closestPointDist2; //the squared distance to the closest point will be returned here
+	vtkIdType cellId; //the cell id of the cell containing the closest point will be returned here
+	int subId; //this is rarely used (in triangle strips only, I believe)
+	CellLocator->FindClosestPoint(testPoint, closestPoint, cellId, subId, closestPointDist2);
+	//output
+	Point_proj[0] = ScalarType(closestPoint[0]);
+	Point_proj[1] = ScalarType(closestPoint[1]);
+	Point_proj[2] = ScalarType(closestPoint[2]);
+	FaceIndex_proj = int_max(cellId);
+}
+
+
+template<typename ScalarType>
+DenseVector<ScalarType, 3> ProjectPointToSurface(const DenseVector<ScalarType, 3>& Point, const TriangleMesh<ScalarType>& Surface)
+{
+	DenseVector<ScalarType, 3> Point_proj;
+	int_max FaceIndex_proj;
+	ProjectPointToSurface(Point, Surface, Point_proj, FaceIndex_proj);
+	return Point_proj;
+}
+
+
+template<typename ScalarType>
+void ProjectPointToSurface(const DenseMatrix<ScalarType>& PointSet, const TriangleMesh<ScalarType>& Surface, DenseMatrix<ScalarType>& PointSet_proj, DenseVector<int_max>& FaceIndexList_proj)
+{
+	if (Surface.Check_If_DataStructure_is_Clean() == false)
+	{
+		MDK_Error("DataStructure of input mesh is not clean, abort @ ProjectPointToSurface(...)")
+		return;
+	}
+
+	auto VTKMesh = ConvertMDKPolygonMeshToVTKPolyData(Surface);
+	//https://www.vtk.org/Wiki/VTK/Examples/Cxx/PolyData/CellLocator
+	auto CellLocator = vtkSmartPointer<vtkCellLocator>::New();
+	CellLocator->SetDataSet(VTKMesh);
+	CellLocator->BuildLocator();
+
+	PointSet_proj.Resize(PointSet.GetSize());
+	PointSet_proj.Fill(0);
+	FaceIndexList_proj.Resize(PointSet.GetColCount());
+	FaceIndexList_proj.Fill(-1);
+
+	for (int_max k = 0; k < PointSet.GetColCount(); ++k)
+	{
+		DenseVector<ScalarType, 3> Point;
+		PointSet.GetCol(k, Point);
+		double testPoint[3] = { double(Point[0]), double(Point[1]), double(Point[2]) };
+		double closestPoint[3];//the coordinates of the closest point will be returned here
+		double closestPointDist2; //the squared distance to the closest point will be returned here
+		vtkIdType cellId; //the cell id of the cell containing the closest point will be returned here
+		int subId; //this is rarely used (in triangle strips only, I believe)
+		CellLocator->FindClosestPoint(testPoint, closestPoint, cellId, subId, closestPointDist2);
+		//output
+		DenseVector<ScalarType, 3> Point_proj;
+		Point_proj[0] = ScalarType(closestPoint[0]);
+		Point_proj[1] = ScalarType(closestPoint[1]);
+		Point_proj[2] = ScalarType(closestPoint[2]);
+		PointSet_proj.SetCol(k, Point_proj);
+		FaceIndexList_proj[k]= int_max(cellId);
+	}
+}
+
+
+template<typename ScalarType>
+DenseMatrix<ScalarType> ProjectPointToSurface(const DenseMatrix<ScalarType>& PointSet, const TriangleMesh<ScalarType>& Surface)
+{
+	DenseMatrix<ScalarType> PointSet_proj;
+	DenseVector<int_max> FaceIndexList_proj;
+	ProjectPointToSurface(PointSet, Surface, PointSet_proj, FaceIndexList_proj);
+	return PointSet_proj;
+}
+
+
+template<typename ScalarType>
+int_max Project_Add_Point_to_Surface(TriangleMesh<ScalarType>& Surface, const DenseVector<ScalarType, 3>& Point)
+{	
+	int_max FaceIndex_proj;
+	DenseVector<ScalarType, 3> Point_proj;
+	ProjectPointToSurface(Point, Surface, Point_proj, FaceIndex_proj);
+
+	if (FaceIndex_proj == -1)
+	{
+		return -1;
+	}
+
+	auto PointIndexList = Surface.Face(FaceIndex_proj).GetPointIndexList();
+	//check if no need to add new point
+	{
+		DenseVector<ScalarType, 3> DistToPoint;
+		for (int_max n = 0; n < 3; ++n)
+		{
+			auto Pn = Surface.GetPointPosition(PointIndexList[n]);
+			DistToPoint[n] = (Pn - Point).L2Norm();
+		}
+
+		ScalarType DistThreshold = 1e-6;
+		DenseVector<ScalarType, 3> EdgeLength;
+		for (int_max n = 0; n < 3; ++n)
+		{
+			DenseVector<ScalarType, 3> Pos1, Pos2;
+			Pos1 = Surface.GetPointPosition(PointIndexList[n]);
+			if (n < PointIndexList.GetLength() - 1)
+			{
+				Pos1 = Surface.GetPointPosition(PointIndexList[n + 1]);
+			}
+			else
+			{
+				Pos1 = Surface.GetPointPosition(PointIndexList[0]);
+			}
+			EdgeLength[n] = (Pos1 - Pos2).L2Norm();
+		}
+		DistThreshold = EdgeLength.Min() / 10;
+	
+		auto dist_min = DistToPoint.Min();
+		if (dist_min < DistThreshold)
+		{
+			auto PointIndex_ref = PointIndexList[DistToPoint.IndexOfMin()];
+			return PointIndex_ref;
+		}
+	}
+
+	// add new point -------------------------------------------------------
+	auto H0 = PointIndexList[0];
+	auto H1 = PointIndexList[1];
+	auto H2 = PointIndexList[2];
+	auto H3 = Surface.AddPoint(Point_proj);
+	//-----------------
+	//     2 
+	//     3      
+	// 0       1
+	//-----------------		
+
+	//check if Point_proj is on an edge or inside the triangle face (FaceIndex_proj)
+
+	auto P0 = Surface.GetPointPosition(H0);
+	auto P1 = Surface.GetPointPosition(H1);
+	auto P2 = Surface.GetPointPosition(H2);
+	auto P3 = Surface.GetPointPosition(H3);
+	auto FaceNormal = ComputeTriangleNormalIn3D(P0, P1, P2);
+	auto EPS = std::numeric_limits<ScalarType>::epsilon();
+	
+	for (int_max n = 0; n < 3; ++n)
+	{
+		int_max Ha, Hb, Hc;
+		DenseVector<ScalarType, 3> Pa, Pb, Pc;
+		if (n == 0)
+		{	//---------
+			//    2c 
+			// 0a   1b
+			//---------
+			Pa = P0; Ha = H0;
+			Pb = P1; Hb = H1;
+			Pc = P2; Hc = H2;
+		}
+		else if (n == 1)
+		{   //----------
+			//    0c 			     
+			// 1a    2b
+			//----------
+			Pa = P1; Ha = H1;
+			Pb = P2; Hb = H2;
+			Pc = P0; Hc = H0;
+		}
+		else
+		{   //----------
+		    //    1c 
+		    // 2a    0b
+		    //----------
+			Pa = P2; Ha = H2;
+			Pb = P0; Hb = H0;
+			Pc = P1; Hc = H1;
+		}
+
+		//check if Point_proj is on edge_ab
+		auto Disp_ab = Pb - Pa;
+		auto Direction = ComputeVectorCrossProductIn3D(FaceNormal, Disp_ab);
+		Direction /= (Direction.L2Norm() + EPS);
+		auto Disp_ac = Pc - Pa;
+		auto Disp_a3 = P3 - Pa;
+		auto prod_ac = ComputeVectorDotProductIn3D(Direction, Disp_ac);
+		auto prod_a3 = ComputeVectorDotProductIn3D(Direction, Disp_a3);
+		if (std::abs(prod_a3) <= 0.1*std::abs(prod_ac))
+		{// on edge_ab
+			auto EdgeIndex_ab = Surface.GetEdgeIndexByPoint(Ha, Hb);
+			auto FaceIndexList_adj = Surface.Edge(EdgeIndex_ab).GetAdjacentFaceIndexList();
+			if (FaceIndexList_adj.GetLength() == 2)
+			{  //-----------------
+			   //     c 
+			   //           
+			   // a   3    b
+			   //
+			   //     d
+			   //-----------------	
+				int_max FaceIndex_adb = -1;
+				if (FaceIndexList_adj[0] == FaceIndex_proj)
+				{
+					FaceIndex_adb = FaceIndexList_adj[1];
+				}
+				else
+				{
+					FaceIndex_adb = FaceIndexList_adj[0];
+				}
+				auto PointIndexList_adb = Surface.Face(FaceIndex_adb).GetPointIndexList();
+				auto tempHd = SetDiff(PointIndexList_adb, Surface.Edge(EdgeIndex_ab).GetPointIndexList());
+				auto Hd = tempHd[0];
+				Surface.DeleteFace(FaceIndexList_adj);
+				Surface.DeleteEdge(EdgeIndex_ab);
+				Surface.AddFaceByPoint(H3, Hc, Ha);
+				Surface.AddFaceByPoint(H3, Hb, Hc);
+				Surface.AddFaceByPoint(H3, Ha, Hd);
+				Surface.AddFaceByPoint(H3, Hd, Hb);
+			}
+			else if(FaceIndexList_adj.GetLength() == 1)
+			{	//-----------------
+				//     c 
+				//           
+				// a   3    b
+				//-----------------	
+				Surface.DeleteFace(FaceIndexList_adj);
+				Surface.DeleteEdge(EdgeIndex_ab);
+				Surface.AddFaceByPoint(H3, Hc, Ha);
+				Surface.AddFaceByPoint(H3, Hb, Hc);
+			}
+			else
+			{
+				MDK_Error("Input is not TriangleMesh @ Project_Add_Point_to_Surface(...)")				
+			}
+			return H3;
+		}
+	}
+
+	{// inside
+		//-----------------
+		//     2 
+		//     3      
+		// 0       1
+		//-----------------		
+		Surface.DeleteFace(FaceIndex_proj);
+		Surface.AddFaceByPoint({ H3, H2, H0 });
+		Surface.AddFaceByPoint({ H3, H0, H1 });
+		Surface.AddFaceByPoint({ H3, H1, H2 });
+		return H3;
+	}
+}
+
 
 }//namespace mdk
 
