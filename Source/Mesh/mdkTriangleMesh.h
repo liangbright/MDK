@@ -86,6 +86,10 @@ public:
 	void UpdateNormalBasedCurvatureAtPoint(const MDK_Symbol_ALL&, bool Flag_Update_RelativeInfo = false);
 	void UpdateNormalBasedCurvatureAtPoint(int_max PointIndex);
 
+	//-------------------------- mesh editing --------------------------------//
+	void CollapseEdge(int_max EdgeIndex);
+	void CollapseEdge(int_max EdgeIndex, int_max PointIndex);//collapse edge to a point (PointIndex) of the edge
+	void FlipEdge(int_max EdgeIndex);//only support 2 triangle face sharing an endge
 };
 
 }// namespace mdk

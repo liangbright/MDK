@@ -15,6 +15,12 @@ template<typename T>
 class Mesh;
 
 template<typename T>
+class PolygonMesh;
+
+template<typename T>
+class TriangleMesh;
+
+template<typename T>
 class Point_Of_Mesh;
 
 template<typename T>
@@ -85,6 +91,12 @@ private:
 
     template<typename T>
     friend class Mesh;
+
+	template<typename T>
+	friend class PolygonMesh;
+
+	template<typename T>
+	friend class TriangleMesh;
 
 	template<typename T>
 	friend class Face_Of_Mesh;
@@ -189,6 +201,12 @@ public:
 
     template<typename T>
     friend class Mesh;
+
+	template<typename T>
+	friend class PolygonMesh;
+
+	template<typename T>
+	friend class TriangleMesh;
 
     template<typename T>
     friend class Point_Of_Mesh;
@@ -305,6 +323,12 @@ private:
 
     template<typename T>
     friend class Mesh;
+
+	template<typename T>
+	friend class PolygonMesh;
+
+	template<typename T>
+	friend class TriangleMesh;
 
 	template<typename T>
 	friend class Point_Of_Mesh;

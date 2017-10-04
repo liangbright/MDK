@@ -401,21 +401,21 @@ public:
     // Check is performed in the function to ensure that an edge will not be added more than once
 	int_max AddEdge(int_max PointIndex0, int_max PointIndex1);
 
-	// EdgeIndex_input may be the Index of a deleted edge, so to reuse old EdgeIndex if necessary
+	// EdgeIndex_input may be the Index of a deleted edge, so to reuse old EdgeIndex if possible
 	int_max AddEdge(int_max PointIndex0, int_max PointIndex1, int_max EdgeIndex_input);
 
     // add a face and return FaceIndex in m_MeshData->FaceList
     // the order of Edge in EdgeIndexList determine the direction/sign of the normal vector
 	int_max AddFaceByEdge(const DenseVector<int_max>& EdgeIndexList);
 
-	//FaceIndex_input may be the Index of a deleted face, so to reused old FaceIndex if necessary
+	//FaceIndex_input may be the Index of a deleted face, so to reused old FaceIndex if possible
 	int_max AddFaceByEdge(const DenseVector<int_max>& EdgeIndexList, int_max FaceIndex_input);
 
     // Add Face with PointIndexList, Point0 <- Edge0 -> Point1 <- Edge1 -> Point2 ... Point_end <- Edge_end -> Point0
     // in this function, AddFaceByEdge() is called if necessary
 	int_max AddFaceByPoint(const DenseVector<int_max>& PointIndexList);
 
-	//FaceIndex_input may be the Index of a deleted face, so to reused old FaceIndex if necessary
+	//FaceIndex_input may be the Index of a deleted face, so to reused old FaceIndex if possible
 	int_max AddFaceByPoint(const DenseVector<int_max>& PointIndexList, int_max FaceIndex_input);
 
 	//cell type: Tetrahedron, Wedge, Hexahedron
@@ -495,78 +495,6 @@ public:
 
 	// append a mesh, duplication of cell/face/edge/point will not be checked
 	void Append(const Mesh<ScalarType>& InputMesh);
-
-    // other basic operation ----------------------------------------------------------------------------------------
-	// for now, only support polygon mesh
-
-	// swap PointA and PointB: move A to B and move B to A
-	// NOT change the mesh topology
-	// A, B, C, D are point index/name
-	//------------------------
-	//   C          C
-	//   |          |    
-	//   A   B  =>  B   A
-	//       |          |
-	//       D          D
-    //------------------------	
-	bool SwapPoint(int_max PointIndexA, int_max PointIndexB);
-
-	// swap the connection: NOT move A or B, Change the mesh topology
-	// A, B, C, D are point ID/name
-	//------------------------
-	//   C         C 
-	//   |           \ 
-	//   A   B  => A   B
-	//       |       \
-	//       D         D
-	//------------------------------
-	bool SwapConnectivityOfPoint(int_max PointIndexA, int_max PointIndexB);
-
-	// merge the connection of PointB to the connection of PointA, then PointB become an isolated point
-	// if an edge between A and B exist, then it will be deleted
-	// return true if success
-	// can NOT merge two point of a triangle face: return false
-	//--------------------------------
-	//    |   |          | /
-	// ---A---B =>    ---A   B
-	//    |   |          | \
-    //-------------------------------
-	// special case: may produce duplicated edge
-	// C---B                 C   B
-	// |  /   Merge(A, B)    ||
-	// A                     A
-	// ABC may not be a face, i.e., ABC is a hole
-	// Flag_CheckTriangle= ture then check is performed in the function to prevent this case
-	//------------------------------
-	bool MergeConnectivityOfPoint(int_max PointIndexA, int_max PointIndexB, bool Flag_CheckTriangle = false);
-
-	// Point may not be on the edge
-	// return true if success
-	bool ShrinkEdgeToPoint(int_max EdgeIndex, int_max PointIndex);
-
-	DenseVector<int_max, 2> SplitEdgeByPoint(int_max EdgeIndex, int_max PointIndex);
-
-	// if sucess, return the index of the newly merged edge
-	// int_max MergeAdjacentEdge(int_max EdgeIndexA, int_max EdgeIndexB);
-	// int_max MergeAdjacentEdge(int_max EdgeIndexA, int_max EdgeIndexB, int_max EdgeIndex_A_or_B_or_Other);
-
-	// Point may not be on the face
-	// return true if success
-	// can NOT shrink if it lead to merge of two point of a triangle face/hole: return false
-	bool ShrinkFaceToPoint(int_max FaceIndex, int_max PointIndex);
-
-	// if sucess, return the index of the newly merged face
-	// int_max MergeAdjacentFace(int_max FaceIndexA, int_max FaceIndexB);
-	// int_max MergeAdjacentFace(int_max FaceIndexA, int_max FaceIndexB, int_max FaceIndex_A_or_B_or_Other);
-
-	//PointA, PointB belong to the face
-	DenseVector<int_max, 2> SplitFace(int_max FaceIndex, int_max PointIndexA, int_max PointIndexB);
-
-	DenseVector<int_max, 2> SplitFaceByEdge(int_max FaceIndex, int_max EdgeABIndex);
-
-	// bool ShrinkCellToPoint(int_max CellIndex, int_max PointIndex)
-	// int_max MergeAdjacentCell(int_max CellIndexA, int_max CellIndexB);
-	// int_max MergeAdjacentCell(int_max CellIndexA, int_max CellIndexB, int_max CellIndex_A_or_B_or_Other);
 
 protected:
     void UpdateRecord_DeletePoint(int_max PointIndex);

@@ -654,4 +654,238 @@ void TriangleMesh<ScalarType>::UpdateNormalBasedCurvatureAtPoint(int_max PointIn
 	this->Point(PointIndex).Attribute().NormalBasedCurvature = (ScalarType(1) - MinProjection)/ ScalarType(2);
 }
 
+//-------------------------------------- mesh editing -----------------------------------------------------//
+
+template<typename ScalarType>
+void TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex)
+{
+	if (this->IsValidEdgeIndex(EdgeIndex) == false)
+	{
+		MDK_Error("Invalid EdgeIndex @ TriangleMesh::CollapseEdge(...)")
+		return;
+	}
+	auto PointIndexList = this->Edge(EdgeIndex).GetPointIndexList();
+	this->CollapseEdge(EdgeIndex, PointIndexList[0]);
+}
+
+
+template<typename ScalarType>
+void TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex, int_max PointIndex)
+{
+	if (this->IsValidEdgeIndex(EdgeIndex) == false)
+	{
+		MDK_Error("Invalid EdgeIndex @ TriangleMesh::CollapseEdge(...)")
+		return;
+	}
+	if (this->IsValidEdgeIndex(PointIndex) == false)
+	{
+		MDK_Error("Invalid PointIndex @ TriangleMesh::CollapseEdge(...)")
+		return;
+	}
+	auto PointIndexList_edge = this->Edge(EdgeIndex).GetPointIndexList();
+	if (PointIndexList_edge[0] != PointIndex && PointIndexList_edge[1] != PointIndex)
+	{
+		MDK_Error("Point must be on the Edge @ TriangleMesh::CollapseEdge(...)")
+		return;
+	}	
+	//--------------------
+	//Upper: Triangle A
+	//Lower: Triangle B
+	//   2
+	//0 /_\ 1    /
+    //  \ /  =>  \
+    //   3
+	//--------------------
+	//Triangle A only
+	//    2
+	// 0 /_\ 1  =>  /
+	// Edge01 is on bounary
+    //-------------------
+
+	int_max H0, H1;
+	if (PointIndexList_edge[0] == PointIndex)
+	{
+		H0 = PointIndexList_edge[0];
+		H1 = PointIndexList_edge[1];
+	}
+	else
+	{
+		H0 = PointIndexList_edge[1];
+		H1 = PointIndexList_edge[0];
+	}
+
+	DenseVector<int_max> EdgeIndexList_delete;
+	EdgeIndexList_delete.Append(EdgeIndex);
+	{
+		auto AdjPointIndexList_H1 = this->Point(H1).GetAdjacentPointIndexList();
+		auto AdjPointIndexList_H0 = this->Point(H0).GetAdjacentPointIndexList();
+		auto tempPointIndexList = Intersect(AdjPointIndexList_H1, AdjPointIndexList_H0);
+		for (int_max k = 0; k < tempPointIndexList.GetLength(); ++k)
+		{
+			auto tempEdgeIndex = this->GetEdgeIndexByPoint(tempPointIndexList[k], H1);
+			EdgeIndexList_delete.Append(tempEdgeIndex);
+		}
+	}
+	
+	auto AdjFaceIndexList = this->Edge(EdgeIndex).GetAdjacentFaceIndexList();
+	for (int_max n = 0; n < AdjFaceIndexList.GetLength(); ++n)
+	{
+		auto FaceIndex = AdjFaceIndexList[n];
+		int_max H2;
+		{
+			auto tempList = this->Face(FaceIndex).GetPointIndexList();
+			for (int_max k = 0; k < tempList.GetLength(); ++k)
+			{
+				if (tempList[k] != H0 && tempList[k] != H1)
+				{
+					H2 = tempList[k];
+					break;
+				}
+			}
+		}		
+		auto EdgeIndex20 = this->GetEdgeIndexByPoint(H2, H0);
+		auto EdgeIndex21 = this->GetEdgeIndexByPoint(H2, H1);
+		//EdgeIndex01 is EdgeIndex
+
+		//modify Point0
+		{
+			auto AdjEdgeIndexList_H1 = this->Point(H1).GetAdjacentEdgeIndexList();			
+			auto& AdjEdgeIndexList_H0 = this->Point(H0).AdjacentEdgeIndexList();
+			AdjEdgeIndexList_H0.Append(AdjEdgeIndexList_H1);
+			AdjEdgeIndexList_H0 = SetDiff(AdjEdgeIndexList_H0, EdgeIndexList_delete);
+			AdjEdgeIndexList_H0 = AdjEdgeIndexList_H0.GetSubSet(AdjEdgeIndexList_H0.FindUnique());
+		}
+
+		//modify Edge20
+		{
+			auto AdjFaceIndexList_Edge21 = this->Edge(EdgeIndex21).GetAdjacentFaceIndexList();
+			auto& AdjFaceIndexList_Edge20 = this->Edge(EdgeIndex20).AdjacentFaceIndexList();
+			AdjFaceIndexList_Edge20.Append(AdjFaceIndexList_Edge21);
+			auto tempIndex = AdjFaceIndexList_Edge20.ExactMatch(FaceIndex);
+			AdjFaceIndexList_Edge20.Delete(tempIndex);
+			AdjFaceIndexList_Edge20 = AdjFaceIndexList_Edge20.GetSubSet(AdjFaceIndexList_Edge20.FindUnique());
+			//modify Face adj to Edge21: change Edge21 to Edge20 in the adj Face
+			for (int_max k = 0; k < AdjFaceIndexList_Edge21.GetLength(); ++k)
+			{
+				auto& EdgeIndexList_k = this->Face(AdjFaceIndexList_Edge21[k]).EdgeIndexList();
+				auto tempIdx = EdgeIndexList_k.ExactMatch("first", EdgeIndex21);
+				EdgeIndexList_k[tempIdx] = EdgeIndex20;
+			}
+		}
+
+	}
+
+	//modify Edge adj to H1
+	{
+		auto AdjEdgeIndexList_H1 = this->Point(H1).GetAdjacentFaceIndexList();
+		for (int_max k = 0; k < AdjEdgeIndexList_H1.GetLength(); ++k)
+		{
+			auto PointIndexList_k = this->Edge(AdjEdgeIndexList_H1[k]).GetPointIndexList();
+			if (PointIndexList_k[0] == H1)
+			{
+				PointIndexList_k[0] = H0;
+			}
+			else
+			{
+				PointIndexList_k[1] = H0;
+			}
+			this->Edge(AdjEdgeIndexList_H1[k]).SetPointIndexList(PointIndexList_k);
+		}
+	}
+
+	//modify Face adj to H1
+	{
+		auto AdjFaceIndexList_H1 = this->Point(H1).GetAdjacentFaceIndexList();
+		for (int_max k = 0; k < AdjFaceIndexList_H1.GetLength(); ++k)
+		{
+			auto& PointIndexList_k = this->Face(AdjFaceIndexList_H1[k]).PointIndexList();
+			auto tempIdx = PointIndexList_k.ExactMatch("first", H1);
+			PointIndexList_k[tempIdx] = H0;
+		}
+	}
+
+	//delege Face
+	this->DeleteFace(AdjFaceIndexList);
+	//delete Edge
+	for (int_max k = 0; k < EdgeIndexList_delete.GetLength(); ++k)
+	{
+		this->Edge(EdgeIndexList_delete[k]).AdjacentFaceIndexList().Clear();
+		this->DeleteEdge(EdgeIndexList_delete[k]);
+	}
+	//delete Point1
+	this->Point(H1).AdjacentEdgeIndexList().Clear();
+	this->DeletePoint(H1);
+}
+
+
+template<typename ScalarType>
+void TriangleMesh<ScalarType>::FlipEdge(int_max EdgeIndex)
+{//only support 2 triangle face sharing an endge
+	if (this->IsValidEdgeIndex(EdgeIndex) == false)
+	{
+		MDK_Error("Invalid EdgeIndex @ TriangleMesh::FlipEdge(...)")
+		return;
+	}
+	//--------------------
+	//Upper: Triangle A
+	//Lower: Triangle B
+	//   2
+	//0 /_\ 1    / | \
+	//  \ /  =>  \ | /
+	//   3
+	//-------------------
+	auto PointIndexList01 = this->Edge(EdgeIndex).GetPointIndexList();
+	int_max H0 = PointIndexList01[0];
+	int_max H1 = PointIndexList01[1];
+
+	auto FaceIndexListAB = this->Edge(EdgeIndex).GetAdjacentFaceIndexList();
+	if (FaceIndexListAB.GetLength() != 2)
+	{
+		MDK_Error("AdjacentFaceCount is not 2 @ TriangleMesh::FlipEdge(...)")
+		return;
+	}
+	int_max FaceIndexA, FaceIndexB;
+	{//assume normal direction is consistant
+		auto tempList = this->Face(FaceIndexListAB[0]).GetPointIndexList_LeadBy(H0);
+		if (tempList[1] == H1)
+		{// assume (0,1,2) and (0,3,1)
+			FaceIndexA = FaceIndexListAB[0];
+			FaceIndexB = FaceIndexListAB[1];
+		}
+		else
+		{
+			FaceIndexA = FaceIndexListAB[1];
+			FaceIndexB = FaceIndexListAB[0];
+		}
+	}	
+	int_max H2, H3;
+	{		
+		auto tempListA = this->Face(FaceIndexA).GetPointIndexList();
+		for (int_max k = 0; k < tempListA.GetLength(); ++k)
+		{
+			if (tempListA[k] != H0 && tempListA[k] != H1)
+			{
+				H2 = tempListA[k];
+				break;
+			}
+		}
+		auto tempListB = this->Face(FaceIndexB).GetPointIndexList();
+		for (int_max k = 0; k < tempListB.GetLength(); ++k)
+		{
+			if (tempListB[k] != H0 && tempListB[k] != H1)
+			{
+				H3 = tempListB[k];
+				break;
+			}
+		}
+	}
+
+	this->DeleteFace(FaceIndexA);
+	this->DeleteFace(FaceIndexB);
+	this->DeleteEdge(EdgeIndex);
+	this->AddEdge(H2, H3, EdgeIndex);
+	this->AddFaceByPoint({ H0, H3, H2 }, FaceIndexA);
+	this->AddFaceByPoint({ H1, H2, H3 }, FaceIndexB);
+}
+
 }// namespace mdk

@@ -27,7 +27,7 @@ void Test_ShrinkEdge()
 	PolygonMesh<double> InputMesh;
 	LoadPolygonMeshFromVTKFile(InputMesh, FilePathAndName + ".vtk");
 
-	auto EdgeIndexList = InputMesh.GetEdgeIndexList();
+	auto EdgeIndexList = InputMesh.GetValidEdgeIndexList();
 	auto PointIndexList_Edge = InputMesh.Edge(EdgeIndexList[0]).GetPointIndexList();
 	InputMesh.ShrinkEdgeToPoint(EdgeIndexList[0], PointIndexList_Edge[0]);
 	SavePolygonMeshAsVTKFile(InputMesh, FilePathAndName + "_ShrinkEdge.vtk");
@@ -41,7 +41,7 @@ void Test_SplitEdge()
 	PolygonMesh<double> InputMesh;
 	LoadPolygonMeshFromVTKFile(InputMesh, FilePathAndName + ".vtk");
 
-	auto PointIndexList = InputMesh.GetPointIndexList();
+	auto PointIndexList = InputMesh.GetValidPointIndexList();
 	auto Point0 = InputMesh.GetPointPosition(PointIndexList[0]);
 	auto Point1 = InputMesh.GetPointPosition(PointIndexList[1]);
 	auto Point2 = (Point0 + Point1) / 2.0;
@@ -58,7 +58,7 @@ void Test_ShrinkFace()
 	PolygonMesh<double> InputMesh;
 	LoadPolygonMeshFromVTKFile(InputMesh, FilePathAndName + ".vtk");
 
-	auto FaceIndexList = InputMesh.GetFaceIndexList();
+	auto FaceIndexList = InputMesh.GetValidFaceIndexList();
 	auto PointIndexList_Face = InputMesh.Face(FaceIndexList[0]).GetPointIndexList();
 	InputMesh.ShrinkFaceToPoint(FaceIndexList[0], PointIndexList_Face[0]);
 	SavePolygonMeshAsVTKFile(InputMesh, FilePathAndName + "_ShrinkFace.vtk");
@@ -71,7 +71,7 @@ void Test_ReversePointOrder()
 	PolygonMesh<double> InputMesh;
 	LoadPolygonMeshFromVTKFile(InputMesh, FilePathAndName + ".vtk");
 
-	auto FaceIndexList = InputMesh.GetFaceIndexList();
+	auto FaceIndexList = InputMesh.GetValidFaceIndexList();
 	InputMesh.Face(FaceIndexList[0]).ReversePointOrder();
 	SavePolygonMeshAsVTKFile(InputMesh, FilePathAndName + "_ReversePointOrder.vtk");
 }
@@ -125,7 +125,7 @@ void Test_SplitFace()
 	PolygonMesh<double> InputMesh;
 	LoadPolygonMeshFromVTKFile(InputMesh, FilePathAndName + ".vtk");
 
-	auto FaceIndexList = InputMesh.GetFaceIndexList();
+	auto FaceIndexList = InputMesh.GetValidFaceIndexList();
 	auto PointIndexList_Face = InputMesh.Face(FaceIndexList[0]).GetPointIndexList();
 	
 	InputMesh.SplitFace(FaceIndexList[0], 0, 11);

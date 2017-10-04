@@ -20,8 +20,8 @@ void Test_PointDataSet()
 	TriangleMesh<double> LeafletMesh;
 	LoadPolygonMeshFromVTKFile(LeafletMesh, FilePathAndName);
 
-	LeafletMesh.InitializePointDataSet("Stress", 10);	
-	LeafletMesh.InitializeFaceDataSet("Stress", 12);
+	LeafletMesh.AddPointDataSet("Stress", 10);	
+	LeafletMesh.AddFaceDataSet("Stress", 12);
 	SavePolygonMeshAsVTKFile(LeafletMesh, "C:/Research/MDK/MDK_Build/Test/Test_Mesh/Test_TriangleMesh/TestData/Leaflet_Test_PointDataSet.vtk");
 
 	TriangleMesh<double> LeafletMesh_a;
@@ -81,4 +81,31 @@ void Test_GlobalAttribute()
 	SavePolygonMeshAsJsonDataFile(InputMesh, FilePathAndName + "_att.json");
 	LoadPolygonMeshFromJsonDataFile(SquareMesh, FilePathAndName + "_att.json");
 	SavePolygonMeshAsJsonDataFile(SquareMesh, FilePathAndName + "_att_re.json");
+}
+
+
+void Test_CollapseEdge()
+{
+	std::string FilePathAndName = "C:/Research/MDK/MDK_Build/Test/Test_Mesh/Test_TriangleMesh/TestData/Leaflet";
+
+	TriangleMesh<double> LeafletMesh;
+	LoadPolygonMeshFromVTKFile(LeafletMesh, FilePathAndName + ".vtk");
+
+	auto EdgeHandleList = LeafletMesh.GetValidEdgeIndexList();
+	auto PointIndexList = LeafletMesh.Edge(EdgeHandleList[10]).GetPointIndexList();
+	LeafletMesh.CollapseEdge(EdgeHandleList[10], PointIndexList[0]);
+	LeafletMesh.CleanDataStructure();
+	SavePolygonMeshAsVTKFile(LeafletMesh, FilePathAndName + "_CollapseEdge.vtk");
+}
+
+void Test_FlipEdge()
+{
+	std::string FilePathAndName = "C:/Research/MDK/MDK_Build/Test/Test_Mesh/Test_TriangleMesh/TestData/Leaflet";
+
+	TriangleMesh<double> LeafletMesh;
+	LoadPolygonMeshFromVTKFile(LeafletMesh, FilePathAndName + ".vtk");
+
+	auto EdgeHandleList = LeafletMesh.GetValidEdgeIndexList();	
+	LeafletMesh.FlipEdge(EdgeHandleList[10]);
+	SavePolygonMeshAsVTKFile(LeafletMesh, FilePathAndName + "_FlipEdge.vtk");
 }

@@ -1183,7 +1183,12 @@ template<typename ElementType>
 inline
 bool DenseVector<ElementType>::Delete(int_max Index)
 {
-    return Delete(&Index, 1);
+	if (Index < 0 || Index >= this->GetElementCount())
+	{
+		return false;
+	}
+	m_StdVector.erase(m_StdVector.begin() + Index, m_StdVector.begin() + Index + 1);
+	return true;
 }
 
 
@@ -1229,13 +1234,12 @@ bool DenseVector<ElementType>::Delete(const int_max* IndexList, int_max ListLeng
     }
 
     auto SelfLength = this->GetElementCount();
-
     if (SelfLength == 0)
     {
         MDK_Error("Self is empty @ DenseVector::Delete(const int_max* IndexList, int_max ListLength)")
         return false;
     }
-
+	
     for (auto it = IndexList; it != IndexList + ListLength; ++it)
     {
         if (*it >= SelfLength || *it < 0)
@@ -1244,7 +1248,7 @@ bool DenseVector<ElementType>::Delete(const int_max* IndexList, int_max ListLeng
             return false;
         }
     }
-
+	
     if (ListLength == 1)
     {
         m_StdVector.erase(m_StdVector.begin() + IndexList[0], m_StdVector.begin() + IndexList[0] + 1);
@@ -1252,20 +1256,16 @@ bool DenseVector<ElementType>::Delete(const int_max* IndexList, int_max ListLeng
     else
     {
         std::vector<int_max> IndexList_max_to_min(ListLength);
-
         for (int_max i = 0; i < ListLength; ++i)
         {
             IndexList_max_to_min[i] = IndexList[i];
         }
-
         std::sort(IndexList_max_to_min.begin(), IndexList_max_to_min.end(), [](int_max a, int_max b) { return a > b; });
 
         int_max Index_prev = -1;
-
         for (int_max i = 0; i < int_max(IndexList_max_to_min.size()); ++i)
         {
             auto Index_i = IndexList_max_to_min[i];
-
             if (Index_i == Index_prev)
             {
                 MDK_Warning("duplicate Input @ DenseVector::Delete(const int_max* IndexPtr, int_max Length)")
@@ -1273,7 +1273,6 @@ bool DenseVector<ElementType>::Delete(const int_max* IndexList, int_max ListLeng
             else
             {
                 m_StdVector.erase(m_StdVector.begin() + Index_i, m_StdVector.begin() + Index_i + 1);
-
                 Index_prev = Index_i;
             }
         }
