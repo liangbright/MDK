@@ -62,6 +62,7 @@ TriangleMesh<ScalarType> ResampleMeshOpenBoundary(const TriangleMesh<ScalarType>
     // ~~~~~~~~~~~~~~~~~~ Curve_near_boundary
 	// |\/|\/\/\/\|/\/\/| Face_delete, Edge_delete
 	// ~~~~~~~~~~~~~~~~~~ Boundary, Edge_delete
+	// Curve_near_boundary do NOT share start/end point with Boundary
 	{//get Curve_near_boundary
 		int_max PointIndex_start = -1;
 		{
@@ -188,11 +189,11 @@ TriangleMesh<ScalarType> ResampleMeshOpenBoundary(const TriangleMesh<ScalarType>
 	OutputMesh.DeleteFace(Face_delete);
 	OutputMesh.DeleteEdge(Edge_delete);
 	OutputMesh.DeletePoint(Point_delete);
-	//modify the position of the start/end point
+	//modify the position of the start/end point of BounaryPointIndexList to be the same as the start/end point of Boundary_output
 	OutputMesh.SetPointPosition(BounaryPointIndexList[0], Boundary_output(0, 0), Boundary_output(1, 0), Boundary_output(2, 0));
 	OutputMesh.SetPointPosition(BounaryPointIndexList[BounaryPointIndexList.GetLength()-1], 
 		                        Boundary_output(0, Boundary_output.GetColCount()-1), Boundary_output(1, Boundary_output.GetColCount() - 1), Boundary_output(2, Boundary_output.GetColCount() - 1));
-	//add new boundary
+	//add new boundary (do not need to add start/end point)
 	DenseVector<int_max> BounaryPointIndexList_output;
 	BounaryPointIndexList_output.Append(BounaryPointIndexList[0]);
 	for (int_max k = 1; k < Boundary_output.GetColCount() - 1; ++k)
@@ -242,14 +243,29 @@ TriangleMesh<ScalarType> ResampleMeshOpenBoundary(const TriangleMesh<ScalarType>
 	}
 
 	//add new face
+	// ~~~~~~~~~~~~~~~~~~ Curve_near_boundary
+	// |\|     |      |/|
+	// ~~~~~~~~~~~~~~~~~~ Boundary_output
 	DenseVector<int_max> BounaryFaceIndexList_output;
-	for (int_max k = 0; k < BounaryPointIndexList_output.GetLength() - 1; ++k)
+	{
+		auto FaceIndex_new = OutputMesh.AddFaceByPoint(BounaryPointIndexList_output[0], Curve_near_boundary[0], BounaryPointIndexList_output[1]);
+		BounaryFaceIndexList_output.Append(FaceIndex_new);
+	}
+	for (int_max Index = 0; Index < NearestPoint_on_Curve_near_boundary[1]; ++Index)
+	{
+		auto PointIndexA = Curve_near_boundary[Index];
+		auto PointIndexB = Curve_near_boundary[Index + 1];
+		auto FaceIndex_new = OutputMesh.AddFaceByPoint(BounaryPointIndexList_output[1], PointIndexA, PointIndexB);
+		BounaryFaceIndexList_output.Append(FaceIndex_new);
+	}
+	for (int_max k = 1; k < BounaryPointIndexList_output.GetLength() - 2; ++k)
 	{
 		int_max Index_middle = NearestPoint_on_Curve_near_boundary[k] + int_max((NearestPoint_on_Curve_near_boundary[k + 1]- NearestPoint_on_Curve_near_boundary[k])/2);
 		if (Index_middle >= NearestPoint_on_Curve_near_boundary[k + 1])
 		{
 			Index_middle = NearestPoint_on_Curve_near_boundary[k];
-		}
+		}		
+
 		for (int_max Index = NearestPoint_on_Curve_near_boundary[k]; Index < Index_middle; ++Index)
 		{
 			auto PointIndexA = Curve_near_boundary[Index];
@@ -267,6 +283,19 @@ TriangleMesh<ScalarType> ResampleMeshOpenBoundary(const TriangleMesh<ScalarType>
 			BounaryFaceIndexList_output.Append(FaceIndex_new);
 		}		
 	}
+	for (int_max Index = NearestPoint_on_Curve_near_boundary[BounaryPointIndexList_output.GetLength()-2]; Index < NearestPoint_on_Curve_near_boundary[BounaryPointIndexList_output.GetLength()-1]; ++Index)
+	{
+		auto PointIndexA = Curve_near_boundary[Index];
+		auto PointIndexB = Curve_near_boundary[Index + 1];
+		auto FaceIndex_new = OutputMesh.AddFaceByPoint(BounaryPointIndexList_output[BounaryPointIndexList_output.GetLength()-2], PointIndexA, PointIndexB);
+		BounaryFaceIndexList_output.Append(FaceIndex_new);
+	}
+	{
+		auto tempIdx = BounaryPointIndexList_output.GetLength() - 2;
+		auto FaceIndex_new = OutputMesh.AddFaceByPoint(BounaryPointIndexList_output[tempIdx], Curve_near_boundary[Curve_near_boundary.GetLength()-1], BounaryPointIndexList_output[tempIdx+1]);
+		BounaryFaceIndexList_output.Append(FaceIndex_new);
+	}
+
 	//change point order of new face if necessary
 	{ //Curve_near_boundary could also contain some boundary point
 		bool Flag_reorder = false;
@@ -469,6 +498,7 @@ int_max Project_Add_Point_to_Surface(TriangleMesh<ScalarType>& Surface, const De
 		if (dist_min < DistThreshold)
 		{
 			auto PointIndex_ref = PointIndexList[DistToPoint.IndexOfMin()];
+			Surface.SetPointPosition(PointIndex_ref, Point);
 			return PointIndex_ref;
 		}
 	}
@@ -477,7 +507,7 @@ int_max Project_Add_Point_to_Surface(TriangleMesh<ScalarType>& Surface, const De
 	auto H0 = PointIndexList[0];
 	auto H1 = PointIndexList[1];
 	auto H2 = PointIndexList[2];
-	auto H3 = Surface.AddPoint(Point_proj);
+	auto H3 = Surface.AddPoint(Point);
 	//-----------------
 	//     2 
 	//     3      
@@ -492,7 +522,7 @@ int_max Project_Add_Point_to_Surface(TriangleMesh<ScalarType>& Surface, const De
 	auto P3 = Surface.GetPointPosition(H3);
 	auto FaceNormal = ComputeTriangleNormalIn3D(P0, P1, P2);
 	auto EPS = std::numeric_limits<ScalarType>::epsilon();
-	
+	/*
 	for (int_max n = 0; n < 3; ++n)
 	{
 		int_max Ha, Hb, Hc;
@@ -582,7 +612,7 @@ int_max Project_Add_Point_to_Surface(TriangleMesh<ScalarType>& Surface, const De
 			return H3;
 		}
 	}
-
+	*/
 	{// inside
 		//-----------------
 		//     2 
