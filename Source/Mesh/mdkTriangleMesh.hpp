@@ -657,20 +657,7 @@ void TriangleMesh<ScalarType>::UpdateNormalBasedCurvatureAtPoint(int_max PointIn
 //-------------------------------------- mesh editing -----------------------------------------------------//
 
 template<typename ScalarType>
-bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex, bool Flag_CollapseForSpecialCase)
-{
-	if (this->IsValidEdgeIndex(EdgeIndex) == false)
-	{
-		MDK_Error("Invalid EdgeIndex @ TriangleMesh::CollapseEdge(...)")
-		return;
-	}
-	auto PointIndexList = this->Edge(EdgeIndex).GetPointIndexList();
-	return this->CollapseEdge(EdgeIndex, PointIndexList[0], Flag_CollapseForSpecialCase);
-}
-
-
-template<typename ScalarType>
-bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex, int_max PointIndex, bool Flag_CollapseForSpecialCase)
+bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex, int_max PointIndex)
 {
 	if (this->IsValidEdgeIndex(EdgeIndex) == false)
 	{
@@ -687,50 +674,40 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex, int_max PointInde
 	{
 		MDK_Error("Point must be on the Edge @ TriangleMesh::CollapseEdge(...)")
 		return false;
-	}	
-	//--------------------
+	}
+	//-----------------------------------------------------------------------------------
 	//Upper: Triangle A
 	//Lower: Triangle B
 	//   2
 	//0 /_\ 1    /
-    //  \ /  =>  \
+	//  \ /  =>  \
     //   3
-	//--------------------
-	//Triangle A only
+	// Triangle012 Triangle031, Point1, Edge01, Edge21, Edge31, will be deleted
+	//-----------------------------------------------------------------------------------
+	//we can just operater on each triangle adj to Edge01
+	//Triangle A
 	//    2
-	// 0 /_\ 1  =>  /
-	// Edge01 is on bounary
-	// PointIndex is H0
-    //-------------------
+	// 0 /_\ 1  =>  /		
+	// Triangle012, Point1, Edge01, Edge21 will be deleted
+	//-----------------------------------------------------------------------------------
 	//special case 1: Trangle {0,1,2}, {0,2,3}, {1, 3, 2}
 	//collapse Edge01 will produce 2 idential triangle {0, 2, 3} and {0, 3, 2}
-	//if Flag_CollapseForSpecialCase = true, then allow to collapse for this case and delete duplicated face after collapse	
+	//abort and return false
+	//should delete Point2 and adj edge and face, then call this function
 	//      3
 	//     /|\ 
-    //	  / 2 \
+	//	  / 2 \
 	//   / /_\ \
-	//    0    1 
- 	//-------------------
-	//special case 2: Edge02 and Edge12 are on boundary, Edge01 may or may not be on bounary
+	//   0     1 
+	//-----------------------------------------------------------------------------------
+	//special case 2: Edge20 and Edge21 are on boundary
 	//collapse Edge01 will produce an Edge connecting 2 and 0_1
-	//if Flag_CollapseForSpecialCase = true, then allow to collapse for this case	
+	//abort and return false
+	//should delete Point2 and adj edge and face, then call this function
 	//   2         2
 	//  /_\   =>   |
 	// 0   1       0
-	//-------------------
-	auto TempFunction_DetectSpecialCase1 = [&](int_max H0, int_max H1, int_max H2)
-	{
-
-	};
-	auto TempFunction_DetectSpecialCase2 = [&](int_max H0, int_max H1, int_max H2)
-	{
-
-	};
-	auto TempFunction_DetectSpecialCase_ALL = [&](int_max H0, int_max H1, int_max H2)
-	{
-
-	};
-
+	//------------------------------------------------------------------------------------	
 	int_max H0, H1;
 	if (PointIndexList_edge[0] == PointIndex)
 	{
@@ -742,27 +719,109 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex, int_max PointInde
 		H0 = PointIndexList_edge[1];
 		H1 = PointIndexList_edge[0];
 	}
-
-	DenseVector<int_max> EdgeIndexList_delete;
-	EdgeIndexList_delete.Append(EdgeIndex);
+	int_max EdgeIndex01 = EdgeIndex;
+	auto AdjFaceIndexList_Edge01 = this->Edge(EdgeIndex01).GetAdjacentFaceIndexList();
+	DenseVector<int_max> AdjPointIndexList_H0_H1;//contain H2 and H3 or more
 	{
-		auto AdjPointIndexList_H1 = this->Point(H1).GetAdjacentPointIndexList();
 		auto AdjPointIndexList_H0 = this->Point(H0).GetAdjacentPointIndexList();
-		auto tempPointIndexList = Intersect(AdjPointIndexList_H1, AdjPointIndexList_H0);
-		for (int_max k = 0; k < tempPointIndexList.GetLength(); ++k)
-		{
-			auto tempEdgeIndex = this->GetEdgeIndexByPoint(tempPointIndexList[k], H1);
-			EdgeIndexList_delete.Append(tempEdgeIndex);
-		}
+		auto AdjPointIndexList_H1 = this->Point(H1).GetAdjacentPointIndexList();
+		AdjPointIndexList_H0_H1 = Intersect(AdjPointIndexList_H0, AdjPointIndexList_H1);
 	}
-	
-	auto AdjFaceIndexList = this->Edge(EdgeIndex).GetAdjacentFaceIndexList();
-	for (int_max n = 0; n < AdjFaceIndexList.GetLength(); ++n)
+	DenseVector<int_max> EdgeIndexList_delete;
+	EdgeIndexList_delete.Append(EdgeIndex01);
+	for (int_max k = 0; k < AdjPointIndexList_H0_H1.GetLength(); ++k)
 	{
-		auto FaceIndex = AdjFaceIndexList[n];
+		auto tempEdgeIndex = this->GetEdgeIndexByPoint(AdjPointIndexList_H0_H1[k], H1);
+		EdgeIndexList_delete.Append(tempEdgeIndex);
+	}
+	//------------------------------------------------------------------------------------
+	auto TempFunction_HandleNormalCase = [&](int_max H2, int_max FaceIndex012)
+	{//    2
+	 // 0 /_\ 1  =>  /		
+	 // Face012, Edge21 will be deleted; 
+	 // Point1 and Edge01 will NOT be deleted in this function
+	 // Face (not Face012) adj to Point1 will NOT be modified in this function
+	 //-----------------------------------------------------------------------------------	 
+		//delete Face012
+		this->DeleteFace(FaceIndex012);
+		//
+		auto EdgeIndex20 = this->GetEdgeIndexByPoint(H2, H0);
+		auto EdgeIndex21 = this->GetEdgeIndexByPoint(H2, H1);		
+		//modify Face (Face012 is deleted) adjacent to Edge21: replace Edge21 with Edge20
+		auto AdjFaceIndexList_Edge21 = this->Edge(EdgeIndex21).GetAdjacentFaceIndexList();
+		for (int_max k = 0; k < AdjFaceIndexList_Edge21.GetLength(); ++k)
+		{
+			auto& EdgeIndexList_k = this->Face(AdjFaceIndexList_Edge21[k]).EdgeIndexList();
+			auto tempIdx = EdgeIndexList_k.ExactMatch("first", EdgeIndex21);
+			EdgeIndexList_k[tempIdx] = EdgeIndex20;
+		}
+		//modify Edge20: add face (Face012 is deleted) adjacent to Edge21
+		auto& AdjFaceIndexList_Edge20_ref = this->Edge(EdgeIndex20).AdjacentFaceIndexList();
+		{
+			AdjFaceIndexList_Edge20_ref.Append(AdjFaceIndexList_Edge21);
+			AdjFaceIndexList_Edge20_ref = AdjFaceIndexList_Edge20_ref.GetSubSet(AdjFaceIndexList_Edge20_ref.FindUnique());
+		}		
+		//delete Edge21
+		this->Edge(EdgeIndex21).AdjacentFaceIndexList().Clear();
+		this->DeleteEdge(EdgeIndex21);
+	};
+	//------------------------------------------------------------------------------------
+	auto TempFunction_CommonEnd = [&]()
+	{
+		//modify Point0: add edge (not deleted) adjacent to Point1
+		{
+			auto AdjEdgeIndexList_H1_ref = this->Point(H1).GetAdjacentEdgeIndexList();
+			auto& AdjEdgeIndexList_H0_ref = this->Point(H0).AdjacentEdgeIndexList();
+			AdjEdgeIndexList_H0_ref.Append(AdjEdgeIndexList_H1_ref);
+			AdjEdgeIndexList_H0_ref = SetDiff(AdjEdgeIndexList_H0_ref, EdgeIndexList_delete);
+		}
+		//modify Edge (not Edge_delete) adjacent to Point1: replace H1 with H0
+		{
+			auto AdjEdgeIndexList_H1 = this->Point(H1).GetAdjacentEdgeIndexList();
+			AdjEdgeIndexList_H1 = SetDiff(AdjEdgeIndexList_H1, EdgeIndexList_delete);
+			for (int_max k = 0; k < AdjEdgeIndexList_H1.GetLength(); ++k)
+			{
+				auto PointIndexList_k = this->Edge(AdjEdgeIndexList_H1[k]).GetPointIndexList();
+				if (PointIndexList_k[0] == H1)
+				{
+					PointIndexList_k[0] = H0;
+				}
+				else
+				{
+					PointIndexList_k[1] = H0;
+				}
+				this->Edge(AdjEdgeIndexList_H1[k]).SetPointIndexList(PointIndexList_k);
+			}
+		}
+		//modify Face (not AdjFaceIndexList_Edge01) adjacent to Point1: replace H1 with H0
+		{
+			auto AdjFaceIndexList_H1 = this->Point(H1).GetAdjacentFaceIndexList();			
+			AdjFaceIndexList_H1 = SetDiff(AdjFaceIndexList_H1, AdjFaceIndexList_Edge01);			
+			for (int_max k = 0; k < AdjFaceIndexList_H1.GetLength(); ++k)
+			{
+				auto& PointIndexList_k_ref = this->Face(AdjFaceIndexList_H1[k]).PointIndexList();
+				auto tempIdx = PointIndexList_k_ref.ExactMatch("first", H1);
+				PointIndexList_k_ref[tempIdx] = H0;
+			}
+		}
+		//delete Edge01
+		this->Edge(EdgeIndex01).AdjacentFaceIndexList().Clear();
+		this->DeleteEdge(EdgeIndex01);
+		//delete Point1
+		this->Point(H1).AdjacentEdgeIndexList().Clear();
+		this->DeletePoint(H1);
+	};
+	//------------------------------------------------------------------------------------
+	//------------------------------- end of TempFunction---------------------------------------------------------//
+
+	//detect special case-1 ---------------------------------------------------------
+	bool Flag_SpecialCase1 = false;
+	for (int_max n = 0; n < AdjFaceIndexList_Edge01.GetLength(); ++n)
+	{
+		auto FaceIndex012 = AdjFaceIndexList_Edge01[n];
 		int_max H2;
 		{
-			auto tempList = this->Face(FaceIndex).GetPointIndexList();
+			auto tempList = this->Face(FaceIndex012).GetPointIndexList();
 			for (int_max k = 0; k < tempList.GetLength(); ++k)
 			{
 				if (tempList[k] != H0 && tempList[k] != H1)
@@ -771,80 +830,87 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex, int_max PointInde
 					break;
 				}
 			}
-		}		
+		}
+		auto CandidatePointIndexList_H3 = AdjPointIndexList_H0_H1;
+		{
+			auto tempIdx2 = CandidatePointIndexList_H3.ExactMatch(H2);
+			CandidatePointIndexList_H3.Delete(tempIdx2);
+		}
+		//check if Point2 is connected to a point in CandidatePointIndexList_H3
+		for (int_max k = 0; k < CandidatePointIndexList_H3.GetLength(); ++k)
+		{
+			auto Hk = CandidatePointIndexList_H3[k];
+			auto EdgeIndex_2k = this->GetEdgeIndexByPoint(H2, Hk);
+			if (EdgeIndex_2k >= 0)
+			{
+				MDK_Warning("H0=" << H0 << ", H1=" << H1 << ", H2=" << H2)
+				Flag_SpecialCase1 = true;
+				break;
+			}
+		}
+	}
+	if (Flag_SpecialCase1 == true)
+	{
+		MDK_Error("Special Case-1 is detected, abort @ TriangleMesh::CollapseEdge(...)")
+		return false;
+	}
+
+	//detect special case-2 ---------------------------------------------------------
+	bool Flag_SpecialCase2 = false;
+	for (int_max n = 0; n < AdjFaceIndexList_Edge01.GetLength(); ++n)
+	{
+		auto FaceIndex012 = AdjFaceIndexList_Edge01[n];
+		int_max H2;
+		{
+			auto tempList = this->Face(FaceIndex012).GetPointIndexList();
+			for (int_max k = 0; k < tempList.GetLength(); ++k)
+			{
+				if (tempList[k] != H0 && tempList[k] != H1)
+				{
+					H2 = tempList[k];
+					break;
+				}
+			}
+		}
 		auto EdgeIndex20 = this->GetEdgeIndexByPoint(H2, H0);
 		auto EdgeIndex21 = this->GetEdgeIndexByPoint(H2, H1);
-		//EdgeIndex01 is EdgeIndex
-
-		//modify Point0
+		if (this->Edge(EdgeIndex20).IsOnPolygonMeshBoundary() == true && this->Edge(EdgeIndex21).IsOnPolygonMeshBoundary() == true)
 		{
-			auto AdjEdgeIndexList_H1 = this->Point(H1).GetAdjacentEdgeIndexList();			
-			auto& AdjEdgeIndexList_H0 = this->Point(H0).AdjacentEdgeIndexList();
-			AdjEdgeIndexList_H0.Append(AdjEdgeIndexList_H1);
-			AdjEdgeIndexList_H0 = SetDiff(AdjEdgeIndexList_H0, EdgeIndexList_delete);
-			AdjEdgeIndexList_H0 = AdjEdgeIndexList_H0.GetSubSet(AdjEdgeIndexList_H0.FindUnique());
+			MDK_Warning("H0=" << H0 << ", H1=" << H1 << ", H2=" << H2)
+			Flag_SpecialCase2 = true;
+			break;
 		}
-
-		//modify Edge20
+	}
+	if (Flag_SpecialCase2 == true)
+	{
+		MDK_Error("Special Case-2 is detected, abort @ TriangleMesh::CollapseEdge(...)")
+		return false;
+	}
+	
+	//now: handle normal case -------------------------------------------------------------------
+	for (int_max n = 0; n < AdjFaceIndexList_Edge01.GetLength(); ++n)
+	{
+		auto FaceIndex012 = AdjFaceIndexList_Edge01[n];
+		int_max H2 = -1;
 		{
-			auto AdjFaceIndexList_Edge21 = this->Edge(EdgeIndex21).GetAdjacentFaceIndexList();
-			auto& AdjFaceIndexList_Edge20 = this->Edge(EdgeIndex20).AdjacentFaceIndexList();
-			AdjFaceIndexList_Edge20.Append(AdjFaceIndexList_Edge21);
-			auto tempIndex = AdjFaceIndexList_Edge20.ExactMatch(FaceIndex);
-			AdjFaceIndexList_Edge20.Delete(tempIndex);
-			AdjFaceIndexList_Edge20 = AdjFaceIndexList_Edge20.GetSubSet(AdjFaceIndexList_Edge20.FindUnique());
-			//modify Face adj to Edge21: change Edge21 to Edge20 in the adj Face
-			for (int_max k = 0; k < AdjFaceIndexList_Edge21.GetLength(); ++k)
+			auto tempList = this->Face(FaceIndex012).GetPointIndexList();
+			for (int_max k = 0; k < tempList.GetLength(); ++k)
 			{
-				auto& EdgeIndexList_k = this->Face(AdjFaceIndexList_Edge21[k]).EdgeIndexList();
-				auto tempIdx = EdgeIndexList_k.ExactMatch("first", EdgeIndex21);
-				EdgeIndexList_k[tempIdx] = EdgeIndex20;
+				if (tempList[k] != H0 && tempList[k] != H1)
+				{
+					H2 = tempList[k];
+					break;
+				}
 			}
 		}
-
-	}
-
-	//modify Edge adj to H1
-	{
-		auto AdjEdgeIndexList_H1 = this->Point(H1).GetAdjacentEdgeIndexList();
-		for (int_max k = 0; k < AdjEdgeIndexList_H1.GetLength(); ++k)
+		if (H2 < 0)
 		{
-			auto PointIndexList_k = this->Edge(AdjEdgeIndexList_H1[k]).GetPointIndexList();
-			if (PointIndexList_k[0] == H1)
-			{
-				PointIndexList_k[0] = H0;
-			}
-			else
-			{
-				PointIndexList_k[1] = H0;
-			}
-			this->Edge(AdjEdgeIndexList_H1[k]).SetPointIndexList(PointIndexList_k);
+			MDK_Error("H2 < 0, abort @ TriangleMesh::CollapseEdge(...)")
+			return false;
 		}
+		TempFunction_HandleNormalCase(H2, FaceIndex012);
 	}
-
-	//modify Face adj to H1
-	{
-		auto AdjFaceIndexList_H1 = this->Point(H1).GetAdjacentFaceIndexList();
-		for (int_max k = 0; k < AdjFaceIndexList_H1.GetLength(); ++k)
-		{
-			auto& PointIndexList_k = this->Face(AdjFaceIndexList_H1[k]).PointIndexList();
-			auto tempIdx = PointIndexList_k.ExactMatch("first", H1);
-			PointIndexList_k[tempIdx] = H0;
-		}
-	}
-
-	//delege Face
-	this->DeleteFace(AdjFaceIndexList);
-	//delete Edge
-	for (int_max k = 0; k < EdgeIndexList_delete.GetLength(); ++k)
-	{
-		this->Edge(EdgeIndexList_delete[k]).AdjacentFaceIndexList().Clear();
-		this->DeleteEdge(EdgeIndexList_delete[k]);
-	}
-	//delete Point1
-	this->Point(H1).AdjacentEdgeIndexList().Clear();
-	this->DeletePoint(H1);
-	//return
+	TempFunction_CommonEnd();
 	return true;
 }
 
@@ -860,28 +926,30 @@ bool TriangleMesh<ScalarType>::FlipEdge(int_max EdgeIndex)
 	//--------------------
 	//Upper: Triangle A
 	//Lower: Triangle B
+	//flip edge01
 	//   2
 	//0 /_\ 1    / | \
 	//  \ /  =>  \ | /
 	//   3
 	//-------------------
 	//special case 1 : do not flip
-	//
-	//
-	//
-	//
+	//Trangle {0,1,2}, {0,2,3}, {1, 3, 2}
+	//flip Edge01 will produce at least a floating triangle {0, 2, 3}
+	//detection: check if point 2 and 3 are already connected
+	//      2
+	//     /|\ 
+	//	  / 0 \
+	//   / /_\ \
+	//   3     1 
 	//-------------------
 	//special case 2 : do not flip
-	//
-	//
-	//
-	//
+	// Edge has less/more than 2 adj face (e.g. on boundary)
 	//---------------------
 
 	auto PointIndexList01 = this->Edge(EdgeIndex).GetPointIndexList();
 	int_max H0 = PointIndexList01[0];
 	int_max H1 = PointIndexList01[1];
-
+	//check special case 2
 	auto FaceIndexListAB = this->Edge(EdgeIndex).GetAdjacentFaceIndexList();
 	if (FaceIndexListAB.GetLength() != 2)
 	{
@@ -924,13 +992,30 @@ bool TriangleMesh<ScalarType>::FlipEdge(int_max EdgeIndex)
 		}
 	}
 
-	this->DeleteFace(FaceIndexA);
-	this->DeleteFace(FaceIndexB);
-	this->DeleteEdge(EdgeIndex);
-	this->AddEdge(H2, H3, EdgeIndex);
-	this->AddFaceByPoint({ H0, H3, H2 }, FaceIndexA);
-	this->AddFaceByPoint({ H1, H2, H3 }, FaceIndexB);
-	return true;
+	//check special case 1
+	bool Flag_SpecialCase1 = false;
+	{
+		auto EdgeIndex23 = this->GetEdgeIndexByPoint(H2, H3);
+		if (EdgeIndex23 >= 0)
+		{
+			Flag_SpecialCase1 = true;
+		}
+	}
+
+	if (Flag_SpecialCase1 == false)
+	{
+		this->DeleteFace(FaceIndexA);
+		this->DeleteFace(FaceIndexB);
+		this->DeleteEdge(EdgeIndex);
+		this->AddEdge(H2, H3, EdgeIndex);
+		this->AddFaceByPoint({ H0, H3, H2 }, FaceIndexA);
+		this->AddFaceByPoint({ H1, H2, H3 }, FaceIndexB);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 }// namespace mdk

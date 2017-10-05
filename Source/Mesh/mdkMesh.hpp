@@ -1206,26 +1206,22 @@ int_max Mesh<ScalarType>::GetFaceIndexByPoint(const DenseVector<int_max>& PointI
 			return -1;
 		}
 	}
-
-	DenseVector<int_max> EdgeIndexList;
-	EdgeIndexList.Resize(PointIndexList.GetLength());
-	for (int_max k = 0; k < PointIndexList.GetLength(); ++k)
+	auto FaceIndexList_shared = m_MeshData->PointList[PointIndexList[0]].GetAdjacentFaceIndexList();
+	for (int_max k = 1; k < PointIndexList.GetLength(); ++k)
 	{
-		if (k < PointIndexList.GetLength() - 1)
-		{
-			EdgeIndexList[k] = this->GetEdgeIndexByPoint(PointIndexList[k], PointIndexList[k + 1]);
-		}
-		else
-		{
-			EdgeIndexList[k] = this->GetEdgeIndexByPoint(PointIndexList[k], PointIndexList[0]);
-		}
-		if (EdgeIndexList[k].GetIndex() < 0)
-		{
-			//MDK_Warning("PointIndexList is invalid @ Mesh::GetFaceIndexByPoint(...)")
-			return -1;
-		}
+		FaceIndexList_shared = Intersect(FaceIndexList_shared, m_MeshData->PointList[PointIndexList[k]].GetAdjacentFaceIndexList());
 	}
-	return this->GetFaceIndexByEdge(EdgeIndexList);
+	//----------------------
+	if (FaceIndexList_shared.IsEmpty() == false)
+	{
+		if (FaceIndexList_shared.GetLength() != 1)
+		{
+			MDK_Warning("FaceIndex is not unique @ Mesh::GetFaceIndexByPoint(...)")			
+		}
+		return FaceIndexList_shared[0];
+	}
+	//MDK_Warning("Face is not found @ Mesh::GetFaceIndexByPoint(...)")
+	return -1;
 }
 
 
@@ -1240,22 +1236,23 @@ int_max Mesh<ScalarType>::GetFaceIndexByEdge(const DenseVector<int_max>& EdgeInd
             //MDK_Warning("EdgeIndexList is invalid @ Mesh::GetFaceIndexByEdge(...)")            
             return -1;
         }
-    }
-
-	//---------------------------------------------------------------------------------------------------
+    }	
 	auto FaceIndexList_shared = m_MeshData->EdgeList[EdgeIndexList[0]].GetAdjacentFaceIndexList();
 	for (int_max k = 1; k < EdgeIndexList.GetLength(); ++k)
 	{
 		FaceIndexList_shared = Intersect(FaceIndexList_shared, m_MeshData->EdgeList[EdgeIndexList[k]].GetAdjacentFaceIndexList());
 	}
 	//----------------------
-	if (FaceIndexList_shared.GetLength() != 1)
+	if (FaceIndexList_shared.IsEmpty() == false)
 	{
-		//MDK_Warning("EdgeIndexList is invalid @ Mesh::GetFaceIndexByEdge(...)")
-		return -1;
+		if (FaceIndexList_shared.GetLength() != 1)
+		{
+			MDK_Warning("FaceIndex is not unique @ Mesh::GetFaceIndexByEdge(...)")
+		}
+		return FaceIndexList_shared[0];
 	}
-
-	return FaceIndexList_shared[0];
+	//MDK_Warning("Face is not found @ Mesh::GetFaceIndexByEdge(...)")
+	return -1;
 }
 
 
@@ -1293,14 +1290,22 @@ int_max Mesh<ScalarType>::GetCellIndexByPoint(const DenseVector<int_max>& PointI
 			return -1;
 		}
 	}
-	//---------------------------------------------------------------------------------------------------
-	DenseVector<int_max> EdgeIndexList;
-	for (int_max k = 0; k < PointIndexList.GetLength(); ++k)
+	auto CellIndexList_shared = m_MeshData->PointList[PointIndexList[0]].GetAdjacentCellIndexList();
+	for (int_max k = 1; k < FaceIndexList.GetLength(); ++k)
 	{
-		EdgeIndexList.Append(m_MeshData->PointList[PointIndexList[k]].GetAdjacentEdgeIndexList());
+		CellIndexList_shared = Intersect(CellIndexList_shared, m_MeshData->PointList[PointIndexList[k]].GetAdjacentCellIndexList());
 	}
-	EdgeIndexList = EdgeIndexList.GetSubSet(EdgeIndexList.FindUnique());
-	return this->GetCellIndexByEdge(EdgeIndexList);
+	//----------------------
+	if (CellIndexList_shared.IsEmpty() == false)
+	{
+		if (CellIndexList_shared.GetLength() != 1)
+		{
+			MDK_Warning("FaceIndex is not unique @ Mesh::GetCellIndexByPoint(...)")
+		}
+		return CellIndexList_shared[0];
+	}
+	//MDK_Warning("Cell is not found @ Mesh::GetCellIndexByPoint(...)")
+	return -1;
 }
 
 template<typename ScalarType>
@@ -1315,14 +1320,22 @@ int_max Mesh<ScalarType>::GetCellIndexByEdge(const DenseVector<int_max>& EdgeInd
 			return -1;
 		}
 	}
-	//---------------------------------------------------------------------------------------------------
-	DenseVector<int_max> FaceIndexList;
-	for (int_max k = 0; k < EdgeIndexList.GetLength(); ++k)
+	auto CellIndexList_shared = m_MeshData->EdgeList[EdgeIndexList[0]].GetAdjacentCellIndexList();
+	for (int_max k = 1; k < FaceIndexList.GetLength(); ++k)
 	{
-		FaceIndexList.Append(m_MeshData->EdgeList[EdgeIndexList[k]].GetAdjacentFaceIndexList());
+		CellIndexList_shared = Intersect(CellIndexList_shared, m_MeshData->EdgeList[EdgeIndexList[k]].GetAdjacentCellIndexList());
 	}
-	FaceIndexList = FaceIndexList.GetSubSet(FaceIndexList.FindUnique());
-	return this->GetCellIndexByFace(FaceIndexList);
+	//----------------------
+	if (CellIndexList_shared.IsEmpty() == false)
+	{
+		if (CellIndexList_shared.GetLength() != 1)
+		{
+			MDK_Warning("FaceIndex is not unique @ Mesh::GetCellIndexByEdge(...)")
+		}
+		return CellIndexList_shared[0];
+	}
+	//MDK_Warning("Cell is not found @ Mesh::GetCellIndexByEdge(...)")
+	return -1;
 }
 
 template<typename ScalarType>
@@ -1337,21 +1350,22 @@ int_max Mesh<ScalarType>::GetCellIndexByFace(const DenseVector<int_max>& FaceInd
 			return -1;
 		}
 	}
-
-	//---------------------------------------------------------------------------------------------------
 	auto CellIndexList_shared = m_MeshData->FaceList[FaceIndexList[0]].GetAdjacentCellIndexList();
 	for (int_max k = 1; k < FaceIndexList.GetLength(); ++k)
 	{
 		CellIndexList_shared = Intersect(CellIndexList_shared, m_MeshData->FaceList[FaceIndexList[k]].GetAdjacentCellIndexList());
 	}
 	//----------------------
-	if (CellIndexList_shared.GetLength() != 1)
+	if (CellIndexList_shared.IsEmpty() == false)
 	{
-		//MDK_Warning("FaceIndexList is invalid @ Mesh::GetCellIndexByFace(...)")
-		return -1;
+		if (CellIndexList_shared.GetLength() != 1)
+		{
+			MDK_Warning("FaceIndex is not unique @ Mesh::GetCellIndexByFace(...)")
+		}
+		return CellIndexList_shared[0];
 	}
-
-	return CellIndexList_shared[0];
+	//MDK_Warning("Cell is not found @ Mesh::GetCellIndexByFace(...)")
+	return -1;
 }
 
 template<typename ScalarType>

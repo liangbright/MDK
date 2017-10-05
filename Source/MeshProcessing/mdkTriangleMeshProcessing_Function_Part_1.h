@@ -9,10 +9,10 @@
 namespace mdk
 {
 template<typename ScalarType>
-TriangleMesh<ScalarType> ResampleOpenBoundaryCurveOfSurface(const TriangleMesh<ScalarType>& Surface_input, const DenseVector<int_max>& BounaryPointIndexList_input, const DenseMatrix<ScalarType>& Boundary_output);
+TriangleMesh<ScalarType> ResampleOpenCurveOfSurface(const TriangleMesh<ScalarType>& Surface_input, const DenseVector<int_max>& CurvePointIndexList_input, const DenseMatrix<ScalarType>& Curve_output);
 
 template<typename ScalarType>
-TriangleMesh<ScalarType> ResampleOpenBoundaryCurveOfSurface(const TriangleMesh<ScalarType>& Surface_input, const DenseVector<int_max>& BounaryPointIndexList_input, const int_max PointCountOfBounary_output);
+TriangleMesh<ScalarType> ResampleOpenCurveOfSurface(const TriangleMesh<ScalarType>& Surface_input, const DenseVector<int_max>& CurvePointIndexList_input, const int_max PointCountOfCurve_output);
 
 //input: Point, Surface
 //output: projected Point_proj and the index FaceIndex_proj on the mesh

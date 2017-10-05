@@ -2,445 +2,104 @@
 
 namespace mdk
 {
-template<typename ScalarType>
-TriangleMesh<ScalarType> ResampleMeshOpenBoundary_old(const TriangleMesh<ScalarType>& InputMesh, const DenseVector<int_max>& BounaryPointIndexList,
-	                                                  const DenseMatrix<ScalarType>& Boundary_output)
-{
-	//BounaryPointIndexList: an open bounary curve, BounaryPointIndexList[0] is the start point, BounaryPointIndexList[end] is the end point
-	//position of the start/end point will not be changed
-	//Boundary_output is the target, Boundary_output(:,k) is a 3D point
-	//Boundary_output should be very close to the orignial bounary on InputMesh
-
-	//------------------- check input ----------------------------------------//
-	if (InputMesh.Check_If_DataStructure_is_Clean() == false)
-	{
-		MDK_Error("InputMesh DataStructure is NOT Clean, abort @ ResampleMeshOpenBoundary(...)")
-		TriangleMesh<ScalarType> EmptyMesh;
-		return EmptyMesh;
-	}
-	if (BounaryPointIndexList.GetLength() < 3)
-	{
-		MDK_Error("BounaryPointIndexList.GetLength() < 3, abort @ ResampleMeshOpenBoundary(...)")
-		TriangleMesh<ScalarType> EmptyMesh;
-		return EmptyMesh;
-	}
-	for (int_max k = 0; k < BounaryPointIndexList.GetLength(); ++k)
-	{
-		if (InputMesh.IsValidPointIndex(BounaryPointIndexList[k]) == false)
-		{
-			MDK_Error("BounaryPointIndexList is invalid, abort @ ResampleMeshOpenBoundary(...)")
-			TriangleMesh<ScalarType> EmptyMesh;
-			return EmptyMesh;
-		}
-		if (InputMesh.Point(BounaryPointIndexList[k]).IsOnPolygonMeshBoundary() == false)
-		{
-			MDK_Error("BounaryPointIndexList is invalid, abort @ ResampleMeshOpenBoundary(...)")
-			TriangleMesh<ScalarType> EmptyMesh;
-			return EmptyMesh;
-		}
-	}
-	if (BounaryPointIndexList[0] == BounaryPointIndexList[BounaryPointIndexList.GetLength() - 1])
-	{
-		MDK_Error("BounaryPointIndexList is a closed curve, abort @ ResampleMeshOpenBoundary(...)")
-		TriangleMesh<ScalarType> EmptyMesh;
-		return EmptyMesh;
-	}
-	if (Boundary_output.GetColCount() < 3)
-	{
-		MDK_Error("Boundary_output.GetColCount() < 3, abort @ ResampleMeshOpenBoundary(...)")
-		TriangleMesh<ScalarType> EmptyMesh;
-		return EmptyMesh;
-	}
-
-	//------------------------------------------------------------------------//
-
-	DenseVector<int_max> Curve_near_boundary;
-	DenseVector<int_max> Face_delete;
-	DenseVector<int_max> Edge_delete;
-	DenseVector<int_max> Point_delete;
-	// on InputMesh:
-    // ~~~~~~~~~~~~~~~~~~ Curve_near_boundary
-	// |\/|\/\/\/\|/\/\/| Face_delete, Edge_delete
-	// ~~~~~~~~~~~~~~~~~~ Boundary, Edge_delete
-	// Curve_near_boundary do NOT share start/end point with Boundary
-	{//get Curve_near_boundary
-		int_max PointIndex_start = -1;
-		{
-			auto tempList0 = InputMesh.Point(BounaryPointIndexList[0]).GetAdjacentPointIndexList();
-			tempList0 = SetDiff(tempList0, BounaryPointIndexList);
-			auto tempList1 = InputMesh.Point(BounaryPointIndexList[1]).GetAdjacentPointIndexList();			
-			tempList1 = SetDiff(tempList1, BounaryPointIndexList);
-			auto tempList2 = InputMesh.Point(BounaryPointIndexList[2]).GetAdjacentPointIndexList();
-			tempList2 = SetDiff(tempList2, BounaryPointIndexList);
-			auto tempList01 = Intersect(tempList0, tempList1);
-			auto tempList02 = Intersect(tempList0, tempList2);
-			if (tempList01.GetLength() == 1)
-			{
-				PointIndex_start = tempList01[0];
-			}
-			else if (tempList02.GetLength() == 1)
-			{
-				PointIndex_start = tempList02[0];
-			}
-			else
-			{
-				MDK_Error("special case: PointIndex_start not exist, please modify BounaryPointIndexList, abort @ ResampleMeshOpenBoundary(...)")
-				DisplayVector("BounaryPointIndexList", BounaryPointIndexList);
-				TriangleMesh<ScalarType> EmptyMesh;
-				return EmptyMesh;
-			}
-		}
-		int_max PointIndex_end = -1;
-		{
-			auto Index0 = BounaryPointIndexList.GetLength() - 1;
-			auto Index1 = BounaryPointIndexList.GetLength() - 2;
-			auto Index2 = BounaryPointIndexList.GetLength() - 3;
-			auto tempList0 = InputMesh.Point(BounaryPointIndexList[Index0]).GetAdjacentPointIndexList();
-			tempList0 = SetDiff(tempList0, BounaryPointIndexList);
-			auto tempList1 = InputMesh.Point(BounaryPointIndexList[Index1]).GetAdjacentPointIndexList();
-			tempList1 = SetDiff(tempList1, BounaryPointIndexList);
-			auto tempList2 = InputMesh.Point(BounaryPointIndexList[Index2]).GetAdjacentPointIndexList();
-			tempList2 = SetDiff(tempList2, BounaryPointIndexList);
-			auto tempList01 = Intersect(tempList0, tempList1);	
-			auto tempList02 = Intersect(tempList0, tempList2);
-			if (tempList01.GetLength() == 1)
-			{
-				PointIndex_end = tempList01[0];
-			}
-			else if (tempList02.GetLength() == 1)
-			{
-				PointIndex_end = tempList02[0];
-			}
-			else
-			{
-				MDK_Error("special case: PointIndex_end not exist, please modify BounaryPointIndexList, abort @ ResampleMeshOpenBoundary(...)")
-				TriangleMesh<ScalarType> EmptyMesh;
-				return EmptyMesh;
-			}
-		}
-		Curve_near_boundary.Append(PointIndex_start);
-		int_max PointIndex_current = PointIndex_start;
-		int_max while_counter = 0;
-		auto PointCount_InputMesh = InputMesh.GetPointCount();
-		while (true)
-		{
-			while_counter += 1;
-			if (while_counter > PointCount_InputMesh)
-			{
-				MDK_Error("infinit while loop, please modify BounaryPointIndexList, abort @ ResampleMeshOpenBoundary(...)")
-				std::cout << "PointIndex_start " << PointIndex_start << ", PointIndex_end " << PointIndex_end << '\n';
-				DisplayVector("Curve_near_boundary", Curve_near_boundary);
-				TriangleMesh<ScalarType> EmptyMesh;
-				return EmptyMesh;
-			}
-
-			auto CandidateList = InputMesh.Point(PointIndex_current).GetAdjacentPointIndexList();
-			CandidateList = SetDiff(CandidateList, BounaryPointIndexList);
-			CandidateList = SetDiff(CandidateList, Curve_near_boundary);
-			DenseVector<int_max> IntersectCounterList;
-			IntersectCounterList.Resize(CandidateList.GetLength());
-			IntersectCounterList.Fill(0);
-			for (int_max k = 0; k < CandidateList.GetLength(); ++k)
-			{
-				auto tempList = InputMesh.Point(CandidateList[k]).GetAdjacentPointIndexList();
-				auto tempInter = Intersect(tempList, BounaryPointIndexList);
-				IntersectCounterList[k] = tempInter.GetLength();
-			}
-			auto Index_max_count = IntersectCounterList.IndexOfMax();
-			if (IntersectCounterList[Index_max_count] > 0)
-			{
-				auto PointIndex_next = CandidateList[Index_max_count];
-				Curve_near_boundary.Append(PointIndex_next);
-				PointIndex_current = PointIndex_next;
-			}
-			else
-			{
-				MDK_Error("special case: IntersectCounterList[Index_max_count] = 0  please modify BounaryPointIndexList, abort @ ResampleMeshOpenBoundary(...)")
-				TriangleMesh<ScalarType> EmptyMesh;
-				return EmptyMesh;
-			}
-
-			//must be here
-			if (PointIndex_current == PointIndex_end)
-			{
-				break;//while
-			}
-		}
-	}
-	{//get Face_delete
-		for (int_max k = 1; k < BounaryPointIndexList.GetLength() - 1; ++k)
-		{
-			auto FaceIndexList = InputMesh.Point(BounaryPointIndexList[k]).GetAdjacentFaceIndexList();
-			Face_delete.Append(FaceIndexList);
-		}
-		Face_delete = Face_delete.GetSubSet(Face_delete.FindUnique());
-	}
-	{//get Edge_delete
-		for (int_max k = 1; k < BounaryPointIndexList.GetLength() - 1; ++k)
-		{
-			auto EdgeIndexList = InputMesh.Point(BounaryPointIndexList[k]).GetAdjacentEdgeIndexList();
-			Edge_delete.Append(EdgeIndexList);
-		}		
-	}
-	Point_delete = BounaryPointIndexList.GetSubSet(span(1, BounaryPointIndexList.GetLength() - 2));
-
-	TriangleMesh<ScalarType> OutputMesh;
-	OutputMesh = InputMesh;//copy
-	OutputMesh.DeleteFace(Face_delete);
-	OutputMesh.DeleteEdge(Edge_delete);
-	OutputMesh.DeletePoint(Point_delete);
-	//modify the position of the start/end point of BounaryPointIndexList to be the same as the start/end point of Boundary_output
-	OutputMesh.SetPointPosition(BounaryPointIndexList[0], Boundary_output(0, 0), Boundary_output(1, 0), Boundary_output(2, 0));
-	OutputMesh.SetPointPosition(BounaryPointIndexList[BounaryPointIndexList.GetLength()-1], 
-		                        Boundary_output(0, Boundary_output.GetColCount()-1), Boundary_output(1, Boundary_output.GetColCount() - 1), Boundary_output(2, Boundary_output.GetColCount() - 1));
-	//add new boundary (do not need to add start/end point)
-	DenseVector<int_max> BounaryPointIndexList_output;
-	BounaryPointIndexList_output.Append(BounaryPointIndexList[0]);
-	for (int_max k = 1; k < Boundary_output.GetColCount() - 1; ++k)
-	{
-		auto PointIndex_new = OutputMesh.AddPoint(Boundary_output(0, k), Boundary_output(1, k), Boundary_output(2, k));
-		BounaryPointIndexList_output.Append(PointIndex_new);
-	}
-	BounaryPointIndexList_output.Append(BounaryPointIndexList[BounaryPointIndexList.GetLength() - 1]);
-	//divide Curve_near_boundary	
-	DenseVector<int_max> NearestPoint_on_Curve_near_boundary;
-	{//NearestPoint_on_Curve_near_boundary[k] is the nearest point to Boundary_output(:,k), the relative index on Curve_near_boundary, 0~length(curve)-1		
-		auto ParamBoundary_output = ComputeCumulative3DCurveLengthList(Boundary_output);
-		ParamBoundary_output /= ParamBoundary_output[ParamBoundary_output.GetLength() - 1];
-
-		auto CurvePosition_near_boundary = OutputMesh.GetPointPosition(Curve_near_boundary);
-		auto ParamCurvePosition_near_boundary = ComputeCumulative3DCurveLengthList(CurvePosition_near_boundary);
-		ParamCurvePosition_near_boundary /= ParamCurvePosition_near_boundary[ParamCurvePosition_near_boundary.GetLength() - 1];
-
-		NearestPoint_on_Curve_near_boundary.Append(0);
-		for (int_max k = 1; k < ParamBoundary_output.GetLength() - 1; ++k)
-		{
-			DenseVector<ScalarType> tempDistList;
-			tempDistList.SetCapacity(ParamCurvePosition_near_boundary.GetLength());
-			auto Index_prev = NearestPoint_on_Curve_near_boundary[k - 1];
-			for (int_max m = Index_prev; m < ParamCurvePosition_near_boundary.GetLength(); ++m)
-			{
-				tempDistList.Append((std::abs)(ParamBoundary_output[k] - ParamCurvePosition_near_boundary[m]));
-			}
-			auto Index_min = tempDistList.IndexOfMin();
-			auto Index_nearest = Index_prev + Index_min;
-			NearestPoint_on_Curve_near_boundary.Append(Index_nearest);
-		}
-		NearestPoint_on_Curve_near_boundary.Append(Curve_near_boundary.GetLength() - 1);
-
-		//NearestPoint_on_Curve_near_boundary.Append(0);
-		//for (int_max k = 1; k < Boundary_output.GetColCount() - 1; ++k)
-		//{
-		//	auto Index_k = FindNearestPointOnCurve(CurvePosition_near_boundary, Boundary_output(0, k), Boundary_output(1, k), Boundary_output(2, k));
-		//	auto Index_max = NearestPoint_on_Curve_near_boundary.Max();
-		//	if (Index_k < Index_max)
-		//	{
-		//		Index_k = Index_max;
-		//	}
-		//	NearestPoint_on_Curve_near_boundary.Append(Index_k);
-		//}
-		//NearestPoint_on_Curve_near_boundary.Append(Curve_near_boundary.GetLength() - 1);
-	}
-
-	//add new face
-	// ~~~~~~~~~~~~~~~~~~ Curve_near_boundary
-	// |\|     |      |/|
-	// ~~~~~~~~~~~~~~~~~~ Boundary_output
-	DenseVector<int_max> BounaryFaceIndexList_output;
-	{
-		auto FaceIndex_new = OutputMesh.AddFaceByPoint(BounaryPointIndexList_output[0], Curve_near_boundary[0], BounaryPointIndexList_output[1]);
-		BounaryFaceIndexList_output.Append(FaceIndex_new);
-	}
-	for (int_max Index = 0; Index < NearestPoint_on_Curve_near_boundary[1]; ++Index)
-	{
-		auto PointIndexA = Curve_near_boundary[Index];
-		auto PointIndexB = Curve_near_boundary[Index + 1];
-		auto FaceIndex_new = OutputMesh.AddFaceByPoint(BounaryPointIndexList_output[1], PointIndexA, PointIndexB);
-		BounaryFaceIndexList_output.Append(FaceIndex_new);
-	}
-	for (int_max k = 1; k < BounaryPointIndexList_output.GetLength() - 2; ++k)
-	{
-		int_max Index_middle = NearestPoint_on_Curve_near_boundary[k] + int_max((NearestPoint_on_Curve_near_boundary[k + 1]- NearestPoint_on_Curve_near_boundary[k])/2);
-		if (Index_middle >= NearestPoint_on_Curve_near_boundary[k + 1])
-		{
-			Index_middle = NearestPoint_on_Curve_near_boundary[k];
-		}		
-
-		for (int_max Index = NearestPoint_on_Curve_near_boundary[k]; Index < Index_middle; ++Index)
-		{
-			auto PointIndexA = Curve_near_boundary[Index];
-			auto PointIndexB = Curve_near_boundary[Index + 1];
-			auto FaceIndex_new = OutputMesh.AddFaceByPoint(BounaryPointIndexList_output[k], PointIndexA, PointIndexB);
-			BounaryFaceIndexList_output.Append(FaceIndex_new);
-		}
-		auto FaceIndex_new = OutputMesh.AddFaceByPoint(BounaryPointIndexList_output[k], Curve_near_boundary[Index_middle], BounaryPointIndexList_output[k+1]);
-		BounaryFaceIndexList_output.Append(FaceIndex_new);
-		for (int_max Index = Index_middle; Index < NearestPoint_on_Curve_near_boundary[k + 1]; ++Index)
-		{
-			auto PointIndexA = Curve_near_boundary[Index];
-			auto PointIndexB = Curve_near_boundary[Index + 1];
-			auto FaceIndex_new = OutputMesh.AddFaceByPoint(BounaryPointIndexList_output[k + 1], PointIndexA, PointIndexB);
-			BounaryFaceIndexList_output.Append(FaceIndex_new);
-		}		
-	}
-	for (int_max Index = NearestPoint_on_Curve_near_boundary[BounaryPointIndexList_output.GetLength()-2]; Index < NearestPoint_on_Curve_near_boundary[BounaryPointIndexList_output.GetLength()-1]; ++Index)
-	{
-		auto PointIndexA = Curve_near_boundary[Index];
-		auto PointIndexB = Curve_near_boundary[Index + 1];
-		auto FaceIndex_new = OutputMesh.AddFaceByPoint(BounaryPointIndexList_output[BounaryPointIndexList_output.GetLength()-2], PointIndexA, PointIndexB);
-		BounaryFaceIndexList_output.Append(FaceIndex_new);
-	}
-	{
-		auto tempIdx = BounaryPointIndexList_output.GetLength() - 2;
-		auto FaceIndex_new = OutputMesh.AddFaceByPoint(BounaryPointIndexList_output[tempIdx], Curve_near_boundary[Curve_near_boundary.GetLength()-1], BounaryPointIndexList_output[tempIdx+1]);
-		BounaryFaceIndexList_output.Append(FaceIndex_new);
-	}
-
-	//change point order of new face if necessary
-	{ //Curve_near_boundary could also contain some boundary point
-		bool Flag_reorder = false;
-		int_max EdgeIndex_inner = -1;
-		for (int_max k = 0; k < Curve_near_boundary.GetLength()-1; ++k)
-		{
-			auto EdgeIndex = OutputMesh.GetEdgeIndexByPoint(Curve_near_boundary[k], Curve_near_boundary[k+1]);
-			if (OutputMesh.Edge(EdgeIndex).IsOnPolygonMeshBoundary() == false)
-			{
-				EdgeIndex_inner = EdgeIndex;
-			}
-		}
-		if (EdgeIndex_inner < 0)
-		{
-			std::cout << "special case that Curve_near_boundary is bounary, do nothing for now" << '\n';
-			Flag_reorder = false;
-		}
-		else
-		{
-			auto PointIndexList = OutputMesh.Edge(EdgeIndex_inner).GetPointIndexList();
-			auto FaceIndexList = OutputMesh.Edge(EdgeIndex_inner).GetAdjacentFaceIndexList();
-			//should be only two face
-			auto PointIndexListA = OutputMesh.Face(FaceIndexList[0]).GetPointIndexList_LeadBy(PointIndexList[0]);
-			auto PointIndexListB = OutputMesh.Face(FaceIndexList[1]).GetPointIndexList_LeadBy(PointIndexList[0]);
-			if ((PointIndexListA[1] == PointIndexList[1] && PointIndexListB[1] != PointIndexList[1])
-				||(PointIndexListA[1] != PointIndexList[1] && PointIndexListB[1] == PointIndexList[1]))
-			{
-				Flag_reorder = false;
-			}
-			else
-			{
-				Flag_reorder = true;
-			}
-		}
-		if (Flag_reorder == true)
-		{
-			for (int_max k = 0; k < BounaryFaceIndexList_output.GetLength(); ++k)
-			{
-				OutputMesh.Face(BounaryFaceIndexList_output[k]).ReversePointOrder();
-			}
-		}
-	}
-	//clean garbage
-	OutputMesh.CleanDataStructure();
-	return OutputMesh;
-}
-
 
 template<typename ScalarType>
-TriangleMesh<ScalarType> ResampleOpenBoundaryCurveOfSurface(const TriangleMesh<ScalarType>& Surface_input, const DenseVector<int_max>& BounaryPointIndexList_input, const DenseMatrix<ScalarType>& Boundary_output)
+TriangleMesh<ScalarType> ResampleOpenCurveOfSurface(const TriangleMesh<ScalarType>& Surface_input, const DenseVector<int_max>& CurvePointIndexList_input, const DenseMatrix<ScalarType>& Curve_output)
 {
-	//BounaryPointIndexList_input: an open bounary curve, BounaryPointIndexList_input[0] is the start point, BounaryPointIndexList_input[end] is the end point	
-	//point order in BounaryPointIndexList_input must align with normal direction, so new face will have consistant normal direction
-	//Boundary_output is the target, Boundary_output(:,k) is a 3D point
-	//Boundary_output should be close to the orignial bounary on InputMesh
+	//CurvePointIndexList_input: an open bounary curve, CurvePointIndexList_input[0] is the start point, CurvePointIndexList_input[end] is the end point	
+	//point order in CurvePointIndexList_input must align with normal direction, so new face will have consistant normal direction
+	//Curve_output is the target, Curve_output(:,k) is a 3D point
+	//Curve_output should be close to the orignial bounary on InputMesh
 
 	//------------------- check input ----------------------------------------//
 	if (Surface_input.Check_If_DataStructure_is_Clean() == false)
 	{
-		MDK_Error("Surface_input DataStructure is NOT Clean, abort @ ResampleOpenBoundaryCurveOfSurface(...)")
+		MDK_Error("Surface_input DataStructure is NOT Clean, abort @ ResampleOpenCurveOfSurface(...)")
 		TriangleMesh<ScalarType> EmptyMesh;
 		return EmptyMesh;
 	}
-	if (BounaryPointIndexList_input.GetLength() < 3)
+	if (CurvePointIndexList_input.GetLength() < 3)
 	{
-		MDK_Error("BounaryPointIndexList_input.GetLength() < 3, abort @ ResampleOpenBoundaryCurveOfSurface(...)")
+		MDK_Error("CurvePointIndexList_input.GetLength() < 3, abort @ ResampleOpenCurveOfSurface(...)")
 		TriangleMesh<ScalarType> EmptyMesh;
 		return EmptyMesh;
 	}
-	for (int_max k = 0; k < BounaryPointIndexList_input.GetLength(); ++k)
+	for (int_max k = 0; k < CurvePointIndexList_input.GetLength(); ++k)
 	{
-		if (Surface_input.IsValidPointIndex(BounaryPointIndexList_input[k]) == false)
+		if (Surface_input.IsValidPointIndex(CurvePointIndexList_input[k]) == false)
 		{
-			MDK_Error("BounaryPointIndexList_input is invalid, abort @ ResampleOpenBoundaryCurveOfSurface(...)")
+			MDK_Error("CurvePointIndexList_input is invalid, abort @ ResampleOpenCurveOfSurface(...)")
 			TriangleMesh<ScalarType> EmptyMesh;
 			return EmptyMesh;
 		}
-		if (Surface_input.Point(BounaryPointIndexList_input[k]).IsOnPolygonMeshBoundary() == false)
+		if (Surface_input.Point(CurvePointIndexList_input[k]).IsOnPolygonMeshBoundary() == false)
 		{
-			MDK_Error("BounaryPointIndexList_input is invalid, abort @ ResampleOpenBoundaryCurveOfSurface(...)")
+			MDK_Error("CurvePointIndexList_input is invalid, abort @ ResampleOpenCurveOfSurface(...)")
 			TriangleMesh<ScalarType> EmptyMesh;
 			return EmptyMesh;
 		}
 	}
-	if (BounaryPointIndexList_input[0] == BounaryPointIndexList_input[BounaryPointIndexList_input.GetLength() - 1])
+	if (CurvePointIndexList_input[0] == CurvePointIndexList_input[CurvePointIndexList_input.GetLength() - 1])
 	{
-		MDK_Error("BounaryPointIndexList is a closed curve, abort @ ResampleOpenBoundaryCurveOfSurface(...)")
+		MDK_Error("BounaryPointIndexList is a closed curve, abort @ ResampleOpenCurveOfSurface(...)")
 		TriangleMesh<ScalarType> EmptyMesh;
 		return EmptyMesh;
 	}
-	if (Boundary_output.GetColCount() < 3)
+	if (Curve_output.GetColCount() < 3)
 	{
-		MDK_Error("Boundary_output.GetColCount() < 3, abort @ ResampleOpenBoundaryCurveOfSurface(...)")
+		MDK_Error("Curve_output.GetColCount() < 3, abort @ ResampleOpenCurveOfSurface(...)")
 		TriangleMesh<ScalarType> EmptyMesh;
 		return EmptyMesh;
 	}
 	//-------------------- input check done ------------------------------------//
 
-	auto Boundary_input = Surface_input.GetPointPosition(BounaryPointIndexList_input);
+	auto Boundary_input = Surface_input.GetPointPosition(CurvePointIndexList_input);
 	auto ParamBoundary_input = ComputeCumulative3DCurveLengthList(Boundary_input);
 	ParamBoundary_input /= ParamBoundary_input[ParamBoundary_input.GetLength() - 1];
 
-	auto ParamBoundary_output = ComputeCumulative3DCurveLengthList(Boundary_output);
-	ParamBoundary_output /= ParamBoundary_output[ParamBoundary_output.GetLength() - 1];
+	auto ParamCurve_output = ComputeCumulative3DCurveLengthList(Curve_output);
+	ParamCurve_output /= ParamCurve_output[ParamCurve_output.GetLength() - 1];
 
 	auto Surface_output = Surface_input;
 	
 	//start and end point of input bounary and output bounary share the same index
 	{
 		DenseVector<ScalarType, 3> Pos_start, Pos_end;
-		Boundary_output.GetCol(0, Pos_start);
-		Boundary_output.GetCol(Boundary_output.GetColCount()-1, Pos_end);
-		Surface_output.SetPointPosition(BounaryPointIndexList_input[0], Pos_start);
-		Surface_output.SetPointPosition(BounaryPointIndexList_input[BounaryPointIndexList_input.GetLength()-1], Pos_end);
+		Curve_output.GetCol(0, Pos_start);
+		Curve_output.GetCol(Curve_output.GetColCount()-1, Pos_end);
+		Surface_output.SetPointPosition(CurvePointIndexList_input[0], Pos_start);
+		Surface_output.SetPointPosition(CurvePointIndexList_input[CurvePointIndexList_input.GetLength()-1], Pos_end);
 	}
 
 	DenseVector<DenseVector<int_max>> PointIndexList_PerInputEdge;
-	PointIndexList_PerInputEdge.Resize(BounaryPointIndexList_input.GetLength() - 1);
-	DenseVector<int_max> BounaryPointIndexList_input_output;
-	BounaryPointIndexList_input_output.SetCapacity(Boundary_output.GetColCount()+ BounaryPointIndexList_input.GetLength());
+	PointIndexList_PerInputEdge.Resize(CurvePointIndexList_input.GetLength() - 1);
+	DenseVector<int_max> CurvePointIndexList_input_output;
+	CurvePointIndexList_input_output.SetCapacity(Curve_output.GetColCount()+ CurvePointIndexList_input.GetLength());
 	DenseVector<int_max> BounaryPointFlagList_input_output;//0: input, 1: output (including start end point)
-	BounaryPointFlagList_input_output.SetCapacity(Boundary_output.GetColCount() + BounaryPointIndexList_input.GetLength());	
+	BounaryPointFlagList_input_output.SetCapacity(Curve_output.GetColCount() + CurvePointIndexList_input.GetLength());	
 	DenseVector<int_max> BounaryPointIndexList_output;
-	BounaryPointIndexList_output.SetCapacity(Boundary_output.GetColCount());
-	BounaryPointIndexList_output.Append(BounaryPointIndexList_input[0]);//share the same index for the start point
-	for (int_max k = 0; k < BounaryPointIndexList_input.GetLength() - 1; ++k)
+	BounaryPointIndexList_output.SetCapacity(Curve_output.GetColCount());
+	BounaryPointIndexList_output.Append(CurvePointIndexList_input[0]);//share the same index for the start point
+	for (int_max k = 0; k < CurvePointIndexList_input.GetLength() - 1; ++k)
 	{
-		PointIndexList_PerInputEdge[k].Append(BounaryPointIndexList_input[k]);
-		BounaryPointIndexList_input_output.Append(BounaryPointIndexList_input[k]);
+		PointIndexList_PerInputEdge[k].Append(CurvePointIndexList_input[k]);
+		CurvePointIndexList_input_output.Append(CurvePointIndexList_input[k]);
 		BounaryPointFlagList_input_output.Append(0);
-		for (int_max n = 1; n < ParamBoundary_output.GetLength() - 1; ++n)
+		for (int_max n = 1; n < ParamCurve_output.GetLength() - 1; ++n)
 		{
-			if (ParamBoundary_output[n] >= ParamBoundary_input[k] && ParamBoundary_output[n] < ParamBoundary_input[k + 1])
+			if (ParamCurve_output[n] >= ParamBoundary_input[k] && ParamCurve_output[n] < ParamBoundary_input[k + 1])
 			{
-				auto PointIndex_new = Surface_output.AddPoint(Boundary_output(0, n), Boundary_output(1, n), Boundary_output(2, n));
+				auto PointIndex_new = Surface_output.AddPoint(Curve_output(0, n), Curve_output(1, n), Curve_output(2, n));
 				PointIndexList_PerInputEdge[k].Append(PointIndex_new);
 				BounaryPointIndexList_output.Append(PointIndex_new);
-				BounaryPointIndexList_input_output.Append(PointIndex_new);
+				CurvePointIndexList_input_output.Append(PointIndex_new);
 				BounaryPointFlagList_input_output.Append(1);
 			}
 		}
-		PointIndexList_PerInputEdge[k].Append(BounaryPointIndexList_input[k + 1]);
+		PointIndexList_PerInputEdge[k].Append(CurvePointIndexList_input[k + 1]);
 	}
-	BounaryPointIndexList_output.Append(BounaryPointIndexList_input[BounaryPointIndexList_input.GetLength()-1]);//share the same index for the end point
-	BounaryPointIndexList_input_output.Append(BounaryPointIndexList_input[BounaryPointIndexList_input.GetLength() - 1]);
+	BounaryPointIndexList_output.Append(CurvePointIndexList_input[CurvePointIndexList_input.GetLength()-1]);//share the same index for the end point
+	CurvePointIndexList_input_output.Append(CurvePointIndexList_input[CurvePointIndexList_input.GetLength() - 1]);
 	BounaryPointFlagList_input_output.Append(1);
 	BounaryPointFlagList_input_output[0] = 1;
 
@@ -459,20 +118,20 @@ TriangleMesh<ScalarType> ResampleOpenBoundaryCurveOfSurface(const TriangleMesh<S
 				}
 			}
 			DenseVector<int_max> tempPointIndexList;
-			tempPointIndexList.Append(BounaryPointIndexList_input_output[Index_a]);
+			tempPointIndexList.Append(CurvePointIndexList_input_output[Index_a]);
 			for (int_max k = Index_a + 1; k < Index_b; ++k)
 			{
-				tempPointIndexList.Append(BounaryPointIndexList_input_output[k]);
+				tempPointIndexList.Append(CurvePointIndexList_input_output[k]);
 			}
-			tempPointIndexList.Append(BounaryPointIndexList_input_output[Index_b]);
+			tempPointIndexList.Append(CurvePointIndexList_input_output[Index_b]);
 			PointIndexList_PerOutputEdge.Append(tempPointIndexList);
-			if (Index_b == BounaryPointIndexList_input_output.GetLength() - 1)
+			if (Index_b == CurvePointIndexList_input_output.GetLength() - 1)
 			{
 				break;
 			}
 			else if (Index_b == Index_a)
 			{
-				MDK_Error("Somthing is wrong, abort @ ResampleOpenBoundaryCurveOfSurface(...)")
+				MDK_Error("Somthing is wrong, abort @ ResampleOpenCurveOfSurface(...)")
 				TriangleMesh<ScalarType> EmptyMesh;
 				return EmptyMesh;
 			}
@@ -510,12 +169,6 @@ TriangleMesh<ScalarType> ResampleOpenBoundaryCurveOfSurface(const TriangleMesh<S
 				H2 = PointIndexListOfFace[2];
 			}
 
-			//debug
-			if (Surface_output.Edge(EdgeIndex01).IsOnPolygonMeshBoundary() == false)
-			{
-				std::cout << "EdgeIndex01=" << EdgeIndex01 << ", H0=" << H0 << ", H1=" << H1 << ", H2=" << H2 << '\n';
-			}
-
 			Surface_output.DeleteFace(FaceIndex_k);
 			Surface_output.DeleteEdge(EdgeIndex01);
 			//add new face
@@ -525,9 +178,6 @@ TriangleMesh<ScalarType> ResampleOpenBoundaryCurveOfSurface(const TriangleMesh<S
 			}
 		}
 	}
-
-	//debug
-	std::cout << "collapse edge @ ResampleOpenBoundaryCurveOfSurface" << '\n';
 
 	//collapse edge
 	for (int_max k = 0; k < PointIndexList_PerOutputEdge.GetLength(); ++k)
@@ -540,7 +190,11 @@ TriangleMesh<ScalarType> ResampleOpenBoundaryCurveOfSurface(const TriangleMesh<S
 			{
 				auto Hn = PointIndexList_k[n];
 				auto EdgeIndex_n0 = Surface_output.GetEdgeIndexByPoint(Hn, H0);
-				Surface_output.CollapseEdge(EdgeIndex_n0, H0);
+				auto Flag = Surface_output.CollapseEdge(EdgeIndex_n0, H0);
+				if (Flag == false)
+				{
+					MDK_Error("Please modify the mesh to remove special case @ ResampleOpenCurveOfSurface(...)")
+				}
 			}
 		}
 	}	
@@ -549,23 +203,21 @@ TriangleMesh<ScalarType> ResampleOpenBoundaryCurveOfSurface(const TriangleMesh<S
 	return Surface_output;
 }
 
+
 template<typename ScalarType>
-TriangleMesh<ScalarType> ResampleOpenBoundaryCurveOfSurface(const TriangleMesh<ScalarType>& Surface_input, const DenseVector<int_max>& BounaryPointIndexList_input, const int_max PointCountOfBounary_output)
-{
-	//BounaryPointIndexList: an open bounary curve, BounaryPointIndexList[0] is the start point, BounaryPointIndexList[end] is the end point
+TriangleMesh<ScalarType> ResampleOpenCurveOfSurface(const TriangleMesh<ScalarType>& Surface_input, const DenseVector<int_max>& CurvePointIndexList_input, const int_max PointCountOfCurve_output)
+{	//CurvePointIndexList_input: an open curve, CurvePointIndexList_input[0] is the start point, CurvePointIndexList_input[end] is the end point
 	//position of the start/end point will not be changed
-	//PointCountOfBounary_output is the target	
-	
-	if (PointCountOfBounary_output < 3)
+	//PointCountOfCurve_output is the target		
+	if (PointCountOfCurve_output < 3)
 	{
-		MDK_Error("PointCountOfBounary_output < 3, abort @ ResampleOpenBoundaryCurveOfSurface(...)")
+		MDK_Error("PointCountOfCurve_output < 3, abort @ ResampleOpenCurveOfSurface(...)")
 		TriangleMesh<ScalarType> EmptyMesh;
 		return EmptyMesh;
 	}
-
-	auto Boundary_input = Surface_input.GetPointPosition(BounaryPointIndexList_input);
-	auto Boundary_output= ResampleOpen3DCurveByCardinalSpline(Boundary_input, PointCountOfBounary_output);
-	return ResampleOpenBoundaryCurveOfSurface(Surface_input, BounaryPointIndexList_input, Boundary_output);
+	auto Curve_input = Surface_input.GetPointPosition(CurvePointIndexList_input);
+	auto Curve_output= ResampleOpen3DCurveByCardinalSpline(Curve_input, PointCountOfCurve_output);
+	return ResampleOpenCurveOfSurface(Surface_input, CurvePointIndexList_input, Curve_output);
 }
 
 
