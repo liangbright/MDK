@@ -403,7 +403,14 @@ TriangleMesh<ScalarType> ResampleOpenBoundaryCurveOfSurface(const TriangleMesh<S
 
 	auto Surface_output = Surface_input;
 	
-	//start and end point of input bounary and output bounary are the same
+	//start and end point of input bounary and output bounary share the same index
+	{
+		DenseVector<ScalarType, 3> Pos_start, Pos_end;
+		Boundary_output.GetCol(0, Pos_start);
+		Boundary_output.GetCol(Boundary_output.GetColCount()-1, Pos_end);
+		Surface_output.SetPointPosition(BounaryPointIndexList_input[0], Pos_start);
+		Surface_output.SetPointPosition(BounaryPointIndexList_input[BounaryPointIndexList_input.GetLength()-1], Pos_end);
+	}
 
 	DenseVector<DenseVector<int_max>> PointIndexList_PerInputEdge;
 	PointIndexList_PerInputEdge.Resize(BounaryPointIndexList_input.GetLength() - 1);
@@ -413,7 +420,7 @@ TriangleMesh<ScalarType> ResampleOpenBoundaryCurveOfSurface(const TriangleMesh<S
 	BounaryPointFlagList_input_output.SetCapacity(Boundary_output.GetColCount() + BounaryPointIndexList_input.GetLength());	
 	DenseVector<int_max> BounaryPointIndexList_output;
 	BounaryPointIndexList_output.SetCapacity(Boundary_output.GetColCount());
-	BounaryPointIndexList_output.Append(BounaryPointIndexList_input[0]);
+	BounaryPointIndexList_output.Append(BounaryPointIndexList_input[0]);//share the same index for the start point
 	for (int_max k = 0; k < BounaryPointIndexList_input.GetLength() - 1; ++k)
 	{
 		PointIndexList_PerInputEdge[k].Append(BounaryPointIndexList_input[k]);
@@ -432,7 +439,7 @@ TriangleMesh<ScalarType> ResampleOpenBoundaryCurveOfSurface(const TriangleMesh<S
 		}
 		PointIndexList_PerInputEdge[k].Append(BounaryPointIndexList_input[k + 1]);
 	}
-	BounaryPointIndexList_output.Append(BounaryPointIndexList_input[BounaryPointIndexList_input.GetLength()-1]);
+	BounaryPointIndexList_output.Append(BounaryPointIndexList_input[BounaryPointIndexList_input.GetLength()-1]);//share the same index for the end point
 	BounaryPointIndexList_input_output.Append(BounaryPointIndexList_input[BounaryPointIndexList_input.GetLength() - 1]);
 	BounaryPointFlagList_input_output.Append(1);
 	BounaryPointFlagList_input_output[0] = 1;
