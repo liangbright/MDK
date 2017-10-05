@@ -9,6 +9,10 @@
 
 namespace mdk
 {
+//trace boundary along the direction from PointIndex_start to PointIndex_next
+template<typename ScalarType>
+DenseVector<int_max> TraceMeshBoundaryCurve(const PolygonMesh<ScalarType>& InputMesh, int_max PointIndex_start, int_max PointIndex_next);
+
 //no double count
 template<typename ScalarType>
 DenseVector<int_max> TraceMeshBoundaryCurve(const PolygonMesh<ScalarType>& InputMesh, int_max PointIndex_start);

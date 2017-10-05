@@ -677,7 +677,7 @@ void TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex, int_max PointInde
 		MDK_Error("Invalid EdgeIndex @ TriangleMesh::CollapseEdge(...)")
 		return;
 	}
-	if (this->IsValidEdgeIndex(PointIndex) == false)
+	if (this->IsValidPointIndex(PointIndex) == false)
 	{
 		MDK_Error("Invalid PointIndex @ TriangleMesh::CollapseEdge(...)")
 		return;
@@ -700,6 +700,7 @@ void TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex, int_max PointInde
 	//    2
 	// 0 /_\ 1  =>  /
 	// Edge01 is on bounary
+	// PointIndex is H0
     //-------------------
 
 	int_max H0, H1;
@@ -777,7 +778,7 @@ void TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex, int_max PointInde
 
 	//modify Edge adj to H1
 	{
-		auto AdjEdgeIndexList_H1 = this->Point(H1).GetAdjacentFaceIndexList();
+		auto AdjEdgeIndexList_H1 = this->Point(H1).GetAdjacentEdgeIndexList();
 		for (int_max k = 0; k < AdjEdgeIndexList_H1.GetLength(); ++k)
 		{
 			auto PointIndexList_k = this->Edge(AdjEdgeIndexList_H1[k]).GetPointIndexList();

@@ -14,28 +14,28 @@ DenseMatrix<int_max> FindElementInMatrix(const DenseMatrix<ElementType>& InputMa
 
 
 template<typename ElementType, typename MatchFunctionType>
-DenseMatrix<int_max> FindElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, int_max MaxOutputNumber, MatchFunctionType MatchFunction)
+DenseMatrix<int_max> FindElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, int_max MaxOutputCount, MatchFunctionType MatchFunction)
 {
-    return FindElementInMatrix(InputMatrix, MaxOutputNumber, 0, InputMatrix.GetElementCount()-1, MatchFunction);
+    return FindElementInMatrix(InputMatrix, MaxOutputCount, 0, InputMatrix.GetElementCount()-1, MatchFunction);
 }
 
 
 template<typename ElementType, typename MatchFunctionType>
-DenseMatrix<int_max> FindElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, int_max MaxOutputNumber, 
+DenseMatrix<int_max> FindElementInMatrix(const DenseMatrix<ElementType>& InputMatrix, int_max MaxOutputCount, 
                                          int_max LinearIndex_start, int_max LinearIndex_end, MatchFunctionType MatchFunction)
 {
     DenseMatrix<int_max> LinearIndexList;
 
-    if (MaxOutputNumber == 0)
+    if (MaxOutputCount == 0)
     {
         return LinearIndexList;
     }
 
     auto InputElementCount = InputMatrix.GetElementCount();
 
-    if (MaxOutputNumber < 0 || MaxOutputNumber > InputElementCount)
+    if (MaxOutputCount < 0 || MaxOutputCount > InputElementCount)
     {
-        MDK_Error("MaxOutputNumber is invalid @ mdkLinearAlgebra_DenseMatrix FindElementInMatrix(...)")
+        MDK_Error("MaxOutputCount is invalid @ mdkLinearAlgebra_DenseMatrix FindElementInMatrix(...)")
         return LinearIndexList;
     }
 
@@ -56,23 +56,14 @@ DenseMatrix<int_max> FindElementInMatrix(const DenseMatrix<ElementType>& InputMa
         return LinearIndexList;
     }
 
-    if (LinearIndex_start == LinearIndex_end)
-    {
-        LinearIndexList.AppendCol({ LinearIndex_start });
-        return LinearIndexList;
-    }
-
-    LinearIndexList.SetCapacity(MaxOutputNumber);
-
+    LinearIndexList.SetCapacity(MaxOutputCount);
     for (int_max i = LinearIndex_start; i <= LinearIndex_end; ++i)
     {
         if (MatchFunction(InputMatrix[i]) == true)
         {
             LinearIndexList.AppendCol({ i });
-
-            auto CurrentNumber = LinearIndexList.GetElementCount();
-
-            if (CurrentNumber == MaxOutputNumber)
+            auto CurrentCount = LinearIndexList.GetElementCount();
+            if (CurrentCount == MaxOutputCount)
             {
                 break;
             }
@@ -182,31 +173,20 @@ DenseMatrix<int_max> FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix
     {
         return ColIndexList;
     }
-
-    if (ColIndex_start == ColIndex_end)
-    {
-        ColIndexList.Append(ColIndex_start);
-        return ColIndexList;
-    }
-
+	
     ColIndexList.SetCapacity(MaxOutputColCount);
-
     DenseMatrix<ElementType> ColVector;
-
 	if (ColIndex_start < ColIndex_end)
 	{
 		for (int_max i = ColIndex_start; i <= ColIndex_end; ++i)
 		{
 			DenseMatrix<ElementType> ColVector;
 			ColVector.ForceShare(InputMatrix.GetElementPointerOfCol(i), InputSize.RowCount, 1);
-
 			if (MatchFunction(ColVector) == true)
 			{
 				ColIndexList.Append(i);
-
-				auto CurrentNumber = ColIndexList.GetElementCount();
-
-				if (CurrentNumber == MaxOutputColCount)
+				auto CurrentCount = ColIndexList.GetElementCount();
+				if (CurrentCount == MaxOutputColCount)
 				{
 					break;
 				}
@@ -219,14 +199,11 @@ DenseMatrix<int_max> FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix
 		{
 			DenseMatrix<ElementType> ColVector;
 			ColVector.ForceShare(InputMatrix.GetElementPointerOfCol(i), InputSize.RowCount, 1);
-
 			if (MatchFunction(ColVector) == true)
 			{
 				ColIndexList.Append(i);
-
-				auto CurrentNumber = ColIndexList.GetElementCount();
-
-				if (CurrentNumber == MaxOutputColCount)
+				auto CurrentCount = ColIndexList.GetElementCount();
+				if (CurrentCount == MaxOutputColCount)
 				{
 					break;
 				}
@@ -251,7 +228,6 @@ int_max FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix, const std::
 		{
 			DenseMatrix<ElementType> ColVector;
 			ColVector.ForceShare(InputMatrix.GetElementPointerOfCol(i), InputSize.RowCount, 1);
-
 			if (MatchFunction(ColVector) == true)
 			{
 				ColIndex_output = i;
@@ -265,7 +241,6 @@ int_max FindColInMatrix(const DenseMatrix<ElementType>& InputMatrix, const std::
 		{
 			DenseMatrix<ElementType> ColVector;
 			ColVector.ForceShare(InputMatrix.GetElementPointerOfCol(i), InputSize.RowCount, 1);
-
 			if (MatchFunction(ColVector) == true)
 			{
 				ColIndex_output = i;
@@ -335,19 +310,16 @@ DenseMatrix<int_max> SortColInMatrix(const DenseMatrix<ElementType>& InputMatrix
     }
 
     ColIndexList.FastResize(1, InputSize.ColCount);
-
     for (int_max i = ColIndex_start; i <= ColIndex_end; ++i)
     {
         ColIndexList[i] = i;
     }
 
     DenseMatrix<ElementType> ColVector_a, ColVector_b;
-
     std::sort(ColIndexList.begin(), ColIndexList.end(), [&](int_max a, int_max b)
     {
         ColVector_a.ForceShare(InputMatrix.GetElementPointerOfCol(a), InputSize.RowCount, 1);
         ColVector_b.ForceShare(InputMatrix.GetElementPointerOfCol(b), InputSize.RowCount, 1);
-
         return CompareFunction(ColVector_a, ColVector_b);
     });
 
@@ -368,7 +340,6 @@ DenseMatrix<int_max> FindUniqueElementInMatrix(const DenseMatrix<ElementType>& I
     auto LinearIndexList_sort = InputMatrix.Sort([](const ElementType& a, const ElementType& b){ return a < b; });
 
     LinearIndexList_unique.SetCapacity(LinearIndexList_sort.GetElementCount());
-
     LinearIndexList_unique.Append(LinearIndexList_sort[0]);
 
     auto Element_prev = InputMatrix[LinearIndexList_sort[0]];
@@ -376,11 +347,9 @@ DenseMatrix<int_max> FindUniqueElementInMatrix(const DenseMatrix<ElementType>& I
     for (int_max k = 1; k < LinearIndexList_sort.GetElementCount(); ++k)
     {
         auto Element = InputMatrix[LinearIndexList_sort[k]];
-
         if (Element != Element_prev)
         {
             LinearIndexList_unique.Append(LinearIndexList_sort[k]);
-
             Element_prev = Element;
         }
     }
@@ -413,7 +382,6 @@ DenseMatrix<int_max> FindUniqueElementInMatrix(const DenseMatrix<ElementType>& I
     });
 
     LinearIndexList_unique.SetCapacity(LinearIndexList_sort.GetElementCount());
-
     LinearIndexList_unique.Append(LinearIndexList_sort[0]);
 
     auto Element_prev = InputMatrix[LinearIndexList_sort[0]];
@@ -421,11 +389,9 @@ DenseMatrix<int_max> FindUniqueElementInMatrix(const DenseMatrix<ElementType>& I
     for (int_max k = 1; k < LinearIndexList_sort.GetElementCount(); ++k)
     {
         auto Element = InputMatrix[LinearIndexList_sort[k]];
-
         if (SpecialCompareFunction(Element, Element_prev) == 0)
         {
             LinearIndexList_unique.Append(LinearIndexList_sort[k]);
-
             Element_prev = Element;
         }
     }
@@ -467,21 +433,16 @@ DenseMatrix<int_max> FindUniqueColInMatrix(const DenseMatrix<ElementType>& Input
     auto ColIndexList_sort = SortColInMatrix(InputMatrix, TempFunction_CompareCol);
 
     ColIndexList_unique.SetCapacity(ColIndexList_sort.GetElementCount());
-
     ColIndexList_unique.Append(ColIndexList_sort[0]);
 
     DenseMatrix<ElementType> Vector_prev, Vector_k;
-
     Vector_prev.ForceShare(InputMatrix.GetElementPointerOfCol(ColIndexList_sort[0]), InputMatrix.GetRowCount(), 1);
-
     for (int_max k = 1; k < ColIndexList_sort.GetElementCount(); ++k)
     {
         Vector_k.ForceShare(InputMatrix.GetElementPointerOfCol(ColIndexList_sort[k]), InputMatrix.GetRowCount(), 1);
-
         if (TempFunction_CompareCol(Vector_prev, Vector_k) == true)
         {
             ColIndexList_unique.Append(ColIndexList_sort[k]);
-
             Vector_prev.ForceShare(InputMatrix.GetElementPointerOfCol(ColIndexList_sort[k]), InputMatrix.GetRowCount(), 1);
         }
     }
@@ -514,21 +475,16 @@ DenseMatrix<int_max> FindUniqueColInMatrix(const DenseMatrix<ElementType>& Input
     });
 
     ColIndexList_unique.SetCapacity(ColIndexList_sort.GetElementCount());
-
     ColIndexList_unique.Append(ColIndexList_sort[0]);
 
     DenseMatrix<ElementType> Vector_prev, Vector_k;
-
     Vector_prev.ForceShare(InputMatrix.GetElementPointerOfCol(ColIndexList_sort[0]), InputMatrix.GetRowCount(), 1);
-
     for (int_max k = 1; k < ColIndexList_sort.GetElementCount(); ++k)
     {
         Vector_k.ForceShare(InputMatrix.GetElementPointerOfCol(ColIndexList_sort[k]), InputMatrix.GetRowCount(), 1);
-
         if (SpecialCompareFunction(Vector_prev, Vector_k) != 0)
         {
             ColIndexList_unique.Append(ColIndexList_sort[k]);
-
             Vector_prev.ForceShare(InputMatrix.GetElementPointerOfCol(ColIndexList_sort[k]), InputMatrix.GetRowCount(), 1);
         }
     }
@@ -542,7 +498,6 @@ template<typename ElementType>
 ElementType MatrixMean(const DenseMatrix<ElementType>& InputMatrix)
 {
     auto ElementCount = InputMatrix.GetElementCount();
-
     if (ElementCount <= 0)
     {
         MDK_Error("Input is an empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMean(InputMatrix)")
@@ -550,16 +505,12 @@ ElementType MatrixMean(const DenseMatrix<ElementType>& InputMatrix)
     }
 
     auto RawPointer = InputMatrix.GetElementPointer();
-
     ElementType value = RawPointer[0];
-
     for (auto Ptr = RawPointer + 1; Ptr < RawPointer + ElementCount; ++Ptr)
     {
         value += Ptr[0];
     }
-
     value /= ElementType(ElementCount);
-
     return value;
 }
 
@@ -570,20 +521,15 @@ DenseMatrix<ElementType> MatrixMeanOfEachCol(const DenseMatrix<ElementType>& Inp
     DenseMatrix<ElementType> tempMatrix;
 
     auto InputSize = InputMatrix.GetSize();
-
     if (InputSize.RowCount <= 0)
     {
         MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMeanOfEachCol(InputMatrix)")
-
         return tempMatrix;
     }
 
     tempMatrix.Resize(1, InputSize.ColCount);
-
     auto tempRawPointer = tempMatrix.GetElementPointer();
-
     auto RawPointer = InputMatrix.GetElementPointer();
-
     for (int_max j = 0; j < InputSize.ColCount; ++j)
     {
         auto value = RawPointer[0];
@@ -591,9 +537,7 @@ DenseMatrix<ElementType> MatrixMeanOfEachCol(const DenseMatrix<ElementType>& Inp
         {
             value += RawPointer[i];
         }
-
         tempRawPointer[j] = value / ElementType(InputSize.RowCount);
-
         RawPointer += InputSize.RowCount;
     }
 
@@ -607,33 +551,25 @@ DenseMatrix<ElementType> MatrixMeanOfEachRow(const DenseMatrix<ElementType>& Inp
     DenseMatrix<ElementType> tempMatrix;
 
     auto InputSize = InputMatrix.GetSize();
-
     if (InputSize.RowCount <= 0)
     {
         MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMeanOfEachRow(InputMatrix)")
-
         return tempMatrix;
     }
 
     tempMatrix.Resize(InputSize.RowCount, 1);
-
     auto tempRawPointer = tempMatrix.GetElementPointer();
-
     auto RawPointer = InputMatrix.GetElementPointer();
 
     for (int_max i = 0; i < InputSize.RowCount; ++i)
     {
         auto value = RawPointer[i];
-
         int_max Index = InputSize.RowCount;
-
         for (int_max j = 1; j < InputSize.ColCount; ++j)
         {
             value += RawPointer[Index + i];
-
             Index += InputSize.RowCount;
         }
-
         tempRawPointer[i] = value / ElementType(InputSize.ColCount);
     }
 
@@ -645,7 +581,6 @@ template<typename ElementType>
 ElementType MatrixStd(const DenseMatrix<ElementType>& InputMatrix) // standard deviation
 {
 	auto ElementCount = InputMatrix.GetElementCount();
-
 	if (ElementCount <= 0)
 	{
 		MDK_Error("Input is an empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixStd(InputMatrix)")
@@ -653,9 +588,7 @@ ElementType MatrixStd(const DenseMatrix<ElementType>& InputMatrix) // standard d
 	}
 
 	auto MeanValue = MatrixMean(InputMatrix);
-
 	auto RawPointer = InputMatrix.GetElementPointer();
-
 	auto Value = ElementType(0);
 	for (int_max i = 0; i < ElementCount; ++i)
 	{
@@ -673,7 +606,6 @@ template<typename ElementType>
 int_max FindLinearIndexOfMaxInMatrix(const DenseMatrix<ElementType>& InputMatrix)
 {
     auto Input_ElementCount = InputMatrix.GetElementCount();
-
     if (Input_ElementCount <= 0)
     {
         MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix FindLinearIndexOfMaxInMatrix(InputMatrix)")
@@ -682,11 +614,8 @@ int_max FindLinearIndexOfMaxInMatrix(const DenseMatrix<ElementType>& InputMatrix
     }
 
     auto InputPtr = InputMatrix.GetElementPointer();
-
     ElementType MaxValue = InputPtr[0];
-
     int_max LinearIndex = 0;
-
     for (int_max k = 1; k < Input_ElementCount; ++k)
     {
         if (InputPtr[k] > MaxValue)
@@ -711,7 +640,6 @@ ElementType MatrixMax(const DenseMatrix<ElementType>& InputMatrix)
     }
 
     int_max LinearIndex = FindLinearIndexOfMaxInMatrix(InputMatrix);
-
     return InputMatrix[LinearIndex];
 }
 
@@ -722,33 +650,25 @@ DenseMatrix<ElementType> MatrixMaxOfEachCol(const DenseMatrix<ElementType>& Inpu
     DenseMatrix<ElementType> tempMatrix;
 
     auto InputSize = InputMatrix.GetSize();
-
     if (InputSize.RowCount <= 0)
     {
         MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMaxOfEachCol(InputMatrix)")
 
         return tempMatrix;
     }
-
-    tempMatrix.Resize(1, InputSize.ColCount);
-
+	
+	tempMatrix.Resize(1, InputSize.ColCount);
     auto tempRawPointer = tempMatrix.GetElementPointer();
-
     auto RawPointer = InputMatrix.GetElementPointer();
-
     for (int_max j = 0; j < InputSize.ColCount; ++j)
     {
         auto value = RawPointer[0];
-
         ++RawPointer;
-
         for (int_max i = 1; i < InputSize.RowCount; ++i)
         {
             value = std::max(value, RawPointer[0]);
-
             ++RawPointer;
         }
-
         tempRawPointer[j] = value;
     }
 
@@ -762,33 +682,24 @@ DenseMatrix<ElementType> MatrixMaxOfEachRow(const DenseMatrix<ElementType>& Inpu
     DenseMatrix<ElementType> tempMatrix;
 
     auto InputSize = InputMatrix.GetSize();
-
     if (InputSize.RowCount <= 0)
     {
         MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMaxOfEachRow(InputMatrix)")
-
         return tempMatrix;
     }
 
 	tempMatrix.Resize(InputSize.RowCount, 1);
-
     auto tempRawPointer = tempMatrix.GetElementPointer();
-
     auto RawPointer = InputMatrix.GetElementPointer();
-
     for (int_max i = 0; i < InputSize.RowCount; ++i)
     {
         auto value = RawPointer[i];
-
         auto Index = InputSize.RowCount;
-
         for (int_max j = 1; j < InputSize.ColCount; ++j)
         {
             value = std::max(value, RawPointer[Index + i]);
-
             Index += InputSize.RowCount;
         }
-
         tempRawPointer[i] = value;
     }
 
@@ -800,7 +711,6 @@ template<typename ElementType>
 int_max FindLinearIndexOfMinInMatrix(const DenseMatrix<ElementType>& InputMatrix)
 {
     auto Input_ElementCount = InputMatrix.GetElementCount();
-
     if (Input_ElementCount <= 0)
     {
         MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix FindLinearIndexOfMinInMatrix(InputMatrix)")
@@ -808,11 +718,8 @@ int_max FindLinearIndexOfMinInMatrix(const DenseMatrix<ElementType>& InputMatrix
     }
 
     auto InputPtr = InputMatrix.GetElementPointer();
-
     ElementType MinValue = InputPtr[0];
-
     int_max LinearIndex = 0;
-
     for (int_max k = 1; k < Input_ElementCount; ++k)
     {
         if (InputPtr[k] < MinValue)
@@ -836,7 +743,6 @@ ElementType MatrixMin(const DenseMatrix<ElementType>& InputMatrix)
     }
 
     auto LinearIndex = FindLinearIndexOfMinInMatrix(InputMatrix);
-
     return InputMatrix[LinearIndex];
 }
 
@@ -847,33 +753,24 @@ DenseMatrix<ElementType> MatrixMinOfEachCol(const DenseMatrix<ElementType>& Inpu
     DenseMatrix<ElementType> tempMatrix;
 
     auto InputSize = InputMatrix.GetSize();
-
     if (InputSize.RowCount <= 0)
     {
         MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMinOfEachCol(InputMatrix)")
-
         return tempMatrix;
     }
 
     tempMatrix.Resize(1, InputSize.ColCount);
-
     auto tempRawPointer = tempMatrix.GetElementPointer();
-
     auto RawPointer = InputMatrix.GetElementPointer();
-
     for (int_max j = 0; j < InputSize.ColCount; ++j)
     {
         auto value = RawPointer[0];
-
         ++RawPointer;
-
         for (int_max i = 1; i < InputSize.RowCount; ++i)
         {
             value = std::min(value, RawPointer[0]);
-
             ++RawPointer;
         }
-
         tempRawPointer[j] = value;
     }
 
@@ -887,33 +784,24 @@ DenseMatrix<ElementType> MatrixMinOfEachRow(const DenseMatrix<ElementType>& Inpu
     DenseMatrix<ElementType> tempMatrix;
 
     auto InputSize = InputMatrix.GetSize();
-
     if (InputSize.RowCount <= 0)
     {
         MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixMinOfEachRow(InputMatrix)")
-
         return tempMatrix;
     }
 
 	tempMatrix.Resize(InputSize.RowCount, 1);
-
     auto tempRawPointer = tempMatrix.GetElementPointer();
-
     auto RawPointer = InputMatrix.GetElementPointer();
-
     for (int_max i = 0; i < InputSize.RowCount; ++i)
     {
         auto value = RawPointer[i];
-
         auto Index = InputSize.RowCount;
-
         for (int_max j = 1; j < InputSize.ColCount; ++j)
         {
             value = std::min(value, RawPointer[Index + i]);
-
             Index += InputSize.RowCount;
         }
-
         tempRawPointer[i] = value;
     }
 
@@ -925,7 +813,6 @@ template<typename ElementType>
 ElementType MatrixSum(const DenseMatrix<ElementType>& InputMatrix)
 {
     auto Input_ElementCount = InputMatrix.GetElementCount();
-
     if (Input_ElementCount <= 0)
     {
         MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixSum(InputMatrix)")
@@ -933,9 +820,7 @@ ElementType MatrixSum(const DenseMatrix<ElementType>& InputMatrix)
     }
 
     auto RawPointer = InputMatrix.GetElementPointer();
-
     ElementType value = RawPointer[0];
-
     for (auto Ptr = RawPointer + 1; Ptr < RawPointer + Input_ElementCount; ++Ptr)
     {
         value += Ptr[0];
@@ -951,33 +836,24 @@ DenseMatrix<ElementType> MatrixSumOfEachCol(const DenseMatrix<ElementType>& Inpu
     DenseMatrix<ElementType> tempMatrix;
 
     auto InputSize = InputMatrix.GetSize();
-
     if (InputSize.RowCount <= 0)
     {
         MDK_Error("InputMatrix is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixSumOfEachCol(InputMatrix)")
-
         return tempMatrix;
     }
 
     tempMatrix.Resize(1, InputSize.ColCount);
-
     auto tempRawPointer = tempMatrix.GetElementPointer();
-
     auto RawPointer = InputMatrix.GetElementPointer();
-
     for (int_max j = 0; j < InputSize.ColCount; ++j)
     {
         auto value = RawPointer[0];
-
         ++RawPointer;
-
         for (int_max i = 1; i < InputSize.RowCount; ++i)
         {
             value += RawPointer[0];
-
             ++RawPointer;
         }
-
         tempRawPointer[j] = value;
     }
 
@@ -991,33 +867,24 @@ DenseMatrix<ElementType> MatrixSumOfEachRow(const DenseMatrix<ElementType>& Inpu
     DenseMatrix<ElementType> tempMatrix;
 
     auto InputSize = InputMatrix.GetSize();
-
     if (InputSize.RowCount <= 0)
     {
         MDK_Error("Input is empty Matrix @ mdkLinearAlgebra_DenseMatrix MatrixSumOfEachRow(InputMatrix)")
-
         return tempMatrix;
     }
 
     tempMatrix.Resize(InputSize.RowCount, 1);
-
     auto tempRawPointer = tempMatrix.GetElementPointer();
-
     auto RawPointer = InputMatrix.GetElementPointer();
-
     for (int_max i = 0; i < InputSize.RowCount; ++i)
     {
         auto value = RawPointer[i];
-
         int_max Index = InputSize.RowCount;
-
         for (int_max j = 1; j < InputSize.ColCount; ++j)
         {
             value += RawPointer[Index + i];
-
             Index += InputSize.RowCount;
         }
-
         tempRawPointer[i] = value;
     }
 
@@ -1098,33 +965,26 @@ DenseMatrix<ElementType> MatrixTranspose(const DenseMatrix<ElementType>& InputMa
     DenseMatrix<ElementType> tempMatrix;
 
     auto Size = InputMatrix.GetSize();
-
     if (Size.RowCount == 0)
     {
         MDK_Error("InputMatrix is empty @ mdkLinearAlgebra_DenseMatrix MatrixTranspose(InputMatrix)")
-
         return tempMatrix;
     }
     if (Size.ColCount == 1)
     {
         tempMatrix.Copy(InputMatrix.GetElementPointer(), 1, Size.RowCount);
-
         return tempMatrix;
     }
 
     if (Size.RowCount == 1)
     {
         tempMatrix.Copy(InputMatrix.GetElementPointer(), Size.ColCount, 1);
-
         return tempMatrix;
     }
 
     tempMatrix.FastResize(Size.ColCount, Size.RowCount);
-
     auto tempRawPointer = tempMatrix.GetElementPointer();
-
     auto RawPointer = InputMatrix.GetElementPointer();
-
     for (int_max i = 0; i < Size.RowCount; ++i)
     {
         int_max Index = 0;
@@ -1144,12 +1004,10 @@ template<typename ElementType>
 void MatrixTransposeInPlace(DenseMatrix<ElementType>& InputMatrix)
 {
     auto Size = InputMatrix.GetSize();
-
     if (Size.RowCount == 0)
     {
         return;
-    }
-
+	}
     if (Size.ColCount == 1 || Size.RowCount == 1)
     {
         InputMatrix.Reshape(Size.ColCount, Size.RowCount);
@@ -1242,7 +1100,6 @@ DenseMatrix<ElementType> MatrixInverse(const DenseMatrix<ElementType>& InputMatr
     DenseMatrix<ElementType> OutputMatrix;
 
     auto Size = InputMatrix.GetSize();
-
     if (Size.RowCount == 0)
     {
 		MDK_Warning("InputMatrix is empty matrix @ mdkLinearAlgebra_DenseMatrix MatrixInverse(InputMatrix)")
@@ -1280,7 +1137,6 @@ DenseMatrix<ElementType> MatrixPseudoInverse(const DenseMatrix<ElementType>& Inp
 	DenseMatrix<ElementType> OutputMatrix;
 
 	auto Size = InputMatrix.GetSize();
-
 	if (Size.RowCount == 0)
 	{
 		MDK_Warning("InputMatrix is empty matrix @ mdkLinearAlgebra_DenseMatrix MatrixPseudoInverse(InputMatrix)")
@@ -1335,13 +1191,11 @@ DenseMatrix<ElementType> SolveMatrixLinearEquation(const DenseMatrix<ElementType
 
 	auto SizeA = MatrixA.GetSize();
 	auto SizeB = MatrixB.GetSize();
-
 	if (SizeA.RowCount != SizeB.RowCount)
 	{
 		MDK_Error("A RowCount != B RowCount @ mdkLinearAlgebra_DenseMatrix SolveMatrixLinearEquation(MatrixA, MatrixB)")
  	    return MatrixX;
 	}
-
 	if (SizeA.RowCount == 0)
 	{
 		MDK_Warning("MatrixA is empty @ mdkLinearAlgebra_DenseMatrix SolveMatrixLinearEquation(MatrixA, MatrixB)")
@@ -1387,14 +1241,12 @@ DenseMatrixEigenResult<std::complex<ElementType>> NonSymmetricRealMatrixEigen(co
     DenseMatrixEigenResult<std::complex<ElementType>> Result;
 
     auto Size = InputMatrix.GetSize();
-
     if (Size.RowCount == 0)
     {
         MDK_Error("InputMatrix is empty matrix @ mdkLinearAlgebra_DenseMatrix NonSymmetricRealMatrixEigen(InputMatrix)")
 
         return Result;
     }
-
     if (Size.RowCount != Size.ColCount)
     {
         MDK_Error("InputMatrix is not square @ mdkLinearAlgebra_DenseMatrix NonSymmetricRealMatrixEigen(InputMatrix)")
@@ -1432,19 +1284,16 @@ DenseMatrixEigenResult<ElementType> SymmetricRealMatrixEigen(const DenseMatrix<E
     DenseMatrixEigenResult<ElementType> Result;
 
     auto Size = InputMatrix.GetSize();
-
     if (Size.RowCount == 0)
     {
         MDK_Error("Matrix is empty matrix @ mdkLinearAlgebra_DenseMatrix SymmetricRealMatrixEigen(...)")
         return Result;
     }
-
     if (Size.RowCount != Size.ColCount)
     {
         MDK_Error("Matrix is not square @ mdkLinearAlgebra_DenseMatrix SymmetricRealMatrixEigen(...)")
         return Result;
     }
-
     if (CheckIfSymmetric == true)
     {
         DenseMatrix<ElementType> tempMatrix_2 = InputMatrix - InputMatrix.Transpose();
@@ -1490,7 +1339,6 @@ DenseMatrixPCAResult<ElementType> MatrixPCA(const DenseMatrix<ElementType>& Inpu
     DenseMatrixPCAResult<ElementType> PCAResult;
 
     auto Size = InputMatrix.GetSize();
-
     if (Size.ColCount <= 1)
     {
         MDK_Error("ColCount <= 1, return empty PCAResult @ mdkLinearAlgebra_DenseMatrix MatrixPCA(...)")
@@ -1514,26 +1362,17 @@ DenseMatrixPCAResult<ElementType> MatrixPCA(const DenseMatrix<ElementType>& Inpu
     DenseMatrix<ElementType> tempMatrix(Size.RowCount, Size.RowCount);
     DenseMatrix<ElementType> tempCol(Size.RowCount, 1);
     DenseMatrix<ElementType> tempColTranspose(1, Size.RowCount);
-
     for (int_max i = 0; i < Size.ColCount; ++i)
     {
         InputMatrix.GetCol(i, tempCol);
-
         MatrixSubtract(tempCol, tempCol, MeanCol);
-
         tempColTranspose = tempCol.Transpose();
-
         MatrixMultiply(tempMatrix, tempCol, tempColTranspose);
-
         CovarianceMatrix += tempMatrix;
     }
-
     CovarianceMatrix /= Size.ColCount;
-
     auto EigenResult = SymmetricRealMatrixEigen(CovarianceMatrix);
-
     //--------------------------------------------------------------//
-
     PCAResult.Mean = std::move(MeanCol);
     PCAResult.EigenVector = std::move(EigenResult.EigenVector);
     PCAResult.EigenValue = std::move(EigenResult.EigenValue);
@@ -1548,7 +1387,6 @@ DenseMatrixSVDResult<ElementType> MatrixSVD(const DenseMatrix<ElementType>& Inpu
     DenseMatrixSVDResult<ElementType> Result;
 
     auto Size = InputMatrix.GetSize();
-
     if (Size.RowCount == 0)
     {
         MDK_Error("Matrix is empty  @ mdkLinearAlgebra_DenseMatrix MatrixSVD(InputMatrix)")

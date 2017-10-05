@@ -2769,7 +2769,7 @@ int_max Mesh<ScalarType>::AddEdge(int_max PointIndex0, int_max PointIndex1, int_
     //------------
 	for (int_max SetIndex = 0; SetIndex < m_MeshData->EdgeDataSet.GetLength(); ++SetIndex)
 	{
-		if (EdgeIndex_input == m_MeshData->EdgeList.GetLength())
+		if (EdgeIndex_input == m_MeshData->EdgeDataSet[SetIndex].GetColCount())
 		{
 			DenseVector<ScalarType> Data;
 			Data.Resize(m_MeshData->EdgeDataSet[SetIndex].GetRowCount());
@@ -2927,7 +2927,7 @@ int_max Mesh<ScalarType>::AddFaceByEdge(const DenseVector<int_max>& EdgeIndexLis
 	//------------
 	for (int_max SetIndex = 0; SetIndex < m_MeshData->FaceDataSet.GetLength(); ++SetIndex)
 	{
-		if (FaceInex_input == m_MeshData->FaceList.GetLength())
+		if (FaceInex_input == m_MeshData->FaceDataSet[SetIndex].GetColCount())
 		{
 			DenseVector<ScalarType> Data;
 			Data.Resize(m_MeshData->FaceDataSet[SetIndex].GetRowCount());
@@ -3161,7 +3161,7 @@ int_max Mesh<ScalarType>::AddCellByFace(MeshCellTypeEnum Type, const DenseVector
 	
 	for (int_max SetIndex = 0; SetIndex < m_MeshData->CellDataSet.GetLength(); ++SetIndex)
 	{
-		if (CellIndex_input == m_MeshData->CellList.GetLength())
+		if (CellIndex_input == m_MeshData->CellDataSet[SetIndex].GetColCount())
 		{
 			DenseVector<ScalarType> Data;
 			Data.Resize(m_MeshData->CellDataSet[SetIndex].GetRowCount());
@@ -4629,10 +4629,10 @@ void Mesh<ScalarType>::UpdateRecord_DeleteEdge(int_max EdgeIndex)
 	int_max PointIndex0, PointIndex1;
 	m_MeshData->EdgeList[EdgeIndex].GetPointIndexList(PointIndex0, PointIndex1);
     //
-	auto tempIndex0 = m_MeshData->PointList[PointIndex0].AdjacentEdgeIndexList().ExactMatch(EdgeIndex);
+	auto tempIndex0 = m_MeshData->PointList[PointIndex0].AdjacentEdgeIndexList().ExactMatch(EdgeIndex);//do not use ExactMatch("first/last")
 	m_MeshData->PointList[PointIndex0].AdjacentEdgeIndexList().Delete(tempIndex0);
 	//
-	auto tempIndex1 = m_MeshData->PointList[PointIndex1].AdjacentEdgeIndexList().ExactMatch(EdgeIndex);
+	auto tempIndex1 = m_MeshData->PointList[PointIndex1].AdjacentEdgeIndexList().ExactMatch(EdgeIndex);//do not use ExactMatch("first/last")
 	m_MeshData->PointList[PointIndex1].AdjacentEdgeIndexList().Delete(tempIndex1);
 
 	auto Name = m_MeshData->EdgeList[EdgeIndex].GetName();
@@ -4662,7 +4662,7 @@ void Mesh<ScalarType>::UpdateRecord_DeleteFace(int_max FaceIndex)
 	const auto& EdgeIndexList = m_MeshData->FaceList[FaceIndex].EdgeIndexList();
 	for (int_max k = 0; k < EdgeIndexList.GetLength(); ++k)
 	{
-		auto tempIndex = m_MeshData->EdgeList[EdgeIndexList[k]].AdjacentFaceIndexList().ExactMatch(FaceIndex);
+		auto tempIndex = m_MeshData->EdgeList[EdgeIndexList[k]].AdjacentFaceIndexList().ExactMatch(FaceIndex);//do not use ExactMatch("first/last")
 		m_MeshData->EdgeList[EdgeIndexList[k]].AdjacentFaceIndexList().Delete(tempIndex);
 	}
     
@@ -4692,7 +4692,7 @@ void Mesh<ScalarType>::UpdateRecord_DeleteCell(int_max CellIndex)
 	const auto& FaceIndexList = m_MeshData->CellList[CellIndex].FaceIndexList();
 	for (int_max k = 0; k < FaceIndexList.GetLength(); ++k)
 	{
-		auto tempIndex = m_MeshData->FaceList[FaceIndexList[k]].AdjacentCellIndexList().ExactMatch(CellIndex);
+		auto tempIndex = m_MeshData->FaceList[FaceIndexList[k]].AdjacentCellIndexList().ExactMatch(CellIndex);//do not use ExactMatch("first/last")
 		m_MeshData->FaceList[FaceIndexList[k]].AdjacentCellIndexList().Delete(tempIndex);
 	}
 

@@ -716,7 +716,6 @@ void DenseMatrix<ElementType>::Copy(const ElementType_Input* InputElementPointer
     //------------------------------------------------------------------
 
     auto SelfSize = this->GetSize();
-
     if (this->IsSizeFixed() == true)
     {
         if (InputRowCount != SelfSize.RowCount || InputColCount != SelfSize.ColCount)
@@ -728,23 +727,17 @@ void DenseMatrix<ElementType>::Copy(const ElementType_Input* InputElementPointer
     else
     {
         this->FastResize(InputRowCount, InputColCount);
-
         SelfSize.RowCount = InputRowCount;
         SelfSize.ColCount = InputColCount;
     }
 
     //copy data ----------------------------------------------------------
-
     auto BeginPointer = this->GetElementPointer();
-
     auto tempPtr = InputElementPointer;
-
     auto Self_ElementCount = SelfSize.RowCount * SelfSize.ColCount;
-
     for (auto Ptr = BeginPointer; Ptr < BeginPointer + Self_ElementCount; ++Ptr)
     {
         Ptr[0] = ElementType(tempPtr[0]);
-
         ++tempPtr;
     }
 }
@@ -800,13 +793,9 @@ void DenseMatrix<ElementType>::Copy(DenseMatrix<ElementType>&& InputMatrix)
 	//note: m_MatrixData.swap(InputMatrix.m_MatrixData) will invalidate Share()
 
 	m_MatrixData->RowCount = InputMatrix.m_MatrixData->RowCount;
-
 	m_MatrixData->ColCount = InputMatrix.m_MatrixData->ColCount;
-
 	m_MatrixData->StdVector = std::move(InputMatrix.m_MatrixData->StdVector);
-
 	m_MatrixData->ElementPointer = InputMatrix.m_MatrixData->ElementPointer;
-
 	m_MatrixData->ErrorElement = InputMatrix.m_MatrixData->ErrorElement;
 
 	// Clear InputMatrix to be empty
@@ -7381,7 +7370,7 @@ template<typename ElementType>
 template<typename MatchFunctionType>
 inline
 DenseMatrix<int_max>
-DenseMatrix<ElementType>::Find(int_max MaxOutputNumber, MatchFunctionType MatchFunction) const
+DenseMatrix<ElementType>::Find(int_max MaxOutputCount, MatchFunctionType MatchFunction) const
 {
     return FindElementInMatrix(*this, MaxOutputColCount, MatchFunction);
 }
@@ -7391,9 +7380,9 @@ template<typename ElementType>
 template<typename MatchFunctionType>
 inline
 DenseMatrix<int_max>
-DenseMatrix<ElementType>::Find(int_max MaxOutputNumber, int_max LinearIndex_start, int_max LinearIndex_end, MatchFunctionType MatchFunction) const
+DenseMatrix<ElementType>::Find(int_max MaxOutputCount, int_max LinearIndex_start, int_max LinearIndex_end, MatchFunctionType MatchFunction) const
 {
-    return FindElementInMatrix(*this, MaxOutputNumber, LinearIndex_start, LinearIndex_end, MatchFunction);
+    return FindElementInMatrix(*this, MaxOutputCount, LinearIndex_start, LinearIndex_end, MatchFunction);
 }
 
 

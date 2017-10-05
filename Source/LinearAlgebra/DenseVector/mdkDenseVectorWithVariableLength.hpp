@@ -208,13 +208,13 @@ void DenseVector<ElementType>::operator=(const std::initializer_list<const Dense
 
     bool IsSelfInInputList = false;
 
-    int_max TotalElementNumber = 0;
+    int_max TotalElementCount = 0;
 
     for (int_max k = 0; k < InputVectorNumber; k++)
     {
         auto InputVectorPtr = InputList.begin()[k];
 
-        TotalElementNumber += InputVectorPtr->GetElementCount();
+        TotalElementCount += InputVectorPtr->GetElementCount();
 
 		if (this->GetElementPointer() != nullptr && this->GetElementPointer() == InputVectorPtr->GetElementPointer())
         {
@@ -222,7 +222,7 @@ void DenseVector<ElementType>::operator=(const std::initializer_list<const Dense
         }
     }
 
-    if (TotalElementNumber <= 0)
+    if (TotalElementCount <= 0)
     {
 		this->Clear();
         return;
@@ -233,7 +233,7 @@ void DenseVector<ElementType>::operator=(const std::initializer_list<const Dense
     if (IsSelfInInputList == false)
     {
 		this->Clear();
-		this->SetCapacity(TotalElementNumber);
+		this->SetCapacity(TotalElementCount);
 
         for (int_max k = 0; k < InputVectorNumber; k++)
         {            
@@ -248,7 +248,7 @@ void DenseVector<ElementType>::operator=(const std::initializer_list<const Dense
     }
     else // Self is in InputList 
     {
-        if (TotalElementNumber == SelfLength)
+        if (TotalElementCount == SelfLength)
         {
             //MDK_Warning("Self = {&Self} @  @ DenseMatrix::operator=(initializer_list)")
             return;
@@ -275,22 +275,22 @@ void DenseVector<ElementType>::operator=(const std::initializer_list<DenseVector
 		return;
 	}
 
-	int_max TotalElementNumber = 0;
+	int_max TotalElementCount = 0;
 
 	for (int_max k = 0; k < InputVectorNumber; k++)
 	{
 		const auto& InputVector = InputList.begin()[k];
-		TotalElementNumber += InputVector.GetElementCount();
+		TotalElementCount += InputVector.GetElementCount();
 	}
 
-	if (TotalElementNumber <= 0)
+	if (TotalElementCount <= 0)
 	{
 		this->Clear();
 		return;
 	}
 
 	this->Clear();
-	this->SetCapacity(TotalElementNumber);
+	this->SetCapacity(TotalElementCount);
 
 	for (int_max k = 0; k < InputVectorNumber; k++)
 	{
@@ -1400,9 +1400,9 @@ DenseVector<int_max> DenseVector<ElementType>::Find(MatchFunctionType MatchFunct
 template<typename ElementType>
 template<typename MatchFunctionType>
 inline
-DenseVector<int_max> DenseVector<ElementType>::Find(int_max MaxOutputNumber, MatchFunctionType MatchFunction) const
+DenseVector<int_max> DenseVector<ElementType>::Find(int_max MaxOutputCount, MatchFunctionType MatchFunction) const
 {
-    return this->Find(MaxOutputNumber, 0, this->GetLength()-1, MatchFunction);
+    return this->Find(MaxOutputCount, 0, this->GetLength()-1, MatchFunction);
 }
 
 
@@ -1410,47 +1410,41 @@ template<typename ElementType>
 template<typename MatchFunctionType>
 inline
 DenseVector<int_max> DenseVector<ElementType>::
-Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunctionType MatchFunction) const
+Find(int_max MaxOutputCount, int_max Index_start, int_max Index_end, MatchFunctionType MatchFunction) const
 {
     DenseVector<int_max> IndexList;
 
-    if (MaxOutputNumber == 0)
+    if (MaxOutputCount == 0)
     {
         return IndexList;
     }
 
-    auto ElementNumber = this->GetElementCount();
+    auto ElementCount = this->GetElementCount();
 
-    if (MaxOutputNumber < 0 || MaxOutputNumber > ElementNumber)
+    if (MaxOutputCount < 0 || MaxOutputCount > ElementCount)
     {
-        MDK_Error("MaxOutputNumber is invalid @ DenseVector::Find(...)")
+        MDK_Error("MaxOutputCount is invalid @ DenseVector::Find(...)")
         return IndexList;
     }
 
-    if (Index_start < 0 || Index_start >= ElementNumber || Index_start > Index_end)
+    if (Index_start < 0 || Index_start >= ElementCount || Index_start > Index_end)
     {
         MDK_Error("Index_start is invalid @ DenseVector::Find(...)")
         return IndexList;
     }
 
-    if (Index_end < 0 || Index_end >= ElementNumber)
+    if (Index_end < 0 || Index_end >= ElementCount)
     {
         MDK_Error("Index_end is invalid @ DenseVector::Find(...)")
         return IndexList;
     }
 
-    if (ElementNumber == 0)
+    if (ElementCount == 0)
     {
         return IndexList;
     }
 
-    if (Index_start == Index_end)
-    {
-        IndexList.Append(Index_start);
-        return IndexList;
-    }
-
-    IndexList.SetCapacity(MaxOutputNumber);
+    IndexList.SetCapacity(MaxOutputCount);
 
 	if (Index_start < Index_end)
 	{
@@ -1459,8 +1453,7 @@ Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunct
 			if (MatchFunction((*this)[i]) == true)
 			{
 				IndexList.Append(i);
-
-				if (IndexList.GetElementCount() == MaxOutputNumber)
+				if (IndexList.GetElementCount() == MaxOutputCount)
 				{
 					break;
 				}
@@ -1474,8 +1467,7 @@ Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunct
 			if (MatchFunction((*this)[i]) == true)
 			{
 				IndexList.Append(i);
-
-				if (IndexList.GetElementCount() == MaxOutputNumber)
+				if (IndexList.GetElementCount() == MaxOutputCount)
 				{
 					break;
 				}
@@ -1558,21 +1550,21 @@ DenseVector<int_max> DenseVector<ElementType>::Sort(int_max Index_start, int_max
 {
     DenseVector<int_max> IndexList;
 
-    auto ElementNumber = this->GetElementCount();
+    auto ElementCount = this->GetElementCount();
 
-    if (Index_start < 0 || Index_start >= ElementNumber || Index_start > Index_end)
+    if (Index_start < 0 || Index_start >= ElementCount || Index_start > Index_end)
     {
         MDK_Error("Index_start is invalid @ DenseVector::Sort(...)")
         return IndexList;
     }
 
-    if (Index_end < 0 || Index_end >= ElementNumber)
+    if (Index_end < 0 || Index_end >= ElementCount)
     {
         MDK_Error("Index_end is invalid @ DenseVector::Sort(...)")
         return IndexList;
     }
 
-    if (ElementNumber == 0)
+    if (ElementCount == 0)
     {
         return IndexList;
     }
@@ -1583,7 +1575,7 @@ DenseVector<int_max> DenseVector<ElementType>::Sort(int_max Index_start, int_max
         return IndexList;
     }
 
-    IndexList.FastResize(ElementNumber);
+    IndexList.FastResize(ElementCount);
 
     for (int_max i = Index_start; i <= Index_end; ++i)
     {

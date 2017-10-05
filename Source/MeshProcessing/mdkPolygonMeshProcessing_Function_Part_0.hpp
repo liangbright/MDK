@@ -2,6 +2,132 @@
 
 namespace mdk
 {
+template<typename ScalarType>
+DenseVector<int_max> TraceMeshBoundaryCurve(const PolygonMesh<ScalarType>& InputMesh, int_max PointIndex_start, int_max PointIndex_next)
+{// work for none-clean DataStructure
+	DenseVector<int_max> PointIndexListOfBoundaryCurve;
+
+	if (InputMesh.IsValidPointIndex(PointIndex_start) == false)
+	{
+		MDK_Error("PointIndex_start is invalid @ mdkPolygonMeshProcessing TraceMeshBoundaryCurve(...)")
+		return PointIndexListOfBoundaryCurve;
+	}
+
+	if (InputMesh.IsValidPointIndex(PointIndex_next) == false)
+	{
+		MDK_Error("PointIndex_next is invalid @ mdkPolygonMeshProcessing TraceMeshBoundaryCurve(...)")
+		return PointIndexListOfBoundaryCurve;
+	}
+
+	if (InputMesh.Point(PointIndex_start).IsOnPolygonMeshBoundary() == false)
+	{
+		MDK_Error("PointIndex_start is NOT on boundary edge @ mdkPolygonMeshProcessing TraceMeshBoundaryCurve(...)")
+		return PointIndexListOfBoundaryCurve;
+	}
+
+	if (InputMesh.Point(PointIndex_next).IsOnPolygonMeshBoundary() == false)
+	{
+		MDK_Error("PointIndex_next is NOT on boundary edge @ mdkPolygonMeshProcessing TraceMeshBoundaryCurve(...)")
+		return PointIndexListOfBoundaryCurve;
+	}
+
+	bool Flag_start_neighbour_next = false;
+	const auto& AdjacentPointIndexList_start = InputMesh.Point(PointIndex_start).GetAdjacentPointIndexList();
+	for (int_max k = 0; k < AdjacentPointIndexList_start.GetLength(); ++k)
+	{
+		if (AdjacentPointIndexList_start[k] == PointIndex_next)
+		{
+			Flag_start_neighbour_next = true;
+			break;
+		}
+	}
+	if (Flag_start_neighbour_next == false)
+	{
+		MDK_Error("PointIndex_start and PointIndex_next are NOT neighbour to each other @ mdkPolygonMeshProcessing TraceMeshBoundaryCurve(...)")
+		return PointIndexListOfBoundaryCurve;
+	}
+
+    int_max BoundaryEdgeCountOfInputMesh = 0;
+	for (int_max k = 0; k <= InputMesh.GetMaxValueOfEdgeIndex(); ++k)
+	{
+		if (InputMesh.IsValidEdgeIndex(k) == true)
+		{
+			if (InputMesh.Edge(k).IsOnPolygonMeshBoundary() == true)
+			{
+				BoundaryEdgeCountOfInputMesh += 1;
+			}
+		}
+	}
+
+    if (BoundaryEdgeCountOfInputMesh <= 0)
+    {
+        MDK_Error("BoundaryEdgeCountOfInputMesh  <= 0 @ mdkPolygonMeshProcessing TraceMeshBoundaryCurve(...)")
+        return PointIndexListOfBoundaryCurve;
+    }
+
+    PointIndexListOfBoundaryCurve.SetCapacity(BoundaryEdgeCountOfInputMesh);
+    PointIndexListOfBoundaryCurve.Append(PointIndex_start);	
+    PointIndexListOfBoundaryCurve.Append(PointIndex_next);
+
+	int_max BoundaryPointIndex_prev = PointIndex_start;
+	int_max BoundaryPointIndex_current = PointIndex_next;
+    int_max Counter = 2;
+    while (true)
+    {  
+        int_max BoundaryPointIndex_next = -1;
+		auto tempAdjacentEdgeIndexList_current = InputMesh.Point(BoundaryPointIndex_current).GetAdjacentEdgeIndexList();
+        for (int_max n = 0; n < tempAdjacentEdgeIndexList_current.GetLength(); ++n)
+        {
+            if (InputMesh.Edge(tempAdjacentEdgeIndexList_current[n]).IsOnPolygonMeshBoundary() == true)
+            {
+                auto tempPointIndexList = InputMesh.Edge(tempAdjacentEdgeIndexList_current[n]).GetPointIndexList();
+                if (tempPointIndexList[0] != BoundaryPointIndex_current && tempPointIndexList[0] != BoundaryPointIndex_prev)
+                {
+                    BoundaryPointIndex_next = tempPointIndexList[0];
+                }
+                else if (tempPointIndexList[1] != BoundaryPointIndex_current && tempPointIndexList[1] != BoundaryPointIndex_prev)
+                {
+                    BoundaryPointIndex_next = tempPointIndexList[1];
+                }
+            }
+        }		
+
+        if (BoundaryPointIndex_next < 0)
+        {
+            MDK_Error("BoundaryPointIndex_current=" << BoundaryPointIndex_current << ", BoundaryPointIndex < 0 @ mdkPolygonMeshProcessing TraceMeshBoundaryCurvey(...)")
+            break;
+        }
+
+        if (BoundaryPointIndex_next == PointIndex_start)
+        {
+            break; // while
+        }
+
+		//check if BoundaryPointIndex_next is already in PointIndexListOfBoundaryCurve
+		auto tempIndex = PointIndexListOfBoundaryCurve.ExactMatch("first", BoundaryPointIndex_next);
+		if (tempIndex >= 0)
+		{
+			MDK_Warning("Boundary Curve selfintersect ! @ mdkPolygonMeshProcessing TraceMeshBoundaryCurve(...)")
+			break;//while
+		}
+
+		PointIndexListOfBoundaryCurve.Append(BoundaryPointIndex_next);
+
+        BoundaryPointIndex_prev = BoundaryPointIndex_current;
+        BoundaryPointIndex_current = BoundaryPointIndex_next;
+        Counter += 1;
+
+        if (Counter > BoundaryEdgeCountOfInputMesh)
+        {
+            MDK_Error("Counter > BoundaryEdgeCountOfInputMesh @ mdkPolygonMeshProcessing TraceMeshBoundaryCurve(...)")
+            break; // while
+        }
+    }
+    //-----------------------------------------------------------------------------------------------------
+
+    return PointIndexListOfBoundaryCurve;
+}
+
 
 template<typename ScalarType>
 DenseVector<int_max> TraceMeshBoundaryCurve(const PolygonMesh<ScalarType>& InputMesh, int_max PointIndex_start)
@@ -37,90 +163,20 @@ DenseVector<int_max> TraceMeshBoundaryCurve(const PolygonMesh<ScalarType>& Input
         MDK_Error("BoundaryEdgeCountOfInputMesh  <= 0 @ mdkPolygonMeshProcessing TraceMeshBoundaryCurve(...)")
         return PointIndexListOfBoundaryCurve;
     }
-
-    PointIndexListOfBoundaryCurve.SetCapacity(BoundaryEdgeCountOfInputMesh);
-
-    PointIndexListOfBoundaryCurve.Append(PointIndex_start);
-
-    auto BoundaryPointIndex_prev = PointIndex_start;
-	int_max BoundaryPointIndex_current = -1;
-
+	
+	int_max PointIndex_next = -1;
     const auto& AdjacentPointIndexList_start = InputMesh.Point(PointIndex_start).GetAdjacentPointIndexList();
     for (int_max k = 0; k < AdjacentPointIndexList_start.GetLength(); ++k)
     {
         if (InputMesh.Point(AdjacentPointIndexList_start[k]).IsOnPolygonMeshBoundary() == true)
         {
-            BoundaryPointIndex_current = AdjacentPointIndexList_start[k];
+			PointIndex_next = AdjacentPointIndexList_start[k];
             break;
         }
     }
 
-    if (BoundaryPointIndex_current < 0)
-    {
-        MDK_Error("Something is wrong with input mesh @ mdkPolygonMeshProcessing TraceMeshBoundaryCurve(...)")
-        return PointIndexListOfBoundaryCurve;
-    }
-
-    PointIndexListOfBoundaryCurve.Append(BoundaryPointIndex_current);
-
-    int_max Counter = 2;
-
-    while (true)
-    {
-        auto tempAdjacentEdgeIndexList_current = InputMesh.Point(BoundaryPointIndex_current).GetAdjacentEdgeIndexList();
-
-        int_max BoundaryPointIndex_next = -1;
-
-        for (int_max n = 0; n < tempAdjacentEdgeIndexList_current.GetLength(); ++n)
-        {
-            if (InputMesh.Edge(tempAdjacentEdgeIndexList_current[n]).IsOnPolygonMeshBoundary() == true)
-            {
-                auto tempPointIndexList = InputMesh.Edge(tempAdjacentEdgeIndexList_current[n]).GetPointIndexList();
-                if (tempPointIndexList[0] != BoundaryPointIndex_current && tempPointIndexList[0] != BoundaryPointIndex_prev)
-                {
-                    BoundaryPointIndex_next = tempPointIndexList[0];
-                }
-                else if (tempPointIndexList[1] != BoundaryPointIndex_current && tempPointIndexList[1] != BoundaryPointIndex_prev)
-                {
-                    BoundaryPointIndex_next = tempPointIndexList[1];
-                }
-            }
-        }
-
-        if (BoundaryPointIndex_next < 0)
-        {
-            MDK_Error("BoundaryPointIndex < 0 @ mdkPolygonMeshProcessing TraceMeshBoundaryCurvey(...)")
-            break;
-        }
-
-        if (BoundaryPointIndex_next == PointIndex_start)
-        {
-            break; // while
-        }
-
-		//check if BoundaryPointIndex_next is already in PointIndexListOfBoundaryCurve
-		auto tempIndex = PointIndexListOfBoundaryCurve.ExactMatch("first", BoundaryPointIndex_next);
-		if (tempIndex >= 0)
-		{
-			MDK_Warning("Boundary Curve selfintersect ! @ mdkPolygonMeshProcessing TraceMeshBoundaryCurve(...)")
-			break;//while
-		}
-
-		PointIndexListOfBoundaryCurve.Append(BoundaryPointIndex_next);
-
-        BoundaryPointIndex_prev = BoundaryPointIndex_current;
-        BoundaryPointIndex_current = BoundaryPointIndex_next;
-        Counter += 1;
-
-        if (Counter > BoundaryEdgeCountOfInputMesh)
-        {
-            MDK_Error("Counter > BoundaryEdgeCountOfInputMesh @ mdkPolygonMeshProcessing TraceMeshBoundaryCurve(...)")
-            break; // while
-        }
-    }
-    //-----------------------------------------------------------------------------------------------------
-
-    return PointIndexListOfBoundaryCurve;
+	PointIndexListOfBoundaryCurve= TraceMeshBoundaryCurve(InputMesh, PointIndex_start, PointIndex_next);
+	return PointIndexListOfBoundaryCurve;
 }
 
 
