@@ -657,7 +657,7 @@ void TriangleMesh<ScalarType>::UpdateNormalBasedCurvatureAtPoint(int_max PointIn
 //-------------------------------------- mesh editing -----------------------------------------------------//
 
 template<typename ScalarType>
-void TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex)
+bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex, bool Flag_CollapseForSpecialCase)
 {
 	if (this->IsValidEdgeIndex(EdgeIndex) == false)
 	{
@@ -665,28 +665,28 @@ void TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex)
 		return;
 	}
 	auto PointIndexList = this->Edge(EdgeIndex).GetPointIndexList();
-	this->CollapseEdge(EdgeIndex, PointIndexList[0]);
+	return this->CollapseEdge(EdgeIndex, PointIndexList[0], Flag_CollapseForSpecialCase);
 }
 
 
 template<typename ScalarType>
-void TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex, int_max PointIndex)
+bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex, int_max PointIndex, bool Flag_CollapseForSpecialCase)
 {
 	if (this->IsValidEdgeIndex(EdgeIndex) == false)
 	{
 		MDK_Error("Invalid EdgeIndex @ TriangleMesh::CollapseEdge(...)")
-		return;
+		return false;
 	}
 	if (this->IsValidPointIndex(PointIndex) == false)
 	{
 		MDK_Error("Invalid PointIndex @ TriangleMesh::CollapseEdge(...)")
-		return;
+		return false;
 	}
 	auto PointIndexList_edge = this->Edge(EdgeIndex).GetPointIndexList();
 	if (PointIndexList_edge[0] != PointIndex && PointIndexList_edge[1] != PointIndex)
 	{
 		MDK_Error("Point must be on the Edge @ TriangleMesh::CollapseEdge(...)")
-		return;
+		return false;
 	}	
 	//--------------------
 	//Upper: Triangle A
@@ -702,6 +702,34 @@ void TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex, int_max PointInde
 	// Edge01 is on bounary
 	// PointIndex is H0
     //-------------------
+	//special case 1: Trangle {0,1,2}, {0,2,3}, {1, 3, 2}
+	//collapse Edge01 will produce 2 idential triangle {0, 2, 3} and {0, 3, 2}
+	//if Flag_CollapseForSpecialCase = true, then allow to collapse for this case and delete duplicated face after collapse	
+	//      3
+	//     /|\ 
+    //	  / 2 \
+	//   / /_\ \
+	//    0    1 
+ 	//-------------------
+	//special case 2: Edge02 and Edge12 are on boundary, Edge01 may or may not be on bounary
+	//collapse Edge01 will produce an Edge connecting 2 and 0_1
+	//if Flag_CollapseForSpecialCase = true, then allow to collapse for this case	
+	//   2         2
+	//  /_\   =>   |
+	// 0   1       0
+	//-------------------
+	auto TempFunction_DetectSpecialCase1 = [&](int_max H0, int_max H1, int_max H2)
+	{
+
+	};
+	auto TempFunction_DetectSpecialCase2 = [&](int_max H0, int_max H1, int_max H2)
+	{
+
+	};
+	auto TempFunction_DetectSpecialCase_ALL = [&](int_max H0, int_max H1, int_max H2)
+	{
+
+	};
 
 	int_max H0, H1;
 	if (PointIndexList_edge[0] == PointIndex)
@@ -816,16 +844,18 @@ void TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex, int_max PointInde
 	//delete Point1
 	this->Point(H1).AdjacentEdgeIndexList().Clear();
 	this->DeletePoint(H1);
+	//return
+	return true;
 }
 
 
 template<typename ScalarType>
-void TriangleMesh<ScalarType>::FlipEdge(int_max EdgeIndex)
+bool TriangleMesh<ScalarType>::FlipEdge(int_max EdgeIndex)
 {//only support 2 triangle face sharing an endge
 	if (this->IsValidEdgeIndex(EdgeIndex) == false)
 	{
 		MDK_Error("Invalid EdgeIndex @ TriangleMesh::FlipEdge(...)")
-		return;
+		return false;
 	}
 	//--------------------
 	//Upper: Triangle A
@@ -835,6 +865,19 @@ void TriangleMesh<ScalarType>::FlipEdge(int_max EdgeIndex)
 	//  \ /  =>  \ | /
 	//   3
 	//-------------------
+	//special case 1 : do not flip
+	//
+	//
+	//
+	//
+	//-------------------
+	//special case 2 : do not flip
+	//
+	//
+	//
+	//
+	//---------------------
+
 	auto PointIndexList01 = this->Edge(EdgeIndex).GetPointIndexList();
 	int_max H0 = PointIndexList01[0];
 	int_max H1 = PointIndexList01[1];
@@ -843,7 +886,7 @@ void TriangleMesh<ScalarType>::FlipEdge(int_max EdgeIndex)
 	if (FaceIndexListAB.GetLength() != 2)
 	{
 		MDK_Error("AdjacentFaceCount is not 2 @ TriangleMesh::FlipEdge(...)")
-		return;
+		return false;
 	}
 	int_max FaceIndexA, FaceIndexB;
 	{//assume normal direction is consistant
@@ -887,6 +930,7 @@ void TriangleMesh<ScalarType>::FlipEdge(int_max EdgeIndex)
 	this->AddEdge(H2, H3, EdgeIndex);
 	this->AddFaceByPoint({ H0, H3, H2 }, FaceIndexA);
 	this->AddFaceByPoint({ H1, H2, H3 }, FaceIndexB);
+	return true;
 }
 
 }// namespace mdk
