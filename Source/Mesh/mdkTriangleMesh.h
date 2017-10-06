@@ -94,7 +94,8 @@ public:
 	//modify the mesh to remove special case-1 and case-2
 	bool CollapseEdge(int_max EdgeIndex01, int_max PointIndex0, bool Flag_HandleSpecialCase = false);
 
-	bool FlipEdge(int_max EdgeIndex);//only support 2 face sharing an edge
+	//if Flag_CreateNewFaceIndex is false, then re-use old face index
+	bool FlipEdge(int_max EdgeIndex, bool Flag_CreateNewFaceIndex = false);//only support 2 face sharing an edge
 };
 
 }// namespace mdk

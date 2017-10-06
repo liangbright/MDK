@@ -961,7 +961,7 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex01, int_max PointIn
 
 
 template<typename ScalarType>
-bool TriangleMesh<ScalarType>::FlipEdge(int_max EdgeIndex)
+bool TriangleMesh<ScalarType>::FlipEdge(int_max EdgeIndex, bool Flag_CreateNewFaceIndex)
 {//only support 2 triangle face sharing an endge
 	if (this->IsValidEdgeIndex(EdgeIndex) == false)
 	{
@@ -1053,8 +1053,16 @@ bool TriangleMesh<ScalarType>::FlipEdge(int_max EdgeIndex)
 		this->DeleteFace(FaceIndexB);
 		this->DeleteEdge(EdgeIndex);
 		this->AddEdge(H2, H3, EdgeIndex);
-		this->AddFaceByPoint({ H0, H3, H2 }, FaceIndexA);
-		this->AddFaceByPoint({ H1, H2, H3 }, FaceIndexB);
+		if (Flag_CreateNewFaceIndex == false)
+		{
+			this->AddFaceByPoint({ H0, H3, H2 }, FaceIndexA);
+			this->AddFaceByPoint({ H1, H2, H3 }, FaceIndexB);
+		}
+		else
+		{
+			this->AddFaceByPoint({ H0, H3, H2 });
+			this->AddFaceByPoint({ H1, H2, H3 });
+		}
 		return true;
 	}
 	else
