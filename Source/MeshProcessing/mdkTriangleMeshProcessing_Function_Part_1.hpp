@@ -4,7 +4,7 @@ namespace mdk
 {
 
 template<typename ScalarType>
-TriangleMesh<ScalarType> ResampleOpenCurveOfSurface(const TriangleMesh<ScalarType>& Surface_input, const DenseVector<int_max>& CurvePointIndexList_input, const DenseMatrix<ScalarType>& Curve_output)
+void ResampleOpenCurveOfSurface(TriangleMesh<ScalarType>& Surface, const DenseVector<int_max>& CurvePointIndexList_input, const DenseMatrix<ScalarType>& Curve_output)
 {
 	//CurvePointIndexList_input: an open bounary curve, CurvePointIndexList_input[0] is the start point, CurvePointIndexList_input[end] is the end point	
 	//point order in CurvePointIndexList_input must align with normal direction, so new face will have consistant normal direction
@@ -12,63 +12,50 @@ TriangleMesh<ScalarType> ResampleOpenCurveOfSurface(const TriangleMesh<ScalarTyp
 	//Curve_output should be close to the orignial bounary on InputMesh
 
 	//------------------- check input ----------------------------------------//
-	if (Surface_input.Check_If_DataStructure_is_Clean() == false)
-	{
-		MDK_Error("Surface_input DataStructure is NOT Clean, abort @ ResampleOpenCurveOfSurface(...)")
-		TriangleMesh<ScalarType> EmptyMesh;
-		return EmptyMesh;
-	}
 	if (CurvePointIndexList_input.GetLength() < 3)
 	{
-		MDK_Error("CurvePointIndexList_input.GetLength() < 3, abort @ ResampleOpenCurveOfSurface(...)")
-		TriangleMesh<ScalarType> EmptyMesh;
-		return EmptyMesh;
+		MDK_Error("CurvePointIndexList_input.GetLength() < 3, abort @ ResampleOpenCurveOfSurface(...)")		
+		return;
 	}
 	for (int_max k = 0; k < CurvePointIndexList_input.GetLength(); ++k)
 	{
-		if (Surface_input.IsValidPointIndex(CurvePointIndexList_input[k]) == false)
+		if (Surface.IsValidPointIndex(CurvePointIndexList_input[k]) == false)
 		{
-			MDK_Error("CurvePointIndexList_input is invalid, abort @ ResampleOpenCurveOfSurface(...)")
-			TriangleMesh<ScalarType> EmptyMesh;
-			return EmptyMesh;
+			MDK_Error("CurvePointIndexList_input is invalid, abort @ ResampleOpenCurveOfSurface(...)")			
+			return;
 		}
-		if (Surface_input.Point(CurvePointIndexList_input[k]).IsOnPolygonMeshBoundary() == false)
+		if (Surface.Point(CurvePointIndexList_input[k]).IsOnPolygonMeshBoundary() == false)
 		{
-			MDK_Error("CurvePointIndexList_input is invalid, abort @ ResampleOpenCurveOfSurface(...)")
-			TriangleMesh<ScalarType> EmptyMesh;
-			return EmptyMesh;
+			MDK_Error("CurvePointIndexList_input is invalid, abort @ ResampleOpenCurveOfSurface(...)")			
+			return;
 		}
 	}
 	if (CurvePointIndexList_input[0] == CurvePointIndexList_input[CurvePointIndexList_input.GetLength() - 1])
 	{
-		MDK_Error("BounaryPointIndexList is a closed curve, abort @ ResampleOpenCurveOfSurface(...)")
-		TriangleMesh<ScalarType> EmptyMesh;
-		return EmptyMesh;
+		MDK_Error("BounaryPointIndexList is a closed curve, abort @ ResampleOpenCurveOfSurface(...)")		
+		return;
 	}
 	if (Curve_output.GetColCount() < 3)
 	{
-		MDK_Error("Curve_output.GetColCount() < 3, abort @ ResampleOpenCurveOfSurface(...)")
-		TriangleMesh<ScalarType> EmptyMesh;
-		return EmptyMesh;
+		MDK_Error("Curve_output.GetColCount() < 3, abort @ ResampleOpenCurveOfSurface(...)")		
+		return;
 	}
 	//-------------------- input check done ------------------------------------//
 
-	auto Boundary_input = Surface_input.GetPointPosition(CurvePointIndexList_input);
-	auto ParamBoundary_input = ComputeCumulative3DCurveLengthList(Boundary_input);
-	ParamBoundary_input /= ParamBoundary_input[ParamBoundary_input.GetLength() - 1];
+	auto Curve_input = Surface.GetPointPosition(CurvePointIndexList_input);
+	auto ParamCurve_input = ComputeCumulative3DCurveLengthList(Curve_input);
+	ParamCurve_input /= ParamCurve_input[ParamCurve_input.GetLength() - 1];
 
 	auto ParamCurve_output = ComputeCumulative3DCurveLengthList(Curve_output);
 	ParamCurve_output /= ParamCurve_output[ParamCurve_output.GetLength() - 1];
-
-	auto Surface_output = Surface_input;
 	
 	//start and end point of input bounary and output bounary share the same index
 	{
 		DenseVector<ScalarType, 3> Pos_start, Pos_end;
 		Curve_output.GetCol(0, Pos_start);
 		Curve_output.GetCol(Curve_output.GetColCount()-1, Pos_end);
-		Surface_output.SetPointPosition(CurvePointIndexList_input[0], Pos_start);
-		Surface_output.SetPointPosition(CurvePointIndexList_input[CurvePointIndexList_input.GetLength()-1], Pos_end);
+		Surface.SetPointPosition(CurvePointIndexList_input[0], Pos_start);
+		Surface.SetPointPosition(CurvePointIndexList_input[CurvePointIndexList_input.GetLength()-1], Pos_end);
 	}
 
 	DenseVector<DenseVector<int_max>> PointIndexList_PerInputEdge;
@@ -87,9 +74,9 @@ TriangleMesh<ScalarType> ResampleOpenCurveOfSurface(const TriangleMesh<ScalarTyp
 		BounaryPointFlagList_input_output.Append(0);
 		for (int_max n = 1; n < ParamCurve_output.GetLength() - 1; ++n)
 		{
-			if (ParamCurve_output[n] >= ParamBoundary_input[k] && ParamCurve_output[n] < ParamBoundary_input[k + 1])
+			if (ParamCurve_output[n] >= ParamCurve_input[k] && ParamCurve_output[n] < ParamCurve_input[k + 1])
 			{
-				auto PointIndex_new = Surface_output.AddPoint(Curve_output(0, n), Curve_output(1, n), Curve_output(2, n));
+				auto PointIndex_new = Surface.AddPoint(Curve_output(0, n), Curve_output(1, n), Curve_output(2, n));
 				PointIndexList_PerInputEdge[k].Append(PointIndex_new);
 				BounaryPointIndexList_output.Append(PointIndex_new);
 				CurvePointIndexList_input_output.Append(PointIndex_new);
@@ -131,9 +118,8 @@ TriangleMesh<ScalarType> ResampleOpenCurveOfSurface(const TriangleMesh<ScalarTyp
 			}
 			else if (Index_b == Index_a)
 			{
-				MDK_Error("Somthing is wrong, abort @ ResampleOpenCurveOfSurface(...)")
-				TriangleMesh<ScalarType> EmptyMesh;
-				return EmptyMesh;
+				MDK_Error("Somthing is wrong, abort @ ResampleOpenCurveOfSurface(...)")				
+				return;
 			}
 			Index_a = Index_b;
 		}		
@@ -151,10 +137,10 @@ TriangleMesh<ScalarType> ResampleOpenCurveOfSurface(const TriangleMesh<ScalarTyp
 			auto PointIndexList_k = PointIndexList_PerInputEdge[k];
 			auto H0 = PointIndexList_k[0];
 			auto H1 = PointIndexList_k[PointIndexList_k.GetLength() - 1];
-			auto EdgeIndex01 = Surface_output.GetEdgeIndexByPoint(H0, H1);
-			auto tempFaceIndexList = Surface_output.Edge(EdgeIndex01).GetAdjacentFaceIndexList();
+			auto EdgeIndex01 = Surface.GetEdgeIndexByPoint(H0, H1);
+			auto tempFaceIndexList = Surface.Edge(EdgeIndex01).GetAdjacentFaceIndexList();
 			auto FaceIndex_k = tempFaceIndexList[0];
-			auto PointIndexListOfFace = Surface_output.Face(FaceIndex_k).GetPointIndexList();//only one face because it is an edge
+			auto PointIndexListOfFace = Surface.Face(FaceIndex_k).GetPointIndexList();//only one face because it is an edge
 			int_max H2 = -1;
 			if (PointIndexListOfFace[0] != H0 && PointIndexListOfFace[0] != H1)
 			{
@@ -169,12 +155,12 @@ TriangleMesh<ScalarType> ResampleOpenCurveOfSurface(const TriangleMesh<ScalarTyp
 				H2 = PointIndexListOfFace[2];
 			}
 
-			Surface_output.DeleteFace(FaceIndex_k);
-			Surface_output.DeleteEdge(EdgeIndex01);
+			Surface.DeleteFace(FaceIndex_k);
+			Surface.DeleteEdge(EdgeIndex01);
 			//add new face
 			for (int_max n = 0; n < PointIndexList_k.GetLength() - 1; ++n)
 			{
-				Surface_output.AddFaceByPoint(PointIndexList_k[n], PointIndexList_k[n + 1], H2);
+				Surface.AddFaceByPoint(PointIndexList_k[n], PointIndexList_k[n + 1], H2);
 			}
 		}
 	}
@@ -189,35 +175,32 @@ TriangleMesh<ScalarType> ResampleOpenCurveOfSurface(const TriangleMesh<ScalarTyp
 			for (int_max n = 1; n < PointIndexList_k.GetLength() - 1; ++n)
 			{
 				auto Hn = PointIndexList_k[n];
-				auto EdgeIndex_n0 = Surface_output.GetEdgeIndexByPoint(Hn, H0);
-				auto Flag = Surface_output.CollapseEdge(EdgeIndex_n0, H0);
+				auto EdgeIndex_n0 = Surface.GetEdgeIndexByPoint(Hn, H0);
+				auto Flag = Surface.CollapseEdge(EdgeIndex_n0, H0, true);
 				if (Flag == false)
 				{
 					MDK_Error("Please modify the mesh to remove special case @ ResampleOpenCurveOfSurface(...)")
+					return;
 				}
 			}
 		}
-	}	
-    //clean and output
-	Surface_output.CleanDataStructure();
-	return Surface_output;
+	}
 }
 
 
 template<typename ScalarType>
-TriangleMesh<ScalarType> ResampleOpenCurveOfSurface(const TriangleMesh<ScalarType>& Surface_input, const DenseVector<int_max>& CurvePointIndexList_input, const int_max PointCountOfCurve_output)
+void ResampleOpenCurveOfSurface(TriangleMesh<ScalarType>& Surface, const DenseVector<int_max>& CurvePointIndexList_input, const int_max PointCountOfCurve_output)
 {	//CurvePointIndexList_input: an open curve, CurvePointIndexList_input[0] is the start point, CurvePointIndexList_input[end] is the end point
 	//position of the start/end point will not be changed
 	//PointCountOfCurve_output is the target		
 	if (PointCountOfCurve_output < 3)
 	{
-		MDK_Error("PointCountOfCurve_output < 3, abort @ ResampleOpenCurveOfSurface(...)")
-		TriangleMesh<ScalarType> EmptyMesh;
-		return EmptyMesh;
+		MDK_Error("PointCountOfCurve_output < 3, abort @ ResampleOpenCurveOfSurface(...)")		
+		return;
 	}
-	auto Curve_input = Surface_input.GetPointPosition(CurvePointIndexList_input);
+	auto Curve_input = Surface.GetPointPosition(CurvePointIndexList_input);
 	auto Curve_output= ResampleOpen3DCurveByCardinalSpline(Curve_input, PointCountOfCurve_output);
-	return ResampleOpenCurveOfSurface(Surface_input, CurvePointIndexList_input, Curve_output);
+	ResampleOpenCurveOfSurface(Surface, CurvePointIndexList_input, Curve_output);
 }
 
 

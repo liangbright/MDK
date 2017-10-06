@@ -41,7 +41,6 @@ TriangleMesh<ScalarType> HandleSpecialCase1_Before_CollapseEdge(const TriangleMe
 				if (Flag == true)
 				{
 					OutputMesh.CollapseEdge(AdjEdgeIndexList[0], H0);
-					break;
 				}
 			}
 		}
@@ -52,8 +51,9 @@ TriangleMesh<ScalarType> HandleSpecialCase1_Before_CollapseEdge(const TriangleMe
 
 void Test1()
 {	
-	TriangleMesh<double> InputMesh;
+	TriangleMesh<double> InputMesh, OutputMesh;
 	LoadPolygonMeshFromVTKFile(InputMesh, "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_ResampleMeshBoundary/TestData/Leaflet.vtk");
+	OutputMesh = InputMesh;
 	/*
 	auto BounaryPointIndexList_all = TraceMeshBoundaryCurve(InputMesh, 0, 34);
 	DenseVector<int_max> BounaryPointIndexList;	
@@ -66,7 +66,7 @@ void Test1()
 		}
 	}
 	*/
-	auto BounaryPointIndexList_all = TraceMeshBoundaryCurve(InputMesh, 1, 19);
+	auto BounaryPointIndexList_all = TraceMeshBoundaryCurve(OutputMesh, 1, 19);
 	DenseVector<int_max> BounaryPointIndexList;
 	for (int_max k = 0; k < BounaryPointIndexList_all.GetLength(); ++k)
 	{
@@ -93,8 +93,9 @@ void Test1()
 		}
 	}
 	*/
-	int_max PointCountOfBounary_output = 1.5*BounaryPointIndexList.GetLength()+1;
-	auto OutputMesh = ResampleOpenCurveOfSurface(InputMesh, BounaryPointIndexList, PointCountOfBounary_output);
+	int_max PointCountOfBounary_output = 1.5*BounaryPointIndexList.GetLength()+1;	
+	ResampleOpenCurveOfSurface(OutputMesh, BounaryPointIndexList, PointCountOfBounary_output);
+	OutputMesh.CleanDataStructure();
 	SavePolygonMeshAsVTKFile(OutputMesh, "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_ResampleMeshBoundary/TestData/Leaflet_out.vtk");
 }
 
@@ -102,8 +103,9 @@ void Test2()
 {
 	TriangleMesh<double> InputMesh, OutputMesh;
 	LoadPolygonMeshFromVTKFile(InputMesh, "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_ResampleMeshBoundary/TestData/LeafletTriangle.vtk");
+	OutputMesh = InputMesh;
 	{
-		auto BounaryPointIndexList_all = TraceMeshBoundaryCurve(InputMesh, 91, 85);
+		auto BounaryPointIndexList_all = TraceMeshBoundaryCurve(OutputMesh, 91, 85);
 		DenseVector<int_max> BounaryPointIndexList;
 		for (int_max k = 0; k < BounaryPointIndexList_all.GetLength(); ++k)
 		{
@@ -114,7 +116,8 @@ void Test2()
 			}
 		}
 		int_max PointCountOfBounary_output = 1.5*BounaryPointIndexList.GetLength() + 1;
-		OutputMesh = ResampleOpenCurveOfSurface(InputMesh, BounaryPointIndexList, PointCountOfBounary_output);
+		ResampleOpenCurveOfSurface(OutputMesh, BounaryPointIndexList, PointCountOfBounary_output);
+		OutputMesh.CleanDataStructure();
 		SavePolygonMeshAsVTKFile(OutputMesh, "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_ResampleMeshBoundary/TestData/LeafletTriangle_out1.vtk");
 	}
 	{
@@ -129,7 +132,8 @@ void Test2()
 			}
 		}
 		int_max PointCountOfBounary_output = 1.5*BounaryPointIndexList.GetLength() + 1;
-		OutputMesh = ResampleOpenCurveOfSurface(OutputMesh, BounaryPointIndexList, PointCountOfBounary_output);
+		ResampleOpenCurveOfSurface(OutputMesh, BounaryPointIndexList, PointCountOfBounary_output);
+		OutputMesh.CleanDataStructure();
 		SavePolygonMeshAsVTKFile(OutputMesh, "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_ResampleMeshBoundary/TestData/LeafletTriangle_out2.vtk");
 	}
 }
@@ -138,11 +142,17 @@ void Test3()
 {
 	TriangleMesh<double> InputMesh, OutputMesh;
 	LoadPolygonMeshFromVTKFile(InputMesh, "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_ResampleMeshBoundary/TestData/LeafletTriangle2.vtk");
-	InputMesh = HandleSpecialCase1_Before_CollapseEdge(InputMesh);
-	SavePolygonMeshAsVTKFile(InputMesh, "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_ResampleMeshBoundary/TestData/LeafletTriangle2_ok.vtk");
-	return;
+	OutputMesh = InputMesh;
+
+	if (OutputMesh.Point(29).IsOnPolygonMeshBoundary() == true)
 	{
-		auto BounaryPointIndexList_all = TraceMeshBoundaryCurve(InputMesh, 30, 39);
+		int aaa = 1;
+	}
+
+	//OutputMesh = HandleSpecialCase1_Before_CollapseEdge(OutputMesh);
+	//SavePolygonMeshAsVTKFile(OutputMesh, "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_ResampleMeshBoundary/TestData/LeafletTriangle2_ok.vtk");
+	{
+		auto BounaryPointIndexList_all = TraceMeshBoundaryCurve(OutputMesh, 30, 39);
 		DenseVector<int_max> BounaryPointIndexList;
 		for (int_max k = 0; k < BounaryPointIndexList_all.GetLength(); ++k)
 		{
@@ -152,8 +162,9 @@ void Test3()
 				break;
 			}
 		}
-		int_max PointCountOfBounary_output = 5;// 1.5*BounaryPointIndexList.GetLength() + 1;
-		OutputMesh = ResampleOpenCurveOfSurface(InputMesh, BounaryPointIndexList, PointCountOfBounary_output);
+		int_max PointCountOfBounary_output = 5;// 1.5*BounaryPointIndexList.GetLength() + 1;		
+		ResampleOpenCurveOfSurface(OutputMesh, BounaryPointIndexList, PointCountOfBounary_output);
+		OutputMesh.CleanDataStructure();
 		SavePolygonMeshAsVTKFile(OutputMesh, "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_ResampleMeshBoundary/TestData/LeafletTriangle2_out1.vtk");
 	}
 	/*
@@ -169,7 +180,8 @@ void Test3()
 			}
 		}
 		int_max PointCountOfBounary_output = 1.5*BounaryPointIndexList.GetLength() + 1;
-		OutputMesh = ResampleOpenCurveOfSurface(OutputMesh, BounaryPointIndexList, PointCountOfBounary_output);
+		ResampleOpenCurveOfSurface(OutputMesh, BounaryPointIndexList, PointCountOfBounary_output);
+		OutputMesh.CleanDataStructure();
 		SavePolygonMeshAsVTKFile(OutputMesh, "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_ResampleMeshBoundary/TestData/LeafletTriangle2_out2.vtk");
 	}
 	*/
@@ -179,6 +191,7 @@ void Test3a()
 {
 	TriangleMesh<double> InputMesh, OutputMesh;
 	LoadPolygonMeshFromVTKFile(InputMesh, "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_ResampleMeshBoundary/TestData/LeafletTriangle3.vtk");
+	OutputMesh = InputMesh;
 	{
 		auto BounaryPointIndexList_all = TraceMeshBoundaryCurve(InputMesh, 7743, 7744);
 		DenseVector<int_max> BounaryPointIndexList;
@@ -191,7 +204,8 @@ void Test3a()
 			}
 		}
 		int_max PointCountOfBounary_output = 10;// 1.5*BounaryPointIndexList.GetLength() + 1;
-		OutputMesh = ResampleOpenCurveOfSurface(InputMesh, BounaryPointIndexList, PointCountOfBounary_output);
+		ResampleOpenCurveOfSurface(OutputMesh, BounaryPointIndexList, PointCountOfBounary_output);
+		OutputMesh.CleanDataStructure();
 		SavePolygonMeshAsVTKFile(OutputMesh, "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_ResampleMeshBoundary/TestData/LeafletTriangle3_out1.vtk");
 	}
 	/*
@@ -207,7 +221,8 @@ void Test3a()
 			}
 		}
 		int_max PointCountOfBounary_output = 1.5*BounaryPointIndexList.GetLength() + 1;
-		OutputMesh = ResampleOpenCurveOfSurface(OutputMesh, BounaryPointIndexList, PointCountOfBounary_output);
+		ResampleOpenCurveOfSurface(OutputMesh, BounaryPointIndexList, PointCountOfBounary_output);
+		OutputMesh.CleanDataStructure();
 		SavePolygonMeshAsVTKFile(OutputMesh, "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_ResampleMeshBoundary/TestData/LeafletTriangle3_out2.vtk");
 	}
 	*/
@@ -219,6 +234,7 @@ void Test3b()
 	String DataPath = "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_ResampleMeshBoundary/TestData/";
 	TriangleMesh<double> InputMesh, OutputMesh;
 	LoadPolygonMeshFromVTKFile(InputMesh, "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_ResampleMeshBoundary/TestData/LeafletTriangle3.vtk");
+	OutputMesh = InputMesh;
 	{
 		DenseVector<int_max> BounaryPointIndexList;
 		DenseMatrix<int_max> temp;
@@ -231,7 +247,8 @@ void Test3b()
 		//BounaryPointIndexList=BounaryPointIndexList.GetSubSet(0, 10);
 		//BounaryPos = BounaryPos.GetSubMatrix(ALL, span(0, 10));
 
-		OutputMesh = ResampleOpenCurveOfSurface(InputMesh, BounaryPointIndexList, 30);
+		ResampleOpenCurveOfSurface(OutputMesh, BounaryPointIndexList, 30);
+		OutputMesh.CleanDataStructure();
 		SavePolygonMeshAsVTKFile(OutputMesh, "C:/Research/MDK/MDK_Build/Test/Test_MeshProcessing/Test_ResampleMeshBoundary/TestData/LeafletTriangle3_BLC_out1.vtk");
 	}
 }

@@ -8,11 +8,11 @@
 
 namespace mdk
 {
+//Surface: data structure may not be clean (input and output)
 template<typename ScalarType>
-TriangleMesh<ScalarType> ResampleOpenCurveOfSurface(const TriangleMesh<ScalarType>& Surface_input, const DenseVector<int_max>& CurvePointIndexList_input, const DenseMatrix<ScalarType>& Curve_output);
-
+void ResampleOpenCurveOfSurface(TriangleMesh<ScalarType>& Surface, const DenseVector<int_max>& CurvePointIndexList_input, const DenseMatrix<ScalarType>& Curve_output);
 template<typename ScalarType>
-TriangleMesh<ScalarType> ResampleOpenCurveOfSurface(const TriangleMesh<ScalarType>& Surface_input, const DenseVector<int_max>& CurvePointIndexList_input, const int_max PointCountOfCurve_output);
+void ResampleOpenCurveOfSurface(TriangleMesh<ScalarType>& Surface, const DenseVector<int_max>& CurvePointIndexList_input, const int_max PointCountOfCurve_output);
 
 //input: Point, Surface
 //output: projected Point_proj and the index FaceIndex_proj on the mesh
