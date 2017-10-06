@@ -96,6 +96,10 @@ public:
 
 	//if Flag_CreateNewFaceIndex is false, then re-use old face index
 	bool FlipEdge(int_max EdgeIndex, bool Flag_CreateNewFaceIndex = false);//only support 2 face sharing an edge
+
+	//split face sharing edge, splitting point is PointIndex (not any point of edge)
+	//output new face index
+	DenseVector<int_max> SplitFaceAtEdge(int_max EdgeIndex12, int_max PointIndex0);
 };
 
 }// namespace mdk

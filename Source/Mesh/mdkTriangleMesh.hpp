@@ -805,7 +805,8 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex01, int_max PointIn
 		this->DeleteEdge(EdgeIndex21);
 		this->DeleteEdge(EdgeIndex23);
 		this->DeletePoint(H2);
-		TempFunction_HandleNormalCase(H3, FaceIndex012);
+		auto FaceIndex013 = this->GetFaceIndexByPoint({H0, H1, H3}); //should no such face, just in case
+		TempFunction_HandleNormalCase(H3, FaceIndex013);
 	};
 	//------------------------------------------------------------------------------------
 	auto TempFunction_HandleSpecialCase2 = [&](int_max H2, int_max FaceIndex012)
@@ -1069,6 +1070,88 @@ bool TriangleMesh<ScalarType>::FlipEdge(int_max EdgeIndex, bool Flag_CreateNewFa
 	{
 		return false;
 	}
+}
+
+
+template<typename ScalarType>
+DenseVector<int_max> TriangleMesh<ScalarType>::SplitFaceAtEdge(int_max EdgeIndex12, int_max PointIndex0)
+{
+//one/two/more face share Edge12
+//split Edge12 at Point0
+//       3             3
+//      / \           /|\ 
+//    1/_0_\2  =>   1/_0_\2
+//     \   /         \ | /
+//      \ /           \|/
+//       4             4
+//-------------------------------
+//operator on each face 
+//       3             3
+//      / \           /|\ 
+//    1/_0_\2  =>   1/_0_\2
+//point order 1->2->3 in Face012
+//------------------------------
+
+	DenseVector<int_max> FaceIndexList_output;
+
+	if (this->IsValidEdgeIndex(EdgeIndex12) == false)
+	{
+		MDK_Error("Invalid EdgeIndex12 @ TriangleMesh::SplitFaceAtEdge(...)")
+		return FaceIndexList_output;
+	}
+
+	if (this->IsValidPointIndex(PointIndex0) == false)
+	{
+		MDK_Error("Invalid PointIndex0 @ TriangleMesh::SplitFaceAtEdge(...)")
+		return FaceIndexList_output;
+	}
+
+	auto PointIndexList_Edge12 = this->Edge(EdgeIndex12).GetPointIndexList();
+	if (PointIndexList_Edge12[0] == PointIndex0 || PointIndexList_Edge12[1] == PointIndex0)
+	{
+		MDK_Error("Input Edge contain Input Point @ TriangleMesh::SplitFaceAtEdge(...)")
+		return FaceIndexList_output;
+	}
+
+	auto AdjFaceIndexList_Edge12 = this->Edge(EdgeIndex12).GetAdjacentFaceIndexList();
+	for (int_max k = 0; k < AdjFaceIndexList_Edge12.GetLength(); ++k)
+	{
+		auto FaceIndex123 = AdjFaceIndexList_Edge12[k];
+		auto H0 = PointIndex0;		
+		int_max H1 = -1;
+		int_max H2 = -1;
+		auto PointIndexList_Face123 = this->Face(FaceIndex123).GetPointIndexList_LeadBy(PointIndexList_Edge12[0]);
+		if (PointIndexList_Face123[1] == PointIndexList_Edge12[1])
+		{
+			H1 = PointIndexList_Edge12[0];
+			H2 = PointIndexList_Edge12[1];
+		}
+		else
+		{
+			H1 = PointIndexList_Edge12[1];
+			H2 = PointIndexList_Edge12[0];
+		}
+		int_max H3 = -1;
+		if (PointIndexList_Face123[0] != H1 && PointIndexList_Face123[0] != H2)
+		{
+			H3 = PointIndexList_Face123[0];
+		}
+		else if (PointIndexList_Face123[1] != H1 && PointIndexList_Face123[1] != H2)
+		{
+			H3 = PointIndexList_Face123[1];
+		}
+		else
+		{
+			H3 = PointIndexList_Face123[2];
+		}		
+		this->DeleteFace(FaceIndex123);
+		auto FaceIndex103 = this->AddFaceByPoint(H1, H0, H3);
+		auto FaceIndex023 = this->AddFaceByPoint(H0, H2, H3);
+		FaceIndexList_output.Append(FaceIndex103);
+		FaceIndexList_output.Append(FaceIndex023);
+	}
+	this->DeleteEdge(EdgeIndex12);
+	return FaceIndexList_output;
 }
 
 }// namespace mdk
