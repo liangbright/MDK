@@ -29,14 +29,18 @@ DenseVector<ScalarType, 3> ProjectPointToSurface(const DenseVector<ScalarType, 3
 template<typename ScalarType>
 void ProjectPointToSurface(const DenseMatrix<ScalarType>& PointSet, const TriangleMesh<ScalarType>& Surface, DenseMatrix<ScalarType>& PointSet_proj, DenseVector<int_max>& FaceIndexList_proj);
 
-//input: same as above 
 //return: PointSet_proj
 template<typename ScalarType>
 DenseMatrix<ScalarType> ProjectPointToSurface(const DenseMatrix<ScalarType>& PointSet, const TriangleMesh<ScalarType>& Surface);
 
+//project a point to the surface, then add the projected point to surface
 //return: PointIndex on modified Surface
 template<typename ScalarType>
 int_max Project_Add_Point_to_Surface(TriangleMesh<ScalarType>& Surface, const DenseVector<ScalarType, 3>& Point);
+
+//add an input point to surface
+template<typename ScalarType>
+int_max AddPointToSurfaceByProjection(TriangleMesh<ScalarType>& Surface, const DenseVector<ScalarType, 3>& Point);
 
 }//namespace mdk
 

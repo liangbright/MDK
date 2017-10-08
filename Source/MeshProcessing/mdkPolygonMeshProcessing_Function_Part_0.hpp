@@ -275,6 +275,67 @@ int_max FindNearestPointOnMesh(const PolygonMesh<ScalarType>& InputMesh, const D
 
 
 template<typename ScalarType>
+int_max FindNearestPointOnMeshByVTKPointLocator(const PolygonMesh<ScalarType>& InputMesh, const DenseVector<ScalarType, 3>& PointPosition)
+{
+	if (InputMesh.Check_If_DataStructure_is_Clean() == false)
+	{
+		MDK_Error("InputMesh DataStructure is NOT clean @ mdkPolygonMeshProcessing FindNearestPointOnMeshByVTKPointLocator(...)")
+		return -1;
+	}
+	auto PointCountOfMesh = InputMesh.GetPointCount();
+	auto VTKMesh = ConvertMDKPolygonMeshToVTKPolyData(InputMesh);
+	auto PointLocator = vtkSmartPointer<vtkPointLocator>::New();
+	PointLocator->SetDataSet(pointSource->GetOutput());
+	PointLocator->AutomaticOn();
+	PointLocator->SetNumberOfPointsPerBucket(std::max(int_max(2), PointCountOfMesh / 10));
+	PointLocator->BuildLocator();
+	auto TempMesh = vtkSmartPointer<vtkPolyData>::New();
+	PointLocator->GenerateRepresentation(pointLocator->GetLevel(), TempMesh);
+	double Pos[3];
+	Pos[0] = double(PointPosition[0]);
+	Pos[1] = double(PointPosition[1]);
+	Pos[2] = double(PointPosition[2]);
+	auto PointIndex = int_max(PointLocator->FindClosestPoint(Pos));	
+	return PointIndex;
+}
+
+
+template<typename ScalarType>
+DenseVector<int_max> FindNearestPointOnMeshByVTKPointLocator(const PolygonMesh<ScalarType>& InputMesh, const DenseMatrix<ScalarType>& PointSet)
+{
+	DenseVector<int_max> PointIndexList_output;
+	if (InputMesh.Check_If_DataStructure_is_Clean() == false)
+	{
+		MDK_Error("InputMesh DataStructure is NOT clean @ mdkPolygonMeshProcessing FindNearestPointOnMeshByVTKPointLocator(...)")
+		return PointIndexList_output;
+	}
+	if (PointSet.GetRowCount() != 3)
+	{
+		MDK_Error("Input PointSet is invalid @ mdkPolygonMeshProcessing FindNearestPointOnMeshByVTKPointLocator(...)")
+		return PointIndexList_output;
+	}
+	auto PointCountOfMesh = InputMesh.GetPointCount();
+	auto VTKMesh = ConvertMDKPolygonMeshToVTKPolyData(InputMesh);
+	auto PointLocator =	vtkSmartPointer<vtkPointLocator>::New();
+	PointLocator->SetDataSet(pointSource->GetOutput());
+	PointLocator->AutomaticOn();
+	PointLocator->SetNumberOfPointsPerBucket((std::max)(int_max(2), PointCountOfMesh/10));
+	PointLocator->BuildLocator();	
+	auto TempMesh = vtkSmartPointer<vtkPolyData>::New();
+	PointLocator->GenerateRepresentation(pointLocator->GetLevel(), TempMesh);	
+	for (int_max k = 0; k < PointSet.GetColCount(); ++k)
+	{
+		double Pos[3];
+		Pos[0] = double(PointSet(0, k));
+		Pos[1] = double(PointSet(1, k));
+		Pos[2] = double(PointSet(2, k));
+		auto Index = int_max(PointLocator->FindClosestPoint(Pos));
+		PointIndexList_output.Append(Index);
+	}
+	return PointIndexList_output;
+}
+
+template<typename ScalarType>
 PolygonMesh<ScalarType> SmoothMeshByVTKSmoothPolyDataFilter(const PolygonMesh<ScalarType>& InputMesh, int_max Iter, bool Flag_FeatureEdgeSmoothing, bool Flag_BoundarySmoothing)
 {
 	if (InputMesh.Check_If_DataStructure_is_Clean() == false)

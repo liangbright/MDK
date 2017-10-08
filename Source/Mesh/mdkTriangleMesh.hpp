@@ -792,18 +792,24 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex01, int_max PointIn
 	//   0     1       0(2)   1        0(2,1)
 	// delete Face012, Face023, Face132, Edge20, Edge21, Edge23, Point2
 	// then it will be a normla case
-	//------------------------------------------------------------------
-		auto FaceIndex023 = this->GetFaceIndexByPoint({H0, H2, H3});
-		auto FaceIndex132 = this->GetFaceIndexByPoint({H1, H3, H2});
-		auto EdgeIndex20 = this->GetEdgeIndexByPoint(H2, H0);
-		auto EdgeIndex21 = this->GetEdgeIndexByPoint(H2, H1);
-		auto EdgeIndex23 = this->GetEdgeIndexByPoint(H2, H3);
-		this->DeleteFace(FaceIndex012);
-		this->DeleteFace(FaceIndex023);
-		this->DeleteFace(FaceIndex132);
-		this->DeleteEdge(EdgeIndex20);
-		this->DeleteEdge(EdgeIndex21);
-		this->DeleteEdge(EdgeIndex23);
+	//------------------------------------------------------------------		
+		//auto FaceIndex023 = this->GetFaceIndexByPoint({H0, H2, H3});
+		//auto FaceIndex132 = this->GetFaceIndexByPoint({H1, H3, H2});
+		//auto EdgeIndex20 = this->GetEdgeIndexByPoint(H2, H0);
+		//auto EdgeIndex21 = this->GetEdgeIndexByPoint(H2, H1);
+		//auto EdgeIndex23 = this->GetEdgeIndexByPoint(H2, H3);
+		//this->DeleteFace(FaceIndex012);
+		//this->DeleteFace(FaceIndex023);
+		//this->DeleteFace(FaceIndex132);
+		//this->DeleteEdge(EdgeIndex20);
+		//this->DeleteEdge(EdgeIndex21);
+		//this->DeleteEdge(EdgeIndex23);
+		//simplify -------------------------------------------------------
+		auto AdjFaceIndex_H2 = this->Point(H2).GetAdjacentFaceIndexList();
+		auto AdjEdgeIndex_H2 = this->Point(H2).GetAdjacentEdgeIndexList();
+		this->DeleteFace(AdjFaceIndex_H2);
+		this->DeleteEdge(AdjEdgeIndex_H2);
+		//---------------------------------------------------------------
 		this->DeletePoint(H2);
 		auto FaceIndex013 = this->GetFaceIndexByPoint({H0, H1, H3}); //should no such face, just in case
 		TempFunction_HandleNormalCase(H3, FaceIndex013);
@@ -919,6 +925,16 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex01, int_max PointIn
 			MDK_Error("Special Case-2 is detected, Flag_HandleSpecialCase is false, abort @ TriangleMesh::CollapseEdge(...)")
 			return false;
 		}
+
+		//only handle normal case
+		for (int_max n = 0; n < H2_PointIndexList.GetLength(); ++n)
+		{
+			int_max H2 = H2_PointIndexList[n];
+			int_max FaceIndex012 = AdjFaceIndexList_Edge01[n];
+			TempFunction_HandleNormalCase(H2, FaceIndex012);
+		}
+		TempFunction_End();
+		return true;
 	}
 
 	//now: Flag_HandleSpecialCase is true -------------------------------------------------------------------	

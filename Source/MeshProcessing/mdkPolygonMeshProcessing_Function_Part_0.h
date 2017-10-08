@@ -6,6 +6,7 @@
 #include "vtkClipPolyData.h"
 #include "vtkCleanPolyData.h"
 #include "vtkDijkstraGraphGeodesicPath.h"
+#include "vtkPointLocator.h"
 
 namespace mdk
 {
@@ -22,6 +23,12 @@ ObjectArray<DenseVector<int_max>> TraceMeshBoundaryCurve(const PolygonMesh<Scala
 
 template<typename ScalarType>
 int_max FindNearestPointOnMesh(const PolygonMesh<ScalarType>& InputMesh,  const DenseVector<ScalarType, 3>& PointPosition);
+
+template<typename ScalarType>
+int_max FindNearestPointOnMeshByVTKPointLocator(const PolygonMesh<ScalarType>& InputMesh, const DenseVector<ScalarType, 3>& PointPosition);
+
+template<typename ScalarType>
+DenseVector<int_max> FindNearestPointOnMeshByVTKPointLocator(const PolygonMesh<ScalarType>& InputMesh, const DenseMatrix<ScalarType>& PointSet);
 
 template<typename ScalarType>
 PolygonMesh<ScalarType> SmoothMeshByVTKSmoothPolyDataFilter(const PolygonMesh<ScalarType>& InputMesh, int_max Iter, bool Flag_FeatureEdgeSmoothing = true, bool Flag_BoundarySmoothing = true);

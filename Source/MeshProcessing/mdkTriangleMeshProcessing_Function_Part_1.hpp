@@ -337,8 +337,7 @@ int_max Project_Add_Point_to_Surface(TriangleMesh<ScalarType>& Surface, const De
 		auto dist_min = DistToPoint.Min();
 		if (dist_min < DistThreshold)
 		{
-			auto PointIndex_ref = PointIndexList[DistToPoint.IndexOfMin()];
-			Surface.SetPointPosition(PointIndex_ref, Point);
+			auto PointIndex_ref = PointIndexList[DistToPoint.IndexOfMin()];			
 			return PointIndex_ref;
 		}
 	}
@@ -347,7 +346,7 @@ int_max Project_Add_Point_to_Surface(TriangleMesh<ScalarType>& Surface, const De
 	auto H0 = PointIndexList[0];
 	auto H1 = PointIndexList[1];
 	auto H2 = PointIndexList[2];
-	auto H3 = Surface.AddPoint(Point);
+	auto H3 = Surface.AddPoint(Point_proj);
 	//-----------------
 	//     2 
 	//     3      
@@ -362,7 +361,7 @@ int_max Project_Add_Point_to_Surface(TriangleMesh<ScalarType>& Surface, const De
 	auto P3 = Surface.GetPointPosition(H3);
 	auto FaceNormal = ComputeTriangleNormalIn3D(P0, P1, P2);
 	auto EPS = std::numeric_limits<ScalarType>::epsilon();
-	/*
+	///*
 	for (int_max n = 0; n < 3; ++n)
 	{
 		int_max Ha, Hb, Hc;
@@ -452,7 +451,7 @@ int_max Project_Add_Point_to_Surface(TriangleMesh<ScalarType>& Surface, const De
 			return H3;
 		}
 	}
-	*/
+	//*/
 	{// inside
 		//-----------------
 		//     2 
@@ -465,6 +464,14 @@ int_max Project_Add_Point_to_Surface(TriangleMesh<ScalarType>& Surface, const De
 		Surface.AddFaceByPoint({ H3, H1, H2 });
 		return H3;
 	}
+}
+
+template<typename ScalarType>
+int_max AddPointToSurfaceByProjection(TriangleMesh<ScalarType>& Surface, const DenseVector<ScalarType, 3>& Point)
+{
+	auto PointIndex = Project_Add_Point_to_Surface(Surface, Point);
+	Surface.SetPointPosition(PointIndex, Point);
+	return PointIndex;
 }
 
 
