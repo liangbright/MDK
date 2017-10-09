@@ -22,10 +22,16 @@ template<typename ScalarType>
 ObjectArray<DenseVector<int_max>> TraceMeshBoundaryCurve(const PolygonMesh<ScalarType>& InputMesh);
 
 template<typename ScalarType>
-int_max FindNearestPointOnMesh(const PolygonMesh<ScalarType>& InputMesh,  const DenseVector<ScalarType, 3>& PointPosition);
+int_max FindNearestPointOnMesh(const PolygonMesh<ScalarType>& InputMesh, const DenseVector<ScalarType, 3>& PointPosition);
+
+template<typename ScalarType>
+int_max FindNearestPointOnMeshByVTKPointLocator(vtkPolyData* InputMesh_vtk, const DenseVector<ScalarType, 3>& PointPosition);
 
 template<typename ScalarType>
 int_max FindNearestPointOnMeshByVTKPointLocator(const PolygonMesh<ScalarType>& InputMesh, const DenseVector<ScalarType, 3>& PointPosition);
+
+template<typename ScalarType>
+DenseVector<int_max> FindNearestPointOnMeshByVTKPointLocator(vtkPolyData* InputMesh_vtk, const DenseMatrix<ScalarType>& PointSet);
 
 template<typename ScalarType>
 DenseVector<int_max> FindNearestPointOnMeshByVTKPointLocator(const PolygonMesh<ScalarType>& InputMesh, const DenseMatrix<ScalarType>& PointSet);

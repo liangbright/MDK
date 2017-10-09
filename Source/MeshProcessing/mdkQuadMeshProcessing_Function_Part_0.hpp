@@ -124,7 +124,7 @@ PolygonMesh<ScalarType> SubdivideQuadMesh_Linear(const PolygonMesh<ScalarType>& 
 template<typename ScalarType>
 TriangleMesh<ScalarType> ConvertQuadMeshToTriangleMesh(const PolygonMesh<ScalarType>& InputMesh, const std::string& Method)
 {
-	return ConvertMixedTriangleQuadMeshToTriangleMesh(InputMesh);
+	return ConvertMixedTriangleQuadMeshToTriangleMesh(InputMesh, Method);
 }
 
 template<typename ScalarType>
