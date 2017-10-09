@@ -442,21 +442,29 @@ PolygonMesh<ScalarType> SmoothMeshByVTKWindowedSincPolyDataFilter(const PolygonM
 
 template<typename ScalarType>
 DenseVector<int_max> SegmentMeshByEdgeCurve(const PolygonMesh<ScalarType>& InputMesh, const DenseVector<int_max>& ClosedEdgeCurve_EdgeIndexList, const int_max FaceIndex_seed)
-{
+{// InputMesh DataStructure does not need to be clean
 	if (InputMesh.IsEmpty() == true || ClosedEdgeCurve_EdgeIndexList.IsEmpty() == true)
 	{
 		DenseVector<int_max> EmptyList;
 		return EmptyList;
 	}
 
-	if (InputMesh.Check_If_DataStructure_is_Clean() == false)
-	{// InputMesh DataStructure does not need to be clean
-		//MDK_Warning("InputMesh DataStructure is NOT clean @ mdkPolygonMeshProcessing SegmentMeshByEdgeCurve(...)")
+	DenseVector<int> FaceFlagList;
+	//-1: deleted face
+	//0: initial state
+	//1: the same group as FaceIndex_seed
+	FaceFlagList.Resize(InputMesh.GetMaxValueOfFaceIndex());
+	for (int_max k = 0; k < FaceFlagList.GetLength(); ++k)
+	{
+		if (InputMesh.IsValidFaceIndex(k) == true)
+		{
+			FaceFlagList[k] = 0;
+		}
+		else
+		{
+			FaceFlagList[k] = -1;
+		}
 	}
-
-	DenseVector<int> FaceFlagList;//1: the same group as FaceIndex_seed
-	FaceFlagList.Resize(InputMesh.GetFaceCount());
-	FaceFlagList.Fill(0);
 	FaceFlagList[FaceIndex_seed] = 1;
 
 	DenseVector<int_max> FaceIndexList_front;
@@ -520,12 +528,27 @@ DenseVector<DenseVector<int_max>> SegmentMeshByEdgeCurve(const PolygonMesh<Scala
 	}
 
 	DenseVector<int_max> FaceFlagList;
-	FaceFlagList.Resize(InputMesh.GetFaceCount());
-	FaceFlagList.Fill(0);
-	int_max FaceIndex_seed = 0;	
-	while (true)
+	FaceFlagList.Resize(InputMesh.GetMaxValueOfFaceIndex());
+	//-1: deleted face
+	//0: initial state
+	//1: segmented
+	FaceFlagList.Resize(InputMesh.GetMaxValueOfFaceIndex());
+	int_max FaceIndex_seed = -1;
+	for (int_max k = 0; k < FaceFlagList.GetLength(); ++k)
 	{
-		FaceFlagList[FaceIndex_seed] = 1;
+		if (InputMesh.IsValidFaceIndex(k) == true)
+		{
+			FaceFlagList[k] = 0;
+			FaceIndex_seed = k;
+		}
+		else
+		{
+			FaceFlagList[k] = -1;
+		}
+	}
+	
+	while (true)
+	{		
 		auto FastIndexList_temp = SegmentMeshByEdgeCurve(InputMesh, ClosedEdgeCurve_EdgeIndexList, FaceIndex_seed);
 		FastIndexList_output.Append(FastIndexList_temp);
 		for (int_max k = 0; k < FastIndexList_temp.GetLength(); ++k)

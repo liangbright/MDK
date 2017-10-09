@@ -908,7 +908,7 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex01, int_max PointIn
 		for (int_max n = 0; n < H2_PointIndexList.GetLength(); ++n)
 		{
 			int_max H2 = H2_PointIndexList[n];
-			if (this->Point(H2).IsOnPolygonMeshBoundary() == true)
+			if (this->Point(H2).IsOnPolygonMeshBoundary() == true && this->Point(H2).GetAdjacentEdgeCount() == 2)
 			{
 				int_max EdgeIndex20 = this->GetEdgeIndexByPoint(H2, H0);
 				int_max EdgeIndex21 = this->GetEdgeIndexByPoint(H2, H1);
@@ -956,7 +956,7 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex01, int_max PointIn
 		}
 		if (Flag_SpecialCase == false)
 		{
-			if (this->Point(H2).IsOnPolygonMeshBoundary() == true)
+			if (this->Point(H2).IsOnPolygonMeshBoundary() == true && this->Point(H2).GetAdjacentEdgeCount() == 2)
 			{
 				int_max EdgeIndex20 = this->GetEdgeIndexByPoint(H2, H0);
 				int_max EdgeIndex21 = this->GetEdgeIndexByPoint(H2, H1);

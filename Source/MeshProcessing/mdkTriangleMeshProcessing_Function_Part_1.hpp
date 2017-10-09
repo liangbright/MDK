@@ -125,11 +125,15 @@ DenseVector<int_max> ResampleOpenCurveOfSurface(TriangleMesh<ScalarType>& Surfac
 
 	//split input edge and add new face
 	for (int_max k = 0; k < PointIndexList_PerInputEdge.GetLength(); ++k)
-	{   //--------------
-		//    2 
-		// /    \
-		// 0-----1		
-		//-------------
+	{   //----------------------
+		//InputEdge01
+		//----------------------
+		//    2            2
+		//  /   \    or  /   \
+		// 0-----1	    0-----1   
+		//               \   /
+		//                 3
+		//---------------------
 		if (PointIndexList_PerInputEdge[k].GetLength() > 2)
 		{
 			auto PointIndexList_k = PointIndexList_PerInputEdge[k];
@@ -137,29 +141,34 @@ DenseVector<int_max> ResampleOpenCurveOfSurface(TriangleMesh<ScalarType>& Surfac
 			auto H1 = PointIndexList_k[PointIndexList_k.GetLength() - 1];
 			auto EdgeIndex01 = Surface.GetEdgeIndexByPoint(H0, H1);
 			auto tempFaceIndexList = Surface.Edge(EdgeIndex01).GetAdjacentFaceIndexList();
-			auto FaceIndex_k = tempFaceIndexList[0];
-			auto PointIndexListOfFace = Surface.Face(FaceIndex_k).GetPointIndexList();//only one face because it is an edge
-			int_max H2 = -1;
-			if (PointIndexListOfFace[0] != H0 && PointIndexListOfFace[0] != H1)
+			for (int_max m = 0; m < tempFaceIndexList.GetLength(); ++m)
 			{
-				H2 = PointIndexListOfFace[0];
+				auto FaceIndex_km = tempFaceIndexList[m];
+				auto PointIndexListOfFace = Surface.Face(FaceIndex_km).GetPointIndexList_LeadBy(H0);
+				int_max H2 = -1;//H2 or H3
+				if (PointIndexListOfFace[1] != H1)
+				{
+					H2 = PointIndexListOfFace[1];
+				}
+				else
+				{
+					H2 = PointIndexListOfFace[2];
+				}
+				Surface.DeleteFace(FaceIndex_km);
+				//add new face
+				for (int_max n = 0; n < PointIndexList_k.GetLength() - 1; ++n)
+				{
+					if (PointIndexListOfFace[1] == H1)
+					{
+						Surface.AddFaceByPoint(PointIndexList_k[n], PointIndexList_k[n + 1], H2);
+					}
+					else
+					{
+						Surface.AddFaceByPoint(PointIndexList_k[n + 1], PointIndexList_k[n], H2);
+					}
+				}
 			}
-			else if (PointIndexListOfFace[1] != H0 && PointIndexListOfFace[1] != H1)
-			{
-				H2 = PointIndexListOfFace[1];
-			}
-			else
-			{
-				H2 = PointIndexListOfFace[2];
-			}
-
-			Surface.DeleteFace(FaceIndex_k);
-			Surface.DeleteEdge(EdgeIndex01);
-			//add new face
-			for (int_max n = 0; n < PointIndexList_k.GetLength() - 1; ++n)
-			{
-				Surface.AddFaceByPoint(PointIndexList_k[n], PointIndexList_k[n + 1], H2);
-			}
+			Surface.DeleteEdge(EdgeIndex01);			
 		}
 	}
 
