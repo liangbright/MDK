@@ -92,7 +92,7 @@ public:
 	bool CollapseEdge(int_max EdgeIndex01, int_max PointIndex0, bool Flag_HandleSpecialCase1 = false, bool Flag_HandleSpecialCase2 = false);
 
 	//if Flag_CreateNewFaceIndex is false, then re-use old face index
-	bool FlipEdge(int_max EdgeIndex, bool Flag_CreateNewFaceIndex = false);//only support 2 face sharing an edge
+	bool FlipEdge(int_max EdgeIndex01, bool Flag_CreateNewFaceIndex = false);//only support 2 face sharing an edge
 
 	//split face sharing edge, splitting point is PointIndex (not any point of edge)
 	//output new face index

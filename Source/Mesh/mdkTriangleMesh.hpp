@@ -661,12 +661,12 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex01, int_max PointIn
 {
 	if (this->IsValidEdgeIndex(EdgeIndex01) == false)
 	{
-		MDK_Error("Invalid EdgeIndex @ TriangleMesh::CollapseEdge(...)")
+		MDK_Error("Invalid EdgeIndex01 @ TriangleMesh::CollapseEdge(...)")
 		return false;
 	}
 	if (this->IsValidPointIndex(PointIndex0) == false)
 	{
-		MDK_Error("Invalid PointIndex @ TriangleMesh::CollapseEdge(...)")
+		MDK_Error("Invalid PointIndex0 @ TriangleMesh::CollapseEdge(...)")
 		return false;
 	}
 	auto PointIndexList_Edge01 = this->Edge(EdgeIndex01).GetPointIndexList();
@@ -1017,11 +1017,11 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex01, int_max PointIn
 
 
 template<typename ScalarType>
-bool TriangleMesh<ScalarType>::FlipEdge(int_max EdgeIndex, bool Flag_CreateNewFaceIndex)
+bool TriangleMesh<ScalarType>::FlipEdge(int_max EdgeIndex01, bool Flag_CreateNewFaceIndex)
 {//only support 2 triangle face sharing an endge
-	if (this->IsValidEdgeIndex(EdgeIndex) == false)
+	if (this->IsValidEdgeIndex(EdgeIndex01) == false)
 	{
-		MDK_Error("Invalid EdgeIndex @ TriangleMesh::FlipEdge(...)")
+		MDK_Error("Invalid EdgeIndex01 @ TriangleMesh::FlipEdge(...)")
 		return false;
 	}
 	//--------------------
@@ -1047,11 +1047,11 @@ bool TriangleMesh<ScalarType>::FlipEdge(int_max EdgeIndex, bool Flag_CreateNewFa
 	// Edge has less/more than 2 adj face (e.g. on boundary)
 	//---------------------
 
-	auto PointIndexList01 = this->Edge(EdgeIndex).GetPointIndexList();
+	auto PointIndexList01 = this->Edge(EdgeIndex01).GetPointIndexList();
 	int_max H0 = PointIndexList01[0];
 	int_max H1 = PointIndexList01[1];
 	//check special case 2
-	auto FaceIndexListAB = this->Edge(EdgeIndex).GetAdjacentFaceIndexList();
+	auto FaceIndexListAB = this->Edge(EdgeIndex01).GetAdjacentFaceIndexList();
 	if (FaceIndexListAB.GetLength() != 2)
 	{
 		MDK_Error("AdjacentFaceCount is not 2 @ TriangleMesh::FlipEdge(...)")
@@ -1107,8 +1107,8 @@ bool TriangleMesh<ScalarType>::FlipEdge(int_max EdgeIndex, bool Flag_CreateNewFa
 	{
 		this->DeleteFace(FaceIndexA);
 		this->DeleteFace(FaceIndexB);
-		this->DeleteEdge(EdgeIndex);
-		this->AddEdge(H2, H3, EdgeIndex);
+		this->DeleteEdge(EdgeIndex01);
+		this->AddEdge(H2, H3, EdgeIndex01);
 		if (Flag_CreateNewFaceIndex == false)
 		{
 			this->AddFaceByPoint({ H0, H3, H2 }, FaceIndexA);
