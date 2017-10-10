@@ -89,10 +89,7 @@ public:
 	//-------------------------- mesh editing --------------------------------//
 
 	//collapse an edge (EdgeIndex) to a point (PointIndex) of the edge
-	//if Flag_HandleSpecialCase is false, return false if special case-1 or case-2 is detected
-	//if Flag_HandleSpecialCase is true, then special case-1 and case-2 are handled
-	//modify the mesh to remove special case-1 and case-2
-	bool CollapseEdge(int_max EdgeIndex01, int_max PointIndex0, bool Flag_HandleSpecialCase = false);
+	bool CollapseEdge(int_max EdgeIndex01, int_max PointIndex0, bool Flag_HandleSpecialCase1 = false, bool Flag_HandleSpecialCase2 = false);
 
 	//if Flag_CreateNewFaceIndex is false, then re-use old face index
 	bool FlipEdge(int_max EdgeIndex, bool Flag_CreateNewFaceIndex = false);//only support 2 face sharing an edge

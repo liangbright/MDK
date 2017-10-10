@@ -108,7 +108,10 @@ ScalarType ComputeAngleBetweenTwoVectorIn3D(const ScalarType* VectorA, const Sca
     if (L2Norm_A > eps_value && L2Norm_B > eps_value)
     {
         auto CosTheta = (VectorA[0] * VectorB[0] + VectorA[1] * VectorB[1] + VectorA[2] * VectorB[2]) / (L2Norm_A*L2Norm_B);
-        return std::acos(CosTheta); // [0, pi], acos(-1) = pi
+		CosTheta = (std::max)(CosTheta, ScalarType(-1));
+		CosTheta = (std::min)(CosTheta, ScalarType(1));
+        auto Theta= std::acos(CosTheta); // [0, pi], acos(-1) = pi
+		return Theta;
     }
     else
     {

@@ -61,7 +61,7 @@ DenseVector<int_max> TraceMeshBoundaryCurve(const PolygonMesh<ScalarType>& Input
 
     if (BoundaryEdgeCountOfInputMesh <= 0)
     {
-        MDK_Error("BoundaryEdgeCountOfInputMesh  <= 0 @ mdkPolygonMeshProcessing TraceMeshBoundaryCurve(...)")
+        MDK_Error("BoundaryEdgeCountOfInputMesh <= 0 @ mdkPolygonMeshProcessing TraceMeshBoundaryCurve(...)")
         return PointIndexListOfBoundaryCurve;
     }
 
