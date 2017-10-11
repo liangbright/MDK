@@ -809,10 +809,11 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex01, int_max PointIn
 	//------------------------------------------------------------------------------------
 	auto TempFunction_FindNeighborChain = [&](int_max H, const DenseVector<int_max>& PointIndexSet)
 	{
-		auto H_start = TempFunction_FindNeighborPoint(H, PointIndexSet);
-		int_max H_pre = H;
-		int_max H_next = H_start;
 		DenseVector<int_max> Chain;
+		auto H_start = TempFunction_FindNeighborPoint(H, PointIndexSet);
+		Chain.Append(H_start);
+		int_max H_pre = H;
+		int_max H_next = H_start;		
 		for (int_max n = 0; n < PointIndexSet.GetLength(); ++n)
 		{
 			auto Hn = TempFunction_FindNeighborPoint(H_next, PointIndexSet);
