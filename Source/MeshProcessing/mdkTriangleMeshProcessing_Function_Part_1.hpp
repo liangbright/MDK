@@ -15,25 +15,25 @@ DenseVector<int_max> ResampleOpenCurveOfSurface(TriangleMesh<ScalarType>& Surfac
 	//------------------- check input ----------------------------------------//
 	if (CurvePointIndexList_input.GetLength() < 3)
 	{
-		MDK_Error("CurvePointIndexList_input.GetLength() < 3, abort @ ResampleOpenCurveOfSurface(...)")		
+		MDK_Error("CurvePointIndexList_input.GetLength() < 3, abort @ TriangMeshProcessing ResampleOpenCurveOfSurface(...)")		
 		return CurvePointIndexList_output;
 	}
 	for (int_max k = 0; k < CurvePointIndexList_input.GetLength(); ++k)
 	{
 		if (Surface.IsValidPointIndex(CurvePointIndexList_input[k]) == false)
 		{
-			MDK_Error("CurvePointIndexList_input is invalid, abort @ ResampleOpenCurveOfSurface(...)")			
+			MDK_Error("CurvePointIndexList_input is invalid, abort @ TriangMeshProcessing ResampleOpenCurveOfSurface(...)")			
 			return CurvePointIndexList_output;
 		}
 	}
 	if (CurvePointIndexList_input[0] == CurvePointIndexList_input[CurvePointIndexList_input.GetLength() - 1])
 	{
-		MDK_Error("CurvePointIndexList_input is a closed curve, abort @ ResampleOpenCurveOfSurface(...)")		
+		MDK_Error("CurvePointIndexList_input is a closed curve, abort @ TriangMeshProcessing ResampleOpenCurveOfSurface(...)")		
 		return CurvePointIndexList_output;
 	}
 	if (Curve_output.GetColCount() < 3)
 	{
-		MDK_Error("Curve_output.GetColCount() < 3, abort @ ResampleOpenCurveOfSurface(...)")		
+		MDK_Error("Curve_output.GetColCount() < 3, abort @ TriangMeshProcessing ResampleOpenCurveOfSurface(...)")		
 		return CurvePointIndexList_output;
 	}
 	//-------------------- input check done ------------------------------------//
@@ -116,7 +116,7 @@ DenseVector<int_max> ResampleOpenCurveOfSurface(TriangleMesh<ScalarType>& Surfac
 			}
 			else if (Index_b == Index_a)
 			{
-				MDK_Error("Somthing is wrong, abort @ ResampleOpenCurveOfSurface(...)")				
+				MDK_Error("Somthing is wrong, abort @ TriangMeshProcessing ResampleOpenCurveOfSurface(...)")				
 				return CurvePointIndexList_output;
 			}
 			Index_a = Index_b;
@@ -186,7 +186,7 @@ DenseVector<int_max> ResampleOpenCurveOfSurface(TriangleMesh<ScalarType>& Surfac
 				auto Flag = Surface.CollapseEdge(EdgeIndex_n0, H0, true, true);
 				if (Flag == false)
 				{
-					MDK_Error("Please modify the mesh to remove special case, abort @ ResampleOpenCurveOfSurface(...)")
+					MDK_Error("Please modify the mesh to remove special case, abort @ TriangMeshProcessing ResampleOpenCurveOfSurface(...)")
 					return CurvePointIndexList_output;
 				}
 			}
@@ -204,7 +204,7 @@ DenseVector<int_max> ResampleOpenCurveOfSurface(TriangleMesh<ScalarType>& Surfac
 	//PointCountOfCurve_output is the target		
 	if (PointCountOfCurve_output < 3)
 	{
-		MDK_Error("PointCountOfCurve_output < 3, abort @ ResampleOpenCurveOfSurface(...)")
+		MDK_Error("PointCountOfCurve_output < 3, abort @ TriangMeshProcessing ResampleOpenCurveOfSurface(...)")
 		DenseVector<int_max> EmptyList;
 		return EmptyList;
 	}
@@ -215,19 +215,18 @@ DenseVector<int_max> ResampleOpenCurveOfSurface(TriangleMesh<ScalarType>& Surfac
 
 
 template<typename ScalarType>
-void ProjectPointToSurface(const DenseVector<ScalarType, 3>& Point, const TriangleMesh<ScalarType>& Surface, DenseVector<ScalarType, 3>& Point_proj, int_max& FaceIndex_proj)
+DenseVector<ScalarType, 3> ProjectPointToSurface(vtkPolyData* Surface, const DenseVector<ScalarType, 3>& Point, int_max& FaceIndex_proj)
 {
-	if (Surface.Check_If_DataStructure_is_Clean() == false)
+	DenseVector<ScalarType, 3> Point_proj;
+	if (Surface == nullptr)
 	{
-		MDK_Error("DataStructure of input mesh is not clean, abort @ ProjectPointToSurface(...)")
-		FaceIndex_proj = -1;
-		return;
-	}
-
-	auto VTKMesh = ConvertMDKPolygonMeshToVTKPolyData(Surface);
+		MDK_Error("Surface is nullptr, abort @ TriangMeshProcessing ProjectPointToSurface(...)")
+		Point_proj.Fill(0);
+		return Point_proj;
+    }
 	//https://www.vtk.org/Wiki/VTK/Examples/Cxx/PolyData/CellLocator
 	auto CellLocator = vtkSmartPointer<vtkCellLocator>::New();
-	CellLocator->SetDataSet(VTKMesh);
+	CellLocator->SetDataSet(Surface);
 	CellLocator->BuildLocator();
 	double testPoint[3] = { double(Point[0]), double(Point[1]), double(Point[2]) };
 	double closestPoint[3];//the coordinates of the closest point will be returned here
@@ -240,32 +239,54 @@ void ProjectPointToSurface(const DenseVector<ScalarType, 3>& Point, const Triang
 	Point_proj[1] = ScalarType(closestPoint[1]);
 	Point_proj[2] = ScalarType(closestPoint[2]);
 	FaceIndex_proj = int_max(cellId);
-}
-
-
-template<typename ScalarType>
-DenseVector<ScalarType, 3> ProjectPointToSurface(const DenseVector<ScalarType, 3>& Point, const TriangleMesh<ScalarType>& Surface)
-{
-	DenseVector<ScalarType, 3> Point_proj;
-	int_max FaceIndex_proj;
-	ProjectPointToSurface(Point, Surface, Point_proj, FaceIndex_proj);
 	return Point_proj;
 }
 
 
 template<typename ScalarType>
-void ProjectPointToSurface(const DenseMatrix<ScalarType>& PointSet, const TriangleMesh<ScalarType>& Surface, DenseMatrix<ScalarType>& PointSet_proj, DenseVector<int_max>& FaceIndexList_proj)
+DenseVector<ScalarType, 3> ProjectPointToSurface(vtkPolyData* Surface, const DenseVector<ScalarType, 3>& Point)
 {
+	int_max FaceIndex_proj;
+	return ProjectPointToSurface(Surface, Point, FaceIndex_proj);
+}
+
+
+template<typename ScalarType>
+DenseVector<ScalarType, 3> ProjectPointToSurface(const TriangleMesh<ScalarType>& Surface, const DenseVector<ScalarType, 3>& Point, int_max& FaceIndex_proj)
+{
+	DenseVector<ScalarType, 3> Point_proj;
 	if (Surface.Check_If_DataStructure_is_Clean() == false)
 	{
-		MDK_Error("DataStructure of input mesh is not clean, abort @ ProjectPointToSurface(...)")
-		return;
+		MDK_Error("DataStructure of input mesh is not clean, abort @ TriangMeshProcessing ProjectPointToSurface(...)")
+		Point_proj.Fill(0);
+		return Point_proj;
+	}
+	auto VTKMesh = ConvertMDKPolygonMeshToVTKPolyData(Surface);
+	Point_proj = ProjectPointToSurface(VTKMesh, Point, FaceIndex_proj);
+	return Point_proj;
+}
+
+
+template<typename ScalarType>
+DenseVector<ScalarType, 3> ProjectPointToSurface(const TriangleMesh<ScalarType>& Surface, const DenseVector<ScalarType, 3>& Point)
+{
+	int_max FaceIndex_proj;
+	return ProjectPointToSurface(Surface, Point, FaceIndex_proj);
+}
+
+
+template<typename ScalarType>
+DenseMatrix<ScalarType> ProjectPointToSurface(vtkPolyData* Surface, const DenseMatrix<ScalarType>& PointSet, DenseVector<int_max>& FaceIndexList_proj)
+{
+	DenseMatrix<ScalarType> PointSet_proj;
+	if (Surface == nullptr)
+	{
+		MDK_Error("Surface is nullptr, abort @ TriangMeshProcessing ProjectPointToSurface(...)")
+		return PointSet_proj;
 	}
 
-	auto VTKMesh = ConvertMDKPolygonMeshToVTKPolyData(Surface);
-	//https://www.vtk.org/Wiki/VTK/Examples/Cxx/PolyData/CellLocator
 	auto CellLocator = vtkSmartPointer<vtkCellLocator>::New();
-	CellLocator->SetDataSet(VTKMesh);
+	CellLocator->SetDataSet(Surface);
 	CellLocator->BuildLocator();
 
 	PointSet_proj.Resize(PointSet.GetSize());
@@ -289,18 +310,41 @@ void ProjectPointToSurface(const DenseMatrix<ScalarType>& PointSet, const Triang
 		Point_proj[1] = ScalarType(closestPoint[1]);
 		Point_proj[2] = ScalarType(closestPoint[2]);
 		PointSet_proj.SetCol(k, Point_proj);
-		FaceIndexList_proj[k]= int_max(cellId);
+		FaceIndexList_proj[k] = int_max(cellId);
 	}
+	return PointSet_proj;
 }
 
 
 template<typename ScalarType>
-DenseMatrix<ScalarType> ProjectPointToSurface(const DenseMatrix<ScalarType>& PointSet, const TriangleMesh<ScalarType>& Surface)
+DenseMatrix<ScalarType> ProjectPointToSurface(vtkPolyData* Surface, const DenseMatrix<ScalarType>& PointSet)
+{
+	DenseVector<int_max> FaceIndexList_proj;
+	return ProjectPointToSurface(Surface, PointSet, FaceIndexList_proj);
+}
+
+
+template<typename ScalarType>
+DenseMatrix<ScalarType> ProjectPointToSurface(const TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PointSet, DenseVector<int_max>& FaceIndexList_proj)
 {
 	DenseMatrix<ScalarType> PointSet_proj;
-	DenseVector<int_max> FaceIndexList_proj;
-	ProjectPointToSurface(PointSet, Surface, PointSet_proj, FaceIndexList_proj);
+	if (Surface.Check_If_DataStructure_is_Clean() == false)
+	{
+		MDK_Error("DataStructure of input mesh is not clean, abort @ ProjectPointToSurface(...)")
+		return PointSet_proj;
+	}
+
+	auto VTKMesh = ConvertMDKPolygonMeshToVTKPolyData(Surface);	
+	PointSet_proj = ProjectPointToSurface(VTKMesh, PointSet, FaceIndexList_proj);
 	return PointSet_proj;
+}
+
+
+template<typename ScalarType>
+DenseMatrix<ScalarType> ProjectPointToSurface(const TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PointSet)
+{
+	DenseVector<int_max> FaceIndexList_proj;
+	return ProjectPointToSurface(Surface, PointSet, FaceIndexList_proj);
 }
 
 

@@ -16,23 +16,34 @@ template<typename ScalarType>
 DenseVector<int_max> ResampleOpenCurveOfSurface(TriangleMesh<ScalarType>& Surface, const DenseVector<int_max>& CurvePointIndexList_input, const int_max PointCountOfCurve_output);
 
 //input: Point, Surface
-//output: projected Point_proj and the index FaceIndex_proj on the mesh
-template<typename ScalarType>
-void ProjectPointToSurface(const DenseVector<ScalarType, 3>& Point, const TriangleMesh<ScalarType>& Surface, DenseVector<ScalarType, 3>& Point_proj, int_max& FaceIndex_proj);
-
-//input: same as above 
+//output: FaceIndex_proj on the mesh
 //return: Point_proj
 template<typename ScalarType>
-DenseVector<ScalarType, 3> ProjectPointToSurface(const DenseVector<ScalarType, 3>& Point, const TriangleMesh<ScalarType>& Surface);
+DenseVector<ScalarType, 3> ProjectPointToSurface(vtkPolyData* Surface, const DenseVector<ScalarType, 3>& Point, int_max& FaceIndex_proj);
+
+template<typename ScalarType>
+DenseVector<ScalarType, 3> ProjectPointToSurface(vtkPolyData* Surface, const DenseVector<ScalarType, 3>& Point);
+
+template<typename ScalarType>
+DenseVector<ScalarType, 3> ProjectPointToSurface(const TriangleMesh<ScalarType>& Surface, const DenseVector<ScalarType, 3>& Point, int_max& FaceIndex_proj);
+
+template<typename ScalarType>
+DenseVector<ScalarType, 3> ProjectPointToSurface(const TriangleMesh<ScalarType>& Surface, const DenseVector<ScalarType, 3>& Point);
 
 //input: PointSet(:,k) is a 3D point; Surface is a mesh
-//output: PointSet_proj(:,k) is the projected point; FaceIndexList_proj[k] is the face index
-template<typename ScalarType>
-void ProjectPointToSurface(const DenseMatrix<ScalarType>& PointSet, const TriangleMesh<ScalarType>& Surface, DenseMatrix<ScalarType>& PointSet_proj, DenseVector<int_max>& FaceIndexList_proj);
-
+//output: FaceIndexList_proj[k] is the face index
 //return: PointSet_proj
 template<typename ScalarType>
-DenseMatrix<ScalarType> ProjectPointToSurface(const DenseMatrix<ScalarType>& PointSet, const TriangleMesh<ScalarType>& Surface);
+DenseMatrix<ScalarType> ProjectPointToSurface(vtkPolyData* Surface, const DenseMatrix<ScalarType>& PointSet, DenseVector<int_max>& FaceIndexList_proj);
+
+template<typename ScalarType>
+DenseMatrix<ScalarType> ProjectPointToSurface(vtkPolyData* Surface, const DenseMatrix<ScalarType>& PointSet);
+
+template<typename ScalarType>
+DenseMatrix<ScalarType> ProjectPointToSurface(const TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PointSet, DenseVector<int_max>& FaceIndexList_proj);
+
+template<typename ScalarType>
+DenseMatrix<ScalarType> ProjectPointToSurface(const TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PointSet);
 
 //project a point to the surface, then add the projected point to surface
 //return: PointIndex on modified Surface

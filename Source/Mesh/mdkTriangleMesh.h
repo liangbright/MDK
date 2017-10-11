@@ -91,12 +91,19 @@ public:
 	//collapse an edge (EdgeIndex) to a point (PointIndex) of the edge
 	bool CollapseEdge(int_max EdgeIndex01, int_max PointIndex0, bool Flag_HandleSpecialCase1 = false, bool Flag_HandleSpecialCase2 = false);
 
-	//if Flag_CreateNewFaceIndex is false, then re-use old face index
-	bool FlipEdge(int_max EdgeIndex01, bool Flag_CreateNewFaceIndex = false);//only support 2 face sharing an edge
+	//if Flag_ReuseEdgeIndex is false, then re-use EdgeIndex01
+	//if Flag_ReuseOldFaceIndex is false, then re-use index of face adjacent to EdgeIndex01
+	//return flipped EdgeIndex
+	int_max FlipEdge(int_max EdgeIndex01, bool Flag_ReuseEdgeIndex = false, bool Flag_ReuseFaceIndex = false);//only support 2 face sharing an edge
 
 	//split face sharing edge, splitting point is PointIndex (not any point of edge)
 	//output new face index
 	DenseVector<int_max> SplitFaceAtEdge(int_max EdgeIndex12, int_max PointIndex0);
+
+	//add a middle point of the edge to the mesh, get PointIndex0
+	//then call SplitFaceAtEdge(EdgeIndex12, PointIndex0)
+	//PointIndex0 will NOT be returned
+	DenseVector<int_max> SplitFaceAtEdge(int_max EdgeIndex12);
 };
 
 }// namespace mdk

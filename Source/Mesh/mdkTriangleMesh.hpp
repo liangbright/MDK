@@ -712,7 +712,7 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex01, int_max PointIn
 	//   / /_\ \
 	//   0     1 
     //------------------------------------------------------------------------------------	
-	// nested special case
+	// nested special case 1 or 2
 	//      4
 	//     /|\
 	//    / 3 \
@@ -723,7 +723,19 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex01, int_max PointIn
 	// Point3, 4, ... in H3_PointIndexList
 	// if Edge40 and Edge41 are NOT on mesh bounary, then it is special case 1
 	// else,  then it is special case 2
-	//------------------------------------------------------------------------------------	
+	//------------------------------------------------------------------------------------
+	//This function can handle an isolated face connecting to the rest by only one point	
+	//Collapse 1->0
+	// mesh       mesh 
+	//  \ /        \ / 
+	//   2          2  
+	//  /_\   => (no edge)    
+	// 0   1        0
+	//------------------------------------------------------------------------------------
+	//Collapse Edge01 (1->0) may generate isolated face
+	//if the Edge01 is not on bounary, but Point0 and Point1 on bounary
+	//avoid this in application
+	//------------------------------------------------------------------------------------
 	int_max H0, H1;
 	if (PointIndexList_Edge01[0] == PointIndex0)
 	{
@@ -735,13 +747,10 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex01, int_max PointIn
 		H0 = PointIndexList_Edge01[1];
 		H1 = PointIndexList_Edge01[0];
 	}
-	auto AdjFaceIndexList_Edge01 = this->Edge(EdgeIndex01).GetAdjacentFaceIndexList();
-	DenseVector<int_max> H2H3H4_PointIndexSet;//contain H2, H3, H4...
-	{
-		auto AdjPointIndexList_H0 = this->Point(H0).GetAdjacentPointIndexList();
-		auto AdjPointIndexList_H1 = this->Point(H1).GetAdjacentPointIndexList();
-		H2H3H4_PointIndexSet = Intersect(AdjPointIndexList_H0, AdjPointIndexList_H1);
-	}
+	//------------------------------------------------------------------------------------
+	auto AdjFaceIndexList_H1 = this->Point(H1).GetAdjacentFaceIndexList();
+	auto AdjEdgeIndexList_H1 = this->Point(H1).GetAdjacentEdgeIndexList();
+	auto AdjFaceIndexList_Edge01 = this->Edge(EdgeIndex01).GetAdjacentFaceIndexList();		
 	//------------------------------------------------------------------------------------
 	DenseVector<int_max> H2_PointIndexList;
 	//H2_PointIndexList[k] is H2 in AdjFaceIndexList_Edge01[k]
@@ -766,58 +775,93 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex01, int_max PointIn
 		}
 		H2_PointIndexList.Append(H2);
 	}
-	//------------------------------------------------------------------------------------
-	//      4
-	//     /|\
-	//    / 3 \
-	//   / /|\ \ 
-    //  / / 2 \ \
-	// / / /_\ \ \
-	//  0       1 
-	//--------------------------
-	// find H2H3H4Chain[k]={H2, H3, H4,...} for each H2=H2_PointIndexList[k]
-	//--------------------------
-	auto H3H4_PointIndexSet = SetDiff(H2H3H4_PointIndexSet, H2_PointIndexList);
-    //--------------------------	
-	auto TempFunction_FindNexPointOfH2H3H4Chain = [&](int_max H)
+
+	//debug
 	{
-		for (int_max k = 0; k < H3H4_PointIndexSet.GetLength(); ++k)
+		auto IdxList = H2_PointIndexList.FindUnique();
+		if (IdxList.GetLength() != H2_PointIndexList.GetLength())
 		{
-			if (H != H3H4_PointIndexSet[k])
+			auto AdjFaceIndexList_H2 = this->Point(H2_PointIndexList[0]).GetAdjacentFaceIndexList();
+			auto PointIndexList0 = this->Face(AdjFaceIndexList_Edge01[0]).GetPointIndexList();
+			auto PointIndexList1 = this->Face(AdjFaceIndexList_Edge01[1]).GetPointIndexList();
+			auto Flag_Edge01_Boundary = this->Edge(EdgeIndex01).IsOnPolygonMeshBoundary();
+			MDK_Error("H2_PointIndexList has duplicated element, please check input mesh @ TriangleMesh::CollapseEdge(...)")
+			return false;
+		}
+	}
+
+	//------------------------------------------------------------------------------------
+	auto TempFunction_FindNeighborPoint = [&](int_max H, const DenseVector<int_max>& PointIndexSet)
+	{
+		for (int_max k = 0; k < PointIndexSet.GetLength(); ++k)
+		{
+			if (H != PointIndexSet[k])
 			{
-				auto EdgeIndex_k = this->GetEdgeIndexByPoint(H, H3H4_PointIndexSet[k]);
+				auto EdgeIndex_k = this->GetEdgeIndexByPoint(H, PointIndexSet[k]);
 				if (EdgeIndex_k >= 0)
 				{
-					return H3H4_PointIndexSet[k];
+					return PointIndexSet[k];
 				}
 			}
 		}
 		return int_max(-1);
 	};
-	//-----------------------
-	DenseVector<DenseVector<int_max>> H2H3H4Chain;
-	H2H3H4Chain.Resize(H2_PointIndexList.GetLength());	
+	//------------------------------------------------------------------------------------
+	auto TempFunction_FindNeighborChain = [&](int_max H, const DenseVector<int_max>& PointIndexSet)
+	{
+		auto H_start = TempFunction_FindNeighborPoint(H, PointIndexSet);
+		int_max H_pre = H;
+		int_max H_next = H_start;
+		DenseVector<int_max> Chain;
+		for (int_max n = 0; n < PointIndexSet.GetLength(); ++n)
+		{
+			auto Hn = TempFunction_FindNeighborPoint(H_next, PointIndexSet);
+			if (Hn >= 0 && Hn != H_pre)
+			{
+				Chain.Append(Hn);
+				H_pre = H_next;
+				H_next = Hn;
+			}
+			else
+			{
+				break;
+			}
+		}
+		return Chain;
+	};
+	//------------------------------------------------------------------------------------
+	//      4     
+	//     /|\    
+	//    / 3 \   
+	//   / /|\ \  
+    //  / / 2 \ \ 
+	// / / /_\ \ \
+	//  0       1  
+	//---------------------------------
+	// case 1 or 2
+	//----------------------------------
+	// find H3H4Chain[k]={H3, H4,...} for each H2=H2_PointIndexList[k]
+	//--------------------------
+	DenseVector<int_max> H2H3H4_PointIndexSet;//contain H2, H3, H4...
+	{
+		//case1 and case2
+		auto AdjPointIndexList_H0 = this->Point(H0).GetAdjacentPointIndexList();//include H1		
+		auto AdjPointIndexList_H1 = this->Point(H1).GetAdjacentPointIndexList();//include H0		
+		H2H3H4_PointIndexSet = Intersect(AdjPointIndexList_H0, AdjPointIndexList_H1);		
+		//delete H0 and H1
+		auto tempIdx0 = H2H3H4_PointIndexSet.ExactMatch(H0);
+		H2H3H4_PointIndexSet.Delete(tempIdx0);
+		auto tempIdx1 = H2H3H4_PointIndexSet.ExactMatch(H1);
+		H2H3H4_PointIndexSet.Delete(tempIdx1);
+	}
+	//------------------------------------------------------------------------------------
+	auto H3H4_PointIndexSet = SetDiff(H2H3H4_PointIndexSet, H2_PointIndexList);	
+	DenseVector<DenseVector<int_max>> H3H4Chain;
+	H3H4Chain.Resize(H2_PointIndexList.GetLength());
 	for (int_max k = 0; k < H2_PointIndexList.GetLength(); ++k)
 	{
 		auto H2 = H2_PointIndexList[k];
-		H2H3H4Chain[k].Append(H2);
-		auto H3 = TempFunction_FindNexPointOfH2H3H4Chain(H2);
-		if (H3 >= 0)
-		{
-			H2H3H4Chain[k].Append(H3);
-			for (int_max n = 0; n < H3H4_PointIndexSet.GetLength(); ++n)
-			{
-				auto H_next = TempFunction_FindNexPointOfH2H3H4Chain(H3H4_PointIndexSet[n]);
-				if (H_next >= 0)
-				{
-					H2H3H4Chain[k].Append(H_next);
-				}
-				else
-				{
-					break;
-				}
-			}
-		}
+		H3H4Chain[k] = TempFunction_FindNeighborChain(H2, H3H4_PointIndexSet);
 	}
 	//------------------------------------------------------------------------------------
 	DenseVector<int_max> EdgeIndexList_delete;
@@ -832,7 +876,7 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex01, int_max PointIn
 	{//    2
 	 // 0 /_\ 1  =>  /		
 	 // Face012, Edge21 will be deleted; 
-	 // Point1 and Edge01 will NOT be deleted in this function
+	 // Point1 and Edge01 will NOT be deleted in this function (deleted in TempFunction_End)
 	 // Face (not Face012) adj to Point1 will NOT be modified in this function
 	 //-----------------------------------------------------------------------------------	 
 		this->DeleteFace(FaceIndex012);
@@ -852,13 +896,13 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex01, int_max PointIn
 		{
 			AdjFaceIndexList_Edge20_ref.Append(AdjFaceIndexList_Edge21);
 			AdjFaceIndexList_Edge20_ref = AdjFaceIndexList_Edge20_ref.GetSubSet(AdjFaceIndexList_Edge20_ref.FindUnique());
-		}		
+		}
 		//delete Edge21
 		this->Edge(EdgeIndex21).AdjacentFaceIndexList().Clear();
 		this->DeleteEdge(EdgeIndex21);
 	};
 	//------------------------------------------------------------------------------------
-	auto TempFunction_HandleSpecialCase1 = [&](const DenseVector<int_max>& PointIndexList)
+	auto TempFunction_HandleSpecialCase1 = [&](int_max H2, int_max FaceIndex012, const DenseVector<int_max>& H3H4List)
 	{//     4                    4
 	//     /|\                  / \
 	//    / 3 \                /   \
@@ -867,60 +911,93 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex01, int_max PointIn
 	// / / /_\ \ \          /_________\
 	//  0       1           0         1
 	//---------------------------------
-	//PointIndexList={H2, H3, H4, ...}=H2H3H4Chain[n]
+	//H3H4List={H3, H4, ...}=H3H4Chain[n]
 	//---------------------------------		
-		for (int_max k = 0; k < PointIndexList.GetLength() - 1; ++k)
+		//Handle Point2
 		{
-			auto AdjFaceIndex_k = this->Point(PointIndexList[k]).GetAdjacentFaceIndexList();
-			auto AdjEdgeIndex_k = this->Point(PointIndexList[k]).GetAdjacentEdgeIndexList();
+			auto AdjFaceIndex_H2 = this->Point(H2).GetAdjacentFaceIndexList();
+			auto AdjEdgeIndex_H2 = this->Point(H2).GetAdjacentEdgeIndexList();
+			this->DeleteFace(AdjFaceIndex_H2);
+			this->DeleteEdge(AdjEdgeIndex_H2);
+			this->DeletePoint(H2);
+		}
+		for (int_max k = 0; k < H3H4List.GetLength() - 1; ++k)
+		{
+			auto AdjFaceIndex_k = this->Point(H3H4List[k]).GetAdjacentFaceIndexList();
+			auto AdjEdgeIndex_k = this->Point(H3H4List[k]).GetAdjacentEdgeIndexList();
 			this->DeleteFace(AdjFaceIndex_k);
 			this->DeleteEdge(AdjEdgeIndex_k);
-			this->DeletePoint(PointIndexList[k]);
+			this->DeletePoint(H3H4List[k]);
 		}
-		auto PointIndex_end = PointIndexList[PointIndexList.GetLength() - 1];
+		auto PointIndex_end = H3H4List[H3H4List.GetLength() - 1];
 		auto FaceIndex_end = this->GetFaceIndexByPoint({ H0, H1, PointIndex_end });
 		TempFunction_HandleNormalCase(PointIndex_end, FaceIndex_end);
 	};
 	//------------------------------------------------------------------------------------
-	auto TempFunction_HandleSpecialCase2 = [&](const DenseVector<int_max>& PointIndexList)
-	{//PointIndexList is the same as that in TempFunction_HandleSpecialCase1
-		for (int_max k = 0; k < PointIndexList.GetLength() - 1; ++k)
-		{
-			auto AdjFaceIndex_k = this->Point(PointIndexList[k]).GetAdjacentFaceIndexList();
-			auto AdjEdgeIndex_k = this->Point(PointIndexList[k]).GetAdjacentEdgeIndexList();
-			this->DeleteFace(AdjFaceIndex_k);
-			this->DeleteEdge(AdjEdgeIndex_k);
-			this->DeletePoint(PointIndexList[k]);
+	auto TempFunction_HandleSpecialCase2 = [&](int_max H2, int_max FaceIndex012, const DenseVector<int_max>& H3H4List)
+	{//H3H4List is the same as that in TempFunction_HandleSpecialCase1
+		if (H3H4List.IsEmpty() == true)//Case2a
+		{	//-----------------------
+			//   2        2      (2)
+			//  /_\   =>  |   =>
+			// 0   1      0       0
+			//-----------------------
+			TempFunction_HandleNormalCase(H2, FaceIndex012);
+			auto EdgeIndex20 = this->GetEdgeIndexByPoint(H2, H0);
+			this->DeleteEdge(EdgeIndex20);
+			if (this->Point(H2).GetAdjacentEdgeCount() == 0)
+			{//just in case Face012 is connected to a mesh only by Point2
+				this->DeletePoint(H2);
+			}
 		}
-		auto H2 = PointIndexList[PointIndexList.GetLength() - 1];
-		auto FaceIndex012 = this->GetFaceIndexByPoint({ H0, H1, H2 });
-		//-----------------------
-		//   2         2
-		//  /_\   =>   |   => 
-		// 0   1       0       0
-		//-----------------------
-		TempFunction_HandleNormalCase(H2, FaceIndex012);
-		auto EdgeIndex20 = this->GetEdgeIndexByPoint(H2, H0);
-		this->DeleteEdge(EdgeIndex20);
-		this->DeletePoint(H2);
+		else //H3H4List is not empty, Case2b
+		{
+			{
+				auto AdjFaceIndex_H2 = this->Point(H2).GetAdjacentFaceIndexList();
+				auto AdjEdgeIndex_H2 = this->Point(H2).GetAdjacentEdgeIndexList();
+				this->DeleteFace(AdjFaceIndex_H2);
+				this->DeleteEdge(AdjEdgeIndex_H2);
+				this->DeletePoint(H2);
+			}
+			for (int_max k = 0; k < H3H4List.GetLength() - 1; ++k)
+			{
+				auto AdjFaceIndex_k = this->Point(H3H4List[k]).GetAdjacentFaceIndexList();
+				auto AdjEdgeIndex_k = this->Point(H3H4List[k]).GetAdjacentEdgeIndexList();
+				this->DeleteFace(AdjFaceIndex_k);
+				this->DeleteEdge(AdjEdgeIndex_k);
+				this->DeletePoint(H3H4List[k]);
+			}
+			auto H_end = H3H4List[H3H4List.GetLength() - 1];
+			auto FaceIndex_end = this->GetFaceIndexByPoint({ H0, H1, H_end });
+			//-----------------------
+			//  end       end     (end)
+			//  /_\   =>   |   => 
+			// 0   1       0       0
+			//-----------------------
+			TempFunction_HandleNormalCase(H_end, FaceIndex_end);
+			auto EdgeIndex_end = this->GetEdgeIndexByPoint(H_end, H0);
+			this->DeleteEdge(EdgeIndex_end);
+			if (this->Point(H_end).GetAdjacentEdgeCount() == 0)
+			{//just in case Face_end is connected to a mesh only by Point_end
+				this->DeletePoint(H_end);
+			}
+		}
 	};
 	//------------------------------------------------------------------------------------
 	auto TempFunction_End = [&]()
 	{
 		//modify Point0: add edge (not deleted) adjacent to Point1
-		{
-			auto AdjEdgeIndexList_H1_ref = this->Point(H1).GetAdjacentEdgeIndexList();
+		{			
 			auto& AdjEdgeIndexList_H0_ref = this->Point(H0).AdjacentEdgeIndexList();
-			AdjEdgeIndexList_H0_ref.Append(AdjEdgeIndexList_H1_ref);
+			AdjEdgeIndexList_H0_ref.Append(AdjEdgeIndexList_H1);
 			AdjEdgeIndexList_H0_ref = SetDiff(AdjEdgeIndexList_H0_ref, EdgeIndexList_delete);
 		}
 		//modify Edge (not Edge_delete) adjacent to Point1: replace H1 with H0
 		{
-			auto AdjEdgeIndexList_H1 = this->Point(H1).GetAdjacentEdgeIndexList();
-			AdjEdgeIndexList_H1 = SetDiff(AdjEdgeIndexList_H1, EdgeIndexList_delete);
-			for (int_max k = 0; k < AdjEdgeIndexList_H1.GetLength(); ++k)
+			auto AdjEdgeIndexList_H1_valid = SetDiff(AdjEdgeIndexList_H1, EdgeIndexList_delete);
+			for (int_max k = 0; k < AdjEdgeIndexList_H1_valid.GetLength(); ++k)
 			{
-				auto PointIndexList_k = this->Edge(AdjEdgeIndexList_H1[k]).GetPointIndexList();
+				auto PointIndexList_k = this->Edge(AdjEdgeIndexList_H1_valid[k]).GetPointIndexList();
 				if (PointIndexList_k[0] == H1)
 				{
 					PointIndexList_k[0] = H0;
@@ -929,16 +1006,15 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex01, int_max PointIn
 				{
 					PointIndexList_k[1] = H0;
 				}
-				this->Edge(AdjEdgeIndexList_H1[k]).SetPointIndexList(PointIndexList_k);
+				this->Edge(AdjEdgeIndexList_H1_valid[k]).SetPointIndexList(PointIndexList_k);
 			}
 		}
 		//modify Face (not AdjFaceIndexList_Edge01) adjacent to Point1: replace H1 with H0
-		{
-			auto AdjFaceIndexList_H1 = this->Point(H1).GetAdjacentFaceIndexList();			
-			AdjFaceIndexList_H1 = SetDiff(AdjFaceIndexList_H1, AdjFaceIndexList_Edge01);			
-			for (int_max k = 0; k < AdjFaceIndexList_H1.GetLength(); ++k)
+		{				
+			auto AdjFaceIndexList_H1_valid = SetDiff(AdjFaceIndexList_H1, AdjFaceIndexList_Edge01);			
+			for (int_max k = 0; k < AdjFaceIndexList_H1_valid.GetLength(); ++k)
 			{
-				auto& PointIndexList_k_ref = this->Face(AdjFaceIndexList_H1[k]).PointIndexList();
+				auto& PointIndexList_k_ref = this->Face(AdjFaceIndexList_H1_valid[k]).PointIndexList();
 				auto tempIdx = PointIndexList_k_ref.ExactMatch("first", H1);
 				PointIndexList_k_ref[tempIdx] = H0;
 			}
@@ -952,22 +1028,23 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex01, int_max PointIn
 	};
 	//------------------------------------------------------------------------------------
 	//------------------------------- end of TempFunction---------------------------------------------------------//	
-
+	
 	for (int_max n = 0; n < H2_PointIndexList.GetLength(); ++n)
 	{
 		int_max H2 = H2_PointIndexList[n];
-		auto H2H3H4Chain_n = H2H3H4Chain[n];
-		if (H2H3H4Chain_n.GetLength() > 1)
+		int_max FaceIndex012 = AdjFaceIndexList_Edge01[n];
+		auto H3H4Chain_n = H3H4Chain[n];
+		if (H3H4Chain_n.GetLength() > 0)
 		{
 			bool Flag_SpecialCase1 = false;
 			bool Flag_SpecialCase2 = false;
-			int_max H_end = H2H3H4Chain_n[H2H3H4Chain_n.GetLength() - 1];
+			int_max H_end = H3H4Chain_n[H3H4Chain_n.GetLength() - 1];
 			if (this->Point(H_end).IsOnPolygonMeshBoundary() == true)
 			{
 				int_max EdgeIndex_0 = this->GetEdgeIndexByPoint(H_end, H0);
 				int_max EdgeIndex_1 = this->GetEdgeIndexByPoint(H_end, H1);
 				if (this->Edge(EdgeIndex_0).IsOnPolygonMeshBoundary() == true && this->Edge(EdgeIndex_1).IsOnPolygonMeshBoundary() == true)
-				{					
+				{
 					Flag_SpecialCase2 = true;
 				}
 			}
@@ -980,11 +1057,11 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex01, int_max PointIn
 			{
 				if (Flag_HandleSpecialCase1 == true)
 				{
-					TempFunction_HandleSpecialCase1(H2H3H4Chain_n);
+					TempFunction_HandleSpecialCase1(H2, FaceIndex012, H3H4Chain_n);
 				}
 				else
 				{
-					int_max H3 = H2H3H4Chain_n[1];
+					int_max H3 = H3H4Chain_n[0];
 					MDK_Warning("H0=" << H0 << ", H1=" << H1 << ", H2=" << H2 << ", H3=" << H3)
 					MDK_Warning("Special Case 1 is detected, Flag_HandleSpecialCase is false, abort @ TriangleMesh::CollapseEdge(...)")
 					return false;
@@ -994,8 +1071,12 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex01, int_max PointIn
 			if (Flag_SpecialCase2 == true)
 			{
 				if (Flag_HandleSpecialCase2 == true)
-				{
-					TempFunction_HandleSpecialCase2(H2H3H4Chain_n);
+				{						
+					if (this->Point(H_end).GetAdjacentEdgeCount() > 2)
+					{
+						MDK_Warning("isolated face may be generated @ TriangleMesh::CollapseEdge(...)")
+					}
+					TempFunction_HandleSpecialCase2(H2, FaceIndex012, H3H4Chain_n);
 				}
 				else
 				{
@@ -1006,9 +1087,38 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex01, int_max PointIn
 			}
 		}
 		else
-		{
-			int_max FaceIndex012 = AdjFaceIndexList_Edge01[n];
-			TempFunction_HandleNormalCase(H2, FaceIndex012);
+		{			
+			bool Flag_SpecialCase2 = false;
+			if (this->Point(H2).IsOnPolygonMeshBoundary() == true)
+			{
+				int_max EdgeIndex_0 = this->GetEdgeIndexByPoint(H2, H0);
+				int_max EdgeIndex_1 = this->GetEdgeIndexByPoint(H2, H1);
+				if (this->Edge(EdgeIndex_0).IsOnPolygonMeshBoundary() == true && this->Edge(EdgeIndex_1).IsOnPolygonMeshBoundary() == true)
+				{
+					Flag_SpecialCase2 = true;
+				}				
+			}
+			if (Flag_SpecialCase2 == true)
+			{
+				if (Flag_HandleSpecialCase2 == true)
+				{
+					if (this->Point(H2).GetAdjacentEdgeCount() > 2)
+					{
+						MDK_Warning("isolated face may be generated @ TriangleMesh::CollapseEdge(...)")
+					}
+					TempFunction_HandleSpecialCase2(H2, FaceIndex012, H3H4Chain_n);
+				}
+				else
+				{
+					MDK_Warning("H0=" << H0 << ", H1=" << H1 << ", H2=" << H2)
+					MDK_Warning("Special Case 2 is detected, Flag_HandleSpecialCase is false, abort @ TriangleMesh::CollapseEdge(...)")
+					return false;
+				}
+			}
+			else
+			{
+				TempFunction_HandleNormalCase(H2, FaceIndex012);
+			}
 		}
 	}
 	TempFunction_End();
@@ -1017,12 +1127,12 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex01, int_max PointIn
 
 
 template<typename ScalarType>
-bool TriangleMesh<ScalarType>::FlipEdge(int_max EdgeIndex01, bool Flag_CreateNewFaceIndex)
+int_max TriangleMesh<ScalarType>::FlipEdge(int_max EdgeIndex01, bool Flag_ReuseEdgeIndex, bool Flag_ReuseFaceIndex)
 {//only support 2 triangle face sharing an endge
 	if (this->IsValidEdgeIndex(EdgeIndex01) == false)
 	{
 		MDK_Error("Invalid EdgeIndex01 @ TriangleMesh::FlipEdge(...)")
-		return false;
+		return -1;
 	}
 	//--------------------
 	//Upper: Triangle A
@@ -1054,10 +1164,11 @@ bool TriangleMesh<ScalarType>::FlipEdge(int_max EdgeIndex01, bool Flag_CreateNew
 	auto FaceIndexListAB = this->Edge(EdgeIndex01).GetAdjacentFaceIndexList();
 	if (FaceIndexListAB.GetLength() != 2)
 	{
-		MDK_Error("AdjacentFaceCount is not 2 @ TriangleMesh::FlipEdge(...)")
+		MDK_Warning("AdjacentFaceCount is " << FaceIndexListAB.GetLength() << " != 2, abort @ TriangleMesh::FlipEdge(...)")
 		return false;
 	}
-	int_max FaceIndexA, FaceIndexB;
+	int_max FaceIndexA = -1;
+	int_max FaceIndexB = -1;
 	{//assume normal direction is consistant
 		auto tempList = this->Face(FaceIndexListAB[0]).GetPointIndexList_LeadBy(H0);
 		if (tempList[1] == H1)
@@ -1070,9 +1181,10 @@ bool TriangleMesh<ScalarType>::FlipEdge(int_max EdgeIndex01, bool Flag_CreateNew
 			FaceIndexA = FaceIndexListAB[1];
 			FaceIndexB = FaceIndexListAB[0];
 		}
-	}	
-	int_max H2, H3;
-	{		
+	}
+	int_max H2 = -1;
+	int_max H3 = -1;
+	{
 		auto tempListA = this->Face(FaceIndexA).GetPointIndexList();
 		for (int_max k = 0; k < tempListA.GetLength(); ++k)
 		{
@@ -1091,8 +1203,13 @@ bool TriangleMesh<ScalarType>::FlipEdge(int_max EdgeIndex01, bool Flag_CreateNew
 				break;
 			}
 		}
+		if (H2 == H3)
+		{
+			MDK_Error("H2 and H3 are the same @ TriangleMesh::FlipEdge(...)")
+			return -1;
+		}
 	}
-
+	
 	//check special case 1
 	bool Flag_SpecialCase1 = false;
 	{
@@ -1100,31 +1217,39 @@ bool TriangleMesh<ScalarType>::FlipEdge(int_max EdgeIndex01, bool Flag_CreateNew
 		if (EdgeIndex23 >= 0)
 		{
 			Flag_SpecialCase1 = true;
+			MDK_Warning("Special Case 1 is detected, abort @ TriangleMesh::FlipEdge(...)")
+			return -1;
 		}
 	}
 
-	if (Flag_SpecialCase1 == false)
+	//now, ok to go --------------------------------------------------
+
+	this->DeleteFace(FaceIndexA);
+	this->DeleteFace(FaceIndexB);
+	this->DeleteEdge(EdgeIndex01);
+
+	int_max EdgeIndex_flipped = -1;
+	if (Flag_ReuseEdgeIndex == true)
 	{
-		this->DeleteFace(FaceIndexA);
-		this->DeleteFace(FaceIndexB);
-		this->DeleteEdge(EdgeIndex01);
-		this->AddEdge(H2, H3, EdgeIndex01);
-		if (Flag_CreateNewFaceIndex == false)
-		{
-			this->AddFaceByPoint({ H0, H3, H2 }, FaceIndexA);
-			this->AddFaceByPoint({ H1, H2, H3 }, FaceIndexB);
-		}
-		else
-		{
-			this->AddFaceByPoint({ H0, H3, H2 });
-			this->AddFaceByPoint({ H1, H2, H3 });
-		}
-		return true;
+		EdgeIndex_flipped = this->AddEdge(H2, H3, EdgeIndex01);
 	}
 	else
 	{
-		return false;
+		EdgeIndex_flipped = this->AddEdge(H2, H3);
 	}
+
+	if (Flag_ReuseFaceIndex == true)
+	{
+		this->AddFaceByPoint({ H0, H3, H2 }, FaceIndexA);
+		this->AddFaceByPoint({ H1, H2, H3 }, FaceIndexB);
+	}
+	else
+	{
+		this->AddFaceByPoint({ H0, H3, H2 });
+		this->AddFaceByPoint({ H1, H2, H3 });
+	}
+	return EdgeIndex_flipped;
+
 }
 
 
@@ -1151,13 +1276,13 @@ DenseVector<int_max> TriangleMesh<ScalarType>::SplitFaceAtEdge(int_max EdgeIndex
 
 	if (this->IsValidEdgeIndex(EdgeIndex12) == false)
 	{
-		MDK_Error("Invalid EdgeIndex12 @ TriangleMesh::SplitFaceAtEdge(...)")
+		MDK_Error("Invalid EdgeIndex12, abort @ TriangleMesh::SplitFaceAtEdge(...)")
 		return FaceIndexList_output;
 	}
 
 	if (this->IsValidPointIndex(PointIndex0) == false)
 	{
-		MDK_Error("Invalid PointIndex0 @ TriangleMesh::SplitFaceAtEdge(...)")
+		MDK_Error("Invalid PointIndex0, abort @ TriangleMesh::SplitFaceAtEdge(...)")
 		return FaceIndexList_output;
 	}
 
@@ -1206,6 +1331,25 @@ DenseVector<int_max> TriangleMesh<ScalarType>::SplitFaceAtEdge(int_max EdgeIndex
 		FaceIndexList_output.Append(FaceIndex023);
 	}
 	this->DeleteEdge(EdgeIndex12);
+	return FaceIndexList_output;
+}
+
+
+template<typename ScalarType>
+DenseVector<int_max> TriangleMesh<ScalarType>::SplitFaceAtEdge(int_max EdgeIndex12)
+{
+	DenseVector<int_max> FaceIndexList_output;
+	if (this->IsValidEdgeIndex(EdgeIndex12) == false)
+	{
+		MDK_Error("Invalid EdgeIndex12 @ TriangleMesh::SplitFaceAtEdge(...)")
+		return FaceIndexList_output;
+	}
+	auto PointIndexList = this->Edge(EdgeIndex12).GetPointIndexList();
+	auto PosA = this->GetPointPosition(PointIndexList[0]);
+	auto PosB = this->GetPointPosition(PointIndexList[1]);
+	auto PosC = (PosA + PosB)*ScalarType(0.5);
+	auto PointIndex0 = this->AddPoint(PosC);
+	FaceIndexList_output = this->SplitFaceAtEdge(EdgeIndex12, PointIndex0);
 	return FaceIndexList_output;
 }
 
