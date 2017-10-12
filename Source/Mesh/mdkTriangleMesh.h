@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "mdkPolygonMesh.h"
+#include "mdkGeometry.h"
 
 namespace mdk
 {

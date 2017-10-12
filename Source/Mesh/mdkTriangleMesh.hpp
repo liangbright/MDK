@@ -786,7 +786,7 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex01, int_max PointIn
 			auto PointIndexList1 = this->Face(AdjFaceIndexList_Edge01[1]).GetPointIndexList();
 			auto Flag_Edge01_Boundary = this->Edge(EdgeIndex01).IsOnPolygonMeshBoundary();
 			MDK_Error("H2_PointIndexList has duplicated element, please check input mesh @ TriangleMesh::CollapseEdge(...)")
-			return false;
+			//return false;
 		}
 	}
 
@@ -811,6 +811,10 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex01, int_max PointIn
 	{
 		DenseVector<int_max> Chain;
 		auto H_start = TempFunction_FindNeighborPoint(H, PointIndexSet);
+		if (H_start < 0)
+		{
+			return Chain;
+		}
 		Chain.Append(H_start);
 		int_max H_pre = H;
 		int_max H_next = H_start;		
@@ -986,50 +990,124 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex01, int_max PointIn
 	};
 	//------------------------------------------------------------------------------------
 	auto TempFunction_End = [&]()
-	{
-		//modify Point0: add edge (not deleted) adjacent to Point1
-		{			
-			auto& AdjEdgeIndexList_H0_ref = this->Point(H0).AdjacentEdgeIndexList();
-			AdjEdgeIndexList_H0_ref.Append(AdjEdgeIndexList_H1);
-			AdjEdgeIndexList_H0_ref = SetDiff(AdjEdgeIndexList_H0_ref, EdgeIndexList_delete);
-		}
-		//modify Edge (not Edge_delete) adjacent to Point1: replace H1 with H0
+	{		
+		//modify Edge (not Edge_delete) adjacent to Point1: replace H1 with H0		
+		auto AdjEdgeIndexList_H1_valid = SetDiff(AdjEdgeIndexList_H1, EdgeIndexList_delete);
+		for (int_max k = 0; k < AdjEdgeIndexList_H1_valid.GetLength(); ++k)
 		{
-			auto AdjEdgeIndexList_H1_valid = SetDiff(AdjEdgeIndexList_H1, EdgeIndexList_delete);
-			for (int_max k = 0; k < AdjEdgeIndexList_H1_valid.GetLength(); ++k)
+			auto PointIndexList_k = this->Edge(AdjEdgeIndexList_H1_valid[k]).GetPointIndexList();
+			if (PointIndexList_k[0] == H1)
 			{
-				auto PointIndexList_k = this->Edge(AdjEdgeIndexList_H1_valid[k]).GetPointIndexList();
-				if (PointIndexList_k[0] == H1)
-				{
-					PointIndexList_k[0] = H0;
-				}
-				else
-				{
-					PointIndexList_k[1] = H0;
-				}
-				this->Edge(AdjEdgeIndexList_H1_valid[k]).SetPointIndexList(PointIndexList_k);
+				PointIndexList_k[0] = H0;
 			}
+			else
+			{
+				PointIndexList_k[1] = H0;
+			}
+			this->Edge(AdjEdgeIndexList_H1_valid[k]).SetPointIndexList(PointIndexList_k);
 		}
-		//modify Face (not AdjFaceIndexList_Edge01) adjacent to Point1: replace H1 with H0
-		{				
-			auto AdjFaceIndexList_H1_valid = SetDiff(AdjFaceIndexList_H1, AdjFaceIndexList_Edge01);			
-			for (int_max k = 0; k < AdjFaceIndexList_H1_valid.GetLength(); ++k)
-			{
-				auto& PointIndexList_k_ref = this->Face(AdjFaceIndexList_H1_valid[k]).PointIndexList();
-				auto tempIdx = PointIndexList_k_ref.ExactMatch("first", H1);
-				PointIndexList_k_ref[tempIdx] = H0;
-			}
+		
+		//modify Point0: add edge (not deleted) adjacent to Point1			
+		auto& AdjEdgeIndexList_H0_ref = this->Point(H0).AdjacentEdgeIndexList();
+		AdjEdgeIndexList_H0_ref.Append(AdjEdgeIndexList_H1_valid);
+
+		//modify Face (not AdjFaceIndexList_Edge01) adjacent to Point1: replace H1 with H0						
+		auto AdjFaceIndexList_H1_valid = SetDiff(AdjFaceIndexList_H1, AdjFaceIndexList_Edge01);			
+		for (int_max k = 0; k < AdjFaceIndexList_H1_valid.GetLength(); ++k)
+		{
+			auto& PointIndexList_k_ref = this->Face(AdjFaceIndexList_H1_valid[k]).PointIndexList();
+			auto tempIdx = PointIndexList_k_ref.ExactMatch("first", H1);
+			PointIndexList_k_ref[tempIdx] = H0;		
 		}		
+
 		//delete Edge01
-		this->Edge(EdgeIndex01).AdjacentFaceIndexList().Clear();
+		auto Empty_AdjacentFaceIndexList_Edge01 = this->Edge(EdgeIndex01).AdjacentFaceIndexList();
 		this->DeleteEdge(EdgeIndex01);
+
 		//delete Point1
 		this->Point(H1).AdjacentEdgeIndexList().Clear();
 		this->DeletePoint(H1);
 	};
 	//------------------------------------------------------------------------------------
 	//------------------------------- end of TempFunction---------------------------------------------------------//	
-	
+	if (Flag_HandleSpecialCase1 == false || Flag_HandleSpecialCase2 == false)
+	{
+		for (int_max n = 0; n < H2_PointIndexList.GetLength(); ++n)
+		{
+			int_max H2 = H2_PointIndexList[n];
+			int_max FaceIndex012 = AdjFaceIndexList_Edge01[n];
+			auto H3H4Chain_n = H3H4Chain[n];
+			if (H3H4Chain_n.GetLength() > 0)
+			{
+				bool Flag_SpecialCase1 = false;
+				bool Flag_SpecialCase2 = false;
+				int_max H_end = H3H4Chain_n[H3H4Chain_n.GetLength() - 1];
+				if (this->Point(H_end).IsOnPolygonMeshBoundary() == true)
+				{
+					int_max EdgeIndex_0 = this->GetEdgeIndexByPoint(H_end, H0);
+					int_max EdgeIndex_1 = this->GetEdgeIndexByPoint(H_end, H1);
+					if (this->Edge(EdgeIndex_0).IsOnPolygonMeshBoundary() == true && this->Edge(EdgeIndex_1).IsOnPolygonMeshBoundary() == true)
+					{
+						Flag_SpecialCase2 = true;
+					}
+					else
+					{
+						Flag_SpecialCase1 = true;
+					}
+				}
+				else
+				{
+					Flag_SpecialCase1 = true;
+				}
+
+				if (Flag_SpecialCase1 == true)
+				{
+					int_max H3 = H3H4Chain_n[0];
+					MDK_Warning("H0=" << H0 << ", H1=" << H1 << ", H2=" << H2 << ", H3=" << H3)
+					MDK_Warning("Special Case 1 is detected, Flag_HandleSpecialCase is false, abort @ TriangleMesh::CollapseEdge(...)")
+					return false;
+				}
+
+				if (Flag_SpecialCase2 == true)
+				{
+					MDK_Warning("H0=" << H0 << ", H1=" << H1 << ", H2=" << H2)
+					MDK_Warning("Special Case 2 is detected, Flag_HandleSpecialCase is false, abort @ TriangleMesh::CollapseEdge(...)")
+					return false;
+				}
+			}
+			else
+			{
+				bool Flag_SpecialCase2 = false;
+				if (this->Point(H2).IsOnPolygonMeshBoundary() == true)
+				{
+					int_max EdgeIndex_0 = this->GetEdgeIndexByPoint(H2, H0);
+					int_max EdgeIndex_1 = this->GetEdgeIndexByPoint(H2, H1);
+					if (this->Edge(EdgeIndex_0).IsOnPolygonMeshBoundary() == true && this->Edge(EdgeIndex_1).IsOnPolygonMeshBoundary() == true)
+					{
+						Flag_SpecialCase2 = true;
+					}
+				}
+				if (Flag_SpecialCase2 == true)
+				{
+					MDK_Warning("H0=" << H0 << ", H1=" << H1 << ", H2=" << H2)
+					MDK_Warning("Special Case 2 is detected, Flag_HandleSpecialCase is false, abort @ TriangleMesh::CollapseEdge(...)")
+					return false;
+				}
+			}
+		}
+
+		for (int_max n = 0; n < H2_PointIndexList.GetLength(); ++n)
+		{
+			int_max H2 = H2_PointIndexList[n];
+			int_max FaceIndex012 = AdjFaceIndexList_Edge01[n];			
+			TempFunction_HandleNormalCase(H2, FaceIndex012);
+		}
+		TempFunction_End();
+		return true;
+	}
+
+	//now: Flag_HandleSpecialCase1 is true and Flag_HandleSpecialCase2 is true ---------------------------------------------------------------------
+
 	for (int_max n = 0; n < H2_PointIndexList.GetLength(); ++n)
 	{
 		int_max H2 = H2_PointIndexList[n];
@@ -1048,6 +1126,10 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex01, int_max PointIn
 				{
 					Flag_SpecialCase2 = true;
 				}
+				else
+				{
+					Flag_SpecialCase1 = true;
+				}
 			}
 			else
 			{
@@ -1056,35 +1138,16 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex01, int_max PointIn
 
 			if (Flag_SpecialCase1 == true)
 			{
-				if (Flag_HandleSpecialCase1 == true)
-				{
-					TempFunction_HandleSpecialCase1(H2, FaceIndex012, H3H4Chain_n);
-				}
-				else
-				{
-					int_max H3 = H3H4Chain_n[0];
-					MDK_Warning("H0=" << H0 << ", H1=" << H1 << ", H2=" << H2 << ", H3=" << H3)
-					MDK_Warning("Special Case 1 is detected, Flag_HandleSpecialCase is false, abort @ TriangleMesh::CollapseEdge(...)")
-					return false;
-				}
+				TempFunction_HandleSpecialCase1(H2, FaceIndex012, H3H4Chain_n);
 			}
 
 			if (Flag_SpecialCase2 == true)
 			{
-				if (Flag_HandleSpecialCase2 == true)
-				{						
-					if (this->Point(H_end).GetAdjacentEdgeCount() > 2)
-					{
-						MDK_Warning("isolated face may be generated @ TriangleMesh::CollapseEdge(...)")
-					}
-					TempFunction_HandleSpecialCase2(H2, FaceIndex012, H3H4Chain_n);
-				}
-				else
+				if (this->Point(H_end).GetAdjacentEdgeCount() > 2)
 				{
-					MDK_Warning("H0=" << H0 << ", H1=" << H1 << ", H2=" << H2)
-					MDK_Warning("Special Case 2 is detected, Flag_HandleSpecialCase is false, abort @ TriangleMesh::CollapseEdge(...)")
-					return false;
+					MDK_Warning("isolated face may be generated @ TriangleMesh::CollapseEdge(...)")
 				}
+				TempFunction_HandleSpecialCase2(H2, FaceIndex012, H3H4Chain_n);
 			}
 		}
 		else
@@ -1101,20 +1164,11 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex01, int_max PointIn
 			}
 			if (Flag_SpecialCase2 == true)
 			{
-				if (Flag_HandleSpecialCase2 == true)
+				if (this->Point(H2).GetAdjacentEdgeCount() > 2)
 				{
-					if (this->Point(H2).GetAdjacentEdgeCount() > 2)
-					{
-						MDK_Warning("isolated face may be generated @ TriangleMesh::CollapseEdge(...)")
-					}
-					TempFunction_HandleSpecialCase2(H2, FaceIndex012, H3H4Chain_n);
+					MDK_Warning("isolated face may be generated @ TriangleMesh::CollapseEdge(...)")
 				}
-				else
-				{
-					MDK_Warning("H0=" << H0 << ", H1=" << H1 << ", H2=" << H2)
-					MDK_Warning("Special Case 2 is detected, Flag_HandleSpecialCase is false, abort @ TriangleMesh::CollapseEdge(...)")
-					return false;
-				}
+				TempFunction_HandleSpecialCase2(H2, FaceIndex012, H3H4Chain_n);
 			}
 			else
 			{
