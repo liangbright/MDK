@@ -90,7 +90,7 @@ public:
 	//-------------------------- mesh editing --------------------------------//
 
 	//collapse an edge (EdgeIndex) to a point (PointIndex) of the edge
-	bool CollapseEdge(int_max EdgeIndex01, int_max PointIndex0, bool Flag_HandleSpecialCase = false);
+	bool CollapseEdge(int_max EdgeIndex01, int_max PointIndex0, bool Flag_HandleSpecialCase1 = false, bool Flag_HandleSpecialCase2 = false);
 
 	//if Flag_ReuseEdgeIndex is false, then re-use EdgeIndex01
 	//if Flag_ReuseOldFaceIndex is false, then re-use index of face adjacent to EdgeIndex01

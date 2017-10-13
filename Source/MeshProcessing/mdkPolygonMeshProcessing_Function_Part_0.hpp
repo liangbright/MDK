@@ -453,7 +453,7 @@ DenseVector<int_max> SegmentMeshByEdgeCurve(const PolygonMesh<ScalarType>& Input
 	//-1: deleted face
 	//0: initial state
 	//1: the same group as FaceIndex_seed
-	FaceFlagList.Resize(InputMesh.GetMaxValueOfFaceIndex());
+	FaceFlagList.Resize(InputMesh.GetMaxValueOfFaceIndex()+1);
 	for (int_max k = 0; k < FaceFlagList.GetLength(); ++k)
 	{
 		if (InputMesh.IsValidFaceIndex(k) == true)
@@ -528,11 +528,11 @@ DenseVector<DenseVector<int_max>> SegmentMeshByEdgeCurve(const PolygonMesh<Scala
 	}
 
 	DenseVector<int_max> FaceFlagList;
-	FaceFlagList.Resize(InputMesh.GetMaxValueOfFaceIndex());
+	FaceFlagList.Resize(InputMesh.GetMaxValueOfFaceIndex()+1);
 	//-1: deleted face
 	//0: initial state
 	//1: segmented
-	FaceFlagList.Resize(InputMesh.GetMaxValueOfFaceIndex());
+	FaceFlagList.Resize(InputMesh.GetMaxValueOfFaceIndex()+1);
 	int_max FaceIndex_seed = -1;
 	for (int_max k = 0; k < FaceFlagList.GetLength(); ++k)
 	{
