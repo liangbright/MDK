@@ -1147,7 +1147,7 @@ int_max Mesh<ScalarType>::GetEdgeIndexByPoint(int_max PointIndex0, int_max Point
 {
 	if (this->IsValidPointIndex(PointIndex0) == false || this->IsValidPointIndex(PointIndex1) == false)
 	{
-		//MDK_Warning("PointIndex0 or PointIndex1 is invalid @ Mesh::GetEdgeIndexByPoint(...)")		
+		MDK_Warning("PointIndex0 or PointIndex1 is invalid @ Mesh::GetEdgeIndexByPoint(...)")		
 		return -1;
 	}
 
@@ -1160,7 +1160,8 @@ int_max Mesh<ScalarType>::GetEdgeIndexByPoint(int_max PointIndex0, int_max Point
 		{
 			if (EdgeIndexList.GetLength() > 1)
 			{
-				MDK_Warning("EdgeIndexList.GetLength() > 1 @ Mesh::GetEdgeIndexByPoint(...)")
+				MDK_Error("EdgeIndex is not unique @ Mesh::GetEdgeIndexByPoint(...)")
+				return -1;
 			}
 			return EdgeIndexList[0];
 		}
@@ -1202,7 +1203,7 @@ int_max Mesh<ScalarType>::GetFaceIndexByPoint(const DenseVector<int_max>& PointI
 	{
 		if (this->IsValidPointIndex(PointIndexList[k]) == false)
 		{
-			//MDK_Warning("PointIndexList is invalid @ Mesh::GetFaceIndexByPoint(...)")
+			MDK_Warning("PointIndexList is invalid @ Mesh::GetFaceIndexByPoint(...)")
 			return -1;
 		}
 	}
@@ -1216,7 +1217,8 @@ int_max Mesh<ScalarType>::GetFaceIndexByPoint(const DenseVector<int_max>& PointI
 	{
 		if (FaceIndexList_shared.GetLength() != 1)
 		{
-			MDK_Warning("FaceIndex is not unique @ Mesh::GetFaceIndexByPoint(...)")			
+			MDK_Error("FaceIndex is not unique @ Mesh::GetFaceIndexByPoint(...)")
+			return -1;
 		}
 		return FaceIndexList_shared[0];
 	}
@@ -1233,7 +1235,7 @@ int_max Mesh<ScalarType>::GetFaceIndexByEdge(const DenseVector<int_max>& EdgeInd
     {
         if (this->IsValidEdgeIndex(EdgeIndexList[k]) == false)
         {
-            //MDK_Warning("EdgeIndexList is invalid @ Mesh::GetFaceIndexByEdge(...)")            
+            MDK_Warning("EdgeIndexList is invalid @ Mesh::GetFaceIndexByEdge(...)")            
             return -1;
         }
     }	
@@ -1247,7 +1249,8 @@ int_max Mesh<ScalarType>::GetFaceIndexByEdge(const DenseVector<int_max>& EdgeInd
 	{
 		if (FaceIndexList_shared.GetLength() != 1)
 		{
-			MDK_Warning("FaceIndex is not unique @ Mesh::GetFaceIndexByEdge(...)")
+			MDK_Error("FaceIndex is not unique @ Mesh::GetFaceIndexByEdge(...)")
+			return -1;
 		}
 		return FaceIndexList_shared[0];
 	}
@@ -1286,7 +1289,7 @@ int_max Mesh<ScalarType>::GetCellIndexByPoint(const DenseVector<int_max>& PointI
 	{
 		if (this->IsValidPointIndex(PointIndexList[k]) == false)
 		{
-			//MDK_Warning("PointIndexList is invalid @ Mesh::GetCellIndexByPoint(...)")            
+			MDK_Warning("PointIndexList is invalid @ Mesh::GetCellIndexByPoint(...)")            
 			return -1;
 		}
 	}
@@ -1300,7 +1303,8 @@ int_max Mesh<ScalarType>::GetCellIndexByPoint(const DenseVector<int_max>& PointI
 	{
 		if (CellIndexList_shared.GetLength() != 1)
 		{
-			MDK_Warning("FaceIndex is not unique @ Mesh::GetCellIndexByPoint(...)")
+			MDK_Error("CellIndex is not unique @ Mesh::GetCellIndexByPoint(...)")
+			return -1;
 		}
 		return CellIndexList_shared[0];
 	}
@@ -1316,7 +1320,7 @@ int_max Mesh<ScalarType>::GetCellIndexByEdge(const DenseVector<int_max>& EdgeInd
 	{
 		if (this->IsValidEdgeIndex(EdgeIndexList[k]) == false)
 		{
-			//MDK_Warning("EdgeIndexList is invalid @ Mesh::GetCellIndexByEdge(...)")            
+			MDK_Warning("EdgeIndexList is invalid @ Mesh::GetCellIndexByEdge(...)")            
 			return -1;
 		}
 	}
@@ -1330,7 +1334,8 @@ int_max Mesh<ScalarType>::GetCellIndexByEdge(const DenseVector<int_max>& EdgeInd
 	{
 		if (CellIndexList_shared.GetLength() != 1)
 		{
-			MDK_Warning("FaceIndex is not unique @ Mesh::GetCellIndexByEdge(...)")
+			MDK_Error("CellIndex is not unique @ Mesh::GetCellIndexByEdge(...)")
+			return -1;
 		}
 		return CellIndexList_shared[0];
 	}
@@ -1346,7 +1351,7 @@ int_max Mesh<ScalarType>::GetCellIndexByFace(const DenseVector<int_max>& FaceInd
 	{
 		if (this->IsValidFaceIndex(FaceIndexList[k]) == false)
 		{
-			//MDK_Warning("FaceIndexList is invalid @ Mesh::GetCellIndexByFace(...)")            
+			MDK_Warning("FaceIndexList is invalid @ Mesh::GetCellIndexByFace(...)")            
 			return -1;
 		}
 	}
@@ -1360,7 +1365,8 @@ int_max Mesh<ScalarType>::GetCellIndexByFace(const DenseVector<int_max>& FaceInd
 	{
 		if (CellIndexList_shared.GetLength() != 1)
 		{
-			MDK_Warning("FaceIndex is not unique @ Mesh::GetCellIndexByFace(...)")
+			MDK_Error("CellIndex is not unique @ Mesh::GetCellIndexByFace(...)")
+			return -1;
 		}
 		return CellIndexList_shared[0];
 	}

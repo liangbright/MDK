@@ -183,7 +183,7 @@ DenseVector<int_max> ResampleOpenCurveOfSurface(TriangleMesh<ScalarType>& Surfac
 			{
 				auto Hn = PointIndexList_k[n];
 				auto EdgeIndex_n0 = Surface.GetEdgeIndexByPoint(Hn, H0);
-				auto Flag = Surface.CollapseEdge(EdgeIndex_n0, H0, true, true);
+				auto Flag = Surface.CollapseEdge(EdgeIndex_n0, H0, true);
 				if (Flag == false)
 				{
 					MDK_Error("Please modify the mesh to remove special case, abort @ TriangMeshProcessing ResampleOpenCurveOfSurface(...)")

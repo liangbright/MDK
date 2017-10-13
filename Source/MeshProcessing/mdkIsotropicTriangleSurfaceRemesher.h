@@ -69,8 +69,8 @@ public:
 	IsotropicTriangleSurfaceRemesher();
 	~IsotropicTriangleSurfaceRemesher();
 	void Clear();
+	//TODO: void SplitLongBoundaryEdge();
 	void Update();
-
 private:
 	bool CheckInput();
 	void Remesh();
