@@ -1442,7 +1442,11 @@ StdObjectVector<String> Mesh<ScalarType>::GetValidPointNameList() const
 	{
 		if (m_MeshData->PointValidityFlagList[k] == 1)
 		{
-			NameList.Append(m_MeshData->PointList[k].GetName());
+			auto Name = m_MeshData->PointList[k].GetName();
+			if (Name.IsEmpty() == false)
+			{
+				NameList.Append(Name);
+			}
 		}
 	}
 	return NameList;
@@ -1464,7 +1468,11 @@ StdObjectVector<String> Mesh<ScalarType>::GetValidEdgeNameList() const
 	{
 		if (m_MeshData->EdgeValidityFlagList[k] == 1)
 		{
-			NameList.Append(m_MeshData->EdgeList[k].GetName());
+			auto Name = m_MeshData->EdgeList[k].GetName();
+			if (Name.IsEmpty() == false)
+			{
+				NameList.Append(Name);
+			}
 		}
 	}
 	return NameList;
@@ -1479,7 +1487,11 @@ StdObjectVector<String> Mesh<ScalarType>::GetValidFaceNameList() const
 	{
 		if (m_MeshData->FaceValidityFlagList[k] == 1)
 		{
-			NameList.Append(m_MeshData->FaceList[k].GetName());
+			auto Name = m_MeshData->FaceList[k].GetName();
+			if (Name.IsEmpty() == false)
+			{
+				NameList.Append(Name);
+			}
 		}
 	}
 	return NameList;
@@ -1494,7 +1506,11 @@ StdObjectVector<String> Mesh<ScalarType>::GetValidCellNameList() const
 	{
 		if (m_MeshData->CellValidityFlagList[k] == 1)
 		{
-			NameList.Append(m_MeshData->CellList[k].GetName());
+			auto Name = m_MeshData->CellList[k].GetName();
+			if (Name.IsEmpty() == false)
+			{
+				NameList.Append(Name);
+			}
 		}
 	}
 	return NameList;

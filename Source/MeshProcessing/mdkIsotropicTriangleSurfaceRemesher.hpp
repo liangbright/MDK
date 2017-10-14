@@ -57,7 +57,7 @@ bool IsotropicTriangleSurfaceRemesher<ScalarType>::CheckInput()
 	if (Input.SourceMesh->Check_If_DataStructure_is_Clean() == false)
 	{
 		MDK_Warning("InputMesh DataStructure is NOT Clean @ IsotropicTriangleSurfaceRemesher::CheckInput()")
-		return true;
+		//return nothing;
 	}
 
 	if (Input.SourceMesh->CheckIfTriangleMesh() == false)
@@ -88,6 +88,21 @@ bool IsotropicTriangleSurfaceRemesher<ScalarType>::CheckInput()
 		{
 			MDK_Error("Input FeatureEdgeIndexList has invalid EdgeIndex @ IsotropicTriangleSurfaceRemesher::CheckInput()")
 			return false;
+		}
+	}
+
+	//check mesh
+	for (int_max k = 0; k <= Input.SourceMesh->GetMaxValueOfEdgeIndex(); ++k)
+	{
+		if (Input.SourceMesh->IsValidEdgeIndex(k) == true)
+		{
+			auto AdjFaceIndexList = Input.SourceMesh->Edge(k).GetAdjacentFaceIndexList();
+			auto AdjFaceCount = AdjFaceIndexList.GetLength();
+			if (AdjFaceCount != 1 && AdjFaceCount != 2)
+			{
+				MDK_Error("AdjFaceCount = " << AdjFaceCount << " !=1 and != 2 @ IsotropicTriangleSurfaceRemesher::CheckInput()")
+				return false;
+			}
 		}
 	}
 

@@ -133,35 +133,56 @@ bool TemplateBasedSurfaceRemesher<ScalarType>::CheckInput()
 
 	//check if all the boundary point of inputmesh included in Input.BoundarySegmentListOfSourceMesh	
 	auto BoundarySet_input = TraceMeshBoundaryCurve(*Input.SourceMesh);
-	bool Flag_all_in = true;
 	for (int_max k = 0; k < BoundarySet_input.GetLength(); ++k)
 	{
 		const auto& Boundary_k = BoundarySet_input[k];
 		for (int_max n = 0; n < Boundary_k.GetLength(); ++n)
 		{
-			bool Flag_n_in = false;
+			bool Flag_n = false;
 			for (int_max m = 0; m < Input.BoundarySegmentListOfSourceMesh.GetLength(); ++m)
 			{
 				auto tempIndex = Input.BoundarySegmentListOfSourceMesh[m].ExactMatch("first", Boundary_k[n]);
 				if (tempIndex >= 0)
 				{
-					Flag_n_in = true;
+					Flag_n = true;
 					break;
 				}
 			}
-			if (Flag_n_in == false)
+			if (Flag_n == false)
 			{
-				Flag_all_in = false;
-				break;
+				MDK_Error("Some Boundary Point NOT included in BoundarySegmentListOfInputMesh @ TemplateBasedSurfaceRemesher::CheckInput()")
+				return false;
+			}
+		}
+	}	
+
+	//check if all the boundary point of template included in Input.BoundarySegmentListOfTemplateMesh	
+	auto BoundarySet_template = TraceMeshBoundaryCurve(*Input.TemplateMesh);
+	bool Flag_all_template = true;
+	for (int_max k = 0; k < BoundarySet_template.GetLength(); ++k)
+	{
+		const auto& Boundary_k = BoundarySet_template[k];
+		for (int_max n = 0; n < Boundary_k.GetLength(); ++n)
+		{
+			bool Flag_n = false;
+			for (int_max m = 0; m < Input.BoundarySegmentListOfTemplateMesh.GetLength(); ++m)
+			{
+				auto tempIndex = Input.BoundarySegmentListOfTemplateMesh[m].ExactMatch("first", Boundary_k[n]);
+				if (tempIndex >= 0)
+				{
+					Flag_n = true;
+					break;
+				}
+			}
+			if (Flag_n == false)
+			{
+				MDK_Error("Some Boundary Point NOT included in BoundarySegmentListOfTemplateMesh @ TemplateBasedSurfaceRemesher::CheckInput()")
+				return false;
 			}
 		}
 	}
-	if (Flag_all_in == false)
-	{
-		MDK_Error("Some Boundary Point NOT included in BoundarySegmentListOfInputMesh @ TemplateBasedSurfaceRemesher::CheckInput()")
-		return false;
-	}	
 
+	//-------------------------------
 	return true;
 }
 

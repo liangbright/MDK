@@ -799,7 +799,7 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex01, int_max PointIn
 			if (H2 < 0)
 			{
 				MDK_Error("H2 < 0 @ TriangleMesh::CollapseEdge(...)")
-				return;
+				return false;
 			}
 			H2_PointIndexList.Append(H2);
 			auto EdgeIndex21 = this->GetEdgeIndexByPoint(H2, H1);
@@ -911,6 +911,8 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex01, int_max PointIn
 		{
 			this->DeletePoint(H0);
 		}
+		//------------------------------------------------------------------------------------
+		return true;
 	};
 	//--------------------------------------------------------------------------------------	
 	//======================================================================================
@@ -944,7 +946,8 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex01, int_max PointIn
 				auto FaceSetOfSegment = SegmentMeshByEdgeCurve(*this, EdgeIndexListOfClosedCurve, FaceIndex012);
 				if (FaceSetOfSegment.IsEmpty() == false)
 				{
-					if (FaceSetOfSegment.GetLength() < this->GetFaceCount() - FaceSetOfSegment.GetLength())
+					//if (FaceSetOfSegment.GetLength() < this->GetFaceCount() - FaceSetOfSegment.GetLength())
+					if (FaceSetOfSegment.GetLength() < this->GetFaceCount()/2)
 					{
 						FaceSetCandidate.Append(FaceSetOfSegment);
 						FaceCountList.Append(FaceSetOfSegment.GetLength());
@@ -1138,13 +1141,12 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex01, int_max PointIn
 	}
 	if (Flag_SpecialCase1 == true)
 	{
-		TempFunction_HandleSpecialCase();
+		return TempFunction_HandleSpecialCase();
 	}
 	else
 	{
-		TempFunction_HandleNormalCase();
+		return TempFunction_HandleNormalCase();		
 	}
-	return true;
 }
 
 
