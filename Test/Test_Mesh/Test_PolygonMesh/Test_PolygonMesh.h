@@ -130,14 +130,31 @@ void Test_SplitFace()
 	
 	InputMesh.SplitFaceByPoint(FaceIndexList[0], 0, 11);
 
-	SavePolygonMeshAsVTKFile(InputMesh, FilePathAndName + "_SplitFace.vtk");
+	SavePolygonMeshAsVTKFile(InputMesh, FilePathAndName + "_SplitFaceByPoint.vtk");
 }
 
-void Test_CutAlongEdge()
+void Test_CutAlongEdge1()
 {
 	std::string FilePathAndName = "C:/Research/MDK/MDK_Build/Test/Test_Mesh/Test_PolygonMesh/TestData/Square";
 	PolygonMesh<double> InputMesh;
 	LoadPolygonMeshFromVTKFile(InputMesh, FilePathAndName + ".vtk");
+	auto EdgeIndexA = InputMesh.GetEdgeIndexByPoint(1, 11);
+	auto EdgeIndexB = InputMesh.GetEdgeIndexByPoint(11, 21);
+	InputMesh.CutAlongEdge(EdgeIndexA);
+	InputMesh.CutAlongEdge(EdgeIndexB);
+	SavePolygonMeshAsVTKFile(InputMesh, FilePathAndName + "_CutAlongEdge1.vtk");
+}
 
-
+void Test_CutAlongEdge2()
+{
+	std::string FilePathAndName = "C:/Research/MDK/MDK_Build/Test/Test_Mesh/Test_PolygonMesh/TestData/Square";
+	PolygonMesh<double> InputMesh;
+	LoadPolygonMeshFromVTKFile(InputMesh, FilePathAndName + ".vtk");
+	auto EdgeIndexA = InputMesh.GetEdgeIndexByPoint(11, 21);
+	auto EdgeIndexB = InputMesh.GetEdgeIndexByPoint(21, 22);
+	InputMesh.CutAlongEdge(EdgeIndexA, EdgeIndexB);	
+	auto Pos100 = InputMesh.GetPointPosition(100);
+	Pos100[2] = 10.123456789;
+	InputMesh.SetPointPosition(100, Pos100);
+	SavePolygonMeshAsVTKFile(InputMesh, FilePathAndName + "_CutAlongEdge2.vtk");
 }

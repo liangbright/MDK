@@ -11,12 +11,10 @@ int main()
 	//Test_SplitEdge();
 	//Test_ShrinkFace();
 	//Test_ReversePointOrder();
-	Test_AddtionalInfo();
-
+	//Test_AddtionalInfo();
 	//Test_AddtionalInfo_Name();
-
-	Test_SplitFace();
-
+	//Test_SplitFace();
+	Test_CutAlongEdge2();
     std::system("pause");
 
     return 1;
