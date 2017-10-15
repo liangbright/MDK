@@ -128,7 +128,16 @@ void Test_SplitFace()
 	auto FaceIndexList = InputMesh.GetValidFaceIndexList();
 	auto PointIndexList_Face = InputMesh.Face(FaceIndexList[0]).GetPointIndexList();
 	
-	InputMesh.SplitFace(FaceIndexList[0], 0, 11);
+	InputMesh.SplitFaceByPoint(FaceIndexList[0], 0, 11);
 
 	SavePolygonMeshAsVTKFile(InputMesh, FilePathAndName + "_SplitFace.vtk");
+}
+
+void Test_CutAlongEdge()
+{
+	std::string FilePathAndName = "C:/Research/MDK/MDK_Build/Test/Test_Mesh/Test_PolygonMesh/TestData/Square";
+	PolygonMesh<double> InputMesh;
+	LoadPolygonMeshFromVTKFile(InputMesh, FilePathAndName + ".vtk");
+
+
 }
