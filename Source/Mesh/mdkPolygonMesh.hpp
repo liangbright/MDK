@@ -601,11 +601,11 @@ DenseVector<int_max, 2> PolygonMesh<ScalarType>::SplitFaceByEdge(int_max EdgeInd
 */
 
 template<typename ScalarType>
-DenseVector<int_max, 2> PolygonMesh<ScalarType>::SplitFace(int_max FaceIndex, int_max PointIndexA, int_max PointIndexB)
+DenseVector<int_max, 2> PolygonMesh<ScalarType>::SplitFaceByPoint(int_max FaceIndex, int_max PointIndexA, int_max PointIndexB)
 {
 	if (this->CheckIfPolygonMesh() == false)
 	{
-		MDK_Error("Only support PolygonMesh @ PolygonMesh::SplitFace(...)")
+		MDK_Error("Only support PolygonMesh @ PolygonMesh::SplitFaceByPoint(...)")
 		return false;
 	}
 
@@ -708,6 +708,585 @@ DenseVector<int_max, 2> PolygonMesh<ScalarType>::SplitFaceByEdge(int_max FaceInd
 	NewFaceIndexList[0] =this->AddFaceByPoint(PointIndexList_A);
 	NewFaceIndexList[1] =this->AddFaceByPoint(PointIndexList_B);
 	return NewFaceIndexList;
+}
+
+
+template<typename ScalarType>
+int_max PolygonMesh<ScalarType>::CutAlongEdge(int_max EdgeIndex01)
+{
+//------------------------------------------
+//case 1
+//-----------------
+// 4   1  5                4  1  5
+//   \ | /        cut =>    \/ \/
+// 2---0---3             2--0a  0---3
+//input:
+//Edge20, Edge03 on boundary
+//Edge01 NOT no boundary
+//Point0 on boundary, Point1 NOT on boundary
+//output:
+//New Point 0a
+//New Edge 0a~1
+//return: EdgeIndex0a1
+//Delete nothing
+//------------------------------------------
+//case 2
+//-----------------
+// 4---1---5            4---1a 1---5
+//     |        cut =>      |  |
+// 2---0---3            2---0a 0---3  
+//input:
+//Edge20, Edge03, Edge41, Edge15 on boundary
+//Edge01 NOT no boundary
+//Point0, Point 1 on boundary\
+//note: Point2 Point 4 may be the same
+//note: Point3 Point 5 may be the same
+//output:
+//New Point 0a, 1a
+//New Edge 1a~0a
+//return: EdgeIndex0a1a
+//Delete nothing
+//------------------------------------------
+	
+	if (this->IsValidEdgeIndex(EdgeIndex01) == false)
+	{
+		MDK_Error("Invalid EdgeIndex01 @ PolygonMesh::CutAlongEdge(...)")
+		return -1;
+	}
+	if (this->Edge(EdgeIndex01).IsOnPolygonMeshBoundary() == true)
+	{
+		MDK_Error("EdgeIndex01 is on boundary @ PolygonMesh::CutAlongEdge(...)")
+		return -1;
+	}	
+	//-----------------------------------------------------------
+	auto PointIndexList_Edge01 = this->Edge(EdgeIndex01).GetPointIndexList();
+	if (this->Point(PointIndexList_Edge01[0]).IsOnPolygonMeshBoundary() == false && this->Point(PointIndexList_Edge01[1]).IsOnPolygonMeshBoundary() == false)
+	{
+		MDK_Error("One Point of the edge must be on boundary @ PolygonMesh::CutAlongEdge(...)")
+		return -1;
+	}
+	//-----------------------------------------------------------
+	auto AdjFaceIndexList_Edge01 = this->Edge(EdgeIndex01).GetAdjacentFaceIndexList();
+	if (AdjFaceIndexList_Edge01.GetLength() != 2)
+	{
+		MDK_Error("AdjacentFaceCount of this edge is NOT 2 @ PolygonMesh::CutAlongEdge(...)")
+		return -1;
+	}	
+	//-----------------------------------------------------------
+	auto TempFunction_FindSequenceOfFace = [&](int_max FaceIndex_start, const DenseVector<int_max>& FaceIndexList)
+	{//FaceIndex_seed is inside FaceIndexList
+		DenseVector<int_max> SequenceOfFace;
+		DenseVector<int_max> FlagList;//0: initial, 1: used in SequenceOfFace
+		FlagList.Resize(FaceIndexList.GetLength());
+		FlagList.Fill(0);
+		auto tempIdx_s = FaceIndexList.ExactMatch("first", FaceIndex_start);
+		FlagList[tempIdx_s] = 1;
+		SequenceOfFace.Append(FaceIndex_start);
+		while (true)
+		{
+			bool Flag_go_on = false;
+			for (int_max k = 0; k < FaceIndexList.GetLength(); ++k)
+			{				
+				if (FlagList[k] == 0)
+				{//check if SequenceOfFace[end] is adjacent to FaceIndex_k
+					auto FaceIndex_end = SequenceOfFace[SequenceOfFace.GetLength() - 1];
+					auto AdjFaceIndexList_end = this->Face(FaceIndex_end).GetAdjacentFaceIndexList();
+					auto FaceIndex_k = FaceIndexList[k];
+					auto tempIdx_k = AdjFaceIndexList_end.ExactMatch("first", FaceIndex_k);
+					if (tempIdx_k >= 0)
+					{
+						SequenceOfFace.Append(FaceIndex_k);
+						FlagList[k] = 1;
+						Flag_go_on = true;
+						break;
+					}
+				}
+			}
+			if (Flag_go_on == false)
+			{
+				break;
+			}
+		}
+		return SequenceOfFace;
+	};
+	//-----------------------------------------------------------
+	auto TempFunction_CutA = [&](int_max P0, int_max P1, int_max P2, int_max Edge01, int_max Edge02)
+	{//-------------------------------------
+	 // 4   1  5                4  1  5
+	 //   \ | /        cut =>    \/ \/
+	 // 2---0---3             2--0a  0---3
+	 //-------------------------------------     
+	 // add new point 0a, new edge0a1
+	 // update adjacency info	 
+	 //-------------------------------------		
+		//find all face in the range defined by Edge01 and Edge02
+		auto AdjFaceIndexList_P0 = this->Point(P0).GetAdjacentFaceIndexList();
+		auto AdjFaceIndexList_Edge02= this->Point(Edge02).GetAdjacentFaceIndexList();
+		if (AdjFaceIndexList_Edge02.GetLenth() != 1)
+		{
+			MDK_Error("AdAdjFaceIndexList_Edge02.GetLenth() != 1 @ PolygonMesh::CutAlongEdge(...)")
+			return -1;
+		}
+		auto AdjFaceIndex_Edge02 = AdjFaceIndexList_Edge02[0];
+		auto FaceIndexSequence = TempFunction_FindSequenceOfFace(AdjFaceIndex_Edge02, AdjFaceIndexList_P0);		
+		FaceIndexSequence.Delete(FaceIndexSequence.GetLength() - 1);//the last two are AdjFaceIndexList_Edge01, delete one
+		auto P0a = this->AddPoint(this->GetPointPosition(P0));
+		auto EdgeIndex0a1 = this->AddEdge(P0a, P1);
+		//modify face in FaceIndexSequence: update point info
+		for (int_max k = 0; k < FaceIndexSequence.GetLength(); ++k)
+		{
+			auto& Ref_PointIndexList = this->Face(FaceIndexSequence[k]).PointIndexList();
+			auto tempIdx_point = Ref_PointIndexList.ExactMatch("first", P0);
+			Ref_PointIndexList[tempIdx_point] = P0a;
+		}
+		//modify face left adj to Ege01 (i.e. Face104): update edge info
+		auto AdjFaceIndex_Edge01_left = FaceIndexSequence[FaceIndexSequence.GetLength() - 1];
+		{
+			auto& Ref_EdgeIndexList = this->Face(AdjFaceIndex_Edge01_left).EdgeIndexList();
+			auto tempIdx_edge = Ref_EdgeIndexList.ExactMatch("first", Edge01);
+			Ref_EdgeIndexList[tempIdx_edge] = EdgeIndex0a1;
+		}
+		//modify edge01: delete left adj face
+		{
+			auto& Ref_AdjFaceIndexList = this->Edge(Edge01).AdjacentFaceIndexList();
+			auto tempIdx = Ref_AdjFaceIndexList.ExactMatch("first", AdjFaceIndex_Edge01_left);
+			Ref_AdjFaceIndexList.Delete(tempIdx);
+		}
+		//modify Edge01a: update face info
+		{
+			auto& Ref_AdjFaceIndexList = this->Edge(Edge01a).AdjacentFaceIndexList();
+			Ref_AdjFaceIndexList.Append(AdjFaceIndex_Edge01_left);
+		}		
+		//find edge that should connect to to P0a
+		DenseVector<int_max> AdjEdgeIndexList_P0a;
+		{
+			auto AdjEdgeIndexList_P0 = this->Point(P0).GetAdjacentEdgeIndexList();
+			for (int_max k = 0; k < AdjEdgeIndexList_P0.GetLength(); ++k)
+			{
+				auto AdjFaceIndexList_k = this->Edge(AdjEdgeIndexList_P0[k]).GetAdjacentFaceIndexList();
+				bool Flag_n = false;
+				for (int_max n = 0; n < AdjFaceIndexList_k.GetLength(); ++n)
+				{
+					auto FaceIndex_kn = AdjFaceIndexList_k[n];
+					auto tempIdx = FaceIndexSequence.ExactMatch("first", FaceIndex_kn);
+					if (tempIdx >= 0)
+					{
+						Flag_n = true;
+						break;
+					}
+				}
+				if (AdjEdgeIndexList_P0[k] != Edge01)
+				{
+					AdjEdgeIndexList_P0a.Append(AdjEdgeIndexList_P0[k]);
+				}
+			}
+			AdjEdgeIndexList_P0a.Append(EdgeIndex0a1);
+		}
+		//modify Edge in AdjEdgeIndexList_P0a: update point info
+		for (int_max k = 0; k < AdjEdgeIndexList_P0a.GetLength(); ++k)
+		{
+			auto PointIndexList_k = this->Edge(AdjEdgeIndexList_P0a[k]).GetPointIndexList();
+			if (PointIndexList_k[0] == P0)
+			{
+				PointIndexList_k[0] = P0a;
+			}
+			else if (PointIndexList_k[1] == P0)//must do this check because Edge0a1 is in AdjEdgeIndexList_P0a
+			{
+				PointIndexList_k[1] = P0a;
+			}
+			this->Edge(AdjEdgeIndexList_P0a[k]).SetPointIndexList(PointIndexList_k);
+		}		
+		//modify Point0a: update edge info
+		this->Point(P0a).AdjacentEdgeIndexList() = AdjEdgeIndexList_P0a;
+		//modify Point0: update edge info
+		auto AdjEdgeIndexList_P0_old = this->Point(P0).GetAdjacentEdgeIndexList();
+		this->Point(P0).AdjacentEdgeIndexList() = SetDiff(AdjEdgeIndexList_P0_old, AdjEdgeIndexList_P0a);				
+		//output
+		return EdgeIndex0a1;
+	};
+	//-----------------------------------------------------------
+	//-----------------------------------------------------------
+	auto TempFunction_CutB = [&](int_max P1, int_max P4, int_max Edge14)
+	{//---------------------------------------------------------
+     // 4---1---5            4---1---5             4---1a  1---5
+     //     |      cutA =>    \ / \ /      cutB =>     |   |
+     // 2---0---3          2---0a  0---3           2---0a  0---3  
+	 //---------------------------------------------------------	 
+	 // add new point 1a and new edge0a1a
+	 // update adjacency info
+	 //---------------------------------------------------------
+	 //find all face in the range defined by Edge01 and Edge02
+		auto AdjFaceIndexList_P1 = this->Point(P1).GetAdjacentFaceIndexList();
+		auto AdjFaceIndexList_Edge14 = this->Point(Edge14).GetAdjacentFaceIndexList();
+		if (AdjFaceIndexList_Edge14.GetLenth() != 1)
+		{
+			MDK_Error("AdAdjFaceIndexList_Edge`4.GetLenth() != 1 @ PolygonMesh::CutAlongEdge(...)")
+			return -1;
+		}
+		auto AdjFaceIndex_Edge14 = AdjFaceIndexList_Edge14[0];
+		auto FaceIndexSequence = TempFunction_FindSequenceOfFace(AdjFaceIndex_Edge14, AdjFaceIndexList_P1);		
+		auto P1a = this->AddPoint(this->GetPointPosition(P1));
+		auto EdgeIndex0a1a = this->AddEdge(P0a, P1a);
+		//modify face in FaceIndexSequence: update point info
+		for (int_max k = 0; k < FaceIndexSequence.GetLength(); ++k)
+		{
+			auto& Ref_PointIndexList = this->Face(FaceIndexSequence[k]).PointIndexList();
+			auto tempIdx_point = Ref_PointIndexList.ExactMatch("first", P1);
+			Ref_PointIndexList[tempIdx_point] = P1a;
+		}		
+		//find edge that should connect to P1a
+		DenseVector<int_max> AdjEdgeIndexList_P1a;
+		{
+			auto AdjEdgeIndexList_P1 = this->Point(P1).GetAdjacentEdgeIndexList();
+			for (int_max k = 0; k < AdjEdgeIndexList_P1.GetLength(); ++k)
+			{
+				auto AdjFaceIndexList_k = this->Edge(AdjEdgeIndexList_P1[k]).GetAdjacentFaceIndexList();
+				bool Flag_n = false;
+				for (int_max n = 0; n < AdjFaceIndexList_k.GetLength(); ++n)
+				{
+					auto FaceIndex_kn = AdjFaceIndexList_k[n];
+					auto tempIdx = FaceIndexSequence.ExactMatch("first", FaceIndex_kn);
+					if (tempIdx >= 0)
+					{
+						Flag_n = true;
+						break;
+					}
+				}
+				AdjEdgeIndexList_P1a.Append(AdjEdgeIndexList_P1[k]);
+			}
+		}
+		//modify Edge in AdjEdgeIndexList_P1a: update point info
+		for (int_max k = 0; k < AdjEdgeIndexList_P1a.GetLength(); ++k)
+		{
+			auto PointIndexList_k = this->Edge(AdjEdgeIndexList_P1a[k]).GetPointIndexList();
+			if (PointIndexList_k[0] == P1)
+			{
+				PointIndexList_k[0] = P1a;
+			}
+			else if (PointIndexList_k[1] == P1)
+			{
+				PointIndexList_k[1] = P1a;
+			}
+			this->Edge(AdjEdgeIndexList_P1a[k]).SetPointIndexList(PointIndexList_k);
+		}		
+		//modify Point1a: update edge info
+		this->Point(P1a).AdjacentEdgeIndexList() = AdjEdgeIndexList_P1a;
+		//modify Point1: update edge info
+		auto AdjEdgeIndexList_P1_old = this->Point(P1).GetAdjacentEdgeIndexList();
+		this->Point(P1).AdjacentEdgeIndexList() = SetDiff(AdjEdgeIndexList_P1_old, AdjEdgeIndexList_P1a);
+		//output
+		return EdgeIndex0a1a;
+	};
+	//-----------------------------------------------------------
+	//-----------------------------------------------------------
+	//find Point0 and Point1
+	int_max P0 = -1;
+	int_max P1 = -1;
+	if (this->Point(PointIndexList_Edge01[0]).IsOnPolygonMeshBoundary() == true)
+	{
+		P0 = PointIndexList_Edge01[0];
+		P1 = PointIndexList_Edge01[1];
+	}
+	else
+	{
+		P0 = PointIndexList_Edge01[1];
+		P1 = PointIndexList_Edge01[0];
+	}
+	//-----------------------------------------------------------
+	//find Point2 and Edge02
+	auto AdjPointIndexList_P0 = this->Point(P0).GetAdjacentPointIndexList();
+	DenseVector<int_max> P2P3_PointIndexList;
+	for (int_max k = 0; k < AdjPointIndexList_P0.GetLength(); ++k)
+	{
+		if (this->Point(AdjPointIndexList_P0[k]).IsOnPolygonMeshBoundary() == true)
+		{
+			P2P3_PointIndexList.Append((AdjPointIndexList_P0[k]);
+		}
+	}
+	if (P2P3_PointIndexList.GetLength() != 2)
+	{
+		MDK_Error("Can not cut this edge because P2P3_PointIndexList.GetLength() != 2 @ PolygonMesh::CutAlongEdge(...)")
+		return -1;
+	}
+	auto P2 = P2P3_PointIndexList[0];
+	auto EdgeIndex02 = this->GetEdgeIndexByPoint(P0, P2);
+	auto EdgeIndex0a1 = TempFunction_CutA(P0, P1, P2, EdgeIndex01, EdgeIndex02);
+	if (this->Point(P1).IsOnPolygonMeshBoundary() == true)
+	{
+		//find P4 and Edge14
+		auto AdjPointIndexList_P1 = this->Point(P1).GetAdjacentPointIndexList();
+		DenseVector<int_max> P4P5_PointIndexList;
+		for (int_max k = 0; k < AdjPointIndexList_P1.GetLength(); ++k)
+		{
+			if (this->Point(AdjPointIndexList_P1[k]).IsOnPolygonMeshBoundary() == true)
+			{
+				P4P5_PointIndexList.Append((AdjPointIndexList_P1[k]);
+			}
+		}
+		if (P4P5_PointIndexList.GetLength() != 2)
+		{
+			MDK_Error("Can not cut this edge because P4P5_PointIndexList.GetLength() != 2 @ PolygonMesh::CutAlongEdge(...)")
+			return -1;
+		}
+		auto P4 = P4P5_PointIndexList[0];
+		auto EdgeIndex14 = this->GetEdgeIndexByPoint(P1, P4);
+		auto EdgeIndex0a1a = TempFunction_CutB(P1, P4, EdgeIndex14);
+		return EdgeIndex0a1a;
+	}
+	else
+	{
+		return EdgeIndex0a1;
+	}	
+}
+
+
+template<typename ScalarType>
+DenseVector<int_max, 2> PolygonMesh<ScalarType>::CutAlongEdge(int_max EdgeIndex01, int_max EdgeIndex12)
+{
+//---------------------------------------
+// 3  2  4             3    2  4
+//  \ | /               \  / \ /
+//5---1---6   cut =>  5---1a  1 ---6  
+//  / | \                / \ / \
+// 7  0  8              7   0   8
+//
+//{2, 1a, 0, 1b} is a hole
+//---------------------------
+//after cut:
+//New Point 1a
+//New Edge 1a~2, 1a~0
+//return:EdgeIndexList_output ={ Edge01a, Edge1a2 }
+//-------------------------------------------------
+
+	DenseVector<int_max, 2> EdgeIndexList_output;
+	EdgeIndexList_output.Fill(-1);
+	if (this->IsValidEdgeIndex(EdgeIndex01) == false)
+	{
+		MDK_Error("Invalid EdgeIndex01 @ PolygonMesh::CutAlongEdge(...)")
+		return EdgeIndexList_output;
+	}
+	if (this->IsValidEdgeIndex(EdgeIndex12) == false)
+	{
+		MDK_Error("Invalid EdgeIndex12 @ PolygonMesh::CutAlongEdge(...)")
+		return EdgeIndexList_output;
+	}
+	if (this->Edge(EdgeIndex01).IsOnPolygonMeshBoundary() == true)
+	{
+		MDK_Error("EdgeIndex01 is on boundary @ PolygonMesh::CutAlongEdge(...)")
+		return EdgeIndexList_output;
+	}
+	if (this->Edge(EdgeIndex12).IsOnPolygonMeshBoundary() == true)
+	{
+		MDK_Error("EdgeIndex12 is on boundary @ PolygonMesh::CutAlongEdge(...)")
+		return EdgeIndexList_output;
+	}
+	//-----------------------------------------------------------
+	auto PointIndexList_Edge01 = this->Edge(EdgeIndex01).GetPointIndexList();
+	if (this->Point(PointIndexList_Edge01[0]).IsOnPolygonMeshBoundary() == true || this->Point(PointIndexList_Edge01[1]).IsOnPolygonMeshBoundary() == true)
+	{
+		MDK_Error("One Point of the edge is on boundary @ PolygonMesh::CutAlongEdge(...)")
+		return EdgeIndexList_output;
+	}
+	//-----------------------------------------------------------
+	auto PointIndexList_Edge12 = this->Edge(EdgeIndex12).GetPointIndexList();
+	if (this->Point(PointIndexList_Edge12[0]).IsOnPolygonMeshBoundary() == true || this->Point(PointIndexList_Edge12[1]).IsOnPolygonMeshBoundary() == true)
+	{
+		MDK_Error("One Point of the edge is on boundary @ PolygonMesh::CutAlongEdge(...)")
+		return EdgeIndexList_output;
+	}
+	//-----------------------------------------------------------
+	// find Point0, Point1, Point2
+	int_max P0, P1, P2;
+	if (PointIndexList_Edge01[0] == PointIndexList_Edge12[0])
+	{
+		P0 = PointIndexList_Edge01[1];
+		P1 = PointIndexList_Edge01[0];
+		P2 = PointIndexList_Edge12[1];
+	}
+	else if (PointIndexList_Edge01[0] == PointIndexList_Edge12[1])
+	{
+		P0 = PointIndexList_Edge01[1];
+		P1 = PointIndexList_Edge01[0];
+		P2 = PointIndexList_Edge12[0];
+	}
+	else if (PointIndexList_Edge01[1] == PointIndexList_Edge12[0])
+	{
+		P0 = PointIndexList_Edge01[0];
+		P1 = PointIndexList_Edge01[1];
+		P2 = PointIndexList_Edge12[1];
+	}
+	else if (PointIndexList_Edge01[1] == PointIndexList_Edge12[1])
+	{
+		P0 = PointIndexList_Edge01[0];
+		P1 = PointIndexList_Edge01[1];
+		P2 = PointIndexList_Edge12[0];
+	}
+	else
+	{
+		MDK_Error("Two edge do not share a point @ PolygonMesh::CutAlongEdge(...)")
+		return EdgeIndexList_output;
+	}
+	//---------------------------------------------------------------------------------------------------------------
+	auto TempFunction_FindSequenceOfFace = [&](int_max FaceIndex_start, const DenseVector<int_max>& FaceIndexList)
+	{//FaceIndex_seed is inside FaceIndexList
+		DenseVector<int_max> SequenceOfFace;
+		DenseVector<int_max> FlagList;//0: initial, 1: used in SequenceOfFace
+		FlagList.Resize(FaceIndexList.GetLength());
+		FlagList.Fill(0);
+		auto tempIdx_s = FaceIndexList.ExactMatch("first", FaceIndex_start);
+		FlagList[tempIdx_s] = 1;
+		SequenceOfFace.Append(FaceIndex_start);
+		while (true)
+		{
+			bool Flag_go_on = false;
+			for (int_max k = 0; k < FaceIndexList.GetLength(); ++k)
+			{
+				if (FlagList[k] == 0)
+				{//check if SequenceOfFace[end] is adjacent to FaceIndex_k
+					auto FaceIndex_end = SequenceOfFace[SequenceOfFace.GetLength() - 1];
+					auto AdjFaceIndexList_end = this->Face(FaceIndex_end).GetAdjacentFaceIndexList();
+					auto FaceIndex_k = FaceIndexList[k];
+					auto tempIdx_k = AdjFaceIndexList_end.ExactMatch("first", FaceIndex_k);
+					if (tempIdx_k >= 0)
+					{
+						SequenceOfFace.Append(FaceIndex_k);
+						FlagList[k] = 1;
+						Flag_go_on = true;
+						break;
+					}
+				}
+			}
+			if (Flag_go_on == false)
+			{
+				break;
+			}
+		}
+		return SequenceOfFace;
+	};
+	//---------------------------------------------------------------------------------------------------------------
+	auto EdgeIndex01 = this->GetEdgeIndexByPoint(P0, P1);
+	auto AdjFaceIndexList_Edge01 = this->Edge(EdgeIndex01).GetAdjacentFaceIndexList();
+	auto EdgeIndex12 = this->GetEdgeIndexByPoint(P1, P2);
+	auto AdjFaceIndexList_Edge12 = this->Edge(EdgeIndex12).GetAdjacentFaceIndexList();
+	//find two disjoint faceset adjacent to P1
+	DenseVector<int_max> FaceSetA, FaceSetB;
+	int_max FaceIndex01A = AdjFaceIndexList_Edge01[0];//in FaceSetA
+	int_max FaceIndex01B = AdjFaceIndexList_Edge01[1];//in FaceSetB
+	int_max FaceIndex12A = -1;//in FaceSetA
+	int_max FaceIndex12B = -1;//in FaceSetB	
+	{
+		auto AdjFaceIndexList_P1 = this->Point(P1).GetAdjacentFaceIndexList();
+		auto AdjFaceIndexList_P1_less = AdjFaceIndexList_P1;
+		{
+			auto tempIdx = AdjFaceIndexList_P1_less.ExactMatch("first", FaceIndex01B);
+			AdjFaceIndexList_P1_less.Delete(tempIdx);
+		}
+		auto FaceSquence = TempFunction_FindSequenceOfFace(FaceIndex01A, AdjFaceIndexList_P1_less);
+		auto tempIdx0 = FaceSquence.ExactMatch("first", AdjFaceIndexList_Edge12[0]);
+		auto tempIdx1 = FaceSquence.ExactMatch("first", AdjFaceIndexList_Edge12[1]);
+		if (tempIdx0 < tempIdx1)
+		{
+			FaceIndex12A = AdjFaceIndexList_Edge12[0];
+			FaceIndex12B = AdjFaceIndexList_Edge12[1];
+			FaceSetA = FaceSquence.GetSubSet(0, tempIdx0);
+		}
+		else
+		{
+			FaceIndex12A = AdjFaceIndexList_Edge12[1];
+			FaceIndex12B = AdjFaceIndexList_Edge12[0];
+			FaceSetA = FaceSquence.GetSubSet(0, tempIdx1);
+		}
+		FaceSetB = SetDiff(AdjFaceIndexList_P1, FaceSetA);
+	}
+	//create a new Point1a and make sure Point1a and FaceSetA are connected
+	auto P1a = this->AddPoint(this->GetPointPosition(P1));
+	//create new Edge1a0 and Edge1a2
+	auto EdgeIndex1a0 = this->AddEdge(P1a, P0);
+	auto EdgeIndex1a2 = this->AddEdge(P1a, P2);
+	//modify face in FaceSetA: update point
+	for (int_max k = 0; k < FaceSetA.GetLength(); ++k)
+	{
+		auto& Ref_PointIndexList = this->Face(FaceSetA[k]).PointIndexList();
+		auto tempIdx = Ref_PointIndexList.ExactMatch("first", P1);
+		Ref_PointIndexList[tempIdx] = P1a;
+	}
+	//modify FaceIndex01A: update edge
+	{
+		auto& Ref_EdgeIndexList = this->Face(FaceIndex01A).EdgeIndexList();
+		auto tempIdx = Ref_EdgeIndexList.ExactMatch("first", EdgeIndex01);
+		Ref_EdgeIndexList.Delete(tempIdx);
+	}
+	//modify FaceIndex12A: update edge
+	{
+		auto& Ref_EdgeIndexList = this->Face(FaceIndex12A).EdgeIndexList();
+		auto tempIdx = Ref_EdgeIndexList.ExactMatch("first", EdgeIndex12);
+		Ref_EdgeIndexList.Delete(tempIdx);
+	}
+	//modify Edge1a0
+	this->Edge(EdgeIndex1a0).AdjacentFaceIndex().Append(FaceIndex01A);
+	//modify Edge1a2
+	this->Edge(EdgeIndex1a2).AdjacentFaceIndex().Append(FaceIndex12A);
+    //modify Edge01
+	{
+		auto& Ref_AdjFaceIndexList = this->Edge(EdgeIndex01).AdjacentFaceIndexList();
+		auto tempIdx = Ref_AdjFaceIndexList.ExactMatch("first", FaceIndex01A);
+		Ref_AdjFaceIndexList.Delete(tempIdx);
+	}
+	//modify Edge12
+	{
+		auto& Ref_AdjFaceIndexList = this->Edge(EdgeIndex12).AdjacentFaceIndexList();
+		auto tempIdx = Ref_AdjFaceIndexList.ExactMatch("first", FaceIndex12A);
+		Ref_AdjFaceIndexList.Delete(tempIdx);
+	}
+	//find edge that should connect to P1a
+	DenseVector<int_max> AdjEdgeIndexList_P1a;
+	{
+		auto AdjEdgeIndexList_P1 = this->Point(P1).GetAdjacentEdgeIndexList();
+		for (int_max k = 0; k < AdjEdgeIndexList_P1.GetLength(); ++k)
+		{
+			auto AdjFaceIndexList_k = this->Edge(AdjEdgeIndexList_P1[k]).GetAdjacentFaceIndexList();
+			bool Flag_n = false;
+			for (int_max n = 0; n < AdjFaceIndexList_k.GetLength(); ++n)
+			{
+				auto FaceIndex_kn = AdjFaceIndexList_k[n];
+				auto tempIdx = FaceSetA.ExactMatch("first", FaceIndex_kn);
+				if (tempIdx >= 0)
+				{
+					Flag_n = true;
+					break;
+				}
+			}
+			if (AdjEdgeIndexList_P1[k] != EdgeIndex01 && AdjEdgeIndexList_P1[k] != EdgeIndex12)
+			{
+				AdjEdgeIndexList_P1a.Append(AdjEdgeIndexList_P1[k]);
+			}
+		}
+		AdjEdgeIndexList_P1a.Append(EdgeIndex1a0);
+		AdjEdgeIndexList_P1a.Append(EdgeIndex1a2);
+	}
+	//modify Edge in AdjEdgeIndexList_P1a: update point info
+	for (int_max k = 0; k < AdjEdgeIndexList_P1a.GetLength(); ++k)
+	{
+		auto PointIndexList_k = this->Edge(AdjEdgeIndexList_P1a[k]).GetPointIndexList();
+		if (PointIndexList_k[0] == P1)
+		{
+			PointIndexList_k[0] = P1a;
+		}
+		else if (PointIndexList_k[1] == P1)//must do this check because Edge1a0 and Edge1a2 is in AdjEdgeIndexList_P1a
+		{
+			PointIndexList_k[1] = P1a;
+		}
+		this->Edge(AdjEdgeIndexList_P1a[k]).SetPointIndexList(PointIndexList_k);
+	}
+	//modify Point1a: update edge info
+	this->Point(P1a).AdjacentEdgeIndexList() = AdjEdgeIndexList_P1a;
+	//modify Point1: update edge info
+	auto AdjEdgeIndexList_P1_old = this->Point(P1).GetAdjacentEdgeIndexList();
+	this->Point(P1).AdjacentEdgeIndexList() = SetDiff(AdjEdgeIndexList_P1_old, AdjEdgeIndexList_P1a);
+	//output
+	EdgeIndexList_output[0] = EdgeIndex1a0;
+	EdgeIndexList_output[1] = EdgeIndex1a2;
+	return EdgeIndexList_output;
 }
 
 }// namespace mdk

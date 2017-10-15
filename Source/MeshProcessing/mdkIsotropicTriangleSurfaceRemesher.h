@@ -17,7 +17,7 @@ struct Input_of_IsotropicTriangleSurfaceRemesher
 	const TriangleMesh<ScalarType>* SourceMesh;
 	
 	//feature point/edge will not be modified
-	//do not need to set boundary point as feature because boundary point will not be modified
+	//do not need to set boundary as feature because boundary will not be modified if Flag_ProcessBounary is true
 	DenseVector<int_max> FeaturePointIndexList;
 	DenseVector<int_max> FeatureEdgeIndexList;
 	ScalarType TargetEdgeLength;
@@ -25,6 +25,9 @@ struct Input_of_IsotropicTriangleSurfaceRemesher
 
 	//true then run OutputMesh.CleanDataStructure();
 	bool Flag_CleanDataStructureOfOutputMesh;
+	
+	//false, then bounary (point, edge) will not be modified
+	bool Flag_ProcessBounary;
 };
 
 template<typename ScalarType>
@@ -35,11 +38,11 @@ struct Internal_of_IsotropicTriangleSurfaceRemesher
 
 	DenseVector<int_max> PointFlagList;
 	//PointFlagList[k]: 0, nothing special for Point-k of SourceMesh
-	//PointFlagList[k]: 1, boundary point or input feature point of SourceMesh
+	//PointFlagList[k]: 1, feature point of SourceMesh
 
 	DenseVector<int_max> EdgeFlagList;
 	//EdgeFlagList[k]: 0, nothing special for Edge-k of SourceMesh
-	//EdgeFlagList[k]: 1, boundary edge or input feature edge of SourceMesh
+	//EdgeFlagList[k]: 1, feature edge of SourceMesh
 
 	ScalarType  MaxEdgeLength;
 	ScalarType	MinEdgeLength;
@@ -73,6 +76,9 @@ public:
 	void Update();
 private:
 	bool CheckInput();
+	void ProcessBoundary();
+	void SplitLongBoundaryEdge();
+	void CollapseShortBoundaryEdge();
 	void Remesh();
 	void EqualizeValence();
 	void SplitLongEdge();	

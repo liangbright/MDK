@@ -123,13 +123,16 @@ public:
 	// int_max MergeAdjacentFace(int_max FaceIndexA, int_max FaceIndexB, int_max FaceIndex_A_or_B_or_Other);
 
 	//PointA, PointB belong to the face
-	DenseVector<int_max, 2> SplitFace(int_max FaceIndex, int_max PointIndexA, int_max PointIndexB);
+	DenseVector<int_max, 2> SplitFaceByPoint(int_max FaceIndex, int_max PointIndexA, int_max PointIndexB);
 
 	DenseVector<int_max, 2> SplitFaceByEdge(int_max FaceIndex, int_max EdgeABIndex);
 
 	// bool ShrinkCellToPoint(int_max CellIndex, int_max PointIndex)
 	// int_max MergeAdjacentCell(int_max CellIndexA, int_max CellIndexB);
 	// int_max MergeAdjacentCell(int_max CellIndexA, int_max CellIndexB, int_max CellIndex_A_or_B_or_Other);
+
+	int_max CutAlongEdge(int_max EdgeIndex01);
+	DenseVector<int_max, 2> CutAlongEdge(int_max EdgeIndex01, int_max EdgeIndex12);
 };
 
 }// namespace mdk
