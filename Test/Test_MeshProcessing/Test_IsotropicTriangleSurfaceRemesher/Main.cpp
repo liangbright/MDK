@@ -10,7 +10,7 @@ void test_Wall_tri()
 
 	IsotropicTriangleSurfaceRemesher<double> Remesher;
 	Remesher.Input.SourceMesh = &InputMesh;
-	Remesher.Input.TargetEdgeLength = 0.5;
+	Remesher.Input.TargetEdgeLength = 1;
 	Remesher.Input.Flag_ProcessBounary = true;
 	Remesher.Update();
 	std::cout << "IsoRemesh completed" << '\n';	

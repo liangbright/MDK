@@ -1130,13 +1130,13 @@ bool TriangleMesh<ScalarType>::CollapseEdge(int_max EdgeIndex01, int_max PointIn
 	auto Flag_SpecialCase1 = TempFunction_DetectSpecialCase1();
 	if (Flag_SpecialCase1 == true && Flag_HandleSpecialCase1 == false)
 	{
-		MDK_Warning("Special Case 1 is detected, Flag_HandleSpecialCase1 is false, abort @ TriangleMesh::CollapseEdge(...)")
+		//MDK_Warning("Special Case 1 is detected, Flag_HandleSpecialCase1 is false, abort @ TriangleMesh::CollapseEdge(...)")
 		return false;
 	}
 	auto Flag_SpecialCase2 = TempFunction_DetectSpecialCase2();
 	if (Flag_SpecialCase2 == true && Flag_HandleSpecialCase2 == false)
 	{
-		MDK_Warning("Special Case 2 is detected, Flag_HandleSpecialCase2 is false, abort @ TriangleMesh::CollapseEdge(...)")
+		//MDK_Warning("Special Case 2 is detected, Flag_HandleSpecialCase2 is false, abort @ TriangleMesh::CollapseEdge(...)")
 		return false;
 	}
 	if (Flag_SpecialCase1 == true)
@@ -1189,7 +1189,7 @@ int_max TriangleMesh<ScalarType>::FlipEdge(int_max EdgeIndex01, bool Flag_ReuseE
 	if (FaceIndexListAB.GetLength() != 2)
 	{
 		MDK_Warning("AdjacentFaceCount is " << FaceIndexListAB.GetLength() << " != 2, abort @ TriangleMesh::FlipEdge(...)")
-		return false;
+		return -1;
 	}
 	int_max FaceIndexA = -1;
 	int_max FaceIndexB = -1;
@@ -1234,14 +1234,14 @@ int_max TriangleMesh<ScalarType>::FlipEdge(int_max EdgeIndex01, bool Flag_ReuseE
 		}
 	}
 	
-	//check special case 1
+	//abort if special case 1
 	bool Flag_SpecialCase1 = false;
 	{
 		auto EdgeIndex23 = this->GetEdgeIndexByPoint(H2, H3);
 		if (EdgeIndex23 >= 0)
 		{
 			Flag_SpecialCase1 = true;
-			MDK_Warning("Special Case 1 is detected, abort @ TriangleMesh::FlipEdge(...)")
+			//MDK_Warning("Special Case 1 is detected, abort @ TriangleMesh::FlipEdge(...)")
 			return -1;
 		}
 	}

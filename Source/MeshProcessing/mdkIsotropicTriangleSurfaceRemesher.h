@@ -71,11 +71,11 @@ public:
 public:
 	IsotropicTriangleSurfaceRemesher();
 	~IsotropicTriangleSurfaceRemesher();
-	void Clear();
-	//TODO: void SplitLongBoundaryEdge();
+	void Clear();	
 	void Update();
 private:
 	bool CheckInput();
+	void Initialize();
 	void ProcessBoundary();
 	void SplitLongBoundaryEdge();
 	void CollapseShortBoundaryEdge();

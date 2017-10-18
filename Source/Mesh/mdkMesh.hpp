@@ -3668,10 +3668,10 @@ void Mesh<ScalarType>::CleanDataStructure(DenseVector<int_max>& PointIndexMap_Ol
 		AdjacentCellIndexList_old = std::move(m_MeshData->FaceList[FaceIndex_new].AdjacentCellIndexList());
 		for (int_max n = 0; n < AdjacentCellIndexList_old.GetLength(); ++n)
 		{
-			auto Index_new = CellIndexMap_Old_To_New[AdjacentCellIndexList_old[n]];
-			if (Index_new >= 0)
+			auto CellIndex_new = CellIndexMap_Old_To_New[AdjacentCellIndexList_old[n]];
+			if (CellIndex_new >= 0)
 			{
-				AdjacentCellIndexList_new.Append(Index_new);
+				AdjacentCellIndexList_new.Append(CellIndex_new);
 			}
 		}
 		m_MeshData->FaceList[FaceIndex_new].AdjacentCellIndexList() = std::move(AdjacentCellIndexList_new);
@@ -3688,10 +3688,10 @@ void Mesh<ScalarType>::CleanDataStructure(DenseVector<int_max>& PointIndexMap_Ol
 		AdjacentFaceIndexList_old = std::move(m_MeshData->EdgeList[EdgeIndex_new].AdjacentFaceIndexList());
 		for (int_max n = 0; n < AdjacentFaceIndexList_old.GetLength(); ++n)
 		{
-			auto Index_new = FaceIndexMap_Old_To_New[AdjacentFaceIndexList_old[n]];
-			if (Index_new >= 0)
+			auto FaceIndex_new = FaceIndexMap_Old_To_New[AdjacentFaceIndexList_old[n]];
+			if (FaceIndex_new >= 0)
 			{
-				AdjacentFaceIndexList_new.Append(Index_new);
+				AdjacentFaceIndexList_new.Append(FaceIndex_new);
 			}
 		}
 		m_MeshData->EdgeList[EdgeIndex_new].AdjacentFaceIndexList() = std::move(AdjacentFaceIndexList_new);
@@ -3703,10 +3703,10 @@ void Mesh<ScalarType>::CleanDataStructure(DenseVector<int_max>& PointIndexMap_Ol
 		AdjacentEdgeIndexList_old = std::move(m_MeshData->PointList[PointIndex_new].AdjacentEdgeIndexList());
 		for (int_max n = 0; n < AdjacentEdgeIndexList_old.GetLength(); ++n)
 		{
-			auto Index_new = EdgeIndexMap_Old_To_New[AdjacentEdgeIndexList_old[n]];
-			if (Index_new >= 0)
+			auto EdgeIndex_new = EdgeIndexMap_Old_To_New[AdjacentEdgeIndexList_old[n]];
+			if (EdgeIndex_new >= 0)
 			{
-				AdjacentEdgeIndexList_new.Append(Index_new);
+				AdjacentEdgeIndexList_new.Append(EdgeIndex_new);
 			}
 		}	
 		m_MeshData->PointList[PointIndex_new].AdjacentEdgeIndexList() = std::move(AdjacentEdgeIndexList_new);
@@ -3720,7 +3720,7 @@ void Mesh<ScalarType>::CleanDataStructure(DenseVector<int_max>& PointIndexMap_Ol
 		DataSet_old = std::move(m_MeshData->PointDataSet[Index]);
 		DataSet_new.Resize(DataSet_old.GetRowCount(), m_MeshData->PointList.GetLength());
 		DataSet_new.Fill(0);
-		int_max MaxIndexValue = (std::max)(DataSet_old.GetColCount(), PointIndexMap_Old_To_New.GetLength()) - 1;
+		int_max MaxIndexValue = PointIndexMap_Old_To_New.GetLength() - 1;
 		for (int_max PointIndex_old = 0; PointIndex_old <= MaxIndexValue; ++PointIndex_old)
 		{
 			auto PointIndex_new = PointIndexMap_Old_To_New[PointIndex_old];
@@ -3738,7 +3738,7 @@ void Mesh<ScalarType>::CleanDataStructure(DenseVector<int_max>& PointIndexMap_Ol
 		DataSet_old = std::move(m_MeshData->EdgeDataSet[Index]);
 		DataSet_new.Resize(DataSet_old.GetRowCount(), m_MeshData->EdgeList.GetLength());
 		DataSet_new.Fill(0);
-		int_max MaxIndexValue = (std::max)(DataSet_old.GetColCount(), EdgeIndexMap_Old_To_New.GetLength()) - 1;
+		int_max MaxIndexValue = EdgeIndexMap_Old_To_New.GetLength() - 1;
 		for (int_max EdgeIndex_old = 0; EdgeIndex_old <= MaxIndexValue; ++EdgeIndex_old)
 		{
 			auto EdgeIndex_new = EdgeIndexMap_Old_To_New[EdgeIndex_old];
@@ -3756,7 +3756,7 @@ void Mesh<ScalarType>::CleanDataStructure(DenseVector<int_max>& PointIndexMap_Ol
 		DataSet_old = std::move(m_MeshData->FaceDataSet[Index]);		
 		DataSet_new.Resize(DataSet_old.GetRowCount(), m_MeshData->FaceList.GetLength());
 		DataSet_new.Fill(0);
-		int_max MaxIndexValue = (std::max)(DataSet_old.GetColCount(), FaceIndexMap_Old_To_New.GetLength()) - 1;
+		int_max MaxIndexValue = FaceIndexMap_Old_To_New.GetLength() - 1;
 		for (int_max FaceIndex_old = 0; FaceIndex_old <= MaxIndexValue; ++FaceIndex_old)
 		{
 			auto FaceIndex_new = FaceIndexMap_Old_To_New[FaceIndex_old];
@@ -3774,7 +3774,7 @@ void Mesh<ScalarType>::CleanDataStructure(DenseVector<int_max>& PointIndexMap_Ol
 		DataSet_old = std::move(m_MeshData->CellDataSet[Index]);	
 		DataSet_new.Resize(DataSet_old.GetRowCount(), m_MeshData->CellList.GetLength());
 		DataSet_new.Fill(0);
-		int_max MaxIndexValue = (std::max)(DataSet_old.GetColCount(), CellIndexMap_Old_To_New.GetLength()) - 1;
+		int_max MaxIndexValue = CellIndexMap_Old_To_New.GetLength() - 1;
 		for (int_max CellIndex_old = 0; CellIndex_old <= MaxIndexValue; ++CellIndex_old)
 		{
 			auto CellIndex_new = CellIndexMap_Old_To_New[CellIndex_old];
@@ -3787,7 +3787,7 @@ void Mesh<ScalarType>::CleanDataStructure(DenseVector<int_max>& PointIndexMap_Ol
 	}
 
 	//------------------------------------ update PointSet/EdgeSet/FaceSet/CellSet -----------------------------------------
-
+	//in each set, index order will be preserved; index will be deleted if -1
 	for (int_max k = 0; k < m_MeshData->PointSet.GetLength(); ++k)
 	{
 		DenseVector<int_max> PointSet_old, PointSet_new;

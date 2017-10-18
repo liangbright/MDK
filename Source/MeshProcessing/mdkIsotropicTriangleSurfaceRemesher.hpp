@@ -119,109 +119,12 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::Update()
 		return;
 	}
 	//--------------------------------------------------------------------
-	if (Input.SourceMesh->Check_If_DataStructure_is_Clean() == false)
-	{
-		auto tempSurface = *Input.SourceMesh;
-		tempSurface.CleanDataStructure();
-		Internal.SourceMesh_vtk = ConvertMDKPolygonMeshToVTKPolyData(tempSurface);
-	}
-	else
-	{
-		Internal.SourceMesh_vtk = ConvertMDKPolygonMeshToVTKPolyData(*Input.SourceMesh);
-	}
-	Internal.CellLocator_vtk = vtkSmartPointer<vtkCellLocator>::New();
-	Internal.CellLocator_vtk->SetDataSet(Internal.SourceMesh_vtk);
-	Internal.CellLocator_vtk->BuildLocator();			
-	//--------------------------------------------------------------------
-	Internal.MaxEdgeLength = ScalarType(4.0 / 3.0)*Input.TargetEdgeLength;
-	Internal.MinEdgeLength = ScalarType(4.0 / 5.0)*Input.TargetEdgeLength;
-	//--------------------------------------------------------------------
-	Output.TargetMesh = *Input.SourceMesh;
+	this->Initialize();
 	//--------------------------------------------------------------------
 	if (Input.Flag_ProcessBounary == true)
-	{
-		auto PointIndex_MAX = Output.TargetMesh.GetMaxValueOfPointIndex();
-		Internal.PointFlagList.Clear();
-		Internal.PointFlagList.Resize(PointIndex_MAX);
-		Internal.PointFlagList.Fill(0);
-		for (int_max k = 0; k <= PointIndex_MAX; ++k)
-		{
-			if (Output.TargetMesh.IsValidPointIndex(k) == true)
-			{
-				auto tempIdx = Input.FeaturePointIndexList.ExactMatch("first", k);
-				if (tempIdx >= 0)
-				{
-					Internal.PointFlagList[k] = 1;
-				}
-			}
-		}
-		//--------------------------------------------------------------------
-		auto EdgeIndex_MAX = Output.TargetMesh.GetMaxValueOfEdgeIndex();
-		Internal.EdgeFlagList.Clear();
-		Internal.EdgeFlagList.Resize(EdgeIndex_MAX);
-		Internal.EdgeFlagList.Fill(0);
-		for (int_max k = 0; k <= EdgeIndex_MAX; ++k)
-		{
-			if (Output.TargetMesh.IsValidEdgeIndex(k) == true)
-			{
-				auto tempIdx = Input.FeatureEdgeIndexList.ExactMatch("first", k);
-				if (tempIdx >= 0)
-				{//Point of Feature Edge is also Feature Point
-					Internal.EdgeFlagList[k] = 1;
-					auto PointIndexList_k = Output.TargetMesh.Edge(k).GetPointIndexList();
-					Internal.PointFlagList[PointIndexList_k[0]] = 1;
-					Internal.PointFlagList[PointIndexList_k[1]] = 1;
-				}
-			}
-		}
-		//--------------------------------------------------------------------
+	{		
 		this->ProcessBoundary();		
-	}
-	//--------------------------------------------------------------------	
-	//now: set boundary point and edge as feature
-	//--------------------------------------------------------------------	
-	auto PointIndex_MAX = Output.TargetMesh.GetMaxValueOfPointIndex();
-	Internal.PointFlagList.Clear();
-	Internal.PointFlagList.Resize(PointIndex_MAX);
-	Internal.PointFlagList.Fill(0);
-	for (int_max k = 0; k <= PointIndex_MAX; ++k)
-	{
-		if (Output.TargetMesh.IsValidPointIndex(k) == true)
-		{
-			if (Output.TargetMesh.Point(k).IsOnPolygonMeshBoundary() == true)
-			{
-				Internal.PointFlagList[k] = 1;
-			}
-			auto tempIdx = Input.FeaturePointIndexList.ExactMatch("first", k);
-			if (tempIdx >= 0)
-			{
-				Internal.PointFlagList[k] = 1;
-			}
-		}
-	}
-	//--------------------------------------------------------------------
-	auto EdgeIndex_MAX = Output.TargetMesh.GetMaxValueOfEdgeIndex();
-	Internal.EdgeFlagList.Clear();
-	Internal.EdgeFlagList.Resize(EdgeIndex_MAX);
-	Internal.EdgeFlagList.Fill(0);
-	for (int_max k = 0; k <= EdgeIndex_MAX; ++k)
-	{
-		if (Output.TargetMesh.IsValidEdgeIndex(k) == true)
-		{
-			if (Output.TargetMesh.Edge(k).IsOnPolygonMeshBoundary() == true)
-			{
-				Internal.EdgeFlagList[k] = 1;
-			}
-			auto tempIdx = Input.FeatureEdgeIndexList.ExactMatch("first", k);
-			if (tempIdx >= 0)
-			{//Point of Feature Edge is also Feature Point
-				Internal.EdgeFlagList[k] = 1;
-				auto PointIndexList_k = Output.TargetMesh.Edge(k).GetPointIndexList();
-				Internal.PointFlagList[PointIndexList_k[0]] = 1;
-				Internal.PointFlagList[PointIndexList_k[1]] = 1;
-			}
-		}
-	}
+	}	
 	//--------------------------------------------------------------------
 	this->Remesh();
 	this->Refine();
@@ -234,8 +137,67 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::Update()
 
 
 template<typename ScalarType>
-void IsotropicTriangleSurfaceRemesher<ScalarType>::ProcessBoundary()
+void IsotropicTriangleSurfaceRemesher<ScalarType>::Initialize()
 {
+	if (Input.SourceMesh->Check_If_DataStructure_is_Clean() == false)
+	{
+		auto tempSurface = *Input.SourceMesh;
+		tempSurface.CleanDataStructure();
+		Internal.SourceMesh_vtk = ConvertMDKPolygonMeshToVTKPolyData(tempSurface);
+	}
+	else
+	{
+		Internal.SourceMesh_vtk = ConvertMDKPolygonMeshToVTKPolyData(*Input.SourceMesh);
+	}
+	Internal.CellLocator_vtk = vtkSmartPointer<vtkCellLocator>::New();
+	Internal.CellLocator_vtk->SetDataSet(Internal.SourceMesh_vtk);
+	Internal.CellLocator_vtk->BuildLocator();
+	//--------------------------------------------------------------------
+	Internal.MaxEdgeLength = ScalarType(4.0 / 3.0)*Input.TargetEdgeLength;
+	Internal.MinEdgeLength = ScalarType(4.0 / 5.0)*Input.TargetEdgeLength;
+	//--------------------------------------------------------------------
+	auto PointIndex_MAX = Input.SourceMesh->GetMaxValueOfPointIndex();
+	Internal.PointFlagList.Clear();
+	Internal.PointFlagList.Resize(PointIndex_MAX);
+	Internal.PointFlagList.Fill(0);
+	for (int_max k = 0; k <= PointIndex_MAX; ++k)
+	{
+		if (Input.SourceMesh->IsValidPointIndex(k) == true)
+		{
+			auto tempIdx = Input.FeaturePointIndexList.ExactMatch("first", k);
+			if (tempIdx >= 0)
+			{
+				Internal.PointFlagList[k] = 1;
+			}
+		}
+	}
+	//--------------------------------------------------------------------
+	auto EdgeIndex_MAX = Input.SourceMesh->GetMaxValueOfEdgeIndex();
+	Internal.EdgeFlagList.Clear();
+	Internal.EdgeFlagList.Resize(EdgeIndex_MAX);
+	Internal.EdgeFlagList.Fill(0);
+	for (int_max k = 0; k <= EdgeIndex_MAX; ++k)
+	{
+		if (Input.SourceMesh->IsValidEdgeIndex(k) == true)
+		{
+			auto tempIdx = Input.FeatureEdgeIndexList.ExactMatch("first", k);
+			if (tempIdx >= 0)
+			{//Point of Feature Edge is also Feature Point
+				Internal.EdgeFlagList[k] = 1;
+				auto PointIndexList_k = Input.SourceMesh->Edge(k).GetPointIndexList();
+				Internal.PointFlagList[PointIndexList_k[0]] = 1;
+				Internal.PointFlagList[PointIndexList_k[1]] = 1;
+			}
+		}
+	}
+	//--------------------------------------------------------------------
+	Output.TargetMesh = *Input.SourceMesh;
+}
+
+
+template<typename ScalarType>
+void IsotropicTriangleSurfaceRemesher<ScalarType>::ProcessBoundary()
+{	
 	this->SplitLongBoundaryEdge();
 	this->CollapseShortBoundaryEdge();
 }
@@ -301,6 +263,8 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::CollapseShortBoundaryEdge()
 		auto EdgeIndex_MAX = Surface.GetMaxValueOfEdgeIndex();
 		for (int_max k = 0; k <= EdgeIndex_MAX; ++k)
 		{
+			bool Flag_debug = false;
+
 			if (Surface.IsValidEdgeIndex(k) == true)
 			{
 				if (Surface.Edge(k).IsOnPolygonMeshBoundary() == true)
@@ -333,87 +297,132 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::CollapseShortBoundaryEdge()
 								Flag_Point1_Feature = true;
 							}
 						}
-
-						if (Flag_Point0_Feature == false || Flag_Point1_Feature == false)//can not both be feature
+						auto Pos0 = Surface.GetPointPosition(PointIndexList[0]);
+						auto Pos1 = Surface.GetPointPosition(PointIndexList[1]);							
+						auto EdgeLength = (Pos0 - Pos1).L2Norm();
+						if (EdgeLength < MinEdgeLength)
 						{
-							auto Pos0 = Surface.GetPointPosition(PointIndexList[0]);
-							auto Pos1 = Surface.GetPointPosition(PointIndexList[1]);
 							auto PosMean = (Pos0 + Pos1)*ScalarType(0.5);
-							auto EdgeLength = (Pos0 - Pos1).L2Norm();
-							if (EdgeLength < MinEdgeLength)
+							auto AdjPointIndexList_P0 = Surface.Point(PointIndexList[0]).GetAdjacentPointIndexList();
+							auto AdjPointIndexList_P1 = Surface.Point(PointIndexList[1]).GetAdjacentPointIndexList();
+							//check if it is possible to move P0 to PosMean
+							bool Flag_P0_to_PosMean = true;							
+							for (int_max n = 0; n < AdjPointIndexList_P0.GetLength(); ++n)
 							{
-								//try Point1 -> Point0
-								//check if any long edge (>MaxEdgeLength) is created after Surface.CollapseEdge(k, PointIndexList[0]);
-								bool Flag_P1_to_P0 = false;
-								if (Flag_Point1_Feature == false)
+								if (Surface.Point(AdjPointIndexList_P0[n]).IsOnPolygonMeshBoundary() == true)
 								{
-									Flag_P1_to_P0 = true;
-									auto AdjPointIndexList_H1 = Surface.Point(PointIndexList[1]).GetAdjacentPointIndexList();
-									for (int_max n = 0; n < AdjPointIndexList_H1.GetLength(); ++n)
+									auto Pos_n = Surface.GetPointPosition(AdjPointIndexList_P0[n]);
+									auto Ln = (PosMean - Pos_n).L2Norm();
+									if (Ln > MaxEdgeLength)
 									{
-										if (Surface.Point(AdjPointIndexList_H1[n]).IsOnPolygonMeshBoundary() == true)
-										{
-											auto Pos_n = Surface.GetPointPosition(AdjPointIndexList_H1[n]);
-											auto Ln = (Pos0 - Pos_n).L2Norm();
-											if (Ln > MaxEdgeLength)
-											{
-												Flag_P1_to_P0 = false;
-												break;
-											}
-										}
+										Flag_P0_to_PosMean = false;
+										break;
 									}
 								}
-								if (Flag_P1_to_P0 == true)
+							}
+							//check if it is possible to move P1 to PosMean
+							bool Flag_P1_to_PosMean = true;															
+							for (int_max n = 0; n < AdjPointIndexList_P1.GetLength(); ++n)
+							{
+								if (Surface.Point(AdjPointIndexList_P1[n]).IsOnPolygonMeshBoundary() == true)
+								{
+									auto Pos_n = Surface.GetPointPosition(AdjPointIndexList_P1[n]);
+									auto Ln = (PosMean - Pos_n).L2Norm();
+									if (Ln > MaxEdgeLength)
+									{
+										Flag_P1_to_PosMean = false;
+										break;
+									}
+								}
+							}							
+							//check if it is possible to move P0 to P1
+							bool Flag_P0_to_P1 = true;
+							for (int_max n = 0; n < AdjPointIndexList_P0.GetLength(); ++n)
+							{
+								if (Surface.Point(AdjPointIndexList_P0[n]).IsOnPolygonMeshBoundary() == true)
+								{
+									auto Pos_n = Surface.GetPointPosition(AdjPointIndexList_P0[n]);
+									auto Ln = (Pos1 - Pos_n).L2Norm();
+									if (Ln > MaxEdgeLength)
+									{
+										Flag_P0_to_P1 = false;
+										break;
+									}
+								}
+							}
+							//check if it is possible to move P1 to P0
+							bool Flag_P1_to_P0 = true;
+							for (int_max n = 0; n < AdjPointIndexList_P1.GetLength(); ++n)
+							{
+								if (Surface.Point(AdjPointIndexList_P1[n]).IsOnPolygonMeshBoundary() == true)
+								{
+									auto Pos_n = Surface.GetPointPosition(AdjPointIndexList_P1[n]);
+									auto Ln = (Pos0 - Pos_n).L2Norm();
+									if (Ln > MaxEdgeLength)
+									{
+										Flag_P1_to_P0 = false;
+										break;
+									}
+								}
+							}
+
+							if (Flag_Point0_Feature == false && Flag_Point1_Feature == false)
+							{
+								if (Flag_P0_to_PosMean == true && Flag_P1_to_PosMean == true)
 								{
 									auto Flag_collapse = Surface.CollapseEdge(k, PointIndexList[0], false, false);
 									if (Flag_collapse == true)
 									{
-										if (Flag_Point0_Feature == false)
-										{
-											Surface.SetPointPosition(PointIndexList[0], PosMean);
-										}
+										Surface.SetPointPosition(PointIndexList[0], PosMean);
 										Flag_go_on = true;
 									}
 								}
 								else
-								{//try Point0 -> Point1
-									bool Flag_P0_to_P1 = false;
-									if (Flag_Point0_Feature == false)
-									{
-										Flag_P0_to_P1 = true;
-										auto AdjPointIndexList_H0 = Surface.Point(PointIndexList[0]).GetAdjacentPointIndexList();
-										for (int_max n = 0; n < AdjPointIndexList_H0.GetLength(); ++n)
-										{
-											if (Surface.Point(AdjPointIndexList_H0[n]).IsOnPolygonMeshBoundary() == true)
-											{
-												auto Pos_n = Surface.GetPointPosition(AdjPointIndexList_H0[n]);
-												auto Ln = (Pos1 - Pos_n).L2Norm();
-												if (Ln > MaxEdgeLength)
-												{
-													Flag_P0_to_P1 = false;
-													break;
-												}
-											}
-										}
-									}
+								{
 									if (Flag_P0_to_P1 == true)
 									{
 										auto Flag_collapse = Surface.CollapseEdge(k, PointIndexList[1], false, false);
 										if (Flag_collapse == true)
 										{
-											if (Flag_Point1_Feature == false)
-											{
-												Surface.SetPointPosition(PointIndexList[1], PosMean);
-											}
+											Flag_go_on = true;
+										}
+									}
+									else if (Flag_P1_to_P0 == true)
+									{
+										auto Flag_collapse = Surface.CollapseEdge(k, PointIndexList[0], false, false);
+										if (Flag_collapse == true)
+										{
 											Flag_go_on = true;
 										}
 									}
 								}
 							}
-						}
+							else if (Flag_Point0_Feature == false)//Flag_Point1_Feature is true
+							{
+								if (Flag_P0_to_P1 == true)
+								{
+									auto Flag_collapse = Surface.CollapseEdge(k, PointIndexList[1], false, false);
+									if (Flag_collapse == true)
+									{										
+										Flag_go_on = true;
+									}
+								}
+							}
+							else if (Flag_Point1_Feature == false)//Flag_Point0_Feature is true
+							{								
+								if (Flag_P1_to_P0 == true)
+								{
+									auto Flag_collapse = Surface.CollapseEdge(k, PointIndexList[0], false, false);
+									if (Flag_collapse == true)
+									{										
+										Flag_go_on = true;
+									}
+								}
+							}
+						}						
 					}
 				}
-			}
+			}			
 		}
 		if (Flag_go_on == false)
 		{
@@ -425,12 +434,13 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::CollapseShortBoundaryEdge()
 
 template<typename ScalarType>
 void IsotropicTriangleSurfaceRemesher<ScalarType>::Remesh()
-{
+{// treat boundy as feature
 	for (int_max iter = 0; iter < Input.MaxIter; ++iter)
 	{
-		if (iter > 0 && iter <  Input.MaxIter / 2)
+		if (iter > 0 && iter < Input.MaxIter / 2)
 		{
 			this->EqualizeValence();
+			//this->Refine(); useful?
 		}		
 		this->SplitLongEdge();
 		this->CollapseShortEdge();
@@ -573,7 +583,7 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::SplitLongEdge()
 			if (Surface.IsValidEdgeIndex(k) == true)
 			{
 				bool Flag_Edge_Boundary = Surface.Edge(k).IsOnPolygonMeshBoundary();
-				bool Flag_Edge_Feature = Flag_Edge_Boundary;
+				bool Flag_Edge_Feature = Flag_Edge_Boundary;// treat boundy as feature
 				if (k < Internal.EdgeFlagList.GetLength())
 				{
 					if (Internal.EdgeFlagList[k] > 0)
@@ -622,7 +632,7 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::CollapseShortEdge()
 			if (Surface.IsValidEdgeIndex(k) == true)
 			{
 				bool Flag_Edge_Boundary = Surface.Edge(k).IsOnPolygonMeshBoundary();
-				bool Flag_Edge_Feature = Flag_Edge_Boundary;
+				bool Flag_Edge_Feature = Flag_Edge_Boundary;// treat boundy as feature
 				if (k < Internal.EdgeFlagList.GetLength())
 				{
 					if (Internal.EdgeFlagList[k] > 0)
@@ -636,8 +646,8 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::CollapseShortEdge()
 					auto PointIndexList = Surface.Edge(k).GetPointIndexList();
 					bool Flag_Point0_Boundary = Surface.Point(PointIndexList[0]).IsOnPolygonMeshBoundary();
 					bool Flag_Point1_Boundary = Surface.Point(PointIndexList[1]).IsOnPolygonMeshBoundary();
-					bool Flag_Point0_Feature = Flag_Point0_Boundary;
-					bool Flag_Point1_Feature = Flag_Point1_Boundary;
+					bool Flag_Point0_Feature = Flag_Point0_Boundary;// treat boundy as feature
+					bool Flag_Point1_Feature = Flag_Point1_Boundary;// treat boundy as feature
 					if (PointIndexList[0] < Internal.PointFlagList.GetLength())
 					{
 						if (Internal.PointFlagList[PointIndexList[0]] > 0)
@@ -652,77 +662,117 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::CollapseShortEdge()
 							Flag_Point1_Feature = true;
 						}
 					}
-
-					if (Flag_Point0_Feature == false || Flag_Point1_Feature == false)//can not both be feature
-					{
-						auto Pos0 = Surface.GetPointPosition(PointIndexList[0]);
-						auto Pos1 = Surface.GetPointPosition(PointIndexList[1]);
+					
+					auto Pos0 = Surface.GetPointPosition(PointIndexList[0]);
+					auto Pos1 = Surface.GetPointPosition(PointIndexList[1]);					
+					auto EdgeLength = (Pos0 - Pos1).L2Norm();
+					if (EdgeLength < MinEdgeLength)
+					{	
 						auto PosMean = (Pos0 + Pos1)*ScalarType(0.5);
-						auto EdgeLength = (Pos0 - Pos1).L2Norm();
-						if (EdgeLength < MinEdgeLength)
+						auto AdjPointIndexList_P0 = Surface.Point(PointIndexList[0]).GetAdjacentPointIndexList();
+						auto AdjPointIndexList_P1 = Surface.Point(PointIndexList[1]).GetAdjacentPointIndexList();
+						//check if it is possible to move P0 to PosMean
+						bool Flag_P0_to_PosMean = true;						
+						for (int_max n = 0; n < AdjPointIndexList_P0.GetLength(); ++n)
 						{
-							//try Point1 -> Point0
-							//check if any long edge (>MaxEdgeLength) is created after Surface.CollapseEdge(k, PointIndexList[0]);
-							bool Flag_P1_to_P0 = false;
-							if (Flag_Point1_Feature == false)
+							auto Pos_n = Surface.GetPointPosition(AdjPointIndexList_P0[n]);
+							auto Ln = (PosMean - Pos_n).L2Norm();
+							if (Ln > MaxEdgeLength)
 							{
-								Flag_P1_to_P0 = true;
-								auto AdjPointIndexList_H1 = Surface.Point(PointIndexList[1]).GetAdjacentPointIndexList();
-								for (int_max n = 0; n < AdjPointIndexList_H1.GetLength(); ++n)
-								{
-									auto Pos_n = Surface.GetPointPosition(AdjPointIndexList_H1[n]);
-									auto Ln = (Pos0 - Pos_n).L2Norm();
-									if (Ln > MaxEdgeLength)
-									{
-										Flag_P1_to_P0 = false;
-										break;
-									}
-								}
-							}							
-							if (Flag_P1_to_P0 == true)
-							{								
+								Flag_P0_to_PosMean = false;
+								break;
+							}
+						}
+						//check if it is possible to move P1 to PosMean
+						bool Flag_P1_to_PosMean = true;										
+						for (int_max n = 0; n < AdjPointIndexList_P1.GetLength(); ++n)
+						{
+							auto Pos_n = Surface.GetPointPosition(AdjPointIndexList_P1[n]);
+							auto Ln = (PosMean - Pos_n).L2Norm();
+							if (Ln > MaxEdgeLength)
+							{
+								Flag_P1_to_PosMean = false;
+								break;
+							}
+						}
+						//check if it is possible to move P0 to P1
+						bool Flag_P0_to_P1 = true;
+						for (int_max n = 0; n < AdjPointIndexList_P0.GetLength(); ++n)
+						{
+							auto Pos_n = Surface.GetPointPosition(AdjPointIndexList_P0[n]);
+							auto Ln = (Pos1 - Pos_n).L2Norm();
+							if (Ln > MaxEdgeLength)
+							{
+								Flag_P0_to_P1 = false;
+								break;
+							}
+						}
+						//check if it is possible to move P1 to P0
+						bool Flag_P1_to_P0 = true;
+						for (int_max n = 0; n < AdjPointIndexList_P1.GetLength(); ++n)
+						{
+							auto Pos_n = Surface.GetPointPosition(AdjPointIndexList_P1[n]);
+							auto Ln = (Pos0 - Pos_n).L2Norm();
+							if (Ln > MaxEdgeLength)
+							{
+								Flag_P1_to_P0 = false;
+								break;
+							}
+						}
+
+						if (Flag_Point0_Feature == false && Flag_Point1_Feature == false)
+						{							
+							if (Flag_P0_to_PosMean == true && Flag_P1_to_PosMean == true)
+							{
 								auto Flag_collapse = Surface.CollapseEdge(k, PointIndexList[0], false, false);
 								if (Flag_collapse == true)
 								{
-									if (Flag_Point0_Feature == false)
-									{
-										Surface.SetPointPosition(PointIndexList[0], PosMean);
-									}
+									Surface.SetPointPosition(PointIndexList[0], PosMean);
 									Flag_go_on = true;
-								}								
+								}
 							}
 							else
-							{//try Point0 -> Point1
-								bool Flag_P0_to_P1 = false;
-								if (Flag_Point0_Feature == false)
-								{
-									Flag_P0_to_P1 = true;
-									auto AdjPointIndexList_H0 = Surface.Point(PointIndexList[0]).GetAdjacentPointIndexList();
-									for (int_max n = 0; n < AdjPointIndexList_H0.GetLength(); ++n)
-									{
-										auto Pos_n = Surface.GetPointPosition(AdjPointIndexList_H0[n]);
-										auto Ln = (Pos1 - Pos_n).L2Norm();
-										if (Ln > MaxEdgeLength)
-										{
-											Flag_P0_to_P1 = false;
-											break;
-										}
-									}
-								}
+							{
 								if (Flag_P0_to_P1 == true)
 								{
 									auto Flag_collapse = Surface.CollapseEdge(k, PointIndexList[1], false, false);
 									if (Flag_collapse == true)
 									{
-										if (Flag_Point1_Feature == false)
-										{
-											Surface.SetPointPosition(PointIndexList[1], PosMean);
-										}
+										Flag_go_on = true;
+									}
+								}
+								else if(Flag_P1_to_P0 == true)
+								{
+									auto Flag_collapse = Surface.CollapseEdge(k, PointIndexList[0], false, false);
+									if (Flag_collapse == true)
+									{
 										Flag_go_on = true;
 									}
 								}
 							}
 						}
+						else if (Flag_Point0_Feature == false)//Flag_Point1_Feature is true
+						{							
+							if (Flag_P0_to_P1 == true)
+							{
+								auto Flag_collapse = Surface.CollapseEdge(k, PointIndexList[1], false, false);
+								if (Flag_collapse == true)
+								{
+									Flag_go_on = true;
+								}
+							}
+						}
+						else if (Flag_Point1_Feature == false)//Flag_Point0_Feature is true
+						{							
+							if (Flag_P1_to_P0 == true)
+							{
+								auto Flag_collapse = Surface.CollapseEdge(k, PointIndexList[0], false, false);
+								if (Flag_collapse == true)
+								{
+									Flag_go_on = true;
+								}
+							}
+						}						
 					}
 				}
 			}
@@ -821,7 +871,7 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::Refine()
 
 	auto EdgeIndex_Max = Surface.GetMaxValueOfEdgeIndex();
 	DenseVector<ScalarType> EdgeScoreList;	
-	EdgeScoreList.Resize(EdgeIndex_Max);
+	EdgeScoreList.Resize(EdgeIndex_Max+1);
 	EdgeScoreList.Fill(0);
 	for (int_max k = 0; k <= EdgeIndex_Max; ++k)
 	{

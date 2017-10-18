@@ -184,7 +184,7 @@ public:
 	bool CheckIfHexahedronMesh() const;
 	bool CheckIfMixedTetHexMesh() const;
 
-	//------------- Get/Set All the position (valid point) --------------------------------//
+	//------------- Get/Set All the position (valid and invalid/deleted point) --------------------------------//
 
 	inline DenseMatrix<ScalarType> GetPointPosition(const MDK_Symbol_ALL&) const;
 	inline void GetPointPosition(const MDK_Symbol_ALL&, DenseMatrix<ScalarType>& PositionMatrix) const;

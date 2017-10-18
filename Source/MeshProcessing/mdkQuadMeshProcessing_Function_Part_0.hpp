@@ -254,7 +254,7 @@ TriangleMesh<ScalarType> ConvertMixedTriangleQuadMeshToTriangleMesh_1to2(const P
 			{
 				PointSet[k] = PointIndexMap[PointSet[k]];
 			}
-			OutputMesh.SetPointSet(Name, PointSet);
+			OutputMesh.AddPointSet(Name, PointSet);
 		}
 	}
 	//----------------------------------------------------------	
@@ -276,7 +276,7 @@ TriangleMesh<ScalarType> ConvertMixedTriangleQuadMeshToTriangleMesh_1to2(const P
 			auto Name = InputMesh.GetPointDataSetName(PointDataSetIndex);
 			auto DataSet = InputMesh.GetPointDataSet(PointDataSetIndex);//input data structure may not be clean
 			DataSet = DataSet.GetSubMatrix(ALL, PointIndexMap_inverse);
-			OutputMesh.SetPointDataSet(Name, DataSet);			
+			OutputMesh.AddPointDataSet(Name, DataSet);			
 		}
 	}
 
