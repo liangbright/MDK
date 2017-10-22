@@ -602,7 +602,7 @@ DenseVector<ElementType> DenseVector<ElementType, Length>::GetSubSet(int_max Ind
     
     auto Length = this->GetLength();
 
-    if (Index_start < 0 || Index_start >= Length || Index_end < 0 || Index_end >= Length || Index_start > Index_end)
+    if (Index_start < 0 || Index_start >= Length || Index_end < 0 || Index_end >= Length)
     {
         MDK_Error("Invalid input @ DenseVector::GetSubSet(...)")
         return SubSet;
@@ -614,13 +614,23 @@ DenseVector<ElementType> DenseVector<ElementType, Length>::GetSubSet(int_max Ind
         return SubSet;
     }
 
-    SubSet.FastResize(Index_end - Index_start + 1);
+	if (Index_start <= Index_end)
+	{
+		SubSet.FastResize(Index_end - Index_start + 1);
+		for (int_max Index = Index_start; Index <= Index_end; ++Index)
+		{
+			SubSet[Index - Index_start] = m_StdArray[Index];
+		}
+	}
+	else// Index_start > Index_end
+	{
+		SubSet.FastResize(Index_start - Index_end + 1);
+		for (int_max Index = Index_start; Index >= Index_end; --Index)
+		{
+			SubSet[Index_start - Index] = m_StdArray[Index];
+		}
+	}
 
-    for (int_max i = Index_start; i <= Index_end; ++i)
-    {
-        SubSet[i - Index_start] = m_StdArray[i];
-    }
-    
     return SubSet;
 }
 
@@ -632,9 +642,7 @@ DenseVector<ElementType> DenseVector<ElementType, Length>::GetSubSet(const std::
     DenseVector<ElementType> SubSet;
 
     auto SelfLength = this->GetLength();
-
     auto InputLength = int_max(IndexList.size());
-
     if (InputLength > SelfLength)
     {
         MDK_Error("InputLength > SelfLength @ DenseVector::GetSubSet(...)")
@@ -648,19 +656,16 @@ DenseVector<ElementType> DenseVector<ElementType, Length>::GetSubSet(const std::
     }
 
     SubSet.FastResize(InputLength);
-
     for (int_max i = 0; i < InputLength; ++i)
     {
         auto Index = IndexList[i];
-
         if (Index < 0 || Index >= SelfLength)
         {
             MDK_Error("Index is invalid @ DenseVector::GetSubSet(...)")
             SubSet.Clear();
             return SubSet;
         }
-
-        SubSet[i] = m_StdArray[IndexList.begin()[i]];
+        SubSet[i] = m_StdArray[Index];
     }
 
     return SubSet;
@@ -674,9 +679,7 @@ DenseVector<ElementType> DenseVector<ElementType, Length>::GetSubSet(const std::
     DenseVector<ElementType> SubSet;
 
     auto SelfLength = this->GetLength();
-
     auto InputLength = int_max(IndexList.size());
-
     if (InputLength > SelfLength)
     {
         MDK_Error("InputLength > SelfLength @ DenseVector::GetSubSet(...)")
@@ -690,19 +693,16 @@ DenseVector<ElementType> DenseVector<ElementType, Length>::GetSubSet(const std::
     }
 
     SubSet.FastResize(InputLength);
-
     for (int_max i = 0; i < InputLength; ++i)
     {
         auto Index = IndexList[i];
-
         if (Index < 0 || Index >= SelfLength)
         {
             MDK_Error("Index is invalid @ DenseVector::GetSubSet(...)")
             SubSet.Clear();
             return SubSet;
         }
-
-        SubSet[i] = m_StdArray[IndexList[i]];
+        SubSet[i] = m_StdArray[Index];
     }
 
     return SubSet;
@@ -716,9 +716,7 @@ DenseVector<ElementType> DenseVector<ElementType, Length>::GetSubSet(const Dense
     DenseVector<ElementType> SubSet;
     
     auto SelfLength = this->GetLength();
-
     auto InputLength = IndexList.GetElementCount();
-
     if (InputLength > SelfLength)
     {
         MDK_Error("InputLength > SelfLength @ DenseVector::GetSubSet(...)")
@@ -736,15 +734,13 @@ DenseVector<ElementType> DenseVector<ElementType, Length>::GetSubSet(const Dense
     for (int_max i = 0; i < InputLength; ++i)
     {
         auto Index = IndexList[i];
-
         if (Index < 0 || Index >= SelfLength)
         {
             MDK_Error("Index is invalid @ DenseVector::GetSubSet(...)")
             SubSet.Clear();
             return SubSet;
         }
-
-        SubSet[i] = m_StdArray[IndexList[i]];
+        SubSet[i] = m_StdArray[Index];
     }
     
     return SubSet;
@@ -756,32 +752,74 @@ template<typename ElementType, int_max Length>
 inline
 bool DenseVector<ElementType, Length>::SetSubSet(int_max Index_start, int_max Index_end, const std::initializer_list<ElementType>& SubSet)
 {
-    if (Index_end - Index_start + 1 != int_max(SubSet.size()))
-    {
-        MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
-        return false;
-    }
+	if (std::abs(Index_end - Index_start) + 1 != int_max(SubSet.size()))
+	{
+		MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
+		return false;
+	}
+	return this->SetSubSet(Index_start, Index_end, SubSet.begin());
+}
 
-    auto SelfLength = this->GetLength();
 
-    if (Index_start < 0 || Index_start >= SelfLength || Index_end < 0 || Index_end >= SelfLength || Index_start > Index_end)
-    {
-        MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
-        return false;
-    }
+template<typename ElementType, int_max Length>
+inline
+bool DenseVector<ElementType, Length>::SetSubSet(int_max Index_start, int_max Index_end, const DenseMatrix<ElementType>& SubSet)
+{
+	if (std::abs(Index_end - Index_start) + 1 != int_max(SubSet.GetElementCount()))
+	{
+		MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
+		return false;
+	}
+	return this->SetSubSet(Index_start, Index_end, SubSet.GetPointer());
+}
 
-    if (SelfLength == 0)
-    {
-        MDK_Error("Self is empty @ DenseVector::SetSubSet(...)")
-        return false;
-    }
 
-    for (int_max Index = Index_start, Index <= Index_end; ++Index)
-    {
-        m_StdArray[Index] = SubSet[Index - Index_start];
-    }
+template<typename ElementType, int_max Length>
+template<int_max LengthParameter>
+inline
+bool DenseVector<ElementType, Length>::SetSubSet(int_max Index_start, int_max Index_end, const DenseVector<ElementType, LengthParameter>& SubSet)
+{
+	if (std::abs(Index_end - Index_start) + 1 != int_max(SubSet.GetElementCount()))
+	{
+		MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
+		return false;
+	}
+	return this->SetSubSet(Index_start, Index_end, SubSet.GetPointer());
+}
 
-    return true;
+
+template<typename ElementType, int_max Length>
+inline
+bool DenseVector<ElementType, Length>::SetSubSet(int_max Index_start, int_max Index_end, const ElementType* SubSet)
+{
+	auto SelfLength = this->GetLength();
+	if (Index_start < 0 || Index_start >= SelfLength || Index_end < 0 || Index_end >= SelfLength || SubSet == nullptr)
+	{
+		MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
+		return false;
+	}
+
+	if (SelfLength == 0)
+	{
+		MDK_Error("Self is empty @ DenseVector::SetSubSet(...)")
+		return false;
+	}
+
+	if (Index_start <= Index_end)
+	{
+		for (int_max Index = Index_start, Index <= Index_end; ++Index)
+		{
+			m_StdArray[Index] = SubSet[Index - Index_start];
+		}
+	}
+	else//Index_end < Index_start
+	{
+		for (int_max Index = Index_end, Index <= Index_start; ++Index)
+		{
+			m_StdArray[Index] = SubSet[Index - Index_end];
+		}
+	}
+	return true;
 }
 
 
@@ -789,59 +827,12 @@ template<typename ElementType, int_max Length>
 inline
 bool DenseVector<ElementType, Length>::SetSubSet(const std::initializer_list<int_max>& IndexList, const std::initializer_list<ElementType>& SubSet)
 {
-    if (IndexList.size() != SubSet.size())
-    {
-        MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
-        return false;
-    }
-
-    auto SelfLength = this->GetLength();
-
-    for (int_max i = 0; i < int_max(IndexList.size()); ++i)
-    {
-        auto Index = IndexList.begin()[i];
-
-        if (Index < 0 || Index >= SelfLength)
-        {
-            MDK_Error("Index is invalid @ DenseVector::SetSubSet(...)")
-
-            return false;
-        }
-
-        m_StdArray[Index] = SubSet.begin()[i];
-    }
-
-    return true;
-}
-
-
-template<typename ElementType, int_max Length>
-inline
-bool DenseVector<ElementType, Length>::SetSubSet(const std::vector<int_max>& IndexList, const std::vector<ElementType>& SubSet)
-{
-    if (IndexList.size() != SubSet.size())
-    {
-        MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
-        return false;
-    }
-
-    auto SelfLength = this->GetLength();
-
-    for (int_max i = 0; i < int_max(IndexList.size()); ++i)
-    {
-        auto Index = IndexList[i];
-
-        if (Index < 0 || Index >= SelfLength)
-        {
-            MDK_Error("Index is invalid @ DenseVector::SetSubSet(...)")
-
-            return false;
-        }
-
-        m_StdArray[Index] = SubSet[i];
-    }
-
-    return true;
+	if (IndexList.size() != SubSet.size())
+	{
+		MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
+		return false;
+	}
+	return this->SetSubSet(IndexList.begin(), SubSet.begin(), int_max(SubSet.size()));
 }
 
 
@@ -849,62 +840,67 @@ template<typename ElementType, int_max Length>
 inline
 bool DenseVector<ElementType, Length>::SetSubSet(const DenseMatrix<int_max>& IndexList, const DenseMatrix<ElementType>& SubSet)
 {
-    if (IndexList.GetElementCount() != SubSet.GetElementCount())
-    {
-        MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
-        return false;
-    }
-
-    auto SelfLength = this->GetLength();
-
-    for (int_max i = 0; i < IndexList.GetElementCount(); ++i)
-    {
-        auto Index = IndexList[i];
-
-        if (Index < 0 || Index >= SelfLength)
-        {
-            MDK_Error("Index is invalid @ DenseVector::SetSubSet(...)")
-
-            return false;
-        }
-
-        m_StdArray[Index] = SubSet[i];
-    }
-
-    return true;
+	if (IndexList.GetElementCount() != SubSet.GetElementCount())
+	{
+		MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
+		return false;
+	}
+	return this->SetSubSet(IndexList.GetPointer(), SubSet.GetPointer(), SubSet.GetElementCount());
 }
 
 
 template<typename ElementType, int_max Length>
 template<int_max LengthParameterA, int_max LengthParameterB>
 inline
-bool DenseVector<ElementType, Length>::SetSubSet(const DenseVector<int_max, LengthParameterA>& IndexList, 
-												 const DenseVector<ElementType, LengthParameterB>& SubVector)
-{
-    if (IndexList.GetElementCount() != SubSet.GetElementCount())
-    {
-        MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
-        return false;
-    }
-
-    auto SelfLength = this->GetLength();
-
-    for (int_max i = 0; i < IndexList.GetElementCount(); ++i)
-    {
-        auto Index = IndexList[i];
-
-        if (Index < 0 || Index >= SelfLength)
-        {
-            MDK_Error("Index is invalid @ DenseVector::SetSubSet(...)")
-
-            return false;
-        }
-
-        m_StdArray[Index] = SubSet[i];
-    }
-
-    return true;
+bool DenseVector<ElementType, Length>::SetSubSet(const DenseVector<int_max, LengthParameterA>& IndexList, const DenseVector<ElementType, LengthParameterB>& SubSet)
+{// do not use LengthParameter
+	if (IndexList.GetElementCount() != SubSet.GetElementCount())
+	{
+		MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
+		return false;
+	}
+	return this->SetSubSet(IndexList.GetPointer(), SubSet.GetPointer(), SubSet.GetLength());
 }
+
+
+template<typename ElementType, int_max Length>
+template<int_max LengthParameter>
+inline
+bool DenseVector<ElementType, Length>::SetSubSet(const DenseVector<int_max, LengthParameter>& IndexList, const DenseMatrix<ElementType>& SubSet)
+{// do not use LengthParameter
+	if (IndexList.GetElementCount() != SubSet.GetElementCount())
+	{
+		MDK_Error("Invalid input @ DenseVector::SetSubSet(...)")
+		return false;
+	}
+	return this->SetSubSet(IndexList.GetPointer(), SubSet.GetPointer(), SubSet.GetElementCount());
+}
+
+
+template<typename ElementType, int_max Length>
+inline
+bool DenseVector<ElementType, Length>::SetSubSet(const int_max* IndexList, const ElementType* SubSet, int_max SubSetLength)
+{
+	if (IndexList == nullptr || SubSet == nullptr || SubSetLength <= 0)
+	{
+		return true;
+	}
+
+	auto SelfLength = this->GetLength();
+	for (int_max i = 0; i < SubSetLength; ++i)
+	{
+		auto Index = IndexList[i];
+		if (Index < 0 || Index >= SelfLength)
+		{
+			MDK_Error("Index is invalid @ DenseVector::SetSubSet(...)")
+			return false;
+		}
+		m_StdArray[Index] = SubSet[i];
+	}
+
+	return true;
+}
+
 
 // ------------------------------------------------------------------------------------------------------------//
 

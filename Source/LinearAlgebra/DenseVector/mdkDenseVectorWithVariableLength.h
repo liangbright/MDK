@@ -176,35 +176,30 @@ public:
 
     //---------------------- SetSubSet --------------------------------------
 
-	// SetSubSet(Index_start, Index_end, SubVector),  Index_start >= or <= Index_end
+	// SetSubSet(Index_start, Index_end, SubSet),  Index_start >= or <= Index_end
 
-    inline bool SetSubSet(int_max Index_start, int_max Index_end, const std::initializer_list<ElementType>& SubVector);
+    inline bool SetSubSet(int_max Index_start, int_max Index_end, const std::initializer_list<ElementType>& SubSet);
 
-	inline bool SetSubSet(int_max Index_start, int_max Index_end, const DenseMatrix<ElementType>& SubVector);
+	inline bool SetSubSet(int_max Index_start, int_max Index_end, const DenseMatrix<ElementType>& SubSet);
 
 	template<int_max LengthParameter>
-	inline bool SetSubSet(int_max Index_start, int_max Index_end, const DenseVector<ElementType, LengthParameter>& SubVector);
+	inline bool SetSubSet(int_max Index_start, int_max Index_end, const DenseVector<ElementType, LengthParameter>& SubSet);
 
-	inline bool SetSubSet(int_max Index_start, int_max Index_end, const ElementType* SubVector);
+	inline bool SetSubSet(int_max Index_start, int_max Index_end, const ElementType* SubSet);
 
-	// SetSubSet(IndexList, SubVector)
+	// SetSubSet(IndexList, SubSet) or SetSubSet(span(a, b), SubSet)
 
-    inline bool SetSubSet(const std::initializer_list<int_max>& IndexList, const std::initializer_list<ElementType>& SubVector);
+    inline bool SetSubSet(const std::initializer_list<int_max>& IndexList, const std::initializer_list<ElementType>& SubSet);
 
-	inline bool SetSubSet(const DenseMatrix<int_max>& IndexList, const DenseMatrix<ElementType>& SubVector);
+	inline bool SetSubSet(const DenseMatrix<int_max>& IndexList, const DenseMatrix<ElementType>& SubSet);
 
 	template<int_max LengthParameterA, int_max LengthParameterB>
-	inline bool SetSubSet(const DenseVector<int_max, LengthParameterA>& IndexList, const DenseVector<ElementType, LengthParameterB>& SubVector);
-
-	// SetSubSet(span(a, b), SubVector)
+	inline bool SetSubSet(const DenseVector<int_max, LengthParameterA>& IndexList, const DenseVector<ElementType, LengthParameterB>& SubSet);
 	
-	inline bool SetSubSet(const DenseVector<int_max>& IndexList, const DenseMatrix<ElementType>& SubVector);
-
 	template<int_max LengthParameter>
-	inline bool SetSubSet(const DenseVector<int_max>& IndexList, const DenseVector<ElementType, LengthParameter>& SubVector);
+	inline bool SetSubSet(const DenseVector<int_max, LengthParameter>& IndexList, const DenseMatrix<ElementType>& SubSet);
 
-	// base function
-	inline bool SetSubSet(const int_max* IndexList, const ElementType* SubVector, int_max SubVectorLength);
+	inline bool SetSubSet(const int_max* IndexList, const ElementType* SubSet, int_max SubSetLength);
 
     //-------------------------------------------------------------------------------
 
