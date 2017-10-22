@@ -4506,7 +4506,7 @@ Mesh<ScalarType> Mesh<ScalarType>::GetSubMeshByCell(const DenseVector<int_max>& 
 template<typename ScalarType>
 void Mesh<ScalarType>::Append(const Mesh<ScalarType>& InputMesh)
 {// append a mesh, duplication of face/edge/point will not be checked
-// this is not checked: append non-triangle mesh to triangle mesh
+ // this is not checked: append non-triangle mesh to triangle mesh
     //prevent self append
 	if (&m_MeshData == &InputMesh.m_MeshData)
 	{

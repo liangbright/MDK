@@ -158,7 +158,6 @@ ScalarType Compute3DCurveLength(const DenseMatrix<ScalarType>& Curve)
 	}
 
 	ScalarType CurveLength = 0;
-
 	for (int_max k = 1; k < Curve.GetColCount(); ++k)
 	{
 		ScalarType Pos_a[3], Pos_b[3];
@@ -170,7 +169,6 @@ ScalarType Compute3DCurveLength(const DenseMatrix<ScalarType>& Curve)
 		Distance = std::sqrt(Distance);
 		CurveLength += Distance;
 	}
-
 	return CurveLength;
 }
 
@@ -179,15 +177,13 @@ template<typename ScalarType>
 DenseVector<ScalarType> ComputeCumulative3DCurveLengthList(const DenseMatrix<ScalarType>& Curve)
 {//LengthList ColCount is the same as Curve ColCount
 	DenseVector<ScalarType> LengthList;
-	LengthList.Resize(Curve.GetColCount());
-	LengthList.Fill(0);
-
-	if (Curve.GetColCount() < 2)
+	if (Curve.GetRowCount() != 3)
 	{
-		MDK_Error(" ColCount < 2 @ ComputeCumulative3DCurveLengthList(...)")
-			return LengthList;
+		MDK_Error("Not 3D Curve @ ComputeCumulative3DCurveLengthList(...)")
+		return LengthList;
 	}
-
+	LengthList.Resize(Curve.GetColCount());
+	LengthList.Fill(0);	
 	for (int_max k = 1; k < Curve.GetColCount(); ++k)
 	{
 		ScalarType Pos_a[3], Pos_b[3];
@@ -199,49 +195,38 @@ DenseVector<ScalarType> ComputeCumulative3DCurveLengthList(const DenseMatrix<Sca
 		Distance = std::sqrt(Distance);
 		LengthList[k] = Distance + LengthList[k - 1];
 	}
-
 	return LengthList;
 }
-
 
 
 template<typename ScalarType>
 DenseMatrix<ScalarType> Subdivide3DCurve_Linear(const DenseMatrix<ScalarType>& InputCurve, int_max SubdivisionCount)
 {
 	DenseMatrix<ScalarType> OutputCurve;
-
 	if (InputCurve.IsEmpty() == true)
 	{
 		return OutputCurve;
 	}
-
 	OutputCurve = InputCurve;
-
 	DenseMatrix<ScalarType> tempCurve;
-
 	for (int_max SubdivisionIndex = 0; SubdivisionIndex < SubdivisionCount; ++SubdivisionIndex)
 	{
 		auto ColCount_new = 2 * OutputCurve.GetColCount() - 1;
 		tempCurve.FastResize(3, ColCount_new);
-
 		tempCurve.SetCol(0, OutputCurve.GetPointerOfCol(0));
-
 		for (int_max k = 1; k < OutputCurve.GetColCount(); ++k)
 		{
 			auto Pos_prev = OutputCurve.GetPointerOfCol(k - 1);
 			auto Pos_k = OutputCurve.GetPointerOfCol(k);
-
 			ScalarType Pos[3];
 			Pos[0] = (Pos_prev[0] + Pos_k[0]) / ScalarType(2);
 			Pos[1] = (Pos_prev[1] + Pos_k[1]) / ScalarType(2);
 			Pos[2] = (Pos_prev[2] + Pos_k[2]) / ScalarType(2);
-
 			tempCurve.SetCol(2 * k - 1, Pos);
 			tempCurve.SetCol(2 * k, Pos_k);
 		}
 		OutputCurve = std::move(tempCurve);
 	}
-
 	return OutputCurve;
 }
 
