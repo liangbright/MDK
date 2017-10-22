@@ -462,14 +462,18 @@ public:
     //-------------------------------------------------------------------------------
 
 	inline void Append(ElementType Element);
-	inline void Append(const ElementType* InputArray, int_max InputLength);
+	
+	//confusion
+	//ElementType is DeseVector<int_max>
+	//A.append({1,2}) may be A = {1, 2} or A = {{1}, {2}}	
+	inline void Append(const std::initializer_list<ElementType>& InputArray);
+	//inline void Append(const StdObjectVector<ElementType>& InputArray);
+	//inline void Append(const ObjectArray<ElementType>& InputArray);
+	//inline void Append(const DenseMatrix<ElementType>& InputArray);
+	//template<int_max TemplateLength>
+	//inline void Append(const DenseVector<ElementType, TemplateLength>& InputArray);	
 
-	// Append({1, 2, 3}} compiler error if ElementType is DenseVector<int_max>
-	//inline bool Append(const std::initializer_list<ElementType>& InputArray);
-	//inline bool Append(const std::vector<ElementType>& InputArray);    
-	//inline bool Append(const DenseMatrix<ElementType>& InputArray);
-	//inline bool Append(const StdObjectVector<ElementType>& InputArray);
-	//inline bool Append(const ObjectArray<ElementType>& InputArray);
+	inline void Append(const ElementType* InputArray, int_max InputLength);
 
 	inline void Delete(int_max Index);
 	inline void Delete(const std::initializer_list<int_max>& IndexList);
@@ -482,12 +486,19 @@ public:
 
 	inline void Delete(const int_max* ColIndexList, int_max ListLength);
 
-	inline void Delete(int_max Index_start, int_max Index_end);
+	inline void Delete(int_max Index_start, int_max Index_end);//Index_start<=Index_end
 
 	inline void Insert(int_max Index, ElementType Element);
-	inline void Insert(int_max Index, const std::initializer_list<ElementType>& InputArray);
-	inline void Insert(int_max Index, const StdObjectVector<ElementType>& InputArray);
-	inline void Insert(int_max Index, const ObjectArray<ElementType>& InputArray);	
+
+	//confusion
+	//ElementType is DeseVector<int_max>
+	//A.Insert(0, {1,2}) may be A = {1, 2} or A = {{1}, {2}}	
+	//inline void Insert(int_max Index, const std::initializer_list<ElementType>& InputArray);
+	//inline void Insert(int_max Index, const StdObjectVector<ElementType>& InputArray);
+	//inline void Insert(int_max Index, const ObjectArray<ElementType>& InputArray);		
+	//template<int_max TemplateLength>
+	//inline void Insert(int_max Index, const DenseVector<ElementType, TemplateLength>& InputArray);
+	
 	inline void Insert(int_max Index, const ElementType* InputArray, int_max InputLength);
 
     //----------------------- Get a subset ------------------------------//

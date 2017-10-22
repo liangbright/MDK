@@ -2,12 +2,12 @@
 //================================================
 #include <iostream>
 
-#include "mdkObjectArray.h"
-#include "mdkDenseMatrix.h"
+#include "mdkContainer.h"
+
+using namespace mdk;
 
 void Test_A()
-{
-	using namespace mdk;
+{	
 	ObjectArray<DenseMatrix<double>> A, B, A1, A2, A3;
 	A.Resize(1);
 	A[0].Resize(1, 2);
@@ -28,4 +28,14 @@ void Test_A()
 	A= {&A, &A1, &A2, &A3 };	
 
 	A = { &A };
+
+	A.Insert(0, { 0.1, 0.2 });
+}
+
+void Test_Append()
+{
+	ObjectArray<DenseVector<int_max>> A;
+	A.Resize(1);
+
+	A.Append({1, 2});
 }

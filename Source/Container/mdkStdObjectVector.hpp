@@ -665,30 +665,6 @@ void StdObjectVector<ElementType>::Insert(int_max Index, ElementType Element)
 
 template<typename ElementType>
 inline
-void StdObjectVector<ElementType>::Insert(int_max Index, const std::initializer_list<ElementType>& InputArray)
-{
-	this->Insert(Index, InputArray.begin(), int_max(InputArray.size()));
-}
-
-
-template<typename ElementType>
-inline
-void StdObjectVector<ElementType>::Insert(int_max Index, const StdObjectVector<ElementType>& InputArray)
-{
-	this->Insert(Index, InputArray.GetElementPointer(), InputArray.GetElementCount());
-}
-
-
-template<typename ElementType>
-inline
-void StdObjectVector<ElementType>::Insert(int_max Index, const ObjectArray<ElementType>& InputArray)
-{
-	this->Insert(Index, InputArray.GetElementPointer(), InputArray.GetElementCount());
-}
-
-
-template<typename ElementType>
-inline
 void StdObjectVector<ElementType>::Insert(int_max Index, const ElementType* InputArray, int_max InputLength)
 {
 	if (InputArray == nullptr)

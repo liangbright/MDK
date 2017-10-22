@@ -135,9 +135,6 @@ public:
 	inline void Delete(int_max Index_start, int_max Index_end);
 
 	inline void Insert(int_max Index, ElementType Element);
-	inline void Insert(int_max Index, const std::initializer_list<ElementType>& InputArray);
-	inline void Insert(int_max Index, const StdObjectVector<ElementType>& InputArray);
-	inline void Insert(int_max Index, const ObjectArray<ElementType>& InputArray);
 	inline void Insert(int_max Index, const ElementType* InputArray, int_max InputLength);
 
     //------------- use StdObjectVector as a stack ----------------------------//

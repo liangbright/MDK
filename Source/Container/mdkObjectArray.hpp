@@ -859,47 +859,42 @@ void ObjectArray<ElementType>::Append(ElementType Element)
 /*
 template<typename ElementType>
 inline 
-bool ObjectArray<ElementType>::Append(const std::initializer_list<ElementType>& InputArray)
+void ObjectArray<ElementType>::Append(const std::initializer_list<ElementType>& InputArray)
 {
-    return this->Append(InputArray.begin(), int_max(InputArray.size()));
+    this->Append(InputArray.begin(), int_max(InputArray.size()));
+}
+*/
+/*
+template<typename ElementType>
+template<int_max TemplateLength>
+inline 
+void ObjectArray<ElementType>::Append(const DenseVector<ElementType, TemplateLength>& InputArray)
+{
+	this->Append(InputArray.GetElementPointer(), InputArray.GetElementCount());
 }
 */
 /*
 template<typename ElementType>
 inline
-bool ObjectArray<ElementType>::Append(const std::vector<ElementType>& InputArray)
-{
-    return this->Append(InputArray.data(), int_max(InputArray.size()));
+void ObjectArray<ElementType>::Append(const DenseMatrix<ElementType>& InputArray)
+{   
+    this->Append(InputArray.GetElementPointer(), InputArray.GetElementCount());
 }
 */
 /*
 template<typename ElementType>
 inline
-bool ObjectArray<ElementType>::Append(const DenseMatrix<ElementType>& InputArray)
+void ObjectArray<ElementType>::Append(const StdObjectVector<ElementType>& InputArray)
 {
-    if (InputArray.IsVector() == false)
-    {
-        MDK_Error("Input must be a vector @ ObjectArray::Append(const DenseMatrix<ElementType>& InputArray)")
-        return false;
-    }
-
-    return this->Append(InputArray.GetElementPointer(), InputArray.GetElementCount());
+	this->Append(InputArray.GetElementPointer(), InputArray.GetElementCount());
 }
 */
 /*
 template<typename ElementType>
 inline
-bool ObjectArray<ElementType>::Append(const StdObjectVector<ElementType>& InputArray)
+void ObjectArray<ElementType>::Append(const ObjectArray<ElementType>& InputArray)
 {
-	return this->Append(InputArray.GetElementPointer(), InputArray.GetElementCount());
-}
-*/
-/*
-template<typename ElementType>
-inline
-bool ObjectArray<ElementType>::Append(const ObjectArray<ElementType>& InputArray)
-{
-    return this->Append(InputArray.GetElementPointer(), InputArray.GetElementCount());
+    this->Append(InputArray.GetElementPointer(), InputArray.GetElementCount());
 }
 */
 
@@ -927,9 +922,7 @@ void ObjectArray<ElementType>::Append(const ElementType* InputArray, int_max Inp
     m_Data->CopyDataToStdVectorIfNecessary();
 
     auto SelfLength = this->GetElementCount();
-
     this->Resize(SelfLength + InputLength);
-
     for (int_max i = SelfLength; i < SelfLength + InputLength; ++i)
     {
         m_Data->StdVector[i] = InputArray[i - SelfLength];
@@ -1024,15 +1017,12 @@ void ObjectArray<ElementType>::Delete(const int_max* IndexList, int_max ListLeng
     if (ListLength == 1)
     {
         m_Data->StdVector.erase(m_Data->StdVector.begin() + IndexList[0], m_Data->StdVector.begin() + IndexList[0] + 1);
-
         m_Data->Length -= 1;
-
         m_Data->ElementPointer = m_Data->StdVector.data();
     }
     else
     {
 		std::vector<int_max> IndexList_max_to_min(ListLength);
-
 		for (int_max i = 0; i < ListLength; ++i)
         {
             IndexList_max_to_min[i] = IndexList[i];
@@ -1041,11 +1031,9 @@ void ObjectArray<ElementType>::Delete(const int_max* IndexList, int_max ListLeng
         std::sort(IndexList_max_to_min.begin(), IndexList_max_to_min.end(), [](int_max a, int_max b) { return a > b; });
 
         int_max Index_prev = -1;
-
         for (int_max i = 0; i < int_max(IndexList_max_to_min.size()); ++i)
         {
             auto Index_i = IndexList_max_to_min[i];
-
             if (Index_i == Index_prev)
             {
                 MDK_Warning("duplicate Input @ ObjectArray::Delete(const int_max* IndexPtr, int_max ListLength)")
@@ -1053,13 +1041,10 @@ void ObjectArray<ElementType>::Delete(const int_max* IndexList, int_max ListLeng
             else
             {
                 m_Data->StdVector.erase(m_Data->StdVector.begin() + Index_i, m_Data->StdVector.begin() + Index_i + 1);
-
                 Index_prev = Index_i;
-
                 m_Data->Length -= 1;
             }
         }
-
         m_Data->ElementPointer = m_Data->StdVector.data();
     }
 }
@@ -1093,11 +1078,8 @@ void ObjectArray<ElementType>::Delete(int_max Index_start, int_max Index_end)
     }
 
     m_Data->CopyDataToStdVectorIfNecessary();
-
-    m_Data->StdVector.erase(m_Data->StdVector.begin() + Index_start, m_Data->StdVector.begin() + Index_end + 1);
-    
+    m_Data->StdVector.erase(m_Data->StdVector.begin() + Index_start, m_Data->StdVector.begin() + Index_end + 1);    
     m_Data->Length -= Index_end - Index_start + 1;
-
     m_Data->ElementPointer = m_Data->StdVector.data();
 }
 
@@ -1141,30 +1123,39 @@ inline void ObjectArray<ElementType>::Insert(int_max Index, ElementType Element)
 	m_Data->Length = SelfLength + 1;
 }
 
-
+/*
 template<typename ElementType>
 inline
 void ObjectArray<ElementType>::Insert(int_max Index, const std::initializer_list<ElementType>& InputArray)
 {
     this->Insert(Index, InputArray.begin(), int_max(InputArray.size()));
 }
-
-
+*/
+/*
 template<typename ElementType>
 inline
 void ObjectArray<ElementType>::Insert(int_max Index, const StdObjectVector<ElementType>& InputArray)
 {
 	this->Insert(Index, InputArray.GetElementPointer(), InputArray.GetElementCount());
 }
-
-
+*/
+/*
 template<typename ElementType>
 inline
 void ObjectArray<ElementType>::Insert(int_max Index, const ObjectArray<ElementType>& InputArray)
 {
     this->Insert(Index, InputArray.GetElementPointer(), InputArray.GetElementCount());
 }
-
+*/
+/*
+template<typename ElementType>
+template<int_max TemplateLength>
+inline
+void ObjectArray<ElementType>::Insert(int_max Index, const DenseVector<ElementType, TemplateLength>& InputArray)
+{
+	this->Insert(Index, InputArray.GetElementPointer(), InputArray.GetElementCount());
+}
+*/
 
 template<typename ElementType>
 inline
