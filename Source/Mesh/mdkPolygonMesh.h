@@ -60,6 +60,16 @@ public:
 
 	PolygonMesh<ScalarType> GetSubMeshByFace(const DenseVector<int_max>& FaceIndexList) const;
 
+	//---------------------------------------------------------------------------------------------------------------//
+	// get PointPositionMatrix And FaceTable
+	// set Flag_Clean to true to output clean data structure
+	std::pair<DenseMatrix<ScalarType>, ObjectArray<DenseVector<int_max>>> GetPointPositionMatrixAndFaceTable(bool Flag_Clean = true) const;
+	void GetPointPositionMatrixAndFaceTable(DenseMatrix<ScalarType>& PointPositionMatrix, ObjectArray<DenseVector<int_max>>& FaceTable, bool Flag_Clean = true) const;
+
+	//---- construct a polygon mesh ------------------
+	void Construct(const std::pair<DenseMatrix<ScalarType>, ObjectArray<DenseVector<int_max>>>& InputData);
+	void Construct(DenseMatrix<ScalarType> InputPointPositionMatrix, const ObjectArray<DenseVector<int_max>>& InputFaceTable);
+
 	//-------------- mesh editing -------------------------------------//
 
 	// swap PointA and PointB: move A to B and move B to A
@@ -102,6 +112,12 @@ public:
     // Flag_CheckTriangle= ture then check is performed in the function to prevent this case
     //------------------------------
 	bool MergeConnectivityOfPoint(int_max PointIndexA, int_max PointIndexB, bool Flag_CheckTriangle = false);
+
+	//PointB will be deleted
+	bool MergePoint(int_max PointIndexA, int_max PointIndexB, bool Flag_CheckTriangle = false);
+
+	//merge Duplicated Edge between PointA and PointB
+	void MergeDuplicatedEdgeBetweenPoint(int_max PointIndex0, int_max PointIndex1);
 
 	// Point may not be on the edge
 	// return true if success

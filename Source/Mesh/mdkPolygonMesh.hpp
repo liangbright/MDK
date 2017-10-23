@@ -79,6 +79,136 @@ PolygonMesh<ScalarType> PolygonMesh<ScalarType>::GetSubMeshByFace(const DenseVec
 	return OutputMesh;
 }
 
+
+template<typename ScalarType>
+std::pair<DenseMatrix<ScalarType>, ObjectArray<DenseVector<int_max>>>
+PolygonMesh<ScalarType>::GetPointPositionMatrixAndFaceTable(bool Flag_Clean) const
+{
+	std::pair<DenseMatrix<ScalarType>, ObjectArray<DenseVector<int_max>>> Output;
+	this->GetPointPositionMatrixAndFaceTable(Output.first, Output.second, Flag_Clean);
+	return Output;
+}
+
+
+template<typename ScalarType>
+void PolygonMesh<ScalarType>::GetPointPositionMatrixAndFaceTable(DenseMatrix<ScalarType>& PointPositionMatrix, ObjectArray<DenseVector<int_max>>& FaceTable, bool Flag_Clean) const
+{
+	if (Flag_Clean == false)
+	{
+		PointPositionMatrix = m_MeshData->PointPositionTable;
+		FaceTable.FastResize(m_MeshData->FaceList.GetLength());
+		for (int_max n = 0; n <= m_MeshData->FaceList.GetLength(); ++n)
+		{
+			if (this->IsValidFaceIndex(n) == true)
+			{
+				FaceTable[n] = this->Face(n).GetPointIndexList();
+			}
+		}
+		return;
+	}
+
+	auto PointCount = this->GetPointCount();
+	auto FaceCount = this->GetFaceCount();
+	int_max PointIndex_max = this->GetMaxValueOfPointIndex();
+	int_max FaceIndex_max = this->GetMaxValueOfFaceIndex();
+
+	PointPositionMatrix.FastResize(3, PointCount);
+	FaceTable.FastResize(FaceCount);
+
+	// DataStructure may not be clean
+	// Map PointIndex (PointIndex.GetIndex()) to OutputIndex (col index) in PointPositionMatrix
+	std::unordered_map<int_max, int_max> Map_PointIndex_to_OutputIndex;
+
+	int_max PointCounter = 0;
+	for (int_max k = 0; k <= PointIndex_max; ++k)
+	{
+		if (this->IsValidPointIndex(k) == true)
+		{
+			auto Pos = this->GetPointPosition(k);
+			PointPositionMatrix.SetCol(PointCounter, Pos);
+			Map_PointIndex_to_OutputIndex[k] = PointCounter;
+			PointCounter += 1;
+		}
+	}
+
+	int_max FaceCounter = 0;
+	for (int_max n = 0; n <= FaceIndex_max; ++n)
+	{
+		if (this->IsValidFaceIndex(n) == true)
+		{
+			auto PointIndexList = this->Face(n).GetPointIndexList();
+			FaceTable[FaceCounter].FastResize(PointIndexList.GetLength());
+			for (int_max k = 0; k < PointIndexList.GetLength(); ++k)
+			{
+				auto tempPointIndex = PointIndexList[k];
+				auto it_map = Map_PointIndex_to_OutputIndex.find(tempPointIndex);
+				if (it_map != Map_PointIndex_to_OutputIndex.end())
+				{
+					FaceTable[FaceCounter][k] = it_map->second;
+				}
+				else
+				{
+					MDK_Error("tempPointIndex is invalid @ PolygonMesh::GetPointPositionMatrixAndFaceTable(...)")
+					return;
+				}
+			}
+			FaceCounter += 1;
+		}
+	}
+}
+
+
+template<typename ScalarType>
+void PolygonMesh<ScalarType>::Construct(const std::pair<DenseMatrix<ScalarType>, ObjectArray<DenseVector<int_max>>>& InputData)
+{
+	this->Construct(InputData.first, InputData.second);
+}
+
+
+template<typename ScalarType>
+void PolygonMesh<ScalarType>::Construct(DenseMatrix<ScalarType> InputPointPositionMatrix, const ObjectArray<DenseVector<int_max>>& InputFaceTable)
+{
+	if (InputPointPositionMatrix.IsEmpty() == true || InputFaceTable.IsEmpty() == true)
+	{
+		MDK_Error("InputPointPositionMatrix or InputFaceTable is empty @ PolygonMesh::Construct(...)")
+		return;
+	}
+
+	if (InputPointPositionMatrix.GetRowCount() != 3 || 3 * InputFaceTable.GetElementCount() < InputPointPositionMatrix.GetColCount())
+	{
+		MDK_Error("InputPointPositionMatrix or InputFaceTable is invalid @ PolygonMesh::Construct(...)")
+		return;
+	}
+	//--------------------------------------------------------------------------------------------------
+	this->Clear(); // attribute will get lost
+
+	auto PointIndexList = this->AddPoint_batch(std::move(InputPointPositionMatrix));
+
+	for (int_max k = 0; k < PointIndexList.GetLength(); ++k)
+	{
+		if (this->IsValidPointIndex(PointIndexList[k]) == false)
+		{
+			MDK_Error("Somthing is wrong with PointIndexList @ PolygonMesh::Construct(...)")
+			return;
+		}
+	}
+
+	for (int_max k = 0; k < InputFaceTable.GetLength(); ++k)
+	{
+		auto PointIndexList_k = PointIndexList.GetSubSet(InputFaceTable[k]);
+		if (PointIndexList_k.IsEmpty() == false)
+		{
+			this->AddFaceByPoint(PointIndexList_k);
+		}
+		else
+		{
+			MDK_Warning("PointIndexList is empty at Face " << k << ", the Face is ignored")
+		}
+	}
+}
+
+
+
 //----------------- mesh editing ---------------------------------------------------------------------------------------
 
 template<typename ScalarType>
@@ -231,12 +361,6 @@ bool PolygonMesh<ScalarType>::MergeConnectivityOfPoint(int_max PointIndexA, int_
 	//   / \     
     //-------------------------
 
-	if (this->CheckIfPolygonMesh() == false)
-	{
-		MDK_Error("Only support PolygonMesh for now @ PolygonMesh::MergeConnectivityOfPoint(...)")
-		return false;
-	}
-
 	if (PointIndexA == PointIndexB)
 	{
 		return true;
@@ -327,6 +451,56 @@ bool PolygonMesh<ScalarType>::MergeConnectivityOfPoint(int_max PointIndexA, int_
 
 	//---------------------------------------------------------------	
 	return true;
+}
+
+
+template<typename ScalarType>
+bool PolygonMesh<ScalarType>::MergePoint(int_max PointIndexA, int_max PointIndexB, bool Flag_CheckTriangle)
+{
+	auto Flag = this->MergeConnectivityOfPoint(PointIndexA, PointIndexB, Flag_CheckTriangle);
+	if (Flag == false)
+	{
+		return false;
+	}
+	this->DeletePoint(PointIndexB);
+	return true;
+}
+
+
+template<typename ScalarType>
+void PolygonMesh<ScalarType>::MergeDuplicatedEdgeBetweenPoint(int_max PointIndex0, int_max PointIndex1)
+{
+	if (this->IsValidPointIndex(PointIndex0) == false || this->IsValidPointIndex(PointIndex1) == false)
+	{
+		return;
+	}
+	auto& Ref_AdjacentEdgeIndexList0 = this->Point(PointIndex0).AdjacentEdgeIndexList();
+	auto& Ref_AdjacentEdgeIndexList1 = this->Point(PointIndex1).AdjacentEdgeIndexList();
+	auto EdgeIndex01_List = Intersect(Ref_AdjacentEdgeIndexList0, Ref_AdjacentEdgeIndexList1);
+	if (EdgeIndex01_List.GetLength() <= 1)
+	{
+		return;
+	}
+	//now: EdgeIndex is not unique, only keep EdgeIndexList[0]
+	auto EdgeIndex01 = EdgeIndex01_List[0];
+	//modify Point0 and Point1
+	Ref_AdjacentEdgeIndexList0 = SetDiff(Ref_AdjacentEdgeIndexList0, EdgeIndex01_List);
+	Ref_AdjacentEdgeIndexList0.Append(EdgeIndex01);
+	Ref_AdjacentEdgeIndexList1 = SetDiff(Ref_AdjacentEdgeIndexList1, EdgeIndex01_List);
+	Ref_AdjacentEdgeIndexList1.Append(EdgeIndex01);
+	//modify face adj to edge k=1,2,... and delete edge
+	for (int_max k = 1; k < EdgeIndex01_List.GetLength(); ++k)
+	{
+		auto AdjFaceIndexList = this->Edge(EdgeIndex01_List[k]).GetAdjacentFaceIndexList();
+		for (int_max n = 0; n < AdjFaceIndexList.GetLength(); ++n)
+		{
+			auto& Ref_EdgeIndexList = this->Face(AdjFaceIndexList[n]).EdgeIndexList();
+			auto tempIdx = Ref_EdgeIndexList.ExactMatch("first", EdgeIndex01_List[k]);
+			Ref_EdgeIndexList[tempIdx] = EdgeIndex01;
+		}
+		this->Edge(EdgeIndex01_List[k]).AdjacentFaceIndexList().Clear();
+		this->DeleteEdge(EdgeIndex01_List[k]);
+	}
 }
 
 
