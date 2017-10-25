@@ -466,7 +466,7 @@ public:
 	//confusion
 	//ElementType is DeseVector<int_max>
 	//A.append({1,2}) may be A = {1, 2} or A = {{1}, {2}}	
-	inline void Append(const std::initializer_list<ElementType>& InputArray);
+	//inline void Append(const std::initializer_list<ElementType>& InputArray);
 	//inline void Append(const StdObjectVector<ElementType>& InputArray);
 	//inline void Append(const ObjectArray<ElementType>& InputArray);
 	//inline void Append(const DenseMatrix<ElementType>& InputArray);

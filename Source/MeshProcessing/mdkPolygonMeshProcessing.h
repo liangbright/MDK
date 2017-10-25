@@ -1,6 +1,6 @@
 ﻿#pragma once
 //---------------------------------------------------//
-#include "mdkPolygonMesh.h"
+//#include "mdkPolygonMesh.h"
 #include "mdkTriangleMesh.h"
 //---------------------------------------------------//
 #include "mdkPolygonMeshProcessing_Function.h"

@@ -351,7 +351,8 @@ public:
 
 	int_max AddEdgeSet(const String& Name);//empty set
 	int_max AddEdgeSet(const String& Name, DenseVector<int_max> EdgeIndexList);
-	void ChangeEdgeSetName(int_max Index, const String& Name);
+	void ChangeEdgeSetName(int_max Index, const String& Name_new);
+	void ChangeEdgeSetName(const String& Name_old, const String& Name);
 	int_max GetEdgeSetCount() const;
 	void SetEdgeSet(const String& Name, DenseVector<int_max> EdgeIndexList);
 	void SetEdgeSet(int_max Index, DenseVector<int_max> EdgeIndexList);
