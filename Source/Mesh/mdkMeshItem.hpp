@@ -192,26 +192,25 @@ void Point_Of_Mesh<ScalarType>::SetName(String PointName)
 		return;
 	}
 
-	// check record
-	auto PointName_old = m_Data->Name;
-	if (PointName_old != PointName)
+	auto it = m_Data->MeshData->Map_Point_Name_to_Index.find(PointName);
+	if (it == m_Data->MeshData->Map_Point_Name_to_Index.end())//not found
 	{
-		auto it = m_Data->MeshData->Map_Point_Name_to_Index.find(PointName);
-		if (it != m_Data->MeshData->Map_Point_Name_to_Index.end())
+		auto it_old = m_Data->MeshData->Map_Point_Name_to_Index.find(m_Data->Name);
+		if (it_old != m_Data->MeshData->Map_Point_Name_to_Index.end())
 		{
-			MDK_Error("Input PointName has already been used for another point @ Point_Of_Mesh::SetID(...)")
+			m_Data->MeshData->Map_Point_Name_to_Index.erase(it_old);
+		}
+		m_Data->MeshData->Map_Point_Name_to_Index[PointName] = m_Data->Index;
+		m_Data->Name = std::move(PointName);
+	}
+	else
+	{
+		if (it->second != m_Data->Index)
+		{
+			MDK_Error("Input PointName has already been used for another point @ Point_Of_Mesh::SetName(...)")
 			return;
 		}
-
-		it = m_Data->MeshData->Map_Point_Name_to_Index.find(PointName_old);
-		if (it != m_Data->MeshData->Map_Point_Name_to_Index.end())
-		{
-			m_Data->MeshData->Map_Point_Name_to_Index.erase(it);
-		}
-
-		m_Data->MeshData->Map_Point_Name_to_Index[PointName] = m_Data->Index;
-		m_Data->Name =std::move(PointName);
-	}
+	}	
 }
 
 template<typename ScalarType>
@@ -620,26 +619,25 @@ void Edge_Of_Mesh<ScalarType>::SetName(String EdgeName)
 		return;
 	}
 
-	// check record
-	auto EdgeName_old = m_Data->Name;
-	if (EdgeName_old != EdgeName)
+	auto it = m_Data->MeshData->Map_Edge_Name_to_Index.find(EdgeName);
+	if (it == m_Data->MeshData->Map_Edge_Name_to_Index.end())//not found
 	{
-		auto it = m_Data->MeshData->Map_Edge_Name_to_Index.find(EdgeName);
-		if (it != m_Data->MeshData->Map_Edge_Name_to_Index.end())
+		auto it_old = m_Data->MeshData->Map_Edge_Name_to_Index.find(m_Data->Name);
+		if (it_old != m_Data->MeshData->Map_Edge_Name_to_Index.end())
 		{
-			MDK_Error("Input EdgeName has already been used for another edge @ Edge_Of_Mesh::SetID(...)")
-			return;
+			m_Data->MeshData->Map_Edge_Name_to_Index.erase(it_old);
 		}
-
-		it = m_Data->MeshData->Map_Edge_Name_to_Index.find(EdgeName_old);
-		if (it != m_Data->MeshData->Map_Edge_Name_to_Index.end())
-		{
-			m_Data->MeshData->Map_Edge_Name_to_Index.erase(it);
-		}
-
 		m_Data->MeshData->Map_Edge_Name_to_Index[EdgeName] = m_Data->Index;
 		m_Data->Name = std::move(EdgeName);
 	}
+	else
+	{
+		if (it->second != m_Data->Index)
+		{
+			MDK_Error("Input EdgeName has already been used for another point @ Edge_Of_Mesh::SetName(...)")
+			return;
+		}
+	}	
 }
 
 template<typename ScalarType>
@@ -1086,25 +1084,24 @@ void Face_Of_Mesh<ScalarType>::SetName(String FaceName)
 		return;
 	}
 
-	// check record
-	auto FaceName_old = m_Data->Name;
-	if (FaceName_old != FaceName)
+	auto it = m_Data->MeshData->Map_Face_Name_to_Index.find(FaceName);
+	if (it == m_Data->MeshData->Map_Face_Name_to_Index.end())//not found
 	{
-		auto it = m_Data->MeshData->Map_Face_Name_to_Index.find(FaceName);
-		if (it != m_Data->MeshData->Map_Face_Name_to_Index.end())
+		auto it_old = m_Data->MeshData->Map_Face_Name_to_Index.find(m_Data->Name);
+		if (it_old != m_Data->MeshData->Map_Face_Name_to_Index.end())
 		{
-			MDK_Error("Input FaceName has already been used for another cell @ Face_Of_Mesh::SetName(...)")
-			return;
+			m_Data->MeshData->Map_Face_Name_to_Index.erase(it_old);
 		}
-
-		it = m_Data->MeshData->Map_Face_Name_to_Index.find(FaceName_old);
-		if (it != m_Data->MeshData->Map_Face_Name_to_Index.end())
-		{
-			m_Data->MeshData->Map_Face_Name_to_Index.erase(it);
-		}
-
 		m_Data->MeshData->Map_Face_Name_to_Index[FaceName] = m_Data->Index;
 		m_Data->Name = std::move(FaceName);
+	}
+	else
+	{
+		if (it->second != m_Data->Index)
+		{
+			MDK_Error("Input FaceName has already been used for another point @ Face_Of_Mesh::SetName(...)")
+			return;
+		}
 	}
 }
 
@@ -1669,26 +1666,25 @@ void Cell_Of_Mesh<ScalarType>::SetName(String CellName)
 		return;
 	}
 
-	// check record
-	auto CellName_old = m_Data->Name;
-	if (CellName_old != CellName)
+	auto it = m_Data->MeshData->Map_Cell_Name_to_Index.find(CellName);
+	if (it == m_Data->MeshData->Map_Cell_Name_to_Index.end())//not found
 	{
-		auto it = m_Data->MeshData->Map_Cell_Name_to_Index.find(CellName);
-		if (it != m_Data->MeshData->Map_Cell_Name_to_Index.end())
+		auto it_old = m_Data->MeshData->Map_Cell_Name_to_Index.find(m_Data->Name);
+		if (it_old != m_Data->MeshData->Map_Cell_Name_to_Index.end())
 		{
-			MDK_Error("Input CellName has already been used for another cell @ Cell_Of_Mesh::SetName(...)")
-			return;
+			m_Data->MeshData->Map_Cell_Name_to_Index.erase(it_old);
 		}
-
-		it = m_Data->MeshData->Map_Cell_Name_to_Index.find(CellName_old);
-		if (it != m_Data->MeshData->Map_Cell_Name_to_Index.end())
-		{
-			m_Data->MeshData->Map_Cell_Name_to_Index.erase(it);
-		}
-
 		m_Data->MeshData->Map_Cell_Name_to_Index[CellName] = m_Data->Index;
 		m_Data->Name = std::move(CellName);
 	}
+	else
+	{
+		if (it->second != m_Data->Index)
+		{
+			MDK_Error("Input CellName has already been used for another point @ Cell_Of_Mesh::SetName(...)")
+			return;
+		}
+	}	
 }
 
 template<typename ScalarType>

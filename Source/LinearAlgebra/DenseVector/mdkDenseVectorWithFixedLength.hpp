@@ -13,7 +13,7 @@ DenseVector<ElementType, Length>::DenseVector()
     }  
 }
 
-
+/*
 template<typename ElementType, int_max Length>
 inline
 DenseVector<ElementType, Length>::DenseVector(const ElementType& Element)
@@ -29,7 +29,7 @@ DenseVector<ElementType, Length>::DenseVector(const ElementType& Element)
 
 	this->Fill(Element);
 }
-
+*/
 
 template<typename ElementType, int_max Length>
 inline

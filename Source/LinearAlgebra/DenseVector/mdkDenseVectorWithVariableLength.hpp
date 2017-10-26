@@ -10,7 +10,7 @@ DenseVector<ElementType>::DenseVector()
 {
 }
 
-
+/*
 template<typename ElementType>
 inline
 DenseVector<ElementType>::DenseVector(const ElementType& Element)
@@ -18,7 +18,7 @@ DenseVector<ElementType>::DenseVector(const ElementType& Element)
     m_StdVector.resize(1);
     m_StdVector[0] = Element;
 }
-
+*/
 
 template<typename ElementType>
 inline
@@ -151,7 +151,7 @@ bool DenseVector<ElementType>::operator!=(const DenseVector<ElementType>& InputV
 	return false;
 }
 
-
+/*
 template<typename ElementType>
 inline
 void DenseVector<ElementType>::operator=(const ElementType& Element)
@@ -168,7 +168,7 @@ void DenseVector<ElementType>::operator=(const ElementType& Element)
 	}
 	(*this)[0] = Element;
 }
-
+*/
 
 template<typename ElementType>
 inline
@@ -1087,6 +1087,14 @@ bool DenseVector<ElementType>::Append(ElementType Element)
 {
 	m_StdVector.push_back(std::move(Element));
     return true;
+}
+
+
+template<typename ElementType>
+inline
+bool DenseVector<ElementType>::Append(const std::initializer_list<ElementType>& IndexList)
+{
+	return this->Append(IndexList.begin(), int_max(IndexList.size()));
 }
 
 

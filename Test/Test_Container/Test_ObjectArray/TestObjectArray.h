@@ -39,3 +39,17 @@ void Test_Append()
 
 	A.Append({1, 2});
 }
+
+
+void Test_DenseVector_Append()
+{
+	DenseVector<DenseVector<int_max>> A;
+	A.Resize(1);
+
+	//good, can not compile
+	//A.Append({ 1, 2 });
+
+	A.Append(DenseVector<int_max>({ 1, 2 }));
+	A.Append({ DenseVector<int_max>({1, 2}), DenseVector<int_max>({2, 3}) });
+	A.Append({ {1}, {2} });
+}

@@ -33,7 +33,7 @@ DenseMatrix<ElementType>::DenseMatrix(MatrixSize Size)
 	this->Resize(Size);
 }
 
-
+/*
 template<typename ElementType>
 inline
 DenseMatrix<ElementType>::DenseMatrix(const ElementType& Element)
@@ -41,7 +41,7 @@ DenseMatrix<ElementType>::DenseMatrix(const ElementType& Element)
     this->Resize(1, 1);
     (*this)(0) = Element;
 }
-
+*/
 
 template<typename ElementType>
 inline
@@ -279,7 +279,7 @@ void DenseMatrix<ElementType>::operator=(const DenseGlueMatrixForMultiplication<
 	this->Copy(GlueMatrix);
 }
 
-
+/*
 template<typename ElementType>
 inline
 void DenseMatrix<ElementType>::operator=(const ElementType& Element)
@@ -320,7 +320,7 @@ void DenseMatrix<ElementType>::operator=(const ElementType& Element)
         }
     }
 }
-
+*/
 
 template<typename ElementType>
 inline

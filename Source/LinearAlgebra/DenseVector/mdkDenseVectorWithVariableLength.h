@@ -33,7 +33,7 @@ public:
     
     inline DenseVector();
 
-    inline DenseVector(const ElementType& Element);
+    //inline DenseVector(const ElementType& Element);
 
     inline DenseVector(const std::initializer_list<ElementType>& InputVector);
 
@@ -64,7 +64,7 @@ public:
 	inline bool operator!=(const DenseVector<ElementType>& InputVector) const;
     //------------------------------------------------------------
 
-	inline void operator=(const ElementType& Element);
+	//inline void operator=(const ElementType& Element);
 
     inline void operator=(const DenseVector<ElementType>& InputVector);
 
@@ -204,6 +204,8 @@ public:
     //-------------------------------------------------------------------------------
 
     inline bool Append(ElementType Element);
+
+	inline bool Append(const std::initializer_list<ElementType>& IndexList);
 
 	template<int_max LengthParameter>
 	inline bool Append(const DenseVector<ElementType, LengthParameter>& InputData);

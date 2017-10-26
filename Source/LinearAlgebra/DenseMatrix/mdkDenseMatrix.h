@@ -166,7 +166,7 @@ public:
 
     inline DenseMatrix(MatrixSize Size);
 
-    inline DenseMatrix(const ElementType& Element);
+    //inline DenseMatrix(const ElementType& Element);
 
     inline DenseMatrix(const std::initializer_list<ElementType>& InputList);
 
@@ -224,7 +224,7 @@ public:
 
     inline void operator=(const DenseGlueMatrixForMultiplication<ElementType>& GlueMatrix);
 
-    inline void operator=(const ElementType& Element);
+    //inline void operator=(const ElementType& Element);
 
     inline void operator=(const std::initializer_list<ElementType>& InputList);
 

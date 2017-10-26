@@ -4735,23 +4735,20 @@ void Mesh<ScalarType>::Append(const Mesh<ScalarType>& InputMesh)
 		m_MeshData->PointPositionTable = { &m_MeshData->PointPositionTable, &InputMesh.m_MeshData->PointPositionTable };
 		m_MeshData->PointValidityFlagList.Append(InputMesh.m_MeshData->PointValidityFlagList);
 		m_MeshData->PointList.Append(InputMesh.m_MeshData->PointList.GetPointer(), InputMesh.m_MeshData->PointList.GetLength());
-		for (int_max k = 0; k < m_MeshData->PointList.GetLength(); ++k)
+		for (int_max k = MaxPointIndex_init + 1; k < m_MeshData->PointList.GetLength(); ++k)
 		{
-			if (k > MaxPointIndex_init)
+			if (m_MeshData->PointValidityFlagList[k] == 1)
 			{
-				if (m_MeshData->PointValidityFlagList[k] == 1)
+				m_MeshData->PointList[k].SetParentMesh(*this);
+				m_MeshData->PointList[k].SetIndex(k);
+				m_MeshData->PointList[k].AdjacentEdgeIndexList() += MaxEdgeIndex_init + 1;
+				//PointName
+				auto PointIndex_input = k - MaxPointIndex_init - 1;
+				auto PointName = InputMesh.m_MeshData->PointList[PointIndex_input].GetName();
+				if (PointName.IsEmpty() == false)
 				{
-					m_MeshData->PointList[k].SetParentMesh(*this);
-					m_MeshData->PointList[k].SetIndex(k);
-					m_MeshData->PointList[k].AdjacentEdgeIndexList() += MaxEdgeIndex_init + 1;
-					//PointName
-					auto PointIndex_input = k - MaxPointIndex_init - 1;
-					auto PointName = InputMesh.m_MeshData->PointList[PointIndex_input].GetName();
-					if (PointName.IsEmpty() == false)
-					{
-						m_MeshData->PointList[k].SetName(PointName);
-					}
-				}				
+					m_MeshData->PointList[k].SetName(PointName);
+				}
 			}
 		}
 	}
@@ -4760,80 +4757,72 @@ void Mesh<ScalarType>::Append(const Mesh<ScalarType>& InputMesh)
 	{
 		m_MeshData->EdgeValidityFlagList.Append(InputMesh.m_MeshData->EdgeValidityFlagList);
 		m_MeshData->EdgeList.Append(InputMesh.m_MeshData->EdgeList.GetPointer(), InputMesh.m_MeshData->EdgeList.GetLength());
-		for (int_max k = 0; k < m_MeshData->EdgeList.GetLength(); ++k)
+		for (int_max k = MaxEdgeIndex_init + 1; k < m_MeshData->EdgeList.GetLength(); ++k)
 		{
-			if (k > MaxEdgeIndex_init)
+			if (m_MeshData->EdgeValidityFlagList[k] == 1)
 			{
-				if (m_MeshData->EdgeValidityFlagList[k] == 1)
+				m_MeshData->EdgeList[k].SetParentMesh(*this);
+				m_MeshData->EdgeList[k].SetIndex(k);
+				auto PIdxList = m_MeshData->EdgeList[k].GetPointIndexList();
+				m_MeshData->EdgeList[k].SetPointIndexList(PIdxList[0] + MaxPointIndex_init + 1, PIdxList[1] + MaxPointIndex_init + 1);
+				m_MeshData->EdgeList[k].AdjacentFaceIndexList() += MaxFaceIndex_init + 1;
+				//EdgeName
+				auto EdgeIndex_input = k - MaxEdgeIndex_init - 1;
+				auto EdgeName = InputMesh.m_MeshData->EdgeList[EdgeIndex_input].GetName();
+				if (EdgeName.IsEmpty() == false)
 				{
-					m_MeshData->EdgeList[k].SetParentMesh(*this);
-					m_MeshData->EdgeList[k].SetIndex(k);
-					auto PIdxList = m_MeshData->EdgeList[k].GetPointIndexList();
-					m_MeshData->EdgeList[k].SetPointIndexList(PIdxList[0] + MaxPointIndex_init + 1, PIdxList[1] + MaxPointIndex_init + 1);
-					m_MeshData->EdgeList[k].AdjacentFaceIndexList() += MaxFaceIndex_init + 1;
-					//EdgeName
-					auto EdgeIndex_input = k - MaxEdgeIndex_init - 1;
-					auto EdgeName = InputMesh.m_MeshData->EdgeList[EdgeIndex_input].GetName();
-					if (EdgeName.IsEmpty() == false)
-					{
-						m_MeshData->EdgeList[k].SetName(EdgeName);
-					}
-				}				
+					m_MeshData->EdgeList[k].SetName(EdgeName);
+				}
 			}
 		}
-	}
+	}	
 
 	if (InputMesh.m_MeshData->FaceList.IsEmpty() == false)
 	{
 		m_MeshData->FaceValidityFlagList.Append(InputMesh.m_MeshData->FaceValidityFlagList);
 		m_MeshData->FaceList.Append(InputMesh.m_MeshData->FaceList.GetPointer(), InputMesh.m_MeshData->FaceList.GetLength());
-		for (int_max k = 0; k < m_MeshData->FaceList.GetLength(); ++k)
+		for (int_max k = MaxFaceIndex_init + 1; k < m_MeshData->FaceList.GetLength(); ++k)
 		{
-			if (k > MaxFaceIndex_init)
+			if (m_MeshData->FaceValidityFlagList[k] == 1)
 			{
-				if (m_MeshData->FaceValidityFlagList[k] == 1)
+				m_MeshData->FaceList[k].SetParentMesh(*this);
+				m_MeshData->FaceList[k].SetIndex(k);
+				m_MeshData->FaceList[k].PointIndexList() += MaxPointIndex_init + 1;
+				m_MeshData->FaceList[k].EdgeIndexList() += MaxEdgeIndex_init + 1;
+				m_MeshData->FaceList[k].AdjacentCellIndexList() += MaxCellIndex_init + 1;
+				//FaceName
+				auto FaceIndex_input = k - MaxFaceIndex_init - 1;
+				auto FaceName = InputMesh.m_MeshData->FaceList[FaceIndex_input].GetName();
+				if (FaceName.IsEmpty() == false)
 				{
-					m_MeshData->FaceList[k].SetParentMesh(*this);
-					m_MeshData->FaceList[k].SetIndex(k);
-					m_MeshData->FaceList[k].PointIndexList() += MaxPointIndex_init + 1;
-					m_MeshData->FaceList[k].EdgeIndexList() += MaxEdgeIndex_init + 1;
-					//FaceName
-					auto FaceIndex_input = k - MaxFaceIndex_init - 1;
-					auto FaceName = InputMesh.m_MeshData->FaceList[FaceIndex_input].GetName();
-					if (FaceName.IsEmpty() == false)
-					{
-						m_MeshData->FaceList[k].SetName(FaceName);
-					}
+					m_MeshData->FaceList[k].SetName(FaceName);
 				}
 			}
 		}
-	}
+	}	
 
 	if (InputMesh.m_MeshData->CellList.IsEmpty() == false)
 	{
 		m_MeshData->CellValidityFlagList.Append(InputMesh.m_MeshData->CellValidityFlagList);
 		m_MeshData->CellList.Append(InputMesh.m_MeshData->CellList.GetPointer(), InputMesh.m_MeshData->CellList.GetLength());
-		for (int_max k = 0; k < m_MeshData->CellList.GetLength(); ++k)
+		for (int_max k = MaxCellIndex_init + 1; k < m_MeshData->CellList.GetLength(); ++k)
 		{
-			if (k > MaxCellIndex_init)
+			if (m_MeshData->CellValidityFlagList[k] == 1)
 			{
-				if (m_MeshData->CellValidityFlagList[k] == 1)
+				m_MeshData->CellList[k].SetParentMesh(*this);
+				m_MeshData->CellList[k].SetIndex(k);
+				m_MeshData->CellList[k].PointIndexList() += MaxPointIndex_init + 1;
+				m_MeshData->CellList[k].FaceIndexList() += MaxFaceIndex_init + 1;
+				//CellName
+				auto CellIndex_input = k - MaxCellIndex_init - 1;
+				auto CellName = InputMesh.m_MeshData->CellList[CellIndex_input].GetName();
+				if (CellName.IsEmpty() == false)
 				{
-					m_MeshData->CellList[k].SetParentMesh(*this);
-					m_MeshData->CellList[k].SetIndex(k);
-					m_MeshData->CellList[k].PointIndexList() += MaxPointIndex_init + 1;
-					m_MeshData->CellList[k].FaceIndexList() += MaxFaceIndex_init + 1;
-					//CellName
-					auto CellIndex_input = k - MaxCellIndex_init - 1;
-					auto CellName = InputMesh.m_MeshData->CellList[CellIndex_input].GetName();
-					if (CellName.IsEmpty() == false)
-					{
-						m_MeshData->CellList[k].SetName(CellName);
-					}
+					m_MeshData->CellList[k].SetName(CellName);
 				}
 			}
 		}
-	}
+	}	
 
 	for (int_max k = 0; k < InputMesh.m_MeshData->PointSet.GetLength(); ++k)
 	{
