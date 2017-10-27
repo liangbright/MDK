@@ -108,9 +108,8 @@ public:
 	DenseMatrix<ScalarType> GetNode(const DenseVector<int_max>& NodeIndexList) const;
 	DenseMatrix<ScalarType> GetNode(const MDK_Symbol_ALL&) const;
 
-	int_max AddElement(const DenseVector<int_max>& NodeIndexList);//return ElementIndex, Type is UNKNOWN
-	int_max AddElement(const DenseVector<int_max>& NodeIndexList, FiniteElementType Type);//return ElementIndex
-	int_max AddElement(const DenseVector<int_max>& NodeIndexList, const String& ElementType);//return ElementIndex
+	int_max AddElement(FiniteElementType ElementType, const DenseVector<int_max>& NodeIndexList);//return ElementIndex
+	int_max AddElement(const String& ElementType, const DenseVector<int_max>& NodeIndexList);//return ElementIndex
 	void SetElement(int_max ElementIndex, const DenseVector<int_max>& NodeIndexLis);
 	// can not use the same name for element
 	void SetElementName(int_max ElementIndex, const String& ElementName);	
@@ -181,6 +180,8 @@ public:
 	bool IsSolidMesh() const;	
 
 	FiniteElementMesh<ScalarType> GetSubMeshByElement(const DenseVector<int_max>& ElementIndexList) const;
+
+	void Append(const FiniteElementMesh<ScalarType>& InputMesh);
 };
 
 

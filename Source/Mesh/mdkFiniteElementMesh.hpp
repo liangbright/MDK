@@ -302,7 +302,7 @@ DenseVector<int_max> FiniteElementMesh<ScalarType>::AddNode_batch(DenseMatrix<Sc
 			return NodeIndexList;
 		}
 		NodeIndexList.Resize(1);
-		NodeIndexList[0] = this->AddPoint(PointSet.GetPointer());
+		NodeIndexList[0] = this->AddNode(PointSet.GetPointer());
 		return NodeIndexList;
 	}
 
@@ -416,23 +416,17 @@ DenseMatrix<ScalarType> FiniteElementMesh<ScalarType>::GetNode(const MDK_Symbol_
 //------------------------------------------ Element -----------------------------------------------------//
 
 template<typename ScalarType>
-int_max FiniteElementMesh<ScalarType>::AddElement(const DenseVector<int_max>& NodeIndexList)
-{
-	return this->AddElement(NodeIndexList, FiniteElementType::UNKNOWN);
-}
-
-template<typename ScalarType>
-int_max FiniteElementMesh<ScalarType>::AddElement(const DenseVector<int_max>& NodeIndexList, FiniteElementType Type)
+int_max FiniteElementMesh<ScalarType>::AddElement(FiniteElementType ElementType, const DenseVector<int_max>& NodeIndexList)
 {
 	m_MeshData->ElementList.Append(NodeIndexList);
-	m_MeshData->ElementTypeList.Append(Type);
+	m_MeshData->ElementTypeList.Append(ElementType);
 	String EmptyName;
 	m_MeshData->ElementNameList.Append(EmptyName);
 	return m_MeshData->ElementList.GetLength()-1;
 }
 
 template<typename ScalarType>
-int_max FiniteElementMesh<ScalarType>::AddElement(const DenseVector<int_max>& NodeIndexList, const String& ElementType)
+int_max FiniteElementMesh<ScalarType>::AddElement(const String& ElementType, const DenseVector<int_max>& NodeIndexList)
 {
 	auto Type = this->ConvertStringToElementType(ElementType);
 	return this->AddElement(NodeIndexList, Type);
@@ -1222,6 +1216,48 @@ FiniteElementMesh<ScalarType> FiniteElementMesh<ScalarType>::GetSubMeshByElement
 	}
 
 	return SubMesh;
+}
+
+
+template<typename ScalarType>
+void FiniteElementMesh<ScalarType>::Append(const FiniteElementMesh<ScalarType>& InputMesh)
+{
+	auto NodeCount_init = m_MeshData->NodeList.GetColCount();
+	auto ElementCount_init = m_MeshData->ElementList.GetLength();
+	m_MeshData->NodeList = { &m_MeshData->NodeList, &InputMesh.m_MeshData->NodeList };
+	m_MeshData->NodeNameList.Append(InputMesh.m_MeshData->NodeNameList.GetPointer(), InputMesh.m_MeshData->NodeNameList.GetLength());	
+	m_MeshData->ElementList.Append(InputMesh.m_MeshData->ElementList.GetPointer(), InputMesh.m_MeshData->ElementList.GetLength());
+	for (int_max k = ElementCount_init; k < m_MeshData->ElementList.GetLength(); ++k)
+	{
+		m_MeshData->ElementList[k] += NodeCount_init;
+	}
+	m_MeshData->ElementNameList.Append(InputMesh.m_MeshData->ElementNameList.GetPointer(), InputMesh.m_MeshData->ElementNameList.GetLength());
+	m_MeshData->ElementTypeList.Append(InputMesh.m_MeshData->ElementTypeList.GetPointer(), InputMesh.m_MeshData->ElementTypeList.GetLength());	
+	for (int_max k = 0; k < InputMesh.m_MeshData->NodeSet.GetLength(); ++k)
+	{
+		auto NodeSet_k = InputMesh.m_MeshData->NodeSet[k];
+		NodeSet_k += NodeCount_init;
+		this->AddNodeSet(InputMesh.m_MeshData->NodeSetName[k], NodeSet_k);		
+	}
+	for (int_max k = 0; k < InputMesh.m_MeshData->ElementSet.GetLength(); ++k)
+	{
+		auto ElementSet_k = InputMesh.m_MeshData->ElementSet[k];
+		ElementSet_k += ElementCount_init;
+		this->AddElementSet(InputMesh.m_MeshData->ElementSetName[k], ElementSet_k);		
+	}
+	//clear DataSet
+	if (m_MeshData->NodeDataSet.IsEmpty() == false)
+	{
+		MDK_Warning("NodeDataSet is cleared @ FiniteElementMesh::Append(...)")
+		m_MeshData->NodeDataSet.Clear();
+		m_MeshData->NodeDataSetName.Clear();
+	}
+	if (m_MeshData->ElementDataSet.IsEmpty() == false)
+	{
+		MDK_Warning("ElementDataSet is cleared @ FiniteElementMesh::Append(...)")
+		m_MeshData->ElementDataSet.Clear();
+		m_MeshData->ElementDataSetName.Clear();
+	}
 }
 
 }//namespace mdk

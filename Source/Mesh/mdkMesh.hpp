@@ -3515,17 +3515,6 @@ int_max Mesh<ScalarType>::AddCellByFace(MeshCellTypeEnum Type, const DenseVector
 	return CellIndex_input;
 }
 
-template<typename ScalarType>
-int_max Mesh<ScalarType>::AddCellByFace(const DenseVector<int_max>& FaceIndexList)
-{
-	return this->AddCellByFace(MeshCellTypeEnum::Polyhedron, FaceIndexList);
-}
-
-template<typename ScalarType>
-int_max Mesh<ScalarType>::AddCellByFace(const DenseVector<int_max>& FaceIndexList, int_max CellIndex_input)
-{
-	return this->AddCellByFace(MeshCellTypeEnum::Polyhedron, FaceIndexList, CellIndex_input);
-}
 
 template<typename ScalarType>
 int_max Mesh<ScalarType>::AddCellByPointAndFace(MeshCellTypeEnum Type, const DenseVector<int_max>& PointIndexList, const DenseVector<int_max>& FaceIndexList)
@@ -3583,18 +3572,6 @@ int_max Mesh<ScalarType>::AddCellByPointAndFace(MeshCellTypeEnum Type, const Den
 	//-----------------------------
 	return CellIndex_new;
 
-}
-
-template<typename ScalarType>
-int_max Mesh<ScalarType>::AddCellByPointAndFace(const DenseVector<int_max>& PointIndexList, const DenseVector<int_max>& FaceIndexList)
-{
-	return this->AddCellByPointAndFace(MeshCellTypeEnum::Polyhedron, PointIndexList, FaceIndexList);
-}
-
-template<typename ScalarType>
-int_max Mesh<ScalarType>::AddCellByPointAndFace(const DenseVector<int_max>& PointIndexList, const DenseVector<int_max>& FaceIndexList, int_max CellIndex_input)
-{
-	return this->AddCellByPointAndFace(MeshCellTypeEnum::Polyhedron, PointIndexList, FaceIndexList, CellIndex_input);
 }
 
 //------------------- Delete Mesh Item ----------------------------------------------------------------------------//

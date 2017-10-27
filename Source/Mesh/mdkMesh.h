@@ -426,22 +426,18 @@ public:
 	//FaceIndex_input may be the Index of a deleted face, so to reused old FaceIndex if possible
 	int_max AddFaceByPoint(const DenseVector<int_max>& PointIndexList, int_max FaceIndex_input);
 
-	//cell type: Tetrahedron, Wedge, Hexahedron
+	//must specify cell type, e.g. Tetrahedron
 	int_max AddCellByPoint(MeshCellTypeEnum Type, const DenseVector<int_max>& PointIndexList);
 	int_max AddCellByPoint(MeshCellTypeEnum Type, const DenseVector<int_max>& PointIndexList, int_max CellIndex_input);//reuse old CellIndex
 
-	// point/edge will be extracted, the order is random
+	// point/edge will be extracted, the order is random in FaceIndexList
 	int_max AddCellByFace(MeshCellTypeEnum Type, const DenseVector<int_max>& FaceIndexList);		
 	int_max AddCellByFace(MeshCellTypeEnum Type, const DenseVector<int_max>& FaceIndexList, int_max CellIndex_input);//reuse old CellIndex
-	int_max AddCellByFace(const DenseVector<int_max>& FaceIndexList);//Type is Polyhedron
-	int_max AddCellByFace(const DenseVector<int_max>& FaceIndexList, int_max CellIndex_input);//Type is Polyhedron
 
 	//specify face-order and point-order in each cell
 	//edge-order in the cell is determined by the point-order
 	int_max AddCellByPointAndFace(MeshCellTypeEnum Type, const DenseVector<int_max>& PointIndexList, const DenseVector<int_max>& FaceIndexList);	
 	int_max AddCellByPointAndFace(MeshCellTypeEnum Type, const DenseVector<int_max>& PointIndexList, const DenseVector<int_max>& FaceIndexList, int_max CellIndex_input);//reuse old CellIndex
-	int_max AddCellByPointAndFace(const DenseVector<int_max>& PointIndexList, const DenseVector<int_max>& FaceIndexList);
-	int_max AddCellByPointAndFace(const DenseVector<int_max>& PointIndexList, const DenseVector<int_max>& FaceIndexList, int_max CellIndex_input);
 
     // Delete Mesh Item ----------------------------------------------------------------------------//
 

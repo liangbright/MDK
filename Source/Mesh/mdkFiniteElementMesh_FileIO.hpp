@@ -315,7 +315,7 @@ bool ConvertVTKUnstructuredGridToMDKFiniteElementMesh(vtkUnstructuredGrid* VTKMe
 			ElementType = FiniteElementType::VTK_CONVEX_POINT_SET;
 		}
 
-		OutputMesh.AddElement(IndexList, ElementType);
+		OutputMesh.AddElement(ElementType, IndexList);
 	}
 
 	//---------------------------------------------------------
@@ -409,7 +409,7 @@ bool ConvertVTKPolyDataToMDKFiniteElementMesh(vtkPolyData* VTKMesh, FiniteElemen
 			ElementType = FiniteElementType::VTK_POLYGON;
 		}
 
-		OutputMesh.AddElement(IndexList, ElementType);
+		OutputMesh.AddElement(ElementType, IndexList);
 	}
 
 	return true;

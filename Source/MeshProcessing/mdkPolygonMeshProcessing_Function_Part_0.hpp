@@ -317,7 +317,7 @@ DenseVector<int_max> FindNearestPointOnMeshByVTKPointLocator(vtkPolyData* InputM
 	if (InputMesh_vtk == nullptr)
 	{
 		MDK_Error("InputMesh is nullptr @ mdkPolygonMeshProcessing FindNearestPointOnMeshByVTKPointLocator(...)")
-		return -1;
+		return PointIndexList_output;
 	}
 		
 	auto PointLocator = vtkSmartPointer<vtkPointLocator>::New();
