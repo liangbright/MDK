@@ -100,6 +100,9 @@ vtkSmartPointer<vtkUnstructuredGrid> ConvertMDKFiniteElementMeshToVTKUnstructure
 		case FiniteElementType::VTK_TETRA:
 			CellTypeList[i] = VTKCellType::VTK_TETRA;
 			break;
+		case FiniteElementType::VTK_PYRAMID:
+			CellTypeList[i] = VTKCellType::VTK_PYRAMID;
+			break;
 		case FiniteElementType::VTK_WEDGE:
 			CellTypeList[i] = VTKCellType::VTK_WEDGE;
 			break;
@@ -114,6 +117,9 @@ vtkSmartPointer<vtkUnstructuredGrid> ConvertMDKFiniteElementMeshToVTKUnstructure
 			break;
 		case FiniteElementType::Abaqus_C3D4:
 			CellTypeList[i] = VTKCellType::VTK_TETRA;
+			break;
+		case FiniteElementType::Abaqus_C3D5:
+			CellTypeList[i] = VTKCellType::VTK_PYRAMID;
 			break;
 		case FiniteElementType::Abaqus_C3D6:
 			CellTypeList[i] = VTKCellType::VTK_WEDGE;

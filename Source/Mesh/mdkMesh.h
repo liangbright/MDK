@@ -430,12 +430,7 @@ public:
 	int_max AddCellByPoint(MeshCellTypeEnum Type, const DenseVector<int_max>& PointIndexList);
 	int_max AddCellByPoint(MeshCellTypeEnum Type, const DenseVector<int_max>& PointIndexList, int_max CellIndex_input);//reuse old CellIndex
 
-	// point/edge will be extracted, the order is random in FaceIndexList
-	int_max AddCellByFace(MeshCellTypeEnum Type, const DenseVector<int_max>& FaceIndexList);		
-	int_max AddCellByFace(MeshCellTypeEnum Type, const DenseVector<int_max>& FaceIndexList, int_max CellIndex_input);//reuse old CellIndex
-
 	//specify face-order and point-order in each cell
-	//edge-order in the cell is determined by the point-order
 	int_max AddCellByPointAndFace(MeshCellTypeEnum Type, const DenseVector<int_max>& PointIndexList, const DenseVector<int_max>& FaceIndexList);	
 	int_max AddCellByPointAndFace(MeshCellTypeEnum Type, const DenseVector<int_max>& PointIndexList, const DenseVector<int_max>& FaceIndexList, int_max CellIndex_input);//reuse old CellIndex
 

@@ -19,12 +19,14 @@ enum struct FiniteElementType
 	VTK_QUAD,
 	VTK_POLYGON,
 	VTK_TETRA,
+	VTK_PYRAMID,
 	VTK_WEDGE,
 	VTK_HEXAHEDRON,
 	VTK_CONVEX_POINT_SET,
 	Abaqus_S3,
 	Abaqus_S4,
 	Abaqus_C3D4,
+	Abaqus_C3D5,
 	Abaqus_C3D6,
 	Abaqus_C3D8
 };

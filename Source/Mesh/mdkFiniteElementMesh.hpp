@@ -591,6 +591,9 @@ String FiniteElementMesh<ScalarType>::ConvertElementTypeToString_Abaqus(FiniteEl
 	case FiniteElementType::VTK_TETRA:
 		ElementTypeName = "C3D4";
 		break;
+	case FiniteElementType::VTK_PYRAMID:
+		ElementTypeName = "C3D5";
+		break;
 	case FiniteElementType::VTK_WEDGE:
 		ElementTypeName = "C3D6";
 		break;
@@ -605,6 +608,9 @@ String FiniteElementMesh<ScalarType>::ConvertElementTypeToString_Abaqus(FiniteEl
 		break;
 	case FiniteElementType::Abaqus_C3D4:
 		ElementTypeName = "C3D4";
+		break;
+	case FiniteElementType::Abaqus_C3D5:
+		ElementTypeName = "C3D5";
 		break;
 	case FiniteElementType::Abaqus_C3D6:
 		ElementTypeName = "C3D6";
@@ -638,6 +644,10 @@ FiniteElementType FiniteElementMesh<ScalarType>::ConvertStringToElementType(cons
 	{
 		ElementType = FiniteElementType::VTK_TETRA;
 	}
+	else if (Type == "VTK_PYRAMID")
+	{
+		ElementType = FiniteElementType::VTK_PYRAMID;
+	}
 	else if (Type == "VTK_WEDGE")
 	{
 		ElementType = FiniteElementType::VTK_WEDGE;
@@ -661,6 +671,10 @@ FiniteElementType FiniteElementMesh<ScalarType>::ConvertStringToElementType(cons
 	else if (Type == "Abaqus_C3D4")
 	{
 		ElementType = FiniteElementType::Abaqus_C3D4;
+	}
+	else if (Type == "Abaqus_C3D5")
+	{
+		ElementType = FiniteElementType::Abaqus_C3D5;
 	}
 	else if (Type == "Abaqus_C3D6")
 	{

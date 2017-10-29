@@ -43,6 +43,7 @@ enum struct MeshFaceTypeEnum
 enum struct MeshCellTypeEnum
 {	
 	Tetrahedron,
+	Pyramid,
 	Wedge, // point order may NOT be the same as VTK, VTK Wedge support 2 different point-order
 	Hexahedron,
 	Polyhedron
