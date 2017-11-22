@@ -429,7 +429,7 @@ template<typename ScalarType>
 int_max FiniteElementMesh<ScalarType>::AddElement(const String& ElementType, const DenseVector<int_max>& NodeIndexList)
 {
 	auto Type = this->ConvertStringToElementType(ElementType);
-	return this->AddElement(NodeIndexList, Type);
+	return this->AddElement(Type, NodeIndexList);
 }
 
 template<typename ScalarType>
