@@ -62,6 +62,7 @@ void Test_1()
 	Remesher.Update();
 
 	SavePolygonMeshAsVTKFile(Remesher.Output.DeformedTemplateMesh, TestDataPath + "Leaflet_quad.vtk");
+	SavePolygonMeshAsVTKFile(Remesher.Output.ParameterizedSourceMesh, TestDataPath + "Leaflet_2D_param.vtk");
 }
 
 void Test_2()
