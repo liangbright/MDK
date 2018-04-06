@@ -94,7 +94,8 @@ ScalarType ComputeAngleBetweenTwoVectorIn3D(const DenseVector<ScalarType, 3>& Ve
 template<typename ScalarType>
 inline
 ScalarType ComputeAngleBetweenTwoVectorIn3D(const ScalarType* VectorA, const ScalarType* VectorB)
-{
+{// angle from A to B, right hand rule
+ // angle ~[0 ~2pi]
     if (VectorA == nullptr || VectorB == nullptr)
     {
         MDK_Error("Input is nullptr @ mdkGeometry3D ComputeAngleBetweenTwoVectorIn3D(...)")
@@ -105,18 +106,25 @@ ScalarType ComputeAngleBetweenTwoVectorIn3D(const ScalarType* VectorA, const Sca
 
     auto L2Norm_A = std::sqrt(VectorA[0] * VectorA[0] + VectorA[1] * VectorA[1] + VectorA[2] * VectorA[2]);
     auto L2Norm_B = std::sqrt(VectorB[0] * VectorB[0] + VectorB[1] * VectorB[1] + VectorB[2] * VectorB[2]);
-    if (L2Norm_A > eps_value && L2Norm_B > eps_value)
-    {
-        auto CosTheta = (VectorA[0] * VectorB[0] + VectorA[1] * VectorB[1] + VectorA[2] * VectorB[2]) / (L2Norm_A*L2Norm_B);
-		CosTheta = (std::max)(CosTheta, ScalarType(-1));
-		CosTheta = (std::min)(CosTheta, ScalarType(1));
-        auto Theta= std::acos(CosTheta); // [0, pi], acos(-1) = pi
-		return Theta;
-    }
-    else
-    {
-        return 0;
-    }
+	if (L2Norm_A <= eps_value || L2Norm_B <= eps_value)
+	{
+		MDK_Warning("L2Norm < eps, return 0 @ mdkGeometry3D ComputeAngleBetweenTwoVectorIn3D(...)")
+		return 0;
+	}
+
+	auto CosTheta = (VectorA[0] * VectorB[0] + VectorA[1] * VectorB[1] + VectorA[2] * VectorB[2]) / (L2Norm_A*L2Norm_B);
+	CosTheta = (std::max)(CosTheta, ScalarType(-1));
+	CosTheta = (std::min)(CosTheta, ScalarType(1));
+	auto Theta = std::acos(CosTheta); // [0, pi], acos(-1) = pi
+
+	auto VectorAxB = ComputeVectorCrossProductIn3D(VectorA, VectorB);
+	auto VectorAx_AxB= ComputeVectorCrossProductIn3D(VectorA, VectorAxB);
+	auto dot_prod = VectorAx_AxB[0]* VectorB[0]+VectorAx_AxB[1]* VectorB[1]+VectorAx_AxB[2]* VectorB[2];
+	if (dot_prod > eps_value)
+	{
+		Theta += ScalarType(3.14159265359);
+	}
+	return Theta;
 }
 
 template<typename ScalarType>
