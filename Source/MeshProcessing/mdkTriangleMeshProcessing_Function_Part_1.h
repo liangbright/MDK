@@ -54,6 +54,9 @@ int_max Project_Add_Point_to_Surface(TriangleMesh<ScalarType>& Surface, const De
 template<typename ScalarType>
 int_max AddPointToSurfaceByProjection(TriangleMesh<ScalarType>& Surface, const DenseVector<ScalarType, 3>& Point);
 
+template<typename ScalarType>
+DenseVector<int_max> AddPolyLineOnSurface(TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PolyLine);
+
 }//namespace mdk
 
 #include "mdkTriangleMeshProcessing_Function_Part_1.hpp"

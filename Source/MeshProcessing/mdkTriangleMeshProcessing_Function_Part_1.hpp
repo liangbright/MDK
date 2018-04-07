@@ -361,7 +361,7 @@ int_max Project_Add_Point_to_Surface(TriangleMesh<ScalarType>& Surface, const De
 	}
 
 	auto PointIndexList = Surface.Face(FaceIndex_proj).GetPointIndexList();
-	//check if no need to add new point
+	//check if input Point is a point in PointIndexList
 	{
 		DenseVector<ScalarType, 3> DistToPoint;
 		for (int_max n = 0; n < 3; ++n)
@@ -407,111 +407,30 @@ int_max Project_Add_Point_to_Surface(TriangleMesh<ScalarType>& Surface, const De
 	// 0       1
 	//-----------------		
 
-	//check if Point_proj is on an edge or inside the triangle face (FaceIndex_proj)
-
-	auto P0 = Surface.GetPointPosition(H0);
-	auto P1 = Surface.GetPointPosition(H1);
-	auto P2 = Surface.GetPointPosition(H2);
-	auto P3 = Surface.GetPointPosition(H3);
-	auto FaceNormal = ComputeTriangleNormalIn3D(P0, P1, P2);
-	auto EPS = std::numeric_limits<ScalarType>::epsilon();
-	///*
-	for (int_max n = 0; n < 3; ++n)
+	//check if input Point is on edge of FaceIndex_proj
+	auto EdgeIndexList= Surface.Face(FaceIndex_proj).GetEdgeIndexList();
 	{
-		int_max Ha, Hb, Hc;
-		DenseVector<ScalarType, 3> Pa, Pb, Pc;
-		if (n == 0)
-		{	//---------
-			//    2c 
-			// 0a   1b
-			//---------
-			Pa = P0; Ha = H0;
-			Pb = P1; Hb = H1;
-			Pc = P2; Hc = H2;
+		DenseVector<ScalarType> CosAngleList;
+		CosAngleList.Resize(EdgeIndexList.GetLength());
+		for (int_max k = 0; k < EdgeIndexList.GetLength(); ++k)
+		{
+			auto PointIndex_A_B = Surface.Edge(EdgeIndexList[k]).GetPointIndexList();
+			auto PosA = Surface.GetPointPosition(PointIndex_A_B[0]);
+			auto PosB = Surface.GetPointPosition(PointIndex_A_B[1]);
+			auto VectorA = PosA - Point;
+			VectorA /= VectorA.L2Norm();
+			auto VectorB = PosB - Point;
+			VectorB /= VectorB.L2Norm();
+			CosAngleList[k] = VectorA[0] * VectorB[0] + VectorA[1] * VectorB[1] + VectorA[2] * VectorB[2];
 		}
-		else if (n == 1)
-		{   //----------
-			//    0c 			     
-			// 1a    2b
-			//----------
-			Pa = P1; Ha = H1;
-			Pb = P2; Hb = H2;
-			Pc = P0; Hc = H0;
-		}
-		else
-		{   //----------
-		    //    1c 
-		    // 2a    0b
-		    //----------
-			Pa = P2; Ha = H2;
-			Pb = P0; Hb = H0;
-			Pc = P1; Hc = H1;
-		}
-
-		//check if Point_proj is on edge_ab
-		auto Disp_ab = Pb - Pa;
-		auto Direction = ComputeVectorCrossProductIn3D(FaceNormal, Disp_ab);
-		Direction /= (Direction.L2Norm() + EPS);
-		auto Disp_ac = Pc - Pa;
-		auto Disp_a3 = P3 - Pa;
-		auto prod_ac = ComputeVectorDotProductIn3D(Direction, Disp_ac);
-		auto prod_a3 = ComputeVectorDotProductIn3D(Direction, Disp_a3);
-		if (std::abs(prod_a3) <= 0.1*std::abs(prod_ac))
-		{// on edge_ab
-			auto EdgeIndex_ab = Surface.GetEdgeIndexByPoint(Ha, Hb);
-			auto FaceIndexList_adj = Surface.Edge(EdgeIndex_ab).GetAdjacentFaceIndexList();
-			if (FaceIndexList_adj.GetLength() == 2)
-			{  //-----------------
-			   //     c 
-			   //           
-			   // a   3    b
-			   //
-			   //     d
-			   //-----------------	
-				int_max FaceIndex_adb = -1;
-				if (FaceIndexList_adj[0] == FaceIndex_proj)
-				{
-					FaceIndex_adb = FaceIndexList_adj[1];
-				}
-				else
-				{
-					FaceIndex_adb = FaceIndexList_adj[0];
-				}
-				auto PointIndexList_adb = Surface.Face(FaceIndex_adb).GetPointIndexList();
-				auto tempHd = SetDiff(PointIndexList_adb, Surface.Edge(EdgeIndex_ab).GetPointIndexList());
-				auto Hd = tempHd[0];
-				Surface.DeleteFace(FaceIndexList_adj);
-				Surface.DeleteEdge(EdgeIndex_ab);
-				Surface.AddFaceByPoint(H3, Hc, Ha);
-				Surface.AddFaceByPoint(H3, Hb, Hc);
-				Surface.AddFaceByPoint(H3, Ha, Hd);
-				Surface.AddFaceByPoint(H3, Hd, Hb);
-			}
-			else if(FaceIndexList_adj.GetLength() == 1)
-			{	//-----------------
-				//     c 
-				//           
-				// a   3    b
-				//-----------------	
-				Surface.DeleteFace(FaceIndexList_adj);
-				Surface.DeleteEdge(EdgeIndex_ab);
-				Surface.AddFaceByPoint(H3, Hc, Ha);
-				Surface.AddFaceByPoint(H3, Hb, Hc);
-			}
-			else
-			{
-				MDK_Error("Input is not TriangleMesh @ Project_Add_Point_to_Surface(...)")				
-			}
+		auto Idx_min = CosAngleList.IndexOfMin();
+		if (CosAngleList[Idx_min] < -0.99)
+		{
+			Surface.SplitFaceByEdge(EdgeIndexList[Idx_min], H3);
 			return H3;
 		}
-	}
-	//*/
-	{// inside
-		//-----------------
-		//     2 
-		//     3      
-		// 0       1
-		//-----------------		
+	}	
+	{//now, the input point is inside FaceIndex_proj
 		Surface.DeleteFace(FaceIndex_proj);
 		Surface.AddFaceByPoint({ H3, H2, H0 });
 		Surface.AddFaceByPoint({ H3, H0, H1 });
@@ -519,6 +438,7 @@ int_max Project_Add_Point_to_Surface(TriangleMesh<ScalarType>& Surface, const De
 		return H3;
 	}
 }
+
 
 template<typename ScalarType>
 int_max AddPointToSurfaceByProjection(TriangleMesh<ScalarType>& Surface, const DenseVector<ScalarType, 3>& Point)
@@ -528,6 +448,76 @@ int_max AddPointToSurfaceByProjection(TriangleMesh<ScalarType>& Surface, const D
 	return PointIndex;
 }
 
+
+template<typename ScalarType>
+DenseVector<int_max> AddPolyLineOnSurface(TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PolyLine)
+{
+//input:
+//PolyLine is a 'continuous' curve (3xN matrix) on Surface, it can be from GeodesicPathFinder
+//a point of PolyLine must be on an edge of Surface or a point of Surface
+//PolyLine(:,0) is the start point, and it must be a point of Surface
+//output:
+//PointIndexOfPolyLine[k] is a point index on Surface
+//---------------------------------------------------------------------------------
+	DenseVector<int_max> PointIndexOfPolyLine;
+	PointIndexOfPolyLine.Clear();
+	DenseVector<ScalarType, 3> StartPoint;
+	PolyLine.GetCol(0, StartPoint);
+	auto StartPointIndex = FindNearestPointOnMesh(Surface, StartPoint);
+	PointIndexOfPolyLine.Append(StartPointIndex);
+	for (int_max Index = 1; Index < PolyLine.GetColCount(); ++Index)
+	{
+		DenseVector<ScalarType, 3> CurrentPoint;
+		PolyLine.GetCol(Index, CurrentPoint);
+		auto PointIndex_prev = PointIndexOfPolyLine[PointIndexOfPolyLine.GetLength() - 1];
+		auto AdjPointIndexList = Surface.Point(PointIndex_prev).GetAdjacentPointIndexList();
+		AdjPointIndexList = SetDiff(AdjPointIndexList, PointIndexOfPolyLine);
+		//check if a point in PolyLine is in AdjPointIndexList
+		bool Flag_NextPointInAdjPointList = false;
+		for (int_max k = 0; k < AdjPointIndexList.GetLength(); ++k)
+		{
+			auto Pos_k = Surface.GetPointPosition(AdjPointIndexList[k]);
+			auto Disp_k = CurrentPoint - Pos_k;
+			auto Dist_k = Disp_k.L2Norm();
+			if (Dist_k <= 3 * std::numeric_limits<ScalarType>::epsilon())
+			{
+				Flag_NextPointInAdjPointList = true;
+				PointIndexOfPolyLine.Append(AdjPointIndexList[k]);
+				break;
+			}
+		}
+		if (Flag_NextPointInAdjPointList == false)
+		{
+			auto AdjEdgeIndexList = Surface.Point(PointIndex_prev).GetAdjacentEdgeIndexList();
+			auto AdjFaceIndexList = Surface.Point(PointIndex_prev).GetAdjacentFaceIndexList();
+			DenseVector<int_max> EdgeIndexListOfAdjFace;
+			for (int_max k = 0; k < AdjFaceIndexList.GetLength(); ++k)
+			{
+				EdgeIndexListOfAdjFace.Append(Surface.Face(AdjFaceIndexList[k]).GetEdgeIndexList());
+			}
+			auto CandidateEdgeIndexList = SetDiff(EdgeIndexListOfAdjFace, AdjEdgeIndexList);
+			DenseVector<ScalarType> CosAngleList;
+			CosAngleList.Resize(CandidateEdgeIndexList.GetLength());
+			for (int_max k = 0; k < CandidateEdgeIndexList.GetLength(); ++k)
+			{
+				auto PointIndex_A_B = Surface.Edge(CandidateEdgeIndexList[k]).GetPointIndexList();
+				auto PosA = Surface.GetPointPosition(PointIndex_A_B[0]);
+				auto PosB = Surface.GetPointPosition(PointIndex_A_B[1]);
+				auto VectorA = PosA - CurrentPoint;
+				VectorA /= VectorA.L2Norm();
+				auto VectorB = PosB - CurrentPoint;
+				VectorB /= VectorB.L2Norm();
+				CosAngleList[k] = VectorA[0] * VectorB[0] + VectorA[1] * VectorB[1] + VectorA[2] * VectorB[2];
+			}
+			auto Idx_min = CosAngleList.IndexOfMin();
+			auto EdgeIndex_best = CandidateEdgeIndexList[Idx_min];
+			auto PointIndex_cur = Surface.AddPoint(CurrentPoint);
+			Surface.SplitFaceAtEdge(EdgeIndex_best, PointIndex_cur);
+			PointIndexOfPolyLine.Append(PointIndex_cur);
+		}
+	}
+	return PointIndexOfPolyLine;
+}
 
 }//namespace mdk
 
