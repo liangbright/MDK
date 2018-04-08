@@ -103,9 +103,7 @@ public:
 
     inline void Clear(); // set to empty (length = 0)
 
-	inline bool Resize(int_max Length);
-
-	inline bool FastResize(int_max Length);
+	inline bool Resize(int_max Length, bool Flag_KeepData = true);
 
 	inline bool SetCapacity(int_max Length);
 

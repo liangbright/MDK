@@ -394,7 +394,7 @@ void DenseVector<ElementType>::Clear()
 
 template<typename ElementType>
 inline
-bool DenseVector<ElementType>::Resize(int_max Length)
+bool DenseVector<ElementType>::Resize(int_max Length, bool Flag_KeepData)
 {
     if (Length < 0)
     {
@@ -404,7 +404,18 @@ bool DenseVector<ElementType>::Resize(int_max Length)
 
 try
 {
-    m_StdVector.resize(Length);
+	if (Flag_KeepData == true)
+	{
+		m_StdVector.resize(Length);
+	}
+	else
+	{
+		if (Length > int_max(m_StdVector.capacity()))
+		{
+			m_StdVector.clear(); // no need to copy the old data
+		}
+		m_StdVector.resize(Length);
+	}
 }
 catch (...)
 {
@@ -412,34 +423,6 @@ catch (...)
 	return false;
 }
    return true;
-}
-
-
-template<typename ElementType>
-inline
-bool DenseVector<ElementType>::FastResize(int_max Length)
-{
-    if (Length < 0)
-    {
-        MDK_Error("Invalid input @ DenseVector::FastResize(...)")
-        return false;
-    }
-
-try
-{
-    if (Length > int_max(m_StdVector.capacity()))
-    {
-        m_StdVector.clear(); // no need to copy the old data
-    }
-
-    m_StdVector.resize(Length);
-}
-catch (...)
-{
-    MDK_Error("Out of Memory @ DenseVector::FastResize(...)")
-	return false;
-}
-	return true;
 }
 
 

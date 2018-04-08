@@ -93,11 +93,11 @@ struct DenseMatrixData
                 return;
             }
 
-            auto ElementNumber = RowCount*ColCount;
+            auto ElementCount = RowCount*ColCount;
 
-            StdVector.resize(ElementNumber);
+            StdVector.resize(ElementCount);
 
-            for (int_max i = 0; i < ElementNumber; ++i)
+            for (int_max i = 0; i < ElementCount; ++i)
             {
                 StdVector[i] = ElementPointer[i];
             }
@@ -387,15 +387,15 @@ public:
 
     inline void FastResize(MatrixSize InputSize);
 
-    inline void Resize(int_max InputElementNumber); // if matrix is vector, try to keep the old data, can not use it to resize a m x n matrix (m>1 and n>1)
+    inline void Resize(int_max InputElementCount); // if matrix is vector, try to keep the old data, can not use it to resize a m x n matrix (m>1 and n>1)
 
-    inline void FastResize(int_max InputElementNumber); // if matrix is vector, do not care about old data, can not use it to resize a m x n matrix (m>1 and n>1)
+    inline void FastResize(int_max InputElementCount); // if matrix is vector, do not care about old data, can not use it to resize a m x n matrix (m>1 and n>1)
 
 	inline void SetCapacity(int_max InputRowCount, int_max InputColCount); // reserve memory, current matrix size do not change
 
 	inline void SetCapacity(MatrixSize InputSize);
 
-	inline void SetCapacity(int_max InputElementNumber); // reserve memory, current matrix size do not change
+	inline void SetCapacity(int_max InputElementCount); // reserve memory, current matrix size do not change
 
 	inline int_max GetCapacity() const;
 

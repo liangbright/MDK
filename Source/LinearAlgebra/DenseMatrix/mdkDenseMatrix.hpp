@@ -284,11 +284,11 @@ template<typename ElementType>
 inline
 void DenseMatrix<ElementType>::operator=(const ElementType& Element)
 {
-    auto ElementNumber = this->GetElementCount();
+    auto ElementCount = this->GetElementCount();
 
     if (this->IsSizeFixed() == true)
     {
-        if (ElementNumber != 1)
+        if (ElementCount != 1)
         {
             MDK_Error("Can not change matrix size @ DenseMatrix::operator=(Element)")
             return;
@@ -300,13 +300,13 @@ void DenseMatrix<ElementType>::operator=(const ElementType& Element)
     }
     else
     {
-        if (ElementNumber == 0)
+        if (ElementCount == 0)
         {
             this->Resize(1, 1);
 
             (*this)[0] = Element;
         }
-        else if (ElementNumber == 1)
+        else if (ElementCount == 1)
         {
             (*this)[0] = Element;
         }
@@ -1234,9 +1234,9 @@ void DenseMatrix<ElementType>::Reshape(int_max InputRowCount, int_max InputColCo
         return;
     }
 	
-	int_max InputElementNumber = InputRowCount*InputColCount;
+	int_max InputElementCount = InputRowCount*InputColCount;
 
-	if (InputElementNumber != this->GetElementCount())
+	if (InputElementCount != this->GetElementCount())
 	{
 		MDK_Error("Size NOT match @ DenseMatrix::Reshape(...)")
 		return;
@@ -1245,7 +1245,7 @@ void DenseMatrix<ElementType>::Reshape(int_max InputRowCount, int_max InputColCo
 	// InputRowCount or InputColCount may be 0
 	// Reshape(1, 0) or Reshape(0, 1) is allowed
 
-	if (InputElementNumber > 0) 
+	if (InputElementCount > 0) 
 	{
 		m_MatrixData->RowCount = InputRowCount;
 		m_MatrixData->ColCount = InputColCount;
@@ -1321,11 +1321,11 @@ try
         //m_MatrixData->CopyDataToInternalArrayIfNecessary();
         if (m_MatrixData->ElementPointer != m_MatrixData->StdVector.data())
         {
-            auto ElementNumber_min = std::min(Self_ElementCount, InputColCount*InputRowCount);
+            auto ElementCount_min = std::min(Self_ElementCount, InputColCount*InputRowCount);
 
-            m_MatrixData->StdVector.resize(ElementNumber_min);
+            m_MatrixData->StdVector.resize(ElementCount_min);
 
-            for (int_max i = 0; i < ElementNumber_min; ++i)
+            for (int_max i = 0; i < ElementCount_min; ++i)
             {
                 m_MatrixData->StdVector[i] = m_MatrixData->ElementPointer[i];
             }
@@ -1426,16 +1426,16 @@ void DenseMatrix<ElementType>::FastResize(int_max InputRowCount, int_max InputCo
 
 try
 {
-    int_max InputElementNumber = InputRowCount * InputColCount;
+    int_max InputElementCount = InputRowCount * InputColCount;
 
-    if (InputElementNumber != Size.RowCount *  Size.ColCount)
+    if (InputElementCount != Size.RowCount *  Size.ColCount)
     {
-        if (InputElementNumber > int_max(m_MatrixData->StdVector.capacity()))
+        if (InputElementCount > int_max(m_MatrixData->StdVector.capacity()))
         {
             m_MatrixData->StdVector.clear();
         }
 
-        m_MatrixData->StdVector.resize(InputElementNumber);
+        m_MatrixData->StdVector.resize(InputElementCount);
         m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();        
     }
    
@@ -1460,11 +1460,11 @@ void DenseMatrix<ElementType>::FastResize(MatrixSize InputSize)
 
 template<typename ElementType>
 inline 
-void DenseMatrix<ElementType>::Resize(int_max InputElementNumber) // try to keep the old data, can not use this to resize a m x n matrix (m>1 or n>1)
+void DenseMatrix<ElementType>::Resize(int_max InputElementCount) // try to keep the old data, can not use this to resize a m x n matrix (m>1 or n>1)
 {
-    if (InputElementNumber < 0)
+    if (InputElementCount < 0)
     {
-        MDK_Error("Invalid input @ DenseMatrix::Resize(int_max InputElementNumber)")
+        MDK_Error("Invalid input @ DenseMatrix::Resize(int_max InputElementCount)")
         return;
     }
 
@@ -1477,22 +1477,22 @@ void DenseMatrix<ElementType>::Resize(int_max InputElementNumber) // try to keep
 
     if (Size.RowCount > 1 && Size.ColCount > 1)
     {
-        MDK_Error("Self is not empty and not a vector @ DenseMatrix::Resize(int_max InputElementNumber)")
+        MDK_Error("Self is not empty and not a vector @ DenseMatrix::Resize(int_max InputElementCount)")
         return;
     }
 
-    if (Size.RowCount*Size.ColCount == InputElementNumber)
+    if (Size.RowCount*Size.ColCount == InputElementCount)
     {
         return;
     }
 
     if (this->IsSizeFixed() == true)
     {
-        MDK_Error("Size can not change @ DenseMatrix::Resize(int_max InputElementNumber)")
+        MDK_Error("Size can not change @ DenseMatrix::Resize(int_max InputElementCount)")
         return;
     }
 
-    if (InputElementNumber == 0)
+    if (InputElementCount == 0)
     {
         this->Clear();
         return;
@@ -1500,28 +1500,28 @@ void DenseMatrix<ElementType>::Resize(int_max InputElementNumber) // try to keep
 
 try
 {
-    m_MatrixData->StdVector.resize(InputElementNumber);
+    m_MatrixData->StdVector.resize(InputElementCount);
     m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();
 
     if (Size.RowCount == 0) // empty -> row vector
     {
         m_MatrixData->RowCount = 1;
-        m_MatrixData->ColCount = InputElementNumber;
+        m_MatrixData->ColCount = InputElementCount;
     }
     else if (Size.RowCount == 1) // row vector -> row vector
     {
         m_MatrixData->RowCount = 1;
-        m_MatrixData->ColCount = InputElementNumber;
+        m_MatrixData->ColCount = InputElementCount;
     }
     else if (Size.ColCount == 1) // col vector -> col vector
     {
-        m_MatrixData->RowCount = InputElementNumber;
+        m_MatrixData->RowCount = InputElementCount;
         m_MatrixData->ColCount = 1;
     }
 }
 catch (...)
 {
-    MDK_Error("Out of Memory @ DenseMatrix::Resize(int_max InputElementNumber)")
+    MDK_Error("Out of Memory @ DenseMatrix::Resize(int_max InputElementCount)")
     //this->Clear();
 }
 }
@@ -1529,15 +1529,15 @@ catch (...)
 
 template<typename ElementType>
 inline
-void DenseMatrix<ElementType>::FastResize(int_max InputElementNumber) // do not care about old data, can not use this to resize a m x n matrix (m>1 or n>1)
+void DenseMatrix<ElementType>::FastResize(int_max InputElementCount) // do not care about old data, can not use this to resize a m x n matrix (m>1 or n>1)
 {
-    if (InputElementNumber < 0)
+    if (InputElementCount < 0)
     {
-        MDK_Error("Invalid input @ DenseMatrix::FastResize(int_max InputElementNumber)")
+        MDK_Error("Invalid input @ DenseMatrix::FastResize(int_max InputElementCount)")
         return;
     }
 
-	if (InputElementNumber == 0)
+	if (InputElementCount == 0)
 	{
 		this->Resize(0, 0);
 		return;
@@ -1552,19 +1552,19 @@ void DenseMatrix<ElementType>::FastResize(int_max InputElementNumber) // do not 
 
     if (Size.RowCount == 0) // empty -> row vector
     {
-        this->FastResize(1, InputElementNumber);
+        this->FastResize(1, InputElementCount);
     }
     else if (Size.RowCount == 1) // row vector -> row vector
     {
-        this->FastResize(1, InputElementNumber);
+        this->FastResize(1, InputElementCount);
     }
     else if (Size.ColCount == 1) // col vector -> col vector
     {
-        this->FastResize(InputElementNumber, 1);
+        this->FastResize(InputElementCount, 1);
     }
     else
     {
-        MDK_Error("Self is not empty or not a vector @ DenseMatrix::FastResize(int_max InputElementNumber)")
+        MDK_Error("Self is not empty or not a vector @ DenseMatrix::FastResize(int_max InputElementCount)")
     }    
 }
 
@@ -1587,7 +1587,7 @@ void DenseMatrix<ElementType>::SetCapacity(MatrixSize InputSize)
 
 template<typename ElementType>
 inline
-void DenseMatrix<ElementType>::SetCapacity(int_max InputElementNumber)
+void DenseMatrix<ElementType>::SetCapacity(int_max InputElementCount)
 {
 	if (this->IsPureEmpty() == true)
 	{
@@ -1598,7 +1598,7 @@ void DenseMatrix<ElementType>::SetCapacity(int_max InputElementNumber)
 
 	if (this->IsSizeFixed() == true)
 	{
-		if (Self_ElementCount != InputElementNumber)
+		if (Self_ElementCount != InputElementCount)
 		{
 			MDK_Error("Size can not change @ DenseMatrix::SetCapacity(...)")
 		}
@@ -1607,16 +1607,16 @@ void DenseMatrix<ElementType>::SetCapacity(int_max InputElementNumber)
 
 try
 {
-    if (InputElementNumber > Self_ElementCount)
+    if (InputElementCount > Self_ElementCount)
     {
         m_MatrixData->CopyDataToInternalArrayIfNecessary();
-        m_MatrixData->StdVector.reserve(InputElementNumber);
+        m_MatrixData->StdVector.reserve(InputElementCount);
         m_MatrixData->ElementPointer = m_MatrixData->StdVector.data();        
     }
 }
 catch (...)
 {
-    MDK_Error("Out of Memory @ DenseMatrix::SetCapacity(int_max InputElementNumber)")
+    MDK_Error("Out of Memory @ DenseMatrix::SetCapacity(int_max InputElementCount)")
 }
 }
 
@@ -7485,21 +7485,21 @@ DenseMatrix<int_max> DenseMatrix<ElementType>::Sort(int_max LinearIndex_start, i
 {
     DenseMatrix<int_max> LinearIndexList;
 
-    auto ElementNumber = this->GetElementCount();
+    auto ElementCount = this->GetElementCount();
 
-    if (LinearIndex_start < 0 || LinearIndex_start >= ElementNumber || LinearIndex_start > LinearIndex_end)
+    if (LinearIndex_start < 0 || LinearIndex_start >= ElementCount || LinearIndex_start > LinearIndex_end)
     {
         MDK_Error("LinearIndex_start is invalid @ DenseMatrix::Sort(...)")
         return LinearIndexList;
     }
 
-    if (LinearIndex_end < 0 || LinearIndex_end >= ElementNumber)
+    if (LinearIndex_end < 0 || LinearIndex_end >= ElementCount)
     {
         MDK_Error("LinearIndex_end is invalid @ DenseMatrix::Sort(...)")
         return LinearIndexList;
     }
 
-    if (ElementNumber == 0)
+    if (ElementCount == 0)
     {
         return LinearIndexList;
     }
@@ -7510,7 +7510,7 @@ DenseMatrix<int_max> DenseMatrix<ElementType>::Sort(int_max LinearIndex_start, i
         return LinearIndexList;
     }
 
-    LinearIndexList.FastResize(1, ElementNumber);
+    LinearIndexList.FastResize(1, ElementCount);
 
     for (int_max i = LinearIndex_start; i <= LinearIndex_end; ++i)
     {
