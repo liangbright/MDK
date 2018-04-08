@@ -9,7 +9,7 @@ DenseVector<ScalarType, 3> ComputeVectorCrossProductIn3D(const DenseMatrix<Scala
 {
     DenseVector<ScalarType, 3> Vector_AxB;
 
-    if (VectorA.GetElementNumber() != 3 || VectorB.GetElementNumber() != 3)
+    if (VectorA.GetElementCount() != 3 || VectorB.GetElementCount() != 3)
     {
         MDK_Error("Input is not 3D vector @ mdkGeometry3D ComputeVectorCrossProductIn3D(...)")
         Vector_AxB.Fill(GetNaNElement<ScalarType>());
@@ -49,7 +49,7 @@ DenseVector<ScalarType, 3> ComputeVectorCrossProductIn3D(const ScalarType* Vecto
 template<typename ScalarType>
 inline ScalarType ComputeVectorDotProductIn3D(const DenseMatrix<ScalarType>& VectorA, const DenseMatrix<ScalarType>& VectorB)
 {
-	if (VectorA.GetElementNumber() != 3 || VectorB.GetElementNumber() != 3)
+	if (VectorA.GetElementCount() != 3 || VectorB.GetElementCount() != 3)
 	{
 		MDK_Error("Input is not 3D vector @ mdkGeometry3D ComputeVectorDotProductIn3D(...)")			
 		return 0;
@@ -75,7 +75,7 @@ template<typename ScalarType>
 inline
 ScalarType ComputeAngleBetweenTwoVectorIn3D(const DenseMatrix<ScalarType>& VectorA, const DenseMatrix<ScalarType>& VectorB)
 {
-    if (VectorA.GetElementNumber() != 3 || VectorB.GetElementNumber() != 3)
+    if (VectorA.GetElementCount() != 3 || VectorB.GetElementCount() != 3)
     {
         MDK_Error("Input is not 3D vector @ mdkGeometry3D ComputeAngleBetweenTwoVectorIn3D(...)")
         return GetNaNElement<ScalarType>();
@@ -96,9 +96,45 @@ inline
 ScalarType ComputeAngleBetweenTwoVectorIn3D(const ScalarType* VectorA, const ScalarType* VectorB)
 {// angle from A to B, right hand rule
  // angle ~[0 ~2pi]
+	if (VectorA == nullptr || VectorB == nullptr)
+	{
+		MDK_Error("Input is nullptr @ mdkGeometry3D ComputeAngleBetweenTwoVectorIn3D(...)")
+			return GetNaNElement<ScalarType>();
+	}
+
+	auto eps_value = std::numeric_limits<ScalarType>::epsilon();
+
+	auto L2Norm_A = std::sqrt(VectorA[0] * VectorA[0] + VectorA[1] * VectorA[1] + VectorA[2] * VectorA[2]);
+	auto L2Norm_B = std::sqrt(VectorB[0] * VectorB[0] + VectorB[1] * VectorB[1] + VectorB[2] * VectorB[2]);
+	if (L2Norm_A <= eps_value || L2Norm_B <= eps_value)
+	{
+		MDK_Warning("L2Norm < eps, return 0 @ mdkGeometry3D ComputeAngleBetweenTwoVectorIn3D(...)")
+			return 0;
+	}
+
+	auto CosTheta = (VectorA[0] * VectorB[0] + VectorA[1] * VectorB[1] + VectorA[2] * VectorB[2]) / (L2Norm_A*L2Norm_B);
+	CosTheta = (std::max)(CosTheta, ScalarType(-1));
+	CosTheta = (std::min)(CosTheta, ScalarType(1));
+	auto Theta = std::acos(CosTheta); // [0, pi], acos(-1) = pi
+	return Theta;
+}
+
+
+template<typename ScalarType>
+inline
+ScalarType ComputeAngleFromVectorAToVectorBIn3D(const DenseVector<ScalarType, 3>& VectorA, const DenseVector<ScalarType, 3>& VectorB)
+{
+	return ComputeAngleFromVectorAToVectorBIn3D(VectorA.GetElementPointer(), VectorB.GetElementPointer());
+}
+
+template<typename ScalarType>
+inline
+ScalarType ComputeAngleFromVectorAToVectorBIn3D(const ScalarType* VectorA, const ScalarType* VectorB)
+{// angle from A to B, right hand rule
+ // angle ~[0 ~2pi]
     if (VectorA == nullptr || VectorB == nullptr)
     {
-        MDK_Error("Input is nullptr @ mdkGeometry3D ComputeAngleBetweenTwoVectorIn3D(...)")
+        MDK_Error("Input is nullptr @ mdkGeometry3D ComputeAngleFromVectorAToVectorBIn3D(...)")
         return GetNaNElement<ScalarType>();
     }
 
@@ -108,7 +144,7 @@ ScalarType ComputeAngleBetweenTwoVectorIn3D(const ScalarType* VectorA, const Sca
     auto L2Norm_B = std::sqrt(VectorB[0] * VectorB[0] + VectorB[1] * VectorB[1] + VectorB[2] * VectorB[2]);
 	if (L2Norm_A <= eps_value || L2Norm_B <= eps_value)
 	{
-		MDK_Warning("L2Norm < eps, return 0 @ mdkGeometry3D ComputeAngleBetweenTwoVectorIn3D(...)")
+		MDK_Warning("L2Norm < eps, return 0 @ mdkGeometry3D ComputeAngleFromVectorAToVectorBIn3D(...)")
 		return 0;
 	}
 
@@ -118,7 +154,7 @@ ScalarType ComputeAngleBetweenTwoVectorIn3D(const ScalarType* VectorA, const Sca
 	auto Theta = std::acos(CosTheta); // [0, pi], acos(-1) = pi
 
 	auto VectorAxB = ComputeVectorCrossProductIn3D(VectorA, VectorB);
-	auto VectorAx_AxB= ComputeVectorCrossProductIn3D(VectorA, VectorAxB);
+	auto VectorAx_AxB = ComputeVectorCrossProductIn3D(VectorA, VectorAxB.GetPointer());
 	auto dot_prod = VectorAx_AxB[0]* VectorB[0]+VectorAx_AxB[1]* VectorB[1]+VectorAx_AxB[2]* VectorB[2];
 	if (dot_prod > eps_value)
 	{
@@ -133,7 +169,7 @@ DenseVector<ScalarType, 3> ComputeTriangleNormalIn3D(const DenseMatrix<ScalarTyp
 {
     DenseVector<ScalarType, 3> Normal;
 
-    if (PointA.GetElementNumber() != 3 || PointB.GetElementNumber() != 3 || PointC.GetElementNumber() != 3)
+    if (PointA.GetElementCount() != 3 || PointB.GetElementCount() != 3 || PointC.GetElementCount() != 3)
     {
         MDK_Error("Input is not position vector in 3D @ mdkGeometry3D ComputeTriangleNormalIn3D(...)")
         Normal.Fill(GetNaNElement<ScalarType>());
@@ -188,7 +224,7 @@ template<typename ScalarType>
 inline
 ScalarType ComputeTriangleAreaIn3D(const DenseMatrix<ScalarType>& PointA, const DenseMatrix<ScalarType>& PointB, const DenseMatrix<ScalarType>& PointC)
 {
-    if (PointA.GetElementNumber() != 3 || PointB.GetElementNumber() != 3 || PointC.GetElementNumber() != 3)
+    if (PointA.GetElementCount() != 3 || PointB.GetElementCount() != 3 || PointC.GetElementCount() != 3)
     {
         MDK_Error("Input is not position vector in 3D @ mdkGeometry3D ComputeTriangleAreaIn3D(...)")
         return GetNaNElement<ScalarType>();
@@ -229,7 +265,7 @@ ScalarType ComputeTriangleAreaIn3D(const ScalarType* PointA, const ScalarType* P
 template<typename ScalarType>
 DenseVector<ScalarType, 3> ComputeCenterOfCircumcircleOfTriangleIn3D(const DenseMatrix<ScalarType>& PointA, const DenseMatrix<ScalarType>& PointB, const DenseMatrix<ScalarType>& PointC)
 {
-	if (PointA.GetElementNumber() != 3 || PointB.GetElementNumber() != 3 || PointC.GetElementNumber() != 3)
+	if (PointA.GetElementCount() != 3 || PointB.GetElementCount() != 3 || PointC.GetElementCount() != 3)
 	{
 		MDK_Error("Input is not position vector in 3D @ mdkGeometry3D ComputeCenterOfCircumcircleOfTriangleIn3D(...)")
 		return GetNaNElement<ScalarType>();

@@ -76,8 +76,8 @@ public:
 
 	//---------------------- Set/get Size ----------------------------------------//
 
-	inline void Resize(int_max InputLength); // try to keep the old data
-	inline void FastResize(int_max InputLength); // do not care about old data
+	//if Flag_KeepData is true, then try to keep the old data
+	inline void Resize(int_max InputLength, bool Flag_KeepData = true);
 
 	inline void SetCapacity(int_max InputElementNumber); // reserve memory, current Length does not change
     inline void ReleaseUnusedCapacity();

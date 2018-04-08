@@ -31,6 +31,12 @@ inline ScalarType ComputeAngleBetweenTwoVectorIn3D(const DenseVector<ScalarType,
 template<typename ScalarType>
 inline ScalarType ComputeAngleBetweenTwoVectorIn3D(const ScalarType* VectorA, const ScalarType* VectorB);
 
+template<typename ScalarType>
+inline ScalarType ComputeAngleFromVectorAToVectorBIn3D(const DenseVector<ScalarType, 3>& VectorA, const DenseVector<ScalarType, 3>& VectorB);
+
+template<typename ScalarType>
+inline ScalarType ComputeAngleFromVectorAToVectorBIn3D(const ScalarType* VectorA, const ScalarType* VectorB);
+
 
 // compute normal vector of triangle in 3D
 // PointA -> PointB -> PointC : right hand coordinate system

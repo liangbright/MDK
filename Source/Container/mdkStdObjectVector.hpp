@@ -202,7 +202,7 @@ void StdObjectVector<ElementType>::Clear()
 
 template<typename ElementType>
 inline 
-void StdObjectVector<ElementType>::Resize(int_max InputLength)
+void StdObjectVector<ElementType>::Resize(int_max InputLength, bool Flag_KeepData)
 {
     if (InputLength < 0)
     {
@@ -212,10 +212,25 @@ void StdObjectVector<ElementType>::Resize(int_max InputLength)
 
 try
 {
-    auto SelfLength = this->GetElementCount();
-	if (InputLength != SelfLength)
+	if (Flag_KeepData == true)
 	{
-		m_StdVector.resize(InputLength);
+		auto SelfLength = this->GetElementCount();
+		if (InputLength != SelfLength)
+		{
+			m_StdVector.resize(InputLength);
+		}
+	}
+	else
+	{
+		auto SelfLength = this->GetElementCount();
+		if (InputLength != SelfLength)
+		{
+			if (InputLength > int_max(m_StdVector.capacity()))
+			{
+				m_StdVector.clear();
+			}
+			m_StdVector.resize(InputLength);
+		}
 	}
 }
 catch (...)
@@ -227,49 +242,19 @@ catch (...)
 
 template<typename ElementType>
 inline
-void StdObjectVector<ElementType>::FastResize(int_max InputLength)
-{
-    if (InputLength < 0)
-    {
-        MDK_Error("Invalid input @ StdObjectVector::FastResize(int_max InputLength)")
-        return;    
-    }
-
-try
-{
-	auto SelfLength = this->GetElementCount();
-    if (InputLength != SelfLength)
-    {
-        if (InputLength > int_max(m_StdVector.capacity()))
-        {
-            m_StdVector.clear();
-        }
-        m_StdVector.resize(InputLength);
-    }
-
-}
-catch (...)
-{
-    MDK_Error("Out of Memory @ StdObjectVector::FastResize(int_max InputLength)")
-}
-}
-
-
-template<typename ElementType>
-inline
-void StdObjectVector<ElementType>::SetCapacity(int_max InputElementNumber)
+void StdObjectVector<ElementType>::SetCapacity(int_max InputElementCount)
 {
 try
 {
     auto SelfLength = this->GetElementCount();
-    if (InputElementNumber > SelfLength)
+    if (InputElementCount > SelfLength)
     {
-        m_StdVector.reserve(InputElementNumber);
+        m_StdVector.reserve(InputElementCount);
     }
 }
 catch (...)
 {
-    MDK_Error("Out of Memory @ StdObjectVector::SetCapacity(int_max InputElementNumber)")
+    MDK_Error("Out of Memory @ StdObjectVector::SetCapacity(int_max InputElementCount)")
 }
 }
 
@@ -724,26 +709,26 @@ StdObjectVector<ElementType> StdObjectVector<ElementType>::GetSubSet(int_max Ind
 {
 	StdObjectVector<ElementType> Subset;
 
-	auto ElementNumber = this->GetElementCount();
+	auto ElementCount = this->GetElementCount();
 
-	if (Index_start < 0 || Index_start >= ElementNumber || Index_start > Index_end)
+	if (Index_start < 0 || Index_start >= ElementCount || Index_start > Index_end)
 	{
 		MDK_Error("Index_start is invalid @ StdObjectVector::GetSubSet(...)")
 		return Subset;
 	}
 
-	if (Index_end < 0 || Index_end >= ElementNumber)
+	if (Index_end < 0 || Index_end >= ElementCount)
 	{
 		MDK_Error("Index_end is invalid @ StdObjectVector::GetSubSet(...)")
 		return Subset;
 	}
 
-	if (ElementNumber == 0)
+	if (ElementCount == 0)
 	{
 		return Subset;
 	}
 
-	Subset.FastResize(Index_end - Index_start + 1);
+	Subset.Resize(Index_end - Index_start + 1);
 
 	for (int_max i = Index_start; i <= Index_end; ++i)
 	{
@@ -806,21 +791,21 @@ StdObjectVector<ElementType> StdObjectVector<ElementType>::GetSubSet(const int_m
 		return SubSet;
 	}
 
-	auto ElementNumber = this->GetElementCount();
+	auto ElementCount = this->GetElementCount();
 
-	if (ListLength > ElementNumber)
+	if (ListLength > ElementCount)
 	{
 		MDK_Error("Invalid ListLength @ StdObjectVector::GetSubSet(...)")
 		return SubSet;
 	}
 
-	SubSet.FastResize(ListLength);
+	SubSet.Resize(ListLength);
 
 	for (int_max k = 0; k < ListLength; ++k)
 	{
 		auto tempIndex = IndexList[k];
 
-		if (tempIndex < 0 || tempIndex >= ElementNumber)
+		if (tempIndex < 0 || tempIndex >= ElementCount)
 		{
 			MDK_Error("Invalid index @ StdObjectVector::GetSubSet(...)")
 			SubSet.Clear();
@@ -907,33 +892,33 @@ void StdObjectVector<ElementType>::SetSubSet(const DenseVector<int_max, Template
 
 template<typename ElementType>
 inline
-void StdObjectVector<ElementType>::SetSubSet(const int_max* IndexList, const ElementType* SubSet, int_max SubSetElementNumber)
+void StdObjectVector<ElementType>::SetSubSet(const int_max* IndexList, const ElementType* SubSet, int_max SubSetElementCount)
 {
-	if (IndexList == nullptr || SubSet == nullptr || SubSetElementNumber <= 0)
+	if (IndexList == nullptr || SubSet == nullptr || SubSetElementCount <= 0)
 	{
 		MDK_Warning("Empty input @ StdObjectVector::SetSubSet(...)")
 		return;
 	}
 
-	auto ElementNumber = this->GetElementCount();
+	auto ElementCount = this->GetElementCount();
 
-	if (ElementNumber == 0)
+	if (ElementCount == 0)
 	{
 		MDK_Error("Self is empty @ StdObjectVector::SetSubSet(...)")
 		return;
 	}
 
-	if (SubSetElementNumber > ElementNumber)
+	if (SubSetElementCount > ElementCount)
 	{
-		MDK_Error("Invalid SubSetElementNumber @ StdObjectVector::SetSubSet(...)")
+		MDK_Error("Invalid SubSetElementCount @ StdObjectVector::SetSubSet(...)")
 		return;
 	}
 
-	for (int_max k = 0; k < SubSetElementNumber; ++k)
+	for (int_max k = 0; k < SubSetElementCount; ++k)
 	{
 		auto Index = IndexList[k];
 
-		if (Index < 0 || Index >= ElementNumber)
+		if (Index < 0 || Index >= ElementCount)
 		{
 			MDK_Error("Invalid Index @ StdObjectVector::SetSubSet(...)")
 			return;
@@ -970,27 +955,27 @@ Find(int_max MaxOutputNumber, int_max Index_start, int_max Index_end, MatchFunct
 {
     StdObjectVector<int_max> IndexList;
 
-    auto ElementNumber = this->GetElementCount();
+    auto ElementCount = this->GetElementCount();
 
-    if (MaxOutputNumber <= 0 || MaxOutputNumber > ElementNumber)
+    if (MaxOutputNumber <= 0 || MaxOutputNumber > ElementCount)
     {
         MDK_Error("MaxOutputNumber is invalid @ StdObjectVector::Find(...)")
         return IndexList;
     }
 
-    if (Index_start < 0 || Index_start >= ElementNumber || Index_start > Index_end)
+    if (Index_start < 0 || Index_start >= ElementCount || Index_start > Index_end)
     {
         MDK_Error("Index_start is invalid @ StdObjectVector::Find(...)")
         return IndexList;
     }
 
-    if (Index_end < 0 || Index_end >= ElementNumber)
+    if (Index_end < 0 || Index_end >= ElementCount)
     {
         MDK_Error("Index_end is invalid @ StdObjectVector::Find(...)")
         return IndexList;
     }
 
-    if (ElementNumber == 0)
+    if (ElementCount == 0)
     {
         return IndexList;
     }
@@ -1052,21 +1037,21 @@ StdObjectVector<int_max> StdObjectVector<ElementType>::Sort(int_max Index_start,
 {
     StdObjectVector<int_max> IndexList;
 
-    auto ElementNumber = this->GetElementCount();
+    auto ElementCount = this->GetElementCount();
 
-    if (Index_start < 0 || Index_start >= ElementNumber || Index_start > Index_end)
+    if (Index_start < 0 || Index_start >= ElementCount || Index_start > Index_end)
     {
         MDK_Error("Index_start is invalid @ StdObjectVector::Sort(...)")
         return IndexList;
     }
 
-    if (Index_end < 0 || Index_end >= ElementNumber)
+    if (Index_end < 0 || Index_end >= ElementCount)
     {
         MDK_Error("Index_end is invalid @ StdObjectVector::Sort(...)")
         return IndexList;
     }
 
-    if (ElementNumber == 0)
+    if (ElementCount == 0)
     {
         return IndexList;
     }
@@ -1077,7 +1062,7 @@ StdObjectVector<int_max> StdObjectVector<ElementType>::Sort(int_max Index_start,
         return IndexList;
     }
 
-    IndexList.FastResize(ElementNumber);
+    IndexList.Resize(ElementCount);
 
     for (int_max i = Index_start; i <= Index_end; ++i)
     {
