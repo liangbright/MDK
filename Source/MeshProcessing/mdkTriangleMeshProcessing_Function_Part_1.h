@@ -50,9 +50,15 @@ DenseMatrix<ScalarType> ProjectPointToSurface(const TriangleMesh<ScalarType>& Su
 template<typename ScalarType>
 int_max Project_Add_Point_to_Surface(TriangleMesh<ScalarType>& Surface, const DenseVector<ScalarType, 3>& Point);
 
+template<typename ScalarType>
+DenseVector<int_max> Project_Add_Point_to_Surface(TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PointSet);
+
 //add an input point to surface
 template<typename ScalarType>
 int_max AddPointToSurfaceByProjection(TriangleMesh<ScalarType>& Surface, const DenseVector<ScalarType, 3>& Point);
+//add many point to surface
+template<typename ScalarType>
+DenseVector<int_max> AddPointToSurfaceByProjection(TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PointSet);
 
 template<typename ScalarType>
 DenseVector<int_max> AddPolyLineOnSurface(TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PolyLine);

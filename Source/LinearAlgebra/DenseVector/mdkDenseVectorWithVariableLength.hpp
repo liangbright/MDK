@@ -374,7 +374,7 @@ void DenseVector<ElementType>::Copy(const ElementType_input* InputVector, int_ma
         return;
     }
 
-    this->FastResize(InputLength);
+    this->Resize(InputLength, false);
 
     for (int_max k = 0; k < InputLength; ++k)
     {
@@ -772,7 +772,7 @@ DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(int_max Index_start
 	
 	if (Index_start <= Index_end)
 	{
-		SubSet.FastResize(Index_end - Index_start + 1);
+		SubSet.Resize(Index_end - Index_start + 1);
 		for (int_max Index = Index_start; Index <= Index_end; ++Index)
 		{
 			SubSet[Index - Index_start] = m_StdVector[Index];
@@ -780,7 +780,7 @@ DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(int_max Index_start
 	}
 	else// Index_start > Index_end
 	{
-		SubSet.FastResize(Index_start - Index_end + 1);
+		SubSet.Resize(Index_start - Index_end + 1);
 		for (int_max Index = Index_start; Index >= Index_end; --Index)
 		{
 			SubSet[Index_start - Index] = m_StdVector[Index];
@@ -810,7 +810,7 @@ DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(const std::initiali
         return SubSet;
     }
 
-    SubSet.FastResize(InputLength);
+    SubSet.Resize(InputLength);
     for (int_max i = 0; i < InputLength; ++i)
     {
         auto Index = IndexList.begin()[i];
@@ -846,7 +846,7 @@ DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(const DenseMatrix<i
         return SubSet;
     }
 
-    SubSet.FastResize(InputLength);
+    SubSet.Resize(InputLength);
     for (int_max i = 0; i < InputLength; ++i)
     {
         auto Index = IndexList[i];
@@ -891,7 +891,7 @@ DenseVector<ElementType> DenseVector<ElementType>::GetSubSet(const DenseVector<i
         return SubSet;
     }
 
-    SubSet.FastResize(InputLength);
+    SubSet.Resize(InputLength);
     for (int_max i = 0; i < InputLength; ++i)
     {
         auto Index = IndexList[i];
@@ -1532,7 +1532,7 @@ DenseVector<int_max> DenseVector<ElementType>::Sort(int_max Index_start, int_max
         return IndexList;
     }
 
-    IndexList.FastResize(ElementCount);
+    IndexList.Resize(ElementCount);
 
     for (int_max i = Index_start; i <= Index_end; ++i)
     {

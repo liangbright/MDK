@@ -1090,7 +1090,7 @@ DenseVector<int_max> DenseVector<ElementType, Length>::Sort(int_max Index_start,
         return IndexList;
     }
 
-    IndexList.FastResize(ElementCount);
+    IndexList.Resize(ElementCount);
 
     for (int_max i = Index_start; i <= Index_end; ++i)
     {

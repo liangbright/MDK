@@ -96,7 +96,7 @@ void PolygonMesh<ScalarType>::GetPointPositionMatrixAndFaceTable(DenseMatrix<Sca
 	if (Flag_Clean == false)
 	{
 		PointPositionMatrix = m_MeshData->PointPositionTable;
-		FaceTable.FastResize(m_MeshData->FaceList.GetLength());
+		FaceTable.Resize(m_MeshData->FaceList.GetLength());
 		for (int_max n = 0; n <= m_MeshData->FaceList.GetLength(); ++n)
 		{
 			if (this->IsValidFaceIndex(n) == true)
@@ -113,7 +113,7 @@ void PolygonMesh<ScalarType>::GetPointPositionMatrixAndFaceTable(DenseMatrix<Sca
 	int_max FaceIndex_max = this->GetMaxValueOfFaceIndex();
 
 	PointPositionMatrix.FastResize(3, PointCount);
-	FaceTable.FastResize(FaceCount);
+	FaceTable.Resize(FaceCount);
 
 	// DataStructure may not be clean
 	// Map PointIndex (PointIndex.GetIndex()) to OutputIndex (col index) in PointPositionMatrix
@@ -137,7 +137,7 @@ void PolygonMesh<ScalarType>::GetPointPositionMatrixAndFaceTable(DenseMatrix<Sca
 		if (this->IsValidFaceIndex(n) == true)
 		{
 			auto PointIndexList = this->Face(n).GetPointIndexList();
-			FaceTable[FaceCounter].FastResize(PointIndexList.GetLength());
+			FaceTable[FaceCounter].Resize(PointIndexList.GetLength());
 			for (int_max k = 0; k < PointIndexList.GetLength(); ++k)
 			{
 				auto tempPointIndex = PointIndexList[k];
@@ -801,17 +801,17 @@ DenseVector<int_max, 2> PolygonMesh<ScalarType>::SplitFaceByEdge(int_max FaceInd
 	//EdgeAB not adjacent to the face
 	//-----------------------
 
+	DenseVector<int_max, 2> NewFaceIndexList;
+	NewFaceIndexList[0] = -1;
+	NewFaceIndexList[1] = -1;
+
+	//--------------------- check input --------------------------------------------------
 	if (this->CheckIfPolygonMesh() == false)
 	{
 		MDK_Error("Only support PolygonMesh @ PolygonMesh::SplitFaceByEdge(...)")
-		return false;
+		return NewFaceIndexList;
 	}
-
-	DenseVector<int_max, 2> NewFaceIndexList;
-	NewFaceIndexList[0] = -1;
-	NewFaceIndexList[1] = -1 ;
-
-	//--------------------- check input --------------------------------------------------
+	
 	if (this->IsValidFaceIndex(FaceIndex) == false)
 	{
 		MDK_Error("Invalid FaceIndex @ PolygonMesh::SplitFaceByEdge(...)")

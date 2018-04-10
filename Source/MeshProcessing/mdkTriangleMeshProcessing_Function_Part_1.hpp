@@ -351,92 +351,116 @@ DenseMatrix<ScalarType> ProjectPointToSurface(const TriangleMesh<ScalarType>& Su
 template<typename ScalarType>
 int_max Project_Add_Point_to_Surface(TriangleMesh<ScalarType>& Surface, const DenseVector<ScalarType, 3>& Point)
 {	
-	int_max FaceIndex_proj;
-	DenseVector<ScalarType, 3> Point_proj;
-	ProjectPointToSurface(Point, Surface, Point_proj, FaceIndex_proj);
+	DenseMatrix<ScalarType> PointSet;
+	PointSet.AppendCol(Point);
+	auto PointIndexList_proj = Project_Add_Point_to_Surface(Surface, PointSet);
+	return PointIndexList_proj[0];	
+}
 
-	if (FaceIndex_proj == -1)
-	{
-		return -1;
-	}
 
-	auto PointIndexList = Surface.Face(FaceIndex_proj).GetPointIndexList();
-	//check if input Point is a point in PointIndexList
+template<typename ScalarType>
+DenseVector<int_max> Project_Add_Point_to_Surface(TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PointSet)
+{
+	DenseVector<int_max> PointIndexList_proj;
+	//
+	DenseVector<int_max> FaceIndexList_proj;
+	auto PointSet_proj = ProjectPointToSurface(Surface, PointSet, FaceIndexList_proj);
+	for (int_max Index = 0; Index < FaceIndexList_proj.GetLength(); ++Index)
 	{
-		DenseVector<ScalarType, 3> DistToPoint;
-		for (int_max n = 0; n < 3; ++n)
+		DenseVector<ScalarType, 3> Point, Point_proj;
+		PointSet.GetCol(Index, Point);
+		PointSet_proj.GetCol(Index, Point_proj);
+		auto FaceIndex_proj = FaceIndexList_proj[Index];
+		if (FaceIndex_proj <= -1)
 		{
-			auto Pn = Surface.GetPointPosition(PointIndexList[n]);
-			DistToPoint[n] = (Pn - Point).L2Norm();
+			PointIndexList_proj.Append(-1);
 		}
-
-		ScalarType DistThreshold = 1e-6;
-		DenseVector<ScalarType, 3> EdgeLength;
-		for (int_max n = 0; n < 3; ++n)
+		else
 		{
-			DenseVector<ScalarType, 3> Pos1, Pos2;
-			Pos1 = Surface.GetPointPosition(PointIndexList[n]);
-			if (n < PointIndexList.GetLength() - 1)
+			auto PointIndexList = Surface.Face(FaceIndex_proj).GetPointIndexList();
+			//check if input Point is a point in PointIndexList
+			bool Flag_NewPoint = false;
 			{
-				Pos1 = Surface.GetPointPosition(PointIndexList[n + 1]);
+				DenseVector<ScalarType, 3> DistToPoint;
+				for (int_max n = 0; n < 3; ++n)
+				{
+					auto Pn = Surface.GetPointPosition(PointIndexList[n]);
+					DistToPoint[n] = (Pn - Point).L2Norm();
+				}
+
+				ScalarType DistThreshold = 1e-6;
+				DenseVector<ScalarType, 3> EdgeLength;
+				for (int_max n = 0; n < 3; ++n)
+				{
+					DenseVector<ScalarType, 3> Pos1, Pos2;
+					Pos1 = Surface.GetPointPosition(PointIndexList[n]);
+					if (n < PointIndexList.GetLength() - 1)
+					{
+						Pos1 = Surface.GetPointPosition(PointIndexList[n + 1]);
+					}
+					else
+					{
+						Pos1 = Surface.GetPointPosition(PointIndexList[0]);
+					}
+					EdgeLength[n] = (Pos1 - Pos2).L2Norm();
+				}
+				DistThreshold = EdgeLength.Min() / 10;
+
+				auto dist_min = DistToPoint.Min();
+				if (dist_min <= DistThreshold)
+				{
+					auto PointIndex_ref = PointIndexList[DistToPoint.IndexOfMin()];
+					PointIndexList_proj.Append(PointIndex_ref);
+				}
+				else
+				{
+					Flag_NewPoint = true;
+				}
 			}
-			else
+			// add new point -------------------------------------------------------
+			if (Flag_NewPoint == true)
 			{
-				Pos1 = Surface.GetPointPosition(PointIndexList[0]);
+				auto H0 = PointIndexList[0];
+				auto H1 = PointIndexList[1];
+				auto H2 = PointIndexList[2];
+				auto H3 = Surface.AddPoint(Point_proj);
+				PointIndexList_proj.Append(H3);
+				//-----------------
+				//     2 
+				//     3      
+				// 0       1
+				//-----------------	
+				//check if input Point is on edge of FaceIndex_proj
+				auto EdgeIndexList = Surface.Face(FaceIndex_proj).GetEdgeIndexList();
+				DenseVector<ScalarType> CosAngleList;
+				CosAngleList.Resize(EdgeIndexList.GetLength());
+				for (int_max k = 0; k < EdgeIndexList.GetLength(); ++k)
+				{
+					auto PointIndex_A_B = Surface.Edge(EdgeIndexList[k]).GetPointIndexList();
+					auto PosA = Surface.GetPointPosition(PointIndex_A_B[0]);
+					auto PosB = Surface.GetPointPosition(PointIndex_A_B[1]);
+					auto VectorA = PosA - Point;
+					VectorA /= VectorA.L2Norm();
+					auto VectorB = PosB - Point;
+					VectorB /= VectorB.L2Norm();
+					CosAngleList[k] = VectorA[0] * VectorB[0] + VectorA[1] * VectorB[1] + VectorA[2] * VectorB[2];
+				}
+				auto Idx_min = CosAngleList.IndexOfMin();
+				if (CosAngleList[Idx_min] < -0.99)
+				{//on edge
+					Surface.SplitFaceAtEdge(EdgeIndexList[Idx_min], H3);
+				}
+				else
+				{//now, the input point is inside FaceIndex_proj
+					Surface.DeleteFace(FaceIndex_proj);
+					Surface.AddFaceByPoint({ H3, H2, H0 });
+					Surface.AddFaceByPoint({ H3, H0, H1 });
+					Surface.AddFaceByPoint({ H3, H1, H2 });
+				}
 			}
-			EdgeLength[n] = (Pos1 - Pos2).L2Norm();
-		}
-		DistThreshold = EdgeLength.Min() / 10;
-	
-		auto dist_min = DistToPoint.Min();
-		if (dist_min < DistThreshold)
-		{
-			auto PointIndex_ref = PointIndexList[DistToPoint.IndexOfMin()];			
-			return PointIndex_ref;
 		}
 	}
-
-	// add new point -------------------------------------------------------
-	auto H0 = PointIndexList[0];
-	auto H1 = PointIndexList[1];
-	auto H2 = PointIndexList[2];
-	auto H3 = Surface.AddPoint(Point_proj);
-	//-----------------
-	//     2 
-	//     3      
-	// 0       1
-	//-----------------		
-
-	//check if input Point is on edge of FaceIndex_proj
-	auto EdgeIndexList= Surface.Face(FaceIndex_proj).GetEdgeIndexList();
-	{
-		DenseVector<ScalarType> CosAngleList;
-		CosAngleList.Resize(EdgeIndexList.GetLength());
-		for (int_max k = 0; k < EdgeIndexList.GetLength(); ++k)
-		{
-			auto PointIndex_A_B = Surface.Edge(EdgeIndexList[k]).GetPointIndexList();
-			auto PosA = Surface.GetPointPosition(PointIndex_A_B[0]);
-			auto PosB = Surface.GetPointPosition(PointIndex_A_B[1]);
-			auto VectorA = PosA - Point;
-			VectorA /= VectorA.L2Norm();
-			auto VectorB = PosB - Point;
-			VectorB /= VectorB.L2Norm();
-			CosAngleList[k] = VectorA[0] * VectorB[0] + VectorA[1] * VectorB[1] + VectorA[2] * VectorB[2];
-		}
-		auto Idx_min = CosAngleList.IndexOfMin();
-		if (CosAngleList[Idx_min] < -0.99)
-		{
-			Surface.SplitFaceByEdge(EdgeIndexList[Idx_min], H3);
-			return H3;
-		}
-	}	
-	{//now, the input point is inside FaceIndex_proj
-		Surface.DeleteFace(FaceIndex_proj);
-		Surface.AddFaceByPoint({ H3, H2, H0 });
-		Surface.AddFaceByPoint({ H3, H0, H1 });
-		Surface.AddFaceByPoint({ H3, H1, H2 });
-		return H3;
-	}
+	return PointIndexList_proj;
 }
 
 
@@ -446,6 +470,15 @@ int_max AddPointToSurfaceByProjection(TriangleMesh<ScalarType>& Surface, const D
 	auto PointIndex = Project_Add_Point_to_Surface(Surface, Point);
 	Surface.SetPointPosition(PointIndex, Point);
 	return PointIndex;
+}
+
+
+template<typename ScalarType>
+DenseVector<int_max> AddPointToSurfaceByProjection(TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PointSet)
+{
+	auto PointIndexList = Project_Add_Point_to_Surface(Surface, PointSet);
+	Surface.SetPointPosition(PointIndexList, PointSet);
+	return PointIndexList;
 }
 
 
