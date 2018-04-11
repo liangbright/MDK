@@ -25,7 +25,7 @@ inline String ExtractFilePath(const String& FilePathAndName)
 	}
 	else
 	{
-		MDK_Warning("Input has No Path Info @ JsonFile::ExtractFilePath(...)")
+		//MDK_Warning("Input has No Path Info @ JsonFile::ExtractFilePath(...)")
 	}
 	return FilePath;
 }
@@ -53,7 +53,7 @@ inline String ExtractFileName(const String& FilePathAndName)
 	}
 	else
 	{
-		MDK_Warning("Invalid input @ JsonFile::ExtractFileName(...)")
+		FileName = FilePathAndName;
 	}
 	return FileName;
 }

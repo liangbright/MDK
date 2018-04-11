@@ -360,11 +360,12 @@ DenseVector<int_max> FindNearestPointOnMeshByVTKPointLocator(const PolygonMesh<S
 }
 
 template<typename ScalarType>
-PolygonMesh<ScalarType> SmoothMeshByVTKSmoothPolyDataFilter(const PolygonMesh<ScalarType>& InputMesh, int_max Iter, bool Flag_FeatureEdgeSmoothing, bool Flag_BoundarySmoothing)
+void SmoothMeshByVTKSmoothPolyDataFilter(PolygonMesh<ScalarType>& InputMesh, int_max Iter, bool Flag_FeatureEdgeSmoothing, bool Flag_BoundarySmoothing)
 {
 	if (InputMesh.Check_If_DataStructure_is_Clean() == false)
 	{
-		MDK_Warning("InputMesh DataStructure is NOT clean @ mdkPolygonMeshProcessing SmoothMeshByVTKSmoothPolyDataFilter(...)")
+		MDK_Error("InputMesh DataStructure is NOT clean @ mdkPolygonMeshProcessing SmoothMeshByVTKSmoothPolyDataFilter(...)")
+		return;
 	}
 
 	auto VTKMesh = ConvertMDKPolygonMeshToVTKPolyData(InputMesh);
@@ -391,21 +392,21 @@ PolygonMesh<ScalarType> SmoothMeshByVTKSmoothPolyDataFilter(const PolygonMesh<Sc
 		SmoothFilter->BoundarySmoothingOff();
 	}
 	SmoothFilter->Update();
-
 	//double a = SmoothFilter->GetFeatureAngle();
 
-	PolygonMesh<ScalarType> OutputMesh;
-	ConvertVTKPolyDataToMDKPolygonMesh(SmoothFilter->GetOutput(), OutputMesh);
-	return OutputMesh;
+	PolygonMesh<ScalarType> SmoothMesh;
+	ConvertVTKPolyDataToMDKPolygonMesh(SmoothFilter->GetOutput(), SmoothMesh);	
+	InputMesh.SetPointPosition(ALL, SmoothMesh.GetPointPosition(ALL));
 }
 
 
 template<typename ScalarType>
-PolygonMesh<ScalarType> SmoothMeshByVTKWindowedSincPolyDataFilter(const PolygonMesh<ScalarType>& InputMesh, double PassBand, int_max Iter, bool Flag_FeatureEdgeSmoothing, bool Flag_BoundarySmoothing)
+void SmoothMeshByVTKWindowedSincPolyDataFilter(PolygonMesh<ScalarType>& InputMesh, double PassBand, int_max Iter, bool Flag_FeatureEdgeSmoothing, bool Flag_BoundarySmoothing)
 {
 	if (InputMesh.Check_If_DataStructure_is_Clean() == false)
 	{
-		MDK_Warning("InputMesh DataStructure is NOT clean @ mdkPolygonMeshProcessing SmoothMeshByVTKWindowedSincPolyDataFilter(...)")
+		MDK_Error("InputMesh DataStructure is NOT clean @ mdkPolygonMeshProcessing SmoothMeshByVTKWindowedSincPolyDataFilter(...)")
+		return;
 	}
 
 	auto VTKMesh = ConvertMDKPolygonMeshToVTKPolyData(InputMesh);
@@ -434,9 +435,9 @@ PolygonMesh<ScalarType> SmoothMeshByVTKWindowedSincPolyDataFilter(const PolygonM
 	SmoothFilter->NormalizeCoordinatesOn();	
 	SmoothFilter->Update();
 
-	PolygonMesh<ScalarType> OutputMesh;
-	ConvertVTKPolyDataToMDKPolygonMesh(SmoothFilter->GetOutput(), OutputMesh);
-	return OutputMesh;
+	PolygonMesh<ScalarType> SmoothMesh;
+	ConvertVTKPolyDataToMDKPolygonMesh(SmoothFilter->GetOutput(), SmoothMesh);
+	InputMesh.SetPointPosition(ALL, SmoothMesh.GetPointPosition(ALL));
 }
 
 
