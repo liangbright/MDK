@@ -5025,7 +5025,7 @@ template<typename ElementType_Output>
 inline
 void DenseMatrix<ElementType>::GetCol(int_max ColIndex, DenseVector<ElementType_Output>& ColVectorData) const
 { // this is for variable length DenseVector
-	ColVectorData.FastResize(this->GetRowCount());
+	ColVectorData.Resize(this->GetRowCount(), false);
 	this->GetCol(ColIndex, ColVectorData.GetElementPointer());
 }
 
@@ -5564,7 +5564,7 @@ template<typename ElementType_Output>
 inline
 void DenseMatrix<ElementType>::GetRow(int_max RowIndex, DenseVector<ElementType_Output>& RowVectorData) const
 {// this is  for variable length DenseVector
-	RowVectorData.FastResize(this->GetColCount());
+	RowVectorData.Resize(this->GetColCount(), false);
 	this->GetRow(RowIndex, RowVectorData.GetElementPointer());
 }
 
@@ -6445,7 +6445,7 @@ void DenseMatrix<ElementType>::GetDiagonal(DenseVector<ElementType_Output>& Diag
         return;
     }
 
-    DiagonalData.FastResize(SelfSize.RowCount);
+    DiagonalData.Resize(SelfSize.RowCount, false);
 
 	this->GetDiagonal(DiagonalData.GetElementPointer());
 }
