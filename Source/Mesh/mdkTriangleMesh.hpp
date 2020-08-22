@@ -365,10 +365,10 @@ void TriangleMesh<ScalarType>::UpdateGaussianCurvatureAtPoint(int_max PointIndex
 	auto AdjacentPointCount = this->Point(PointIndex).GetAdjacentPointCount();
 
     DenseVector<ScalarType> AreaList;
-	AreaList.FastResize(AdjacentPointCount);
+	AreaList.Resize(AdjacentPointCount);
 
     DenseVector<ScalarType> CornerAngleList;
-	CornerAngleList.FastResize(AdjacentPointCount);
+	CornerAngleList.Resize(AdjacentPointCount);
 
     for (int_max k = 0; k < AdjacentFaceCount; ++k)
     {

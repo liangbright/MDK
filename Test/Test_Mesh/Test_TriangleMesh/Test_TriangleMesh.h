@@ -1,5 +1,5 @@
 #include "mdkFileIO.h"
-#include "mdkTriangleMesh.h"
+#include "mdkPolygonMeshProcessing.h"
 
 using namespace mdk;
 
