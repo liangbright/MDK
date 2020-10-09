@@ -98,7 +98,7 @@ public:
 	int_max FlipEdge(int_max EdgeIndex01, bool Flag_ReuseEdgeIndex = false, bool Flag_ReuseFaceIndex = false);//only support 2 face sharing an edge
 
 	//split face sharing edge, splitting point is PointIndex (not any point of edge)
-	//output new face index
+	//output new face index list
 	DenseVector<int_max> SplitFaceAtEdge(int_max EdgeIndex12, int_max PointIndex0);
 
 	//add a middle point of the edge to the mesh, get PointIndex0
