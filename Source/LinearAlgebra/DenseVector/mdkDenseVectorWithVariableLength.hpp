@@ -151,7 +151,7 @@ bool DenseVector<ElementType>::operator!=(const DenseVector<ElementType>& InputV
 	return false;
 }
 
-/*
+
 template<typename ElementType>
 inline
 void DenseVector<ElementType>::operator=(const ElementType& Element)
@@ -168,7 +168,7 @@ void DenseVector<ElementType>::operator=(const ElementType& Element)
 	}
 	(*this)[0] = Element;
 }
-*/
+
 
 template<typename ElementType>
 inline

@@ -911,10 +911,10 @@ int_max PolygonMesh<ScalarType>::CutAlongEdge(int_max EdgeIndex01)
 // 2---0---3            2---0a 0---3  
 //input:
 //Edge20, Edge03, Edge41, Edge15 on boundary
-//Edge01 NOT no boundary
-//Point0, Point 1 on boundary\
-//note: Point2 Point 4 may be the same
-//note: Point3 Point 5 may be the same
+//Edge01 NOT on boundary
+//Point0, Point 1 on boundary
+//note: Point2, Point 4 may be the same
+//note: Point3, Point 5 may be the same
 //output:
 //New Point 0a, 1a
 //New Edge 1a~0a
