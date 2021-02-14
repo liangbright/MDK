@@ -37,6 +37,14 @@ template<typename ScalarType>
 DenseVector<int_max> FindNearestPointOnMeshByVTKPointLocator(const PolygonMesh<ScalarType>& InputMesh, const DenseMatrix<ScalarType>& PointSet);
 
 template<typename ScalarType>
+void ProjectPointToFaceByVTKCellLocator(vtkPolyData* InputMesh_vtk, const DenseMatrix<ScalarType>& PointSet,
+	                                    DenseMatrix<ScalarType>& PointSet_proj, DenseVector<int_max>& FaceIndexList_proj);
+
+template<typename ScalarType>
+void ProjectPointToFaceByVTKCellLocator(const PolygonMesh<ScalarType>& InputMesh, const DenseMatrix<ScalarType>& PointSet,
+										DenseMatrix<ScalarType>& PointSet_proj, DenseVector<int_max>& FaceIndexList_proj);
+
+template<typename ScalarType>
 void SmoothMeshByVTKSmoothPolyDataFilter(PolygonMesh<ScalarType>& InputMesh, int_max Iter, bool Flag_FeatureEdgeSmoothing = true, bool Flag_BoundarySmoothing = true);
 
 template<typename ScalarType>

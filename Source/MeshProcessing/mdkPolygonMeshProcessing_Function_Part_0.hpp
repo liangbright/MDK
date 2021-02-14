@@ -360,6 +360,55 @@ DenseVector<int_max> FindNearestPointOnMeshByVTKPointLocator(const PolygonMesh<S
 }
 
 template<typename ScalarType>
+void ProjectPointToFaceByVTKCellLocator(vtkPolyData* InputMesh_vtk, const DenseMatrix<ScalarType>& PointSet,
+	                                    DenseMatrix<ScalarType>& PointSet_proj, DenseVector<int_max>& FaceIndexList_proj)
+{
+	if (InputMesh_vtk == nullptr)
+	{
+		MDK_Error("InputMesh_vtk is nullptr, abort @ PolygonMeshProcessing FindNearestCellOnMeshByVTKCellLocator(...)")
+		return;
+	}
+
+	PointSet_proj.Resize(PointSet.GetSize());
+	PointSet_proj.Fill(0);
+	FaceIndexList_proj.Resize(PointSet.GetColCount());
+	FaceIndexList_proj.Fill(-1);
+
+	auto CellLocator = vtkSmartPointer<vtkCellLocator>::New();
+	CellLocator->SetDataSet(InputMesh_vtk);
+	CellLocator->BuildLocator();
+
+	for (int_max k = 0; k < PointSet.GetColCount(); ++k)
+	{
+		DenseVector<ScalarType, 3> Point;
+		PointSet.GetCol(k, Point);
+		double testPoint[3] = { double(Point[0]), double(Point[1]), double(Point[2]) };
+		double closestPoint[3];//the coordinates of the closest point will be returned here
+		double closestPointDist2; //the squared distance to the closest point will be returned here
+		vtkIdType cellId; //the cell id of the cell containing the closest point will be returned here
+		int subId; //this is rarely used (in triangle strips only, I believe)
+		CellLocator->FindClosestPoint(testPoint, closestPoint, cellId, subId, closestPointDist2);
+		PointSet_proj.SetCol(k, closestPoint);
+		FaceIndexList_proj[k] = int_max(cellId);
+	}
+}
+
+
+template<typename ScalarType>
+void ProjectPointToFaceByVTKCellLocator(const PolygonMesh<ScalarType>& InputMesh, const DenseMatrix<ScalarType>& PointSet,
+	                                    DenseMatrix<ScalarType>& PointSet_proj, DenseVector<int_max>& FaceIndexList_proj)
+{
+	if (InputMesh.Check_If_DataStructure_is_Clean() == false)
+	{
+		MDK_Error("DataStructure of input mesh is not clean, abort @ ProjectPointToSurface(...)")
+		return;
+	}
+	auto VTKMesh = ConvertMDKPolygonMeshToVTKPolyData(InputMesh);
+	ProjectPointToFaceByVTKCellLocator(VTKMesh, PointSet, PointSet_proj, FaceIndexList_proj);
+}
+
+
+template<typename ScalarType>
 void SmoothMeshByVTKSmoothPolyDataFilter(PolygonMesh<ScalarType>& InputMesh, int_max Iter, bool Flag_FeatureEdgeSmoothing, bool Flag_BoundarySmoothing)
 {
 	if (InputMesh.Check_If_DataStructure_is_Clean() == false)
