@@ -64,7 +64,7 @@ public:
 	inline bool operator!=(const DenseVector<ElementType>& InputVector) const;
     //------------------------------------------------------------
 
-	//inline void operator=(const ElementType& Element);
+	inline void operator=(const ElementType& Element);
 
     inline void operator=(const DenseVector<ElementType>& InputVector);
 
