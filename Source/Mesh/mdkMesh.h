@@ -268,13 +268,21 @@ public:
 	StdObjectVector<String> GetValidFaceNameList() const;
 	StdObjectVector<String> GetValidCellNameList() const;
 
-	//----------- get Point/Edge/Face Name by Index -----------------------------------------------------------//
+	//----------- get Point/Edge/Face/Cell Name by Index -----------------------------------------------------------//
 	inline String GetPointName(int_max PointIndex) const;
 	inline StdObjectVector<String> GetPointName(const DenseVector<int_max>& PointIndexList) const;
 	inline String GetEdgeName(int_max EdgeIndex) const;
 	inline StdObjectVector<String> GetEdgeName(const DenseVector<int_max>& EdgeIndexList) const;
 	inline String GetFaceName(int_max FaceIndex) const;
 	inline StdObjectVector<String> GetFaceName(const DenseVector<int_max>& FaceIndexList) const;
+	inline String GetCellName(int_max CellIndex) const;
+	inline StdObjectVector<String> GetCellName(const DenseVector<int_max>& CellIndexList) const;
+
+	//----------- change Point/Edge/Face/Cell Name -----------------------------------------------------------//
+	inline void ChangePointName(const String& Name_old, const String& Name_new);
+	inline void ChangeEdgeName(const String& Name_old, const String& Name_new);
+	inline void ChangeFaceName(const String& Name_old, const String& Name_new);
+	inline void ChangeCellName(const String& Name_old, const String& Name_new);
 
 	//----------- PointDataSet, EdgeDataSet, FaceDataset, CellDataSet ----------------------------------//		
 	// PointDataSet/EdgeDataSet/FaceDataset/CellDataSet will expand if new Point/Edge/Face/Cell is added
@@ -335,8 +343,7 @@ public:
 	//Cell(k).SetData(int_max Index, const DenseVector<ScalarType>& Data);
 
 	//------------ PointSet, EdgeSet, FaceSet, CellSet ------------------------------------------//
-	// PointSet/EdgeSet/FaceSet/CellSet will NOT be updated if new Point/Edge/Face is added, or old is deleted
-	// They will only be updated in CleanDataStructure
+	// PointSet/EdgeSet/FaceSet/CellSet will be updated in CleanDataStructure
 	int_max AddPointSet(const String& Name);//empty set
 	int_max AddPointSet(const String& Name, DenseVector<int_max> PointIndexList);
 	void ChangePointSetName(int_max Index, const String& Name_new);
@@ -348,6 +355,8 @@ public:
 	String GetPointSetName(int_max Index) const;
 	DenseVector<int_max> GetPointSet(int_max Index) const;
 	DenseVector<int_max> GetPointSet(const String& Name) const;
+	void ClearPointSet(int_max Index);
+	void ClearPointSet(const String& Name);
 
 	int_max AddEdgeSet(const String& Name);//empty set
 	int_max AddEdgeSet(const String& Name, DenseVector<int_max> EdgeIndexList);

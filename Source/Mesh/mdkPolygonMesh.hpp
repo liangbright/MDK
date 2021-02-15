@@ -95,14 +95,15 @@ void PolygonMesh<ScalarType>::GetPointPositionMatrixAndFaceTable(DenseMatrix<Sca
 {
 	if (Flag_Clean == false)
 	{
-		PointPositionMatrix = m_MeshData->PointPositionTable;
-		FaceTable.Resize(m_MeshData->FaceList.GetLength());
-		for (int_max n = 0; n <= m_MeshData->FaceList.GetLength(); ++n)
+		PointPositionMatrix.Copy(m_MeshData->PointPositionTable);
+		for (int_max n = 0; n <= this->GetMaxValueOfFaceIndex(); ++n)
 		{
+			DenseVector<int_max> PointIndexList;
 			if (this->IsValidFaceIndex(n) == true)
 			{
-				FaceTable[n] = this->Face(n).GetPointIndexList();
+				PointIndexList = this->Face(n).GetPointIndexList();				
 			}
+			FaceTable.Append(PointIndexList);
 		}
 		return;
 	}
@@ -128,6 +129,10 @@ void PolygonMesh<ScalarType>::GetPointPositionMatrixAndFaceTable(DenseMatrix<Sca
 			PointPositionMatrix.SetCol(PointCounter, Pos);
 			Map_PointIndex_to_OutputIndex[k] = PointCounter;
 			PointCounter += 1;
+		}
+		else
+		{
+			Map_PointIndex_to_OutputIndex[k] = -1;
 		}
 	}
 

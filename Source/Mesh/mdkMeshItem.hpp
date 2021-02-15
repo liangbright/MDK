@@ -188,7 +188,8 @@ void Point_Of_Mesh<ScalarType>::SetName(String PointName)
 
 	if (PointName.IsEmpty() == true)
 	{
-		MDK_Error("PointName is empty @ Point_Of_Mesh::SetName(...)")
+		MDK_Error("PointName is empty, erase name @ Point_Of_Mesh::SetName(...)")
+		this->EraseName();
 		return;
 	}
 
@@ -207,7 +208,7 @@ void Point_Of_Mesh<ScalarType>::SetName(String PointName)
 	{
 		if (it->second != m_Data->Index)
 		{
-			MDK_Error("Input PointName has already been used for another point @ Point_Of_Mesh::SetName(...)")
+			MDK_Error("Input PointName " << PointName << " has already been used for another point @ Point_Of_Mesh::SetName(...)")
 			return;
 		}
 	}	
@@ -615,7 +616,8 @@ void Edge_Of_Mesh<ScalarType>::SetName(String EdgeName)
 
 	if (EdgeName.IsEmpty() == true)
 	{
-		MDK_Error("EdgeName is empty @ Edge_Of_Mesh::SetName(...)")
+		MDK_Warning("EdgeName is empty, erase name @ Edge_Of_Mesh::SetName(...)")
+		this->EraseName();
 		return;
 	}
 
@@ -634,7 +636,7 @@ void Edge_Of_Mesh<ScalarType>::SetName(String EdgeName)
 	{
 		if (it->second != m_Data->Index)
 		{
-			MDK_Error("Input EdgeName has already been used for another point @ Edge_Of_Mesh::SetName(...)")
+			MDK_Error("Input EdgeName " << EdgeName << " has already been used for another point @ Edge_Of_Mesh::SetName(...)")
 			return;
 		}
 	}	
@@ -1080,7 +1082,8 @@ void Face_Of_Mesh<ScalarType>::SetName(String FaceName)
 
 	if (FaceName.IsEmpty() == true)
 	{
-		MDK_Error("FaceName is empty @ Face_Of_Mesh::SetName(...)")
+		MDK_Warning("FaceName is empty, erase name @ Face_Of_Mesh::SetName(...)")
+		this->EraseName();
 		return;
 	}
 
@@ -1099,7 +1102,7 @@ void Face_Of_Mesh<ScalarType>::SetName(String FaceName)
 	{
 		if (it->second != m_Data->Index)
 		{
-			MDK_Error("Input FaceName has already been used for another point @ Face_Of_Mesh::SetName(...)")
+			MDK_Error("Input FaceName " << FaceName << " has already been used for another point @ Face_Of_Mesh::SetName(...)")
 			return;
 		}
 	}
@@ -1662,7 +1665,8 @@ void Cell_Of_Mesh<ScalarType>::SetName(String CellName)
 
 	if (CellName.IsEmpty() == true)
 	{
-		MDK_Error("CellName is empty @ Cell_Of_Mesh::SetName(...)")
+		MDK_Warning("CellName is empty, erase name @ Cell_Of_Mesh::SetName(...)")
+		this->EraseName();
 		return;
 	}
 
@@ -1681,7 +1685,7 @@ void Cell_Of_Mesh<ScalarType>::SetName(String CellName)
 	{
 		if (it->second != m_Data->Index)
 		{
-			MDK_Error("Input CellName has already been used for another point @ Cell_Of_Mesh::SetName(...)")
+			MDK_Error("Input CellName " << CellName << "has already been used for another point @ Cell_Of_Mesh::SetName(...)")
 			return;
 		}
 	}	
