@@ -6,7 +6,7 @@ namespace mdk
 template<typename ScalarType>
 DenseVector<int_max> ResampleOpenCurveOfSurface(TriangleMesh<ScalarType>& Surface, const DenseVector<int_max>& CurvePointIndexList_input, const DenseMatrix<ScalarType>& Curve_output)
 {
-	//CurvePointIndexList_input: an open bounary curve, CurvePointIndexList_input[0] is the start point, CurvePointIndexList_input[end] is the end point	
+	//CurvePointIndexList_input: an open boundary curve on Surface, CurvePointIndexList_input[0] is the start point, CurvePointIndexList_input[end] is the end point	
 	//point order in CurvePointIndexList_input must align with normal direction, so new face will have consistant normal direction
 	//Curve_output is the target, Curve_output(:,k) is a 3D point
 	//Curve_output should be close to the orignial bounary on InputMesh
@@ -215,7 +215,7 @@ DenseVector<int_max> ResampleOpenCurveOfSurface(TriangleMesh<ScalarType>& Surfac
 	//position of the start/end point will not be changed
 	//PointCountOfCurve_output is the target
 
-	PointCountOfCurve_input = CurvePointIndexList_input.GetLength();
+	auto PointCountOfCurve_input = CurvePointIndexList_input.GetLength();
 	if (PointCountOfCurve_input < 2)
 	{
 		MDK_Error("PointCountOfCurve_input < 2, abort @ TriangMeshProcessing ResampleOpenCurveOfSurface(...) ")
@@ -232,7 +232,7 @@ DenseVector<int_max> ResampleOpenCurveOfSurface(TriangleMesh<ScalarType>& Surfac
 
 	if (PointCountOfCurve_output == 2)
 	{
-		auto Curve_input = Surface.GetPointPosition(CurvePointIndexList_input);
+		auto Curve_output = Surface.GetPointPosition(CurvePointIndexList_input);
 		return ResampleOpenCurveOfSurface(Surface, CurvePointIndexList_input, Curve_output);
 	}
 	else
