@@ -127,7 +127,7 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::Update()
 	}	
 	//--------------------------------------------------------------------
 	this->Remesh();
-	this->Refine();
+	//this->Refine();
 	//--------------------------------------------------------------------
 	if (Input.Flag_CleanDataStructureOfOutputMesh == true)
 	{
@@ -864,7 +864,10 @@ DenseVector<ScalarType, 3> IsotropicTriangleSurfaceRemesher<ScalarType>::Project
 
 template<typename ScalarType>
 void IsotropicTriangleSurfaceRemesher<ScalarType>::Refine()
-{
+{// this function can not be applied for a mesh with sharp angles in mesh boundary (e.g., mesh of a spear)
+ //TODO:
+ //It can be used if the boundary is segmented, and each segment is smooth, i.e., no sharp angles
+ //apply refine to each segment
 	//flip edge near boundary point if necessary
 	//      3
 	//    /   \
