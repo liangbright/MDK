@@ -409,6 +409,22 @@ const StandardAttribute_Of_Point_Of_Mesh<ScalarType>& Point_Of_Mesh<ScalarType>:
 }
 
 template<typename ScalarType>
+inline 
+const DenseVector<ScalarType> Point_Of_Mesh<ScalarType>::Attribute(const String& AttributeName) const
+{
+	DenseVector<ScalarType> AttributeData;
+	//AttributeName is Name of a PointDataSet
+	auto it = m_Data->MeshData->Map_PointDataSet_Name_to_Index.find(AttributeName);
+	if (it != m_Data->MeshData->Map_PointDataSet_Name_to_Index.end())
+	{
+		auto Index = it->second;		
+		m_Data->MeshData->PointDataSet[Index].GetCol(m_Data->Index, AttributeData);
+	}
+	return AttributeData;
+}
+
+
+template<typename ScalarType>
 inline
 DenseVector<int_max> Point_Of_Mesh<ScalarType>::GetNeighborPointIndexList(int_max MaxGraphDistance) const
 {

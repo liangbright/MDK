@@ -1682,7 +1682,7 @@ template<typename ScalarType>
 int_max Mesh<ScalarType>::AddPointDataSet(const String& Name, int_max ScalarCountPerPoint)
 {
 	DenseMatrix<ScalarType> DataSet;
-	DataSet.Resize(3, this->GetMaxValueOfPointIndex());
+	DataSet.Resize(ScalarCountPerPoint, this->GetMaxValueOfPointIndex());
 	DataSet.Fill(0);
 	return this->AddPointDataSet(Name, std::move(DataSet));
 }
@@ -1835,7 +1835,7 @@ template<typename ScalarType>
 int_max Mesh<ScalarType>::AddEdgeDataSet(const String& Name, int_max ScalarCountPerEdge)
 {
 	DenseMatrix<ScalarType> DataSet;
-	DataSet.Resize(3, this->GetMaxValueOfEdgeIndex());
+	DataSet.Resize(ScalarCountPerEdge, this->GetMaxValueOfEdgeIndex());
 	DataSet.Fill(0);
 	return this->AddEdgeDataSet(Name, std::move(DataSet));
 }
@@ -1993,7 +1993,7 @@ template<typename ScalarType>
 int_max Mesh<ScalarType>::AddFaceDataSet(const String& Name, int_max ScalarCountPerFace)
 {
 	DenseMatrix<ScalarType> DataSet;
-	DataSet.Resize(3, this->GetMaxValueOfFaceIndex());
+	DataSet.Resize(ScalarCountPerFace, this->GetMaxValueOfFaceIndex());
 	DataSet.Fill(0);
 	return this->AddFaceDataSet(Name, std::move(DataSet));
 }
@@ -2151,7 +2151,7 @@ template<typename ScalarType>
 int_max Mesh<ScalarType>::AddCellDataSet(const String& Name, int_max ScalarCountPerCell)
 {
 	DenseMatrix<ScalarType> DataSet;
-	DataSet.Resize(3, this->GetMaxValueOfCellIndex());
+	DataSet.Resize(ScalarCountPerCell, this->GetMaxValueOfCellIndex());
 	DataSet.Fill(0);
 	return this->AddCellDataSet(Name, std::move(DataSet));
 }

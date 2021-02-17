@@ -166,6 +166,7 @@ public:
 
     inline PointAttributeType& Attribute();
     inline const PointAttributeType& Attribute() const;
+	inline const DenseVector<ScalarType> Attribute(const String& AttributeName) const;
 
 	//MaxGraphDistance= edge count
 	inline DenseVector<int_max> GetNeighborPointIndexList(int_max MaxGraphDistance) const;

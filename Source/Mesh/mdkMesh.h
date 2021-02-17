@@ -286,6 +286,8 @@ public:
 
 	//----------- PointDataSet, EdgeDataSet, FaceDataset, CellDataSet ----------------------------------//		
 	// PointDataSet/EdgeDataSet/FaceDataset/CellDataSet will expand if new Point/Edge/Face/Cell is added
+	// A DataSet cannot be deleted after it is added, but the name can be changed.
+	// TODO: move Point/Edge/Face/Cell Attribute to DataSet
 	int_max AddPointDataSet(const String& Name, int_max ScalarCountPerPoint);//return DataSetIndex or -1
 	int_max AddPointDataSet(const String& Name, DenseMatrix<ScalarType> DataSet);
 	void ChangePointDataSetName(int_max Index, const String& Name_new);

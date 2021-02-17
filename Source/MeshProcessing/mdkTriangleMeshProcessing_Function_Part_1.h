@@ -35,6 +35,13 @@ DenseVector<int_max> AddPointToSurfaceByProjection(TriangleMesh<ScalarType>& Sur
 template<typename ScalarType>
 DenseVector<int_max> AddPolyLineOnSurface(TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PolyLine);
 
+//SurfaceA FaceNormal must have been computed
+//Distance[k] is the distance between point-k of SurfaceB and SurfaceA
+//NearestFaceSet[k] is the Face (index) of SurfaceA nearest to point-k of SurfaceB
+//NearestPointSet[k] is the Point (position) of SurfaceA nearestto point-k of SurfaceB
+template<typename ScalarType>
+void DetectSurfaceContact(const TriangleMesh<ScalarType>& SurfaceA, const TriangleMesh<ScalarType>& SurfaceB,
+					  	  DenseVector<ScalarType>& SignedDistanceSet, DenseVector<int_max>& NearestFaceSet, DenseMatrix<ScalarType>& NearestPointSet);
 }//namespace mdk
 
 #include "mdkTriangleMeshProcessing_Function_Part_1.hpp"

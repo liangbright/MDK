@@ -424,5 +424,35 @@ DenseVector<int_max> AddPolyLineOnSurface(TriangleMesh<ScalarType>& Surface, con
 	return PointIndexOfPolyLine;
 }
 
+template<typename ScalarType>
+void DetectSurfaceContact(const TriangleMesh<ScalarType>& SurfaceA, const TriangleMesh<ScalarType>& SurfaceB,
+						  DenseVector<ScalarType>& SignedDistanceSet, DenseVector<int_max>& NearestFaceSet, DenseMatrix<ScalarType>& NearestPointSet)
+{//SurfaceA FaceNormal must have been computed
+	if (SurfaceA.Check_If_DataStructure_is_Clean() == false)
+	{
+		MDK_Error("DataStructure of SurfaceA is not clean, abort @ DetectSurfaceContact(...)")
+		return;
+	}
+	auto MAXPointCountB = SurfaceB.GetMaxValueOfPointIndex();
+	SignedDistanceSet.Resize(MAXPointCountB);
+	SignedDistanceSet.Fill(0);
+	NearestFaceSet.Resize(MAXPointCountB);
+	NearestFaceSet.Fill(-1);
+	NearestPointSet.Resize(3, MAXPointCountB);
+	NearestPointSet.Fill(0);
+	auto PointSetB = SurfaceB.GetPointPosition(ALL);
+	ProjectPointToFaceByVTKCellLocator(SurfaceA, PointSetB, NearestPointSet, NearestFaceSet);
+	for (int_max PointIndexB = 0; PointIndexB < MAXPointCountB; ++PointIndexB)
+	{
+		auto PosB = SurfaceB.GetPointPosition(PointIndexB);
+		auto FaceIndexA = NearestFaceSet[PointIndexB];
+		auto FaceNormalA = SurfaceA.Face(FaceIndexA).Attribute().Normal;
+		DenseVector<ScalarType, 3> PosA;
+		NearestPointSet.GetCol(PointIndexB, PosA);
+		auto disp = PosB - PosA;
+		SignedDistanceSet[PointIndexB] = FaceNormalA[0] * disp[0] + FaceNormalA[1] * disp[1] + FaceNormalA[2] * disp[2];
+	}
+}
+
 }//namespace mdk
 
