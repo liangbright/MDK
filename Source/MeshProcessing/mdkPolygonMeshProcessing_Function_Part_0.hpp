@@ -272,7 +272,82 @@ int_max FindNearestPointOnMesh(const PolygonMesh<ScalarType>& InputMesh, const D
 
     return OutputPointIndex;
 }
+//-------
+template<typename ScalarType>
+int_max FindNearestPointOnMeshByVTKKdTreePointLocator(vtkPolyData* InputMesh_vtk, const DenseVector<ScalarType, 3>& PointPosition)
+{
+	if (InputMesh_vtk == nullptr)
+	{
+		MDK_Error("InputMesh is nullptr @ mdkPolygonMeshProcessing FindNearestPointOnMeshByVTKKdTreePointLocator(...)")
+		return -1;
+	}
+	auto PointLocator = vtkSmartPointer<vtkKdTreePointLocator>::New();
+	PointLocator->SetDataSet(InputMesh_vtk);
+	PointLocator->BuildLocator();
+	double Pos[3];
+	Pos[0] = double(PointPosition[0]);
+	Pos[1] = double(PointPosition[1]);
+	Pos[2] = double(PointPosition[2]);
+	auto PointIndex = int_max(PointLocator->FindClosestPoint(Pos));
+	return PointIndex;
+}
 
+template<typename ScalarType>
+int_max FindNearestPointOnMeshByVTKKdTreePointLocator(const PolygonMesh<ScalarType>& InputMesh, const DenseVector<ScalarType, 3>& PointPosition)
+{
+	if (InputMesh.Check_If_DataStructure_is_Clean() == false)
+	{
+		MDK_Error("InputMesh DataStructure is NOT clean @ mdkPolygonMeshProcessing FindNearestPointOnMeshByVTKKdTreePointLocator(...)")
+		return -1;
+	}
+	auto VTKMesh = ConvertMDKPolygonMeshToVTKPolyData(InputMesh);
+	return FindNearestPointOnMeshByVTKPointLocator(VTKMesh, PointPosition);
+}
+
+template<typename ScalarType>
+DenseVector<int_max> FindNearestPointOnMeshByVTKKdTreePointLocator(vtkPolyData* InputMesh_vtk, const DenseMatrix<ScalarType>& PointSet)
+{
+	DenseVector<int_max> PointIndexList_output;
+	if (InputMesh_vtk == nullptr)
+	{
+		MDK_Error("InputMesh is nullptr @ mdkPolygonMeshProcessing FindNearestPointOnMeshByVTKKdTreePointLocator(...)")
+		return PointIndexList_output;
+	}
+	auto PointLocator = vtkSmartPointer<vtkKdTreePointLocator>::New();
+	PointLocator->SetDataSet(InputMesh_vtk);
+	PointLocator->BuildLocator();
+	for (int_max k = 0; k < PointSet.GetColCount(); ++k)
+	{
+		double Pos[3];
+		Pos[0] = double(PointSet(0, k));
+		Pos[1] = double(PointSet(1, k));
+		Pos[2] = double(PointSet(2, k));
+		auto Index = int_max(PointLocator->FindClosestPoint(Pos));
+		PointIndexList_output.Append(Index);
+	}
+	return PointIndexList_output;
+}
+
+template<typename ScalarType>
+DenseVector<int_max> FindNearestPointOnMeshByVTKKdTreePointLocator(const PolygonMesh<ScalarType>& InputMesh, const DenseMatrix<ScalarType>& PointSet)
+{
+	DenseVector<int_max> PointIndexList_output;
+	if (InputMesh.Check_If_DataStructure_is_Clean() == false)
+	{
+		MDK_Error("InputMesh DataStructure is NOT clean @ mdkPolygonMeshProcessing FindNearestPointOnMeshByVTKKdTreePointLocator(...)")
+			return PointIndexList_output;
+	}
+	if (PointSet.GetRowCount() != 3)
+	{
+		MDK_Error("Input PointSet is invalid @ mdkPolygonMeshProcessing FindNearestPointOnMeshByVTKKdTreePointLocator(...)")
+		return PointIndexList_output;
+	}
+	auto VTKMesh = ConvertMDKPolygonMeshToVTKPolyData(InputMesh);
+	PointIndexList_output = FindNearestPointOnMeshByVTKPointLocator(VTKMesh, PointSet);
+	return PointIndexList_output;
+}
+
+//--------
 
 template<typename ScalarType>
 int_max FindNearestPointOnMeshByVTKPointLocator(vtkPolyData* InputMesh_vtk, const DenseVector<ScalarType, 3>& PointPosition)

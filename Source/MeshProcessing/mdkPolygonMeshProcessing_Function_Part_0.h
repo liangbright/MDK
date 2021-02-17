@@ -7,6 +7,7 @@
 #include "vtkCleanPolyData.h"
 #include "vtkDijkstraGraphGeodesicPath.h"
 #include "vtkPointLocator.h"
+#include "vtkKdTreePointLocator.h"
 
 namespace mdk
 {
@@ -23,6 +24,18 @@ ObjectArray<DenseVector<int_max>> TraceMeshBoundaryCurve(const PolygonMesh<Scala
 
 template<typename ScalarType>
 int_max FindNearestPointOnMesh(const PolygonMesh<ScalarType>& InputMesh, const DenseVector<ScalarType, 3>& PointPosition);
+
+template<typename ScalarType>
+int_max FindNearestPointOnMeshByVTKKdTreePointLocator(vtkPolyData* InputMesh_vtk, const DenseVector<ScalarType, 3>& PointPosition);
+
+template<typename ScalarType>
+int_max FindNearestPointOnMeshByVTKKdTreePointLocator(const PolygonMesh<ScalarType>& InputMesh, const DenseVector<ScalarType, 3>& PointPosition);
+
+template<typename ScalarType>
+DenseVector<int_max> FindNearestPointOnMeshByVTKKdTreePointLocator(vtkPolyData* InputMesh_vtk, const DenseMatrix<ScalarType>& PointSet);
+
+template<typename ScalarType>
+DenseVector<int_max> FindNearestPointOnMeshByVTKKdTreePointLocator(const PolygonMesh<ScalarType>& InputMesh, const DenseMatrix<ScalarType>& PointSet);
 
 template<typename ScalarType>
 int_max FindNearestPointOnMeshByVTKPointLocator(vtkPolyData* InputMesh_vtk, const DenseVector<ScalarType, 3>& PointPosition);
