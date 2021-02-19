@@ -576,6 +576,15 @@ PolygonMesh<ScalarType> SubdivideMixedTriangleQuadMeshToQuadMesh_Linear(const Po
 template<typename ScalarType>
 PolygonMesh<ScalarType> CreateQuadMeshOfRectangularFlatSurface(int_max PointCount_x, int_max PointCount_y, double Spacing_x, double Spacing_y)
 {
+    //  y
+	// /|\
+	// (0, Ly-z)-------(Lx-1, Ly-1)
+	//  |                |
+	//  |                |
+	//  |                |
+	// (0,0)------------(Lx-1,0)-------->x
+	// Lx=PointCount_x
+	// Ly=PointCount_y
 	PolygonMesh<ScalarType> OutputMesh;
 
 	if (PointCount_x <= 0 || PointCount_y <= 0)

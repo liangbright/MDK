@@ -10,7 +10,7 @@ JsonFile::JsonFile(const String& FilePathAndName)
 	m_QFile->setFileName(FilePathAndName.StdString().c_str());
 	if (!m_QFile->open(QIODevice::ReadWrite))
 	{
-		MDK_Error("Couldn't open file @ JsonFile::JsonFile(...)")
+		MDK_Error("Couldn't open file " << FilePathAndName << " @ JsonFile::JsonFile(...)")
 		return;
 	}
 	m_QFile->resize(0);//clear the file just in case it already exist

@@ -96,6 +96,7 @@ void PolygonMesh<ScalarType>::GetPointPositionMatrixAndFaceTable(DenseMatrix<Sca
 	if (Flag_Clean == false)
 	{
 		PointPositionMatrix.Copy(m_MeshData->PointPositionTable);
+		FaceTable.Resize(this->GetMaxValueOfFaceIndex()+1);
 		for (int_max n = 0; n <= this->GetMaxValueOfFaceIndex(); ++n)
 		{
 			DenseVector<int_max> PointIndexList;
@@ -103,7 +104,7 @@ void PolygonMesh<ScalarType>::GetPointPositionMatrixAndFaceTable(DenseMatrix<Sca
 			{
 				PointIndexList = this->Face(n).GetPointIndexList();				
 			}
-			FaceTable.Append(PointIndexList);
+			FaceTable[n]=PointIndexList;
 		}
 		return;
 	}

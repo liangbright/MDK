@@ -31,24 +31,40 @@ template<typename ScalarType>
 TriangleMesh<ScalarType>::TriangleMesh(const PolygonMesh<ScalarType>& InputMesh)
 : PolygonMesh(InputMesh)
 {
+	if (this->CheckIfTriangleMesh() == false)
+	{
+		MDK_Warning("InputMesh is not TriangleMesh @ TriangleMesh::TriangleMesh(PolygonMesh&)")
+	}
 }
 
 template<typename ScalarType>
 TriangleMesh<ScalarType>::TriangleMesh(PolygonMesh<ScalarType>&& InputMesh)
 : PolygonMesh(std::move(InputMesh))
 {
+	if (this->CheckIfTriangleMesh() == false)
+	{
+		MDK_Warning("InputMesh is not TriangleMesh @ TriangleMesh::TriangleMesh(PolygonMesh&&)")
+	}
 }
 
 template<typename ScalarType>
 TriangleMesh<ScalarType>::TriangleMesh(const Mesh<ScalarType>& InputMesh)
 : PolygonMesh(InputMesh)
 {
+	if (this->CheckIfTriangleMesh() == false)
+	{
+		MDK_Warning("InputMesh is not TriangleMesh @ TriangleMesh::TriangleMesh(Mesh&)")
+	}
 }
 
 template<typename ScalarType>
 TriangleMesh<ScalarType>::TriangleMesh(Mesh<ScalarType>&& InputMesh)
 : PolygonMesh(std::move(InputMesh))
 {
+	if (this->CheckIfTriangleMesh() == false)
+	{
+		MDK_Warning("InputMesh is not TriangleMesh @ TriangleMesh::TriangleMesh(Mesh&&)")
+	}
 }
 
 template<typename ScalarType>
@@ -74,6 +90,10 @@ template<typename ScalarType>
 inline
 void TriangleMesh<ScalarType>::operator=(const PolygonMesh<ScalarType>& InputMesh)
 {
+	if (InputMesh.CheckIfTriangleMesh() == false)
+	{
+		MDK_Warning("InputMesh is not TriangleMesh @ TriangleMesh::operator=(PolygonMesh&)")
+	}
 	this->PolygonMesh::operator=(InputMesh);
 }
 
@@ -81,6 +101,10 @@ template<typename ScalarType>
 inline
 void TriangleMesh<ScalarType>::operator=(PolygonMesh<ScalarType>&& InputMesh)
 {
+	if (InputMesh.CheckIfTriangleMesh() == false)
+	{
+		MDK_Warning("InputMesh is not TriangleMesh @ TriangleMesh::operator=(PolygonMesh&&)")
+	}
 	this->PolygonMesh::operator=(std::move(InputMesh));
 }
 
@@ -88,6 +112,10 @@ template<typename ScalarType>
 inline
 void TriangleMesh<ScalarType>::operator=(const Mesh<ScalarType>& InputMesh)
 {
+	if (InputMesh.CheckIfTriangleMesh() == false)
+	{
+		MDK_Warning("InputMesh is not TriangleMesh @ TriangleMesh::operator=(Mesh&)")
+	}
 	this->PolygonMesh::operator=(InputMesh);
 }
 
@@ -95,6 +123,10 @@ template<typename ScalarType>
 inline
 void TriangleMesh<ScalarType>::operator=(Mesh<ScalarType>&& InputMesh)
 {
+	if (InputMesh.CheckIfTriangleMesh() == false)
+	{
+		MDK_Warning("InputMesh is not TriangleMesh @ TriangleMesh::operator=(Mesh&&)")
+	}
 	this->PolygonMesh::operator=(std::move(InputMesh));
 }
 

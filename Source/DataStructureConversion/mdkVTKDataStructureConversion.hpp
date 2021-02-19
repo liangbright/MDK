@@ -618,15 +618,21 @@ bool ConvertVTKPolyDataToMDKPolygonMesh(vtkPolyData* VTKMesh, PolygonMesh<Scalar
 	auto CellCount = int_max(VTKMesh->GetNumberOfCells());
 
 	ObjectArray<DenseVector<int_max>> FaceTable;
-	FaceTable.FastResize(CellCount);
+	FaceTable.SetCapacity(CellCount);
     for (int_max k = 0; k < CellCount; ++k)
     {
 		auto Cell = VTKMesh->GetCell(k);
-        auto PointCount_k = int_max(Cell->GetNumberOfPoints());
-		for (int_max n = 0; n < PointCount_k; ++n)
-        {
-			FaceTable[k].Append(int_max(Cell->GetPointId(n)));
-        }
+		auto CellType = Cell->GetCellType();
+		if ((CellType == VTK_TRIANGLE) || (CellType == VTK_QUAD) || (CellType == VTK_POLYGON))
+		{
+			DenseVector<int_max> Face;
+			auto PointCount_k = int_max(Cell->GetNumberOfPoints());
+			for (int_max n = 0; n < PointCount_k; ++n)
+			{
+				Face.Append(int_max(Cell->GetPointId(n)));
+			}
+			FaceTable.Append(Face);
+		}
     }
 	//---------------------------------------------------------
 	MDKMesh.Construct(std::move(PointMatrix), FaceTable);

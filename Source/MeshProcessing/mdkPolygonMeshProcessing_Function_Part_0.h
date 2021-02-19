@@ -89,36 +89,36 @@ DenseVector<int_max> FindShortestPathByVTKDijkstraGraphGeodesicPath(const Polygo
 //InputMesh is from mesh.Append()
 //It is useful to append many mesh together and stitch them on boundary
 template<typename ScalarType>
-PolygonMesh<ScalarType> MergeMeshOnBoundary(const PolygonMesh<ScalarType>& InputMesh, ScalarType PointDistanceThreshold);
+PolygonMesh<ScalarType> MergeMeshPointOnBoundary(const PolygonMesh<ScalarType>& InputMesh, ScalarType PointDistanceThreshold, bool MergePointInfo);
 
 
 //InputMesh is from mesh.Append()
 //It is useful to append many mesh together and stitch them on boundary
 template<typename ScalarType>
-PolygonMesh<ScalarType> MergeMeshOnBoundary(const PolygonMesh<ScalarType>& InputMesh, ScalarType PointDistanceThreshold, 
-											DenseVector<int_max>& PointIndexMap_Input_to_Output);
+PolygonMesh<ScalarType> MergeMeshPointOnBoundary(const PolygonMesh<ScalarType>& InputMesh, ScalarType PointDistanceThreshold,
+											     DenseVector<int_max>& PointIndexMap_Input_to_Output, bool MergePointInfo);
 
 template<typename ScalarType>
-PolygonMesh<ScalarType> MergeMesh(const PolygonMesh<ScalarType>& InputMesh, const DenseVector<int_max>& PointIndexList, ScalarType PointDistanceThreshold,
-							 	  DenseVector<int_max>& PointIndexMap_Input_to_Output);
+PolygonMesh<ScalarType> MergeMeshPoint(const PolygonMesh<ScalarType>& InputMesh, const DenseVector<int_max>& PointIndexList, ScalarType PointDistanceThreshold,
+								       DenseVector<int_max>& PointIndexMap_Input_to_Output, bool MergePointInfo);
 
 //merge InputMeshA boundary and InputMeshB boundary
 //It is useful to stitch two meshes on boundary
 template<typename ScalarType>
-PolygonMesh<ScalarType> MergeMeshOnBoundary(const PolygonMesh<ScalarType>& InputMeshA, const PolygonMesh<ScalarType>& InputMeshB, ScalarType PointDistanceThreshold);
+PolygonMesh<ScalarType> MergeMeshPointOnBoundary(const PolygonMesh<ScalarType>& InputMeshA, const PolygonMesh<ScalarType>& InputMeshB, ScalarType PointDistanceThreshold);
 
 //Merge InputMeshA and InputMeshB
 //The shared points are in PointIndexListA of InputMeshA and PointIndexListB of InputMeshB;
 template<typename ScalarType>
-PolygonMesh<ScalarType> MergeMesh(const PolygonMesh<ScalarType>& InputMeshA, const DenseVector<int_max>& PointIndexListA,
-								  const PolygonMesh<ScalarType>& InputMeshB, const DenseVector<int_max>& PointIndexListB, ScalarType PointDistanceThreshold);
+PolygonMesh<ScalarType> MergeMeshPoint(const PolygonMesh<ScalarType>& InputMeshA, const DenseVector<int_max>& PointIndexListA,
+									   const PolygonMesh<ScalarType>& InputMeshB, const DenseVector<int_max>& PointIndexListB, ScalarType PointDistanceThreshold);
 
-//Merge InputMeshA and InputMeshB
+//Merge InputMeshA and InputMeshB, only merge point, face/cell will not be changed, but edge may be changed
 //The shared points are in PointIndexListA of InputMeshA and PointIndexListB of InputMeshB;
 template<typename ScalarType>
-PolygonMesh<ScalarType> MergeMesh(const PolygonMesh<ScalarType>& InputMeshA, const DenseVector<int_max>& PointIndexListA,
-	                              const PolygonMesh<ScalarType>& InputMeshB, const DenseVector<int_max>& PointIndexListB, ScalarType PointDistanceThreshold,
-								  DenseVector<int_max>& PointIndexMap_InputA_to_Output, DenseVector<int_max>& PointIndexMap_InputB_to_Output);
+PolygonMesh<ScalarType> MergeMeshPoint(const PolygonMesh<ScalarType>& InputMeshA, const DenseVector<int_max>& PointIndexListA,
+		                               const PolygonMesh<ScalarType>& InputMeshB, const DenseVector<int_max>& PointIndexListB, ScalarType PointDistanceThreshold,
+									   DenseVector<int_max>& PointIndexMap_InputA_to_Output, DenseVector<int_max>& PointIndexMap_InputB_to_Output);
 }//namespace mdk
 
 #include "mdkPolygonMeshProcessing_Function_Part_0.hpp"

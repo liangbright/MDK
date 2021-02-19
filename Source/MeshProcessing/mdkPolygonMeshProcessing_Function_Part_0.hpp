@@ -774,18 +774,18 @@ DenseVector<int_max> FindShortestPathByVTKDijkstraGraphGeodesicPath(const Polygo
 }
 
 template<typename ScalarType>
-PolygonMesh<ScalarType> MergeMeshOnBoundary(const PolygonMesh<ScalarType>& InputMesh, ScalarType PointDistanceThreshold)
+PolygonMesh<ScalarType> MergeMeshPointOnBoundary(const PolygonMesh<ScalarType>& InputMesh, ScalarType PointDistanceThreshold, bool MergePointInfo)
 {
 	std::unordered_map<int_max, int_max> Map_InputIndex_to_OutputIndex;
-	return MergeMeshOnBoundary(InputMesh, PointDistanceThreshold, Map_InputIndex_to_OutputIndex);
+	return MergeMeshPointOnBoundary(InputMesh, PointDistanceThreshold, Map_InputIndex_to_OutputIndex, MergePointInfo);
 }
 
 template<typename ScalarType>
-PolygonMesh<ScalarType> MergeMeshOnBoundary(const PolygonMesh<ScalarType>& InputMesh, ScalarType PointDistanceThreshold,
-											std::unordered_map<int_max, int_max>& Map_InputIndex_to_OutputIndex)
+PolygonMesh<ScalarType> MergeMeshPointOnBoundary(const PolygonMesh<ScalarType>& InputMesh, ScalarType PointDistanceThreshold,
+											std::unordered_map<int_max, int_max>& Map_InputIndex_to_OutputIndex, bool MergePointInfo)
 {
 	DenseVector<int_max> PointIndexList;
-	for (int_max k = 0; k < InputMesh.GetMaxValueOfPointIndex(); ++k)
+	for (int_max k = 0; k <= InputMesh.GetMaxValueOfPointIndex(); ++k)
 	{
 		if (InputMesh.IsValidPointIndex(k) == true)
 		{
@@ -795,18 +795,18 @@ PolygonMesh<ScalarType> MergeMeshOnBoundary(const PolygonMesh<ScalarType>& Input
 			}
 		}
 	}
-	return MergeMesh(InputMesh, PointIndexList, PointDistanceThreshold, Map_InputIndex_to_OutputIndex);
+	return MergeMeshPoint(InputMesh, PointIndexList, PointDistanceThreshold, Map_InputIndex_to_OutputIndex, MergePointInfo);
 }
 
 
 template<typename ScalarType>
-PolygonMesh<ScalarType> MergeMesh(const PolygonMesh<ScalarType>& InputMesh, const DenseVector<int_max>& PointIndexList, ScalarType DistanceThreshold,
- 								  DenseVector<int_max>& PointIndexMap_Input_to_Output)
+PolygonMesh<ScalarType> MergeMeshPoint(const PolygonMesh<ScalarType>& InputMesh, const DenseVector<int_max>& PointIndexList, ScalarType DistanceThreshold,
+ 								       DenseVector<int_max>& PointIndexMap_Input_to_Output, bool MergePointInfo)
 {
 	PolygonMesh<ScalarType> OutputMesh;
 	PointIndexMap_Input_to_Output.Resize(InputMesh.GetMaxValueOfPointIndex()+1);
 	PointIndexMap_Input_to_Output.Fill(-1);
-	for (int_max k = 0; k < InputMesh.GetMaxValueOfPointIndex(); ++k)
+	for (int_max k = 0; k <= InputMesh.GetMaxValueOfPointIndex(); ++k)
 	{
 		if (InputMesh.IsValidPointIndex(k) == true)
 		{
@@ -829,7 +829,9 @@ PolygonMesh<ScalarType> MergeMesh(const PolygonMesh<ScalarType>& InputMesh, cons
 
 	DenseVector<int_max> FlagList_merged;
 	FlagList.Resize(PointIndexList.GetLength());
-	FlagList_merged.Fill(0);//1: the point is merged with some other points
+	FlagList_merged.Fill(0);
+	//0: not merged
+	//1: the point has been merged with some other points
 	for (int_max k = 0; k < PointIndexList.GetLength(); ++k)
 	{
 		auto PointIndex_k = PointIndexList[k];
@@ -870,7 +872,22 @@ PolygonMesh<ScalarType> MergeMesh(const PolygonMesh<ScalarType>& InputMesh, cons
 		}
 	}
 
-	//Update PointSet Only
+	if (MergePointInfo == false)
+	{
+		return OutputMesh;
+	}
+
+	int_max NamedPointCount = InputMesh.GetNamedPointCount();
+	if (NamedPointCount > 0)
+	{
+		auto PointNameList = InputMesh.GetValidPointNameList();
+		for (int_max k = 0; k < PointNameList.GetLength(); ++k)
+		{
+			auto PointIndex = InputMesh.GetPointIndexByName(PointNameList[k]);
+			OutputMesh.Point(PointIndexMap_Input_to_Output[PointIndex]).SetName(PointNameList[k]);
+		}
+	}
+
 	for (int_max k = 0; k < InputMesh.GetPointSetCount(); ++k)
 	{	
 		DenseVector<int_max> PointSet_out;
@@ -887,15 +904,38 @@ PolygonMesh<ScalarType> MergeMesh(const PolygonMesh<ScalarType>& InputMesh, cons
 		OutputMesh.AddPointSet(k, PointSet_out)
 	}
 	
+	auto PointDataSetCount = InputMesh.GetPointDataSetCount();
+	if (PointDataSetCount > 0)
+	{
+		DenseVector<int_max> PointIndexMap_inverse;//out->in
+		PointIndexMap_inverse.Resize(OutputMesh.GetPointCount());
+		for (int_max k = 0; k < PointIndexMap_Input_to_Output.GetLength(); ++k)
+		{
+			if (PointIndexMap_Input_to_Output[k] >= 0)
+			{
+				PointIndexMap_inverse[PointIndexMap_Input_to_Output[k]] = PointIndexMap_Input_to_Output[k];
+			}
+		}
+
+		for (int_max PointDataSetIndex = 0; PointDataSetIndex < PointDataSetCount; ++PointDataSetIndex)
+		{
+			auto Name = InputMesh.GetPointDataSetName(PointDataSetIndex);
+			auto DataSet = InputMesh.GetPointDataSet(PointDataSetIndex);
+			//input data structure may not be clean
+			DataSet = DataSet.GetSubMatrix(ALL, PointIndexMap_inverse);
+			OutputMesh.AddPointDataSet(Name, DataSet);
+		}
+	}
+
 	return OutputMesh;
 }
 
 
 template<typename ScalarType>
-PolygonMesh<ScalarType> MergeMeshOnBoundary(const PolygonMesh<ScalarType>& InputMeshA, const PolygonMesh<ScalarType>& InputMeshB, ScalarType PointDistanceThreshold)
+PolygonMesh<ScalarType> MergeMeshPointOnBoundary(const PolygonMesh<ScalarType>& InputMeshA, const PolygonMesh<ScalarType>& InputMeshB, ScalarType PointDistanceThreshold)
 {// work for none-clean DataStructure, attribute info not retained
 	DenseVector<int_max> PointIndexListA;
-	for (int_max k = 0; k < InputMeshA.GetMaxValueOfPointIndex(); ++k)
+	for (int_max k = 0; k <= InputMeshA.GetMaxValueOfPointIndex(); ++k)
 	{
 		if (InputMeshA.IsValidPointIndex(k) == true)
 		{
@@ -906,7 +946,7 @@ PolygonMesh<ScalarType> MergeMeshOnBoundary(const PolygonMesh<ScalarType>& Input
 		}
 	}
 	DenseVector<int_max> PointIndexListB;
-	for (int_max k = 0; k < InputMeshB.GetMaxValueOfPointIndex(); ++k)
+	for (int_max k = 0; k <= InputMeshB.GetMaxValueOfPointIndex(); ++k)
 	{
 		if (InputMeshB.IsValidPointIndex(k) == true)
 		{
@@ -916,25 +956,24 @@ PolygonMesh<ScalarType> MergeMeshOnBoundary(const PolygonMesh<ScalarType>& Input
 			}
 		}
 	}
-	return MergeMesh(InputMeshA, PointIndexListA, InputMeshB, PointIndexListB, PointDistanceThreshold);
+	return MergeMeshPoint(InputMeshA, PointIndexListA, InputMeshB, PointIndexListB, PointDistanceThreshold);
 }
 
 template<typename ScalarType>
-PolygonMesh<ScalarType> MergeMesh(const PolygonMesh<ScalarType>& InputMeshA, const DenseVector<int_max>& PointIndexListA,
+PolygonMesh<ScalarType> MergeMeshPoint(const PolygonMesh<ScalarType>& InputMeshA, const DenseVector<int_max>& PointIndexListA,
 						          const PolygonMesh<ScalarType>& InputMeshB, const DenseVector<int_max>& PointIndexListB, ScalarType PointDistanceThreshold)
 {
 	DenseVector<int_max> PointIndexMap_InputA_to_Output, PointIndexMap_InputB_to_Output;
-	return MergeMesh(InputMeshA, PointIndexListA, InputMeshB, PointIndexListB, PointDistanceThreshold,
-					 PointIndexMap_InputA_to_Output, PointIndexMap_InputB_to_Output);
+	return MergeMeshPoint(InputMeshA, PointIndexListA, InputMeshB, PointIndexListB, PointDistanceThreshold,
+					      PointIndexMap_InputA_to_Output, PointIndexMap_InputB_to_Output);
 }
-
 
 //Merge InputMeshA and InputMeshB
 //The shared points are in PointIndexListA of InputMeshA and PointIndexListB of InputMeshB;
 template<typename ScalarType>
-PolygonMesh<ScalarType> MergeMesh(const PolygonMesh<ScalarType>& InputMeshA, const DenseVector<int_max>& PointIndexListA,
-								  const PolygonMesh<ScalarType>& InputMeshB, const DenseVector<int_max>& PointIndexListB, ScalarType PointDistanceThreshold,
-								  DenseVector<int_max>& PointIndexMap_InputA_to_Output, DenseVector<int_max>& PointIndexMap_InputB_to_Output)
+PolygonMesh<ScalarType> MergeMeshPoint(const PolygonMesh<ScalarType>& InputMeshA, const DenseVector<int_max>& PointIndexListA,
+								       const PolygonMesh<ScalarType>& InputMeshB, const DenseVector<int_max>& PointIndexListB, ScalarType PointDistanceThreshold,
+								       DenseVector<int_max>& PointIndexMap_InputA_to_Output, DenseVector<int_max>& PointIndexMap_InputB_to_Output)
 {
 	PolygonMesh<ScalarType> OutputMesh;
 
@@ -985,12 +1024,12 @@ PolygonMesh<ScalarType> MergeMesh(const PolygonMesh<ScalarType>& InputMeshA, con
 
 	for (int_max PointIndexA = 0; PointIndexA <= InputMeshA.GetMaxValueOfPointIndex(); ++PointIndexA)
 	{
-			if (InputMeshA.IsValidPointIndex(PointIndexA) == true)
-			{
-				auto PointIndex_out = OutputMesh.AddPoint(InputMeshA.GetPointPosition(PointIndexA));
-				PointIndexMap_InputA_to_Output[PointIndexA] = PointIndex_out;
-			}
+		if (InputMeshA.IsValidPointIndex(PointIndexA) == true)
+		{
+			auto PointIndex_out = OutputMesh.AddPoint(InputMeshA.GetPointPosition(PointIndexA));
+			PointIndexMap_InputA_to_Output[PointIndexA] = PointIndex_out;
 		}
+	}
 	for (int_max FaceIndexA = 0; FaceIndexA <= InputMeshA.GetMaxValueOfFaceIndex(); ++FaceIndexA)
 	{
 		if (InputMeshA.IsValidFaceIndex(FaceIndexA) == true)
@@ -1011,43 +1050,29 @@ PolygonMesh<ScalarType> MergeMesh(const PolygonMesh<ScalarType>& InputMeshA, con
 
 	auto CurveA = InputMeshA.GetPointPosition(PointIndexListA);
 
-	std::cout << "PointIndexListA " << PointIndexListA.GetLength() << '\n';
-	std::cout << "CurveA " << CurveA.GetColCount() << '\n';
+	for (int_max k = 0; k < PointIndexListB.GetLength(); ++k)
+	{
+		auto PointIndexB = PointIndexListB[k];
+		if (InputMeshB.IsValidPointIndex(PointIndexB) == true)
+		{
+			auto PosB = InputMeshB.GetPointPosition(PointIndexB);
+			auto IdxA = FindNearestPointOnCurve(CurveA, PosB);
+			auto PointIndexA = PointIndexListA[IdxA];
+			auto PosA = InputMeshA.GetPointPosition(PointIndexA);
+			auto dist = (PosA - PosB).L2Norm();
+			if (dist <= PointDistanceThreshold)
+			{
+				auto PointIndex_out = PointIndexMap_InputA_to_Output[PointIndexA];
+				PointIndexMap_InputB_to_Output[PointIndexB] = PointIndex_out;
+			}
+		}
+	}
 
 	for (int_max PointIndexB = 0; PointIndexB <= InputMeshB.GetMaxValueOfPointIndex(); ++PointIndexB)
 	{
 		if (InputMeshB.IsValidPointIndex(PointIndexB) == true)
 		{
-			bool Flag = false;
-			for (int_max n = 0; n < PointIndexListB.GetLength(); ++n)
-			{
-				if (PointIndexB == PointIndexListB[n])
-				{
-					Flag = true;
-					break;
-				}
-			}
-			if (Flag == true)
-			{
-				auto PosB = InputMeshB.GetPointPosition(PointIndexB);
-				auto Idx_near = FindNearestPointOnCurve(CurveA, PosB);
-				auto PointIndexA = PointIndexListA[Idx_near];
-				auto PosA = InputMeshA.GetPointPosition(PointIndexA);
-				auto dist = (PosA - PosB).L2Norm();
-				if (dist <= PointDistanceThreshold)
-				{
-					auto PointIndex_out = PointIndexMap_InputA_to_Output[PointIndexA];
-					PointIndexMap_InputB_to_Output[PointIndexB] = PointIndex_out;
-					auto Pos = 0.5 * (PosA + PosB);
-					OutputMesh.SetPointPosition(PointIndex_out, Pos);
-				}
-				else
-				{
-					auto PointIndex_out = OutputMesh.AddPoint(PosB);
-					PointIndexMap_InputB_to_Output[PointIndexB] = PointIndex_out;
-				}
-			}
-			else
+			if (PointIndexMap_InputB_to_Output[PointIndexB] < 0)
 			{
 				auto PosB = InputMeshB.GetPointPosition(PointIndexB);
 				auto PointIndex_out = OutputMesh.AddPoint(PosB);
@@ -1060,11 +1085,11 @@ PolygonMesh<ScalarType> MergeMesh(const PolygonMesh<ScalarType>& InputMeshA, con
 	{
 		if (InputMeshB.IsValidFaceIndex(FaceIndexB) == true)
 		{
-			auto PointIndexList = InputMeshB.Face(FaceIndexB).GetPointIndexList();
+			auto PointIdxList = InputMeshB.Face(FaceIndexB).GetPointIndexList();
 			DenseVector<int_max> PointIndexList_out;
-			for (int_max n = 0; n < PointIndexList.GetLength(); ++n)
+			for (int_max n = 0; n < PointIdxList.GetLength(); ++n)
 			{
-				auto PointIndex_out = PointIndexMap_InputB_to_Output[PointIndexList[n]];
+				auto PointIndex_out = PointIndexMap_InputB_to_Output[PointIdxList[n]];
 				if (PointIndex_out >= 0)
 				{
 					PointIndexList_out.Append(PointIndex_out);
