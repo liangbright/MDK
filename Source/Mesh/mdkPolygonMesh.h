@@ -70,6 +70,9 @@ public:
 	void Construct(const std::pair<DenseMatrix<ScalarType>, ObjectArray<DenseVector<int_max>>>& InputData);
 	void Construct(DenseMatrix<ScalarType> InputPointPositionMatrix, const ObjectArray<DenseVector<int_max>>& InputFaceTable);
 
+	void UpdateLengthOfEdge(const MDK_Symbol_ALL&);
+	void UpdateLengthOfEdge(int_max EdgeIndex);
+
 	//-------------- mesh editing -------------------------------------//
 
 	// swap PointA and PointB: move A to B and move B to A

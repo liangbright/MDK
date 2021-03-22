@@ -214,6 +214,36 @@ void PolygonMesh<ScalarType>::Construct(DenseMatrix<ScalarType> InputPointPositi
 }
 
 
+template<typename ScalarType>
+void PolygonMesh<ScalarType>::UpdateLengthOfEdge(const MDK_Symbol_ALL&)
+{
+	int_max EdgeIndex_max = this->GetMaxValueOfEdgeIndex();
+	for (int_max k = 0; k <= EdgeIndex_max; ++k)
+	{
+		if (this->IsValidEdgeIndex(k) == true)
+		{
+			this->UpdateLengthOfEdge(k);
+		}
+	}
+}
+
+
+template<typename ScalarType>
+void PolygonMesh<ScalarType>::UpdateLengthOfEdge(int_max EdgeIndex)
+{
+	if (this->IsValidEdgeIndex(EdgeIndex) == false)
+	{
+		MDK_Warning("EdgeIndex is invalid @ PolygonMesh::UpdateLengthOfEdge()")
+		return;
+	}
+
+	auto PointIndexList = this->Edge(EdgeIndex).GetPointIndexList();
+	auto Pos0 = this->GetPointPosition(PointIndexList[0]);
+	auto Pos1 = this->GetPointPosition(PointIndexList[1]);
+	auto Length = (Pos0 - Pos1).L2Norm();
+	this->Edge(EdgeIndex).Attribute().Length = Length;
+}
+
 
 //----------------- mesh editing ---------------------------------------------------------------------------------------
 

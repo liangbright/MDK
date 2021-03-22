@@ -343,8 +343,8 @@ void TriangleMesh<ScalarType>::UpdateAngleWeightedNormalAtPoint(int_max PointInd
 			Normal[0] += AngleWeight[k] * FaceNormalTable[k][0];
 			Normal[1] += AngleWeight[k] * FaceNormalTable[k][1];
 			Normal[2] += AngleWeight[k] * FaceNormalTable[k][2];
-		}		
-
+		}
+		Normal /= Normal.L2Norm();
 		this->Point(PointIndex).Attribute().AngleWeightedNormal = Normal;
 	}
 	else// edge point

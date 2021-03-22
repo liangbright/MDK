@@ -65,7 +65,7 @@ public:
     void UpdateAreaOfFace(int_max FaceIndex);
 
 	void UpdateCornerAngleOfFace(const MDK_Symbol_ALL&);
-    void UpdateCornerAngleOfFace(int_max FaceIndex);
+    void UpdateCornerAngleOfFace(int_max FaceIndex); //[0, pi]
 
 	// if Flag_Update_RelativeInfo is true, then  UpdateNormalAtFace() and UpdateCornerAngleOfFace() are called inside this function
 	// otherwise, FaceNormal must be available: call UpdateNormalAtFace() and UpdateCornerAngleOfFace()

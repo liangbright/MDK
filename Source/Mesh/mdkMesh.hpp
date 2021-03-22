@@ -4249,10 +4249,23 @@ void Mesh<ScalarType>::CleanDataStructure(DenseVector<int_max>& PointIndexMap_Ol
 template<typename ScalarType>
 bool Mesh<ScalarType>::Check_If_DataStructure_is_Clean() const
 {
-	auto Count1 = this->GetDeletedPointCount();
-	auto Count2 = this->GetDeletedEdgeCount();
-	auto Count3 = this->GetDeletedFaceCount();
-	return (Count1 + Count2 + Count3 == 0);
+	if (this->GetDeletedPointCount() > 0)
+	{
+		return false;
+	}
+	if (this->GetDeletedEdgeCount() > 0)
+	{
+		return false;
+	}
+	if (this->GetDeletedFaceCount() > 0)
+	{
+		return false;
+	}
+	if (this->GetDeletedCellCount() > 0)
+	{
+		return false;
+	}
+	return true;
 }
 
 

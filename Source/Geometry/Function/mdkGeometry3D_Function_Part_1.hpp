@@ -99,7 +99,7 @@ ScalarType ComputeAngleBetweenTwoVectorIn3D(const ScalarType* VectorA, const Sca
 	if (VectorA == nullptr || VectorB == nullptr)
 	{
 		MDK_Error("Input is nullptr @ mdkGeometry3D ComputeAngleBetweenTwoVectorIn3D(...)")
-			return GetNaNElement<ScalarType>();
+		return GetNaNElement<ScalarType>();
 	}
 
 	auto eps_value = std::numeric_limits<ScalarType>::epsilon();
@@ -109,7 +109,7 @@ ScalarType ComputeAngleBetweenTwoVectorIn3D(const ScalarType* VectorA, const Sca
 	if (L2Norm_A <= eps_value || L2Norm_B <= eps_value)
 	{
 		MDK_Warning("L2Norm < eps, return 0 @ mdkGeometry3D ComputeAngleBetweenTwoVectorIn3D(...)")
-			return 0;
+		return 0;
 	}
 
 	auto CosTheta = (VectorA[0] * VectorB[0] + VectorA[1] * VectorB[1] + VectorA[2] * VectorB[2]) / (L2Norm_A*L2Norm_B);

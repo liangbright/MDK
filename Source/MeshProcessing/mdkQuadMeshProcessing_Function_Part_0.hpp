@@ -201,20 +201,19 @@ TriangleMesh<ScalarType> ConvertMixedTriangleQuadMeshToTriangleMesh_1to2(const P
 				auto Point1 = OutputMesh.GetPointPosition(H1);
 				auto Point2 = OutputMesh.GetPointPosition(H2);
 				auto Point3 = OutputMesh.GetPointPosition(H3);
-
+				//do no create degenerated triangle
 				auto L02 = (Point2 - Point0).L2Norm();
 				auto L13 = (Point3 - Point1).L2Norm();
-				//if (L02 < L13)// this is good, but not consistant (e.g. shape from SSM)
+				if (L02 < L13)
 				{
 					OutputMesh.AddFaceByPoint(H0, H1, H2);
 					OutputMesh.AddFaceByPoint(H0, H2, H3);
 				}
-				//else
+				else
 				{
-				//	OutputMesh.AddFaceByPoint(H0, H1, H3);
-				//	OutputMesh.AddFaceByPoint(H1, H2, H3);
+					OutputMesh.AddFaceByPoint(H0, H1, H3);
+					OutputMesh.AddFaceByPoint(H1, H2, H3);
 				}
-
 			}
 			else if (PointIndexList_input.GetLength() == 3)
 			{

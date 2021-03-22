@@ -24,6 +24,8 @@ int_max ProjectPoint_AddProjectedPoint_ToSurface(TriangleMesh<ScalarType>& Surfa
 //return: a set of PointIndex on modified Surface
 template<typename ScalarType>
 DenseVector<int_max> ProjectPoint_AddProjectedPoint_ToSurface(TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PointSet, ScalarType DistanceThreshold);
+template<typename ScalarType>
+DenseVector<int_max> ProjectPoint_AddProjectedPoint_ToSurface_bad(TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PointSet, ScalarType DistanceThreshold);
 
 //add an input point to surface
 template<typename ScalarType>
@@ -33,15 +35,18 @@ template<typename ScalarType>
 DenseVector<int_max> AddPointToSurfaceByProjection(TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PointSet, ScalarType DistanceThreshold);
 
 template<typename ScalarType>
-DenseVector<int_max> AddPolyLineOnSurface(TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PolyLine);
+DenseVector<int_max> AddPolyLineOnSurface_old(TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PolyLine, ScalarType DistanceThreshold);
 
 //SurfaceA FaceNormal must have been computed
-//Distance[k] is the distance between point-k of SurfaceB and SurfaceA
+//ProjDistanceSet[k] is the proj-distance between point-k of SurfaceB and SurfaceA
 //NearestFaceSet[k] is the Face (index) of SurfaceA nearest to point-k of SurfaceB
 //NearestPointSet[k] is the Point (position) of SurfaceA nearestto point-k of SurfaceB
+//Method could be VTKCellLocator or VTKStaticCellLocator
+//The best way is raytracing - not implemented
 template<typename ScalarType>
 void DetectSurfaceContact(const TriangleMesh<ScalarType>& SurfaceA, const TriangleMesh<ScalarType>& SurfaceB,
-					  	  DenseVector<ScalarType>& SignedDistanceSet, DenseVector<int_max>& NearestFaceSet, DenseMatrix<ScalarType>& NearestPointSet);
+					  	  DenseVector<ScalarType>& ProjDistanceSet, DenseVector<int_max>& NearestFaceSet, DenseMatrix<ScalarType>& NearestPointSet,
+					      const String& Method);
 }//namespace mdk
 
 #include "mdkTriangleMeshProcessing_Function_Part_1.hpp"

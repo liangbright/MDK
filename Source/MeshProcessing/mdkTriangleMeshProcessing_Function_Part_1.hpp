@@ -246,65 +246,174 @@ DenseVector<int_max> ResampleOpenCurveOfSurface(TriangleMesh<ScalarType>& Surfac
 
 template<typename ScalarType>
 int_max ProjectPoint_AddProjectedPoint_ToSurface(TriangleMesh<ScalarType>& Surface, const DenseVector<ScalarType, 3>& Point, ScalarType DistanceThreshold)
-{	
-	DenseMatrix<ScalarType> PointSet;
-	PointSet.AppendCol(Point);
-	auto PointIndexList_proj = ProjectPoint_AddProjectedPoint_ToSurface(Surface, PointSet, DistanceThreshold);
-	return PointIndexList_proj[0];	
+{
+	int_max FaceIndex_nearest = -1;
+	int_max PointIndex_nearest = -1;
+	DenseVector<ScalarType, 3> Point_proj;
+	{
+		DenseVector<int_max> PointIndexList_output;
+		DenseVector<int_max> FaceIndexList_nearest;
+		DenseVector<int_max> PointIndexList_nearest;
+		DenseMatrix<ScalarType> PointSet_proj;
+		DenseMatrix<ScalarType> PointSet;
+		PointSet.Resize(3, 1);
+		PointSet.SetCol(0, Point);
+		//VTKStaticCellLocator may have some bug...
+		ProjectPointToFaceByVTKCellLocator(Surface, PointSet, PointSet_proj, FaceIndexList_nearest);
+		PointSet_proj.GetCol(0, Point_proj);
+		FaceIndex_nearest = FaceIndexList_nearest[0];
+		PointIndexList_nearest = FindNearestPointOnMeshByVTKKdTreePointLocator(Surface, PointSet);
+		PointIndex_nearest = PointIndexList_nearest[0];
+	}
+	bool Flag_AddNewPoint = false;
+	{
+		auto Point_nearest = Surface.GetPointPosition(PointIndex_nearest);
+		auto Distance = (Point_proj - Point_nearest).L2Norm();
+		if (Distance > DistanceThreshold)
+		{
+			Flag_AddNewPoint = true;
+		}
+	}
+	if (Flag_AddNewPoint == false)
+	{
+		return PointIndex_nearest;
+	}
+	//Now, add Point_proj to Surface, and name it H3
+	auto PointIndexList = Surface.Face(FaceIndex_nearest).GetPointIndexList();
+	auto H0 = PointIndexList[0];
+	auto H1 = PointIndexList[1];
+	auto H2 = PointIndexList[2];
+	auto H3 = Surface.AddPoint(Point_proj);//output
+	//-----------------
+	//     2 
+	//     3      
+	// 0       1
+	//-----------------	
+	//check if Point_proj is on some edge
+	auto EdgeIndexList = Surface.Face(FaceIndex_nearest).GetEdgeIndexList();
+	DenseVector<ScalarType> CosAngleList;
+	CosAngleList.Resize(EdgeIndexList.GetLength());
+	for (int_max k = 0; k < EdgeIndexList.GetLength(); ++k)
+	{
+		auto PointIndex_A_B = Surface.Edge(EdgeIndexList[k]).GetPointIndexList();
+		auto PosA = Surface.GetPointPosition(PointIndex_A_B[0]);
+		auto PosB = Surface.GetPointPosition(PointIndex_A_B[1]);
+		auto VectorA = PosA - Point_proj;
+		VectorA /= VectorA.L2Norm();
+		auto VectorB = PosB - Point_proj;
+		VectorB /= VectorB.L2Norm();
+		CosAngleList[k] = VectorA[0] * VectorB[0] + VectorA[1] * VectorB[1] + VectorA[2] * VectorB[2];
+	}
+	auto Idx_min = CosAngleList.IndexOfMin();
+	if (CosAngleList[Idx_min] < -0.95) // cos(162)=-0.95
+	{//on edge
+		Surface.SplitFaceAtEdge(EdgeIndexList[Idx_min], H3);
+	}
+	else
+	{//now, the input point is not on any edge
+		Surface.DeleteFace(FaceIndex_nearest);
+		Surface.AddFaceByPoint({ H3, H2, H0 });
+		Surface.AddFaceByPoint({ H3, H0, H1 });
+		Surface.AddFaceByPoint({ H3, H1, H2 });
+	}
+	return H3;
 }
 
 
 template<typename ScalarType>
 DenseVector<int_max> ProjectPoint_AddProjectedPoint_ToSurface(TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PointSet, ScalarType DistanceThreshold)
-{
-	DenseVector<int_max> PointIndexList_proj;//output
-	DenseVector<int_max> FaceIndexList_proj;
-	DenseMatrix<ScalarType> PointSet_proj;
-	ProjectPointToFaceByVTKCellLocator(Surface, PointSet, PointSet_proj, FaceIndexList_proj);
-	for (int_max Index = 0; Index < FaceIndexList_proj.GetLength(); ++Index)
+{// Surface.CleanDataStructure(): FaceIndex, EdgeIndex may become invalid
+	for (int_max k = 0; k < PointSet.GetColCount(); ++k)
 	{
-		auto FaceIndex_proj = FaceIndexList_proj[Index];
-		auto PointIndexList = Surface.Face(FaceIndex_proj).GetPointIndexList();
-		DenseVector<ScalarType, 3> Point_proj, Point_nearest;
-		int_max PointIndex_nearest = -1;
+		DenseVector<ScalarType, 3> Point;
+		PointSet.GetCol(k, Point);
+		Surface.CleanDataStructure();
+		ProjectPoint_AddProjectedPoint_ToSurface(Surface, Point, DistanceThreshold);
+	}
+	Surface.CleanDataStructure();
+	auto PointIndexList = FindNearestPointOnMeshByVTKKdTreePointLocator(Surface, PointSet);
+	return PointIndexList;
+}
+
+
+template<typename ScalarType>
+DenseVector<int_max> ProjectPoint_AddProjectedPoint_ToSurface_bad(TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PointSet, ScalarType DistanceThreshold)
+{// this is mission impossible
+// assume two points P1 and P2 in PointSet, and the nearest Faces are Face2 and Face2 in FaceIndexList_nearest
+// add point P1 to surface, then Face2 may be deleted/splited
+// Solutoin: the input PointSet only has one point
+
+	if (Surface.Check_If_DataStructure_is_Clean() == false)
+	{
+		MDK_Error("Surface DataStructureis NOT Clean @ ProjectPoint_AddProjectedPoint_ToSurface")
+		DenseVector<int_max> empty;
+		return empty;
+	}
+
+	if (Surface.CheckIfTriangleMesh() == false)
+	{
+		MDK_Error("Surface is NOT TriangleMesh @ ProjectPoint_AddProjectedPoint_ToSurface")
+		DenseVector<int_max> empty;
+		return empty;
+	}
+
+	DenseVector<int_max> PointIndexList_output;
+	DenseVector<int_max> FaceIndexList_nearest;
+	DenseVector<int_max> PointIndexList_nearest;
+	DenseMatrix<ScalarType> PointSet_proj;
+	//VTKStaticCellLocator may have some bug...
+	ProjectPointToFaceByVTKCellLocator(Surface, PointSet, PointSet_proj, FaceIndexList_nearest);
+	for (int_max Index = 0; Index < PointSet.GetColCount(); ++Index)
+	{
+		auto FaceIndex_nearest = FaceIndexList_nearest[Index];
+		if (Surface.IsValidFaceIndex(FaceIndex_nearest) == false)
 		{
-			PointSet_proj.GetCol(Index, Point_proj);			
-			DenseVector<ScalarType, 3> DistToPoint;
-			for (int_max n = 0; n < 3; ++n)
-			{
-				auto Pn = Surface.GetPointPosition(PointIndexList[n]);
-				DistToPoint[n] = (Pn - Point_proj).L2Norm();
-			}
-			auto Idx_min = DistToPoint.IndexOfMin();
-			PointIndex_nearest = PointIndexList[Idx_min];
-			Point_nearest = Surface.GetPointPosition(PointIndex_nearest);
-		}		
+			MDK_Error("aaa: FaceIndex_nearest" << FaceIndex_nearest)
+		}
+	}
+	PointIndexList_nearest=FindNearestPointOnMeshByVTKKdTreePointLocator(Surface, PointSet);
+	for (int_max Index = 0; Index < PointSet.GetColCount(); ++Index)
+	{		
+		auto PointIndex_nearest = PointIndexList_nearest[Index];
+		DenseVector<ScalarType, 3> Point_proj;
+		PointSet_proj.GetCol(Index, Point_proj);
 		bool Flag_AddNewPoint = false;
 		{
+			auto Point_nearest = Surface.GetPointPosition(PointIndex_nearest);
 			auto Distance = (Point_proj - Point_nearest).L2Norm();
 			if (Distance > DistanceThreshold)
 			{
 				Flag_AddNewPoint = true;
 			}
-		}		
+		}
 		if (Flag_AddNewPoint == false)
 		{
-			PointIndexList_proj.Append(PointIndex_nearest);
+			PointIndexList_output.Append(PointIndex_nearest);
 		}
 		else
 		{
+			auto FaceIndex_nearest = FaceIndexList_nearest[Index];
+			if (Surface.IsValidFaceIndex(FaceIndex_nearest) == false)
+			{
+				MDK_Error("aaa")
+			}
+			auto PointIndexList = Surface.Face(FaceIndex_nearest).GetPointIndexList();
+			if (PointIndexList.GetLength() != 3)
+			{
+				MDK_Error("aaa")
+			}
 			auto H0 = PointIndexList[0];
 			auto H1 = PointIndexList[1];
 			auto H2 = PointIndexList[2];
 			auto H3 = Surface.AddPoint(Point_proj);
-			PointIndexList_proj.Append(H3);
+			PointIndexList_output.Append(H3);
 			//-----------------
 			//     2 
 			//     3      
 			// 0       1
 			//-----------------	
 			//check if Point_proj is on some edge
-			auto EdgeIndexList = Surface.Face(FaceIndex_proj).GetEdgeIndexList();
+			auto EdgeIndexList = Surface.Face(FaceIndex_nearest).GetEdgeIndexList();
 			DenseVector<ScalarType> CosAngleList;
 			CosAngleList.Resize(EdgeIndexList.GetLength());
 			for (int_max k = 0; k < EdgeIndexList.GetLength(); ++k)
@@ -325,14 +434,14 @@ DenseVector<int_max> ProjectPoint_AddProjectedPoint_ToSurface(TriangleMesh<Scala
 			}
 			else
 			{//now, the input point is not on any edge
-				Surface.DeleteFace(FaceIndex_proj);
+				Surface.DeleteFace(FaceIndex_nearest);
 				Surface.AddFaceByPoint({ H3, H2, H0 });
 				Surface.AddFaceByPoint({ H3, H0, H1 });
 				Surface.AddFaceByPoint({ H3, H1, H2 });
 			}
 		}
 	}
-	return PointIndexList_proj;
+	return PointIndexList_output;
 }
 
 
@@ -355,7 +464,7 @@ DenseVector<int_max> AddPointToSurfaceByProjection(TriangleMesh<ScalarType>& Sur
 
 
 template<typename ScalarType>
-DenseVector<int_max> AddPolyLineOnSurface(TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PolyLine)
+DenseVector<int_max> AddPolyLineOnSurface(TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PolyLine, ScalarType DistanceThreshold)
 {
 //input:
 //PolyLine is a 'continuous' curve (3xN matrix) on Surface, it can be from GeodesicPathFinder
@@ -384,7 +493,7 @@ DenseVector<int_max> AddPolyLineOnSurface(TriangleMesh<ScalarType>& Surface, con
 			auto Pos_k = Surface.GetPointPosition(AdjPointIndexList[k]);
 			auto Disp_k = CurrentPoint - Pos_k;
 			auto Dist_k = Disp_k.L2Norm();
-			if (Dist_k <= 3 * std::numeric_limits<ScalarType>::epsilon())
+			if (Dist_k <= DistanceThreshold)
 			{
 				Flag_NextPointInAdjPointList = true;
 				PointIndexOfPolyLine.Append(AdjPointIndexList[k]);
@@ -426,7 +535,8 @@ DenseVector<int_max> AddPolyLineOnSurface(TriangleMesh<ScalarType>& Surface, con
 
 template<typename ScalarType>
 void DetectSurfaceContact(const TriangleMesh<ScalarType>& SurfaceA, const TriangleMesh<ScalarType>& SurfaceB,
-						  DenseVector<ScalarType>& SignedDistanceSet, DenseVector<int_max>& NearestFaceSet, DenseMatrix<ScalarType>& NearestPointSet)
+						  DenseVector<ScalarType>& ProjDistanceSet, DenseVector<int_max>& NearestFaceSet, DenseMatrix<ScalarType>& NearestPointSet,
+						  const String& Method)
 {//SurfaceA FaceNormal must have been computed
 	if (SurfaceA.Check_If_DataStructure_is_Clean() == false)
 	{
@@ -434,14 +544,46 @@ void DetectSurfaceContact(const TriangleMesh<ScalarType>& SurfaceA, const Triang
 		return;
 	}
 	auto MAXPointCountB = SurfaceB.GetMaxValueOfPointIndex();
-	SignedDistanceSet.Resize(MAXPointCountB);
-	SignedDistanceSet.Fill(0);
+	ProjDistanceSet.Resize(MAXPointCountB);
+	ProjDistanceSet.Fill(0);
 	NearestFaceSet.Resize(MAXPointCountB);
 	NearestFaceSet.Fill(-1);
 	NearestPointSet.Resize(3, MAXPointCountB);
 	NearestPointSet.Fill(0);
 	auto PointSetB = SurfaceB.GetPointPosition(ALL);
-	ProjectPointToFaceByVTKCellLocator(SurfaceA, PointSetB, NearestPointSet, NearestFaceSet);
+	if (Method == "VTKCellLocator")
+	{//possible bug...
+		ProjectPointToFaceByVTKCellLocator(SurfaceA, PointSetB, NearestPointSet, NearestFaceSet);
+	}
+	else if (Method == "VTKStaticCellLocator")
+	{//not work in VTK 8.2
+		ProjectPointToFaceByVTKStaticCellLocator(SurfaceA, PointSetB, NearestPointSet, NearestFaceSet);
+	}
+	else if (Method == "VTKPointLocator")
+	{
+		auto IndexListA = FindNearestPointOnMeshByVTKPointLocator(SurfaceA, PointSetB);
+		NearestPointSet = SurfaceA.GetPointPosition(IndexListA);
+		for (int_max k = 0; k < IndexListA.GetLength(); ++k)
+		{
+			auto AdjFaceIndexList = SurfaceA.Point(IndexListA[k]).GetAdjacentFaceIndexList();
+			NearestFaceSet[k] = AdjFaceIndexList[0];
+		}
+	}
+	else if (Method == "VTKKdTreePointLocator")
+	{
+		auto IndexListA = FindNearestPointOnMeshByVTKKdTreePointLocator(SurfaceA, PointSetB);
+		NearestPointSet = SurfaceA.GetPointPosition(IndexListA);
+		for (int_max k = 0; k < IndexListA.GetLength(); ++k)
+		{
+			auto AdjFaceIndexList = SurfaceA.Point(IndexListA[k]).GetAdjacentFaceIndexList();
+			NearestFaceSet[k]=AdjFaceIndexList[0];		
+		}
+	}
+	else
+	{
+		MDK_Error("unknown Method: " << Method)
+		return;
+	}
 	for (int_max PointIndexB = 0; PointIndexB < MAXPointCountB; ++PointIndexB)
 	{
 		auto PosB = SurfaceB.GetPointPosition(PointIndexB);
@@ -450,9 +592,9 @@ void DetectSurfaceContact(const TriangleMesh<ScalarType>& SurfaceA, const Triang
 		DenseVector<ScalarType, 3> PosA;
 		NearestPointSet.GetCol(PointIndexB, PosA);
 		auto disp = PosB - PosA;
-		SignedDistanceSet[PointIndexB] = FaceNormalA[0] * disp[0] + FaceNormalA[1] * disp[1] + FaceNormalA[2] * disp[2];
+		auto proj = FaceNormalA[0] * disp[0] + FaceNormalA[1] * disp[1] + FaceNormalA[2] * disp[2];
+		ProjDistanceSet[PointIndexB] = proj;
 	}
 }
 
 }//namespace mdk
-

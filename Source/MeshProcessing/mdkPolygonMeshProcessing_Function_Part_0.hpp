@@ -308,6 +308,8 @@ template<typename ScalarType>
 DenseVector<int_max> FindNearestPointOnMeshByVTKKdTreePointLocator(vtkPolyData* InputMesh_vtk, const DenseMatrix<ScalarType>& PointSet)
 {
 	DenseVector<int_max> PointIndexList_output;
+	PointIndexList_output.Resize(PointSet.GetColCount());
+	PointIndexList_output.Fill(-1);
 	if (InputMesh_vtk == nullptr)
 	{
 		MDK_Error("InputMesh is nullptr @ mdkPolygonMeshProcessing FindNearestPointOnMeshByVTKKdTreePointLocator(...)")
@@ -322,8 +324,7 @@ DenseVector<int_max> FindNearestPointOnMeshByVTKKdTreePointLocator(vtkPolyData* 
 		Pos[0] = double(PointSet(0, k));
 		Pos[1] = double(PointSet(1, k));
 		Pos[2] = double(PointSet(2, k));
-		auto Index = int_max(PointLocator->FindClosestPoint(Pos));
-		PointIndexList_output.Append(Index);
+		PointIndexList_output[k] =  int_max(PointLocator->FindClosestPoint(Pos));
 	}
 	return PointIndexList_output;
 }
@@ -335,7 +336,7 @@ DenseVector<int_max> FindNearestPointOnMeshByVTKKdTreePointLocator(const Polygon
 	if (InputMesh.Check_If_DataStructure_is_Clean() == false)
 	{
 		MDK_Error("InputMesh DataStructure is NOT clean @ mdkPolygonMeshProcessing FindNearestPointOnMeshByVTKKdTreePointLocator(...)")
-			return PointIndexList_output;
+ 	    return PointIndexList_output;
 	}
 	if (PointSet.GetRowCount() != 3)
 	{
@@ -389,6 +390,8 @@ template<typename ScalarType>
 DenseVector<int_max> FindNearestPointOnMeshByVTKPointLocator(vtkPolyData* InputMesh_vtk, const DenseMatrix<ScalarType>& PointSet)
 {
 	DenseVector<int_max> PointIndexList_output;
+	PointIndexList_output.Resize(PointSet.GetColCount());
+	PointIndexList_output.Fill(-1);
 	if (InputMesh_vtk == nullptr)
 	{
 		MDK_Error("InputMesh is nullptr @ mdkPolygonMeshProcessing FindNearestPointOnMeshByVTKPointLocator(...)")
@@ -409,8 +412,7 @@ DenseVector<int_max> FindNearestPointOnMeshByVTKPointLocator(vtkPolyData* InputM
 		Pos[0] = double(PointSet(0, k));
 		Pos[1] = double(PointSet(1, k));
 		Pos[2] = double(PointSet(2, k));
-		auto Index = int_max(PointLocator->FindClosestPoint(Pos));
-		PointIndexList_output.Append(Index);
+		PointIndexList_output[k] = int_max(PointLocator->FindClosestPoint(Pos));
 	}
 	return PointIndexList_output;
 }
@@ -440,7 +442,7 @@ void ProjectPointToFaceByVTKCellLocator(vtkPolyData* InputMesh_vtk, const DenseM
 {
 	if (InputMesh_vtk == nullptr)
 	{
-		MDK_Error("InputMesh_vtk is nullptr, abort @ PolygonMeshProcessing FindNearestCellOnMeshByVTKCellLocator(...)")
+		MDK_Error("InputMesh_vtk is nullptr, abort @ ProjectPointToFaceByVTKCellLocator(...)")
 		return;
 	}
 
@@ -455,7 +457,7 @@ void ProjectPointToFaceByVTKCellLocator(vtkPolyData* InputMesh_vtk, const DenseM
 
 	for (int_max k = 0; k < PointSet.GetColCount(); ++k)
 	{
-		DenseVector<ScalarType, 3> Point;
+		DenseVector<ScalarType, 3> Point, Point_closest;
 		PointSet.GetCol(k, Point);
 		double testPoint[3] = { double(Point[0]), double(Point[1]), double(Point[2]) };
 		double closestPoint[3];//the coordinates of the closest point will be returned here
@@ -463,7 +465,10 @@ void ProjectPointToFaceByVTKCellLocator(vtkPolyData* InputMesh_vtk, const DenseM
 		vtkIdType cellId; //the cell id of the cell containing the closest point will be returned here
 		int subId; //this is rarely used (in triangle strips only, I believe)
 		CellLocator->FindClosestPoint(testPoint, closestPoint, cellId, subId, closestPointDist2);
-		PointSet_proj.SetCol(k, closestPoint);
+		Point_closest[0] = ScalarType(closestPoint[0]);
+		Point_closest[1] = ScalarType(closestPoint[1]);
+		Point_closest[2] = ScalarType(closestPoint[2]);
+		PointSet_proj.SetCol(k, Point_closest);
 		FaceIndexList_proj[k] = int_max(cellId);
 	}
 }
@@ -475,13 +480,64 @@ void ProjectPointToFaceByVTKCellLocator(const PolygonMesh<ScalarType>& InputMesh
 {
 	if (InputMesh.Check_If_DataStructure_is_Clean() == false)
 	{
-		MDK_Error("DataStructure of input mesh is not clean, abort @ ProjectPointToSurface(...)")
+		MDK_Error("DataStructure of input mesh is not clean, abort @ ProjectPointToFaceByVTKCellLocator(...)")
 		return;
 	}
 	auto VTKMesh = ConvertMDKPolygonMeshToVTKPolyData(InputMesh);
 	ProjectPointToFaceByVTKCellLocator(VTKMesh, PointSet, PointSet_proj, FaceIndexList_proj);
 }
 
+
+template<typename ScalarType>
+void ProjectPointToFaceByVTKStaticCellLocator(vtkPolyData* InputMesh_vtk, const DenseMatrix<ScalarType>& PointSet,
+											  DenseMatrix<ScalarType>& PointSet_proj, DenseVector<int_max>& FaceIndexList_proj)
+{
+	if (InputMesh_vtk == nullptr)
+	{
+		MDK_Error("InputMesh_vtk is nullptr, abort @ ProjectPointToFaceByVTKStaticCellLocator(...)")
+		return;
+	}
+
+	PointSet_proj.Resize(PointSet.GetSize());
+	PointSet_proj.Fill(0);
+	FaceIndexList_proj.Resize(PointSet.GetColCount());
+	FaceIndexList_proj.Fill(-1);
+
+	auto CellLocator = vtkSmartPointer<vtkStaticCellLocator>::New();
+	CellLocator->SetDataSet(InputMesh_vtk);
+	CellLocator->BuildLocator();
+
+	for (int_max k = 0; k < PointSet.GetColCount(); ++k)
+	{
+		DenseVector<ScalarType, 3> Point, Point_closest;
+		PointSet.GetCol(k, Point);
+		double testPoint[3] = { double(Point[0]), double(Point[1]), double(Point[2]) };
+		double closestPoint[3];//the coordinates of the closest point will be returned here
+		double closestPointDist2; //the squared distance to the closest point will be returned here
+		vtkIdType cellId; //the cell id of the cell containing the closest point will be returned here
+		int subId; //this is rarely used (in triangle strips only, I believe)
+		CellLocator->FindClosestPoint(testPoint, closestPoint, cellId, subId, closestPointDist2);
+		Point_closest[0] = ScalarType(closestPoint[0]);
+		Point_closest[1] = ScalarType(closestPoint[1]);
+		Point_closest[2] = ScalarType(closestPoint[2]);
+		PointSet_proj.SetCol(k, Point_closest);
+		FaceIndexList_proj[k] = int_max(cellId);
+	}
+}
+
+
+template<typename ScalarType>
+void ProjectPointToFaceByVTKStaticCellLocator(const PolygonMesh<ScalarType>& InputMesh, const DenseMatrix<ScalarType>& PointSet,
+											  DenseMatrix<ScalarType>& PointSet_proj, DenseVector<int_max>& FaceIndexList_proj)
+{
+	if (InputMesh.Check_If_DataStructure_is_Clean() == false)
+	{
+		MDK_Error("DataStructure of input mesh is not clean, abort @ ProjectPointToFaceByVTKStaticCellLocator(...)")
+		return;
+	}
+	auto VTKMesh = ConvertMDKPolygonMeshToVTKPolyData(InputMesh);
+	ProjectPointToFaceByVTKStaticCellLocator(VTKMesh, PointSet, PointSet_proj, FaceIndexList_proj);
+}
 
 template<typename ScalarType>
 void SmoothMeshByVTKSmoothPolyDataFilter(PolygonMesh<ScalarType>& InputMesh, int_max Iter, bool Flag_FeatureEdgeSmoothing, bool Flag_BoundarySmoothing)
@@ -640,13 +696,12 @@ DenseVector<int_max> SegmentMeshByEdgeCurve(const PolygonMesh<ScalarType>& Input
 template<typename ScalarType>
 DenseVector<DenseVector<int_max>> SegmentMeshByEdgeCurve(const PolygonMesh<ScalarType>& InputMesh, const DenseVector<int_max>& ClosedEdgeCurve_EdgeIndexList)
 {
-	DenseVector<DenseVector<int_max>> FastIndexList_output;
-
+	DenseVector<DenseVector<int_max>> FaceIndexList_output;
 	if (InputMesh.IsEmpty() == true || ClosedEdgeCurve_EdgeIndexList.IsEmpty() == true)
 	{
-		return FastIndexList_output;
+		return FaceIndexList_output;
 	}
-	
+
 	if (InputMesh.Check_If_DataStructure_is_Clean() == false)
 	{// InputMesh DataStructure does not need to be clean
 		//MDK_Warning("InputMesh DataStructure is NOT clean @ mdkPolygonMeshProcessing SegmentMeshByEdgeCurve(...)")
@@ -674,11 +729,11 @@ DenseVector<DenseVector<int_max>> SegmentMeshByEdgeCurve(const PolygonMesh<Scala
 	
 	while (true)
 	{		
-		auto FastIndexList_temp = SegmentMeshByEdgeCurve(InputMesh, ClosedEdgeCurve_EdgeIndexList, FaceIndex_seed);
-		FastIndexList_output.Append(FastIndexList_temp);
-		for (int_max k = 0; k < FastIndexList_temp.GetLength(); ++k)
+		auto FaceIndexList_temp = SegmentMeshByEdgeCurve(InputMesh, ClosedEdgeCurve_EdgeIndexList, FaceIndex_seed);
+		FaceIndexList_output.Append(FaceIndexList_temp);
+		for (int_max k = 0; k < FaceIndexList_temp.GetLength(); ++k)
 		{
-			FaceFlagList[FastIndexList_temp[k]] = 1;
+			FaceFlagList[FaceIndexList_temp[k]] = 1;
 		}
 		FaceIndex_seed = -1;
 		for (int_max k = 0; k < FaceFlagList.GetLength(); ++k)
@@ -694,7 +749,7 @@ DenseVector<DenseVector<int_max>> SegmentMeshByEdgeCurve(const PolygonMesh<Scala
 			break;//while
 		}
 	}
-	return FastIndexList_output;
+	return FaceIndexList_output;
 }
 
 

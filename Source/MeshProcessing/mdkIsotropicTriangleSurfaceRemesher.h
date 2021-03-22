@@ -22,12 +22,12 @@ struct Input_of_IsotropicTriangleSurfaceRemesher
 	DenseVector<int_max> FeatureEdgeIndexList;
 	ScalarType TargetEdgeLength;
 	int_max MaxIter;
-
-	//true then run OutputMesh.CleanDataStructure();
-	bool Flag_CleanDataStructureOfOutputMesh;
 	
-	//false, then bounary (point, edge) will not be modified
+	//false, then boundary (point, edge) will not be modified
 	bool Flag_ProcessBounary;
+
+	//true, then project TargetMesh onto SourceMesh
+	bool Flag_ProjectToSourceMesh;
 };
 
 template<typename ScalarType>
@@ -71,19 +71,27 @@ public:
 public:
 	IsotropicTriangleSurfaceRemesher();
 	~IsotropicTriangleSurfaceRemesher();
-	void Clear();	
+	void Reset();
 	void Update();
+	void CleanMesh();//use this Class to clean mesh
 private:
 	bool CheckInput();
 	void Initialize();
+	bool IsFeatureEdge(int_max EdgeIndex);
+	bool IsFeaturePoint(int_max PointIndex);
 	void ProcessBoundary();
 	void SplitLongBoundaryEdge();
+	bool TryToCollapseSingleEdge(int_max EdgeIndex, bool Flag_ProcessBoundary);
 	void CollapseShortBoundaryEdge();
+	void RemoveIsolatedFace();
+	void RemoveDistortedFace();
 	void Remesh();
 	void EqualizeValence();
 	void SplitLongEdge();	
 	void CollapseShortEdge();	
-	void TangentialRelaxation_ProjectToSurface();
+	void FlipEdge();
+	void TangentialRelaxation_BoundaryEdge();
+	void TangentialRelaxation_InternalEdge();
 	DenseVector<ScalarType, 3> Project_A_Point_to_SourceMesh(const DenseVector<ScalarType, 3>& Point);
 	void Refine();
 
