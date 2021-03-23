@@ -95,7 +95,6 @@ public:
 	int_max AddNode(const ScalarType Position[3]);
 	int_max AddNode(ScalarType x, ScalarType y, ScalarType z);
 	DenseVector<int_max> AddNode_batch(const DenseMatrix<ScalarType>& PointSet);
-	DenseVector<int_max> AddNode_batch(DenseMatrix<ScalarType>&& PointSet);
 	void SetNode(int_max NodeIndex, const DenseVector<ScalarType, 3>& Position);
 	void SetNode(int_max NodeIndex, const ScalarType Position[3]);
 	void SetNode(int_max NodeIndex, ScalarType x, ScalarType y, ScalarType z);

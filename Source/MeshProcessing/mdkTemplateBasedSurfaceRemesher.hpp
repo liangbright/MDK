@@ -18,9 +18,9 @@ void TemplateBasedSurfaceRemesher<ScalarType>::Clear()
 {
 	// dot NOT use Clear for input
 	Input.SourceMesh = nullptr;
-	Input.BoundarySegmentListOfSourceMesh.Recreate();
+	Input.BoundarySegmentListOfSourceMesh.Clear();
 	Input.TemplateMesh = nullptr;
-	Input.BoundarySegmentListOfTemplateMesh.Recreate();
+	Input.BoundarySegmentListOfTemplateMesh.Clear();
 	Input.DiffusionCoefficientOfMeshParameterization = 0.5;
 	Input.MaxIterationOfMeshParameterization = 10;
 

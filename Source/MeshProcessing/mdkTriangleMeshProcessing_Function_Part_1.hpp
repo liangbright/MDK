@@ -323,6 +323,19 @@ int_max ProjectPoint_AddProjectedPoint_ToSurface(TriangleMesh<ScalarType>& Surfa
 template<typename ScalarType>
 DenseVector<int_max> ProjectPoint_AddProjectedPoint_ToSurface(TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PointSet, ScalarType DistanceThreshold)
 {// Surface.CleanDataStructure(): FaceIndex, EdgeIndex may become invalid
+	if (Surface.Check_If_DataStructure_is_Clean() == false)
+	{
+		MDK_Error("Surface DataStructureis NOT Clean @ ProjectPoint_AddProjectedPoint_ToSurface")
+		DenseVector<int_max> empty;
+		return empty;
+	}
+
+	if (Surface.CheckIfTriangleMesh() == false)
+	{
+		MDK_Error("Surface is NOT TriangleMesh @ ProjectPoint_AddProjectedPoint_ToSurface")
+		DenseVector<int_max> empty;
+		return empty;
+	}
 	for (int_max k = 0; k < PointSet.GetColCount(); ++k)
 	{
 		DenseVector<ScalarType, 3> Point;

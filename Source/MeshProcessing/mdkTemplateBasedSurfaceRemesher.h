@@ -12,7 +12,7 @@ struct Input_of_TemplateBasedSurfaceRemesher
 	// input mesh must be triangle mesh
 	const TriangleMesh<ScalarType>* SourceMesh;
 
-	ObjectArray<DenseVector<int_max>> BoundarySegmentListOfSourceMesh;
+	DenseVector<DenseVector<int_max>> BoundarySegmentListOfSourceMesh;
 	//BoundaryListOfInputMesh[k] is BoundarySegment: a set of boundary point index
 	//BoundarySegment = {PointIndex_start, ..., PointIndex_end}
 	//BoundarySegment[k] overlap with BoundarySegment[k-1] and BoundarySegment[k+1] at start/end point
@@ -21,7 +21,7 @@ struct Input_of_TemplateBasedSurfaceRemesher
 	//template mesh point position is [u, v, 0]
 	const PolygonMesh<ScalarType>* TemplateMesh;
 
-	ObjectArray<DenseVector<int_max>> BoundarySegmentListOfTemplateMesh;
+	DenseVector<DenseVector<int_max>> BoundarySegmentListOfTemplateMesh;
 	//BoundarySegmentListOfOutputMesh[k] is BoundarySegment: a set of boundary point index
 	//BoundarySegment = {PointIndex_start, ..., PointIndex_end}
 	//BoundarySegment[k] overlap with BoundarySegment[k-1] and BoundarySegment[k+1] at start/end point
@@ -31,6 +31,7 @@ struct Input_of_TemplateBasedSurfaceRemesher
 	ScalarType DiffusionCoefficientOfMeshParameterization;
 	int_max MaxIterationOfMeshParameterization;
 
+	//this is a bad method
 	bool Flag_EnableTPSTransformOfTemplateMesh = false;
 
 };

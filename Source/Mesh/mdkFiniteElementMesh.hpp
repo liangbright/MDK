@@ -291,41 +291,6 @@ DenseVector<int_max> FiniteElementMesh<ScalarType>::AddNode_batch(const DenseMat
 }
 
 template<typename ScalarType>
-DenseVector<int_max> FiniteElementMesh<ScalarType>::AddNode_batch(DenseMatrix<ScalarType>&& PointSet)
-{
-	if (PointSet.IsVector() == true)
-	{
-		DenseVector<int_max> NodeIndexList;
-		if (PointSet.GetElementCount() != 3)
-		{
-			MDK_Error("PointSet is a vector but length != 3 @ FiniteElementMesh::AddPoint_batch(...)")
-			return NodeIndexList;
-		}
-		NodeIndexList.Resize(1);
-		NodeIndexList[0] = this->AddNode(PointSet.GetPointer());
-		return NodeIndexList;
-	}
-
-	if (PointSet.GetRowCount() != 3)
-	{
-		MDK_Error("PointSet is a matrix but RowCount != 3 @ FiniteElementMesh::AddPoint_batch(...)")
-		DenseVector<int_max> NodeIndexList;
-		return NodeIndexList;
-	}
-
-	if (m_MeshData->NodeList.IsEmpty() == true)
-	{
-		m_MeshData->NodeList = std::move(PointSet);
-		DenseVector<int_max> NodeIndexList = span(0, PointSet.GetColCount() - 1);
-		return NodeIndexList;
-	}
-	else
-	{
-		return this->AddNode_batch(PointSet);
-	}
-}
-
-template<typename ScalarType>
 void FiniteElementMesh<ScalarType>::SetNode(int_max NodeIndex, const DenseVector<ScalarType, 3>& Position)
 {
 	m_MeshData->NodeList.SetCol(NodeIndex, Position);
