@@ -69,7 +69,7 @@ vtkSmartPointer<vtkPolyData> ConvertSingleMDK3DCurveToVTKPolyData(const DenseMat
 	auto PointCount = MDK3DCurve.GetColCount();
 	if (PointCount == 0)
 	{
-		MDK_Warning("input curve is empty @ ConvertSingleMDK3DCurveToVTKPolyData(...)")
+		//MDK_Warning("input curve is empty @ ConvertSingleMDK3DCurveToVTKPolyData(...)")
 		return VTKCurve;
 	}
 

@@ -101,6 +101,20 @@ DenseVector<ScalarType, 3> ProjectPointToPlane(const ScalarType* Point, const Sc
 }
 
 template<typename ScalarType>
+DenseVector<int_max> FindNearestPointOnCurve(const DenseMatrix<ScalarType>& Curve, const DenseMatrix<ScalarType>& PointSet_ref)
+{
+	DenseVector<int_max> IndexList_nearest;
+	for (int_max k = 0; k < PointSet_ref.GetColCount(); ++k)
+	{
+		DenseVector<ScalarType, 3> Point_ref;
+		PointSet_ref.GetCol(k, Point_ref);
+		auto Index_nearest=FindNearestPointOnCurve(Curve, Point_ref);
+		IndexList_nearest.Append(Index_nearest);
+	}
+	return IndexList_nearest;
+}
+
+template<typename ScalarType>
 int_max FindNearestPointOnCurve(const DenseMatrix<ScalarType>& Curve, const DenseVector<ScalarType, 3>& Point_ref)
 {
 	if (Curve.IsEmpty() == true)

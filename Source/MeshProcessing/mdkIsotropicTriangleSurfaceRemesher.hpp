@@ -128,10 +128,11 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::CleanMesh()
 {
 	this->Initialize();
 	this->RemoveIsolatedFace();
+	this->RemoveIsolatedEdge();
+	this->RemoveIsolatedPoint();
 	if (Input.Flag_ProcessBounary == true)
 	{
 		this->ProcessBoundary();
-		this->TangentialRelaxation_BoundaryEdge();
 	}
 	this->RemoveDistortedFace();
 	this->CollapseShortEdge();
@@ -226,6 +227,7 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::ProcessBoundary()
 {	
 	this->SplitLongBoundaryEdge();
 	this->CollapseShortBoundaryEdge();
+	this->TangentialRelaxation_BoundaryEdge();
 }
 
 
@@ -235,7 +237,9 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::SplitLongBoundaryEdge()
 	auto& Surface = Output.TargetMesh;
 	auto MaxEdgeLength = Internal.MaxEdgeLength;
 	int_max EdgeIndex = -1;
-	while (true)
+	int_max MaxIter = Surface.GetMaxValueOfEdgeIndex()+1;
+	//while (true): it may not converge
+	for (int_max iter = 0; iter < MaxIter; ++iter)
 	{
 		EdgeIndex = EdgeIndex + 1;
 		if (EdgeIndex > Surface.GetMaxValueOfEdgeIndex())
@@ -479,8 +483,11 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::CollapseShortBoundaryEdge()
 		}
 	}
 	//handle new edge
-	int_max EdgeIndex = EdgeIndexList_sort.GetLength() -1;
-	while (true)
+	int_max EdgeIndex = EdgeIndexList_sort.GetLength() - 1;
+	//int_max MaxIter = Surface.GetMaxValueOfEdgeIndex() - EdgeIndex;
+	int_max MaxIter = 0;//same some time...
+	//while (true): it may not converge
+	for (int_max iter = 0; iter < MaxIter; ++iter)
 	{
 		EdgeIndex = EdgeIndex + 1;
 		if (EdgeIndex > Surface.GetMaxValueOfEdgeIndex())
@@ -501,25 +508,84 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::CollapseShortBoundaryEdge()
 template<typename ScalarType>
 void IsotropicTriangleSurfaceRemesher<ScalarType>::Remesh()
 {
-	this->RemoveIsolatedFace();
-	if (Input.Flag_ProcessBounary == true)
-	{
-		this->ProcessBoundary();
-	}
+	this->RemoveIsolatedFace();	
+	this->RemoveIsolatedEdge();
+	this->RemoveIsolatedPoint();
 	for (int_max iter = 0; iter < Input.MaxIter; ++iter)
 	{
+		if (Input.Flag_ProcessBounary == true)
+		{
+			this->ProcessBoundary();
+		}
 		//this->EqualizeValence(); not good
 		this->SplitLongEdge();
 		this->CollapseShortEdge();
 		this->RemoveIsolatedFace();
+		//this->RemoveIsolatedEdge(); unlikely
+		//this->RemoveIsolatedPoint(); unlikely
 		this->RemoveDistortedFace();
 		this->TangentialRelaxation_InternalEdge();
-		if (Input.Flag_ProcessBounary == true)
-		{
-			this->TangentialRelaxation_BoundaryEdge();
-		}
 	}	
 	this->CollapseShortEdge();
+}
+
+
+template<typename ScalarType>
+void IsotropicTriangleSurfaceRemesher<ScalarType>::RemoveIsolatedPoint()
+{
+	auto& Surface = Output.TargetMesh;
+	auto PointIndex_MAX = Surface.GetMaxValueOfPointIndex();
+	for (int_max k = 0; k <= PointIndex_MAX; ++k)
+	{
+		if (Surface.IsValidPointIndex(k) == false)
+		{
+			continue;
+		}
+		if (Surface.Point(k).GetAdjacentPointCount() == 0)
+		{
+			if (this->IsFeaturePoint(k) == false)
+			{
+				Surface.DeletePoint(k);
+			}
+			else
+			{
+				MDK_Warning("Feature Point " << k << " is isolated")
+			}
+		}
+	}
+}
+
+
+template<typename ScalarType>
+void IsotropicTriangleSurfaceRemesher<ScalarType>::RemoveIsolatedEdge()
+{
+	auto& Surface = Output.TargetMesh;
+	auto EdgeIndex_MAX = Surface.GetMaxValueOfEdgeIndex();
+	for (int_max k = 0; k <= EdgeIndex_MAX; ++k)
+	{
+		if (Surface.IsValidEdgeIndex(k) == false)
+		{
+			continue;
+		}
+		if (Surface.Edge(k).GetAdjacentEdgeCount() == 0)
+		{
+			auto PointIndexList = Surface.Edge(k).GetPointIndexList();
+			auto PointIndex0 = PointIndexList[0];
+			auto PointIndex1 = PointIndexList[1];
+			if (this->IsFeatureEdge(k) == false
+				&& this->IsFeaturePoint(PointIndex0) == false
+				&& this->IsFeaturePoint(PointIndex1) == false)
+			{
+				Surface.DeleteEdge(k);
+				Surface.DeletePoint(PointIndex0);
+				Surface.DeletePoint(PointIndex1);				
+			}
+			else
+			{
+				MDK_Warning("Feature Edge " << k << " is isolated")
+			}
+		}
+	}
 }
 
 
@@ -542,22 +608,22 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::RemoveIsolatedFace()
 		auto E0 = EdgeIndexList[0];
 		auto E1 = EdgeIndexList[1];
 		auto E2 = EdgeIndexList[2];
-		//case-1
+		bool Face_can_be_deleted = true;
+		if (this->IsFeatureEdge(E0) == true
+			|| this->IsFeatureEdge(E1) == true
+			|| this->IsFeatureEdge(E2) == true
+			|| this->IsFeaturePoint(P0) == true
+			|| this->IsFeaturePoint(P1) == true
+			|| this->IsFeaturePoint(P2) == true)
+		{
+			Face_can_be_deleted = false;
+		}
+		//case-1 (total isolation), case-2 (connect to only one point)
 		if (Surface.Edge(E0).IsOnPolygonMeshBoundary() == true
 			&& Surface.Edge(E1).IsOnPolygonMeshBoundary() == true
 			&& Surface.Edge(E2).IsOnPolygonMeshBoundary() == true)
-		{
-			bool Flag_delete = true;
-			if (this->IsFeatureEdge(E0) == true
-				|| this->IsFeatureEdge(E1) == true
-				|| this->IsFeatureEdge(E2) == true
-				|| this->IsFeaturePoint(P0) == true
-				|| this->IsFeaturePoint(P1) == true
-				|| this->IsFeaturePoint(P2) == true)
-			{
-				Flag_delete = false;
-			}
-			if (Flag_delete = true)
+		{			
+			if (Face_can_be_deleted = true)
 			{
 				Surface.DeleteFace(k);
 				Surface.DeleteEdge(E0);
@@ -575,6 +641,10 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::RemoveIsolatedFace()
 				{
 					Surface.DeletePoint(P2);
 				}
+			}
+			else
+			{
+				MDK_Warning("Face (with Feature Edge/Point) " << k << " is isolated")
 			}
 		}
 	}
@@ -749,34 +819,37 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::SplitLongEdge()
 {
 	auto& Surface = Output.TargetMesh;
 	auto MaxEdgeLength = Internal.MaxEdgeLength;
-int_max EdgeIndex = -1;
-while (true)
-{
-	EdgeIndex = EdgeIndex + 1;
-	if (EdgeIndex > Surface.GetMaxValueOfEdgeIndex())
+	int_max EdgeIndex = -1;
+	int_max MaxIter = Surface.GetMaxValueOfEdgeIndex()+1;
+	//while (true), it may not converge
+	for (int_max iter = 0; iter < MaxIter; ++iter)
 	{
-		break;
-	}
-	if (Surface.IsValidEdgeIndex(EdgeIndex) == true)
-	{
-		bool Flag_Feature_Edge = this->IsFeatureEdge(EdgeIndex);
-		if (Flag_Feature_Edge == false)
+		EdgeIndex = EdgeIndex + 1;
+		if (EdgeIndex > Surface.GetMaxValueOfEdgeIndex())
 		{
-			Flag_Feature_Edge = Surface.Edge(EdgeIndex).IsOnPolygonMeshBoundary();
+			break;
 		}
-		if (Flag_Feature_Edge == false)
+		if (Surface.IsValidEdgeIndex(EdgeIndex) == true)
 		{
-			auto PointIndexList = Surface.Edge(EdgeIndex).GetPointIndexList();
-			auto Pos0 = Surface.GetPointPosition(PointIndexList[0]);
-			auto Pos1 = Surface.GetPointPosition(PointIndexList[1]);
-			auto EdgeLength = (Pos0 - Pos1).L2Norm();
-			if (EdgeLength > MaxEdgeLength)
+			bool Flag_Feature_Edge = this->IsFeatureEdge(EdgeIndex);
+			if (Flag_Feature_Edge == false)
 			{
-				Surface.SplitFaceAtEdge(EdgeIndex);
+				Flag_Feature_Edge = Surface.Edge(EdgeIndex).IsOnPolygonMeshBoundary();
+			}
+			if (Flag_Feature_Edge == false)
+			{
+				auto PointIndexList = Surface.Edge(EdgeIndex).GetPointIndexList();
+				auto Pos0 = Surface.GetPointPosition(PointIndexList[0]);
+				auto Pos1 = Surface.GetPointPosition(PointIndexList[1]);
+				auto EdgeLength = (Pos0 - Pos1).L2Norm();
+				if (EdgeLength > MaxEdgeLength)
+				{
+					//std::cout << "EdgeLength=" << EdgeLength << ",MaxEdgeLength=" << MaxEdgeLength << '\n';
+					Surface.SplitFaceAtEdge(EdgeIndex);
+				}
 			}
 		}
 	}
-}
 }
 
 
@@ -815,7 +888,10 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::CollapseShortEdge()
 	}
 	//handle new edge
 	int_max EdgeIndex = EdgeIndexList_sort.GetLength() - 1;
-	while (true)
+	//int_max MaxIter = Surface.GetMaxValueOfEdgeIndex() - EdgeIndex;
+	int_max MaxIter = 0;//same some time...
+	//while (true), it may not converge
+	for (int_max iter = 0; iter < MaxIter; ++iter)
 	{
 		EdgeIndex = EdgeIndex + 1;
 		if (EdgeIndex > Surface.GetMaxValueOfEdgeIndex())

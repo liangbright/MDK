@@ -83,6 +83,8 @@ private:
 	void SplitLongBoundaryEdge();
 	bool TryToCollapseSingleEdge(int_max EdgeIndex, bool Flag_ProcessBoundary);
 	void CollapseShortBoundaryEdge();
+	void RemoveIsolatedPoint();
+	void RemoveIsolatedEdge();
 	void RemoveIsolatedFace();
 	void RemoveDistortedFace();
 	void Remesh();

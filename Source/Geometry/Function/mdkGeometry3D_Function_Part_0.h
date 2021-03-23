@@ -37,8 +37,9 @@ DenseVector<ScalarType, 3> ProjectPointToPlane(const ScalarType* Point, const Sc
 
 //find index of the nearest point on curve, no curve-interpolation
 template<typename ScalarType>
+DenseVector<int_max> FindNearestPointOnCurve(const DenseMatrix<ScalarType>& Curve, const DenseMatrix<ScalarType>& PointSet_ref);
+template<typename ScalarType>
 int_max FindNearestPointOnCurve(const DenseMatrix<ScalarType>& Curve, const DenseVector<ScalarType, 3>& Point_ref);
-
 template<typename ScalarType>
 int_max FindNearestPointOnCurve(const DenseMatrix<ScalarType>& Curve, ScalarType x_ref, ScalarType y_ref, ScalarType z_ref);
 
