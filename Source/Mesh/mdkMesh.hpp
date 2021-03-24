@@ -4927,6 +4927,8 @@ void Mesh<ScalarType>::Append(const Mesh<ScalarType>& InputMesh)
 		}
 	}	
 
+	//problem: if this mesh and InputMesh have two PointSet/EdgeSet/FaceSet/CellSet with the same name
+	/*
 	for (int_max k = 0; k < InputMesh.m_MeshData->PointSet.GetLength(); ++k)
 	{
 		auto PointSetName = InputMesh.m_MeshData->PointSetName[k];
@@ -4990,7 +4992,7 @@ void Mesh<ScalarType>::Append(const Mesh<ScalarType>& InputMesh)
 		m_MeshData->CellDataSetName.Clear();
 		m_MeshData->Map_CellDataSet_Name_to_Index.clear();
 	}
-
+	*/
 	//no change in m_MeshData->Attribute
 }
 

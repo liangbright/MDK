@@ -202,6 +202,7 @@ TriangleMesh<ScalarType> ConvertMixedTriangleQuadMeshToTriangleMesh_1to2(const P
 				auto Point2 = OutputMesh.GetPointPosition(H2);
 				auto Point3 = OutputMesh.GetPointPosition(H3);
 				//do no create degenerated triangle
+				//not good for SSM: if a quad face changes shape, then result will be different
 				auto L02 = (Point2 - Point0).L2Norm();
 				auto L13 = (Point3 - Point1).L2Norm();
 				if (L02 < L13)
