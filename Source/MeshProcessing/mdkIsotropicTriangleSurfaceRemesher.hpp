@@ -130,12 +130,15 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::CleanMesh()
 	this->RemoveIsolatedFace();
 	this->RemoveIsolatedEdge();
 	this->RemoveIsolatedPoint();
+	this->RemoveDistortedFace();
 	if (Input.Flag_ProcessBounary == true)
 	{
-		this->ProcessBoundary();
+		this->SplitLongBoundaryEdge();
+		this->CollapseShortBoundaryEdge();
 	}
-	this->RemoveDistortedFace();
+	this->SplitLongEdge();
 	this->CollapseShortEdge();
+	this->RemoveDistortedFace();
 }
 
 
@@ -152,9 +155,20 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::Initialize()
 	{
 		Internal.SourceMesh_vtk = ConvertMDKPolygonMeshToVTKPolyData(*Input.SourceMesh);
 	}
-	Internal.CellLocator_vtk = vtkSmartPointer<vtkCellLocator>::New();
-	Internal.CellLocator_vtk->SetDataSet(Internal.SourceMesh_vtk);
-	Internal.CellLocator_vtk->BuildLocator();
+	auto BoundarySet=TraceMeshBoundaryCurve(*Input.SourceMesh);
+	ObjectArray<DenseMatrix<ScalarType>> BoundaryCurve;
+	BoundaryCurve.Resize(BoundarySet.GetLength());
+	for(int_max k=0; k< BoundarySet.GetLength(); ++k)
+	{
+		BoundaryCurve[k] = Input.SourceMesh->GetPointPosition(BoundarySet[k]);
+	}
+	Internal.BoundaryCurve_vtk = ConvertMultipleMDK3DCurveToVTKPolyData(BoundaryCurve);
+	Internal.CellLocator_of_BoundaryCurve_vtk = vtkSmartPointer<vtkCellLocator>::New();
+	Internal.CellLocator_of_BoundaryCurve_vtk->SetDataSet(Internal.BoundaryCurve_vtk);
+	Internal.CellLocator_of_BoundaryCurve_vtk->BuildLocator();
+	Internal.CellLocator_of_SourceMesh_vtk = vtkSmartPointer<vtkCellLocator>::New();
+	Internal.CellLocator_of_SourceMesh_vtk->SetDataSet(Internal.SourceMesh_vtk);
+	Internal.CellLocator_of_SourceMesh_vtk->BuildLocator();
 	//--------------------------------------------------------------------
 	Internal.MaxEdgeLength = ScalarType(1.4)*Input.TargetEdgeLength;
 	Internal.MinEdgeLength = ScalarType(0.7)*Input.TargetEdgeLength;
@@ -939,7 +953,7 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::TangentialRelaxation_Boundary
 					auto NewPos = (Pos + Pos0 + Pos1) / ScalarType(3);
 					if (Input.Flag_ProjectToSourceMesh == true)
 					{
-						NewPos = this->Project_A_Point_to_SourceMesh(NewPos);
+						NewPos = this->Project_A_Point_to_BoundaryCurve(NewPos);
 					}
 					Surface.SetPointPosition(k, NewPos);
 				}
@@ -989,6 +1003,22 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::TangentialRelaxation_Internal
 	}
 }
 
+template<typename ScalarType>
+DenseVector<ScalarType, 3> IsotropicTriangleSurfaceRemesher<ScalarType>::Project_A_Point_to_BoundaryCurve(const DenseVector<ScalarType, 3>& Point)
+{
+	double testPoint[3] = { double(Point[0]), double(Point[1]), double(Point[2]) };
+	double closestPoint[3];//the coordinates of the closest point will be returned here
+	double closestPointDist2; //the squared distance to the closest point will be returned here
+	vtkIdType cellId; //the cell id of the cell containing the closest point will be returned here
+	int subId; //this is rarely used (in triangle strips only, I believe)
+	Internal.CellLocator_of_BoundaryCurve_vtk->FindClosestPoint(testPoint, closestPoint, cellId, subId, closestPointDist2);
+	//output
+	DenseVector<ScalarType, 3> Point_proj;
+	Point_proj[0] = ScalarType(closestPoint[0]);
+	Point_proj[1] = ScalarType(closestPoint[1]);
+	Point_proj[2] = ScalarType(closestPoint[2]);
+	return Point_proj;
+}
 
 template<typename ScalarType>
 DenseVector<ScalarType, 3> IsotropicTriangleSurfaceRemesher<ScalarType>::Project_A_Point_to_SourceMesh(const DenseVector<ScalarType, 3>& Point)
@@ -998,7 +1028,7 @@ DenseVector<ScalarType, 3> IsotropicTriangleSurfaceRemesher<ScalarType>::Project
 	double closestPointDist2; //the squared distance to the closest point will be returned here
 	vtkIdType cellId; //the cell id of the cell containing the closest point will be returned here
 	int subId; //this is rarely used (in triangle strips only, I believe)
-	Internal.CellLocator_vtk->FindClosestPoint(testPoint, closestPoint, cellId, subId, closestPointDist2);
+	Internal.CellLocator_of_SourceMesh_vtk->FindClosestPoint(testPoint, closestPoint, cellId, subId, closestPointDist2);
 	//output
 	DenseVector<ScalarType, 3> Point_proj;
 	Point_proj[0] = ScalarType(closestPoint[0]);

@@ -123,12 +123,14 @@ bool LoadPolygonMeshFromJsonDataFile(PolygonMesh<ScalarType>& OutputMesh, const 
 	if (JsonFile::Load(JObject, FilePathAndName) == false)
 	{
 		MDK_Error("Json file is invalid @ LoadPolygonMeshFromJsonDataFile(...)")
+		std::cout << FilePathAndName << "\n";
 		return false;
 	}
 
 	if (JObject.IsEmpty() == true)
 	{
 		MDK_Warning("Json file is empty @ LoadPolygonMeshFromJsonDataFile(...)")
+		std::cout << FilePathAndName << "\n";
 		return true;
 	}
 	//----------------------------------------------------------//

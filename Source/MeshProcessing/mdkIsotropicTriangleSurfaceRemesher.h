@@ -34,7 +34,9 @@ template<typename ScalarType>
 struct Internal_of_IsotropicTriangleSurfaceRemesher
 {
 	vtkSmartPointer<vtkPolyData> SourceMesh_vtk;
-	vtkSmartPointer<vtkCellLocator> CellLocator_vtk;
+	vtkSmartPointer<vtkPolyData> BoundaryCurve_vtk;
+	vtkSmartPointer<vtkCellLocator> CellLocator_of_SourceMesh_vtk;
+	vtkSmartPointer<vtkCellLocator> CellLocator_of_BoundaryCurve_vtk;
 
 	DenseVector<int_max> PointFlagList;
 	//PointFlagList[k]: 0, nothing special for Point-k of SourceMesh
@@ -94,6 +96,7 @@ private:
 	void FlipEdge();
 	void TangentialRelaxation_BoundaryEdge();
 	void TangentialRelaxation_InternalEdge();
+	DenseVector<ScalarType, 3> Project_A_Point_to_BoundaryCurve(const DenseVector<ScalarType, 3>& Point);
 	DenseVector<ScalarType, 3> Project_A_Point_to_SourceMesh(const DenseVector<ScalarType, 3>& Point);
 	void Refine();
 
