@@ -319,7 +319,6 @@ int_max ProjectPoint_AddProjectedPoint_ToSurface(TriangleMesh<ScalarType>& Surfa
 	return H3;
 }
 
-
 template<typename ScalarType>
 DenseVector<int_max> ProjectPoint_AddProjectedPoint_ToSurface(TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PointSet, ScalarType DistanceThreshold)
 {// Surface.CleanDataStructure(): FaceIndex, EdgeIndex may become invalid
@@ -348,24 +347,23 @@ DenseVector<int_max> ProjectPoint_AddProjectedPoint_ToSurface(TriangleMesh<Scala
 	return PointIndexList;
 }
 
-
 template<typename ScalarType>
-DenseVector<int_max> ProjectPoint_AddProjectedPoint_ToSurface_bad(TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PointSet, ScalarType DistanceThreshold)
-{// this is mission impossible
+DenseVector<int_max> ProjectPoint_AddProjectedPoint_ToSurface_nonrobust(TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PointSet, ScalarType DistanceThreshold)
+{// this function may fail when two points P1 and P2 are projected to the same face of Surface
 // assume two points P1 and P2 in PointSet, and the nearest Faces are Face2 and Face2 in FaceIndexList_nearest
 // add point P1 to surface, then Face2 may be deleted/splited
-// Solutoin: the input PointSet only has one point
+// To use this function: make sure that P1 and P2 will be projected to two faces that do not share any edges or points
 
 	if (Surface.Check_If_DataStructure_is_Clean() == false)
 	{
-		MDK_Error("Surface DataStructureis NOT Clean @ ProjectPoint_AddProjectedPoint_ToSurface")
+		MDK_Error("Surface DataStructureis NOT Clean @ ProjectPoint_AddProjectedPoint_ToSurface_nonrobust")
 		DenseVector<int_max> empty;
 		return empty;
 	}
 
 	if (Surface.CheckIfTriangleMesh() == false)
 	{
-		MDK_Error("Surface is NOT TriangleMesh @ ProjectPoint_AddProjectedPoint_ToSurface")
+		MDK_Error("Surface is NOT TriangleMesh @ ProjectPoint_AddProjectedPoint_ToSurface_nonrobust")
 		DenseVector<int_max> empty;
 		return empty;
 	}
@@ -457,7 +455,6 @@ DenseVector<int_max> ProjectPoint_AddProjectedPoint_ToSurface_bad(TriangleMesh<S
 	return PointIndexList_output;
 }
 
-
 template<typename ScalarType>
 int_max AddPointToSurfaceByProjection(TriangleMesh<ScalarType>& Surface, const DenseVector<ScalarType, 3>& Point, ScalarType DistanceThreshold)
 {
@@ -465,7 +462,6 @@ int_max AddPointToSurfaceByProjection(TriangleMesh<ScalarType>& Surface, const D
 	Surface.SetPointPosition(PointIndex, Point);
 	return PointIndex;
 }
-
 
 template<typename ScalarType>
 DenseVector<int_max> AddPointToSurfaceByProjection(TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PointSet, ScalarType DistanceThreshold)
@@ -475,6 +471,13 @@ DenseVector<int_max> AddPointToSurfaceByProjection(TriangleMesh<ScalarType>& Sur
 	return PointIndexList;
 }
 
+template<typename ScalarType>
+DenseVector<int_max> AddPointToSurfaceByProjection_nonrobust(TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PointSet, ScalarType DistanceThreshold)
+{
+	auto PointIndexList = ProjectPoint_AddProjectedPoint_ToSurface_nonrobust(Surface, PointSet, DistanceThreshold);
+	Surface.SetPointPosition(PointIndexList, PointSet);
+	return PointIndexList;
+}
 
 template<typename ScalarType>
 DenseVector<int_max> AddPolyLineOnSurface(TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PolyLine, ScalarType DistanceThreshold)

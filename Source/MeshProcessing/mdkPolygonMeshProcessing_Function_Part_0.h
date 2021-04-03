@@ -115,6 +115,9 @@ PolygonMesh<ScalarType> MergeMeshPoint(const PolygonMesh<ScalarType>& InputMesh,
 template<typename ScalarType>
 PolygonMesh<ScalarType> MergeMeshPointOnBoundary(const PolygonMesh<ScalarType>& InputMeshA, const PolygonMesh<ScalarType>& InputMeshB, ScalarType DistanceThreshold);
 
+template<typename ScalarType>
+PolygonMesh<ScalarType> MergeMeshPoint(const PolygonMesh<ScalarType>& InputMeshA, const PolygonMesh<ScalarType>& InputMeshB, ScalarType DistanceThreshold);
+
 //Merge InputMeshA and InputMeshB
 //The shared points are in PointIndexListA of InputMeshA and PointIndexListB of InputMeshB;
 template<typename ScalarType>

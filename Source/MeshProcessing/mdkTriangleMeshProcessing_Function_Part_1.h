@@ -25,7 +25,7 @@ int_max ProjectPoint_AddProjectedPoint_ToSurface(TriangleMesh<ScalarType>& Surfa
 template<typename ScalarType>
 DenseVector<int_max> ProjectPoint_AddProjectedPoint_ToSurface(TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PointSet, ScalarType DistanceThreshold);
 template<typename ScalarType>
-DenseVector<int_max> ProjectPoint_AddProjectedPoint_ToSurface_bad(TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PointSet, ScalarType DistanceThreshold);
+DenseVector<int_max> ProjectPoint_AddProjectedPoint_ToSurface_nonrobust(TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PointSet, ScalarType DistanceThreshold);
 
 //add an input point to surface
 template<typename ScalarType>
@@ -33,9 +33,11 @@ int_max AddPointToSurfaceByProjection(TriangleMesh<ScalarType>& Surface, const D
 //add many point to surface
 template<typename ScalarType>
 DenseVector<int_max> AddPointToSurfaceByProjection(TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PointSet, ScalarType DistanceThreshold);
+template<typename ScalarType>
+DenseVector<int_max> AddPointToSurfaceByProjection_nonrobust(TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PointSet, ScalarType DistanceThreshold);
 
 template<typename ScalarType>
-DenseVector<int_max> AddPolyLineOnSurface_old(TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PolyLine, ScalarType DistanceThreshold);
+DenseVector<int_max> AddPolyLineOnSurface(TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PolyLine, ScalarType DistanceThreshold);
 
 //SurfaceA FaceNormal must have been computed
 //ProjDistanceSet[k] is the proj-distance between point-k of SurfaceB and SurfaceA

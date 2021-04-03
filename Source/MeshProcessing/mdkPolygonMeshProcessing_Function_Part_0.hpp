@@ -1004,6 +1004,18 @@ PolygonMesh<ScalarType> MergeMeshPointOnBoundary(const PolygonMesh<ScalarType>& 
 	return MergeMeshPoint(InputMeshA, PointIndexListA, InputMeshB, PointIndexListB, DistanceThreshold);
 }
 
+
+template<typename ScalarType>
+PolygonMesh<ScalarType> MergeMeshPoint(const PolygonMesh<ScalarType>& InputMeshA, const PolygonMesh<ScalarType>& InputMeshB, ScalarType DistanceThreshold)
+{
+	auto PointIndexListA = InputMeshA.GetValidPointIndexList();
+	auto PointIndexListB = InputMeshB.GetValidPointIndexList();
+	DenseVector<int_max> PointIndexMap_InputA_to_Output, PointIndexMap_InputB_to_Output;
+	return MergeMeshPoint(InputMeshA, PointIndexListA, InputMeshB, PointIndexListB, DistanceThreshold,
+						  PointIndexMap_InputA_to_Output, PointIndexMap_InputB_to_Output);
+}
+
+
 template<typename ScalarType>
 PolygonMesh<ScalarType> MergeMeshPoint(const PolygonMesh<ScalarType>& InputMeshA, const DenseVector<int_max>& PointIndexListA,
 						               const PolygonMesh<ScalarType>& InputMeshB, const DenseVector<int_max>& PointIndexListB, ScalarType DistanceThreshold)
