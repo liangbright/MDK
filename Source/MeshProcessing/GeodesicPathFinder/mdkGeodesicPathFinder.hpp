@@ -1,9 +1,7 @@
 #pragma once
 
-namespace aortic_valve
+namespace mdk
 {
-
-using namespace mdk;
 
 template<typename ScalarType>
 GeodesicPathFinder<ScalarType>::GeodesicPathFinder()
@@ -106,6 +104,40 @@ void GeodesicPathFinder<ScalarType>::ConvertMeshForGeodesicPathAlgorithm()
     }
 
 	m_InputMeshForGeodesicPathAlgorithm->initialize_mesh_data(points, faces);
+}
+
+template<typename ScalarType>
+DenseMatrix<ScalarType> GeodesicPathFinder<ScalarType>::
+FindPath(int_max PointIndex_start, int_max PointIndex_end, const String& Method)
+{
+    if (m_InputMesh->Check_If_DataStructure_is_Clean() == false)
+    {
+        DenseMatrix<ScalarType> Path;
+        MDK_Error("InputMesh DataStructure is not clean @ GeodesicPathFinder::FindPath(...)")
+        return Path;
+    }
+
+    GeodesicAlgorithmTypeEnum AlgorithmType;
+    if (Method == "Exact")
+    {
+        AlgorithmType = GeodesicAlgorithmTypeEnum::Exact;
+    }
+    else if (Method == "Dijkstra")
+    {
+        AlgorithmType = GeodesicAlgorithmTypeEnum::Dijkstra;
+    }
+    else
+    {
+        MDK_Error("unkown method: " << Method)
+    }
+    auto Path = this->ComputeGeodesicPathOnMesh(PointIndex_start, PointIndex_end, AlgorithmType);
+    if (Path.GetColCount() <= 0)
+    {
+        Path.FastResize(3, 2);
+    }
+    Path.SetCol(0, Position_start);
+    Path.SetCol(Path.GetColCount() - 1, Position_end);
+    return Path;
 }
 
 template<typename ScalarType>
@@ -249,4 +281,4 @@ ComputeGeodesicPathOnMesh(int_max PointIndex_start, int_max PointIndex_end, Geod
     return GeodesicPath;
 }
 
-}// namespace aortic_valve
+}// namespace mdk

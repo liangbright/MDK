@@ -8,10 +8,8 @@
 
 #include "mdkPolygonMeshProcessing.h"
 
-namespace aortic_valve
+namespace mdk
 {
-
-using namespace mdk;
 
 template<typename Scalar_Type>
 class GeodesicPathFinder
@@ -43,9 +41,13 @@ public:
 
     bool UpdateParameter();
 
-	DenseMatrix<ScalarType> FindPath(const DenseVector<ScalarType, 3>& Position_start, 
-									 const DenseVector<ScalarType, 3>& Position_end,
+	DenseMatrix<ScalarType> FindPath(int_max PointIndex_start,
+									 int_max PointIndex_end,
 									 const String& Method);//Dijkstra or Exact
+
+	DenseMatrix<ScalarType> FindPath(const DenseVector<ScalarType, 3>& Position_start,
+									 const DenseVector<ScalarType, 3>& Position_end,
+                            		 const String& Method);//Dijkstra or Exact
 
 	//DenseMatrix<ScalarType> InterpolateCurve(const DenseMatrix<ScalarType>& PointPositionMatrixOfCurve, int_max LowerBound_PointNumber);
 
@@ -65,6 +67,6 @@ private:
 };
 
 
-}// namespace aortic_valve
+}// namespace mdk
 
-#include "GeodesicPathFinder.hpp"
+#include "mdkGeodesicPathFinder.hpp"
