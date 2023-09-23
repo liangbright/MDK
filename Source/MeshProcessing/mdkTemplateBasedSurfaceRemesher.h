@@ -95,8 +95,15 @@ private:
 	// relative length is from 0 to 1
 	DenseVector<ScalarType> ComputeCumulativeCurveLength_Relative(const DenseMatrix<ScalarType>& CurvePosition);
 
-	DenseVector<int_max, 3> Find3PointOfNearestFace(const DenseVector<ScalarType, 3>& Point, const TriangleMesh<ScalarType>& TargetMesh);
-	
+	DenseVector<int_max, 3> Find3PointOfNearestFace(const DenseVector<ScalarType, 3>& Point, const TriangleMesh<ScalarType>& TargetMesh);	
+	DenseVector<int_max, 3> Find3PointOfNearestFace_method0(const DenseVector<ScalarType, 3>& Point, const TriangleMesh<ScalarType>& TargetMesh);
+	DenseVector<int_max, 3> Find3PointOfNearestFace_method1(const DenseVector<ScalarType, 3>& Point, const TriangleMesh<ScalarType>& TargetMesh);
+
+	bool CheckIfPointInside2DTriangle(const DenseVector<ScalarType, 3>& Point,
+									  const DenseVector<ScalarType, 3>& Point0,
+								  	  const DenseVector<ScalarType, 3>& Point1,
+									  const DenseVector<ScalarType, 3>& Point2);
+
 private:
 	TemplateBasedSurfaceRemesher(const TemplateBasedSurfaceRemesher&) = delete;
 	void operator=(const TemplateBasedSurfaceRemesher&) = delete;

@@ -559,6 +559,17 @@ DenseVector<ScalarType> TemplateBasedSurfaceRemesher<ScalarType>::ComputeCumulat
 template<typename ScalarType>
 DenseVector<int_max, 3> TemplateBasedSurfaceRemesher<ScalarType>::Find3PointOfNearestFace(const DenseVector<ScalarType, 3>& Point, const TriangleMesh<ScalarType>& TargetMesh)
 {
+//method_0 may not work for some TargetMesh
+//method_1 works but it is slow
+//TODO: a faster method
+	return this->Find3PointOfNearestFace_method1(Point, TargetMesh);
+}
+
+
+// this method may not work for some TargetMesh
+template<typename ScalarType>
+DenseVector<int_max, 3> TemplateBasedSurfaceRemesher<ScalarType>::Find3PointOfNearestFace_method0(const DenseVector<ScalarType, 3>& Point, const TriangleMesh<ScalarType>& TargetMesh)
+{
 	DenseVector<int_max, 3> PointIndexList_nearest;
 	//-------------------------------------------------------------------
 	auto EPS = std::numeric_limits<ScalarType>::epsilon();
@@ -652,11 +663,74 @@ DenseVector<int_max, 3> TemplateBasedSurfaceRemesher<ScalarType>::Find3PointOfNe
 
 	if (Flag == false)
 	{
-		MDK_Warning("Flag == false @ TemplateBasedSurfaceRemesher::Find3PointOfNearestFace(...)")
+		MDK_Warning("Flag is false, result is wrong @ TemplateBasedSurfaceRemesher::Find3PointOfNearestFace_method0(...)")
 	}
 
 	PointIndexList_nearest = TargetMesh.Face(FaceIndex_nearest).GetPointIndexList();
 	return PointIndexList_nearest;
+}
+
+//it works but it is slow 
+template<typename ScalarType>
+DenseVector<int_max, 3> TemplateBasedSurfaceRemesher<ScalarType>::Find3PointOfNearestFace_method1(const DenseVector<ScalarType, 3>& Point, const TriangleMesh<ScalarType>& TargetMesh)
+{
+	//-------------------------------------------------------------------
+	auto EPS = std::numeric_limits<ScalarType>::epsilon();
+	EPS = EPS * 10;
+	//-------------------------------------------------------------------
+	auto CandidateFaceIndexList = TargetMesh.GetValidFaceIndexList();
+	bool Flag = false;
+	int_max FaceIndex_nearest = CandidateFaceIndexList[0]; //random init
+	for (int_max k = 0; k < CandidateFaceIndexList.GetLength(); ++k)
+	{
+		auto PointIndexList_k = TargetMesh.Face(CandidateFaceIndexList[k]).GetPointIndexList();//triangle: 3 point
+		auto Point0 = TargetMesh.GetPointPosition(PointIndexList_k[0]);
+		auto Point1 = TargetMesh.GetPointPosition(PointIndexList_k[1]);
+		auto Point2 = TargetMesh.GetPointPosition(PointIndexList_k[2]);
+		Flag = this->CheckIfPointInside2DTriangle(Point, Point0, Point1, Point2);
+		if (Flag == true)
+		{	
+			FaceIndex_nearest = CandidateFaceIndexList[k];
+			break;
+		}
+	}
+	if (Flag == false)
+	{
+		MDK_Warning("Flag is false, result is wrong @ TemplateBasedSurfaceRemesher::Find3PointOfNearestFace_method1(...)")
+	}
+	auto PointIndexList_nearest = TargetMesh.Face(FaceIndex_nearest).GetPointIndexList();
+	return PointIndexList_nearest;
+}
+
+
+template<typename ScalarType>
+bool TemplateBasedSurfaceRemesher<ScalarType>::CheckIfPointInside2DTriangle(const DenseVector<ScalarType, 3>& Point,
+																			const DenseVector<ScalarType, 3>& Point0,
+																			const DenseVector<ScalarType, 3>& Point1,
+																			const DenseVector<ScalarType, 3>& Point2)
+{//Point0, Point1, Point2 define a triangle
+	auto EPS = std::numeric_limits<ScalarType>::epsilon();
+	EPS = EPS * 10;
+	//http://stackoverflow.com/questions/2049582/how-to-determine-a-point-in-a-2d-triangle
+	auto x = Point[0];
+	auto y = Point[1];
+	auto x0 = Point0[0];
+	auto y0 = Point0[1];
+	auto x1 = Point1[0];
+	auto y1 = Point1[1];
+	auto x2 = Point2[0];
+	auto y2 = Point2[1];
+	auto Area = 0.5 * (-y1 * x2 + y0 * (-x1 + x2) + x0 * (y1 - y2) + x1 * y2);
+	auto a = 1 / (2 * Area) * (y0 * x2 - x0 * y2 + (y2 - y0) * x + (x0 - x2) * y);
+	auto b = 1 / (2 * Area) * (x0 * y1 - y0 * x1 + (y0 - y1) * x + (x1 - x0) * y);
+
+	bool Flag = false;
+	//if (a >= -0.0001 && b >= -0.0001 && a+b <= 1.0001)
+	if (a >= -EPS && b >= -EPS && 1 - (a + b) >= -EPS)
+	{
+		Flag = true;
+	}
+	return Flag;
 }
 
 }//namespace mdk
