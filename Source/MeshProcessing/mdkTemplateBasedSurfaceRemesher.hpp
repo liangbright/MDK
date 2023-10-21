@@ -225,7 +225,20 @@ void TemplateBasedSurfaceRemesher<ScalarType>::FindBoundaryConstraint()
 		auto Curve_input = Input.SourceMesh->GetPointPosition(CurveHandle_input);
 		auto Curve_template = Input.TemplateMesh->GetPointPosition(CurveHandle_template);
 		
-		if (CurveHandle_input.GetLength() >= 2 && CurveHandle_template.GetLength() >= 2)
+		if (CurveHandle_input.GetLength() == 0 && CurveHandle_template.GetLength() == 0)
+		{
+			MDK_Warning("CurveHandle_input and CurveHandle_template are empty @ TemplateBasedSurfaceRemesher::FindBoundaryConstraint(...)")
+			UVTable_input = Curve_template;
+		}
+		else if (CurveHandle_input.GetLength() == 1 && CurveHandle_template.GetLength() == 1)
+		{
+			UVTable_input = Curve_template;
+		}
+		else if (CurveHandle_input.GetLength() == 2 && CurveHandle_template.GetLength() == 2)
+		{
+			UVTable_input = Curve_template;
+		}		
+		else if (CurveHandle_input.GetLength() >= 2 && CurveHandle_template.GetLength() >= 2)
 		{
 			auto CL_input = this->ComputeCumulativeCurveLength_Relative(Curve_input);
 			auto CL_template = this->ComputeCumulativeCurveLength_Relative(Curve_template);
@@ -250,11 +263,7 @@ void TemplateBasedSurfaceRemesher<ScalarType>::FindBoundaryConstraint()
 					}
 				}
 			}
-		}
-		else if (CurveHandle_input.GetLength() == 1 && CurveHandle_template.GetLength() == 1)
-		{
-			UVTable_input = Curve_template;
-		}
+		}		
 		else
 		{
 			MDK_Error("Something is wrong @ TemplateBasedSurfaceRemesher::FindBoundaryConstraint(...)")
