@@ -173,7 +173,6 @@ DenseVector<ScalarType> JsonValue::ToScalarArray() const
 	case TypeEnum::Type_DoubleArray:
 		OutputArray.Copy(this->Ref_DoubleArray());
 	}
-	OutputArray.Reshape(1, OutputArray.GetElementCount());
 	return OutputArray;
 }
 
