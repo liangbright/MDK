@@ -134,6 +134,8 @@ bool JsonFile::SaveNameValuePair(const String& Name, const JsonValue& JValue, Js
 		return JsonFile::SaveNameValuePair(Name, JValue.Ref_DoubleArray(), OutputFile, Indention);
 	case JsonValue::TypeEnum::Type_String:
 		return JsonFile::SaveNameValuePair(Name, JValue.Ref_String(), OutputFile, Indention);
+	case JsonValue::TypeEnum::Type_StringArray:
+		return JsonFile::SaveNameValuePair(Name, JValue.Ref_StringArray(), OutputFile, Indention);
 	case JsonValue::TypeEnum::Type_JsonArray:
 		return JsonFile::SaveNameValuePair(Name, JValue.Ref_JsonArray(), OutputFile, Indention, Flag_PreserveOrder);
 	case JsonValue::TypeEnum::Type_JsonObject:
@@ -203,7 +205,7 @@ bool JsonFile::SaveNameValuePair(const String& Name, double Scalar, JsonFile& Ou
 	return JsonFile::SaveJsonValue(Scalar, OutputFile);
 }
 //==========================================================================================================================//
-bool JsonFile::SaveNameValuePair(const String& Name, const DenseMatrix<int>& IntArray, JsonFile& OutputFile, int_max Indention)
+bool JsonFile::SaveNameValuePair(const String& Name, const DenseVector<int>& IntArray, JsonFile& OutputFile, int_max Indention)
 {
 	for (int_max k = 0; k < Indention; ++k)
 	{
@@ -214,7 +216,7 @@ bool JsonFile::SaveNameValuePair(const String& Name, const DenseMatrix<int>& Int
 	return JsonFile::SaveJsonValue(IntArray, OutputFile, Indention_next);
 }
 //==========================================================================================================================//
-bool JsonFile::SaveNameValuePair(const String& Name, const DenseMatrix<long long>& LongLongArray, JsonFile& OutputFile, int_max Indention)
+bool JsonFile::SaveNameValuePair(const String& Name, const DenseVector<long long>& LongLongArray, JsonFile& OutputFile, int_max Indention)
 {
 	for (int_max k = 0; k < Indention; ++k)
 	{
@@ -225,7 +227,7 @@ bool JsonFile::SaveNameValuePair(const String& Name, const DenseMatrix<long long
 	return JsonFile::SaveJsonValue(LongLongArray, OutputFile, Indention_next);
 }
 //==========================================================================================================================//
-bool JsonFile::SaveNameValuePair(const String& Name, const DenseMatrix<float>& FloatArray, JsonFile& OutputFile, int_max Indention)
+bool JsonFile::SaveNameValuePair(const String& Name, const DenseVector<float>& FloatArray, JsonFile& OutputFile, int_max Indention)
 {
 	for (int_max k = 0; k < Indention; ++k)
 	{
@@ -236,7 +238,7 @@ bool JsonFile::SaveNameValuePair(const String& Name, const DenseMatrix<float>& F
 	return JsonFile::SaveJsonValue(FloatArray, OutputFile, Indention_next);
 }
 //==========================================================================================================================//
-bool JsonFile::SaveNameValuePair(const String& Name, const DenseMatrix<double>& DoubleArray, JsonFile& OutputFile, int_max Indention)
+bool JsonFile::SaveNameValuePair(const String& Name, const DenseVector<double>& DoubleArray, JsonFile& OutputFile, int_max Indention)
 {
 	for (int_max k = 0; k < Indention; ++k)
 	{
@@ -255,6 +257,17 @@ bool JsonFile::SaveNameValuePair(const String& Name, const String& JString, Json
 	}
 	OutputFile << "\"" << Name << "\"" << ": ";
 	return JsonFile::SaveJsonValue(JString, OutputFile);
+}
+//==========================================================================================================================//
+bool JsonFile::SaveNameValuePair(const String& Name, const DenseVector<String>& JStringArray, JsonFile& OutputFile, int_max Indention)
+{
+	for (int_max k = 0; k < Indention; ++k)
+	{
+		OutputFile << " ";
+	}
+	OutputFile << "\"" << Name << "\"" << ": ";
+	int_max Indention_next = Indention + Name.GetCharCount() + 4;
+	return JsonFile::SaveJsonValue(JStringArray, OutputFile, Indention_next);
 }
 //==========================================================================================================================//
 bool JsonFile::SaveNameValuePair(const String& Name, const JsonArray& JArray, JsonFile& OutputFile, int_max Indention, bool Flag_PreserveOrder)
@@ -305,6 +318,8 @@ bool JsonFile::SaveJsonValue(const JsonValue& JValue, JsonFile& OutputFile, int_
 		return JsonFile::SaveJsonValue(JValue.Ref_DoubleArray(), OutputFile, Indention);
 	case JsonValue::TypeEnum::Type_String:
 		return JsonFile::SaveJsonValue(JValue.Ref_String(), OutputFile);
+	case JsonValue::TypeEnum::Type_StringArray:
+		return JsonFile::SaveJsonValue(JValue.Ref_StringArray(), OutputFile, Indention);
 	case JsonValue::TypeEnum::Type_JsonArray:
 		return JsonFile::SaveJsonValue(JValue.Ref_JsonArray(), OutputFile, Indention, Flag_PreserveOrder);
 	case JsonValue::TypeEnum::Type_JsonObject:
@@ -364,7 +379,7 @@ bool JsonFile::SaveJsonValue(double Scalar, JsonFile& OutputFile)
 	return true;
 }
 //==========================================================================================================================//
-bool JsonFile::SaveJsonValue(const DenseMatrix<int>& IntArray, JsonFile& OutputFile, int_max Indention)
+bool JsonFile::SaveJsonValue(const DenseVector<int>& IntArray, JsonFile& OutputFile, int_max Indention)
 {
 	OutputFile << "[";
 	for (int_max k = 0; k < IntArray.GetElementCount(); ++k)
@@ -389,7 +404,7 @@ bool JsonFile::SaveJsonValue(const DenseMatrix<int>& IntArray, JsonFile& OutputF
 	return true;
 }
 //==========================================================================================================================//
-bool JsonFile::SaveJsonValue(const DenseMatrix<long long>& LongLongArray, JsonFile& OutputFile, int_max Indention)
+bool JsonFile::SaveJsonValue(const DenseVector<long long>& LongLongArray, JsonFile& OutputFile, int_max Indention)
 {
 	OutputFile << "[";
 	for (int_max k = 0; k < LongLongArray.GetElementCount(); ++k)
@@ -414,7 +429,7 @@ bool JsonFile::SaveJsonValue(const DenseMatrix<long long>& LongLongArray, JsonFi
 	return true;
 }
 //==========================================================================================================================//
-bool JsonFile::SaveJsonValue(const DenseMatrix<float>& FloatArray, JsonFile& OutputFile, int_max Indention)
+bool JsonFile::SaveJsonValue(const DenseVector<float>& FloatArray, JsonFile& OutputFile, int_max Indention)
 {
 	OutputFile << "[";
 	for (int_max k = 0; k < FloatArray.GetElementCount(); ++k)
@@ -439,7 +454,7 @@ bool JsonFile::SaveJsonValue(const DenseMatrix<float>& FloatArray, JsonFile& Out
 	return true;
 }
 //==========================================================================================================================//
-bool JsonFile::SaveJsonValue(const DenseMatrix<double>& DoubleArray, JsonFile& OutputFile, int_max Indention)
+bool JsonFile::SaveJsonValue(const DenseVector<double>& DoubleArray, JsonFile& OutputFile, int_max Indention)
 {
 	OutputFile << "[";
 	for (int_max k = 0; k < DoubleArray.GetElementCount(); ++k)
@@ -470,6 +485,29 @@ bool JsonFile::SaveJsonValue(const String& JString, JsonFile& OutputFile)
 	return true;
 }
 //==========================================================================================================================//
+bool JsonFile::SaveJsonValue(const DenseVector<String>& JStringArray, JsonFile& OutputFile, int_max Indention)
+{
+	OutputFile << "[";
+	for (int_max k = 0; k < JStringArray.GetElementCount(); ++k)
+	{
+		OutputFile << "\"" << JStringArray[k] << "\"";
+		if (JStringArray.GetElementCount() > 1 && k < JStringArray.GetElementCount() - 1)
+		{
+			OutputFile << ", ";
+		}
+		if (k + 1 >= MDK_JsonFile_MaxCountPerLine_ScalarArray && ((k + 1) % MDK_JsonFile_MaxCountPerLine_ScalarArray) == 0)
+		{
+			OutputFile << '\n';
+			for (int_max k = 0; k < Indention + 1; ++k)
+			{
+				OutputFile << " ";
+			}
+		}
+	}
+	OutputFile << "]";
+	return true;
+}
+//==========================================================================================================================//
 bool JsonFile::SaveJsonValue(const JsonArray& JArray, JsonFile& OutputFile, int_max Indention, bool Flag_PreserveOrder)
 {
 	bool IsOK = true;
@@ -485,6 +523,7 @@ bool JsonFile::SaveJsonValue(const JsonArray& JArray, JsonFile& OutputFile, int_
 		case JsonValue::TypeEnum::Type_FloatArray:
 		case JsonValue::TypeEnum::Type_DoubleArray:
 		case JsonValue::TypeEnum::Type_String:
+		case JsonValue::TypeEnum::Type_StringArray:
 		case JsonValue::TypeEnum::Type_JsonArray:
 		case JsonValue::TypeEnum::Type_JsonObject:
 			Flag_SimpleArray = false;

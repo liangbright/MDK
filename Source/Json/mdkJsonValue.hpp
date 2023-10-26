@@ -38,9 +38,8 @@ void JsonValue::operator=(const DenseVector<int, TempLength>& InputArray)
 	{
 		this->m_OtherData.reset();
 	}
-	auto TempPtr = std::make_unique<DenseMatrix<int>>();
+	auto TempPtr = std::make_unique<DenseVector<int>>();
 	(*TempPtr) = InputArray;
-	(*TempPtr).Reshape(1, (*TempPtr).GetElementCount());
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_IntArray;
 }
@@ -52,9 +51,8 @@ void JsonValue::operator=(DenseVector<int, TempLength>&& InputArray)
 	{
 		this->m_OtherData.reset();
 	}
-	auto TempPtr = std::make_unique<DenseMatrix<int>>();
+	auto TempPtr = std::make_unique<DenseVector<int>>();
 	(*TempPtr) = std::move(InputArray);
-	(*TempPtr).Reshape(1, (*TempPtr).GetElementCount());
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_IntArray;
 }
@@ -66,9 +64,8 @@ void JsonValue::operator=(const DenseVector<long long, TempLength>& InputArray)
 	{
 		this->m_OtherData.reset();
 	}
-	auto TempPtr = std::make_unique<DenseMatrix<long long>>();
+	auto TempPtr = std::make_unique<DenseVector<long long>>();
 	(*TempPtr) = InputArray;
-	(*TempPtr).Reshape(1, (*TempPtr).GetElementCount());
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_LongLongArray;
 }
@@ -80,9 +77,8 @@ void JsonValue::operator=(DenseVector<long long, TempLength>&& InputArray)
 	{
 		this->m_OtherData.reset();
 	}
-	auto TempPtr = std::make_unique<DenseMatrix<long long>>();
+	auto TempPtr = std::make_unique<DenseVector<long long>>();
 	(*TempPtr) = std::move(InputArray);
-	(*TempPtr).Reshape(1, (*TempPtr).GetElementCount());
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_LongLongArray;
 }
@@ -94,9 +90,8 @@ void JsonValue::operator=(const DenseVector<float, TempLength>& InputArray)
 	{
 		this->m_OtherData.reset();
 	}
-	auto TempPtr = std::make_unique<DenseMatrix<float>>();
+	auto TempPtr = std::make_unique<DenseVector<float>>();
 	(*TempPtr) = InputArray;
-	(*TempPtr).Reshape(1, (*TempPtr).GetElementCount());
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_FloatArray;
 }
@@ -108,9 +103,8 @@ void JsonValue::operator=(DenseVector<float, TempLength>&& InputArray)
 	{
 		this->m_OtherData.reset();
 	}
-	auto TempPtr = std::make_unique<DenseMatrix<float>>();
+	auto TempPtr = std::make_unique<DenseVector<float>>();
 	(*TempPtr) = std::move(InputArray);
-	(*TempPtr).Reshape(1, (*TempPtr).GetElementCount());
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_FloatArray;
 }
@@ -122,9 +116,8 @@ void JsonValue::operator=(const DenseVector<double, TempLength>& InputArray)
 	{
 		this->m_OtherData.reset();
 	}
-	auto TempPtr = std::make_unique<DenseMatrix<double>>();
+	auto TempPtr = std::make_unique<DenseVector<double>>();
 	(*TempPtr) = InputArray;
-	(*TempPtr).Reshape(1, (*TempPtr).GetElementCount());
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_DoubleArray;
 }
@@ -136,9 +129,8 @@ void JsonValue::operator=(DenseVector<double, TempLength>&& InputArray)
 	{
 		this->m_OtherData.reset();
 	}
-	auto TempPtr = std::make_unique<DenseMatrix<double>>();
+	auto TempPtr = std::make_unique<DenseVector<double>>();
 	(*TempPtr) = std::move(InputArray);
-	(*TempPtr).Reshape(1, (*TempPtr).GetElementCount());
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_DoubleArray;
 }
@@ -164,9 +156,9 @@ ScalarType JsonValue::ToScalar(ScalarType DefaultValue) const
 }
 
 template<typename ScalarType>
-DenseMatrix<ScalarType> JsonValue::ToScalarArray() const
+DenseVector<ScalarType> JsonValue::ToScalarArray() const
 {
-	DenseMatrix<ScalarType> OutputArray;
+	DenseVector<ScalarType> OutputArray;
 	switch (m_Type)
 	{
 	case TypeEnum::Type_IntArray:
@@ -186,9 +178,9 @@ DenseMatrix<ScalarType> JsonValue::ToScalarArray() const
 }
 
 template<typename ScalarType>
-DenseMatrix<ScalarType> JsonValue::ToScalarArray(const DenseMatrix<ScalarType>& DefaultArray) const
+DenseVector<ScalarType> JsonValue::ToScalarArray(const DenseVector<ScalarType>& DefaultArray) const
 {
-	DenseMatrix<ScalarType> OutputArray;
+	DenseVector<ScalarType> OutputArray;
 	switch (m_Type)
 	{
 	case TypeEnum::Type_IntArray:
@@ -204,7 +196,6 @@ DenseMatrix<ScalarType> JsonValue::ToScalarArray(const DenseMatrix<ScalarType>& 
 		OutputArray.Copy(this->Ref_DoubleArray());
 		break;	
 	}
-	OutputArray.Reshape(1, OutputArray.GetElementCount());
 	return DefaultArray;
 }
 

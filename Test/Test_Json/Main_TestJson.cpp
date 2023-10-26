@@ -10,10 +10,10 @@ int main()
 
 	//Test_UniquePtr();
 
-	//Test_JsonValue();
+	Test_JsonValue();
 	//Test_JsonObject();
 	Test_JsonFile_1();
-	//Test_JsonFile_2();
+	Test_JsonFile_2();
 
 	//Test_JsonFile_NullValue();
 	//Test_JsonFile_EmptyArray();

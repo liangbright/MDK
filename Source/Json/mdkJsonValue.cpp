@@ -35,20 +35,20 @@ JsonValue::JsonValue(TypeEnum TypeOfValue)
 		break;
 	case TypeEnum::Type_IntArray:
 	{
-		auto TempPtr = std::make_unique<DenseMatrix<int>>();
+		auto TempPtr = std::make_unique<DenseVector<int>>();
 		m_OtherData.reset(TempPtr.release());
 		m_Type = TypeEnum::Type_IntArray;
 		break;
 	}
 	case TypeEnum::Type_LongLongArray:
 	{
-		auto TempPtr = std::make_unique<DenseMatrix<long long>>();
+		auto TempPtr = std::make_unique<DenseVector<long long>>();
 		m_OtherData.reset(TempPtr.release());
 		break;
 	}
 	case TypeEnum::Type_FloatArray:
 	{
-		auto TempPtr = std::make_unique<DenseMatrix<float>>();
+		auto TempPtr = std::make_unique<DenseVector<float>>();
 		m_OtherData.reset(TempPtr.release());
 		m_Type = TypeEnum::Type_FloatArray;
 		break;
@@ -65,6 +65,13 @@ JsonValue::JsonValue(TypeEnum TypeOfValue)
 		auto TempPtr = std::make_unique<String>();
 		m_OtherData.reset(TempPtr.release());
 		m_Type = TypeEnum::Type_String;
+		break;
+	}
+	case TypeEnum::Type_StringArray:
+	{
+		auto TempPtr = std::make_unique<DenseVector<String>>();
+		m_OtherData.reset(TempPtr.release());
+		m_Type = TypeEnum::Type_StringArray;
 		break;
 	}
 	case TypeEnum::Type_JsonArray:
@@ -119,55 +126,55 @@ JsonValue::JsonValue(double Value)
 
 JsonValue::JsonValue(const int* InputArray, int_max ArrayLength)
 {
-	auto TempPtr = std::make_unique<DenseMatrix<int>>();
-	(*TempPtr).AppendRow(InputArray, ArrayLength);
+	auto TempPtr = std::make_unique<DenseVector<int>>();
+	(*TempPtr).Append(InputArray, ArrayLength);
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_IntArray;
 }
 
 JsonValue::JsonValue(const long long* InputArray, int_max ArrayLength)
 {
-	auto TempPtr = std::make_unique<DenseMatrix<long long>>();
-	(*TempPtr).AppendRow(InputArray, ArrayLength);
+	auto TempPtr = std::make_unique<DenseVector<long long>>();
+	(*TempPtr).Append(InputArray, ArrayLength);
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_LongLongArray;
 }
 
 JsonValue::JsonValue(const float* InputArray, int_max ArrayLength)
 {
-	auto TempPtr = std::make_unique<DenseMatrix<float>>();
-	(*TempPtr).AppendRow(InputArray, ArrayLength);
+	auto TempPtr = std::make_unique<DenseVector<float>>();
+	(*TempPtr).Append(InputArray, ArrayLength);
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_FloatArray;
 }
 
 JsonValue::JsonValue(const double* InputArray, int_max ArrayLength)
 {
-	auto TempPtr = std::make_unique<DenseMatrix<double>>();
-	(*TempPtr).AppendRow(InputArray, ArrayLength);
+	auto TempPtr = std::make_unique<DenseVector<double>>();
+	(*TempPtr).Append(InputArray, ArrayLength);
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_DoubleArray;
 }
 
-JsonValue::JsonValue(DenseMatrix<int> InputArray)
+JsonValue::JsonValue(DenseVector<int> InputArray)
+{
+	m_Type = TypeEnum::Type_Null;//it must be Type_Null
+	(*this) = std::move(InputArray);
+}
+
+JsonValue::JsonValue(DenseVector<long long> InputArray)
 {
 	m_Type = TypeEnum::Type_Null;
 	(*this) = std::move(InputArray);
 }
 
-JsonValue::JsonValue(DenseMatrix<long long> InputArray)
+JsonValue::JsonValue(DenseVector<float> InputArray)
 {
 	m_Type = TypeEnum::Type_Null;
 	(*this) = std::move(InputArray);
 }
 
-JsonValue::JsonValue(DenseMatrix<float> InputArray)
-{
-	m_Type = TypeEnum::Type_Null;
-	(*this) = std::move(InputArray);
-}
-
-JsonValue::JsonValue(DenseMatrix<double> InputArray)
+JsonValue::JsonValue(DenseVector<double> InputArray)
 {
 	m_Type = TypeEnum::Type_Null;
 	(*this) = std::move(InputArray);
@@ -183,6 +190,12 @@ JsonValue::JsonValue(String Value)
 {
 	m_Type = TypeEnum::Type_Null;
 	(*this) = std::move(Value);
+}
+
+JsonValue::JsonValue(DenseVector<String> InputArray)
+{
+	m_Type = TypeEnum::Type_Null;
+	(*this) = std::move(InputArray);
 }
 
 JsonValue::JsonValue(JsonArray Value)
@@ -263,106 +276,98 @@ void JsonValue::operator=(double Value)
 	m_Type = TypeEnum::Type_Double;
 }
 
-void JsonValue::operator=(const DenseMatrix<int>& InputArray)
+void JsonValue::operator=(const DenseVector<int>& InputArray)
 {
 	if (m_Type != TypeEnum::Type_IntArray)
 	{
 		this->m_OtherData.reset();
 	}
-	auto TempPtr = std::make_unique<DenseMatrix<int>>();
+	auto TempPtr = std::make_unique<DenseVector<int>>();
 	(*TempPtr) = InputArray;
-	(*TempPtr).Reshape(1, (*TempPtr).GetElementCount());
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_IntArray;
 }
 
-void JsonValue::operator=(DenseMatrix<int>&& InputArray)
+void JsonValue::operator=(DenseVector<int>&& InputArray)
 {
 	if (m_Type != TypeEnum::Type_IntArray)
 	{
 		this->m_OtherData.reset();
 	}
-	auto TempPtr = std::make_unique<DenseMatrix<int>>();
+	auto TempPtr = std::make_unique<DenseVector<int>>();
 	(*TempPtr) = std::move(InputArray);
-	(*TempPtr).Reshape(1, (*TempPtr).GetElementCount());
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_IntArray;
 }
 
-void JsonValue::operator=(const DenseMatrix<long long>& InputArray)
+void JsonValue::operator=(const DenseVector<long long>& InputArray)
 {
 	if (m_Type != TypeEnum::Type_LongLongArray)
 	{
 		this->m_OtherData.reset();
 	}
-	auto TempPtr = std::make_unique<DenseMatrix<long long>>();
+	auto TempPtr = std::make_unique<DenseVector<long long>>();
 	(*TempPtr) = InputArray;
-	(*TempPtr).Reshape(1, (*TempPtr).GetElementCount());
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_LongLongArray;
 }
 
-void JsonValue::operator=(DenseMatrix<long long>&& InputArray)
+void JsonValue::operator=(DenseVector<long long>&& InputArray)
 {
 	if (m_Type != TypeEnum::Type_LongLongArray)
 	{
 		this->m_OtherData.reset();
 	}
-	auto TempPtr = std::make_unique<DenseMatrix<long long>>();
+	auto TempPtr = std::make_unique<DenseVector<long long>>();
 	(*TempPtr) = std::move(InputArray);
-	(*TempPtr).Reshape(1, (*TempPtr).GetElementCount());
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_LongLongArray;
 }
 
-void JsonValue::operator=(const DenseMatrix<float>& InputArray)
+void JsonValue::operator=(const DenseVector<float>& InputArray)
 {
 	if (m_Type != TypeEnum::Type_FloatArray)
 	{
 		this->m_OtherData.reset();
 	}
-	auto TempPtr = std::make_unique<DenseMatrix<float>>();
+	auto TempPtr = std::make_unique<DenseVector<float>>();
 	(*TempPtr) = InputArray;
-	(*TempPtr).Reshape(1, (*TempPtr).GetElementCount());
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_FloatArray;
 }
 
-void JsonValue::operator=(DenseMatrix<float>&& InputArray)
+void JsonValue::operator=(DenseVector<float>&& InputArray)
 {
 	if (m_Type != TypeEnum::Type_FloatArray)
 	{
 		this->m_OtherData.reset();
 	}
-	auto TempPtr = std::make_unique<DenseMatrix<float>>();
+	auto TempPtr = std::make_unique<DenseVector<float>>();
 	(*TempPtr) = std::move(InputArray);
-	(*TempPtr).Reshape(1, (*TempPtr).GetElementCount());
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_FloatArray;
 }
 
-void JsonValue::operator=(const DenseMatrix<double>& InputArray)
+void JsonValue::operator=(const DenseVector<double>& InputArray)
 {
 	if (m_Type != TypeEnum::Type_DoubleArray)
 	{
 		this->m_OtherData.reset();
 	}
-	auto TempPtr = std::make_unique<DenseMatrix<double>>();
+	auto TempPtr = std::make_unique<DenseVector<double>>();
 	(*TempPtr) = InputArray;
-	(*TempPtr).Reshape(1, (*TempPtr).GetElementCount());
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_DoubleArray;
 }
 
-void JsonValue::operator=(DenseMatrix<double>&& InputArray)
+void JsonValue::operator=(DenseVector<double>&& InputArray)
 {
 	if (m_Type != TypeEnum::Type_DoubleArray)
 	{
 		this->m_OtherData.reset();
 	}
-	auto TempPtr = std::make_unique<DenseMatrix<double>>();
+	auto TempPtr = std::make_unique<DenseVector<double>>();
 	(*TempPtr) = std::move(InputArray);
-	(*TempPtr).Reshape(1, (*TempPtr).GetElementCount());
 	m_OtherData.reset(TempPtr.release());
 	m_Type = TypeEnum::Type_DoubleArray;
 }
@@ -398,6 +403,30 @@ void JsonValue::operator=(String&& Value)
 	}
 	this->Ref_String() = std::move(Value);
 	m_Type = TypeEnum::Type_String;
+}
+
+void JsonValue::operator=(const DenseVector<String>& InputArray)
+{
+	if (m_Type != TypeEnum::Type_StringArray)
+	{
+		this->m_OtherData.reset();
+	}
+	auto TempPtr = std::make_unique<DenseVector<String>>();
+	(*TempPtr) = InputArray;
+	m_OtherData.reset(TempPtr.release());
+	m_Type = TypeEnum::Type_StringArray;
+}
+
+void JsonValue::operator=(DenseVector<String>&& InputArray)
+{
+	if (m_Type != TypeEnum::Type_StringArray)
+	{
+		this->m_OtherData.reset();
+	}
+	auto TempPtr = std::make_unique<DenseVector<String>>();
+	(*TempPtr) = std::move(InputArray);
+	m_OtherData.reset(TempPtr.release());
+	m_Type = TypeEnum::Type_StringArray;
 }
 
 void JsonValue::operator=(const JsonArray& Value)
@@ -472,7 +501,7 @@ void JsonValue::operator=(const JsonValue& Value)
 	{
 		if (!m_OtherData)
 		{
-			auto TempPtr = std::make_unique<DenseMatrix<int>>();
+			auto TempPtr = std::make_unique<DenseVector<int>>();
 			m_OtherData.reset(TempPtr.release());
 		}
 		this->Ref_IntArray() = Value.Ref_IntArray();
@@ -482,7 +511,7 @@ void JsonValue::operator=(const JsonValue& Value)
 	{
 		if (!m_OtherData)
 		{
-			auto TempPtr = std::make_unique<DenseMatrix<long long>>();
+			auto TempPtr = std::make_unique<DenseVector<long long>>();
 			m_OtherData.reset(TempPtr.release());
 		}
 		this->Ref_LongLongArray() = Value.Ref_LongLongArray();
@@ -492,7 +521,7 @@ void JsonValue::operator=(const JsonValue& Value)
 	{
 		if (!m_OtherData)
 		{
-			auto TempPtr = std::make_unique<DenseMatrix<float>>();
+			auto TempPtr = std::make_unique<DenseVector<float>>();
 			m_OtherData.reset(TempPtr.release());
 		}
 		this->Ref_FloatArray() = Value.Ref_FloatArray();
@@ -502,7 +531,7 @@ void JsonValue::operator=(const JsonValue& Value)
 	{
 		if (!m_OtherData)
 		{
-			auto TempPtr = std::make_unique<DenseMatrix<double>>();
+			auto TempPtr = std::make_unique<DenseVector<double>>();
 			m_OtherData.reset(TempPtr.release());
 		}
 		this->Ref_DoubleArray() = Value.Ref_DoubleArray();
@@ -516,6 +545,16 @@ void JsonValue::operator=(const JsonValue& Value)
 			m_OtherData.reset(TempPtr.release());
 		}		
 		this->Ref_String() = Value.Ref_String();
+		break;
+	}
+	case TypeEnum::Type_StringArray:
+	{
+		if (!m_OtherData)
+		{
+			auto TempPtr = std::make_unique<DenseVector<String>>();
+			m_OtherData.reset(TempPtr.release());
+		}
+		this->Ref_StringArray() = Value.Ref_StringArray();
 		break;
 	}
 	case TypeEnum::Type_JsonArray:
@@ -572,7 +611,7 @@ void JsonValue::operator=(JsonValue&& Value)
 	{
 		if (!m_OtherData)
 		{
-			auto TempPtr = std::make_unique<DenseMatrix<int>>();
+			auto TempPtr = std::make_unique<DenseVector<int>>();
 			m_OtherData.reset(TempPtr.release());
 		}
 		this->Ref_IntArray() = std::move(Value.Ref_IntArray());
@@ -582,7 +621,7 @@ void JsonValue::operator=(JsonValue&& Value)
 	{
 		if (!m_OtherData)
 		{
-			auto TempPtr = std::make_unique<DenseMatrix<long long>>();
+			auto TempPtr = std::make_unique<DenseVector<long long>>();
 			m_OtherData.reset(TempPtr.release());
 		}
 		this->Ref_LongLongArray() = std::move(Value.Ref_LongLongArray());
@@ -592,7 +631,7 @@ void JsonValue::operator=(JsonValue&& Value)
 	{
 		if (!m_OtherData)
 		{
-			auto TempPtr = std::make_unique<DenseMatrix<float>>();
+			auto TempPtr = std::make_unique<DenseVector<float>>();
 			m_OtherData.reset(TempPtr.release());
 		}
 		this->Ref_FloatArray() = std::move(Value.Ref_FloatArray());
@@ -602,7 +641,7 @@ void JsonValue::operator=(JsonValue&& Value)
 	{
 		if (!m_OtherData)
 		{
-			auto TempPtr = std::make_unique<DenseMatrix<double>>();
+			auto TempPtr = std::make_unique<DenseVector<double>>();
 			m_OtherData.reset(TempPtr.release());
 		}
 		this->Ref_DoubleArray() = std::move(Value.Ref_DoubleArray());
@@ -616,6 +655,16 @@ void JsonValue::operator=(JsonValue&& Value)
 			m_OtherData.reset(TempPtr.release());
 		}		
 		this->Ref_String() = std::move(Value.Ref_String());
+		break;
+	}
+	case TypeEnum::Type_StringArray:
+	{
+		if (!m_OtherData)
+		{
+			auto TempPtr = std::make_unique<DenseVector<String>>();
+			m_OtherData.reset(TempPtr.release());
+		}
+		this->Ref_StringArray() = std::move(Value.Ref_StringArray());
 		break;
 	}
 	case TypeEnum::Type_JsonArray:
@@ -716,17 +765,17 @@ double JsonValue::GetDouble(double DefaultValue) const
 	return DefaultValue;
 }
 
-DenseMatrix<int> JsonValue::GetIntArray() const
+DenseVector<int> JsonValue::GetIntArray() const
 {
 	if (m_Type == TypeEnum::Type_IntArray)
 	{
 		return this->Ref_IntArray();
 	}
-	DenseMatrix<int> EmptyArray;
+	DenseVector<int> EmptyArray;
 	return EmptyArray;
 }
 
-DenseMatrix<int> JsonValue::GetIntArray(const DenseMatrix<int>& DefaultArray) const
+DenseVector<int> JsonValue::GetIntArray(const DenseVector<int>& DefaultArray) const
 {
 	if (m_Type == TypeEnum::Type_IntArray)
 	{
@@ -735,17 +784,17 @@ DenseMatrix<int> JsonValue::GetIntArray(const DenseMatrix<int>& DefaultArray) co
 	return DefaultArray;
 }
 
-DenseMatrix<long long> JsonValue::GetLongLongArray() const
+DenseVector<long long> JsonValue::GetLongLongArray() const
 {
 	if (m_Type == TypeEnum::Type_LongLongArray)
 	{
 		return this->Ref_LongLongArray();
 	}
-	DenseMatrix<long long> EmptyArray;
+	DenseVector<long long> EmptyArray;
 	return EmptyArray;
 }
 
-DenseMatrix<long long> JsonValue::GetLongLongArray(const DenseMatrix<long long>& DefaultArray) const
+DenseVector<long long> JsonValue::GetLongLongArray(const DenseVector<long long>& DefaultArray) const
 {
 	if (m_Type == TypeEnum::Type_LongLongArray)
 	{
@@ -754,17 +803,17 @@ DenseMatrix<long long> JsonValue::GetLongLongArray(const DenseMatrix<long long>&
 	return DefaultArray;
 }
 
-DenseMatrix<float> JsonValue::GetFloatArray() const
+DenseVector<float> JsonValue::GetFloatArray() const
 {
 	if (m_Type == TypeEnum::Type_FloatArray)
 	{
 		return this->Ref_FloatArray();
 	}
-	DenseMatrix<float> EmptyArray;
+	DenseVector<float> EmptyArray;
 	return EmptyArray;
 }
 
-DenseMatrix<float> JsonValue::GetFloatArray(const DenseMatrix<float>& DefaultArray) const
+DenseVector<float> JsonValue::GetFloatArray(const DenseVector<float>& DefaultArray) const
 {
 	if (m_Type == TypeEnum::Type_FloatArray)
 	{
@@ -773,17 +822,17 @@ DenseMatrix<float> JsonValue::GetFloatArray(const DenseMatrix<float>& DefaultArr
 	return DefaultArray;
 }
 
-DenseMatrix<double> JsonValue::GetDoubleArray() const
+DenseVector<double> JsonValue::GetDoubleArray() const
 {
 	if (m_Type == TypeEnum::Type_DoubleArray)
 	{
 		return this->Ref_DoubleArray();
 	}
-	DenseMatrix<double> EmptyArray;
+	DenseVector<double> EmptyArray;
 	return EmptyArray;
 }
 
-DenseMatrix<double> JsonValue::GetDoubleArray(const DenseMatrix<double>& DefaultArray) const
+DenseVector<double> JsonValue::GetDoubleArray(const DenseVector<double>& DefaultArray) const
 {
 	if (m_Type == TypeEnum::Type_DoubleArray)
 	{
@@ -810,6 +859,25 @@ String JsonValue::GetString(const String& DefaultValue) const
 		return this->Ref_String();
 	}
 	return DefaultValue;
+}
+
+DenseVector<String> JsonValue::GetStringArray() const
+{
+	if (m_Type == TypeEnum::Type_StringArray)
+	{
+		return this->Ref_StringArray();
+	}
+	DenseVector<String> EmptyArray;
+	return EmptyArray;
+}
+
+DenseVector<String> JsonValue::GetStringArray(const DenseVector<String>& DefaultArray) const
+{
+	if (m_Type == TypeEnum::Type_StringArray)
+	{
+		return this->Ref_StringArray();
+	}
+	return DefaultArray;
 }
 
 JsonArray JsonValue::GetJsonArray() const

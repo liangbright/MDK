@@ -85,6 +85,12 @@ QJsonValue ConvertMDKJsonValueToQTJsonValue(const JsonValue& JValue)
 		QJsonValue QJValue(S);
 		return QJValue;
 	}
+	case JsonValue::TypeEnum::Type_StringArray:
+	{
+		QJsonArray QJArray = ConvertMDKStringArrayToQTJsonArray(JValue.Ref_StringArray());
+		QJsonValue QJValue(QJArray);
+		return QJValue;
+	}
 	case JsonValue::TypeEnum::Type_JsonArray:
 	{
 		QJsonArray QJArray = ConvertMDKJsonArrayToQTJsonArray(JValue.Ref_JsonArray());
@@ -105,7 +111,7 @@ QJsonValue ConvertMDKJsonValueToQTJsonValue(const JsonValue& JValue)
 }
 
 
-QJsonArray ConvertMDKScalarArrayToQTJsonArray(const DenseMatrix<int>& InputArray)
+QJsonArray ConvertMDKScalarArrayToQTJsonArray(const DenseVector<int>& InputArray)
 {
 	QJsonArray QJArray;
 	for (int_max k = 0; k < InputArray.GetElementCount(); ++k)
@@ -116,7 +122,7 @@ QJsonArray ConvertMDKScalarArrayToQTJsonArray(const DenseMatrix<int>& InputArray
 }
 
 
-QJsonArray ConvertMDKScalarArrayToQTJsonArray(const DenseMatrix<long long>& InputArray)
+QJsonArray ConvertMDKScalarArrayToQTJsonArray(const DenseVector<long long>& InputArray)
 {
 	QJsonArray QJArray;
 	for (int_max k = 0; k < InputArray.GetElementCount(); ++k)
@@ -127,7 +133,7 @@ QJsonArray ConvertMDKScalarArrayToQTJsonArray(const DenseMatrix<long long>& Inpu
 }
 
 
-QJsonArray ConvertMDKScalarArrayToQTJsonArray(const DenseMatrix<float>& InputArray)
+QJsonArray ConvertMDKScalarArrayToQTJsonArray(const DenseVector<float>& InputArray)
 {
 	QJsonArray QJArray;
 	for (int_max k = 0; k < InputArray.GetElementCount(); ++k)
@@ -138,12 +144,25 @@ QJsonArray ConvertMDKScalarArrayToQTJsonArray(const DenseMatrix<float>& InputArr
 }
 
 
-QJsonArray ConvertMDKScalarArrayToQTJsonArray(const DenseMatrix<double>& InputArray)
+QJsonArray ConvertMDKScalarArrayToQTJsonArray(const DenseVector<double>& InputArray)
 {
 	QJsonArray QJArray;
 	for (int_max k = 0; k < InputArray.GetElementCount(); ++k)
 	{
 		QJsonValue QJValue(InputArray[k]);
+		QJArray.append(QJValue);
+	}
+	return QJArray;
+}
+
+
+QJsonArray ConvertMDKStringArrayToQTJsonArray(const DenseVector<String>& InputArray)
+{
+	QJsonArray QJArray;
+	for (int_max k = 0; k < InputArray.GetElementCount(); ++k)
+	{
+		QString S(InputArray[k].StdString().c_str());
+		QJsonValue QJValue(S);
 		QJArray.append(QJValue);
 	}
 	return QJArray;
@@ -174,7 +193,6 @@ JsonObject ConvertQTJsonObjectToMDKJsonObject(const QJsonObject& QJObject)
 	}
 	return JObject;
 }
-
 
 JsonValue ConvertQTJsonValueToMDKJsonValue(const QJsonValue& QJValue)
 {
@@ -209,6 +227,10 @@ JsonValue ConvertQTJsonValueToMDKJsonValue(const QJsonValue& QJValue)
 			{
 				JValue = ConvertQTJsonArrayToMDKScalarArray(QJArray);
 			}
+			else if (CheckIf_QTJsonArray_Is_StringArray(QJArray) == true)
+			{
+				JValue = ConvertQTJsonArrayToMDKStringArray(QJArray);
+			}
 			else
 			{
 				JValue = ConvertQTJsonArrayToMDKJsonArray(QJArray);
@@ -232,6 +254,17 @@ JsonValue ConvertQTJsonValueToMDKJsonValue(const QJsonValue& QJValue)
 	return JValue;
 }
 
+JsonArray ConvertQTJsonArrayToMDKJsonArray(const QJsonArray& QJArray)
+{
+	JsonArray JArray;
+	JArray.SetCapacity(int_max(QJArray.size()));
+	for (auto it = QJArray.begin(); it != QJArray.end(); ++it)
+	{
+		JArray.Append(ConvertQTJsonValueToMDKJsonValue(*it));
+	}
+	return JArray;
+}
+
 bool CheckIf_QTJsonArray_Is_ScalarArray(const QJsonArray& QJArray)
 {
 	bool Flag = true;
@@ -253,10 +286,10 @@ bool CheckIf_QTJsonArray_Is_ScalarArray(const QJsonArray& QJArray)
 	return Flag;
 }
 
-DenseMatrix<double> ConvertQTJsonArrayToMDKScalarArray(const QJsonArray& QJArray)
+DenseVector<double> ConvertQTJsonArrayToMDKScalarArray(const QJsonArray& QJArray)
 {
-	DenseMatrix<double> OutputArray;
-	OutputArray.SetCapacity(1, int_max(QJArray.size()));
+	DenseVector<double> OutputArray;
+	OutputArray.SetCapacity(int_max(QJArray.size()));
 	for (auto it = QJArray.begin(); it != QJArray.end(); ++it)
 	{
 		if ((*it).type() != QJsonValue::Type::Double)
@@ -267,19 +300,45 @@ DenseMatrix<double> ConvertQTJsonArrayToMDKScalarArray(const QJsonArray& QJArray
 		}
 		OutputArray.Append((*it).toDouble());
 	}
-	OutputArray.Resize(1, OutputArray.GetElementCount());
 	return OutputArray;
 }
 
-JsonArray ConvertQTJsonArrayToMDKJsonArray(const QJsonArray& QJArray)
+bool CheckIf_QTJsonArray_Is_StringArray(const QJsonArray& QJArray)
 {
-	JsonArray JArray;
-	JArray.SetCapacity(int_max(QJArray.size()));
-	for (auto it = QJArray.begin(); it != QJArray.end(); ++it)
-	{		
-		JArray.Append(ConvertQTJsonValueToMDKJsonValue(*it));
+	bool Flag = true;
+	if (QJArray.size() == 0)
+	{// if QJArray is empty, then it may not be ScalarArray
+		Flag = false;
 	}
-	return JArray;
+	else
+	{
+		for (auto it = QJArray.begin(); it != QJArray.end(); ++it)
+		{
+			if ((*it).type() != QJsonValue::Type::String)
+			{
+				Flag = false;
+				break;
+			}
+		}
+	}
+	return Flag;
+}
+
+DenseVector<String> ConvertQTJsonArrayToMDKStringArray(const QJsonArray& QJArray)
+{
+	DenseVector<String> OutputArray;
+	OutputArray.SetCapacity(int_max(QJArray.size()));
+	for (auto it = QJArray.begin(); it != QJArray.end(); ++it)
+	{
+		if ((*it).type() != QJsonValue::Type::String)
+		{
+			MDK_Error("Type is not String @ ConvertQTJsonArrayToMDKStringArray(...)")
+			OutputArray.Clear();
+			return OutputArray;
+		}
+		OutputArray.Append((*it).toString().toStdString());
+	}
+	return OutputArray;
 }
 
 //--------------------------------------------------------------------------------------------------------//

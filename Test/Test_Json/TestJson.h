@@ -79,6 +79,11 @@ void Test_JsonValue()
 	JsonArray JArray;
 	JsonObject JObject;
 	DenseMatrix<double> A(1, 10);
+	DenseVector<String> B;
+	B.Resize(2);
+	B[0] = "B0";
+	B[1] = "B1";
+
 	Value = true;
 	Value = 1;
 	Value = 1.0;
@@ -86,6 +91,7 @@ void Test_JsonValue()
 	Value = JArray;
 	Value = JObject;
 	Value = A;
+	Value = B;
 }
 
 void Test_JsonObject()
@@ -101,6 +107,7 @@ void Test_JsonObject()
 void Test_JsonFile_1()
 {
 	DenseMatrix<double> A = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 };
+	DenseVector<String> B = { "B0", "B1" };
 
 	JsonObject JObject;
 	JObject["ObjectType"] = "DenseMatrix";
@@ -109,6 +116,7 @@ void Test_JsonFile_1()
 	JObject["ScalarType"] = "double";
 	JObject["ScalarArray"] = A;
 	JObject["ScalarArray_json"] = "A.json";
+	JObject["StringArray"] = B;	
 	JObject["Empty"] = A;
 	JObject["Empty"].Clear();
 	JObject["bool"] = true;
@@ -142,6 +150,8 @@ void Test_JsonFile_2()
 		                      1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.9, 10.0,
 							  1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.9, 10.0 };
 
+	DenseVector<String> B = {"B0", "B1"};
+
 	JsonObject JObjectA, JObjectB;
 
 	JObjectA["Empty"] = A;
@@ -158,24 +168,25 @@ void Test_JsonFile_2()
 	JObjectB = JObjectA;
 
 	JsonArray JArray;
-	JArray.Resize(4);
+	JArray.Resize(5);
 	JArray[0] = A;
 	JArray[1] = JObjectA;
 	JArray[2] = JObjectB;
 	JArray[3] = A;
+	JArray[4] = B;
 
 	JsonObject JObjectC, JObjectD;
 
 	JObjectC["ObjectB"] = JObjectB;
 	JObjectC["ObjectA"] = JObjectA;
 	JObjectC["A"] = A;
-	JObjectC["JArray"] = JArray;
+	JObjectC["B"] = JArray;
 
 	JObjectD = JObjectC;
 	
 	JsonObject JObject;
-	JObject["ObjectD"] = JObjectD;
-	JObject["ObjectC"] = JObjectC;
+	//JObject["ObjectD"] = JObjectD;
+	//JObject["ObjectC"] = JObjectC;
 	JObject["JArray"] = JArray;
 
 	String FileName = "C:/Research/MDK/MDK_Build/Test/Test_Json/TestData/testJsonFile2.json";
