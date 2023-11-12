@@ -9,7 +9,7 @@ DenseVector<int_max> ResampleOpenCurveOfSurface(TriangleMesh<ScalarType>& Surfac
 	//CurvePointIndexList_input: an open boundary curve on Surface, CurvePointIndexList_input[0] is the start point, CurvePointIndexList_input[end] is the end point	
 	//point order in CurvePointIndexList_input must align with normal direction, so new face will have consistant normal direction
 	//Curve_output is the target, Curve_output(:,k) is a 3D point
-	//Curve_output should be close to the orignial bounary on InputMesh
+	//Curve_output should be close to the orignial boundary on InputMesh
 
 	DenseVector<int_max> CurvePointIndexList_output;
 	//------------------- check input ----------------------------------------//
