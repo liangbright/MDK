@@ -10,6 +10,8 @@ DenseVector<int_max> ResampleOpenCurveOfSurface(TriangleMesh<ScalarType>& Surfac
 	//point order in CurvePointIndexList_input must align with normal direction, so new face will have consistant normal direction
 	//Curve_output is the target, Curve_output(:,k) is a 3D point
 	//Curve_output should be close to the orignial boundary on InputMesh
+	//This function works for non-boundary curve on Surface
+	//This function will crash if CurvePointIndexList_input has self-intersection  ___|___
 
 	DenseVector<int_max> CurvePointIndexList_output;
 	//------------------- check input ----------------------------------------//
@@ -258,12 +260,25 @@ int_max ProjectPoint_AddProjectedPoint_ToSurface(TriangleMesh<ScalarType>& Surfa
 		DenseMatrix<ScalarType> PointSet;
 		PointSet.Resize(3, 1);
 		PointSet.SetCol(0, Point);
+		//auto Surface_vtk = ConvertMDKPolygonMeshToVTKPolyData(Surface);
 		//VTKStaticCellLocator may have some bug...
 		ProjectPointToFaceByVTKCellLocator(Surface, PointSet, PointSet_proj, FaceIndexList_nearest);
 		PointSet_proj.GetCol(0, Point_proj);
 		FaceIndex_nearest = FaceIndexList_nearest[0];
-		PointIndexList_nearest = FindNearestPointOnMeshByVTKKdTreePointLocator(Surface, PointSet);
-		PointIndex_nearest = PointIndexList_nearest[0];
+		//PointIndexList_nearest = FindNearestPointOnMeshByVTKKdTreePointLocator(Surface_vtk, PointSet);
+		//PointIndex_nearest = PointIndexList_nearest[0];
+		PointIndex_nearest = FindNearestPointOnMesh(Surface, Point);
+		//it is true that the nearest point may not belong to the nearest face
+		/*
+		auto PointIndexList_face = Surface.Face(FaceIndex_nearest).GetPointIndexList();
+		if ((PointIndexList_face[0] != PointIndex_nearest)
+			&& (PointIndexList_face[1] != PointIndex_nearest)
+			&& (PointIndexList_face[2] != PointIndex_nearest)
+			)
+		{
+			MDK_Warning("The nearest point does not belong to the nearest face @ ProjectPoint_AddProjectedPoint_ToSurface")
+		}
+		*/
 	}
 	bool Flag_AddNewPoint = false;
 	{

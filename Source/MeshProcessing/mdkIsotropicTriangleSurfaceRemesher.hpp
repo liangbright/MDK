@@ -162,10 +162,13 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::Initialize()
 	{
 		BoundaryCurve[k] = Input.SourceMesh->GetPointPosition(BoundarySet[k]);
 	}
-	Internal.BoundaryCurve_vtk = ConvertMultipleMDK3DCurveToVTKPolyData(BoundaryCurve);
-	Internal.CellLocator_of_BoundaryCurve_vtk = vtkSmartPointer<vtkCellLocator>::New();
-	Internal.CellLocator_of_BoundaryCurve_vtk->SetDataSet(Internal.BoundaryCurve_vtk);
-	Internal.CellLocator_of_BoundaryCurve_vtk->BuildLocator();
+	if (BoundarySet.GetLength() > 0)
+	{
+		Internal.BoundaryCurve_vtk = ConvertMultipleMDK3DCurveToVTKPolyData(BoundaryCurve);
+		Internal.CellLocator_of_BoundaryCurve_vtk = vtkSmartPointer<vtkCellLocator>::New();
+		Internal.CellLocator_of_BoundaryCurve_vtk->SetDataSet(Internal.BoundaryCurve_vtk);
+		Internal.CellLocator_of_BoundaryCurve_vtk->BuildLocator();
+	}
 	Internal.CellLocator_of_SourceMesh_vtk = vtkSmartPointer<vtkCellLocator>::New();
 	Internal.CellLocator_of_SourceMesh_vtk->SetDataSet(Internal.SourceMesh_vtk);
 	Internal.CellLocator_of_SourceMesh_vtk->BuildLocator();
