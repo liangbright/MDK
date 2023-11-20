@@ -19,7 +19,14 @@ struct Input_of_IsotropicTriangleSurfaceRemesher
 	//feature point/edge will not be modified
 	//do not need to set boundary as feature because boundary will not be modified if Flag_ProcessBounary is true
 	DenseVector<int_max> FeaturePointIndexList;
+	
+	//Problem: (1) Edge in Python Mesh may have different order
+	//         (2) Edge index does not exit in Paraview
 	DenseVector<int_max> FeatureEdgeIndexList;
+	//Solution: see Convert_FeatureCurve_to_FeatureEdge function
+	//FeatureCurveList[k] is PointIndexList of a curve
+	DenseVector<DenseVector<int_max>> FeatureCurveList;
+
 	ScalarType TargetEdgeLength;
 	int_max MaxIter;
 	
@@ -78,6 +85,7 @@ public:
 	void CleanMesh();//use this Class to clean mesh
 private:
 	bool CheckInput();
+	bool Convert_FeatureCurve_to_FeatureEdge();
 	void Initialize();
 	bool IsFeatureEdge(int_max EdgeIndex);
 	bool IsFeaturePoint(int_max PointIndex);

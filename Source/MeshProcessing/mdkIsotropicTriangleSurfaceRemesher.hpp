@@ -143,6 +143,26 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::CleanMesh()
 
 
 template<typename ScalarType>
+bool IsotropicTriangleSurfaceRemesher<ScalarType>::Convert_FeatureCurve_to_FeatureEdge()
+{
+	for (int_max k = 0; k < Input.FeatureCurveList.GetLength(); ++k)
+	{
+		const auto& PointIndexList = Input.FeatureCurveList[k];
+		for (int_max n = 0; n < PointIndexList.GetLength()-1; ++n)
+		{
+			auto EdgeIndex = Input.SourceMesh->GetEdgeIndexByPoint(PointIndexList[n], PointIndexList[n + 1]);
+			if (EdgeIndex < 0)
+			{
+				MDK_Error("EdgeIndex < 0 @ IsotropicTriangleSurfaceRemesher::Convert_FeatureCurve_to_FeatureEdge")
+				return false;
+			}
+			Input.FeatureEdgeIndexList.Append(EdgeIndex);			
+		}
+	}
+	return true;
+}
+
+template<typename ScalarType>
 void IsotropicTriangleSurfaceRemesher<ScalarType>::Initialize()
 {
 	if (Input.SourceMesh->Check_If_DataStructure_is_Clean() == false)
@@ -189,6 +209,7 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::Initialize()
 		}
 	}
 	//--------------------------------------------------------------------
+	this->Convert_FeatureCurve_to_FeatureEdge();
 	auto EdgeIndex_MAX = Input.SourceMesh->GetMaxValueOfEdgeIndex();
 	Internal.EdgeFlagList.Clear();
 	Internal.EdgeFlagList.Resize(EdgeIndex_MAX+1);

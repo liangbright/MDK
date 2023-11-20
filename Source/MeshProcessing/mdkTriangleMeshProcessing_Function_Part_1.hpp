@@ -185,7 +185,7 @@ DenseVector<int_max> ResampleOpenCurveOfSurface(TriangleMesh<ScalarType>& Surfac
 			Surface.DeleteEdge(EdgeIndex01);			
 		}
 	}
-
+	
 	//collapse edge
 	for (int_max k = 0; k < PointIndexList_PerOutputEdge.GetLength(); ++k)
 	{
@@ -197,6 +197,11 @@ DenseVector<int_max> ResampleOpenCurveOfSurface(TriangleMesh<ScalarType>& Surfac
 			{
 				auto Hn = PointIndexList_k[n];
 				auto EdgeIndex_n0 = Surface.GetEdgeIndexByPoint(Hn, H0);
+				if (EdgeIndex_n0 < 0)
+				{
+					MDK_Error("The curve may have self-intersection, abort @ TriangMeshProcessing ResampleOpenCurveOfSurface(...)")
+					return CurvePointIndexList_output;
+				}
 				auto Flag = Surface.CollapseEdge(EdgeIndex_n0, H0, true, true);
 				if (Flag == false)
 				{
@@ -206,7 +211,7 @@ DenseVector<int_max> ResampleOpenCurveOfSurface(TriangleMesh<ScalarType>& Surfac
 			}
 		}
 	}
-
+	
 	return CurvePointIndexList_output;
 }
 
