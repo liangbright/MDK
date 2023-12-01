@@ -523,7 +523,7 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::CollapseShortBoundaryEdge()
 	//handle new edge
 	int_max EdgeIndex = EdgeIndexList_sort.GetLength() - 1;
 	//int_max MaxIter = Surface.GetMaxValueOfEdgeIndex() - EdgeIndex;
-	int_max MaxIter = 0;//same some time...
+	int_max MaxIter = 0;//save some time...
 	//while (true): it may not converge
 	for (int_max iter = 0; iter < MaxIter; ++iter)
 	{
@@ -555,7 +555,7 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::Remesh()
 		{
 			this->ProcessBoundary();
 		}
-		//this->EqualizeValence(); not good
+		this->EqualizeValence(); //not good?
 		this->SplitLongEdge();
 		this->CollapseShortEdge();
 		this->RemoveIsolatedFace();
@@ -757,6 +757,13 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::EqualizeValence()
 
 			if (Flag_Edge_Feature == false)
 			{
+				//     H2
+				//  /     \
+				//  H0----H1
+				//   \    /
+				//     H3
+				//try to flip edge H0-H1
+
 				int_max H0 = -1;
 				int_max H1 = -1;
 				int_max H2 = -1;
@@ -821,31 +828,17 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::EqualizeValence()
 				int_max Valence3 = Surface.Point(H3).GetAdjacentPointCount();
 				int_max ValenceDiff = std::abs(TargetValence0 - Valence0) + std::abs(TargetValence1 - Valence1)
 					                + std::abs(TargetValence2 - Valence2) + std::abs(TargetValence3 - Valence3);
-				auto EdgeIndex01 = Surface.FlipEdge(k, true, true);
-				if (EdgeIndex01 >= 0)
+				//if we flip the edge H0-H1, then we get new Valence
+				int_max Valence0_new = Valence0 - 1;
+				int_max Valence1_new = Valence1 - 1;
+				int_max Valence2_new = Valence2 + 1;
+				int_max Valence3_new = Valence3 + 1;
+				int_max ValenceDiff_new = std::abs(TargetValence0 - Valence0_new) + std::abs(TargetValence1 - Valence1_new)
+				                        + std::abs(TargetValence2 - Valence2_new) + std::abs(TargetValence3 - Valence3_new);
+				if (ValenceDiff_new < ValenceDiff)
 				{
-					if (EdgeIndex01 != k)
-					{
-						std::cout << "EdgeIndex01 != k" << '\n';
-						int_max aaa = 1;
-					}
-					auto AdjFaceIndexList_after = Surface.Edge(k).GetAdjacentFaceIndexList();
-					if (AdjFaceIndexList_after.GetLength() != 2)
-					{
-						std::cout << "AdjFaceIndexList_after.GetLength() = " << AdjFaceIndexList_after.GetLength() << " != 2" << '\n';
-						int_max aaa = 1;
-					}
-					int_max Valence0_after = Surface.Point(H0).GetAdjacentPointCount();
-					int_max Valence1_after = Surface.Point(H1).GetAdjacentPointCount();
-					int_max Valence2_after = Surface.Point(H2).GetAdjacentPointCount();
-					int_max Valence3_after = Surface.Point(H3).GetAdjacentPointCount();
-					int_max ValenceDiff_after = std::abs(TargetValence0 - Valence0_after) + std::abs(TargetValence1 - Valence1_after) 
-						                      + std::abs(TargetValence2 - Valence2_after) + std::abs(TargetValence3 - Valence3_after);
-					if (ValenceDiff_after > ValenceDiff)
-					{
-						Surface.FlipEdge(k, true, true);
-					}
-				}
+					Surface.FlipEdge(k, true, true);
+				}				
 			}
 		}
 	}
@@ -856,17 +849,12 @@ template<typename ScalarType>
 void IsotropicTriangleSurfaceRemesher<ScalarType>::SplitLongEdge()
 {
 	auto& Surface = Output.TargetMesh;
-	auto MaxEdgeLength = Internal.MaxEdgeLength;
-	int_max EdgeIndex = -1;
-	int_max MaxIter = Surface.GetMaxValueOfEdgeIndex()+1;
-	//while (true), it may not converge
-	for (int_max iter = 0; iter < MaxIter; ++iter)
+	auto MaxEdgeLength = Internal.MaxEdgeLength;	
+
+	DenseVector<int_max> EdgeIndexList_active;
+	int_max MaxEdgeIndex = Surface.GetMaxValueOfEdgeIndex();
+	for (int_max EdgeIndex = 0; EdgeIndex <= MaxEdgeIndex; ++EdgeIndex)
 	{
-		EdgeIndex = EdgeIndex + 1;
-		if (EdgeIndex > Surface.GetMaxValueOfEdgeIndex())
-		{
-			break;
-		}
 		if (Surface.IsValidEdgeIndex(EdgeIndex) == true)
 		{
 			bool Flag_Feature_Edge = this->IsFeatureEdge(EdgeIndex);
@@ -876,17 +864,37 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::SplitLongEdge()
 			}
 			if (Flag_Feature_Edge == false)
 			{
-				auto PointIndexList = Surface.Edge(EdgeIndex).GetPointIndexList();
-				auto Pos0 = Surface.GetPointPosition(PointIndexList[0]);
-				auto Pos1 = Surface.GetPointPosition(PointIndexList[1]);
-				auto EdgeLength = (Pos0 - Pos1).L2Norm();
-				if (EdgeLength > MaxEdgeLength)
-				{
-					//std::cout << "EdgeLength=" << EdgeLength << ",MaxEdgeLength=" << MaxEdgeLength << '\n';
-					Surface.SplitFaceAtEdge(EdgeIndex);
-				}
+				EdgeIndexList_active.Append(EdgeIndex);
 			}
 		}
+	}
+
+	while (true)
+	{
+		DenseVector<int_max> EdgeIndexList_active_new;
+		for (int_max k = 0; k < EdgeIndexList_active.GetLength(); ++k)
+		{
+			auto EdgeIndex = EdgeIndexList_active[k];
+			auto PointIndexList = Surface.Edge(EdgeIndex).GetPointIndexList();
+			auto Pos0 = Surface.GetPointPosition(PointIndexList[0]);
+			auto Pos1 = Surface.GetPointPosition(PointIndexList[1]);
+			auto EdgeLength = (Pos0 - Pos1).L2Norm();
+			if (EdgeLength > MaxEdgeLength)
+			{
+				auto Pos2 = (Pos0 + Pos1) * ScalarType(0.5);
+				auto PointIndex2 = Surface.AddPoint(Pos2);
+				Surface.SplitFaceAtEdge(EdgeIndex, PointIndex2);
+				auto EdgeIndex02 = Surface.GetEdgeIndexByPoint(PointIndexList[0], PointIndex2);
+				auto EdgeIndex12 = Surface.GetEdgeIndexByPoint(PointIndexList[1], PointIndex2);
+				if (EdgeLength > 2 * MaxEdgeLength)
+				{
+					EdgeIndexList_active_new.Append(EdgeIndex02);
+					EdgeIndexList_active_new.Append(EdgeIndex12);
+				}
+			}
+		}		
+		if (EdgeIndexList_active_new.GetLength() == 0) { break; }
+		EdgeIndexList_active = std::move(EdgeIndexList_active_new);
 	}
 }
 
