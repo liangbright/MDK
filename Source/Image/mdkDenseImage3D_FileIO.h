@@ -37,7 +37,7 @@ template<typename PixelType>
 bool Load3DScalarImageFromDICOMSeries(DenseImage3D<PixelType>& OutputImage, const String& FilePath);
 
 template<typename PixelType>
-bool Load3DScalarImageFromSingleDICOMFile(DenseImage3D<PixelType>& OutputImage, const String& FilePathAndName);
+bool Load3DScalarImageFromSingleFile(DenseImage3D<PixelType>& OutputImage, const String& FilePathAndName);
 
 }// namespace mdk
 

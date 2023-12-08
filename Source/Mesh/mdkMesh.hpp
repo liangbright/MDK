@@ -1399,48 +1399,46 @@ int_max Mesh<ScalarType>::GetCellIndexByName(const String& CellName) const
 //-------------- check Name -------------------------------------------------------//
 
 template<typename ScalarType>
-inline bool Mesh<ScalarType>::IsValidPointName(const String& PointName) const
+inline bool Mesh<ScalarType>::IsValidPointName(const String& Name) const
 {
-	if (PointName.IsEmpty() == true)
+	if (Name.IsEmpty() == true)
 	{
 		return false;
 	}
-	auto it = m_MeshData->Map_Point_Name_to_Index.find(PointName);
+	auto it = m_MeshData->Map_Point_Name_to_Index.find(Name);
 	return (it != m_MeshData->Map_Point_Name_to_Index.end());
 }
 
 template<typename ScalarType>
-inline bool Mesh<ScalarType>::IsValidEdgeName(const String& EdgeName) const
+inline bool Mesh<ScalarType>::IsValidEdgeName(const String& Name) const
 {
-	if (EdgeName.IsEmpty() == true)
+	if (Name.IsEmpty() == true)
 	{
 		return false;
 	}
-	auto it = m_MeshData->Map_Edge_Name_to_Index.find(EdgeName);
+	auto it = m_MeshData->Map_Edge_Name_to_Index.find(Name);
 	return (it != m_MeshData->Map_Edge_Name_to_Index.end());
 }
 
-
 template<typename ScalarType>
-inline bool Mesh<ScalarType>::IsValidFaceName(const String& FaceName) const
+inline bool Mesh<ScalarType>::IsValidFaceName(const String& Name) const
 {
-	if (FaceName.IsEmpty() == true)
+	if (Name.IsEmpty() == true)
 	{
 		return false;
 	}
-	auto it = m_MeshData->Map_Face_Name_to_Index.find(FaceName);
+	auto it = m_MeshData->Map_Face_Name_to_Index.find(Name);
 	return (it != m_MeshData->Map_Face_Name_to_Index.end());
 }
 
-
 template<typename ScalarType>
-inline bool Mesh<ScalarType>::IsValidCellName(const String& CellName) const
+inline bool Mesh<ScalarType>::IsValidCellName(const String& Name) const
 {
-	if (CellName.IsEmpty() == true)
+	if (Name.IsEmpty() == true)
 	{
 		return false;
 	}
-	auto it = m_MeshData->Map_Cell_Name_to_Index.find(CellName);
+	auto it = m_MeshData->Map_Cell_Name_to_Index.find(Name);
 	return (it != m_MeshData->Map_Cell_Name_to_Index.end());
 }
 
@@ -2307,6 +2305,39 @@ DenseMatrix<ScalarType> Mesh<ScalarType>::GetCellDataSet(const String& Name) con
 //------------ PointSet, EdgeSet, FaceSet, CellSet ------------------------------------------//
 
 template<typename ScalarType>
+bool Mesh<ScalarType>::IsValidPointSetName(const String& Name) const
+{
+	if (Name.IsEmpty() == true)
+	{
+		return false;
+	}
+	auto it = m_MeshData->Map_PointSet_Name_to_Index.find(Name);
+	return (it != m_MeshData->Map_PointSet_Name_to_Index.end());
+}
+
+template<typename ScalarType>
+bool Mesh<ScalarType>::IsValidFaceSetName(const String& Name) const
+{
+	if (Name.IsEmpty() == true)
+	{
+		return false;
+	}
+	auto it = m_MeshData->Map_FaceSet_Name_to_Index.find(Name);
+	return (it != m_MeshData->Map_FaceSet_Name_to_Index.end());
+}
+
+template<typename ScalarType>
+bool Mesh<ScalarType>::IsValidCellSetName(const String& Name) const
+{
+	if (Name.IsEmpty() == true)
+	{
+		return false;
+	}
+	auto it = m_MeshData->Map_CellSet_Name_to_Index.find(Name);
+	return (it != m_MeshData->Map_CellSet_Name_to_Index.end());
+}
+
+template<typename ScalarType>
 int_max Mesh<ScalarType>::AddPointSet(const String& Name)
 {
 	DenseVector<int_max> PointIndexList;
@@ -2321,7 +2352,6 @@ int_max Mesh<ScalarType>::AddPointSet(const String& Name, DenseVector<int_max> P
 		MDK_Error("Name is Empty @ Mesh::AddPointSet(...)")
 		return -1;
 	}
-
 	auto it = m_MeshData->Map_PointSet_Name_to_Index.find(Name);
 	if (it != m_MeshData->Map_PointSet_Name_to_Index.end())
 	{		

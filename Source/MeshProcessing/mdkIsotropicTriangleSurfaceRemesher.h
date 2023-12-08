@@ -28,6 +28,9 @@ struct Input_of_IsotropicTriangleSurfaceRemesher
 	DenseVector<DenseVector<int_max>> FeatureCurveList;
 
 	ScalarType TargetEdgeLength;
+	ScalarType TargetEdgeLength_Ratio_Max;
+	ScalarType TargetEdgeLength_Ratio_Min;
+
 	int_max MaxIter;
 	
 	//false, then boundary (point, edge) will not be modified

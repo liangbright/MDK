@@ -232,28 +232,23 @@ bool Load3DScalarImageFromDICOMSeries(DenseImage3D<PixelType>& OutputImage, cons
 	return ConvertITK3DScalarImageToMDK3DScalarImage(ITKImageReader->GetOutput(), OutputImage);
 }
 
-
 template<typename PixelType>
-bool Load3DScalarImageFromSingleDICOMFile(DenseImage3D<PixelType>& OutputImage, const String& FilePathAndName)
-{
+bool Load3DScalarImageFromSingleFile(DenseImage3D<PixelType>& OutputImage, const String& FilePathAndName)
+{//read a single dicom or nrrd file
     typedef itk::Image<PixelType, 3>  ITKImageType;
 	typedef itk::ImageFileReader<ITKImageType> ITKImageReaderType;
-
     ITKImageReaderType::Pointer  ITKImageReader = ITKImageReaderType::New();
-
     ITKImageReader->SetFileName(FilePathAndName.StdString());
-
     try
     {
         ITKImageReader->Update();
     }
     catch (itk::ExceptionObject & err)
     {
-        std::cerr << "ExceptionObject caught while reading the dicom file @ Load3DScalarImageFromSingleDICOMFile(...)" << std::endl;
+        std::cerr << "ExceptionObject caught while reading the dicom file @ Load3DScalarImageFromSingleFile(...)" << std::endl;
         std::cerr << err << std::endl;
         return false;
     }
-
 	return ConvertITK3DScalarImageToMDK3DScalarImage(ITKImageReader->GetOutput(), OutputImage);
 }
 

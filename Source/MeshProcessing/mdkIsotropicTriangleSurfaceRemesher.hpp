@@ -20,7 +20,10 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::Reset()
 	Input.SourceMesh = nullptr;
 	Input.FeaturePointIndexList.Clear();
 	Input.FeatureEdgeIndexList.Clear();
-	Input.TargetEdgeLength = -1;
+	Input.FeatureCurveList.Clear();
+	Input.TargetEdgeLength = 0;
+	Input.TargetEdgeLength_Ratio_Max = ScalarType(1.4);
+	Input.TargetEdgeLength_Ratio_Min = ScalarType(0.7);
 	Input.MaxIter = 10;
 	Input.Flag_ProcessBounary = true;
 	Input.Flag_ProjectToSourceMesh = true;
@@ -56,9 +59,7 @@ bool IsotropicTriangleSurfaceRemesher<ScalarType>::CheckInput()
 	}
 
 	if (Input.SourceMesh->Check_If_DataStructure_is_Clean() == false)
-	{
-		//MDK_Warning("InputMesh DataStructure is NOT Clean @ IsotropicTriangleSurfaceRemesher::CheckInput()")
-		//return nothing;
+	{//this remesher supports non-clean input				
 	}
 
 	if (Input.SourceMesh->CheckIfTriangleMesh() == false)
@@ -69,11 +70,10 @@ bool IsotropicTriangleSurfaceRemesher<ScalarType>::CheckInput()
 
 	if (Input.TargetEdgeLength <= 0)
 	{
-		MDK_Error("TargetEdgeLength is NOT specified @ IsotropicTriangleSurfaceRemesher::CheckInput()")
+		MDK_Error("TargetEdgeLength <= 0 @ IsotropicTriangleSurfaceRemesher::CheckInput()")
 		return false;
 	}
-
-	//check FeaturePointIndexList
+	
 	for (int_max k = 0; k < Input.FeaturePointIndexList.GetLength(); ++k)
 	{
 		if (Input.SourceMesh->IsValidPointIndex(Input.FeaturePointIndexList[k]) == false)
@@ -82,7 +82,7 @@ bool IsotropicTriangleSurfaceRemesher<ScalarType>::CheckInput()
 			return false;
 		}
 	}
-
+	
 	for (int_max k = 0; k < Input.FeatureEdgeIndexList.GetLength(); ++k)
 	{
 		if (Input.SourceMesh->IsValidEdgeIndex(Input.FeatureEdgeIndexList[k]) == false)
@@ -91,8 +91,19 @@ bool IsotropicTriangleSurfaceRemesher<ScalarType>::CheckInput()
 			return false;
 		}
 	}
-
-	//check mesh
+	
+	for (int_max n = 0; n < Input.FeatureCurveList.GetLength(); ++n)
+	{
+		for (int_max k = 0; k < Input.FeatureCurveList[n].GetLength(); ++k)
+		{
+			if (Input.SourceMesh->IsValidPointIndex(Input.FeatureCurveList[n][k]) == false)
+			{
+				MDK_Error("Input FeatureCurveList has invalid PointIndex @ IsotropicTriangleSurfaceRemesher::CheckInput()")
+				return false;
+			}
+		}
+	}
+	
 	for (int_max k = 0; k <= Input.SourceMesh->GetMaxValueOfEdgeIndex(); ++k)
 	{
 		if (Input.SourceMesh->IsValidEdgeIndex(k) == true)
@@ -193,8 +204,8 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::Initialize()
 	Internal.CellLocator_of_SourceMesh_vtk->SetDataSet(Internal.SourceMesh_vtk);
 	Internal.CellLocator_of_SourceMesh_vtk->BuildLocator();
 	//--------------------------------------------------------------------
-	Internal.MaxEdgeLength = ScalarType(1.4)*Input.TargetEdgeLength;
-	Internal.MinEdgeLength = ScalarType(0.7)*Input.TargetEdgeLength;
+	Internal.MaxEdgeLength = Input.TargetEdgeLength_Ratio_Max*Input.TargetEdgeLength;
+	Internal.MinEdgeLength = Input.TargetEdgeLength_Ratio_Min*Input.TargetEdgeLength;
 	//--------------------------------------------------------------------
 	auto PointIndex_MAX = Input.SourceMesh->GetMaxValueOfPointIndex();
 	Internal.PointFlagList.Clear();

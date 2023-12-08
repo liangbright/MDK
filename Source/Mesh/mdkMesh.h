@@ -257,10 +257,10 @@ public:
 
 	//-------------- check Name -------------------------------------------------------//
 	// true: exist, false: not-exist
-	inline bool IsValidPointName(const String& PointName) const;
-	inline bool IsValidEdgeName(const String& EdgeName) const;	
-	inline bool IsValidFaceName(const String& FaceName) const;
-	inline bool IsValidCellName(const String& CellName) const;
+	inline bool IsValidPointName(const String& Name) const;
+	inline bool IsValidEdgeName(const String& Name) const;	
+	inline bool IsValidFaceName(const String& Name) const;
+	inline bool IsValidCellName(const String& Name) const;
 
 	//--------- get Valid NameList ------------------------------------------------------------//
 	StdObjectVector<String> GetValidPointNameList() const;
@@ -346,6 +346,10 @@ public:
 
 	//------------ PointSet, EdgeSet, FaceSet, CellSet ------------------------------------------//
 	// PointSet/EdgeSet/FaceSet/CellSet will be updated in CleanDataStructure
+	bool IsValidPointSetName(const String& Name) const;
+	bool IsValidFaceSetName(const String& Name) const;
+	bool IsValidCellSetName(const String& Name) const;
+
 	int_max AddPointSet(const String& Name);//empty set
 	int_max AddPointSet(const String& Name, DenseVector<int_max> PointIndexList);
 	void ChangePointSetName(int_max Index, const String& Name_new);

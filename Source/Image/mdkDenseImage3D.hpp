@@ -2209,7 +2209,6 @@ DenseImage3D<PixelType>::Pad(PixelType Pixel, int_max Pad_Lx, int_max Pad_Ly, in
 	return SubImage;
 }
 
-
 template<typename PixelType>
 DenseImage3D<PixelType>
 DenseImage3D<PixelType>::UnPad(int_max Pad_Lx, int_max Pad_Ly, int_max Pad_Lz) const
@@ -2240,6 +2239,47 @@ DenseImage3D<PixelType>::UnPad(int_max Pad_Lx, int_max Pad_Ly, int_max Pad_Lz) c
     return this->GetSubImage(Pad_Lx, Size[0] - 1 - Pad_Lx,
                              Pad_Ly, Size[1] - 1 - Pad_Ly,
                              Pad_Lz, Size[2] - 1 - Pad_Lz);
+}
+
+template<typename PixelType>
+PixelType DenseImage3D<PixelType>::Sum() const
+{
+	PixelType Value = (*this)[0];
+	for (int_max k = 1; k < this->GetPixelCount(); ++k)
+	{
+		Value += (*this)[k];
+	}
+	return Value;
+}
+
+template<typename PixelType>
+PixelType DenseImage3D<PixelType>::Mean() const
+{
+	auto Value = this->Sum();
+	Value /= this->GetPixelCount();
+	return Value;
+}
+
+template<typename PixelType>
+PixelType DenseImage3D<PixelType>::Max() const
+{
+	PixelType Value = (*this)[0];
+	for (int_max k = 1; k < this->GetPixelCount(); ++k)
+	{
+		if ((*this)[k] > Value) { Value = (*this)[k]; }
+	}
+	return Value;
+}
+
+template<typename PixelType>
+PixelType DenseImage3D<PixelType>::Min() const
+{
+	PixelType Value = (*this)[0];
+	for (int_max k = 1; k < this->GetPixelCount(); ++k)
+	{
+		if ((*this)[k] < Value) { Value = (*this)[k]; }
+	}
+	return Value;
 }
 
 }//end namespace mdk
