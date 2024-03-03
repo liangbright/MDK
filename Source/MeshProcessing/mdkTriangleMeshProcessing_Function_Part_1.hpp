@@ -4,7 +4,7 @@ namespace mdk
 {
 
 template<typename ScalarType>
-DenseVector<int_max> ResampleOpenCurveOfSurface(TriangleMesh<ScalarType>& Surface, const DenseVector<int_max>& CurvePointIndexList_input, const DenseMatrix<ScalarType>& Curve_output)
+DenseVector<int_max> ResampleOpenCurveOfSurface_old(TriangleMesh<ScalarType>& Surface, const DenseVector<int_max>& CurvePointIndexList_input, const DenseMatrix<ScalarType>& Curve_output)
 {
 	//CurvePointIndexList_input: an open boundary curve on Surface, CurvePointIndexList_input[0] is the start point, CurvePointIndexList_input[end] is the end point	
 	//point order in CurvePointIndexList_input must align with normal direction, so new face will have consistant normal direction
@@ -74,7 +74,7 @@ DenseVector<int_max> ResampleOpenCurveOfSurface(TriangleMesh<ScalarType>& Surfac
 	DenseVector<int_max> CurvePointIndexList_input_output;
 	CurvePointIndexList_input_output.SetCapacity(Curve_output.GetColCount()+ CurvePointIndexList_input.GetLength());
 	//
-	DenseVector<int_max> CurvePointFlagList_input_output;//0: input, 1: output (including start end point)
+	DenseVector<int_max> CurvePointFlagList_input_output;//0: input, 1: output (including start point and end point)
 	CurvePointFlagList_input_output.SetCapacity(Curve_output.GetColCount() + CurvePointIndexList_input.GetLength());	
 	//
 	CurvePointIndexList_output.SetCapacity(Curve_output.GetColCount());
@@ -215,6 +215,184 @@ DenseVector<int_max> ResampleOpenCurveOfSurface(TriangleMesh<ScalarType>& Surfac
 	return CurvePointIndexList_output;
 }
 
+template<typename ScalarType>
+DenseVector<int_max> ResampleOpenCurveOfSurface(TriangleMesh<ScalarType>& Surface, const DenseVector<int_max>& CurvePointIndexList_input, const DenseMatrix<ScalarType>& Curve_output)
+{
+	//CurvePointIndexList_input: an open boundary curve on Surface, CurvePointIndexList_input[0] is the start point, CurvePointIndexList_input[end] is the end point	
+	//point order in CurvePointIndexList_input must align with normal direction, so new face will have consistant normal direction
+	//Curve_output is the target, Curve_output(:,k) is a 3D point
+	//Curve_output should be close to the orignial boundary on InputMesh
+	//This function works for non-boundary curve on Surface
+	//This function will crash if CurvePointIndexList_input has self-intersection  ___|___
+
+	DenseVector<int_max> CurvePointIndexList_output;
+	//------------------- check input ----------------------------------------//
+	if (CurvePointIndexList_input.GetLength() < 2)
+	{
+		MDK_Error("CurvePointIndexList_input.GetLength() < 2, abort @ TriangMeshProcessing ResampleOpenCurveOfSurface(...)")
+		return CurvePointIndexList_output;
+	}
+	for (int_max k = 0; k < CurvePointIndexList_input.GetLength(); ++k)
+	{
+		if (Surface.IsValidPointIndex(CurvePointIndexList_input[k]) == false)
+		{
+			MDK_Error("CurvePointIndexList_input is invalid, abort @ TriangMeshProcessing ResampleOpenCurveOfSurface(...)")
+			return CurvePointIndexList_output;
+		}
+	}
+	if (CurvePointIndexList_input[0] == CurvePointIndexList_input[CurvePointIndexList_input.GetLength() - 1])
+	{
+		MDK_Error("CurvePointIndexList_input is a closed curve, abort @ TriangMeshProcessing ResampleOpenCurveOfSurface(...)")
+		return CurvePointIndexList_output;
+	}
+	if (Curve_output.GetColCount() < 2)
+	{
+		MDK_Error("Curve_output.GetColCount() < 2, abort @ TriangMeshProcessing ResampleOpenCurveOfSurface(...)")
+		return CurvePointIndexList_output;
+	}
+	//-------------------- input check done ------------------------------------//
+
+	//---------- handle a simple case : 2 points ----------------------------------------//
+	if ((CurvePointIndexList_input.GetLength() == 2) && (Curve_output.GetColCount() == 2))
+	{
+		DenseVector<ScalarType, 3> Pos_start, Pos_end;
+		Curve_output.GetCol(0, Pos_start);
+		Curve_output.GetCol(1, Pos_end);
+		Surface.SetPointPosition(CurvePointIndexList_input[0], Pos_start);
+		Surface.SetPointPosition(CurvePointIndexList_input[1], Pos_end);
+		CurvePointIndexList_output.Append(CurvePointIndexList_input[0]);
+		CurvePointIndexList_output.Append(CurvePointIndexList_input[1]);
+		return CurvePointIndexList_output;
+	}
+	//--------------------------- the simple case is done ------------------------------//
+
+	auto Curve_input = Surface.GetPointPosition(CurvePointIndexList_input);
+	auto ParamCurve_input = ComputeCumulative3DCurveLengthList(Curve_input);
+	ParamCurve_input /= ParamCurve_input[ParamCurve_input.GetLength() - 1];
+
+	auto ParamCurve_output = ComputeCumulative3DCurveLengthList(Curve_output);
+	ParamCurve_output /= ParamCurve_output[ParamCurve_output.GetLength() - 1];
+
+	//start/end point of input boundary and output boundary share the same index
+	{
+		DenseVector<ScalarType, 3> Pos_start, Pos_end;
+		Curve_output.GetCol(0, Pos_start);
+		Curve_output.GetCol(Curve_output.GetColCount() - 1, Pos_end);
+		Surface.SetPointPosition(CurvePointIndexList_input[0], Pos_start);
+		Surface.SetPointPosition(CurvePointIndexList_input[CurvePointIndexList_input.GetLength() - 1], Pos_end);
+	}
+	//add new points to Surface
+	CurvePointIndexList_output.Append(CurvePointIndexList_input[0]);
+	for (int_max k = 1; k < Curve_output.GetColCount() - 1; ++k)
+	{
+		auto PointIndex_new = Surface.AddPoint(Curve_output(0, k), Curve_output(1, k), Curve_output(2, k));
+		CurvePointIndexList_output.Append(PointIndex_new);
+	}
+	CurvePointIndexList_output.Append(CurvePointIndexList_input[CurvePointIndexList_input.GetLength() - 1]);
+
+	DenseVector<int_max> CurvePointIndexList_all;// indexes of old and new points
+	DenseVector<int_max> CurvePointFlagList_all;//0: old point; 1: new point
+	DenseVector<ScalarType> ParamCurve_all;// param values of old and new points
+	//add each new point to an edge
+	for (int_max k = 0; k < CurvePointIndexList_input.GetLength() - 1; ++k)
+	{
+		CurvePointIndexList_all.Append(CurvePointIndexList_input[k]);
+		if (k == 0) { CurvePointFlagList_all.Append(1); }
+		else { CurvePointFlagList_all.Append(0); }
+		ParamCurve_all.Append(ParamCurve_input[k]);
+		DenseVector<int_max> NewPointIndexList_on_Edge;
+		for (int_max n = 1; n < ParamCurve_output.GetLength() - 1; ++n)
+		{
+			if (ParamCurve_output[n] >= ParamCurve_input[k] && ParamCurve_output[n] < ParamCurve_input[k + 1])
+			{
+				NewPointIndexList_on_Edge.Append(CurvePointIndexList_output[n]);
+				CurvePointIndexList_all.Append(CurvePointIndexList_output[n]);
+				CurvePointFlagList_all.Append(1);
+				ParamCurve_all.Append(ParamCurve_output[n]);
+			}
+		}
+		//split this edge
+		auto PointIndexA = CurvePointIndexList_input[k];
+		auto PointIndexB = CurvePointIndexList_input[k + 1];
+		for (int_max m = 0; m < NewPointIndexList_on_Edge.GetLength(); ++m)
+		{
+			auto EdgeIndex = Surface.GetEdgeIndexByPoint(PointIndexA, PointIndexB);
+			Surface.SplitEdge(EdgeIndex, NewPointIndexList_on_Edge[m]);
+			PointIndexA = NewPointIndexList_on_Edge[m];
+		}
+	}
+	CurvePointIndexList_all.Append(CurvePointIndexList_input[CurvePointIndexList_input.GetLength()-1]);
+	CurvePointFlagList_all.Append(1);
+	ParamCurve_all.Append(ParamCurve_input[ParamCurve_input.GetLength()-1]);
+	//collapse edge between each pair of new points if necessary
+	DenseVector<int_max> PointIndexList_collapsed;
+	for (int_max k = 0; k < CurvePointIndexList_all.GetLength() - 1; ++k)
+	{
+		if (CurvePointFlagList_all[k] > 0)
+		{
+			int_max k_next = -1;
+			for (int_max n = k + 1; n < CurvePointIndexList_all.GetLength(); ++n)
+			{
+				if (CurvePointFlagList_all[n] > 0)
+				{
+					k_next = n;
+					break;
+				}
+			}
+			if (k_next < 0)
+			{
+				MDK_Error("Something is wrong CurvePointFlagList_all, abort @ TriangMeshProcessing ResampleOpenCurveOfSurface(...)")
+				return CurvePointIndexList_output;
+			}
+			if (k_next == k + 1) continue;
+			//now: CurvePointFlagList_all[k] is 1 and CurvePointFlagList_all[k_next] is 1
+			DenseVector<int_max> PointIndexList_collapse_to_k;
+			for (int_max m = k + 1; m < k_next; ++m)
+			{
+				int_max PointIndex_other = -1;
+				if ((std::abs)(ParamCurve_all[m] - ParamCurve_all[k]) <= (std::abs)(ParamCurve_all[m] - ParamCurve_all[k_next]))
+				{
+					PointIndexList_collapse_to_k.Append(CurvePointIndexList_all[m]);
+				}
+			}
+			DenseVector<int_max> PointIndexList_collapse_to_k_next;
+			for (int_max m = k_next - 1; m > k; --m)
+			{
+				if ((std::abs)(ParamCurve_all[m] - ParamCurve_all[k]) > (std::abs)(ParamCurve_all[m] - ParamCurve_all[k_next]))
+				{
+					PointIndexList_collapse_to_k_next.Append(CurvePointIndexList_all[m]);
+				}
+			}
+			for (int_max m = 0; m < PointIndexList_collapse_to_k.GetLength(); ++m)
+			{
+				auto EdgeIndex = Surface.GetEdgeIndexByPoint(PointIndexList_collapse_to_k[m], CurvePointIndexList_all[k]);
+				auto Flag = Surface.CollapseEdge(EdgeIndex, CurvePointIndexList_all[k], true, true);
+				if (Flag == false)
+				{
+					MDK_Error("Please modify the mesh to remove special case, abort @ TriangMeshProcessing ResampleOpenCurveOfSurface(...)")
+					return CurvePointIndexList_output;
+				}
+				PointIndexList_collapsed.Append(PointIndexList_collapse_to_k[m]);
+			}
+			for (int_max m = 0; m < PointIndexList_collapse_to_k_next.GetLength(); ++m)
+			{
+				auto EdgeIndex = Surface.GetEdgeIndexByPoint(PointIndexList_collapse_to_k_next[m], CurvePointIndexList_all[k_next]);
+				auto Flag = Surface.CollapseEdge(EdgeIndex, CurvePointIndexList_all[k_next], true, true);
+				if (Flag == false)
+				{
+					MDK_Error("Please modify the mesh to remove special case, abort @ TriangMeshProcessing ResampleOpenCurveOfSurface(...)")
+					return CurvePointIndexList_output;
+				}
+				PointIndexList_collapsed.Append(PointIndexList_collapse_to_k_next[m]);
+			}
+		}
+	}
+	if (PointIndexList_collapsed.GetLength() + 2 != CurvePointIndexList_input.GetLength())
+	{
+		MDK_Error("PointIndexList_collapsed.GetLength() + 2 != CurvePointIndexList_input.GetLength()@ TriangMeshProcessing ResampleOpenCurveOfSurface(...)")
+	}
+	return CurvePointIndexList_output;
+}
 
 template<typename ScalarType>
 DenseVector<int_max> ResampleOpenCurveOfSurface(TriangleMesh<ScalarType>& Surface, const DenseVector<int_max>& CurvePointIndexList_input, const int_max PointCountOfCurve_output)
@@ -254,6 +432,18 @@ DenseVector<int_max> ResampleOpenCurveOfSurface(TriangleMesh<ScalarType>& Surfac
 template<typename ScalarType>
 int_max ProjectPoint_AddProjectedPoint_ToSurface(TriangleMesh<ScalarType>& Surface, const DenseVector<ScalarType, 3>& Point, ScalarType DistanceThreshold)
 {
+	if (Surface.Check_If_DataStructure_is_Clean() == false)
+	{// to use VTK functions, the input Surface must have clean DataStructure
+		MDK_Error("Surface DataStructure is NOT Clean @ ProjectPoint_AddProjectedPoint_ToSurface")
+		return -1;
+	}
+
+	if (Surface.CheckIfTriangleMesh() == false)
+	{
+		MDK_Error("Surface is NOT TriangleMesh @ ProjectPoint_AddProjectedPoint_ToSurface")
+		return -1;
+	}
+
 	int_max FaceIndex_nearest = -1;
 	int_max PointIndex_nearest = -1;
 	DenseVector<ScalarType, 3> Point_proj;
@@ -327,7 +517,7 @@ int_max ProjectPoint_AddProjectedPoint_ToSurface(TriangleMesh<ScalarType>& Surfa
 	auto Idx_min = CosAngleList.IndexOfMin();
 	if (CosAngleList[Idx_min] < -0.95) // cos(162)=-0.95
 	{//on edge
-		Surface.SplitFaceAtEdge(EdgeIndexList[Idx_min], H3);
+		Surface.SplitEdge(EdgeIndexList[Idx_min], H3);
 	}
 	else
 	{//now, the input point is not on any edge
@@ -341,29 +531,21 @@ int_max ProjectPoint_AddProjectedPoint_ToSurface(TriangleMesh<ScalarType>& Surfa
 
 template<typename ScalarType>
 DenseVector<int_max> ProjectPoint_AddProjectedPoint_ToSurface(TriangleMesh<ScalarType>& Surface, const DenseMatrix<ScalarType>& PointSet, ScalarType DistanceThreshold)
-{// Surface.CleanDataStructure(): FaceIndex, EdgeIndex may become invalid
-	if (Surface.Check_If_DataStructure_is_Clean() == false)
-	{
-		MDK_Error("Surface DataStructureis NOT Clean @ ProjectPoint_AddProjectedPoint_ToSurface")
-		DenseVector<int_max> empty;
-		return empty;
-	}
-
-	if (Surface.CheckIfTriangleMesh() == false)
-	{
-		MDK_Error("Surface is NOT TriangleMesh @ ProjectPoint_AddProjectedPoint_ToSurface")
-		DenseVector<int_max> empty;
-		return empty;
-	}
+{// FaceIndex and EdgeIndex may become invalid because of Surface.CleanDataStructure() in this function
+ // PointSet: no duplicated points, two identical points in PointSet may be projected to two different points on Surface due to numerical precision issue	
+	DenseMatrix<ScalarType> ProjPointSet(PointSet.GetSize());
 	for (int_max k = 0; k < PointSet.GetColCount(); ++k)
 	{
-		DenseVector<ScalarType, 3> Point;
+		DenseVector<ScalarType, 3> Point, ProjPoint;
 		PointSet.GetCol(k, Point);
 		Surface.CleanDataStructure();
-		ProjectPoint_AddProjectedPoint_ToSurface(Surface, Point, DistanceThreshold);
+		auto idx = ProjectPoint_AddProjectedPoint_ToSurface(Surface, Point, DistanceThreshold);
+		Surface.GetPointPosition(idx, ProjPoint);
+		ProjPointSet.SetCol(k, ProjPoint);
 	}
 	Surface.CleanDataStructure();
-	auto PointIndexList = FindNearestPointOnMeshByVTKKdTreePointLocator(Surface, PointSet);
+	DenseVector<int_max> PointIndexList;
+	PointIndexList = FindNearestPointOnMeshByVTKKdTreePointLocator(Surface, ProjPointSet);
 	return PointIndexList;
 }
 

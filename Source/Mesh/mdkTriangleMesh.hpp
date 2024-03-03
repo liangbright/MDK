@@ -1308,9 +1308,8 @@ int_max TriangleMesh<ScalarType>::FlipEdge(int_max EdgeIndex01, bool Flag_ReuseE
 
 }
 
-
 template<typename ScalarType>
-DenseVector<int_max> TriangleMesh<ScalarType>::SplitFaceAtEdge(int_max EdgeIndex12, int_max PointIndex0)
+DenseVector<int_max> TriangleMesh<ScalarType>::SplitEdge(int_max EdgeIndex12, int_max PointIndex0)
 {
 //one/two/more face share Edge12
 //split Edge12 at Point0
@@ -1328,25 +1327,25 @@ DenseVector<int_max> TriangleMesh<ScalarType>::SplitFaceAtEdge(int_max EdgeIndex
 //point order 1->2->3 in Face012
 //------------------------------
 
-	DenseVector<int_max> FaceIndexList_output;
+	DenseVector<int_max> EdgeIndexList_output;
 
 	if (this->IsValidEdgeIndex(EdgeIndex12) == false)
 	{
 		MDK_Error("Invalid EdgeIndex12, abort @ TriangleMesh::SplitFaceAtEdge(...)")
-		return FaceIndexList_output;
+		return EdgeIndexList_output;
 	}
 
 	if (this->IsValidPointIndex(PointIndex0) == false)
 	{
 		MDK_Error("Invalid PointIndex0, abort @ TriangleMesh::SplitFaceAtEdge(...)")
-		return FaceIndexList_output;
+		return EdgeIndexList_output;
 	}
 
 	auto PointIndexList_Edge12 = this->Edge(EdgeIndex12).GetPointIndexList();
 	if (PointIndexList_Edge12[0] == PointIndex0 || PointIndexList_Edge12[1] == PointIndex0)
 	{
 		MDK_Error("Input Edge contain Input Point @ TriangleMesh::SplitFaceAtEdge(...)")
-		return FaceIndexList_output;
+		return EdgeIndexList_output;
 	}
 
 	auto AdjFaceIndexList_Edge12 = this->Edge(EdgeIndex12).GetAdjacentFaceIndexList();
@@ -1383,30 +1382,34 @@ DenseVector<int_max> TriangleMesh<ScalarType>::SplitFaceAtEdge(int_max EdgeIndex
 		this->DeleteFace(FaceIndex123);
 		auto FaceIndex103 = this->AddFaceByPoint(H1, H0, H3);
 		auto FaceIndex023 = this->AddFaceByPoint(H0, H2, H3);
-		FaceIndexList_output.Append(FaceIndex103);
-		FaceIndexList_output.Append(FaceIndex023);
+		//FaceIndexList_output.Append(FaceIndex103);
+		//FaceIndexList_output.Append(FaceIndex023);
 	}
 	this->DeleteEdge(EdgeIndex12);
-	return FaceIndexList_output;
+	//output
+	auto EdgeIndex1 = this->GetEdgeIndexByPoint(PointIndexList_Edge12[0], PointIndex0);
+	auto EdgeIndex2 = this->GetEdgeIndexByPoint(PointIndexList_Edge12[1], PointIndex0);
+	EdgeIndexList_output.Append(EdgeIndex1);
+	EdgeIndexList_output.Append(EdgeIndex2);
+	return EdgeIndexList_output;
 }
 
-
 template<typename ScalarType>
-DenseVector<int_max> TriangleMesh<ScalarType>::SplitFaceAtEdge(int_max EdgeIndex12)
+DenseVector<int_max> TriangleMesh<ScalarType>::SplitEdge(int_max EdgeIndex12)
 {
-	DenseVector<int_max> FaceIndexList_output;
+	DenseVector<int_max> EdgeIndexList_output;
 	if (this->IsValidEdgeIndex(EdgeIndex12) == false)
 	{
 		MDK_Error("Invalid EdgeIndex12 @ TriangleMesh::SplitFaceAtEdge(...)")
-		return FaceIndexList_output;
+		return EdgeIndexList_output;
 	}
 	auto PointIndexList = this->Edge(EdgeIndex12).GetPointIndexList();
 	auto PosA = this->GetPointPosition(PointIndexList[0]);
 	auto PosB = this->GetPointPosition(PointIndexList[1]);
 	auto PosC = (PosA + PosB)*ScalarType(0.5);
 	auto PointIndex0 = this->AddPoint(PosC);
-	FaceIndexList_output = this->SplitFaceAtEdge(EdgeIndex12, PointIndex0);
-	return FaceIndexList_output;
+	EdgeIndexList_output = this->SplitEdge(EdgeIndex12, PointIndex0);
+	return EdgeIndexList_output;
 }
 
 }// namespace mdk

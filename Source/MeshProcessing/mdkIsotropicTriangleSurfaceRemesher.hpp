@@ -308,7 +308,7 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::SplitLongBoundaryEdge()
 					auto EdgeLength = (Pos0 - Pos1).L2Norm();
 					if (EdgeLength > MaxEdgeLength)
 					{
-						Surface.SplitFaceAtEdge(EdgeIndex);
+						Surface.SplitEdge(EdgeIndex);
 					}
 				}
 			}
@@ -894,7 +894,7 @@ void IsotropicTriangleSurfaceRemesher<ScalarType>::SplitLongEdge()
 			{
 				auto Pos2 = (Pos0 + Pos1) * ScalarType(0.5);
 				auto PointIndex2 = Surface.AddPoint(Pos2);
-				Surface.SplitFaceAtEdge(EdgeIndex, PointIndex2);
+				Surface.SplitEdge(EdgeIndex, PointIndex2);
 				auto EdgeIndex02 = Surface.GetEdgeIndexByPoint(PointIndexList[0], PointIndex2);
 				auto EdgeIndex12 = Surface.GetEdgeIndexByPoint(PointIndexList[1], PointIndex2);
 				if (EdgeLength > 2 * MaxEdgeLength)

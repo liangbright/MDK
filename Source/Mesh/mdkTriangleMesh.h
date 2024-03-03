@@ -97,14 +97,14 @@ public:
 	//return flipped EdgeIndex
 	int_max FlipEdge(int_max EdgeIndex01, bool Flag_ReuseEdgeIndex = false, bool Flag_ReuseFaceIndex = false);//only support 2 face sharing an edge
 
-	//split face sharing edge, splitting point is PointIndex (not any point of edge)
-	//output new face index list
-	DenseVector<int_max> SplitFaceAtEdge(int_max EdgeIndex12, int_max PointIndex0);
+	//split face sharing edge, splitting point is PointIndex0 (not any point of edge)
+	//output new edge index list
+	DenseVector<int_max> SplitEdge(int_max EdgeIndex12, int_max PointIndex0);
 
-	//add a middle point of the edge to the mesh, get PointIndex0
-	//then call SplitFaceAtEdge(EdgeIndex12, PointIndex0)
+	//add a middle point of the edge to the mesh to get PointIndex0
+	//then call SplitEdge(EdgeIndex12, PointIndex0)
 	//PointIndex0 will NOT be returned
-	DenseVector<int_max> SplitFaceAtEdge(int_max EdgeIndex12);
+	DenseVector<int_max> SplitEdge(int_max EdgeIndex12);
 };
 
 }// namespace mdk
